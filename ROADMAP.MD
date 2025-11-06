@@ -125,46 +125,54 @@
 
 ---
 
-## ÉPICO 4: Interface Streamlit com Transparência
+## ÉPICO 4: Interface CLI e Streamlit (Opcional)
 
-**Objetivo:** Interface web mostrando conversa + logs de decisão/reasoning em tempo real.
+**Objetivo:** CLI interativa como interface principal, permitindo Claude Code testar autonomamente via terminal. Streamlit opcional para visualização posterior.
 
-### 4.1 Chat Básico no Streamlit
+### 4.1 CLI Interativa Básica
 
-**Descrição:** Interface de chat onde usuário interage com o sistema
+**Descrição:** Interface de conversa via terminal com input/output de texto
+
+**Critérios de Aceite:**
+- Script `cli.py` inicia conversa interativa no terminal
+- Usuário digita mensagem → sistema responde via text output
+- Loop de conversa contínuo (até comando `exit` ou `quit`)
+- Claude Code consegue executar e testar sozinho sem browser
+- README atualizado com comando `python cli.py`
+- Erros exibidos claramente no terminal
+
+---
+
+### 4.2 Painel de Logs no Terminal
+
+**Descrição:** Logs formatados em tempo real no terminal mostrando reasoning e decisões
+
+**Critérios de Aceite:**
+- Logs com cores/símbolos para destacar componentes:
+  - `🎯 Orquestrador decidiu: call_methodologist`
+  - `🧪 Metodologista analisando...`
+  - `✅ Resultado: approved`
+- Usa `colorama` ou similar para formatação
+- Mostra decisões do orquestrador antes de chamar agentes
+- Logs de debug podem ser ativados/desativados via flag `--verbose`
+- Output estruturado em seções legíveis
+
+---
+
+### 4.3 Interface Streamlit (Opcional)
+
+**Descrição:** Interface web para visualização posterior - usuário roda localmente quando quiser
+
+**⚠️ NOTA:** Esta tarefa é opcional e não bloqueia desenvolvimento. Streamlit pode não funcionar no ambiente Claude Code (porta web). Priorizar CLI para desenvolvimento iterativo.
 
 **Critérios de Aceite:**
 - Página Streamlit com input de texto e histórico de mensagens
-- Usuário envia mensagem → aparece no chat
-- Sistema responde → aparece no chat
-- Comando `streamlit run app.py` inicia interface
-- README atualizado com instruções
-
----
-
-### 4.2 Painel de Logs e Decisões
-
-**Descrição:** Sidebar ou expander mostrando reasoning e decisões dos agentes
-
-**Critérios de Aceite:**
 - Sidebar exibe logs em tempo real
-- Mostra: "Orquestrador decidiu: call_methodologist"
-- Mostra: "Metodologista analisando..."
-- Mostra: resultado estruturado do Metodologista
-- Logs rolam automaticamente (mais recente no topo)
-- Possível limpar logs
-
----
-
-### 4.3 Indicadores Visuais de Estado
-
-**Descrição:** Feedback visual do que está acontecendo no sistema
-
-**Critérios de Aceite:**
-- Spinner aparece durante processamento
-- Badge mostra qual agente está ativo (ex: "🤖 Metodologista")
+- Mostra reasoning do Orquestrador e Metodologista
+- Indicadores visuais: spinner, badges de agente ativo
 - Mensagens do sistema visualmente distintas das do usuário
-- Erros exibidos claramente (ex: falha de API)
+- Comando `streamlit run app.py` inicia interface
+- Documentação separada em README indicando uso opcional
 
 ---
 
@@ -220,6 +228,9 @@
 - **Retry logic** e fallbacks para API failures
 - Suporte a **múltiplas conversas simultâneas**
 - **Export** de conversa (Markdown, PDF)
+- **Hot reload na CLI:** recarregar agentes sem reiniciar sessão
+- **Export de logs:** salvar logs em JSON ou TXT para análise posterior
+- **CLI com argumentos:** modo não-interativo para testes automatizados (`python cli.py --input "..."` → output direto)
 
 ---
 
