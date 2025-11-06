@@ -9,27 +9,48 @@
 
 ## Estrutura do Roadmap
 
-### 📍 PRÓXIMOS PASSOS
-Épicos + Funcionalidades detalhadas, prontos para implementação
-
 ### 💡 IDEIAS FUTURAS
-Validadas mas não prioritárias. Podem ser abstratas.
+Ideias abstratas que ainda não viraram épicos. Aguardando maturação.
+
+### 📍 PRÓXIMOS PASSOS
+
+**Épicos podem estar em dois estados:**
+
+- **Não Refinados:** Apenas objetivo definido. Aguardando sessão de refinamento.
+- **Refinados:** Com funcionalidades e critérios de aceite. Prontos para implementação.
+
+**Fluxo:** Ideia → Épico (não refinado) → Sessão de refinamento → Épico (refinado) → Implementação
 
 ### ✅ CONCLUÍDO RECENTEMENTE
 Resumo enxuto (1-2 linhas) dos últimos épicos. Remove manualmente quando acumular.
 
 ---
 
-## Template: Como Escrever um Épico
+## Template: Épico em Dois Estágios
+
+### Ao promover ideia para épico (Não Refinado):
 
 ```markdown
-## ÉPICO X: Nome Descritivo do Épico
+## ÉPICO X: Nome Descritivo
+**Objetivo:** [O que queremos alcançar com este épico. Foco no valor de negócio.]
+```
 
+### Após sessão de refinamento (Refinado):
+
+```markdown
+## ÉPICO X: Nome Descritivo
 **Objetivo:** [O que queremos alcançar com este épico. Foco no valor de negócio.]
 
 ### Funcionalidades:
-[Lista das funcionalidades que compõem este épico]
+#### X.1 Nome da Funcionalidade
+#### X.2 Nome da Funcionalidade
+[...]
 ```
+
+**Quando refinar?**
+- Em sessão dedicada de refinamento
+- Apenas quando épico se tornar prioritário
+- Considera estado técnico atual do sistema
 
 ---
 
