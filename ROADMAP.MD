@@ -1,0 +1,238 @@
+# ROADMAP - Paper Agent
+
+## ÉPICO 1: Setup e Infraestrutura Base
+
+**Objetivo:** Ambiente Python funcional com LangGraph + Claude API, validando comunicação básica.
+
+### 1.1 Configuração de Ambiente
+
+**Descrição:** Setup inicial do projeto com dependências e estrutura de pastas
+
+**Critérios de Aceite:**
+- Repositório criado com `.gitignore`, `requirements.txt`, `README.md`
+- Dependências instaladas: `langgraph`, `langchain-anthropic`, `streamlit`, `python-dotenv`
+- Estrutura de pastas: `/agents`, `/orchestrator`, `/utils`, `/app`
+- Arquivo `.env.example` com variável `ANTHROPIC_API_KEY`
+
+---
+
+### 1.2 Teste de Conexão com Claude API
+
+**Descrição:** Script simples validando chamada à API Anthropic
+
+**Critérios de Aceite:**
+- Script `test_api.py` faz chamada de teste ao Claude
+- Retorna resposta simples (ex: "Hello from Claude")
+- Exibe tokens consumidos
+- README documentado com comando para rodar teste
+
+---
+
+## ÉPICO 2: Agente Metodologista Standalone
+
+**Objetivo:** Implementar Metodologista isoladamente para validar prompt engineering e reasoning antes de integrar orquestração.
+
+### 2.1 Prompt do Metodologista
+
+**Descrição:** System prompt que define comportamento, responsabilidades e formato de resposta
+
+**Critérios de Aceite:**
+- Prompt descreve papel do Metodologista (conforme `AGENTS.md`)
+- Define formato de output:
+  ```json
+  {
+    "status": "approved|rejected",
+    "justification": "...",
+    "suggestions": [...]
+  }
+  ```
+- Inclui exemplos de aprovação e rejeição
+- Instrução clara: sempre retornar JSON válido
+
+---
+
+### 2.2 Implementação do Agente Metodologista
+
+**Descrição:** Classe Python representando o agente com método `.analyze(hypothesis)`
+
+**Critérios de Aceite:**
+- Classe `Methodologist` em `/agents/methodologist.py`
+- Método `analyze(hypothesis: str) -> dict` retorna JSON estruturado
+- Lida com erros da API (timeout, rate limit, invalid JSON)
+- Logs de debug mostram prompt enviado e resposta recebida
+
+---
+
+### 2.3 Teste Isolado do Metodologista
+
+**Descrição:** Script de teste com casos de aprovação e rejeição
+
+**Critérios de Aceite:**
+- Script `test_methodologist.py` com 3+ casos de teste
+- **Caso 1:** hipótese válida → deve aprovar
+- **Caso 2:** hipótese falha metodológica → deve rejeitar com justificativa
+- **Caso 3:** observação casual → deve rejeitar educadamente
+- Output mostra reasoning completo do agente
+
+---
+
+## ÉPICO 3: Orquestrador com Reasoning
+
+**Objetivo:** Implementar orquestrador que decide autonomamente quando chamar Metodologista.
+
+### 3.1 Prompt do Orquestrador
+
+**Descrição:** System prompt definindo papel de decisor e regras de roteamento
+
+**Critérios de Aceite:**
+- Prompt descreve papel do Orquestrador (conforme `AGENTS.md`)
+- Regras claras: quando chamar Metodologista vs responder direto
+- Formato de output:
+  ```json
+  {
+    "action": "call_agent|respond_direct",
+    "agent": "methodologist|null",
+    "message": "..."
+  }
+  ```
+- Exemplos de decisão incluídos
+
+---
+
+### 3.2 Implementação do Orquestrador
+
+**Descrição:** Classe Python que recebe input do usuário e decide próximo passo
+
+**Critérios de Aceite:**
+- Classe `Orchestrator` em `/orchestrator/orchestrator.py`
+- Método `decide(user_input: str) -> dict` retorna decisão estruturada
+- Se `action == "call_agent"`, chama agente correspondente
+- Se `action == "respond_direct"`, retorna mensagem direto ao usuário
+- Mantém histórico da conversa em memória
+
+---
+
+### 3.3 Integração Orquestrador → Metodologista
+
+**Descrição:** Fluxo completo onde Orquestrador chama Metodologista quando apropriado
+
+**Critérios de Aceite:**
+- Script `test_orchestration.py` testa integração
+- **Cenário 1:** "Olá" → Orquestrador responde direto (não chama Metodologista)
+- **Cenário 2:** "Café aumenta produtividade" → Orquestrador chama Metodologista
+- **Cenário 3:** Metodologista retorna resultado → Orquestrador formata resposta ao usuário
+- Logs mostram decisão do Orquestrador antes de chamar agente
+
+---
+
+## ÉPICO 4: Interface Streamlit com Transparência
+
+**Objetivo:** Interface web mostrando conversa + logs de decisão/reasoning em tempo real.
+
+### 4.1 Chat Básico no Streamlit
+
+**Descrição:** Interface de chat onde usuário interage com o sistema
+
+**Critérios de Aceite:**
+- Página Streamlit com input de texto e histórico de mensagens
+- Usuário envia mensagem → aparece no chat
+- Sistema responde → aparece no chat
+- Comando `streamlit run app.py` inicia interface
+- README atualizado com instruções
+
+---
+
+### 4.2 Painel de Logs e Decisões
+
+**Descrição:** Sidebar ou expander mostrando reasoning e decisões dos agentes
+
+**Critérios de Aceite:**
+- Sidebar exibe logs em tempo real
+- Mostra: "Orquestrador decidiu: call_methodologist"
+- Mostra: "Metodologista analisando..."
+- Mostra: resultado estruturado do Metodologista
+- Logs rolam automaticamente (mais recente no topo)
+- Possível limpar logs
+
+---
+
+### 4.3 Indicadores Visuais de Estado
+
+**Descrição:** Feedback visual do que está acontecendo no sistema
+
+**Critérios de Aceite:**
+- Spinner aparece durante processamento
+- Badge mostra qual agente está ativo (ex: "🤖 Metodologista")
+- Mensagens do sistema visualmente distintas das do usuário
+- Erros exibidos claramente (ex: falha de API)
+
+---
+
+## ÉPICO 5: Integração com LangGraph State
+
+**Objetivo:** Substituir implementação manual por LangGraph gerenciando estado e transições.
+
+### 5.1 Definição do State Schema
+
+**Descrição:** Schema do LangGraph State representando conversa e decisões
+
+**Critérios de Aceite:**
+- Schema define: `messages`, `current_agent`, `history`, `last_decision`
+- TypedDict ou Pydantic model documentado
+- Estado inicializado corretamente ao começar sessão
+
+---
+
+### 5.2 Grafo de Orquestração
+
+**Descrição:** LangGraph workflow conectando Orquestrador e Metodologista
+
+**Critérios de Aceite:**
+- Grafo define nós: `orchestrator`, `methodologist`, `user_response`
+- Arestas condicionais baseadas em decisão do Orquestrador
+- Estado atualizado automaticamente a cada transição
+- Possível visualizar grafo (LangGraph debug)
+
+---
+
+### 5.3 Execução e Validação do Fluxo Completo
+
+**Descrição:** Sistema rodando end-to-end via LangGraph
+
+**Critérios de Aceite:**
+- Interface Streamlit integrada com LangGraph
+- Usuário envia mensagem → LangGraph executa workflow
+- Logs mostram transições de estado
+- Conversa completa: usuário → orquestrador → metodologista → resposta
+- Performance aceitável (< 5s por interação)
+
+---
+
+## 💡 IDEIAS FUTURAS
+
+- Adicionar **Pesquisador** (chamadas externas, web search)
+- Adicionar **Estruturador** (planejamento de artigo)
+- **Persistência:** salvar checkpoints em JSON
+- **Vector DB:** histórico de conversas e artigos
+- Outros agentes: **Escritor**, **Crítico**
+- Interface melhorada: **React + FastAPI**
+- **Métricas:** tempo de resposta, tokens consumidos, custo
+- **Retry logic** e fallbacks para API failures
+- Suporte a **múltiplas conversas simultâneas**
+- **Export** de conversa (Markdown, PDF)
+
+---
+
+## 📝 Observações
+
+### Cada épico:
+- Pode ser desenvolvido **isoladamente**
+- Entrega **valor incremental**
+- Pode ser **testado** antes do próximo
+
+### Ordem proposta:
+1. **Setup** → valida ambiente
+2. **Metodologista isolado** → valida um agente
+3. **Orquestrador** → valida reasoning/decisão
+4. **Interface** → valida transparência
+5. **LangGraph** → valida arquitetura final
