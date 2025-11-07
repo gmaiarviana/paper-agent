@@ -67,8 +67,14 @@ python scripts/validate_api.py
 Valide que o estado do agente Metodologista está configurado corretamente:
 
 ```powershell
-# Execute o script de validação
-PYTHONPATH=. python scripts/validate_state.py
+# 1. Ativar ambiente virtual (se ainda não estiver ativo)
+.\venv\Scripts\Activate.ps1
+
+# 2. Instalar/atualizar dependências
+pip install -r requirements.txt
+
+# 3. Executar script de validação
+$env:PYTHONPATH="."; python scripts/validate_state.py
 ```
 
 **Resultado esperado:**
@@ -81,20 +87,23 @@ PYTHONPATH=. python scripts/validate_state.py
 ### Rodar Testes Automatizados
 
 ```powershell
-# Instalar pytest (se ainda não instalou)
-pip install pytest
+# 1. Ativar ambiente virtual (se ainda não estiver ativo)
+.\venv\Scripts\Activate.ps1
 
-# Testes unitários (rápidos, sem API)
-pytest tests/unit/
+# 2. Instalar pytest (já incluído no requirements.txt)
+pip install -r requirements.txt
 
-# Testes de integração (requer API key)
-pytest tests/integration/ -m integration
+# 3. Testes unitários (rápidos, sem API)
+python -m pytest tests/unit/
 
-# Todos os testes
-pytest tests/
+# 4. Testes de integração (requer API key)
+python -m pytest tests/integration/ -m integration
 
-# Com coverage
-pytest tests/unit/ --cov=utils --cov=agents --cov=orchestrator
+# 5. Todos os testes
+python -m pytest tests/
+
+# 6. Com coverage
+python -m pytest tests/unit/ --cov=utils --cov=agents --cov=orchestrator
 ```
 
 **Mais informações:** Ver `docs/testing_guidelines.md`
