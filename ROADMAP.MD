@@ -13,6 +13,8 @@
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
+> Para fluxo completo de planejamento, consulte `docs/process/planning_guidelines.md`.
+
 ---
 
 ## ÉPICO 1: Setup e Infraestrutura Base
@@ -52,7 +54,7 @@
 **Descrição:** System prompt que define comportamento, responsabilidades e formato de resposta
 
 **Critérios de Aceite:**
-- Prompt descreve papel do Metodologista (conforme `AGENTS.md`)
+- Prompt descreve papel do Metodologista (conforme `docs/agents/overview.md`)
 - Define formato de output:
   ```json
   {
@@ -100,7 +102,7 @@
 **Descrição:** System prompt definindo papel de decisor e regras de roteamento
 
 **Critérios de Aceite:**
-- Prompt descreve papel do Orquestrador (conforme `AGENTS.md`)
+- Prompt descreve papel do Orquestrador (conforme `docs/agents/overview.md`)
 - Regras claras: quando chamar Metodologista vs responder direto
 - Formato de output:
   ```json

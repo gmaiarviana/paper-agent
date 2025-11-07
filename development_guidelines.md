@@ -10,9 +10,11 @@
 - Entregar PR pronto: testado, funcionando, documentado
 
 ### Documentos Base (Obrigatórios)
-- **README.md**: Como rodar a aplicação (setup, comandos, dependências)
-- **ARCHITECTURE.md**: Detalhes técnicos (stack, estrutura, padrões)
-- **ROADMAP.md**: Funcionalidades a implementar
+- **README.md**: Como rodar a aplicação (setup, contexto da POC)
+- **ARCHITECTURE.md**: Visão arquitetural de alto nível
+- **ROADMAP.md**: Funcionalidades planejadas e status dos épicos
+- **docs/agents/overview.md**: Papéis e limites dos agentes
+- **docs/process/planning_guidelines.md**: Regras de planejamento e governança
 
 ### Entrada
 - Dev escolhe: "Funcionalidade X.Y do roadmap"
@@ -35,8 +37,10 @@ Quando dev solicitar funcionalidade:
 
 1. **Ler contexto obrigatório:**
    - ROADMAP.md (descrição da funcionalidade)
-   - README.md (como rodar, stack, setup)
-   - ARCHITECTURE.md (estrutura técnica, padrões)
+   - README.md (execução e escopo da POC)
+   - ARCHITECTURE.md (estrutura técnica)
+   - docs/agents/overview.md (se envolver novos agentes)
+   - docs/process/planning_guidelines.md (para entender dependências/ordem)
    - Código relacionado (para entender dependências)
 
 2. **Quebrar em tarefas:**

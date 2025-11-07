@@ -1,9 +1,12 @@
 # Sistema Multi-Agente para Produção de Artigos Científicos
 
+> Visão de longo prazo: descreve todos os agentes planejados para a plataforma colaborativa com IA.
+> **Status da POC:** apenas Orquestrador e Metodologista estão em implementação inicial.
+
 ## Arquitetura Geral
 
-**Fluxo:** Semi-linear com loops controlados
-**Comunicação:** Estado compartilhado via LangGraph
+**Fluxo:** Semi-linear com loops controlados  
+**Comunicação:** Estado compartilhado via LangGraph  
 **Resolução de conflitos:** Voto de Minerva (usuário decide)
 
 ---
@@ -140,7 +143,7 @@
 ### Responsabilidades
 - Buscar papers acadêmicos relevantes
 - Buscar informações complementares na web
-- **SINTETIZAR** achados (não apenas listar)
+- **Sintetizar** achados (não apenas listar)
 - Validar se fontes são confiáveis
 - Identificar consensos e divergências na literatura
 
@@ -317,7 +320,7 @@ Após atingir limites: Orquestrador escala para usuário decidir.
 
 ## Comunicação entre Agentes
 
-**Formato de mensagem:**
+**Formato de mensagem sugerido:**
 ```json
 {
   "agent": "nome_do_agente",
@@ -347,31 +350,32 @@ Após atingir limites: Orquestrador escala para usuário decidir.
 - Armazena: artigos finalizados, pesquisas, feedbacks
 - Permite: busca semântica, identificação de padrões
 
-**⚠️ DECISÃO PENDENTE:** Estrutura exata do vector DB (a definir na POC)
+**⚠️ Decisão pendente:** Estrutura exata do vector DB (a definir na POC)
 
 ---
 
 ## Pontos Críticos a Resolver na POC
 
-1. **Formato exato de prompt** para cada agente
-2. **Schema de validação** dos outputs
-3. **Handling de erros** (o que fazer se agente "trava")
-4. **Referência de estilo** do usuário (como capturar e usar)
-5. **Integração com APIs** de busca (Google Scholar, Semantic Scholar)
-6. **Custo estimado** por artigo (tokens)
+1. Formato exato de prompt para cada agente
+2. Schema de validação dos outputs
+3. Handling de erros (o que fazer se agente "trava")
+4. Referência de estilo do usuário (como capturar e usar)
+5. Integração com APIs de busca (Google Scholar, Semantic Scholar)
+6. Custo estimado por artigo (tokens)
 
 ---
 
 ## Princípios de Design
 
-1. **Separação de responsabilidades:** Cada agente tem função clara e limitada
-2. **Fail-safe:** Conflitos sempre sobem para usuário
-3. **Transparência:** Todo output é auditável
-4. **Iteração controlada:** Limites claros para evitar loops infinitos
-5. **Escalabilidade:** Estrutura permite adicionar novos agentes sem quebrar o sistema
+1. Separação de responsabilidades: cada agente tem função clara e limitada
+2. Fail-safe: conflitos sempre sobem para usuário
+3. Transparência: todo output é auditável
+4. Iteração controlada: limites claros para evitar loops infinitos
+5. Escalabilidade: estrutura permite adicionar novos agentes sem quebrar o sistema
 
 ---
 
 **Versão:** 1.0  
 **Data:** 06/11/2025  
-**Status:** Documentação inicial - Aguardando POC
+**Status:** Documentação inicial - aguardando evolução da POC
+
