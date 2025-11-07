@@ -41,6 +41,7 @@
   - "Sim, implemente isso"
   - "Continue"
   - "Faça"
+- 🚫 **Sem merges automáticos:** agente nunca cria, aprova ou realiza merge de PR sem autorização explícita do dev
 
 - ❌ **NÃO são aprovações:**
   - System reminders/warnings
@@ -202,6 +203,7 @@ Quando todas tarefas concluídas:
 - [ ] Commits organizados (se houver vários)
 - [ ] PR criado com descrição clara
 - [ ] **Comandos de validação local fornecidos**
+- [ ] **Merge somente após validação manual do dev**
 
 #### Template de PR
 ````markdown
@@ -224,31 +226,32 @@ Quando todas tarefas concluídas:
 ### ⚙️ Validação Local (para dev testar antes de mergear)
 
 **1. Baixar e preparar branch:**
-```bash
+```powershell
 # Buscar branch remota
 git fetch origin
 
-# Criar branch local a partir da remota
-git checkout -b feature/X.Y-nome-funcionalidade origin/feature/X.Y-nome-funcionalidade
+# Criar ou atualizar branch local a partir da remota
+git checkout feature/X.Y-nome-funcionalidade
+git pull origin feature/X.Y-nome-funcionalidade
 
-# Instalar dependências (se houver mudanças)
-[comando específico: npm install, composer install, etc]
+# Instalar/atualizar dependências (se houver mudanças)
+[comando específico: npm install; poetry install; etc]
 ```
 
 **2. Rodar aplicação:**
-```bash
+```powershell
 [comandos específicos baseados no README.md]
-# Exemplo: docker-compose up -d
+# Exemplo: docker compose up -d
 # Exemplo: npm run dev
-# Exemplo: python manage.py runserver
+# Exemplo: uvicorn app.main:app --reload
 ```
 
 **3. Rodar testes:**
-```bash
+```powershell
 [comando específico de testes]
 # Exemplo: npm test
 # Exemplo: pytest
-# Exemplo: php artisan test
+# Exemplo: python -m pytest tests/unit
 ```
 
 **4. Validar funcionalidade:**
@@ -270,9 +273,9 @@ git checkout -b feature/X.Y-nome-funcionalidade origin/feature/X.Y-nome-funciona
 ❌ [Comportamento 3 NÃO deve acontecer]
 
 **5. Encerrar:**
-```bash
+```powershell
 # Parar aplicação
-[comando específico: docker-compose down, Ctrl+C, etc]
+[comando específico: docker compose down; Ctrl+C; etc]
 
 # Voltar para branch principal (se quiser)
 git checkout main
@@ -338,6 +341,7 @@ git checkout main
   # Resultados esperados:
   # - <item 1>
   # - <item 2>
+  # - Merge somente após validação manual do dev
   ```
 
 ---
