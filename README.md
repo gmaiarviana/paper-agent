@@ -41,7 +41,23 @@ Copy-Item .env.example .env
 
 Como Rodar
 ----------
-🚧 **Em desenvolvimento** - Comandos serão adicionados conforme funcionalidades forem implementadas.
+
+### Testar Conexão com API
+
+Valide que a conexão com a API Anthropic está funcionando:
+
+```powershell
+# Execute o script de teste
+python test_api.py
+```
+
+**Resultado esperado:**
+- ✅ Mensagem de sucesso do Claude
+- 📊 Estatísticas de uso de tokens (input/output/total)
+
+**Se houver erro:**
+- Verifique se o arquivo `.env` existe e contém `ANTHROPIC_API_KEY=sua-chave-aqui`
+- Confirme que a chave API é válida no painel da Anthropic
 
 Documentação
 ------------
