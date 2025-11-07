@@ -35,15 +35,17 @@
 
 ---
 
-### 1.2 Teste de Conexão com Claude API
+### ✅ 1.2 Teste de Conexão com Claude API
+
+**Status:** Concluído (commit: 909f30f)
 
 **Descrição:** Script simples validando chamada à API Anthropic
 
 **Critérios de Aceite:**
-- Script `test_api.py` faz chamada de teste ao Claude
-- Retorna resposta simples (ex: "Hello from Claude")
-- Exibe tokens consumidos
-- README documentado com comando para rodar teste
+- ✅ Script `test_api.py` faz chamada de teste ao Claude
+- ✅ Retorna resposta simples (ex: "Hello from Claude")
+- ✅ Exibe tokens consumidos
+- ✅ README documentado com comando para rodar teste
 
 ---
 
