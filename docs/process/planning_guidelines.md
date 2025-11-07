@@ -202,6 +202,7 @@ Processo: Fazer → Validar → Commit → Iterar
 ## Estratégia de Testes
 - TDD pragmático (lógica crítica primeiro)
 - Reavalie a estratégia conforme o projeto evolui
+- **Detalhes técnicos**: `docs/testing_guidelines.md` (pirâmide de testes, mocks vs API real, estrutura)
 
 ---
 

@@ -42,22 +42,46 @@ Copy-Item .env.example .env
 Como Rodar
 ----------
 
-### Testar Conexão com API
+### Validar Conexão com API (Health Check)
 
 Valide que a conexão com a API Anthropic está funcionando:
 
 ```powershell
-# Execute o script de teste
-python test_api.py
+# Execute o script de validação
+python scripts/validate_api.py
 ```
 
 **Resultado esperado:**
 - ✅ Mensagem de sucesso do Claude
 - 📊 Estatísticas de uso de tokens (input/output/total)
+- 💰 Custo estimado da chamada
 
 **Se houver erro:**
 - Verifique se o arquivo `.env` existe e contém `ANTHROPIC_API_KEY=sua-chave-aqui`
 - Confirme que a chave API é válida no painel da Anthropic
+
+---
+
+### Rodar Testes Automatizados
+
+```powershell
+# Instalar pytest (se ainda não instalou)
+pip install pytest
+
+# Testes unitários (rápidos, sem API)
+pytest tests/unit/
+
+# Testes de integração (requer API key)
+pytest tests/integration/ -m integration
+
+# Todos os testes
+pytest tests/
+
+# Com coverage
+pytest tests/unit/ --cov=utils --cov=agents --cov=orchestrator
+```
+
+**Mais informações:** Ver `docs/testing_guidelines.md`
 
 Documentação
 ------------
