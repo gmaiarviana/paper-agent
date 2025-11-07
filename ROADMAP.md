@@ -352,6 +352,7 @@ PYTHONPATH=/home/user/paper-agent python scripts/validate_state.py
 ## 💡 IDEIAS FUTURAS
 
 ### Melhorias do Metodologista (após MVP)
+- **Documentação técnica completa**: criar `docs/agents/methodologist.md` com arquitetura do grafo, fluxo de decisão, exemplos de uso e diagramas
 - **Tool `consult_methodology`**: buscar em knowledge base completa
 - **Knowledge base completa**: 10+ páginas com exemplos detalhados
 - **Nó `consult_knowledge`**: usar LLM para interpretar knowledge base
@@ -359,18 +360,26 @@ PYTHONPATH=/home/user/paper-agent python scripts/validate_state.py
 - **Logs estruturados**: JSON com timestamps e níveis
 - **Métricas**: tempo de resposta, tokens consumidos por análise
 
-- Adicionar **Pesquisador** (chamadas externas, web search)
-- Adicionar **Estruturador** (planejamento de artigo)
-- **Persistência:** salvar checkpoints em JSON
-- **Vector DB:** histórico de conversas e artigos
-- Outros agentes: **Escritor**, **Crítico**
-- Interface melhorada: **React + FastAPI**
+### Infraestrutura e Qualidade
+- **Pre-commit hooks**: rodar testes automaticamente antes de cada commit usando `.pre-commit-config.yaml`
+- **Badge de coverage**: adicionar badge no README mostrando % de cobertura de testes
+- **CI/CD**: GitHub Actions para rodar testes em cada PR
 - **Retry logic** e fallbacks para API failures
-- Suporte a **múltiplas conversas simultâneas**
-- **Export** de conversa (Markdown, PDF)
 - **Hot reload na CLI:** recarregar agentes sem reiniciar sessão
 - **Export de logs:** salvar logs em JSON ou TXT para análise posterior
 - **CLI com argumentos:** modo não-interativo para testes automatizados (`python cli.py --input "..."` → output direto)
+
+### Novos Agentes e Funcionalidades
+- Adicionar **Pesquisador** (chamadas externas, web search)
+- Adicionar **Estruturador** (planejamento de artigo)
+- Outros agentes: **Escritor**, **Crítico**
+- Interface melhorada: **React + FastAPI**
+- Suporte a **múltiplas conversas simultâneas**
+- **Export** de conversa (Markdown, PDF)
+
+### Persistência e Memória
+- **Persistência:** salvar checkpoints em JSON
+- **Vector DB:** histórico de conversas e artigos para busca semântica
 
 ---
 
