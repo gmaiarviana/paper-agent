@@ -1,5 +1,20 @@
 # ROADMAP - Paper Agent
 
+## 📋 Status dos Épicos
+
+### ✅ Épicos Refinados (Prontos para Implementação)
+- ÉPICO 1: Setup e Infraestrutura Base
+- ÉPICO 2: Agente Metodologista Standalone
+- ÉPICO 3: Orquestrador com Reasoning
+- ÉPICO 4: Interface CLI e Streamlit
+
+### ⚠️ Épicos Não-Refinados (Requerem Discussão Antes da Implementação)
+- ÉPICO 5: Integração com LangGraph State
+
+**Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
+
+---
+
 ## ÉPICO 1: Setup e Infraestrutura Base
 
 **Objetivo:** Ambiente Python funcional com LangGraph + Claude API, validando comunicação básica.
@@ -159,11 +174,13 @@
 
 ---
 
-### 4.3 Interface Streamlit (Opcional)
+### 4.3 Interface Streamlit
 
-**Descrição:** Interface web para visualização posterior - usuário roda localmente quando quiser
+**Descrição:** Interface web para testes por humanos - será importante para validação e demonstração
 
-**⚠️ NOTA:** Esta tarefa é opcional e não bloqueia desenvolvimento. Streamlit pode não funcionar no ambiente Claude Code (porta web). Priorizar CLI para desenvolvimento iterativo.
+**Status:** Importante (implementar após CLI básico funcionar)
+
+**⚠️ NOTA:** Streamlit pode não funcionar no ambiente Claude Code (porta web). Priorizar CLI para desenvolvimento iterativo com Claude Code. Streamlit será testado pelo usuário localmente.
 
 **Critérios de Aceite:**
 - Página Streamlit com input de texto e histórico de mensagens
@@ -172,13 +189,21 @@
 - Indicadores visuais: spinner, badges de agente ativo
 - Mensagens do sistema visualmente distintas das do usuário
 - Comando `streamlit run app.py` inicia interface
-- Documentação separada em README indicando uso opcional
+- Documentação em README com instruções para rodar localmente
 
 ---
 
 ## ÉPICO 5: Integração com LangGraph State
 
+**Status:** ⚠️ NÃO-REFINADO (Requer aprofundamento em LangGraph antes da implementação)
+
 **Objetivo:** Substituir implementação manual por LangGraph gerenciando estado e transições.
+
+**Próximos Passos Antes da Implementação:**
+- Estudar exemplos concretos de LangGraph State
+- Definir estratégia de fallback em discussão
+- Adicionar exemplos de código em `langgraph_examples.md`
+- Refinar funcionalidades com base no aprendizado
 
 ### 5.1 Definição do State Schema
 
