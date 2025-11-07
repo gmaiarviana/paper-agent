@@ -21,15 +21,17 @@
 
 **Objetivo:** Ambiente Python funcional com LangGraph + Claude API, validando comunicação básica.
 
-### 1.1 Configuração de Ambiente
+### ✅ 1.1 Configuração de Ambiente
+
+**Status:** Concluído (commit: 684b87d)
 
 **Descrição:** Setup inicial do projeto com dependências e estrutura de pastas
 
 **Critérios de Aceite:**
-- Repositório criado com `.gitignore`, `requirements.txt`, `README.md`
-- Dependências instaladas: `langgraph`, `langchain-anthropic`, `streamlit`, `python-dotenv`
-- Estrutura de pastas: `/agents`, `/orchestrator`, `/utils`, `/app`
-- Arquivo `.env.example` com variável `ANTHROPIC_API_KEY`
+- ✅ Repositório criado com `.gitignore`, `requirements.txt`, `README.md`
+- ✅ Dependências instaladas: `langgraph`, `langchain-anthropic`, `streamlit`, `python-dotenv`
+- ✅ Estrutura de pastas: `/agents`, `/orchestrator`, `/utils`, `/app`
+- ✅ Arquivo `.env.example` com variável `ANTHROPIC_API_KEY`
 
 ---
 
