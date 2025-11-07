@@ -4,12 +4,12 @@
 
 ### ✅ Épicos Refinados (Prontos para Implementação)
 - ÉPICO 1: Setup e Infraestrutura Base
-- ÉPICO 2: Agente Metodologista Standalone
+- ÉPICO 2: Agente Metodologista com LangGraph (MVP)
 - ÉPICO 3: Orquestrador com Reasoning
 - ÉPICO 4: Interface CLI e Streamlit
 
 ### ⚠️ Épicos Não-Refinados (Requerem Discussão Antes da Implementação)
-- ÉPICO 5: Integração com LangGraph State
+- ÉPICO 5: Multi-Agente e Persistência Avançada
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -49,53 +49,148 @@
 
 ---
 
-## ÉPICO 2: Agente Metodologista Standalone
+## ÉPICO 2: Agente Metodologista com LangGraph (MVP)
 
-**Objetivo:** Implementar Metodologista isoladamente para validar prompt engineering e reasoning antes de integrar orquestração.
+**Objetivo:** Implementar Metodologista como agente autônomo mínimo usando LangGraph, capaz de fazer perguntas ao usuário e tomar decisões com raciocínio explícito.
 
-### 2.1 Prompt do Metodologista
-
-**Descrição:** System prompt que define comportamento, responsabilidades e formato de resposta
-
-**Critérios de Aceite:**
-- Prompt descreve papel do Metodologista (conforme `docs/agents/overview.md`)
-- Define formato de output:
-  ```json
-  {
-    "status": "approved|rejected",
-    "justification": "...",
-    "suggestions": [...]
-  }
-  ```
-- Inclui exemplos de aprovação e rejeição
-- Instrução clara: sempre retornar JSON válido
+**Escopo do MVP:** Agente standalone (sem Orquestrador), 1 tool (`ask_user`), knowledge base micro, fluxo básico analyze → ask_clarification → decide.
 
 ---
 
-### 2.2 Implementação do Agente Metodologista
+### 2.1 Setup LangGraph State
 
-**Descrição:** Classe Python representando o agente com método `.analyze(hypothesis)`
+**Descrição:** Definir schema do estado do agente usando `TypedDict` e configurar checkpointer para persistência de sessão.
 
 **Critérios de Aceite:**
-- Classe `Methodologist` em `/agents/methodologist.py`
-- Método `analyze(hypothesis: str) -> dict` retorna JSON estruturado
-- Lida com erros da API (timeout, rate limit, invalid JSON)
-- Logs de debug mostram prompt enviado e resposta recebida
+- Arquivo `agents/methodologist.py` criado contendo `TypedDict MethodologistState` com campos obrigatórios:
+  - `hypothesis: str`
+  - `messages: Annotated[list, add_messages]`
+  - `clarifications: dict[str, str]`
+  - `status: Literal["pending", "approved", "rejected"]`
+  - `iterations: int`
+  - `max_iterations: int`
+- MemorySaver do LangGraph configurado como checkpointer padrão.
+- Estado inicial populado com valores padrão e validado manualmente.
 
 ---
 
-### 2.3 Teste Isolado do Metodologista
+### 2.2 Knowledge Base Micro
 
-**Descrição:** Script de teste com casos de aprovação e rejeição
+**Descrição:** Criar versão minimalista da base de conhecimento com conceitos essenciais de método científico.
 
 **Critérios de Aceite:**
-- Script `test_methodologist.py` com 3+ casos de teste
-- **Caso 1:** hipótese válida → deve aprovar
-- **Caso 2:** hipótese falha metodológica → deve rejeitar com justificativa
-- **Caso 3:** observação casual → deve rejeitar educadamente
-- Output mostra reasoning completo do agente
+- Arquivo `agents/methodologist_knowledge.md` criado.
+- Conteúdo máximo de uma página com 3-4 tópicos obrigatórios:
+  - Diferença entre lei, teoria e hipótese (2-3 parágrafos cada).
+  - Critérios de testabilidade e falseabilidade (1 parágrafo).
+  - Exemplos contrastando hipótese boa vs ruim (mínimo 2 exemplos breves).
+- Formatação markdown limpa (títulos, listas quando necessário).
+- Linguagem alinhada ao português brasileiro.
 
 ---
+
+### 2.3 Tool `ask_user`
+
+**Descrição:** Implementar tool que permite agente fazer perguntas ao usuário usando `interrupt()` do LangGraph.
+
+**Critérios de Aceite:**
+- Função `ask_user(question: str) -> str` decorada com `@tool` e type hints corretos.
+- Docstring clara explicando o comportamento e uso esperado.
+- Chamada a `interrupt()` do `langgraph.types` para pausar a execução.
+- Incrementa `MethodologistState.iterations` e bloqueia novas perguntas quando `iterations >= max_iterations`.
+- Validação e logging simples informando pergunta enviada e limite atingido.
+
+---
+
+### 2.4 Nós do Grafo
+
+**Descrição:** Implementar 3 nós que compõem o raciocínio do agente.
+
+**Critérios de Aceite:**
+- **Nó `analyze`:** usa LLM para avaliar hipótese, define se há necessidade de pergunta e atualiza `messages` e sinalizadores no estado.
+- **Nó `ask_clarification`:** chama `ask_user`, registra pergunta/resposta em `clarifications` e incrementa `iterations`.
+- **Nó `decide`:** define `status` (`approved` ou `rejected`) e gera `justification` explicita.
+- Cada nó retorna dicionário com updates incrementais do estado.
+- Logs nível INFO registram entrada, saída e decisão em cada nó.
+
+---
+
+### 2.5 Construção do Grafo
+
+**Descrição:** Montar `StateGraph` conectando os 3 nós com lógica de roteamento condicional.
+
+**Critérios de Aceite:**
+- **Modelo LLM:** `claude-3-5-haiku-20241022` (custo-efetivo para MVP)
+- **Tool binding:** LLM configurado com `.bind_tools([ask_user])` para tool calling nativo
+- **Mecanismo de decisão:** Router verifica `response.tool_calls`:
+  - Se `tool_calls` não vazio → próximo nó é `ToolNode` (executa ask_user)
+  - Se `tool_calls` vazio e `iterations < max_iterations` → nó `decide`
+  - Se `iterations >= max_iterations` → força nó `decide`
+- `StateGraph(MethodologistState)` instanciado.
+- Nós `analyze`, `ask_clarification` e `decide` adicionados e registrados.
+- Edges implementados:
+  - START → `analyze`
+  - `analyze` → `ask_clarification` (quando precisa de mais contexto)
+  - `analyze` → `decide` (quando já pode deliberar)
+  - `ask_clarification` → `analyze`
+  - `decide` → END
+- Router function decide próximo nó com base em estado (`iterations`, necessidade de contexto, status).
+- Se `iterations >= max_iterations`, fluxo força `decide`.
+- Grafo compilado com `MemorySaver` e invocável via `graph.invoke({"hypothesis": "..."})`.
+
+---
+
+### 2.6 System Prompt
+
+**Descrição:** Criar prompt do agente com instruções de comportamento e uso de tools.
+
+- **Critérios de Aceite:**
+- Constante `METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1` criada em `utils/prompts.py`.
+- **Tool calling explícito:** Prompt instrui LLM a usar tool `ask_user` quando precisar de clarificação ("Se falta contexto essencial, USE a tool ask_user com pergunta específica").
+- **Output sem tool call:** Prompt instrui que quando tiver contexto suficiente, responder diretamente SEM chamar tools, apenas com raciocínio final.
+- Prompt descreve papel do Metodologista, processo analyze → ask → decide e limite de 3 perguntas.
+- Explica quando usar a tool `ask_user` e como registrar hipóteses insuficientes.
+- Define output final em JSON com campos obrigatórios: `{"status": "approved|rejected", "justification": "string detalhada"}`.
+- Instruções explícitas sobre quando aprovar vs rejeitar hipóteses.
+- Linguagem direta, <= 500 palavras.
+- Histórico do arquivo registra versão V1 (comentário ou docstring curta).
+
+---
+
+### 2.7 CLI Minimalista
+
+**Descrição:** Interface de linha de comando básica para testar o agente.
+
+**Critérios de Aceite:**
+- Arquivo `cli/chat.py` implementa loop: entrada de hipótese → execução do agente → handling de `interrupt()` → exibição da decisão.
+- CLI gera thread ID único por sessão (UUID ou timestamp).
+- Comando `exit` encerra a aplicação sem exceções.
+- Saída em texto puro, sem dependências adicionais.
+- Erros e perguntas exibidos claramente.
+- README inclui comando de execução `python cli/chat.py`.
+
+---
+
+### 2.8 Teste de Fumaça
+
+**Descrição:** Um teste básico que valida o fluxo completo do agente.
+
+**Critérios de Aceite:**
+- Arquivo `tests/integration/test_methodologist_smoke.py` criado.
+- Uso da API real do Anthropic (marcar com `@pytest.mark.integration`).
+- Teste simula: hipótese vaga → agente pergunta uma vez → resposta mockada → decisão final.
+- Valida que estado final tem `status != "pending"` e `justification` preenchida.
+- Comando de execução documentado: `pytest tests/integration/test_methodologist_smoke.py -v`.
+
+---
+
+### Ideias Futuras (Fora do MVP)
+
+- Tool `consult_methodology` para busca na knowledge base ampliada.
+- Knowledge base completa com referências detalhadas.
+- Integração com Orquestrador (ÉPICO 3).
+- Interface Streamlit e logs enriquecidos.
+- Suite completa de testes unitários e integrações.
 
 ## ÉPICO 3: Orquestrador com Reasoning
 
@@ -249,13 +344,20 @@
 
 ## 💡 IDEIAS FUTURAS
 
+### Melhorias do Metodologista (após MVP)
+- **Tool `consult_methodology`**: buscar em knowledge base completa
+- **Knowledge base completa**: 10+ páginas com exemplos detalhados
+- **Nó `consult_knowledge`**: usar LLM para interpretar knowledge base
+- **Testes completos**: unit (mocks) + integration (múltiplos cenários)
+- **Logs estruturados**: JSON com timestamps e níveis
+- **Métricas**: tempo de resposta, tokens consumidos por análise
+
 - Adicionar **Pesquisador** (chamadas externas, web search)
 - Adicionar **Estruturador** (planejamento de artigo)
 - **Persistência:** salvar checkpoints em JSON
 - **Vector DB:** histórico de conversas e artigos
 - Outros agentes: **Escritor**, **Crítico**
 - Interface melhorada: **React + FastAPI**
-- **Métricas:** tempo de resposta, tokens consumidos, custo
 - **Retry logic** e fallbacks para API failures
 - Suporte a **múltiplas conversas simultâneas**
 - **Export** de conversa (Markdown, PDF)
