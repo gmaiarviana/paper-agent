@@ -45,9 +45,9 @@ Como Rodar
 
 Documentação
 ------------
-- **Status de desenvolvimento**: `ROADMAP.MD`
+- **Status de desenvolvimento**: `docs/roadmap.md`
 - **Estrutura técnica**: `ARCHITECTURE.md`
-- **Processo de desenvolvimento**: `development_guidelines.md`
+- **Processo de desenvolvimento**: `docs/development_guidelines.md`
 - **Especificações detalhadas**: `docs/`
   - Agentes: `docs/agents/`
   - Interface: `docs/interface/`

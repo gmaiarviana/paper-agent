@@ -29,9 +29,7 @@ paper-agent/
 ├── .env.example           # Template de variáveis de ambiente
 ├── requirements.txt       # Dependências Python
 ├── README.md              # Getting Started
-├── ROADMAP.MD             # Status de épicos e funcionalidades
 ├── ARCHITECTURE.md        # Visão arquitetural (este arquivo)
-├── development_guidelines.md  # Regras para desenvolvimento com agentes
 │
 ├── agents/                # Agentes especializados
 │   └── __init__.py        # (Futuro: methodologist.py)
@@ -46,6 +44,8 @@ paper-agent/
 │   └── __init__.py        # (Futuro: app.py)
 │
 └── docs/                  # Documentação detalhada por domínio
+    ├── roadmap.md         # Status de épicos e funcionalidades
+    ├── development_guidelines.md  # Regras para desenvolvimento com agentes
     ├── agents/            # Especificações de agentes
     │   ├── overview.md
     │   └── methodologist.md
