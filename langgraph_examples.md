@@ -1,6 +1,6 @@
 # Exemplos LangGraph - Para Referência Futura
 
-> ⚠️ Esta seção será preenchida quando iniciarmos o ÉPICO 5
+> ⚠️ Esta seção será preenchida quando refinarmos o ÉPICO 5
 > O objetivo é ter exemplos concretos de código, não só descrições
 
 ---

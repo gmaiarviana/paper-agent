@@ -265,4 +265,3 @@ Claude Code deve sempre apresentar análise de:
 - **Sempre apresentar sugestões** antes de aplicar
 - **Alinhar com usuário** antes de atualizar documentação
 - Focar em **melhorias acionáveis e específicas**
-- Manter histórico de lições aprendidas
