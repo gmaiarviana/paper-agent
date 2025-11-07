@@ -57,20 +57,27 @@
 
 ---
 
-### 2.1 Setup LangGraph State
+### ✅ 2.1 Setup LangGraph State
+
+**Status:** Concluído
 
 **Descrição:** Definir schema do estado do agente usando `TypedDict` e configurar checkpointer para persistência de sessão.
 
-**Critérios de Aceite:**
-- Arquivo `agents/methodologist.py` criado contendo `TypedDict MethodologistState` com campos obrigatórios:
-  - `hypothesis: str`
-  - `messages: Annotated[list, add_messages]`
-  - `clarifications: dict[str, str]`
-  - `status: Literal["pending", "approved", "rejected"]`
-  - `iterations: int`
-  - `max_iterations: int`
-- MemorySaver do LangGraph configurado como checkpointer padrão.
-- Estado inicial populado com valores padrão e validado manualmente.
+**Implementado:**
+- ✅ Arquivo `agents/methodologist.py` criado com `TypedDict MethodologistState` e todos os campos obrigatórios
+- ✅ MemorySaver configurado como checkpointer padrão
+- ✅ Função `create_initial_state()` para criar estado com valores padrão
+- ✅ Testes unitários (6/6 passando): `tests/unit/test_methodologist_state.py`
+- ✅ Script de validação manual: `scripts/validate_state.py`
+
+**Como validar:**
+```powershell
+# Testes unitários
+python -m pytest tests/unit/test_methodologist_state.py -v
+
+# Validação manual
+PYTHONPATH=/home/user/paper-agent python scripts/validate_state.py
+```
 
 ---
 

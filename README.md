@@ -62,6 +62,22 @@ python scripts/validate_api.py
 
 ---
 
+### Validar Estado do Metodologista
+
+Valide que o estado do agente Metodologista está configurado corretamente:
+
+```powershell
+# Execute o script de validação
+PYTHONPATH=. python scripts/validate_state.py
+```
+
+**Resultado esperado:**
+- ✅ TypedDict MethodologistState validado
+- ✅ Função create_initial_state funcionando
+- ✅ Checkpointer MemorySaver configurado
+
+---
+
 ### Rodar Testes Automatizados
 
 ```powershell
