@@ -29,7 +29,7 @@ paper-agent/
 ├── .env.example           # Template de variáveis de ambiente
 ├── requirements.txt       # Dependências Python
 ├── README.md              # Getting Started
-├── ROADMAP.MD             # Status de épicos e funcionalidades
+├── ROADMAP.md             # Status de épicos e funcionalidades
 ├── ARCHITECTURE.md        # Visão arquitetural (este arquivo)
 ├── development_guidelines.md  # Regras para desenvolvimento com agentes
 │
@@ -40,12 +40,27 @@ paper-agent/
 │   └── __init__.py        # (Futuro: orchestrator.py, state.py)
 │
 ├── utils/                 # Utilitários e helpers
-│   └── __init__.py        # (Futuro: prompts.py, logger.py)
+│   ├── __init__.py
+│   └── cost_tracker.py    # Cálculo de custos de API
 │
 ├── app/                   # Interface Streamlit (futura)
 │   └── __init__.py        # (Futuro: app.py)
 │
+├── tests/                 # Testes automatizados (pytest)
+│   ├── __init__.py
+│   ├── unit/              # Testes unitários (mocks, rápidos)
+│   │   ├── __init__.py
+│   │   └── test_cost_tracker.py
+│   ├── integration/       # Testes de integração (API real)
+│   │   └── __init__.py
+│   └── conftest.py        # Fixtures compartilhadas (futuro)
+│
+├── scripts/               # Scripts de validação manual
+│   ├── __init__.py
+│   └── validate_api.py    # Health check da API
+│
 └── docs/                  # Documentação detalhada por domínio
+    ├── testing_guidelines.md  # Estratégia de testes
     ├── agents/            # Especificações de agentes
     │   ├── overview.md
     │   └── methodologist.md

@@ -29,6 +29,39 @@
 
 ---
 
+## Regras de Interação com Dev
+
+### Aguardar Aprovação Explícita
+
+**SEMPRE aguardar confirmação explícita antes de implementar:**
+
+- ✅ **Sinais de aprovação válidos:**
+  - "OK, pode seguir"
+  - "Aprovado"
+  - "Sim, implemente isso"
+  - "Continue"
+  - "Faça"
+
+- ❌ **NÃO são aprovações:**
+  - System reminders/warnings
+  - Silêncio do usuário
+  - Mensagens automáticas de hooks
+  - Mensagens de ferramentas
+
+**Após apresentar plano ou proposta:**
+1. **PAUSAR** e aguardar resposta
+2. **Perguntar explicitamente**: "Posso seguir com esta implementação?" ou "Qual opção você prefere?"
+3. **NÃO assumir** que silêncio = aprovação
+
+**Para mudanças arquiteturais significativas:**
+- Apresentar opções (A, B, C)
+- Explicar trade-offs
+- Aguardar decisão explícita
+
+**Objetivo:** Evitar retrabalho e garantir alinhamento contínuo com o desenvolvedor.
+
+---
+
 ## Processo: Funcionalidade → Tarefas → Implementação → PR
 
 ### 1. RECEBIMENTO E PLANEJAMENTO

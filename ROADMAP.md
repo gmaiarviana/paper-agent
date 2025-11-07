@@ -21,27 +21,31 @@
 
 **Objetivo:** Ambiente Python funcional com LangGraph + Claude API, validando comunicação básica.
 
-### 1.1 Configuração de Ambiente
+### ✅ 1.1 Configuração de Ambiente
+
+**Status:** Concluído (commit: 684b87d)
 
 **Descrição:** Setup inicial do projeto com dependências e estrutura de pastas
 
 **Critérios de Aceite:**
-- Repositório criado com `.gitignore`, `requirements.txt`, `README.md`
-- Dependências instaladas: `langgraph`, `langchain-anthropic`, `streamlit`, `python-dotenv`
-- Estrutura de pastas: `/agents`, `/orchestrator`, `/utils`, `/app`
-- Arquivo `.env.example` com variável `ANTHROPIC_API_KEY`
+- ✅ Repositório criado com `.gitignore`, `requirements.txt`, `README.md`
+- ✅ Dependências instaladas: `langgraph`, `langchain-anthropic`, `streamlit`, `python-dotenv`
+- ✅ Estrutura de pastas: `/agents`, `/orchestrator`, `/utils`, `/app`
+- ✅ Arquivo `.env.example` com variável `ANTHROPIC_API_KEY`
 
 ---
 
-### 1.2 Teste de Conexão com Claude API
+### ✅ 1.2 Teste de Conexão com Claude API
+
+**Status:** Concluído (commit: 909f30f)
 
 **Descrição:** Script simples validando chamada à API Anthropic
 
 **Critérios de Aceite:**
-- Script `test_api.py` faz chamada de teste ao Claude
-- Retorna resposta simples (ex: "Hello from Claude")
-- Exibe tokens consumidos
-- README documentado com comando para rodar teste
+- ✅ Script `test_api.py` faz chamada de teste ao Claude
+- ✅ Retorna resposta simples (ex: "Hello from Claude")
+- ✅ Exibe tokens consumidos
+- ✅ README documentado com comando para rodar teste
 
 ---
 
