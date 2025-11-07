@@ -17,28 +17,46 @@
 
 - **Runtime:** Python 3.11+
 - **Orquestração:** LangGraph, LangChain Anthropic
-- **LLM:** Claude Sonnet 4 (Anthropic API)
+- **LLM:** Claude 3.5 Haiku (custo-benefício) / Sonnet (tarefas complexas)
 - **Validação:** Pydantic
-- **Interfaces:** CLI (`cli/chat.py`), Streamlit opcional (`app.py`)
-- **Utilitários:** `rich` para logging, `python-dotenv` para variáveis
+- **Interfaces:** CLI (futura), Streamlit opcional (futura)
+- **Utilitários:** `colorama` para logging colorido, `python-dotenv` para variáveis
 
-## Estrutura de Pastas (high-level)
+## Estrutura do Projeto
 
 ```
 paper-agent/
-├── README.md              # Visão geral + como rodar
-├── ROADMAP.md             # Planejamento de funcionalidades
+├── .env.example           # Template de variáveis de ambiente
+├── requirements.txt       # Dependências Python
+├── README.md              # Getting Started
+├── ROADMAP.MD             # Status de épicos e funcionalidades
 ├── ARCHITECTURE.md        # Visão arquitetural (este arquivo)
-├── docs/                  # Detalhes por domínio
-│   ├── agents/
-│   ├── interface/
-│   ├── orchestration/
-│   └── process/
-├── cli/                   # Interface em linha de comando
-├── agents/                # Implementações de agentes
-├── orchestrator/          # Orquestrador e estado LangGraph
-├── utils/                 # Prompts, logging, helpers
-└── tests/                 # Scripts de validação manual
+├── development_guidelines.md  # Regras para desenvolvimento com agentes
+│
+├── agents/                # Agentes especializados
+│   └── __init__.py        # (Futuro: methodologist.py)
+│
+├── orchestrator/          # Lógica de orquestração e decisão
+│   └── __init__.py        # (Futuro: orchestrator.py, state.py)
+│
+├── utils/                 # Utilitários e helpers
+│   └── __init__.py        # (Futuro: prompts.py, logger.py)
+│
+├── app/                   # Interface Streamlit (futura)
+│   └── __init__.py        # (Futuro: app.py)
+│
+└── docs/                  # Documentação detalhada por domínio
+    ├── agents/            # Especificações de agentes
+    │   ├── overview.md
+    │   └── methodologist.md
+    ├── interface/         # Especificações de interface
+    │   └── cli.md
+    ├── orchestration/     # Orquestração e estado
+    │   └── orchestrator.md
+    ├── langgraph/         # Exemplos e padrões LangGraph
+    │   └── examples.md
+    └── process/           # Processo e governança
+        └── planning_guidelines.md
 ```
 
 ## Componentes Principais

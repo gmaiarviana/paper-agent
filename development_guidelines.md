@@ -281,6 +281,32 @@ git checkout main
 - ROADMAP.md como histórico
 - **Comandos de validação local obrigatórios no PR**
 
+### Regras Anti-Redundância
+- **Status de épicos**: Vive APENAS no ROADMAP.md (não duplicar no README)
+- **Estrutura do projeto**: Vive APENAS no ARCHITECTURE.md (não duplicar no README)
+- **README.md**: Foco em "Getting Started" - setup rápido e referências
+- **ARCHITECTURE.md**: Foco em estrutura técnica, decisões arquiteturais, organização de código
+
+### Comandos e Validação
+- **PowerShell como padrão**: Dev usa Windows, sempre fornecer comandos em PowerShell
+- **Validação antes de merge**: SEMPRE fornecer comandos + resultados esperados
+- **Template de validação**:
+  ```powershell
+  # 1. Trocar de branch
+  git fetch origin
+  git checkout <branch-name>
+
+  # 2. Instalar/atualizar dependências
+  <comando específico>
+
+  # 3. Testar funcionalidade
+  <comandos de validação>
+
+  # Resultados esperados:
+  # - <item 1>
+  # - <item 2>
+  ```
+
 ---
 
 ## Tratamento de Erros/Bloqueios
