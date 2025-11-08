@@ -25,7 +25,7 @@
 - Testes onde necessário
 - Documentação atualizada
 - **Comandos para validação local** (dev testa antes de mergear)
-- PR criado e pronto para review
+- **Aviso ao dev que branch está pronta** (dev cria PR manualmente)
 
 ---
 
@@ -241,9 +241,16 @@ Aguardando decisão.
 
 ---
 
-### 4. FINALIZAÇÃO: PR PRONTO + COMANDOS PARA VALIDAÇÃO LOCAL
+### 4. FINALIZAÇÃO: BRANCH PRONTA + AVISAR DEV
 
 Quando todas tarefas concluídas:
+
+> **📌 IMPORTANTE - Processo de Pull Request:**
+> - ✅ Template de PR é **automático** (`.github/PULL_REQUEST_TEMPLATE.md`)
+> - ✅ Agente faz **push da branch** e **avisa que está pronto**
+> - ✅ Dev cria o PR **manualmente pela interface do GitHub**
+> - ✅ Template é aplicado automaticamente ao criar o PR
+> - ❌ Agente **NÃO precisa criar PR via `gh pr create`**
 
 #### Checklist Obrigatório
 
@@ -266,11 +273,15 @@ Quando todas tarefas concluídas:
 **Git:**
 - [ ] Branch criada: `feature/X.Y-nome-funcionalidade`
 - [ ] Commits organizados (se houver vários)
-- [ ] PR criado com descrição clara
+- [ ] Push realizado para branch remota
+- [ ] **Dev notificado que branch está pronta** (dev cria PR pela interface)
 - [ ] **Comandos de validação local fornecidos**
 - [ ] **Merge somente após validação manual do dev**
 
-#### Template de PR
+#### Template de PR (Referência)
+
+> **📌 NOTA:** O template oficial está em `.github/PULL_REQUEST_TEMPLATE.md` e é aplicado automaticamente quando você cria um PR pela interface do GitHub. O template abaixo é apenas para referência sobre o que incluir.
+
 ````markdown
 ## Funcionalidade X.Y: [Nome]
 
@@ -524,16 +535,15 @@ Finalizando...
    - README.md (sem mudanças necessárias)
    - ARCHITECTURE.md (novos endpoints documentados)
    - ROADMAP.md (3.2 marcado como completo)
+✅ Push realizado: feature/3.2-sistema-relatorios
 
-PR criado: feature/3.2-sistema-relatorios
-👉 Review: http://github.com/repo/pull/42
-
-📋 Comandos para validação local estão no PR
+🎉 Branch pronta! Você pode criar o PR pela interface do GitHub.
+📋 O template de PR será aplicado automaticamente.
 ```
 
 **Dev:** *(volta da reunião)*
-1. Lê PR
-2. Executa comandos fornecidos para baixar branch
+1. Cria PR pela interface do GitHub (template aplicado automaticamente)
+2. Executa comandos de validação fornecidos para baixar branch
 3. Roda aplicação localmente
 4. Testa funcionalidade manualmente
 5. Aprova merge (ou pede ajustes)
