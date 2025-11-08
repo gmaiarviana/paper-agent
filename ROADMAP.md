@@ -88,7 +88,7 @@ pip install -r requirements.txt
 python -m pytest tests/unit/test_methodologist_state.py -v
 
 # 4. Validação manual
-PYTHONPATH=/home/user/paper-agent python scripts/validate_state.py
+python scripts/validate_state.py
 ```
 
 ---
@@ -144,7 +144,7 @@ pip install -r requirements.txt
 python -m pytest tests/unit/test_ask_user_tool.py -v
 
 # 4. Validação manual
-PYTHONPATH=/home/user/paper-agent python scripts/validate_ask_user.py
+python scripts/validate_ask_user.py
 ```
 
 ---

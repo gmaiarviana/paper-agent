@@ -124,7 +124,7 @@ source venv/bin/activate  # Linux/Mac
 python -m pytest tests/unit/test_ask_user_tool.py -v
 
 # 3. Validação manual completa
-PYTHONPATH=/home/user/paper-agent python scripts/validate_ask_user.py
+python scripts/validate_ask_user.py
 ```
 
 **Resultado esperado:**

@@ -124,9 +124,74 @@ Para cada tarefa, seguir ciclo:
 
 Antes de seguir para próxima tarefa:
 - ✅ Testes passando (se houver)
+- ✅ **Script de validação criado** (scripts/validate_*.py) - **PRÁTICA RECOMENDADA**
 - ✅ Aplicação rodando sem erros
 - ✅ Comportamento esperado funcionando
 - ✅ Documentação da tarefa atualizada (incremental)
+
+**Scripts de Validação (Boa Prática):**
+
+Criar scripts de validação é uma **excelente prática** porque:
+- ✅ **Ajuda a entender o módulo**: Rodar o script mostra claramente o que o código faz
+- ✅ **Facilita validação manual**: Dev pode testar sem precisar escrever código
+- ✅ **Documenta comportamento esperado**: Script serve como documentação viva
+- ✅ **Acelera debugging**: Identifica problemas rapidamente
+
+**Quando criar script de validação:**
+- Módulos/classes com comportamento não-trivial
+- Tools/funções que serão usadas por outros componentes
+- Estados complexos (como TypedDicts, Pydantic models)
+- Qualquer código onde "ver funcionando" ajuda a entender
+
+**Estrutura recomendada:**
+```python
+"""
+Script de validação manual para [nome do módulo].
+
+Valida que [módulo] foi implementado corretamente com:
+- [Característica 1]
+- [Característica 2]
+- [Característica 3]
+"""
+
+import sys
+from pathlib import Path
+
+# Adicionar o diretório raiz ao PYTHONPATH
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+# Imports do módulo a validar
+from module import SomeClass
+
+def validate_module():
+    """Valida a implementação do módulo."""
+    print("=" * 70)
+    print("VALIDAÇÃO DO MÓDULO X")
+    print("=" * 70)
+
+    # Teste 1
+    print("\n1. Testando característica 1...")
+    assert condition, "Erro: descrição"
+    print("   ✅ Característica 1 funciona")
+
+    # Teste 2
+    print("\n2. Testando característica 2...")
+    # ...
+
+    print("\n" + "=" * 70)
+    print("TODOS OS TESTES PASSARAM! ✅")
+    print("=" * 70)
+
+if __name__ == "__main__":
+    try:
+        validate_module()
+    except AssertionError as e:
+        print(f"\n❌ ERRO: {e}")
+        sys.exit(1)
+```
+
+**Localização:** `scripts/validate_*.py` (ex: `scripts/validate_ask_user.py`)
 
 #### D) Commit (Opcional e Estratégico)
 
@@ -323,10 +388,11 @@ git checkout main
 
 | Documento | Responsabilidade | O que NÃO deve conter |
 |-----------|-----------------|----------------------|
-| **README.md** | Getting Started: setup inicial, comandos de validação, referências para docs | ❌ Status de épicos/tasks<br>❌ Estrutura detalhada do projeto<br>❌ Decisões arquiteturais |
-| **ROADMAP.md** | Status de épicos/tasks, critérios de aceite, comandos de validação por task | ❌ Instruções de setup geral<br>❌ Arquitetura técnica |
+| **README.md** | Getting Started: setup inicial, comandos de validação gerais, referências para docs | ❌ Status de épicos/tasks<br>❌ Estrutura detalhada do projeto<br>❌ Decisões arquiteturais<br>❌ Comandos de validação específicos por task |
+| **ROADMAP.md** | Status de épicos/tasks, critérios de aceite, comandos de validação **por task** | ❌ Instruções de setup geral<br>❌ Arquitetura técnica |
 | **ARCHITECTURE.md** | Estrutura técnica, decisões arquiteturais, organização de código, stack | ❌ Status de implementação<br>❌ Instruções de setup<br>❌ Comandos de validação |
-| **development_guidelines.md** | Processo de trabalho com agentes, regras de qualidade, templates | ❌ Funcionalidades específicas<br>❌ Detalhes de implementação |
+| **development_guidelines.md** | Processo de trabalho com agentes, regras de qualidade, templates de validação | ❌ Funcionalidades específicas<br>❌ Detalhes de implementação |
+| **.github/PULL_REQUEST_TEMPLATE.md** | Template para PRs, preenchido automaticamente pelo GitHub | ❌ Conteúdo específico de tasks<br>❌ Apenas estrutura/template |
 
 **Regras de Ouro:**
 - ✅ **Status de funcionalidades**: Vive APENAS no ROADMAP.md
@@ -341,7 +407,7 @@ git checkout main
 - **Validação antes de merge**: SEMPRE fornecer comandos + resultados esperados
 - **Checkout de branch obrigatório**: Sempre incluir passos de fetch/checkout nas instruções de validação
 
-**Template de validação (para ROADMAP.md e README.md):**
+**Template de validação (para ROADMAP.md):**
 ```bash
 # 0. Fazer checkout da branch (SEMPRE incluir este passo)
 git fetch origin
@@ -353,24 +419,25 @@ source venv/bin/activate  # Linux/Mac
 .\venv\Scripts\Activate.ps1  # Windows
 
 # 2. Instalar/atualizar dependências (primeira vez ou se mudou requirements)
-<comando específico: pip install -r requirements.txt, npm install, etc>
+pip install -r requirements.txt
 
 # 3. Testes unitários
-<comandos de testes>
+python -m pytest tests/unit/test_*.py -v
 
-# 4. Validação manual/scripts
-<comandos de validação manual>
+# 4. Validação manual (script - RECOMENDADO!)
+python scripts/validate_*.py
 
 # Resultados esperados:
-# - <item 1>
-# - <item 2>
+# - ✅ X/X testes passando
+# - ✅ Script de validação completo
 ```
 
 **Observações:**
 - Passo 0 (checkout) é OBRIGATÓRIO - dev precisa baixar a branch para validar
 - Passo 1 (venv/ambiente) só se projeto usar ambientes virtuais/isolados
 - Passo 2 (dependências) só na primeira vez ou se requirements mudaram
-- Adaptar comandos para Linux/Mac vs Windows quando relevante
+- Passo 4 (script de validação) é ALTAMENTE RECOMENDADO - ajuda a entender o módulo
+- ❌ **NÃO usar `PYTHONPATH=...` no Windows** - scripts já adicionam path automaticamente
 
 ---
 
