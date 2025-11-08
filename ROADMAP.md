@@ -57,20 +57,27 @@
 
 ---
 
-### 2.1 Setup LangGraph State
+### ✅ 2.1 Setup LangGraph State
+
+**Status:** Concluído
 
 **Descrição:** Definir schema do estado do agente usando `TypedDict` e configurar checkpointer para persistência de sessão.
 
-**Critérios de Aceite:**
-- Arquivo `agents/methodologist.py` criado contendo `TypedDict MethodologistState` com campos obrigatórios:
-  - `hypothesis: str`
-  - `messages: Annotated[list, add_messages]`
-  - `clarifications: dict[str, str]`
-  - `status: Literal["pending", "approved", "rejected"]`
-  - `iterations: int`
-  - `max_iterations: int`
-- MemorySaver do LangGraph configurado como checkpointer padrão.
-- Estado inicial populado com valores padrão e validado manualmente.
+**Implementado:**
+- ✅ Arquivo `agents/methodologist.py` criado com `TypedDict MethodologistState` e todos os campos obrigatórios
+- ✅ MemorySaver configurado como checkpointer padrão
+- ✅ Função `create_initial_state()` para criar estado com valores padrão
+- ✅ Testes unitários (6/6 passando): `tests/unit/test_methodologist_state.py`
+- ✅ Script de validação manual: `scripts/validate_state.py`
+
+**Como validar:**
+```powershell
+# Testes unitários
+python -m pytest tests/unit/test_methodologist_state.py -v
+
+# Validação manual
+PYTHONPATH=/home/user/paper-agent python scripts/validate_state.py
+```
 
 ---
 
@@ -345,6 +352,7 @@
 ## 💡 IDEIAS FUTURAS
 
 ### Melhorias do Metodologista (após MVP)
+- **Documentação técnica completa**: criar `docs/agents/methodologist.md` com arquitetura do grafo, fluxo de decisão, exemplos de uso e diagramas
 - **Tool `consult_methodology`**: buscar em knowledge base completa
 - **Knowledge base completa**: 10+ páginas com exemplos detalhados
 - **Nó `consult_knowledge`**: usar LLM para interpretar knowledge base
@@ -352,18 +360,26 @@
 - **Logs estruturados**: JSON com timestamps e níveis
 - **Métricas**: tempo de resposta, tokens consumidos por análise
 
-- Adicionar **Pesquisador** (chamadas externas, web search)
-- Adicionar **Estruturador** (planejamento de artigo)
-- **Persistência:** salvar checkpoints em JSON
-- **Vector DB:** histórico de conversas e artigos
-- Outros agentes: **Escritor**, **Crítico**
-- Interface melhorada: **React + FastAPI**
+### Infraestrutura e Qualidade
+- **Pre-commit hooks**: rodar testes automaticamente antes de cada commit usando `.pre-commit-config.yaml`
+- **Badge de coverage**: adicionar badge no README mostrando % de cobertura de testes
+- **CI/CD**: GitHub Actions para rodar testes em cada PR
 - **Retry logic** e fallbacks para API failures
-- Suporte a **múltiplas conversas simultâneas**
-- **Export** de conversa (Markdown, PDF)
 - **Hot reload na CLI:** recarregar agentes sem reiniciar sessão
 - **Export de logs:** salvar logs em JSON ou TXT para análise posterior
 - **CLI com argumentos:** modo não-interativo para testes automatizados (`python cli.py --input "..."` → output direto)
+
+### Novos Agentes e Funcionalidades
+- Adicionar **Pesquisador** (chamadas externas, web search)
+- Adicionar **Estruturador** (planejamento de artigo)
+- Outros agentes: **Escritor**, **Crítico**
+- Interface melhorada: **React + FastAPI**
+- Suporte a **múltiplas conversas simultâneas**
+- **Export** de conversa (Markdown, PDF)
+
+### Persistência e Memória
+- **Persistência:** salvar checkpoints em JSON
+- **Vector DB:** histórico de conversas e artigos para busca semântica
 
 ---
 
