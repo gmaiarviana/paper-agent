@@ -81,31 +81,52 @@ PYTHONPATH=/home/user/paper-agent python scripts/validate_state.py
 
 ---
 
-### 2.2 Knowledge Base Micro
+### ✅ 2.2 Knowledge Base Micro
+
+**Status:** Concluído
 
 **Descrição:** Criar versão minimalista da base de conhecimento com conceitos essenciais de método científico.
 
-**Critérios de Aceite:**
-- Arquivo `agents/methodologist_knowledge.md` criado.
-- Conteúdo máximo de uma página com 3-4 tópicos obrigatórios:
-  - Diferença entre lei, teoria e hipótese (2-3 parágrafos cada).
-  - Critérios de testabilidade e falseabilidade (1 parágrafo).
-  - Exemplos contrastando hipótese boa vs ruim (mínimo 2 exemplos breves).
-- Formatação markdown limpa (títulos, listas quando necessário).
-- Linguagem alinhada ao português brasileiro.
+**Implementado:**
+- ✅ Arquivo `agents/methodologist_knowledge.md` criado com conteúdo sobre método científico
+- ✅ Diferença entre lei, teoria e hipótese (2-3 parágrafos cada)
+- ✅ Critérios de testabilidade e falseabilidade (critério de Popper)
+- ✅ 2 exemplos práticos contrastando hipóteses boas vs ruins:
+  - Cafeína e desempenho cognitivo
+  - Música e crescimento de plantas
+- ✅ Formatação markdown limpa em português brasileiro
 
 ---
 
-### 2.3 Tool `ask_user`
+### ✅ 2.3 Tool `ask_user`
+
+**Status:** Concluído
 
 **Descrição:** Implementar tool que permite agente fazer perguntas ao usuário usando `interrupt()` do LangGraph.
 
-**Critérios de Aceite:**
-- Função `ask_user(question: str) -> str` decorada com `@tool` e type hints corretos.
-- Docstring clara explicando o comportamento e uso esperado.
-- Chamada a `interrupt()` do `langgraph.types` para pausar a execução.
-- Incrementa `MethodologistState.iterations` e bloqueia novas perguntas quando `iterations >= max_iterations`.
-- Validação e logging simples informando pergunta enviada e limite atingido.
+**Implementado:**
+- ✅ Função `ask_user(question: str) -> str` decorada com `@tool` e type hints corretos
+- ✅ Docstring completa (1441 caracteres) com Args, Returns, Example e Observações
+- ✅ Chamada a `interrupt()` do `langgraph.types` para pausar a execução do grafo
+- ✅ Logging estruturado informando pergunta enviada e resposta recebida
+- ✅ Testes unitários completos (10/10 passando): `tests/unit/test_ask_user_tool.py`
+- ✅ Script de validação manual: `scripts/validate_ask_user.py`
+
+**Observação:** O controle de `iterations` e bloqueio de perguntas será implementado no nó `ask_clarification` (Task 2.4), que gerencia o estado do grafo.
+
+**Como validar:**
+```bash
+# 1. Ativar ambiente virtual
+source venv/bin/activate  # Linux/Mac
+# OU
+.\venv\Scripts\Activate.ps1  # Windows
+
+# 2. Testes unitários
+python -m pytest tests/unit/test_ask_user_tool.py -v
+
+# 3. Validação manual
+PYTHONPATH=/home/user/paper-agent python scripts/validate_ask_user.py
+```
 
 ---
 

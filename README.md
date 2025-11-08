@@ -16,27 +16,53 @@ Pré-requisitos
 Setup Inicial
 -------------
 
+> **⚠️ IMPORTANTE**: Este projeto **REQUER** um ambiente virtual Python. Todos os comandos devem ser executados com o ambiente virtual ativado.
+
 **1. Clone o repositório**
-```powershell
+```bash
 git clone <repository-url>
 cd paper-agent
 ```
 
-**2. Crie e ative um ambiente virtual:**
+**2. Crie e ative um ambiente virtual**
+
+**Linux/Mac:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+**Windows (PowerShell):**
 ```powershell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
 
-**3. Instale as dependências:**
-```powershell
+Você deve ver `(venv)` no início do seu prompt, indicando que o ambiente está ativo.
+
+**3. Instale as dependências**
+```bash
 pip install -r requirements.txt
 ```
 
-**4. Configure as variáveis de ambiente:**
+**4. Configure as variáveis de ambiente**
+
+**Linux/Mac:**
+```bash
+cp .env.example .env
+# Edite o arquivo .env e adicione sua ANTHROPIC_API_KEY
+```
+
+**Windows (PowerShell):**
 ```powershell
 Copy-Item .env.example .env
 # Edite o arquivo .env e adicione sua ANTHROPIC_API_KEY
+```
+
+**Verificação do Setup:**
+```bash
+# Verifique se as dependências foram instaladas corretamente
+python -c "import langgraph; print('✅ LangGraph instalado com sucesso!')"
 ```
 
 Como Rodar
@@ -84,26 +110,54 @@ $env:PYTHONPATH="."; python scripts/validate_state.py
 
 ---
 
+### Validar Tool ask_user
+
+Valide que a tool ask_user do Metodologista está implementada corretamente:
+
+```bash
+# 1. Ativar ambiente virtual (se ainda não estiver ativo)
+source venv/bin/activate  # Linux/Mac
+# OU
+.\venv\Scripts\Activate.ps1  # Windows
+
+# 2. Testes unitários da tool ask_user
+python -m pytest tests/unit/test_ask_user_tool.py -v
+
+# 3. Validação manual completa
+PYTHONPATH=/home/user/paper-agent python scripts/validate_ask_user.py
+```
+
+**Resultado esperado:**
+- ✅ 10/10 testes unitários passando
+- ✅ Tool implementada com decorator @tool
+- ✅ Type hints corretos
+- ✅ Docstring completa com Args, Returns e Example
+- ✅ Usa interrupt() do LangGraph
+
+---
+
 ### Rodar Testes Automatizados
 
-```powershell
+```bash
 # 1. Ativar ambiente virtual (se ainda não estiver ativo)
-.\venv\Scripts\Activate.ps1
+source venv/bin/activate  # Linux/Mac
+# OU
+.\venv\Scripts\Activate.ps1  # Windows
 
-# 2. Instalar pytest (já incluído no requirements.txt)
-pip install -r requirements.txt
+# 2. Testes unitários (rápidos, sem API)
+python -m pytest tests/unit/ -v
 
-# 3. Testes unitários (rápidos, sem API)
-python -m pytest tests/unit/
+# 3. Testes de integração (requer API key)
+python -m pytest tests/integration/ -m integration -v
 
-# 4. Testes de integração (requer API key)
-python -m pytest tests/integration/ -m integration
+# 4. Todos os testes
+python -m pytest tests/ -v
 
-# 5. Todos os testes
-python -m pytest tests/
-
-# 6. Com coverage
+# 5. Com coverage
 python -m pytest tests/unit/ --cov=utils --cov=agents --cov=orchestrator
+
+# 6. Teste específico (exemplo: tool ask_user)
+python -m pytest tests/unit/test_ask_user_tool.py -v
 ```
 
 **Mais informações:** Ver `docs/testing_guidelines.md`

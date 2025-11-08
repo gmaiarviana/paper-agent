@@ -125,6 +125,6 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 - `docs/interface/cli.md`: expectativas de UX e logging.
 - `docs/process/planning_guidelines.md`: governança de roadmap e práticas de planejamento.
 
-**Versão:** 1.2
-**Data:** 07/11/2025
-**Status:** Épico 2 iniciado - Task 2.1 (Setup LangGraph State) concluída
+**Versão:** 1.3
+**Data:** 08/11/2025
+**Status:** Épico 2 em progresso - Tasks 2.1, 2.2 e 2.3 concluídas
