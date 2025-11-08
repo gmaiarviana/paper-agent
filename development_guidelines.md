@@ -318,31 +318,59 @@ git checkout main
 - **Comandos de validação local obrigatórios no PR**
 
 ### Regras Anti-Redundância
-- **Status de épicos**: Vive APENAS no ROADMAP.md (não duplicar no README)
-- **Estrutura do projeto**: Vive APENAS no ARCHITECTURE.md (não duplicar no README)
-- **README.md**: Foco em "Getting Started" - setup rápido e referências
-- **ARCHITECTURE.md**: Foco em estrutura técnica, decisões arquiteturais, organização de código
+
+**Responsabilidade Única de Cada Documento:**
+
+| Documento | Responsabilidade | O que NÃO deve conter |
+|-----------|-----------------|----------------------|
+| **README.md** | Getting Started: setup inicial, comandos de validação, referências para docs | ❌ Status de épicos/tasks<br>❌ Estrutura detalhada do projeto<br>❌ Decisões arquiteturais |
+| **ROADMAP.md** | Status de épicos/tasks, critérios de aceite, comandos de validação por task | ❌ Instruções de setup geral<br>❌ Arquitetura técnica |
+| **ARCHITECTURE.md** | Estrutura técnica, decisões arquiteturais, organização de código, stack | ❌ Status de implementação<br>❌ Instruções de setup<br>❌ Comandos de validação |
+| **development_guidelines.md** | Processo de trabalho com agentes, regras de qualidade, templates | ❌ Funcionalidades específicas<br>❌ Detalhes de implementação |
+
+**Regras de Ouro:**
+- ✅ **Status de funcionalidades**: Vive APENAS no ROADMAP.md
+- ✅ **Estrutura do projeto**: Vive APENAS no ARCHITECTURE.md
+- ✅ **Setup e comandos gerais**: Vive APENAS no README.md
+- ✅ **Comandos de validação por task**: Vive no ROADMAP.md (seção específica da task)
+- ❌ **NUNCA duplicar informações** entre documentos - sempre referenciar
 
 ### Comandos e Validação
+
 - **PowerShell como padrão**: Dev usa Windows, sempre fornecer comandos em PowerShell
 - **Validação antes de merge**: SEMPRE fornecer comandos + resultados esperados
-- **Template de validação**:
-  ```powershell
-  # 1. Trocar de branch
-  git fetch origin
-  git checkout <branch-name>
+- **Checkout de branch obrigatório**: Sempre incluir passos de fetch/checkout nas instruções de validação
 
-  # 2. Instalar/atualizar dependências
-  <comando específico>
+**Template de validação (para ROADMAP.md e README.md):**
+```bash
+# 0. Fazer checkout da branch (SEMPRE incluir este passo)
+git fetch origin
+git checkout <branch-name>
 
-  # 3. Testar funcionalidade
-  <comandos de validação>
+# 1. Ativar ambiente virtual (se aplicável)
+source venv/bin/activate  # Linux/Mac
+# OU
+.\venv\Scripts\Activate.ps1  # Windows
 
-  # Resultados esperados:
-  # - <item 1>
-  # - <item 2>
-  # - Merge somente após validação manual do dev
-  ```
+# 2. Instalar/atualizar dependências (primeira vez ou se mudou requirements)
+<comando específico: pip install -r requirements.txt, npm install, etc>
+
+# 3. Testes unitários
+<comandos de testes>
+
+# 4. Validação manual/scripts
+<comandos de validação manual>
+
+# Resultados esperados:
+# - <item 1>
+# - <item 2>
+```
+
+**Observações:**
+- Passo 0 (checkout) é OBRIGATÓRIO - dev precisa baixar a branch para validar
+- Passo 1 (venv/ambiente) só se projeto usar ambientes virtuais/isolados
+- Passo 2 (dependências) só na primeira vez ou se requirements mudaram
+- Adaptar comandos para Linux/Mac vs Windows quando relevante
 
 ---
 

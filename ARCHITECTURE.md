@@ -127,4 +127,3 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 
 **Versão:** 1.3
 **Data:** 08/11/2025
-**Status:** Épico 2 em progresso - Tasks 2.1, 2.2 e 2.3 concluídas

@@ -71,11 +71,23 @@
 - ✅ Script de validação manual: `scripts/validate_state.py`
 
 **Como validar:**
-```powershell
-# Testes unitários
+```bash
+# 0. Fazer checkout da branch (se necessário)
+git fetch origin
+git checkout claude/implementar-funcao-011CUvMPFFqXRVtcHNShid6w
+
+# 1. Ativar ambiente virtual
+source venv/bin/activate  # Linux/Mac
+# OU
+.\venv\Scripts\Activate.ps1  # Windows
+
+# 2. Instalar dependências (primeira vez)
+pip install -r requirements.txt
+
+# 3. Testes unitários
 python -m pytest tests/unit/test_methodologist_state.py -v
 
-# Validação manual
+# 4. Validação manual
 PYTHONPATH=/home/user/paper-agent python scripts/validate_state.py
 ```
 
@@ -116,15 +128,22 @@ PYTHONPATH=/home/user/paper-agent python scripts/validate_state.py
 
 **Como validar:**
 ```bash
+# 0. Fazer checkout da branch (se necessário)
+git fetch origin
+git checkout claude/implementar-funcao-011CUvMPFFqXRVtcHNShid6w
+
 # 1. Ativar ambiente virtual
 source venv/bin/activate  # Linux/Mac
 # OU
 .\venv\Scripts\Activate.ps1  # Windows
 
-# 2. Testes unitários
+# 2. Instalar dependências (primeira vez)
+pip install -r requirements.txt
+
+# 3. Testes unitários
 python -m pytest tests/unit/test_ask_user_tool.py -v
 
-# 3. Validação manual
+# 4. Validação manual
 PYTHONPATH=/home/user/paper-agent python scripts/validate_ask_user.py
 ```
 
