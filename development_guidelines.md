@@ -25,7 +25,7 @@
 - Testes onde necessário
 - Documentação atualizada
 - **Comandos para validação local** (dev testa antes de mergear)
-- PR criado e pronto para review
+- **Aviso ao dev que branch está pronta** (dev cria PR manualmente)
 
 ---
 
@@ -241,9 +241,47 @@ Aguardando decisão.
 
 ---
 
-### 4. FINALIZAÇÃO: PR PRONTO + COMANDOS PARA VALIDAÇÃO LOCAL
+### 4. FINALIZAÇÃO: BRANCH PRONTA + AVISAR DEV
 
 Quando todas tarefas concluídas:
+
+> **📌 IMPORTANTE - Processo de Pull Request:**
+> - ✅ Template de PR é **automático** (`.github/PULL_REQUEST_TEMPLATE.md`)
+> - ✅ Agente faz **push da branch** e **avisa que está pronto**
+> - ✅ Dev cria o PR **manualmente pela interface do GitHub**
+> - ✅ Template é aplicado automaticamente ao criar o PR
+> - ❌ Agente **NÃO precisa criar PR via `gh pr create`**
+
+**Formato da mensagem final (OBRIGATÓRIO):**
+
+Quando terminar, fornecer mensagem neste formato:
+
+```
+✅ Branch pronta! Você pode criar o PR pela interface do GitHub.
+
+📋 Comandos de validação (copie e cole):
+
+# Baixar branch
+git fetch origin
+git checkout <nome-real-da-branch>
+
+# [Comandos específicos do projeto - venv, dependências, etc]
+
+# Rodar testes
+[comando específico]
+
+# Rodar aplicação
+[comando específico]
+
+# Resultados esperados:
+# - ✅ [descrição do resultado esperado 1]
+# - ✅ [descrição do resultado esperado 2]
+```
+
+**Observações:**
+- Substituir `<nome-real-da-branch>` pelo nome real
+- Incluir comandos específicos para ativar ambiente (venv, etc)
+- Comandos prontos para copiar e colar sem edição
 
 #### Checklist Obrigatório
 
@@ -266,11 +304,15 @@ Quando todas tarefas concluídas:
 **Git:**
 - [ ] Branch criada: `feature/X.Y-nome-funcionalidade`
 - [ ] Commits organizados (se houver vários)
-- [ ] PR criado com descrição clara
-- [ ] **Comandos de validação local fornecidos**
+- [ ] Push realizado para branch remota
+- [ ] **Dev notificado que branch está pronta** (dev cria PR pela interface)
+- [ ] **Comandos de validação local fornecidos COM NOME REAL DA BRANCH** (copiar e colar)
 - [ ] **Merge somente após validação manual do dev**
 
-#### Template de PR
+#### Template de PR (Referência)
+
+> **📌 NOTA:** O template oficial está em `.github/PULL_REQUEST_TEMPLATE.md` e é aplicado automaticamente quando você cria um PR pela interface do GitHub. O template abaixo é apenas para referência sobre o que incluir.
+
 ````markdown
 ## Funcionalidade X.Y: [Nome]
 
@@ -524,19 +566,37 @@ Finalizando...
    - README.md (sem mudanças necessárias)
    - ARCHITECTURE.md (novos endpoints documentados)
    - ROADMAP.md (3.2 marcado como completo)
+✅ Push realizado: feature/3.2-sistema-relatorios
 
-PR criado: feature/3.2-sistema-relatorios
-👉 Review: http://github.com/repo/pull/42
+🎉 Branch pronta! Você pode criar o PR pela interface do GitHub.
+📋 O template de PR será aplicado automaticamente.
 
-📋 Comandos para validação local estão no PR
+📋 Comandos de validação (copie e cole):
+
+# Baixar branch
+git fetch origin
+git checkout feature/3.2-sistema-relatorios
+
+# Ativar ambiente virtual (Windows)
+.\venv\Scripts\Activate.ps1
+
+# Rodar testes
+npm test
+
+# Rodar aplicação
+npm run dev
+
+# Resultados esperados:
+# - ✅ 12/12 testes passando
+# - ✅ Aplicação rodando em http://localhost:3000
+# - ✅ Relatórios sendo criados e listados corretamente
 ```
 
 **Dev:** *(volta da reunião)*
-1. Lê PR
-2. Executa comandos fornecidos para baixar branch
-3. Roda aplicação localmente
-4. Testa funcionalidade manualmente
-5. Aprova merge (ou pede ajustes)
+1. Copia e cola comandos de validação no terminal
+2. Testa funcionalidade manualmente
+3. Cria PR pela interface do GitHub (template aplicado automaticamente)
+4. Aprova merge (ou pede ajustes)
 
 ---
 
