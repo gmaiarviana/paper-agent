@@ -252,6 +252,37 @@ Quando todas tarefas concluídas:
 > - ✅ Template é aplicado automaticamente ao criar o PR
 > - ❌ Agente **NÃO precisa criar PR via `gh pr create`**
 
+**Formato da mensagem final (OBRIGATÓRIO):**
+
+Quando terminar, fornecer mensagem neste formato:
+
+```
+✅ Branch pronta! Você pode criar o PR pela interface do GitHub.
+
+📋 Comandos de validação (copie e cole):
+
+# Baixar branch
+git fetch origin
+git checkout <nome-real-da-branch>
+
+# [Comandos específicos do projeto - venv, dependências, etc]
+
+# Rodar testes
+[comando específico]
+
+# Rodar aplicação
+[comando específico]
+
+# Resultados esperados:
+# - ✅ [descrição do resultado esperado 1]
+# - ✅ [descrição do resultado esperado 2]
+```
+
+**Observações:**
+- Substituir `<nome-real-da-branch>` pelo nome real
+- Incluir comandos específicos para ativar ambiente (venv, etc)
+- Comandos prontos para copiar e colar sem edição
+
 #### Checklist Obrigatório
 
 **Testes:**
@@ -275,7 +306,7 @@ Quando todas tarefas concluídas:
 - [ ] Commits organizados (se houver vários)
 - [ ] Push realizado para branch remota
 - [ ] **Dev notificado que branch está pronta** (dev cria PR pela interface)
-- [ ] **Comandos de validação local fornecidos**
+- [ ] **Comandos de validação local fornecidos COM NOME REAL DA BRANCH** (copiar e colar)
 - [ ] **Merge somente após validação manual do dev**
 
 #### Template de PR (Referência)
@@ -539,14 +570,33 @@ Finalizando...
 
 🎉 Branch pronta! Você pode criar o PR pela interface do GitHub.
 📋 O template de PR será aplicado automaticamente.
+
+📋 Comandos de validação (copie e cole):
+
+# Baixar branch
+git fetch origin
+git checkout feature/3.2-sistema-relatorios
+
+# Ativar ambiente virtual (Windows)
+.\venv\Scripts\Activate.ps1
+
+# Rodar testes
+npm test
+
+# Rodar aplicação
+npm run dev
+
+# Resultados esperados:
+# - ✅ 12/12 testes passando
+# - ✅ Aplicação rodando em http://localhost:3000
+# - ✅ Relatórios sendo criados e listados corretamente
 ```
 
 **Dev:** *(volta da reunião)*
-1. Cria PR pela interface do GitHub (template aplicado automaticamente)
-2. Executa comandos de validação fornecidos para baixar branch
-3. Roda aplicação localmente
-4. Testa funcionalidade manualmente
-5. Aprova merge (ou pede ajustes)
+1. Copia e cola comandos de validação no terminal
+2. Testa funcionalidade manualmente
+3. Cria PR pela interface do GitHub (template aplicado automaticamente)
+4. Aprova merge (ou pede ajustes)
 
 ---
 
