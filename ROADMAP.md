@@ -149,16 +149,30 @@ python scripts/validate_ask_user.py
 
 ---
 
-### 2.4 Nós do Grafo
+### ✅ 2.4 Nós do Grafo
+
+**Status:** Concluído
 
 **Descrição:** Implementar 3 nós que compõem o raciocínio do agente.
 
-**Critérios de Aceite:**
-- **Nó `analyze`:** usa LLM para avaliar hipótese, define se há necessidade de pergunta e atualiza `messages` e sinalizadores no estado.
-- **Nó `ask_clarification`:** chama `ask_user`, registra pergunta/resposta em `clarifications` e incrementa `iterations`.
-- **Nó `decide`:** define `status` (`approved` ou `rejected`) e gera `justification` explicita.
-- Cada nó retorna dicionário com updates incrementais do estado.
-- Logs nível INFO registram entrada, saída e decisão em cada nó.
+**Implementado:**
+- ✅ **Nó `analyze`:** usa LLM (claude-3-5-haiku-20241022) para avaliar hipótese, decide se há informação suficiente e atualiza `messages` e `needs_clarification`
+- ✅ **Nó `ask_clarification`:** chama `ask_user`, registra pergunta/resposta em `clarifications`, incrementa `iterations` e respeita `max_iterations`
+- ✅ **Nó `decide`:** define `status` (`approved` ou `rejected`) e gera `justification` detalhada baseada em critérios científicos
+- ✅ Cada nó retorna dicionário com updates incrementais do estado (messages, clarifications, iterations, status, justification, needs_clarification)
+- ✅ Logs nível INFO registram entrada, saída e decisão em cada nó com formato estruturado
+- ✅ Estado ampliado com novos campos: `justification` e `needs_clarification`
+- ✅ Testes unitários completos (16/16 passando): `tests/unit/test_graph_nodes.py`
+- ✅ Script de validação manual: `scripts/validate_graph_nodes.py`
+
+**Como validar:**
+```bash
+# 1. Testes unitários (usa mocks, não consome API)
+python3 -m pytest tests/unit/test_graph_nodes.py -v
+
+# 2. Validação manual (consome API real, ~$0.01-0.02)
+python3 scripts/validate_graph_nodes.py
+```
 
 ---
 
