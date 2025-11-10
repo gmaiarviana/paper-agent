@@ -35,7 +35,8 @@ paper-agent/
 │
 ├── agents/                # Agentes especializados
 │   ├── __init__.py
-│   └── methodologist.py   # Estado e configuração do Metodologista (Task 2.1)
+│   ├── methodologist.py   # Estado, tools e nós do Metodologista
+│   └── methodologist_knowledge.md  # Base de conhecimento micro
 │
 ├── orchestrator/          # Lógica de orquestração e decisão
 │   └── __init__.py        # (Futuro: orchestrator.py, state.py)
@@ -53,7 +54,9 @@ paper-agent/
 │   ├── unit/              # Testes unitários (mocks, rápidos)
 │   │   ├── __init__.py
 │   │   ├── test_cost_tracker.py
-│   │   └── test_methodologist_state.py  # Testes do estado do Metodologista
+│   │   ├── test_methodologist_state.py  # Testes do estado
+│   │   ├── test_ask_user_tool.py        # Testes da tool ask_user
+│   │   └── test_graph_nodes.py          # Testes dos nós analyze, ask_clarification, decide
 │   ├── integration/       # Testes de integração (API real)
 │   │   └── __init__.py
 │   └── conftest.py        # Fixtures compartilhadas (futuro)
@@ -61,7 +64,9 @@ paper-agent/
 ├── scripts/               # Scripts de validação manual
 │   ├── __init__.py
 │   ├── validate_api.py    # Health check da API
-│   └── validate_state.py  # Validação do estado do Metodologista
+│   ├── validate_state.py  # Validação do estado do Metodologista
+│   ├── validate_ask_user.py  # Validação da tool ask_user
+│   └── validate_graph_nodes.py  # Validação dos nós do grafo
 │
 └── docs/                  # Documentação detalhada por domínio
     ├── testing_guidelines.md  # Estratégia de testes
@@ -80,11 +85,49 @@ paper-agent/
 
 ## Componentes Principais
 
-- **Orquestrador (`orchestrator/`)**: decide próxima ação; detalhes em `docs/orchestration/orchestrator.md`.
-- **Metodologista (`agents/methodologist.py`)**: avalia hipóteses científicas; estado gerenciado via LangGraph (`MethodologistState`); prompts em `utils/prompts.py`; contrato completo em `docs/agents/methodologist.md`.
-- **CLI (`cli/chat.py`)**: loop interativo e logs; UX descrita em `docs/interface/cli.md` (futuro).
-- **Estado (`agents/methodologist.py`)**: `MethodologistState` implementado com TypedDict e MemorySaver para persistência de sessão.
-- **Prompts/Logs (`utils/`)**: prompts versionados (`prompts.py`), logging estruturado e níveis de verbosidade.
+### Metodologista (`agents/methodologist.py`)
+Agente especializado em avaliar rigor científico de hipóteses. **Status: Em desenvolvimento (Épico 2)**
+
+**Estado implementado:**
+- `MethodologistState` (TypedDict) com campos:
+  - `hypothesis`: hipótese a ser avaliada
+  - `messages`: histórico de mensagens (LangGraph)
+  - `clarifications`: perguntas/respostas coletadas
+  - `status`: "pending" | "approved" | "rejected"
+  - `iterations` / `max_iterations`: controle de perguntas
+  - `justification`: justificativa da decisão final
+  - `needs_clarification`: flag de controle de fluxo
+- MemorySaver como checkpointer para persistência de sessão
+
+**Tools implementadas:**
+- `ask_user(question: str) -> str`: solicita clarificações ao usuário via `interrupt()`
+
+**Nós do grafo implementados:**
+- `analyze`: avalia hipótese com LLM (claude-3-5-haiku) e decide se precisa clarificações
+- `ask_clarification`: formula pergunta específica e obtém resposta do usuário
+- `decide`: toma decisão final (approved/rejected) com justificativa detalhada
+
+**Knowledge base:**
+- `agents/methodologist_knowledge.md`: conceitos de método científico (lei, teoria, hipótese, testabilidade, falseabilidade, exemplos)
+
+**Pendente:**
+- Construção do grafo (StateGraph + roteamento condicional)
+- System prompt versionado
+- CLI para interação
+- Teste de fumaça end-to-end
+
+### Orquestrador (`orchestrator/`)
+**Status: Não implementado (Épico 3)**
+Decide próxima ação; detalhes em `docs/orchestration/orchestrator.md`.
+
+### CLI (`cli/chat.py`)
+**Status: Não implementado (Épico 2, Task 2.7)**
+Loop interativo e logs; UX descrita em `docs/interface/cli.md` (futuro).
+
+### Prompts/Logs (`utils/`)
+**Status: Parcialmente implementado**
+- `cost_tracker.py`: cálculo de custos de API (implementado)
+- `prompts.py`: prompts versionados (pendente - Task 2.6)
 
 ## Fluxo de Dados (resumo)
 
@@ -111,11 +154,13 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 
 ## Próximas Evoluções Previstas
 
-- Épico 2 (em andamento): Continuação do Metodologista (knowledge base, tools, nós do grafo).
-- Épico 3: Orquestrador com reasoning e decisão autônoma.
-- Épico 4: logs enriquecidos na CLI e Streamlit como alternativa visual.
-- Épico 5: LangGraph assumindo gestão completa do estado multi-agente.
-- Futuro: novos agentes (Pesquisador, Estruturador, Escritor, Crítico) documentados em `docs/agents/overview.md`.
+- **Épico 2 (em andamento)**: Metodologista MVP standalone
+  - ✅ Estado, knowledge base, tools, nós do grafo implementados
+  - 🔄 Pendente: construção do grafo, system prompt, CLI, teste de fumaça
+- **Épico 3**: Orquestrador com reasoning e decisão autônoma
+- **Épico 4**: CLI interativa e Streamlit opcional
+- **Épico 5**: LangGraph gerenciando estado multi-agente completo
+- **Futuro**: Novos agentes (Pesquisador, Estruturador, Escritor, Crítico)
 
 ## Referências
 
@@ -125,5 +170,5 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 - `docs/interface/cli.md`: expectativas de UX e logging.
 - `docs/process/planning_guidelines.md`: governança de roadmap e práticas de planejamento.
 
-**Versão:** 1.3
-**Data:** 08/11/2025
+**Versão:** 1.4
+**Data:** 10/11/2025

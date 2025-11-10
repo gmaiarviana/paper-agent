@@ -65,102 +65,41 @@ Copy-Item .env.example .env
 python -c "import langgraph; print('✅ LangGraph instalado com sucesso!')"
 ```
 
-Como Rodar
-----------
+Validação e Testes
+------------------
 
-### Validar Conexão com API (Health Check)
+### Health Check da API
 
-Valide que a conexão com a API Anthropic está funcionando:
+Valide a conexão com a API Anthropic:
 
-```powershell
-# Execute o script de validação
+```bash
 python scripts/validate_api.py
 ```
 
 **Resultado esperado:**
 - ✅ Mensagem de sucesso do Claude
-- 📊 Estatísticas de uso de tokens (input/output/total)
-- 💰 Custo estimado da chamada
-
-**Se houver erro:**
-- Verifique se o arquivo `.env` existe e contém `ANTHROPIC_API_KEY=sua-chave-aqui`
-- Confirme que a chave API é válida no painel da Anthropic
+- 📊 Estatísticas de uso de tokens
+- 💰 Custo estimado
 
 ---
 
-### Validar Estado do Metodologista
-
-Valide que o estado do agente Metodologista está configurado corretamente:
-
-```powershell
-# 1. Ativar ambiente virtual (se ainda não estiver ativo)
-.\venv\Scripts\Activate.ps1
-
-# 2. Instalar/atualizar dependências
-pip install -r requirements.txt
-
-# 3. Executar script de validação
-$env:PYTHONPATH="."; python scripts/validate_state.py
-```
-
-**Resultado esperado:**
-- ✅ TypedDict MethodologistState validado
-- ✅ Função create_initial_state funcionando
-- ✅ Checkpointer MemorySaver configurado
-
----
-
-### Validar Tool ask_user
-
-Valide que a tool ask_user do Metodologista está implementada corretamente:
+### Testes Automatizados
 
 ```bash
-# 1. Ativar ambiente virtual (se ainda não estiver ativo)
-source venv/bin/activate  # Linux/Mac
-# OU
-.\venv\Scripts\Activate.ps1  # Windows
-
-# 2. Testes unitários da tool ask_user
-python -m pytest tests/unit/test_ask_user_tool.py -v
-
-# 3. Validação manual completa
-python scripts/validate_ask_user.py
-```
-
-**Resultado esperado:**
-- ✅ 10/10 testes unitários passando
-- ✅ Tool implementada com decorator @tool
-- ✅ Type hints corretos
-- ✅ Docstring completa com Args, Returns e Example
-- ✅ Usa interrupt() do LangGraph
-
----
-
-### Rodar Testes Automatizados
-
-```bash
-# 1. Ativar ambiente virtual (se ainda não estiver ativo)
-source venv/bin/activate  # Linux/Mac
-# OU
-.\venv\Scripts\Activate.ps1  # Windows
-
-# 2. Testes unitários (rápidos, sem API)
+# Testes unitários (rápidos, sem API)
 python -m pytest tests/unit/ -v
 
-# 3. Testes de integração (requer API key)
-python -m pytest tests/integration/ -m integration -v
+# Testes de integração (requer API key)
+python -m pytest tests/integration/ -v
 
-# 4. Todos os testes
+# Todos os testes
 python -m pytest tests/ -v
 
-# 5. Com coverage
+# Com coverage
 python -m pytest tests/unit/ --cov=utils --cov=agents --cov=orchestrator
-
-# 6. Teste específico (exemplo: tool ask_user)
-python -m pytest tests/unit/test_ask_user_tool.py -v
 ```
 
-**Mais informações:** Ver `docs/testing_guidelines.md`
+**Nota:** Para validação de funcionalidades específicas, consulte `ROADMAP.md`
 
 Documentação
 ------------
