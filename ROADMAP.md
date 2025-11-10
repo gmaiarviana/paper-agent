@@ -64,53 +64,6 @@ Nenhum épico em progresso no momento.
 
 ---
 
-## ✅ CONCLUÍDO (Resumido)
-
-### ÉPICO 1: Setup e Infraestrutura Base ✅
-- 1.1 Configuração de Ambiente (commit: 684b87d)
-- 1.2 Teste de Conexão com Claude API (commit: 909f30f)
-
-### ÉPICO 2: Agente Metodologista MVP ✅
-- 2.1 Setup LangGraph State ✅
-- 2.2 Knowledge Base Micro ✅
-- 2.3 Tool `ask_user` ✅
-- 2.4 Nós do Grafo ✅
-- 2.5 Construção do Grafo ✅
-- 2.6 System Prompt ✅
-- 2.7 CLI Minimalista ✅
-- 2.8 Teste de Fumaça ✅
-
-**Arquitetura Atual:**
-```
-agents/
-└── methodologist/
-    ├── __init__.py      # API pública
-    ├── state.py         # MethodologistState
-    ├── tools.py         # ask_user
-    ├── nodes.py         # analyze, ask_clarification, decide
-    ├── router.py        # route_after_analyze
-    └── graph.py         # create_methodologist_graph
-
-cli/
-├── __init__.py
-└── chat.py              # CLI interativo minimalista
-
-utils/
-├── json_parser.py       # extract_json_from_llm_response
-└── prompts.py           # METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1
-
-scripts/
-├── validate_system_prompt.py  # Validação do system prompt
-└── validate_cli.py             # Validação do CLI (fluxo completo)
-
-tests/
-└── integration/
-    ├── __init__.py
-    └── test_methodologist_smoke.py  # Teste de integração completo
-```
-
----
-
 ## 💡 IDEIAS FUTURAS
 
 ### Melhorias do Metodologista (após MVP)
