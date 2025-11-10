@@ -59,106 +59,55 @@
 
 ### ✅ 2.1 Setup LangGraph State
 
-**Status:** Concluído
-
 **Descrição:** Definir schema do estado do agente usando `TypedDict` e configurar checkpointer para persistência de sessão.
 
-**Implementado:**
-- ✅ Arquivo `agents/methodologist.py` criado com `TypedDict MethodologistState` e todos os campos obrigatórios
-- ✅ MemorySaver configurado como checkpointer padrão
-- ✅ Função `create_initial_state()` para criar estado com valores padrão
-- ✅ Testes unitários (6/6 passando): `tests/unit/test_methodologist_state.py`
-- ✅ Script de validação manual: `scripts/validate_state.py`
-
-**Como validar:**
-```bash
-# 0. Fazer checkout da branch (se necessário)
-git fetch origin
-git checkout claude/implementar-funcao-011CUvMPFFqXRVtcHNShid6w
-
-# 1. Ativar ambiente virtual
-source venv/bin/activate  # Linux/Mac
-# OU
-.\venv\Scripts\Activate.ps1  # Windows
-
-# 2. Instalar dependências (primeira vez)
-pip install -r requirements.txt
-
-# 3. Testes unitários
-python -m pytest tests/unit/test_methodologist_state.py -v
-
-# 4. Validação manual
-python scripts/validate_state.py
-```
+**Critérios de Aceite:**
+- Arquivo `agents/methodologist.py` criado com `TypedDict MethodologistState` e todos os campos obrigatórios
+- MemorySaver configurado como checkpointer padrão
+- Função `create_initial_state()` para criar estado com valores padrão
+- Testes unitários validando todos os campos e tipos
+- Script de validação manual
 
 ---
 
 ### ✅ 2.2 Knowledge Base Micro
 
-**Status:** Concluído
-
 **Descrição:** Criar versão minimalista da base de conhecimento com conceitos essenciais de método científico.
 
-**Implementado:**
-- ✅ Arquivo `agents/methodologist_knowledge.md` criado com conteúdo sobre método científico
-- ✅ Diferença entre lei, teoria e hipótese (2-3 parágrafos cada)
-- ✅ Critérios de testabilidade e falseabilidade (critério de Popper)
-- ✅ 2 exemplos práticos contrastando hipóteses boas vs ruins:
-  - Cafeína e desempenho cognitivo
-  - Música e crescimento de plantas
-- ✅ Formatação markdown limpa em português brasileiro
+**Critérios de Aceite:**
+- Diferença entre lei, teoria e hipótese (2-3 parágrafos cada)
+- Critérios de testabilidade e falseabilidade (critério de Popper)
+- 2 exemplos práticos contrastando hipóteses boas vs ruins
+- Formatação markdown limpa em português brasileiro
 
 ---
 
 ### ✅ 2.3 Tool `ask_user`
 
-**Status:** Concluído
-
 **Descrição:** Implementar tool que permite agente fazer perguntas ao usuário usando `interrupt()` do LangGraph.
 
-**Implementado:**
-- ✅ Função `ask_user(question: str) -> str` decorada com `@tool` e type hints corretos
-- ✅ Docstring completa (1441 caracteres) com Args, Returns, Example e Observações
-- ✅ Chamada a `interrupt()` do `langgraph.types` para pausar a execução do grafo
-- ✅ Logging estruturado informando pergunta enviada e resposta recebida
-- ✅ Testes unitários completos (10/10 passando): `tests/unit/test_ask_user_tool.py`
-- ✅ Script de validação manual: `scripts/validate_ask_user.py`
+**Critérios de Aceite:**
+- Função `ask_user(question: str) -> str` decorada com `@tool` e type hints corretos
+- Docstring completa com Args, Returns, Example e Observações
+- Chamada a `interrupt()` do `langgraph.types` para pausar a execução do grafo
+- Logging estruturado informando pergunta enviada e resposta recebida
+- Testes unitários completos
+- Script de validação manual
 
-**Observação:** O controle de `iterations` e bloqueio de perguntas será implementado no nó `ask_clarification` (Task 2.4), que gerencia o estado do grafo.
-
-**Como validar:**
-```bash
-# 0. Fazer checkout da branch (se necessário)
-git fetch origin
-git checkout claude/implementar-funcao-011CUvMPFFqXRVtcHNShid6w
-
-# 1. Ativar ambiente virtual
-source venv/bin/activate  # Linux/Mac
-# OU
-.\venv\Scripts\Activate.ps1  # Windows
-
-# 2. Instalar dependências (primeira vez)
-pip install -r requirements.txt
-
-# 3. Testes unitários
-python -m pytest tests/unit/test_ask_user_tool.py -v
-
-# 4. Validação manual
-python scripts/validate_ask_user.py
-```
+**Observação:** O controle de `iterations` e bloqueio de perguntas é implementado no nó `ask_clarification` (Task 2.4).
 
 ---
 
-### 2.4 Nós do Grafo
+### ✅ 2.4 Nós do Grafo
 
 **Descrição:** Implementar 3 nós que compõem o raciocínio do agente.
 
 **Critérios de Aceite:**
-- **Nó `analyze`:** usa LLM para avaliar hipótese, define se há necessidade de pergunta e atualiza `messages` e sinalizadores no estado.
-- **Nó `ask_clarification`:** chama `ask_user`, registra pergunta/resposta em `clarifications` e incrementa `iterations`.
-- **Nó `decide`:** define `status` (`approved` ou `rejected`) e gera `justification` explicita.
-- Cada nó retorna dicionário com updates incrementais do estado.
-- Logs nível INFO registram entrada, saída e decisão em cada nó.
+- **Nó `analyze`:** usa LLM para avaliar hipótese, define se há necessidade de clarificação e atualiza `messages` e `needs_clarification` no estado
+- **Nó `ask_clarification`:** chama `ask_user`, registra pergunta/resposta em `clarifications` e incrementa `iterations`
+- **Nó `decide`:** define `status` (`approved` ou `rejected`) e gera `justification` explicita
+- Cada nó retorna dicionário com updates incrementais do estado
+- Logs nível INFO registram entrada, saída e decisão em cada nó
 
 ---
 

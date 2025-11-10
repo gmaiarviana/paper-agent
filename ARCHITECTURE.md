@@ -35,7 +35,8 @@ paper-agent/
 │
 ├── agents/                # Agentes especializados
 │   ├── __init__.py
-│   └── methodologist.py   # Estado e configuração do Metodologista (Task 2.1)
+│   ├── methodologist.py   # Estado, tools e nós do Metodologista
+│   └── methodologist_knowledge.md  # Base de conhecimento micro
 │
 ├── orchestrator/          # Lógica de orquestração e decisão
 │   └── __init__.py        # (Futuro: orchestrator.py, state.py)
@@ -53,7 +54,9 @@ paper-agent/
 │   ├── unit/              # Testes unitários (mocks, rápidos)
 │   │   ├── __init__.py
 │   │   ├── test_cost_tracker.py
-│   │   └── test_methodologist_state.py  # Testes do estado do Metodologista
+│   │   ├── test_methodologist_state.py  # Testes do estado
+│   │   ├── test_ask_user_tool.py        # Testes da tool ask_user
+│   │   └── test_graph_nodes.py          # Testes dos nós analyze, ask_clarification, decide
 │   ├── integration/       # Testes de integração (API real)
 │   │   └── __init__.py
 │   └── conftest.py        # Fixtures compartilhadas (futuro)
@@ -61,7 +64,9 @@ paper-agent/
 ├── scripts/               # Scripts de validação manual
 │   ├── __init__.py
 │   ├── validate_api.py    # Health check da API
-│   └── validate_state.py  # Validação do estado do Metodologista
+│   ├── validate_state.py  # Validação do estado do Metodologista
+│   ├── validate_ask_user.py  # Validação da tool ask_user
+│   └── validate_graph_nodes.py  # Validação dos nós do grafo
 │
 └── docs/                  # Documentação detalhada por domínio
     ├── testing_guidelines.md  # Estratégia de testes
@@ -80,11 +85,31 @@ paper-agent/
 
 ## Componentes Principais
 
-- **Orquestrador (`orchestrator/`)**: decide próxima ação; detalhes em `docs/orchestration/orchestrator.md`.
-- **Metodologista (`agents/methodologist.py`)**: avalia hipóteses científicas; estado gerenciado via LangGraph (`MethodologistState`); prompts em `utils/prompts.py`; contrato completo em `docs/agents/methodologist.md`.
-- **CLI (`cli/chat.py`)**: loop interativo e logs; UX descrita em `docs/interface/cli.md` (futuro).
-- **Estado (`agents/methodologist.py`)**: `MethodologistState` implementado com TypedDict e MemorySaver para persistência de sessão.
-- **Prompts/Logs (`utils/`)**: prompts versionados (`prompts.py`), logging estruturado e níveis de verbosidade.
+### Metodologista (`agents/methodologist.py`)
+Agente especializado em avaliar rigor científico de hipóteses usando LangGraph.
+
+**Arquitetura:**
+- Estado gerenciado por `MethodologistState` (TypedDict)
+- Persistência de sessão via MemorySaver
+- 3 nós do grafo: `analyze`, `ask_clarification`, `decide`
+- Tool `ask_user` para interação via `interrupt()`
+- Knowledge base micro sobre método científico
+
+**Detalhes:** Ver `docs/agents/methodologist.md`
+
+### Orquestrador (`orchestrator/`)
+Decide próxima ação e roteia para agentes especializados.
+
+**Detalhes:** Ver `docs/orchestration/orchestrator.md` (futuro - Épico 3)
+
+### CLI (`cli/chat.py`)
+Loop interativo e logs estruturados.
+
+**Detalhes:** Ver `docs/interface/cli.md` (futuro - Épico 2, Task 2.7)
+
+### Utilitários (`utils/`)
+- `cost_tracker.py`: Cálculo de custos de API
+- `prompts.py`: Prompts versionados dos agentes (futuro - Task 2.6)
 
 ## Fluxo de Dados (resumo)
 
@@ -109,14 +134,6 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 - Sem persistência, Docker ou vector DB durante a POC para acelerar iteração.
 - Claude Sonnet 4 escolhido pelo equilíbrio entre custo e confiabilidade de JSON estruturado.
 
-## Próximas Evoluções Previstas
-
-- Épico 2 (em andamento): Continuação do Metodologista (knowledge base, tools, nós do grafo).
-- Épico 3: Orquestrador com reasoning e decisão autônoma.
-- Épico 4: logs enriquecidos na CLI e Streamlit como alternativa visual.
-- Épico 5: LangGraph assumindo gestão completa do estado multi-agente.
-- Futuro: novos agentes (Pesquisador, Estruturador, Escritor, Crítico) documentados em `docs/agents/overview.md`.
-
 ## Referências
 
 - `README.md`: visão geral e execução.
@@ -125,5 +142,5 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 - `docs/interface/cli.md`: expectativas de UX e logging.
 - `docs/process/planning_guidelines.md`: governança de roadmap e práticas de planejamento.
 
-**Versão:** 1.3
-**Data:** 08/11/2025
+**Versão:** 1.4
+**Data:** 10/11/2025
