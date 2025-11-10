@@ -15,12 +15,20 @@ Data: 10/11/2025
 import pytest
 import os
 import uuid
+from pathlib import Path
 from langgraph.types import Command
+from dotenv import load_dotenv
 
 from agents.methodologist import (
     create_methodologist_graph,
     create_initial_state
 )
+
+# Carregar variáveis de ambiente do .env
+# Busca o .env na raiz do projeto (2 níveis acima deste arquivo)
+project_root = Path(__file__).parent.parent.parent
+env_path = project_root / ".env"
+load_dotenv(dotenv_path=env_path)
 
 
 @pytest.mark.integration
