@@ -46,6 +46,10 @@ paper-agent/
 │   ├── prompts.py         # Prompts versionados dos agentes
 │   └── cost_tracker.py    # Cálculo de custos de API
 │
+├── cli/                   # Interface de linha de comando
+│   ├── __init__.py
+│   └── chat.py            # CLI interativo para testar Metodologista
+│
 ├── app/                   # Interface Streamlit (futura)
 │   └── __init__.py        # (Futuro: app.py)
 │
@@ -66,7 +70,8 @@ paper-agent/
 │   ├── validate_api.py    # Health check da API
 │   ├── validate_state.py  # Validação do estado do Metodologista
 │   ├── validate_ask_user.py  # Validação da tool ask_user
-│   └── validate_graph_nodes.py  # Validação dos nós do grafo
+│   ├── validate_graph_nodes.py  # Validação dos nós do grafo
+│   └── validate_cli.py    # Validação do CLI (fluxo completo)
 │
 └── docs/                  # Documentação detalhada por domínio
     ├── testing_guidelines.md  # Estratégia de testes
@@ -103,9 +108,21 @@ Decide próxima ação e roteia para agentes especializados.
 **Detalhes:** Ver `docs/orchestration/orchestrator.md` (futuro - Épico 3)
 
 ### CLI (`cli/chat.py`)
-Loop interativo e logs estruturados.
+Loop interativo minimalista para testar o agente Metodologista.
 
-**Detalhes:** Ver `docs/interface/cli.md` (futuro - Épico 2, Task 2.7)
+**Funcionalidades:**
+- Loop de entrada/processamento/saída
+- Thread ID único por sessão
+- Handling de interrupts (perguntas do agente)
+- Comando `exit` para encerrar
+- Exibição formatada de resultados (status + justificativa)
+
+**Exemplo de uso:**
+```bash
+python cli/chat.py
+```
+
+**Detalhes:** Ver `docs/interface/cli.md` (futuro - melhorias de UX/logging)
 
 ### Utilitários (`utils/`)
 - `cost_tracker.py`: Cálculo de custos de API

@@ -106,6 +106,43 @@ python -m pytest tests/unit/ --cov=utils --cov=agents --cov=orchestrator
 
 **Nota:** Para validação de funcionalidades específicas, consulte `ROADMAP.md`
 
+---
+
+### CLI Interativo
+
+Interface de linha de comando para testar o agente Metodologista:
+
+```bash
+python cli/chat.py
+```
+
+**Uso:**
+1. Digite sua hipótese quando solicitado
+2. Responda perguntas do agente para clarificar aspectos metodológicos
+3. Receba a avaliação final (aprovada/rejeitada) com justificativa
+4. Digite `exit` a qualquer momento para sair
+
+**Exemplo de sessão:**
+```
+📝 Digite sua hipótese: Café aumenta produtividade
+🔬 Analisando hipótese...
+
+❓ Agente pergunta: Qual é a população-alvo do estudo?
+💬 Sua resposta: Adultos de 18-40 anos
+
+❓ Agente pergunta: Como a produtividade será medida?
+💬 Sua resposta: Número de tarefas completadas por hora
+
+📊 RESULTADO DA ANÁLISE
+✅ Status: APROVADA
+📝 Justificativa: A hipótese atende aos critérios de testabilidade...
+```
+
+**Validação do CLI (sem interação):**
+```bash
+python scripts/validate_cli.py
+```
+
 Documentação
 ------------
 - **Status de desenvolvimento**: `ROADMAP.md`

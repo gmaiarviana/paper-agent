@@ -21,20 +21,9 @@
 
 ### ÉPICO 2: Agente Metodologista com LangGraph (MVP)
 
-**Status Atual:** Funcionalidades core implementadas (2.1-2.5). Faltam system prompt, CLI e testes.
+**Status Atual:** Funcionalidades core implementadas (2.1-2.6). CLI implementado (2.7). Falta teste de integração (2.8).
 
 ### 🔜 Próximas Funcionalidades
-
-#### 2.7 CLI Minimalista
-Interface de linha de comando básica para testar o agente.
-
-**Critérios de Aceite:**
-- Arquivo `cli/chat.py` com loop: entrada → execução → handling de `interrupt()` → decisão
-- CLI gera thread ID único por sessão
-- Comando `exit` encerra sem exceções
-- README inclui `python cli/chat.py`
-
----
 
 #### 2.8 Teste de Fumaça
 Teste básico validando fluxo completo do agente.
@@ -102,6 +91,7 @@ Teste básico validando fluxo completo do agente.
 - 2.4 Nós do Grafo ✅
 - 2.5 Construção do Grafo ✅
 - 2.6 System Prompt ✅
+- 2.7 CLI Minimalista ✅
 
 **Arquitetura Atual:**
 ```
@@ -114,12 +104,17 @@ agents/
     ├── router.py        # route_after_analyze
     └── graph.py         # create_methodologist_graph
 
+cli/
+├── __init__.py
+└── chat.py              # CLI interativo minimalista
+
 utils/
 ├── json_parser.py       # extract_json_from_llm_response
 └── prompts.py           # METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1
 
 scripts/
-└── validate_system_prompt.py  # Validação do system prompt
+├── validate_system_prompt.py  # Validação do system prompt
+└── validate_cli.py             # Validação do CLI (fluxo completo)
 ```
 
 ---
