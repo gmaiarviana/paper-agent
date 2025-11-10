@@ -94,23 +94,25 @@ def run_cli():
 
         # Loop de execução: continua enquanto houver interrupts
         try:
-            while True:
-                # Invocar grafo
-                result = graph.invoke(state, config=config)
+            # Primeira invocação do grafo
+            graph.invoke(state, config=config)
 
-                # Verificar se o grafo foi interrompido (NodeInterrupt)
-                # Quando isso acontece, o grafo pausa e aguarda input
+            # Loop para processar interrupts até o grafo terminar
+            while True:
+                # Verificar estado atual do grafo
                 snapshot = graph.get_state(config)
 
-                # Se não há mais interrupts pendentes, o grafo terminou
+                # Se não há mais nós pendentes (next vazio), o grafo terminou
                 if not snapshot.next:
                     # Grafo finalizou - exibir resultado
+                    final_state = snapshot.values
+
                     print_separator()
                     print("📊 RESULTADO DA ANÁLISE")
                     print_separator()
 
-                    status = result.get('status', 'pending')
-                    justification = result.get('justification', 'Sem justificativa.')
+                    status = final_state.get('status', 'pending')
+                    justification = final_state.get('justification', 'Sem justificativa.')
 
                     # Formatar status
                     if status == 'approved':
@@ -123,14 +125,14 @@ def run_cli():
                     print(f"\n📝 Justificativa:\n{justification}\n")
                     break
 
-                # Se há interrupts, significa que o agente fez uma pergunta
-                # O último interrupt contém a pergunta
+                # Se há tasks com interrupts, processar
+                interrupt_found = False
                 if snapshot.tasks:
-                    # Pegar a pergunta do interrupt
                     for task in snapshot.tasks:
                         if task.interrupts:
                             for interrupt_data in task.interrupts:
                                 question = interrupt_data.value
+                                interrupt_found = True
 
                                 # Exibir pergunta do agente
                                 print(f"❓ Agente pergunta: {question}")
@@ -150,17 +152,17 @@ def run_cli():
                                 print()  # Linha em branco para separar
 
                                 # Continuar execução com a resposta
-                                # O grafo vai retomar de onde parou
-                                graph.invoke(None, config=config, input=user_answer)
+                                graph.invoke(user_answer, config=config)
 
-                                # Atualizar estado para próxima iteração
-                                state = None  # Não precisa passar estado novamente
+                                # Continuar loop para verificar próximo estado
                                 break
-                    else:
-                        # Não encontrou interrupts nos tasks
-                        break
-                else:
-                    # Não há tasks pendentes
+
+                            if interrupt_found:
+                                break
+
+                # Se não encontrou interrupts mas há next, algo inesperado
+                if not interrupt_found and snapshot.next:
+                    print("⚠️  Estado inesperado do grafo. Encerrando.")
                     break
 
         except KeyboardInterrupt:
