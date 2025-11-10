@@ -24,6 +24,7 @@ sys.path.insert(0, str(project_root))
 
 from agents.methodologist import create_methodologist_graph, create_initial_state
 from dotenv import load_dotenv
+from langgraph.types import Command
 
 # Configurar logging
 logging.basicConfig(
@@ -152,7 +153,11 @@ def run_cli():
                                 print()  # Linha em branco para separar
 
                                 # Continuar execução com a resposta
-                                graph.invoke(user_answer, config=config)
+                                # Usamos Command para retomar após interrupt
+                                graph.invoke(
+                                    Command(resume=user_answer),
+                                    config=config
+                                )
 
                                 # Continuar loop para verificar próximo estado
                                 break
