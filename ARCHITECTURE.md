@@ -86,48 +86,30 @@ paper-agent/
 ## Componentes Principais
 
 ### Metodologista (`agents/methodologist.py`)
-Agente especializado em avaliar rigor científico de hipóteses. **Status: Em desenvolvimento (Épico 2)**
+Agente especializado em avaliar rigor científico de hipóteses usando LangGraph.
 
-**Estado implementado:**
-- `MethodologistState` (TypedDict) com campos:
-  - `hypothesis`: hipótese a ser avaliada
-  - `messages`: histórico de mensagens (LangGraph)
-  - `clarifications`: perguntas/respostas coletadas
-  - `status`: "pending" | "approved" | "rejected"
-  - `iterations` / `max_iterations`: controle de perguntas
-  - `justification`: justificativa da decisão final
-  - `needs_clarification`: flag de controle de fluxo
-- MemorySaver como checkpointer para persistência de sessão
+**Arquitetura:**
+- Estado gerenciado por `MethodologistState` (TypedDict)
+- Persistência de sessão via MemorySaver
+- 3 nós do grafo: `analyze`, `ask_clarification`, `decide`
+- Tool `ask_user` para interação via `interrupt()`
+- Knowledge base micro sobre método científico
 
-**Tools implementadas:**
-- `ask_user(question: str) -> str`: solicita clarificações ao usuário via `interrupt()`
-
-**Nós do grafo implementados:**
-- `analyze`: avalia hipótese com LLM (claude-3-5-haiku) e decide se precisa clarificações
-- `ask_clarification`: formula pergunta específica e obtém resposta do usuário
-- `decide`: toma decisão final (approved/rejected) com justificativa detalhada
-
-**Knowledge base:**
-- `agents/methodologist_knowledge.md`: conceitos de método científico (lei, teoria, hipótese, testabilidade, falseabilidade, exemplos)
-
-**Pendente:**
-- Construção do grafo (StateGraph + roteamento condicional)
-- System prompt versionado
-- CLI para interação
-- Teste de fumaça end-to-end
+**Detalhes:** Ver `docs/agents/methodologist.md`
 
 ### Orquestrador (`orchestrator/`)
-**Status: Não implementado (Épico 3)**
-Decide próxima ação; detalhes em `docs/orchestration/orchestrator.md`.
+Decide próxima ação e roteia para agentes especializados.
+
+**Detalhes:** Ver `docs/orchestration/orchestrator.md` (futuro - Épico 3)
 
 ### CLI (`cli/chat.py`)
-**Status: Não implementado (Épico 2, Task 2.7)**
-Loop interativo e logs; UX descrita em `docs/interface/cli.md` (futuro).
+Loop interativo e logs estruturados.
 
-### Prompts/Logs (`utils/`)
-**Status: Parcialmente implementado**
-- `cost_tracker.py`: cálculo de custos de API (implementado)
-- `prompts.py`: prompts versionados (pendente - Task 2.6)
+**Detalhes:** Ver `docs/interface/cli.md` (futuro - Épico 2, Task 2.7)
+
+### Utilitários (`utils/`)
+- `cost_tracker.py`: Cálculo de custos de API
+- `prompts.py`: Prompts versionados dos agentes (futuro - Task 2.6)
 
 ## Fluxo de Dados (resumo)
 
@@ -151,16 +133,6 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 - Prioridade para CLI: permite automação com agentes (Claude Code / Cursor) sem dependência de navegador.
 - Sem persistência, Docker ou vector DB durante a POC para acelerar iteração.
 - Claude Sonnet 4 escolhido pelo equilíbrio entre custo e confiabilidade de JSON estruturado.
-
-## Próximas Evoluções Previstas
-
-- **Épico 2 (em andamento)**: Metodologista MVP standalone
-  - ✅ Estado, knowledge base, tools, nós do grafo implementados
-  - 🔄 Pendente: construção do grafo, system prompt, CLI, teste de fumaça
-- **Épico 3**: Orquestrador com reasoning e decisão autônoma
-- **Épico 4**: CLI interativa e Streamlit opcional
-- **Épico 5**: LangGraph gerenciando estado multi-agente completo
-- **Futuro**: Novos agentes (Pesquisador, Estruturador, Escritor, Crítico)
 
 ## Referências
 
