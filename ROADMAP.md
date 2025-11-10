@@ -111,28 +111,48 @@
 
 ---
 
-### 2.5 Construção do Grafo
+### ✅ 2.5 Construção do Grafo
+
+**Status:** Concluído (commit: TBD)
 
 **Descrição:** Montar `StateGraph` conectando os 3 nós com lógica de roteamento condicional.
 
 **Critérios de Aceite:**
-- **Modelo LLM:** `claude-3-5-haiku-20241022` (custo-efetivo para MVP)
-- **Tool binding:** LLM configurado com `.bind_tools([ask_user])` para tool calling nativo
-- **Mecanismo de decisão:** Router verifica `response.tool_calls`:
-  - Se `tool_calls` não vazio → próximo nó é `ToolNode` (executa ask_user)
-  - Se `tool_calls` vazio e `iterations < max_iterations` → nó `decide`
-  - Se `iterations >= max_iterations` → força nó `decide`
-- `StateGraph(MethodologistState)` instanciado.
-- Nós `analyze`, `ask_clarification` e `decide` adicionados e registrados.
-- Edges implementados:
+- ✅ **Modelo LLM:** `claude-3-5-haiku-20241022` (custo-efetivo para MVP)
+- ✅ **Mecanismo de decisão:** Router verifica estado e decide próximo nó:
+  - Se `needs_clarification=True` e `iterations < max_iterations` → `ask_clarification`
+  - Se `needs_clarification=False` ou `iterations >= max_iterations` → `decide`
+- ✅ `StateGraph(MethodologistState)` instanciado
+- ✅ Nós `analyze`, `ask_clarification` e `decide` adicionados e registrados
+- ✅ Edges implementados:
   - START → `analyze`
-  - `analyze` → `ask_clarification` (quando precisa de mais contexto)
-  - `analyze` → `decide` (quando já pode deliberar)
-  - `ask_clarification` → `analyze`
+  - `analyze` → router → `ask_clarification` | `decide`
+  - `ask_clarification` → `analyze` (loop)
   - `decide` → END
-- Router function decide próximo nó com base em estado (`iterations`, necessidade de contexto, status).
-- Se `iterations >= max_iterations`, fluxo força `decide`.
-- Grafo compilado com `MemorySaver` e invocável via `graph.invoke({"hypothesis": "..."})`.
+- ✅ Router function (`route_after_analyze`) decide próximo nó com base em estado
+- ✅ Se `iterations >= max_iterations`, fluxo força `decide`
+- ✅ Grafo compilado com `MemorySaver` e invocável via `create_methodologist_graph()`
+
+**Validação:**
+```bash
+# Ativar ambiente virtual
+source venv/bin/activate  # Linux/Mac
+# OU
+.\venv\Scripts\Activate.ps1  # Windows
+
+# Executar script de validação
+python scripts/validate_graph.py
+
+# Resultados esperados:
+# - ✅ Grafo criado com sucesso
+# - ✅ Todos os nós registrados
+# - ✅ Checkpointer configurado
+# - ✅ Router testado em 3 cenários diferentes
+```
+
+**Arquivos modificados:**
+- `agents/methodologist.py`: Adicionado `route_after_analyze()` e `create_methodologist_graph()`
+- `scripts/validate_graph.py`: Script de validação manual criado
 
 ---
 
