@@ -77,18 +77,19 @@ git fetch origin
 git checkout claude/implementar-funcao-011CUvMPFFqXRVtcHNShid6w
 
 # 1. Ativar ambiente virtual
-source venv/bin/activate  # Linux/Mac
-# OU
-.\venv\Scripts\Activate.ps1  # Windows
+# Windows PowerShell:
+.\venv\Scripts\Activate.ps1
+# Linux/Mac:
+source venv/bin/activate
 
 # 2. Instalar dependências (primeira vez)
 pip install -r requirements.txt
 
 # 3. Testes unitários
-python -m pytest tests/unit/test_methodologist_state.py -v
+python3 -m pytest tests/unit/test_methodologist_state.py -v
 
 # 4. Validação manual
-python scripts/validate_state.py
+python3 scripts/validate_state.py
 ```
 
 ---
@@ -133,18 +134,19 @@ git fetch origin
 git checkout claude/implementar-funcao-011CUvMPFFqXRVtcHNShid6w
 
 # 1. Ativar ambiente virtual
-source venv/bin/activate  # Linux/Mac
-# OU
-.\venv\Scripts\Activate.ps1  # Windows
+# Windows PowerShell:
+.\venv\Scripts\Activate.ps1
+# Linux/Mac:
+source venv/bin/activate
 
 # 2. Instalar dependências (primeira vez)
 pip install -r requirements.txt
 
 # 3. Testes unitários
-python -m pytest tests/unit/test_ask_user_tool.py -v
+python3 -m pytest tests/unit/test_ask_user_tool.py -v
 
 # 4. Validação manual
-python scripts/validate_ask_user.py
+python3 scripts/validate_ask_user.py
 ```
 
 ---
