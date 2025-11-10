@@ -122,31 +122,6 @@ scripts/
 └── validate_system_prompt.py  # Validação do system prompt
 ```
 
-#### Validação da Funcionalidade 2.6
-
-**Comando:**
-```bash
-# 0. Fazer checkout da branch
-git fetch origin
-git checkout claude/vamos-segu-011CUzforcNxk1yD6c4z1f9B
-
-# 1. Ativar ambiente virtual
-source venv/bin/activate  # Linux/Mac
-# OU
-.\venv\Scripts\Activate.ps1  # Windows
-
-# 2. Validar system prompt
-python scripts/validate_system_prompt.py
-
-# Resultados esperados:
-# - ✅ Prompt definido (tipo: str)
-# - ✅ Dentro do limite (265/500 palavras)
-# - ✅ Menciona tool 'ask_user'
-# - ✅ Define output JSON com campos corretos
-# - ✅ Menciona todos os 4 critérios científicos
-# - 🎉 Funcionalidade 2.6 implementada com sucesso!
-```
-
 ---
 
 ## 💡 IDEIAS FUTURAS

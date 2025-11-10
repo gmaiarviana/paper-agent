@@ -431,7 +431,7 @@ git checkout main
 | Documento | Responsabilidade | O que NÃO deve conter |
 |-----------|-----------------|----------------------|
 | **README.md** | Getting Started: setup inicial, comandos de validação gerais, referências para docs | ❌ Status de épicos/tasks<br>❌ Estrutura detalhada do projeto<br>❌ Decisões arquiteturais<br>❌ Comandos de validação específicos por task |
-| **ROADMAP.md** | Status de épicos/tasks, critérios de aceite, comandos de validação **por task** | ❌ Instruções de setup geral<br>❌ Arquitetura técnica |
+| **ROADMAP.md** | Status de épicos/tasks, critérios de aceite | ❌ Instruções de setup geral<br>❌ Arquitetura técnica<br>❌ Comandos de validação (validação é durante sessão de trabalho) |
 | **ARCHITECTURE.md** | Estrutura técnica, decisões arquiteturais, organização de código, stack | ❌ Status de implementação<br>❌ Instruções de setup<br>❌ Comandos de validação |
 | **development_guidelines.md** | Processo de trabalho com agentes, regras de qualidade, templates de validação | ❌ Funcionalidades específicas<br>❌ Detalhes de implementação |
 | **.github/PULL_REQUEST_TEMPLATE.md** | Template para PRs, preenchido automaticamente pelo GitHub | ❌ Conteúdo específico de tasks<br>❌ Apenas estrutura/template |
@@ -440,16 +440,18 @@ git checkout main
 - ✅ **Status de funcionalidades**: Vive APENAS no ROADMAP.md
 - ✅ **Estrutura do projeto**: Vive APENAS no ARCHITECTURE.md
 - ✅ **Setup e comandos gerais**: Vive APENAS no README.md
-- ✅ **Comandos de validação por task**: Vive no ROADMAP.md (seção específica da task)
+- ✅ **Validação de funcionalidades**: Acontece durante a sessão de trabalho via scripts (`scripts/validate_*.py`)
 - ❌ **NUNCA duplicar informações** entre documentos - sempre referenciar
+- ❌ **NUNCA adicionar histórico de validação no ROADMAP** - validação é feita durante implementação
 
 ### Comandos e Validação
 
 - **PowerShell como padrão**: Dev usa Windows, sempre fornecer comandos em PowerShell
-- **Validação antes de merge**: SEMPRE fornecer comandos + resultados esperados
+- **Validação durante implementação**: Criar scripts de validação (`scripts/validate_*.py`) e executar durante a sessão
+- **Validação no PR**: Fornecer comandos de validação na mensagem final ao dev (não no ROADMAP)
 - **Checkout de branch obrigatório**: Sempre incluir passos de fetch/checkout nas instruções de validação
 
-**Template de validação (para ROADMAP.md):**
+**Template de validação (para mensagem final ao dev):**
 ```bash
 # 0. Fazer checkout da branch (SEMPRE incluir este passo)
 git fetch origin
@@ -480,6 +482,7 @@ python scripts/validate_*.py
 - Passo 2 (dependências) só na primeira vez ou se requirements mudaram
 - Passo 4 (script de validação) é ALTAMENTE RECOMENDADO - ajuda a entender o módulo
 - ❌ **NÃO usar `PYTHONPATH=...` no Windows** - scripts já adicionam path automaticamente
+- ❌ **NÃO salvar comandos de validação no ROADMAP.md** - fornecer apenas na mensagem final ao dev
 
 ---
 
