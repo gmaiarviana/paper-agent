@@ -25,17 +25,6 @@
 
 ### 🔜 Próximas Funcionalidades
 
-#### 2.6 System Prompt
-Criar prompt do agente com instruções de comportamento e uso de tools.
-
-**Critérios de Aceite:**
-- Constante `METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1` em `utils/prompts.py`
-- Tool calling explícito (instrui LLM a usar `ask_user`)
-- Define output JSON: `{"status": "approved|rejected", "justification": "..."}`
-- Linguagem direta, <= 500 palavras
-
----
-
 #### 2.7 CLI Minimalista
 Interface de linha de comando básica para testar o agente.
 
@@ -112,6 +101,7 @@ Teste básico validando fluxo completo do agente.
 - 2.3 Tool `ask_user` ✅
 - 2.4 Nós do Grafo ✅
 - 2.5 Construção do Grafo ✅
+- 2.6 System Prompt ✅
 
 **Arquitetura Atual:**
 ```
@@ -125,7 +115,36 @@ agents/
     └── graph.py         # create_methodologist_graph
 
 utils/
-└── json_parser.py       # extract_json_from_llm_response
+├── json_parser.py       # extract_json_from_llm_response
+└── prompts.py           # METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1
+
+scripts/
+└── validate_system_prompt.py  # Validação do system prompt
+```
+
+#### Validação da Funcionalidade 2.6
+
+**Comando:**
+```bash
+# 0. Fazer checkout da branch
+git fetch origin
+git checkout claude/vamos-segu-011CUzforcNxk1yD6c4z1f9B
+
+# 1. Ativar ambiente virtual
+source venv/bin/activate  # Linux/Mac
+# OU
+.\venv\Scripts\Activate.ps1  # Windows
+
+# 2. Validar system prompt
+python scripts/validate_system_prompt.py
+
+# Resultados esperados:
+# - ✅ Prompt definido (tipo: str)
+# - ✅ Dentro do limite (265/500 palavras)
+# - ✅ Menciona tool 'ask_user'
+# - ✅ Define output JSON com campos corretos
+# - ✅ Menciona todos os 4 critérios científicos
+# - 🎉 Funcionalidade 2.6 implementada com sucesso!
 ```
 
 ---

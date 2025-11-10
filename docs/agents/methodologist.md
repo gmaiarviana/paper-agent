@@ -110,6 +110,20 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 
 **Nota:** Knowledge base micro para MVP. Versão completa será implementada futuramente com tool `consult_methodology`.
 
+### System Prompt
+
+**Localização:** `utils/prompts.py`
+**Constante:** `METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1`
+
+**Características:**
+- Linguagem direta e concisa (265 palavras)
+- Instruções explícitas sobre uso da tool `ask_user`
+- Define output JSON: `{"status": "approved|rejected", "justification": "..."}`
+- Critérios científicos claros: testabilidade, falseabilidade, especificidade, operacionalização
+- Exemplos práticos de aprovação e rejeição
+
+**Validação:** `scripts/validate_system_prompt.py`
+
 ### Fluxo de Execução
 
 ```
@@ -144,8 +158,8 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 
 ## Pendências (Épico 2)
 
-- [ ] **Task 2.5:** Construção do grafo (StateGraph + roteamento condicional)
-- [ ] **Task 2.6:** System prompt versionado em `utils/prompts.py`
+- [x] **Task 2.5:** Construção do grafo (StateGraph + roteamento condicional) ✅
+- [x] **Task 2.6:** System prompt versionado em `utils/prompts.py` ✅
 - [ ] **Task 2.7:** CLI para interação
 - [ ] **Task 2.8:** Teste de fumaça end-to-end
 
