@@ -4,9 +4,9 @@ Agente Metodologista: Avalia rigor científico de hipóteses e constatações.
 Este módulo implementa o agente Metodologista usando LangGraph,
 responsável por validar hipóteses do ponto de vista metodológico.
 
-Versão: 1.2
+Versão: 1.3
 Data: 10/11/2025
-Status: Funcionalidade 2.4 - Nós do Grafo implementados
+Status: Funcionalidade 2.5 - Construção do Grafo completa
 """
 
 import logging
@@ -538,3 +538,107 @@ RESPONDA EM JSON:
         "justification": justification,
         "messages": [response]
     }
+
+
+# ==============================================================================
+# GRAPH CONSTRUCTION (Funcionalidade 2.5)
+# ==============================================================================
+
+def route_after_analyze(state: MethodologistState) -> Literal["ask_clarification", "decide"]:
+    """
+    Router que decide o próximo nó após o nó analyze.
+
+    Lógica de decisão:
+    - Se needs_clarification é True E iterations < max_iterations → ask_clarification
+    - Caso contrário → decide (tempo de decidir com o contexto disponível)
+
+    Args:
+        state (MethodologistState): Estado atual do grafo.
+
+    Returns:
+        str: Nome do próximo nó ("ask_clarification" ou "decide")
+    """
+    logger.info("=== ROUTER: Decidindo próximo nó após analyze ===")
+    logger.info(f"needs_clarification: {state['needs_clarification']}")
+    logger.info(f"iterations: {state['iterations']}/{state['max_iterations']}")
+
+    # Se precisa de clarificação E ainda não atingiu o limite
+    if state['needs_clarification'] and state['iterations'] < state['max_iterations']:
+        next_node = "ask_clarification"
+    else:
+        next_node = "decide"
+
+    logger.info(f"Decisão do router: {next_node}")
+    logger.info("=== ROUTER: Finalizado ===\n")
+
+    return next_node
+
+
+def create_methodologist_graph():
+    """
+    Cria e compila o grafo do agente Metodologista.
+
+    Este grafo implementa o fluxo completo de análise de hipóteses:
+    1. START → analyze: Avalia a hipótese e decide se precisa de mais informações
+    2. analyze → router → ask_clarification ou decide
+    3. ask_clarification → analyze (loop até max_iterations)
+    4. decide → END: Decisão final
+
+    Returns:
+        CompiledGraph: Grafo compilado pronto para execução via invoke()
+
+    Example:
+        >>> graph = create_methodologist_graph()
+        >>> result = graph.invoke(
+        ...     {"hypothesis": "Café aumenta produtividade"},
+        ...     config={"configurable": {"thread_id": "test-1"}}
+        ... )
+        >>> result['status'] in ['approved', 'rejected']
+        True
+    """
+    from langgraph.graph import StateGraph, END
+
+    logger.info("=== CRIANDO GRAFO DO METODOLOGISTA ===")
+
+    # Criar o StateGraph
+    graph = StateGraph(MethodologistState)
+
+    # Adicionar nós
+    graph.add_node("analyze", analyze)
+    graph.add_node("ask_clarification", ask_clarification)
+    graph.add_node("decide", decide)
+
+    logger.info("Nós adicionados: analyze, ask_clarification, decide")
+
+    # Definir entrada do grafo
+    graph.set_entry_point("analyze")
+
+    # Adicionar edges condicionais
+    graph.add_conditional_edges(
+        "analyze",
+        route_after_analyze,
+        {
+            "ask_clarification": "ask_clarification",
+            "decide": "decide"
+        }
+    )
+
+    # Edge de ask_clarification volta para analyze (loop)
+    graph.add_edge("ask_clarification", "analyze")
+
+    # Edge de decide para END (finaliza o grafo)
+    graph.add_edge("decide", END)
+
+    logger.info("Edges configurados:")
+    logger.info("  - START → analyze")
+    logger.info("  - analyze → [router] → ask_clarification | decide")
+    logger.info("  - ask_clarification → analyze")
+    logger.info("  - decide → END")
+
+    # Compilar o grafo com checkpointer
+    compiled_graph = graph.compile(checkpointer=checkpointer)
+
+    logger.info("Grafo compilado com MemorySaver checkpointer")
+    logger.info("=== GRAFO CRIADO COM SUCESSO ===\n")
+
+    return compiled_graph
