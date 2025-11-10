@@ -167,10 +167,23 @@ python scripts/validate_ask_user.py
 
 **Como validar:**
 ```bash
-# 1. Testes unitários (usa mocks, não consome API)
+# 0. Fazer checkout da branch (se necessário)
+git fetch origin
+git checkout claude/epic-2-continuation-011CUzBUTcyP4xzChH1GrMr5
+
+# 1. Ativar ambiente virtual
+# Windows PowerShell:
+.\venv\Scripts\Activate.ps1
+# Linux/Mac:
+source venv/bin/activate
+
+# 2. Instalar dependências (primeira vez)
+pip install -r requirements.txt
+
+# 3. Testes unitários (usa mocks, não consome API)
 python3 -m pytest tests/unit/test_graph_nodes.py -v
 
-# 2. Validação manual (consome API real, ~$0.01-0.02)
+# 4. Validação manual (consome API real, ~$0.01-0.02)
 python3 scripts/validate_graph_nodes.py
 ```
 
