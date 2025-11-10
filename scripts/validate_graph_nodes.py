@@ -21,8 +21,8 @@ from dotenv import load_dotenv
 # Adicionar diretório raiz ao path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from agents.methodologist import (
-    create_initial_state,
+from agents.methodologist import create_initial_state
+from agents.methodologist.nodes import (
     analyze,
     ask_clarification,
     decide
@@ -85,7 +85,7 @@ def test_ask_clarification_node():
     state = create_initial_state("Café aumenta produtividade")
 
     # Simular resposta do usuário
-    with patch('agents.methodologist.ask_user', return_value="Adultos de 18-40 anos sem histórico de doenças cardiovasculares"):
+    with patch('agents.methodologist.nodes.ask_user', return_value="Adultos de 18-40 anos sem histórico de doenças cardiovasculares"):
         result = ask_clarification(state)
 
     print(f"✓ Hipótese: {state['hypothesis']}")
@@ -154,7 +154,7 @@ def test_max_iterations_limit():
     state['iterations'] = 3  # Já atingiu o limite
 
     from unittest.mock import patch
-    with patch('agents.methodologist.ask_user') as mock_ask:
+    with patch('agents.methodologist.nodes.ask_user') as mock_ask:
         result = ask_clarification(state)
 
     print(f"✓ Max iterations: {state['max_iterations']}")

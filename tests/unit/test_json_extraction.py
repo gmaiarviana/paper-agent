@@ -7,7 +7,7 @@ JSON em diversos formatos retornados pelo LLM.
 
 import pytest
 import json
-from agents.methodologist import extract_json_from_llm_response
+from utils.json_parser import extract_json_from_llm_response
 
 
 class TestExtractJsonFromLLMResponse:

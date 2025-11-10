@@ -7,7 +7,7 @@ Data: 08/11/2025
 
 import pytest
 from unittest.mock import patch, MagicMock
-from agents.methodologist import ask_user
+from agents.methodologist.tools import ask_user
 
 
 class TestAskUserTool:
@@ -28,8 +28,8 @@ class TestAskUserTool:
         assert annotations['question'] == str
         assert annotations['return'] == str
 
-    @patch('agents.methodologist.interrupt')
-    @patch('agents.methodologist.logger')
+    @patch('agents.methodologist.tools.interrupt')
+    @patch('agents.methodologist.tools.logger')
     def test_ask_user_calls_interrupt(self, mock_logger, mock_interrupt):
         """Verifica que ask_user chama interrupt() com a pergunta."""
         mock_interrupt.return_value = "Resposta mockada"
@@ -40,8 +40,8 @@ class TestAskUserTool:
         mock_interrupt.assert_called_once_with(question)
         assert result == "Resposta mockada"
 
-    @patch('agents.methodologist.interrupt')
-    @patch('agents.methodologist.logger')
+    @patch('agents.methodologist.tools.interrupt')
+    @patch('agents.methodologist.tools.logger')
     def test_ask_user_logs_question(self, mock_logger, mock_interrupt):
         """Verifica que ask_user loga a pergunta enviada."""
         mock_interrupt.return_value = "Resposta mockada"
@@ -55,8 +55,8 @@ class TestAskUserTool:
         assert question in first_call_args
         assert "Pergunta enviada" in first_call_args
 
-    @patch('agents.methodologist.interrupt')
-    @patch('agents.methodologist.logger')
+    @patch('agents.methodologist.tools.interrupt')
+    @patch('agents.methodologist.tools.logger')
     def test_ask_user_logs_response(self, mock_logger, mock_interrupt):
         """Verifica que ask_user loga a resposta recebida."""
         response = "Adultos de 18-40 anos"
@@ -70,8 +70,8 @@ class TestAskUserTool:
         assert response in second_call_args
         assert "Resposta recebida" in second_call_args
 
-    @patch('agents.methodologist.interrupt')
-    @patch('agents.methodologist.logger')
+    @patch('agents.methodologist.tools.interrupt')
+    @patch('agents.methodologist.tools.logger')
     def test_ask_user_returns_user_response(self, mock_logger, mock_interrupt):
         """Verifica que ask_user retorna a resposta do usuário."""
         expected_response = "Tempo de reação em milissegundos"
@@ -81,8 +81,8 @@ class TestAskUserTool:
 
         assert result == expected_response
 
-    @patch('agents.methodologist.interrupt')
-    @patch('agents.methodologist.logger')
+    @patch('agents.methodologist.tools.interrupt')
+    @patch('agents.methodologist.tools.logger')
     def test_ask_user_with_empty_question(self, mock_logger, mock_interrupt):
         """Verifica comportamento com pergunta vazia."""
         mock_interrupt.return_value = "Resposta"
@@ -92,8 +92,8 @@ class TestAskUserTool:
         mock_interrupt.assert_called_once_with("")
         assert result == "Resposta"
 
-    @patch('agents.methodologist.interrupt')
-    @patch('agents.methodologist.logger')
+    @patch('agents.methodologist.tools.interrupt')
+    @patch('agents.methodologist.tools.logger')
     def test_ask_user_with_long_question(self, mock_logger, mock_interrupt):
         """Verifica comportamento com pergunta longa."""
         long_question = "Poderia especificar " * 50  # Pergunta muito longa

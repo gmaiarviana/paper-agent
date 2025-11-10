@@ -16,7 +16,9 @@ from langchain_core.messages import AIMessage, HumanMessage
 
 from agents.methodologist import (
     MethodologistState,
-    create_initial_state,
+    create_initial_state
+)
+from agents.methodologist.nodes import (
     analyze,
     ask_clarification,
     decide
@@ -37,7 +39,7 @@ class TestAnalyzeNode:
         # Mock da resposta do LLM indicando informação insuficiente
         mock_response = AIMessage(content='{"has_sufficient_info": false, "reasoning": "Faltam detalhes", "missing_info": "população e métricas"}')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 
@@ -54,7 +56,7 @@ class TestAnalyzeNode:
         # Mock da resposta do LLM indicando informação suficiente
         mock_response = AIMessage(content='{"has_sufficient_info": true, "reasoning": "Hipótese bem especificada"}')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 
@@ -70,7 +72,7 @@ class TestAnalyzeNode:
         # Mock da resposta do LLM com JSON inválido
         mock_response = AIMessage(content='Resposta sem JSON válido')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 
@@ -86,7 +88,7 @@ class TestAnalyzeNode:
 
         mock_response = AIMessage(content='{"has_sufficient_info": false, "reasoning": "Ainda faltam métricas"}')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 
@@ -104,7 +106,7 @@ class TestAnalyzeNode:
         state = create_initial_state("Café aumenta produtividade")
         mock_response = AIMessage(content='{"has_sufficient_info": false}')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 
@@ -133,8 +135,8 @@ class TestAskClarificationNode:
         # Mock da resposta do usuário
         mock_user_answer = "Adultos de 18-40 anos"
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM, \
-             patch('agents.methodologist.ask_user') as mock_ask_user:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM, \
+             patch('agents.methodologist.nodes.ask_user') as mock_ask_user:
 
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_question_response
@@ -164,8 +166,8 @@ class TestAskClarificationNode:
         mock_question_response = AIMessage(content="Quais são as variáveis dependentes?")
         mock_user_answer = "Tempo de reação"
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM, \
-             patch('agents.methodologist.ask_user') as mock_ask_user:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM, \
+             patch('agents.methodologist.nodes.ask_user') as mock_ask_user:
 
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_question_response
@@ -180,8 +182,8 @@ class TestAskClarificationNode:
         state = create_initial_state("Café aumenta produtividade", max_iterations=3)
         state['iterations'] = 3  # Já atingiu o limite
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM, \
-             patch('agents.methodologist.ask_user') as mock_ask_user:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM, \
+             patch('agents.methodologist.nodes.ask_user') as mock_ask_user:
 
             result = ask_clarification(state)
 
@@ -199,8 +201,8 @@ class TestAskClarificationNode:
 
         mock_question_response = AIMessage(content="Quais métricas serão usadas?")
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM, \
-             patch('agents.methodologist.ask_user') as mock_ask_user:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM, \
+             patch('agents.methodologist.nodes.ask_user') as mock_ask_user:
 
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_question_response
@@ -221,8 +223,8 @@ class TestAskClarificationNode:
         mock_question_response = AIMessage(content="Qual é a população?")
         mock_user_answer = "Adultos"
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM, \
-             patch('agents.methodologist.ask_user') as mock_ask_user:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM, \
+             patch('agents.methodologist.nodes.ask_user') as mock_ask_user:
 
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_question_response
@@ -250,7 +252,7 @@ class TestDecideNode:
 
         mock_response = AIMessage(content='{"decision": "approved", "justification": "Hipótese testável, falseável e específica"}')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 
@@ -267,7 +269,7 @@ class TestDecideNode:
 
         mock_response = AIMessage(content='{"decision": "rejected", "justification": "Hipótese vaga, não-testável e sem métricas"}')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 
@@ -288,7 +290,7 @@ class TestDecideNode:
 
         mock_response = AIMessage(content='{"decision": "approved", "justification": "Com as clarificações, a hipótese se tornou testável"}')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 
@@ -307,7 +309,7 @@ class TestDecideNode:
 
         mock_response = AIMessage(content='Resposta sem JSON válido')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 
@@ -324,7 +326,7 @@ class TestDecideNode:
         # Status inválido
         mock_response = AIMessage(content='{"decision": "maybe", "justification": "Não tenho certeza"}')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 
@@ -339,7 +341,7 @@ class TestDecideNode:
 
         mock_response = AIMessage(content='{"decision": "approved", "justification": "Hipótese adequada"}')
 
-        with patch('agents.methodologist.ChatAnthropic') as MockLLM:
+        with patch('agents.methodologist.nodes.ChatAnthropic') as MockLLM:
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_response
 

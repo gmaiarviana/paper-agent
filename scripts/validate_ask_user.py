@@ -18,7 +18,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from agents.methodologist import ask_user
+from agents.methodologist.tools import ask_user
 from langchain_core.tools import BaseTool
 
 
