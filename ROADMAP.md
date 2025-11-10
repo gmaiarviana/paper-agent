@@ -19,21 +19,7 @@
 
 ## 🎯 EM PROGRESSO
 
-### ÉPICO 2: Agente Metodologista com LangGraph (MVP)
-
-**Status Atual:** Funcionalidades core implementadas (2.1-2.6). CLI implementado (2.7). Falta teste de integração (2.8).
-
-### 🔜 Próximas Funcionalidades
-
-#### 2.8 Teste de Fumaça
-Teste básico validando fluxo completo do agente.
-
-**Critérios de Aceite:**
-- Arquivo `tests/integration/test_methodologist_smoke.py`
-- Usa API real (marcar com `@pytest.mark.integration`)
-- Simula: hipótese vaga → pergunta → resposta → decisão final
-- Valida `status != "pending"` e `justification` preenchida
-- Comando: `pytest tests/integration/test_methodologist_smoke.py -v`
+Nenhum épico em progresso no momento.
 
 ---
 
@@ -92,6 +78,7 @@ Teste básico validando fluxo completo do agente.
 - 2.5 Construção do Grafo ✅
 - 2.6 System Prompt ✅
 - 2.7 CLI Minimalista ✅
+- 2.8 Teste de Fumaça ✅
 
 **Arquitetura Atual:**
 ```
@@ -115,6 +102,11 @@ utils/
 scripts/
 ├── validate_system_prompt.py  # Validação do system prompt
 └── validate_cli.py             # Validação do CLI (fluxo completo)
+
+tests/
+└── integration/
+    ├── __init__.py
+    └── test_methodologist_smoke.py  # Teste de integração completo
 ```
 
 ---
