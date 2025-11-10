@@ -65,6 +65,11 @@ Copy-Item .env.example .env
 python -c "import langgraph; print('✅ LangGraph instalado com sucesso!')"
 ```
 
+> **💡 Nota sobre `python` vs `python3`:**
+> - **Windows (PowerShell):** Use `python` quando o ambiente virtual estiver ativado. O comando `python3` pode invocar o Python do sistema em vez do ambiente virtual.
+> - **Linux/Mac:** Use `python3` para garantir que está usando Python 3.x, ou `python` se estiver com venv ativado.
+> - **Regra geral:** Com venv ativado, `python` sempre aponta para o Python do ambiente virtual, independentemente do sistema operacional.
+
 Validação e Testes
 ------------------
 

@@ -64,13 +64,16 @@ class TestMethodologistState:
         state = create_initial_state("Teste")
 
         # Validar que todos os campos obrigatórios estão presentes
+        # Nota: justification e needs_clarification adicionados na Task 2.4
         required_fields = {
             "hypothesis",
             "messages",
             "clarifications",
             "status",
             "iterations",
-            "max_iterations"
+            "max_iterations",
+            "justification",
+            "needs_clarification"
         }
 
         assert set(state.keys()) == required_fields

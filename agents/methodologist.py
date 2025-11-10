@@ -11,6 +11,7 @@ Status: Funcionalidade 2.4 - Nós do Grafo implementados
 
 import logging
 import json
+import re
 from typing import TypedDict, Annotated, Literal
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
@@ -21,6 +22,107 @@ from langchain_anthropic import ChatAnthropic
 
 # Configurar logging
 logger = logging.getLogger(__name__)
+
+
+# ==============================================================================
+# UTILITY FUNCTIONS
+# ==============================================================================
+
+def extract_json_from_llm_response(content: str) -> dict:
+    """
+    Extrai e parseia JSON de resposta do LLM de forma robusta.
+
+    Trata os seguintes casos:
+    1. JSON puro
+    2. JSON dentro de markdown code blocks (```json ... ```)
+    3. JSON com texto adicional antes/depois
+    4. JSON com formatação e line breaks (inclusive dentro de strings)
+
+    Args:
+        content: Conteúdo da resposta do LLM
+
+    Returns:
+        dict: Objeto JSON parseado
+
+    Raises:
+        json.JSONDecodeError: Se não conseguir extrair JSON válido
+    """
+    def try_parse_json(json_str: str) -> dict:
+        """Tenta parsear JSON, aplicando correções se necessário."""
+        # Tentativa 1: parsing direto
+        try:
+            return json.loads(json_str)
+        except json.JSONDecodeError:
+            pass
+
+        # Tentativa 2: escapar line breaks dentro de strings
+        # Regex para encontrar strings JSON e escapar line breaks dentro delas
+        # Isso é complexo, então vamos usar uma abordagem mais simples:
+        # tentar parsear linha por linha e reconstruir
+        try:
+            # Remove line breaks dentro de valores de string JSON
+            # Procura por padrões como "chave": "valor\ncom quebra"
+            fixed = re.sub(
+                r':\s*"([^"]*?)"',
+                lambda m: ': "' + m.group(1).replace('\n', '\\n') + '"',
+                json_str,
+                flags=re.DOTALL
+            )
+            return json.loads(fixed)
+        except json.JSONDecodeError:
+            pass
+
+        raise json.JSONDecodeError("Não foi possível parsear", json_str, 0)
+
+    # Estratégia 1: Tentar parsing direto do conteúdo completo
+    try:
+        return try_parse_json(content)
+    except json.JSONDecodeError:
+        pass
+
+    # Estratégia 2: Extrair JSON de markdown code block
+    markdown_pattern = r'```(?:json)?\s*(\{.*?\})\s*```'
+    match = re.search(markdown_pattern, content, re.DOTALL)
+    if match:
+        try:
+            return try_parse_json(match.group(1))
+        except json.JSONDecodeError:
+            pass
+
+    # Estratégia 3: Encontrar primeiro objeto JSON válido no texto
+    # Procura por múltiplos { e tenta parsear cada um
+    start_idx = 0
+    while True:
+        start_idx = content.find('{', start_idx)
+        if start_idx == -1:
+            break
+
+        # Tenta encontrar o JSON completo balanceando chaves
+        brace_count = 0
+        for i in range(start_idx, len(content)):
+            if content[i] == '{':
+                brace_count += 1
+            elif content[i] == '}':
+                brace_count -= 1
+                if brace_count == 0:
+                    # Encontrou o fim do objeto JSON
+                    json_str = content[start_idx:i+1]
+                    try:
+                        return try_parse_json(json_str)
+                    except json.JSONDecodeError:
+                        # Tenta o próximo {
+                        start_idx += 1
+                        break
+        else:
+            # Não encontrou }, tenta próximo {
+            start_idx += 1
+
+    # Se nenhuma estratégia funcionou, lança erro
+    raise json.JSONDecodeError(
+        f"Não foi possível extrair JSON válido da resposta: {content[:100]}...",
+        content,
+        0
+    )
 
 
 # ==============================================================================
@@ -235,12 +337,13 @@ Se a hipótese é claramente boa ou ruim com o contexto atual, marque true."""
 
     logger.info(f"Resposta do LLM: {response.content}")
 
-    # Parse da resposta
+    # Parse da resposta usando função robusta
     try:
-        analysis = json.loads(response.content)
+        analysis = extract_json_from_llm_response(response.content)
         needs_clarification = not analysis.get("has_sufficient_info", False)
-    except json.JSONDecodeError:
-        logger.warning("Falha ao parsear JSON da resposta do LLM. Assumindo que precisa de clarificação.")
+        logger.debug(f"JSON parseado com sucesso: {analysis}")
+    except json.JSONDecodeError as e:
+        logger.warning(f"Falha ao parsear JSON da resposta do LLM: {e}. Assumindo que precisa de clarificação.")
         needs_clarification = True
 
     logger.info(f"Decisão: needs_clarification = {needs_clarification}")
@@ -409,19 +512,20 @@ RESPONDA EM JSON:
 
     logger.info(f"Resposta do LLM: {response.content}")
 
-    # Parse da decisão
+    # Parse da decisão usando função robusta
     try:
-        decision_data = json.loads(response.content)
+        decision_data = extract_json_from_llm_response(response.content)
         status = decision_data.get("decision", "rejected")
         justification = decision_data.get("justification", "Decisão não especificada.")
+        logger.debug(f"JSON parseado com sucesso: {decision_data}")
 
         # Validar status
         if status not in ["approved", "rejected"]:
             logger.warning(f"Status inválido '{status}'. Usando 'rejected' como padrão.")
             status = "rejected"
 
-    except json.JSONDecodeError:
-        logger.error("Falha ao parsear JSON da decisão. Rejeitando por segurança.")
+    except json.JSONDecodeError as e:
+        logger.error(f"Falha ao parsear JSON da decisão: {e}. Rejeitando por segurança.")
         status = "rejected"
         justification = "Erro ao processar decisão do LLM."
 
