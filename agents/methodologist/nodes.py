@@ -173,7 +173,8 @@ RESPONDA APENAS COM A PERGUNTA (sem preâmbulo ou explicação)."""
     logger.info(f"Pergunta formulada: {question}")
 
     # Chamar ask_user para obter resposta
-    answer = ask_user(question)
+    # ask_user é um StructuredTool, então usamos .invoke() com dict de args
+    answer = ask_user.invoke({"question": question})
 
     logger.info(f"Resposta do usuário: {answer}")
 
