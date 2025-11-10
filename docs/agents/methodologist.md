@@ -156,13 +156,6 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 **Justificativa:** Custo-efetivo para MVP, suficiente para análise metodológica e geração de JSON estruturado
 **Temperature:** 0 (determinístico)
 
-## Pendências (Épico 2)
-
-- [x] **Task 2.5:** Construção do grafo (StateGraph + roteamento condicional) ✅
-- [x] **Task 2.6:** System prompt versionado em `utils/prompts.py` ✅
-- [ ] **Task 2.7:** CLI para interação
-- [ ] **Task 2.8:** Teste de fumaça end-to-end
-
 ## Testes
 
 ### Testes Unitários
