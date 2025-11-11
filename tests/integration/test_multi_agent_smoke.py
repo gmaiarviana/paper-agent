@@ -75,11 +75,14 @@ def test_vague_idea_full_flow(multi_agent_graph):
     assert result['methodologist_output'] is not None, \
         "Metodologista deveria ter gerado output"
 
-    assert result['methodologist_output']['status'] in ['approved', 'rejected'], \
-        "Metodologista deveria ter status válido"
+    # Status pode ser 'pending' se Metodologista pediu clarificações
+    assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
+        "Metodologista deveria ter status válido (approved, rejected ou pending)"
 
-    assert result['methodologist_output']['justification'], \
-        "Metodologista deveria fornecer justificativa"
+    # Se não estiver pending, deve ter justificativa
+    if result['methodologist_output']['status'] != 'pending':
+        assert result['methodologist_output']['justification'], \
+            "Metodologista deveria fornecer justificativa quando decide"
 
     assert result['current_stage'] == 'done', \
         "Estágio final deveria ser 'done'"
@@ -115,8 +118,9 @@ def test_semi_formed_direct_flow(multi_agent_graph):
     assert result['methodologist_output'] is not None, \
         "Metodologista deveria ter gerado output"
 
-    assert result['methodologist_output']['status'] in ['approved', 'rejected'], \
-        "Metodologista deveria ter status válido"
+    # Status pode ser 'pending' se Metodologista pediu clarificações
+    assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
+        "Metodologista deveria ter status válido (approved, rejected ou pending)"
 
     assert result['current_stage'] == 'done', \
         "Estágio final deveria ser 'done'"
@@ -155,8 +159,9 @@ def test_complete_hypothesis_flow(multi_agent_graph):
     assert result['methodologist_output'] is not None, \
         "Metodologista deveria ter gerado output"
 
-    assert result['methodologist_output']['status'] in ['approved', 'rejected'], \
-        "Metodologista deveria ter status válido"
+    # Status pode ser 'pending' se Metodologista pediu clarificações
+    assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
+        "Metodologista deveria ter status válido (approved, rejected ou pending)"
 
     assert result['current_stage'] == 'done', \
         "Estágio final deveria ser 'done'"
