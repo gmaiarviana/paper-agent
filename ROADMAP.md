@@ -171,6 +171,25 @@ Funcionalidades que agregarão valor, mas dependem do sistema multi-agente core 
 
 ---
 
+### 🔧 MELHORIAS ESTRUTURAIS (Quando Necessário)
+
+Refatorações de qualidade de código e infraestrutura. Não bloqueiam funcionalidades, mas facilitam colaboração e manutenção. Considerar quando houver contribuidores externos, projeto crescer significativamente, ou precisar publicar como pacote.
+
+**Estrutura de Projeto (src layout):**
+- Migrar para `src/paper_agent/` com `pyproject.toml`
+- Remover hacks de `sys.path` via `pip install -e .`
+- Facilita distribuição e testes isolados
+
+**Consolidação de Configuração:**
+- Migrar `pytest.ini` para `pyproject.toml`
+- Centralizar configs de ferramentas (black, ruff, mypy)
+
+**Dependency Management:**
+- Avaliar migração para `pyproject.toml` + pip-tools/poetry
+- Lock de versões para builds reproduzíveis
+
+---
+
 ### 🌙 FUTURO DISTANTE
 
 Funcionalidades avançadas que não são prioridade no momento, mas podem ser valiosas no longo prazo.

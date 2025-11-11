@@ -13,13 +13,13 @@ Uso:
     python scripts/validate_graph_nodes.py
 """
 
-import os
 import sys
 import logging
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Adicionar diretório raiz ao path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from agents.methodologist import create_initial_state
 from agents.methodologist.nodes import (
