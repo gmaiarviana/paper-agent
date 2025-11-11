@@ -169,32 +169,24 @@ Funcionalidades que agregarão valor, mas dependem do sistema multi-agente core 
 - Validação de integridade do argumento completo
 - Sugestões de melhorias de redação e clareza
 
-**Melhorias de Qualidade e Infraestrutura:**
+---
 
-Melhorias estruturais que tornam o projeto mais escalável e "production-ready". Não bloqueiam funcionalidades, mas facilitam colaboração e manutenção no longo prazo.
+### 🔧 MELHORIAS ESTRUTURAIS (Quando Necessário)
 
-- **Estrutura de Projeto (src layout):**
-  - Migrar para layout `src/paper_agent/` com `pyproject.toml`
-  - Remover todos os hacks de `sys.path` via `pip install -e .`
-  - Facilita distribuição, empacotamento e testes em ambientes isolados
-  - **Esforço:** ~4-6 horas | **Valor:** Facilita onboarding de contribuidores
+Refatorações de qualidade de código e infraestrutura. Não bloqueiam funcionalidades, mas facilitam colaboração e manutenção. Considerar quando houver contribuidores externos, projeto crescer significativamente, ou precisar publicar como pacote.
 
-- **Consolidação de Configuração:**
-  - Migrar `pytest.ini` para `pyproject.toml` quando adotar src layout
-  - Centralizar configurações de ferramentas (black, ruff, mypy) em um único arquivo
-  - **Esforço:** ~1-2 horas | **Valor:** Configuração mais limpa e centralizada
+**Estrutura de Projeto (src layout):**
+- Migrar para `src/paper_agent/` com `pyproject.toml`
+- Remover hacks de `sys.path` via `pip install -e .`
+- Facilita distribuição e testes isolados
 
-- **Dependency Management Moderno:**
-  - Avaliar migração de `requirements.txt` para `pyproject.toml` + pip-tools ou poetry
-  - Adicionar `requirements-dev.txt` separado (ou [dev] extras)
-  - Lock de versões para builds reproduzíveis
-  - **Esforço:** ~2-3 horas | **Valor:** Builds mais confiáveis e fácil separação dev/prod
+**Consolidação de Configuração:**
+- Migrar `pytest.ini` para `pyproject.toml`
+- Centralizar configs de ferramentas (black, ruff, mypy)
 
-**Nota:** Estas melhorias não são prioritárias para uso pessoal, mas se tornam valiosas quando:
-- Primeiro contribuidor externo aparecer
-- Projeto ultrapassar ~10k linhas de código
-- Precisar publicar como pacote PyPI
-- Múltiplos desenvolvedores trabalhando simultaneamente
+**Dependency Management:**
+- Avaliar migração para `pyproject.toml` + pip-tools/poetry
+- Lock de versões para builds reproduzíveis
 
 ---
 

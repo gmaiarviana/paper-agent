@@ -11,6 +11,7 @@ This is a MANUAL validation tool for local development.
 For automated tests, see tests/unit/ and tests/integration/.
 """
 
+import os
 import sys
 from pathlib import Path
 
