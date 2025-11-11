@@ -89,22 +89,53 @@ python -m pytest tests/integration/test_multi_agent_smoke.py -v
 
 ---
 
-### ÉPICO 4: Interface CLI e Streamlit
+## ÉPICO 4: Loop Colaborativo + Refinamento
 
-**Objetivo:** CLI interativa como interface principal.
+**Objetivo:** Sistema que refina ideias iterativamente até ficarem testáveis, ao invés de rejeitar prematuramente. Metodologista colabora ativamente na melhoria da hipótese.
 
-#### 4.1 CLI Interativa Básica
-- Script `cli.py` com conversa via terminal
-- Loop até comando `exit`
-- Claude Code consegue testar sem browser
+**Status:** ⚠️ Não refinado - aguardando validação do Épico 3
 
-#### 4.2 Painel de Logs no Terminal
-- Logs com cores/símbolos: `🎯 Orquestrador`, `🧪 Metodologista`, `✅ Resultado`
-- Flag `--verbose` para debug
+**Dependências:** 
+- Épico 3 concluído (sistema multi-agente base funcionando)
 
-#### 4.3 Interface Streamlit
-- Página com input, histórico e sidebar com logs
-- **Nota:** Testar localmente (porta web pode não funcionar no Claude Code)
+**Funcionalidades planejadas (alto nível):**
+- Metodologista em modo colaborativo (sugere melhorias específicas sem rejeitar)
+- Loop Estruturador ↔ Metodologista (até 2 iterações de refinamento)
+- Memória de contexto entre iterações (rastreamento de evolução)
+- Versionamento de hipótese (V1 vaga → V2 refinada → V3 aprovada)
+
+**Valor esperado:**
+- Resolve problema atual: sistema não rejeita mais ideias vagas, colabora na construção
+- Conversação fluida: usuário sente que está sendo ajudado, não julgado
+- Transparência: usuário vê como ideia evolui
+
+**Nota:** Este épico será refinado após conclusão e validação do Épico 3. Refinamento incluirá critérios de aceite detalhados, arquitetura técnica e estratégia de implementação.
+
+---
+
+## ÉPICO 5: Interface Conversacional
+
+**Objetivo:** Experiência de usuário natural, transparente e demonstrável. Conversação fluida ao invés de formulário rígido.
+
+**Status:** ⚠️ Não refinado - aguardando validação dos Épicos 3 e 4
+
+**Dependências:**
+- Épico 3 concluído (multi-agente base)
+- Épico 4 concluído (loop colaborativo)
+
+**Funcionalidades planejadas (alto nível):**
+- CLI conversacional: Input natural ("Me conte sua ideia" vs "Digite hipótese")
+- Logs estruturados: Rastreabilidade completa de decisões do sistema
+- Transparência: Visualização de reasoning e fluxo entre agentes
+- Streamlit opcional: Interface gráfica para demonstrações
+
+**Valor esperado:**
+- Usuário tem experiência conversacional, não formulário
+- Total transparência de decisões do sistema
+- Possível demonstrar sistema para outras pessoas
+- Rastrear como ideias evoluem (histórico completo)
+
+**Nota:** Este épico será refinado após conclusão dos Épicos 3 e 4. Interface depende do backend multi-agente estar sólido.
 
 ---
 
