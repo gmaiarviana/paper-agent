@@ -25,23 +25,67 @@ Nenhum épico em progresso no momento.
 
 ## 📋 PRÓXIMAS FUNCIONALIDADES
 
-### ÉPICO 3: Orquestrador com Reasoning
+### ÉPICO 3: Orquestrador + Estruturador (Base Multi-Agente)
 
-**Objetivo:** Orquestrador que decide autonomamente quando chamar Metodologista.
+**Objetivo:** Sistema com múltiplos agentes especializados (Metodologista + Estruturador) e orquestração inteligente que detecta maturidade da ideia e roteia para o agente correto.
 
-#### 3.1 Prompt do Orquestrador
-- System prompt com papel de decisor
-- Regras: quando chamar Metodologista vs responder direto
-- Output JSON: `{"action": "call_agent|respond_direct", "agent": "methodologist|null", "message": "..."}`
+**Documentação técnica:** `docs/orchestration/multi_agent_architecture.md`
 
-#### 3.2 Implementação do Orquestrador
-- Classe `Orchestrator` em `/orchestrator/orchestrator.py`
-- Método `decide(user_input: str) -> dict`
-- Mantém histórico da conversa
+### Funcionalidades:
 
-#### 3.3 Integração Orquestrador → Metodologista
-- Script `test_orchestration.py` testa integração completa
-- Cenários: saudação, hipótese, formatação de resposta
+#### 3.1 Orquestrador com Detecção de Maturidade
+- **Descrição:** Nó do grafo (LangGraph) que analisa input do usuário e classifica maturidade: "vague" (ideia não estruturada) → Estruturador, "semi_formed" ou "complete" (hipótese) → Metodologista
+- **Critérios de Aceite:**
+  - Deve classificar corretamente 3 tipos de input usando LLM
+  - Deve rotear para agente apropriado baseado na classificação
+  - Deve registrar reasoning da decisão (por quê escolheu X)
+  - Output estruturado em MultiAgentState
+  - Router condicional funciona corretamente
+
+#### 3.2 Estruturador - Organizador de Ideias (POC)
+- **Descrição:** Nó simples que recebe observações vagas e transforma em questões de pesquisa estruturadas, identificando contexto, problema e possível contribuição acadêmica
+- **Critérios de Aceite:**
+  - Deve extrair: contexto, problema, contribuição potencial
+  - Deve gerar questão de pesquisa estruturada
+  - Output JSON estruturado (`structurer_output` no state)
+  - Não rejeita ideias (comportamento colaborativo)
+  - Não valida rigor científico (isso é do Metodologista)
+
+**Nota:** Estruturador é nó simples neste épico (POC). Evolução para grafo próprio com `ask_user` e loops vai para backlog "PRÓXIMOS".
+
+#### 3.3 Integração Multi-Agente
+- **Descrição:** Super-grafo (LangGraph) que conecta Orquestrador, Estruturador e Metodologista com passagem de contexto via MultiAgentState híbrido
+- **Critérios de Aceite:**
+  - Super-grafo compilado com MemorySaver checkpointer
+  - Fluxo completo funciona: input vago → Orquestrador → Estruturador → Metodologista → resultado
+  - Fluxo direto funciona: hipótese → Orquestrador → Metodologista → resultado
+  - Contexto preservado entre chamadas (structurer_output passa para Metodologista)
+  - Metodologista integrado corretamente (reusa grafo existente)
+  - Logs mostram decisões e transições
+
+### 📋 Validação
+
+**Scripts de validação (criar em `scripts/`):**
+- `validate_orchestrator.py`: Testa classificação de inputs
+- `validate_structurer.py`: Testa organização de ideias vagas
+- `validate_multi_agent_flow.py`: Testa fluxo completo end-to-end
+
+**Testes automatizados:**
+- Testes unitários para cada nó (orchestrator, structurer, integration)
+- Teste de integração: fluxo completo com API real
+
+**Comandos:**
+```bash
+# Testes unitários
+python -m pytest tests/unit/test_orchestrator.py -v
+python -m pytest tests/unit/test_structurer.py -v
+
+# Validação manual
+python scripts/validate_multi_agent_flow.py
+
+# Teste de integração
+python -m pytest tests/integration/test_multi_agent_smoke.py -v
+```
 
 ---
 
