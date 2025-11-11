@@ -107,6 +107,7 @@ paper-agent/
 
 ### Metodologista (`agents/methodologist.py`)
 Agente especializado em avaliar rigor científico de hipóteses usando LangGraph.
+Opera em modo colaborativo: `approved`, `needs_refinement` (novo), `rejected`.
 
 **Arquitetura:**
 - Estado gerenciado por `MethodologistState` (TypedDict)
@@ -182,7 +183,7 @@ python cli/chat.py
 
 ```
 Usuário (CLI) → Orquestrador (classifica maturidade) →
-  ├─ Input vago → Estruturador (organiza) → Metodologista (valida) → Usuário
+  ├─ Input vago → Estruturador (organiza) ↔ Metodologista (valida/refina até 2x) → Usuário
   └─ Hipótese formada → Metodologista (valida) → Usuário
 ```
 
@@ -204,6 +205,7 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 - Prioridade para CLI: permite automação com agentes (Claude Code / Cursor) sem dependência de navegador.
 - Sem persistência, Docker ou vector DB durante a POC para acelerar iteração.
 - Claude Sonnet 4 escolhido pelo equilíbrio entre custo e confiabilidade de JSON estruturado.
+- Épico 4: Loop de refinamento no super-grafo, limite 2 iterações.
 
 ## Referências
 
@@ -212,6 +214,7 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 - `docs/orchestration/orchestrator.md`: regras de decisão e estado.
 - `docs/interface/cli.md`: expectativas de UX e logging.
 - `docs/process/planning_guidelines.md`: governança de roadmap e práticas de planejamento.
+- `docs/orchestration/refinement_loop.md`: especificação técnica do loop de refinamento colaborativo.
 
-**Versão:** 1.6 (Épico 3.2 - Estruturador implementado)
+**Versão:** 1.7 (Épico 4 - Loop de Refinamento)
 **Data:** 11/11/2025
