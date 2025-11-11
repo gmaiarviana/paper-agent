@@ -162,10 +162,14 @@ O sistema multi-agente base está **funcionando e testado**:
 - Épico 4 concluído (loop colaborativo)
 
 **Funcionalidades planejadas (alto nível):**
-- CLI conversacional: Input natural ("Me conte sua ideia" vs "Digite hipótese")
-- Logs estruturados: Rastreabilidade completa de decisões do sistema
-- Transparência: Visualização de reasoning e fluxo entre agentes
-- Streamlit opcional: Interface gráfica para demonstrações
+- CLI conversacional com feed de eventos em tempo real
+- Logs estruturados com rastreabilidade e export em JSON
+- Transparência: reasoning visível e histórico navegável
+
+**Melhorias previstas:**
+- Streamlit dashboard para demonstrações
+- Replay de execuções via CLI (`python cli/chat.py --replay <session-id>`)
+- Visualização de grafo com destaque do nó ativo
 
 **Valor esperado:**
 - Usuário tem experiência conversacional, não formulário
@@ -188,6 +192,10 @@ Funcionalidades que agregarão valor, mas dependem do sistema multi-agente core 
 - Adicionar tool `ask_user` para clarificações durante estruturação
 - Loop interno de refinamento da questão de pesquisa
 - State próprio: `StructurerState`
+
+**Depuração Interativa:**
+- Pausar execução e inspecionar `MultiAgentState`
+- Métricas de performance por agente (tempo, tokens, custo, iterações)
 
 **Pesquisador:**
 - Busca bibliográfica automática (Google Scholar, Semantic Scholar)
