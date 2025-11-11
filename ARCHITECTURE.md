@@ -9,7 +9,7 @@
 ## Escopo Atual (POC)
 
 - Entradas via CLI; respostas estruturadas do Orquestrador.
-- Apenas um agente especialista ativo (Metodologista), documentado em `docs/agents/methodologist.md`.
+- Sistema multi-agente com 3 agentes: Orquestrador (roteamento), Estruturador (organização), Metodologista (validação).
 - Estado em memória gerenciado por LangGraph, sem persistência ou vector DB.
 - Infraestrutura mínima: Python 3.11+, Anthropic API, sem Docker ou banco de dados.
 
@@ -47,6 +47,9 @@ paper-agent/
 │   │   ├── state.py       # MultiAgentState
 │   │   ├── nodes.py       # orchestrator_node
 │   │   └── router.py      # route_from_orchestrator
+│   ├── structurer/        # Agente Estruturador (Épico 3.2)
+│   │   ├── __init__.py
+│   │   └── nodes.py       # structurer_node
 │   └── methodologist_knowledge.md  # Base de conhecimento micro
 │
 ├── utils/                 # Utilitários e helpers
@@ -69,7 +72,8 @@ paper-agent/
 │   │   ├── test_methodologist_state.py  # Testes do Metodologista
 │   │   ├── test_ask_user_tool.py        # Testes da tool ask_user
 │   │   ├── test_graph_nodes.py          # Testes dos nós do Metodologista
-│   │   └── test_orchestrator.py         # Testes do Orquestrador (Épico 3.1)
+│   │   ├── test_orchestrator.py         # Testes do Orquestrador (Épico 3.1)
+│   │   └── test_structurer.py           # Testes do Estruturador (Épico 3.2)
 │   ├── integration/       # Testes de integração (API real)
 │   │   └── __init__.py
 │   └── conftest.py        # Fixtures compartilhadas (futuro)
@@ -81,6 +85,7 @@ paper-agent/
 │   ├── validate_ask_user.py  # Validação da tool ask_user
 │   ├── validate_graph_nodes.py  # Validação dos nós do Metodologista
 │   ├── validate_orchestrator.py  # Validação do Orquestrador (Épico 3.1)
+│   ├── validate_structurer.py    # Validação do Estruturador (Épico 3.2)
 │   └── validate_cli.py    # Validação do CLI (fluxo completo)
 │
 └── docs/                  # Documentação detalhada por domínio
@@ -121,7 +126,34 @@ Agente responsável por classificar maturidade de inputs e rotear para agentes e
 - Router condicional: `route_from_orchestrator` (roteia para Estruturador ou Metodologista)
 - Classificações: "vague" (→ Estruturador), "semi_formed" (→ Metodologista), "complete" (→ Metodologista)
 
-**Status:** Funcionalidade 3.1 implementada. Próximos passos: Estruturador (3.2) e Super-grafo (3.3)
+**Status:** Funcionalidade 3.1 implementada e testada.
+
+**Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
+
+### Estruturador (`agents/structurer/`)
+Agente responsável por organizar ideias vagas em questões de pesquisa estruturadas.
+
+**Arquitetura (Épico 3.2 - Implementado):**
+- Nó simples (não grafo completo nesta versão POC)
+- `structurer_node`: Extrai contexto, problema e contribuição potencial de observações vagas
+- Gera questão de pesquisa estruturada
+- Comportamento colaborativo: não rejeita ideias, apenas organiza
+- Não valida rigor científico (responsabilidade do Metodologista)
+- Output estruturado em `MultiAgentState.structurer_output`
+
+**Output:**
+```python
+{
+    "structured_question": str,  # Questão de pesquisa estruturada
+    "elements": {
+        "context": str,           # Contexto da observação
+        "problem": str,           # Problema identificado
+        "contribution": str       # Possível contribuição acadêmica
+    }
+}
+```
+
+**Status:** Funcionalidade 3.2 implementada e testada. Próximo passo: Super-grafo (3.3)
 
 **Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
 
@@ -149,10 +181,14 @@ python cli/chat.py
 ## Fluxo de Dados (resumo)
 
 ```
-Usuário (CLI) → Orquestrador →
-  ├─ Responde direto
-  └─ Chama Metodologista → JSON estruturado → Orquestrador → Usuário
+Usuário (CLI) → Orquestrador (classifica maturidade) →
+  ├─ Input vago → Estruturador (organiza) → Metodologista (valida) → Usuário
+  └─ Hipótese formada → Metodologista (valida) → Usuário
 ```
+
+**Cenários:**
+1. **Ideia vaga**: Orquestrador → Estruturador → Metodologista → Resultado
+2. **Hipótese parcial/completa**: Orquestrador → Metodologista → Resultado
 
 Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra prompts e respostas brutas.
 
@@ -177,5 +213,5 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 - `docs/interface/cli.md`: expectativas de UX e logging.
 - `docs/process/planning_guidelines.md`: governança de roadmap e práticas de planejamento.
 
-**Versão:** 1.5 (Épico 3.1 - Orquestrador implementado)
+**Versão:** 1.6 (Épico 3.2 - Estruturador implementado)
 **Data:** 11/11/2025

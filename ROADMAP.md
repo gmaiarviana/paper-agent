@@ -19,7 +19,10 @@
 
 ## 🎯 EM PROGRESSO
 
-Nenhum épico em progresso no momento.
+**ÉPICO 3: Orquestrador + Estruturador (Base Multi-Agente)**
+- ✅ 3.1 Orquestrador com Detecção de Maturidade (concluída)
+- ✅ 3.2 Estruturador - Organizador de Ideias (concluída)
+- 🔄 3.3 Integração Multi-Agente (próxima)
 
 ---
 
@@ -33,23 +36,35 @@ Nenhum épico em progresso no momento.
 
 ### Funcionalidades:
 
-#### 3.1 Orquestrador com Detecção de Maturidade
+#### ✅ 3.1 Orquestrador com Detecção de Maturidade (CONCLUÍDA)
 - **Descrição:** Nó do grafo (LangGraph) que analisa input do usuário e classifica maturidade: "vague" (ideia não estruturada) → Estruturador, "semi_formed" ou "complete" (hipótese) → Metodologista
-- **Critérios de Aceite:**
-  - Deve classificar corretamente 3 tipos de input usando LLM
-  - Deve rotear para agente apropriado baseado na classificação
-  - Deve registrar reasoning da decisão (por quê escolheu X)
-  - Output estruturado em MultiAgentState
-  - Router condicional funciona corretamente
+- **Status:** ✅ Implementada, testada e merged (PR #16)
+- **Critérios de Aceite:** ✅ Todos atendidos
+  - ✅ Classifica corretamente 3 tipos de input usando LLM
+  - ✅ Roteia para agente apropriado baseado na classificação
+  - ✅ Registra reasoning da decisão (por quê escolheu X)
+  - ✅ Output estruturado em MultiAgentState
+  - ✅ Router condicional funciona corretamente
+- **Arquivos:**
+  - `agents/orchestrator/state.py`: MultiAgentState
+  - `agents/orchestrator/nodes.py`: orchestrator_node
+  - `agents/orchestrator/router.py`: route_from_orchestrator
+  - `tests/unit/test_orchestrator.py`: 8 testes unitários
+  - `scripts/validate_orchestrator.py`: validação manual
 
-#### 3.2 Estruturador - Organizador de Ideias (POC)
+#### ✅ 3.2 Estruturador - Organizador de Ideias (CONCLUÍDA)
 - **Descrição:** Nó simples que recebe observações vagas e transforma em questões de pesquisa estruturadas, identificando contexto, problema e possível contribuição acadêmica
-- **Critérios de Aceite:**
-  - Deve extrair: contexto, problema, contribuição potencial
-  - Deve gerar questão de pesquisa estruturada
-  - Output JSON estruturado (`structurer_output` no state)
-  - Não rejeita ideias (comportamento colaborativo)
-  - Não valida rigor científico (isso é do Metodologista)
+- **Status:** ✅ Implementada e testada (aguardando merge)
+- **Critérios de Aceite:** ✅ Todos atendidos
+  - ✅ Extrai: contexto, problema, contribuição potencial
+  - ✅ Gera questão de pesquisa estruturada
+  - ✅ Output JSON estruturado (`structurer_output` no state)
+  - ✅ Não rejeita ideias (comportamento colaborativo)
+  - ✅ Não valida rigor científico (isso é do Metodologista)
+- **Arquivos:**
+  - `agents/structurer/nodes.py`: structurer_node
+  - `tests/unit/test_structurer.py`: 8 testes unitários
+  - `scripts/validate_structurer.py`: validação manual
 
 **Nota:** Estruturador é nó simples neste épico (POC). Evolução para grafo próprio com `ask_user` e loops vai para backlog "PRÓXIMOS".
 
@@ -65,25 +80,27 @@ Nenhum épico em progresso no momento.
 
 ### 📋 Validação
 
-**Scripts de validação (criar em `scripts/`):**
-- `validate_orchestrator.py`: Testa classificação de inputs
-- `validate_structurer.py`: Testa organização de ideias vagas
-- `validate_multi_agent_flow.py`: Testa fluxo completo end-to-end
+**Scripts de validação:**
+- ✅ `validate_orchestrator.py`: Testa classificação de inputs (criado)
+- ✅ `validate_structurer.py`: Testa organização de ideias vagas (criado)
+- ⏳ `validate_multi_agent_flow.py`: Testa fluxo completo end-to-end (pendente - funcionalidade 3.3)
 
 **Testes automatizados:**
-- Testes unitários para cada nó (orchestrator, structurer, integration)
-- Teste de integração: fluxo completo com API real
+- ✅ Testes unitários: orchestrator, structurer (16 testes, todos passando)
+- ⏳ Teste de integração: fluxo completo com API real (pendente - funcionalidade 3.3)
 
 **Comandos:**
 ```bash
-# Testes unitários
-python -m pytest tests/unit/test_orchestrator.py -v
-python -m pytest tests/unit/test_structurer.py -v
+# Testes unitários (funcionando)
+python -m pytest tests/unit/test_orchestrator.py -v    # 8 testes
+python -m pytest tests/unit/test_structurer.py -v      # 8 testes
 
-# Validação manual
+# Validação manual (funcionando)
+python scripts/validate_orchestrator.py
+python scripts/validate_structurer.py
+
+# Teste de integração (pendente - funcionalidade 3.3)
 python scripts/validate_multi_agent_flow.py
-
-# Teste de integração
 python -m pytest tests/integration/test_multi_agent_smoke.py -v
 ```
 
