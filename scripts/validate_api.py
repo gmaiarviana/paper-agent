@@ -11,11 +11,11 @@ This is a MANUAL validation tool for local development.
 For automated tests, see tests/unit/ and tests/integration/.
 """
 
-import os
 import sys
+from pathlib import Path
 
 # Add parent directory to path to import utils
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
 from anthropic import Anthropic
