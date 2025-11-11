@@ -35,11 +35,19 @@ paper-agent/
 │
 ├── agents/                # Agentes especializados
 │   ├── __init__.py
-│   ├── methodologist.py   # Estado, tools e nós do Metodologista
+│   ├── methodologist/     # Agente Metodologista (Épico 2)
+│   │   ├── __init__.py
+│   │   ├── state.py       # MethodologistState
+│   │   ├── nodes.py       # analyze, ask_clarification, decide
+│   │   ├── router.py      # route_after_analyze
+│   │   ├── graph.py       # Construção do grafo
+│   │   └── tools.py       # ask_user tool
+│   ├── orchestrator/      # Agente Orquestrador (Épico 3.1)
+│   │   ├── __init__.py
+│   │   ├── state.py       # MultiAgentState
+│   │   ├── nodes.py       # orchestrator_node
+│   │   └── router.py      # route_from_orchestrator
 │   └── methodologist_knowledge.md  # Base de conhecimento micro
-│
-├── orchestrator/          # Lógica de orquestração e decisão
-│   └── __init__.py        # (Futuro: orchestrator.py, state.py)
 │
 ├── utils/                 # Utilitários e helpers
 │   ├── __init__.py
@@ -58,9 +66,10 @@ paper-agent/
 │   ├── unit/              # Testes unitários (mocks, rápidos)
 │   │   ├── __init__.py
 │   │   ├── test_cost_tracker.py
-│   │   ├── test_methodologist_state.py  # Testes do estado
+│   │   ├── test_methodologist_state.py  # Testes do Metodologista
 │   │   ├── test_ask_user_tool.py        # Testes da tool ask_user
-│   │   └── test_graph_nodes.py          # Testes dos nós analyze, ask_clarification, decide
+│   │   ├── test_graph_nodes.py          # Testes dos nós do Metodologista
+│   │   └── test_orchestrator.py         # Testes do Orquestrador (Épico 3.1)
 │   ├── integration/       # Testes de integração (API real)
 │   │   └── __init__.py
 │   └── conftest.py        # Fixtures compartilhadas (futuro)
@@ -70,7 +79,8 @@ paper-agent/
 │   ├── validate_api.py    # Health check da API
 │   ├── validate_state.py  # Validação do estado do Metodologista
 │   ├── validate_ask_user.py  # Validação da tool ask_user
-│   ├── validate_graph_nodes.py  # Validação dos nós do grafo
+│   ├── validate_graph_nodes.py  # Validação dos nós do Metodologista
+│   ├── validate_orchestrator.py  # Validação do Orquestrador (Épico 3.1)
 │   └── validate_cli.py    # Validação do CLI (fluxo completo)
 │
 └── docs/                  # Documentação detalhada por domínio
@@ -102,10 +112,18 @@ Agente especializado em avaliar rigor científico de hipóteses usando LangGraph
 
 **Detalhes:** Ver `docs/agents/methodologist.md`
 
-### Orquestrador (`orchestrator/`)
-Decide próxima ação e roteia para agentes especializados.
+### Orquestrador (`agents/orchestrator/`)
+Agente responsável por classificar maturidade de inputs e rotear para agentes especializados.
 
-**Detalhes:** Ver `docs/orchestration/orchestrator.md` (futuro - Épico 3)
+**Arquitetura (Épico 3.1 - Implementado):**
+- Estado compartilhado gerenciado por `MultiAgentState` (TypedDict híbrido)
+- Nó de classificação: `orchestrator_node` (usa LLM para detectar maturidade)
+- Router condicional: `route_from_orchestrator` (roteia para Estruturador ou Metodologista)
+- Classificações: "vague" (→ Estruturador), "semi_formed" (→ Metodologista), "complete" (→ Metodologista)
+
+**Status:** Funcionalidade 3.1 implementada. Próximos passos: Estruturador (3.2) e Super-grafo (3.3)
+
+**Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
 
 ### CLI (`cli/chat.py`)
 Loop interativo minimalista para testar o agente Metodologista.
@@ -159,5 +177,5 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 - `docs/interface/cli.md`: expectativas de UX e logging.
 - `docs/process/planning_guidelines.md`: governança de roadmap e práticas de planejamento.
 
-**Versão:** 1.4
-**Data:** 10/11/2025
+**Versão:** 1.5 (Épico 3.1 - Orquestrador implementado)
+**Data:** 11/11/2025
