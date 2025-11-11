@@ -22,6 +22,10 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+# Carregar variáveis de ambiente do .env
+from dotenv import load_dotenv
+load_dotenv()
+
 from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
 
 
