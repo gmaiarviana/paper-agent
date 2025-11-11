@@ -139,31 +139,65 @@ python -m pytest tests/integration/test_multi_agent_smoke.py -v
 
 ---
 
-## 💡 IDEIAS FUTURAS
+## 📋 BACKLOG
 
-### Melhorias do Metodologista (após MVP)
-- **Documentação técnica completa** em `docs/agents/methodologist.md`
-- **Tool `consult_methodology`** para busca em knowledge base
-- **Knowledge base completa** (10+ páginas)
-- **Testes completos** (unit + integration)
-- **Métricas**: tempo, tokens, custos
+### 🔜 PRÓXIMOS PASSOS
 
-### Infraestrutura e Qualidade
-- **Pre-commit hooks** (`.pre-commit-config.yaml`)
-- **Badge de coverage** no README
-- **CI/CD** (GitHub Actions)
-- **Retry logic** para API failures
-- **Hot reload na CLI**
-- **Export de logs** (JSON/TXT)
+Funcionalidades que agregarão valor, mas dependem do sistema multi-agente core (Épicos 3-5) estar validado e sólido.
 
-### Novos Agentes
-- **Pesquisador** (web search)
-- **Estruturador** (planejamento de artigo)
-- **Escritor**, **Crítico**
+**Estruturador Avançado (Evolução do 3.2):**
+- Transformar Estruturador em grafo próprio (similar ao Metodologista)
+- Adicionar tool `ask_user` para clarificações durante estruturação
+- Loop interno de refinamento da questão de pesquisa
+- State próprio: `StructurerState`
 
-### Persistência
-- **Checkpoints em JSON**
-- **Vector DB** para histórico
+**Pesquisador:**
+- Busca bibliográfica automática (Google Scholar, Semantic Scholar)
+- Síntese de papers acadêmicos relevantes
+- Identificação de gaps na literatura
+- Comparação de abordagens metodológicas
+
+**Escritor:**
+- Compilação de seções do artigo baseado em outline
+- Formatação acadêmica (ABNT, APA, Chicago, etc)
+- Geração de rascunhos com estilo consistente
+- Integração com pesquisas e validações anteriores
+
+**Crítico:**
+- Revisão final de rigor científico e coerência
+- Identificação de contradições ou gaps argumentativos
+- Validação de integridade do argumento completo
+- Sugestões de melhorias de redação e clareza
+
+---
+
+### 🌙 FUTURO DISTANTE
+
+Funcionalidades avançadas que não são prioridade no momento, mas podem ser valiosas no longo prazo.
+
+**Infraestrutura Avançada:**
+- RAG e Vector Database para memória de longo prazo entre artigos
+- Persistência avançada em banco de dados relacional
+- Sistema de versionamento de artigos (branches, merge, rollback)
+- Cache inteligente de pesquisas e validações
+
+**Integração e Colaboração:**
+- Integração com gestores de referências (Zotero, Mendeley)
+- Sistema multi-usuário com autenticação
+- Compartilhamento e colaboração em tempo real
+- Comentários e feedback inline
+
+**Analytics e Melhorias:**
+- Dashboard de métricas de uso (tokens, custos, tempo)
+- Análise de qualidade de artigos gerados
+- Sugestões automáticas de melhoria baseadas em patterns
+- A/B testing de prompts de agentes
+
+**Exportação e Formatação:**
+- Múltiplos formatos de saída (PDF, LaTeX, Word, Markdown)
+- Templates de revistas científicas específicas
+- Submissão automática para repositórios de preprints (arXiv, bioRxiv)
+- Geração de apresentações (slides) a partir do artigo
 
 ---
 
