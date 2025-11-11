@@ -36,6 +36,32 @@ Arquitetura de super-grafo LangGraph com múltiplos agentes especializados coord
 
 ## State Management
 
+### MultiAgentState - Campos do Épico 4
+```python
+class MultiAgentState(TypedDict):
+    # ... campos do Épico 3 ...
+    
+    # === ÉPICO 4: REFINEMENT LOOP ===
+    refinement_iteration: int  # Contador de refinamentos (0, 1, 2)
+    max_refinements: int       # Limite padrão: 2
+    hypothesis_versions: list  # Histórico de evolução da hipótese
+```
+
+**Estrutura de hypothesis_versions:**
+```python
+[
+    {
+        "version": 1,
+        "question": str,
+        "feedback": {
+            "status": str,
+            "improvements": list
+        }
+    },
+    # ...
+]
+```
+
 ### MultiAgentState (TypedDict)
 ```python
 class MultiAgentState(TypedDict):
@@ -167,46 +193,35 @@ def structurer_node(state: MultiAgentState) -> dict:
 
 ---
 
-### 3. Methodologist Integration
+### 3. Methodologist - Modo Colaborativo (Épico 4)
 
-**Responsabilidade:** Validar rigor científico da hipótese (estruturada ou não).
+**Responsabilidade:** Validar rigor científico E ajudar a construir hipóteses.
 
-**Input:**
-- Se veio do Estruturador: usa `structurer_output`
-- Se veio direto: usa `user_input`
+**Modos de operação:**
+1. **approved**: Hipótese testável e pronta
+2. **needs_refinement**: Tem potencial, falta especificidade (NOVO)
+3. **rejected**: Sem base científica
 
-**Implementação:**
+**Output:**
 ```python
-def methodologist_node(state: MultiAgentState) -> dict:
-    """
-    Valida rigor científico.
-    
-    Input prioritário:
-    1. structurer_output (se disponível)
-    2. user_input (caso contrário)
-    """
-    # Preparar input para o Metodologista
-    if state.get('structurer_output'):
-        hypothesis = state['structurer_output']['structured_question']
-    else:
-        hypothesis = state['user_input']
-    
-    # Chamar grafo existente do Metodologista
-    methodologist_state = create_initial_state(hypothesis)
-    result = methodologist_graph.invoke(
-        methodologist_state,
-        config={"configurable": {"thread_id": state.get('thread_id')}}
-    )
-    
-    return {
-        "methodologist_output": {
-            "status": result['status'],
-            "justification": result['justification']
-        },
-        "current_stage": "done",
-        "messages": [AIMessage(content=result['justification'])]
-    }
+{
+    "status": "approved" | "needs_refinement" | "rejected",
+    "justification": str,
+    "improvements": [  # NOVO - apenas se needs_refinement
+        {
+            "aspect": "população" | "métricas" | "variáveis",
+            "gap": str,
+            "suggestion": str
+        }
+    ],
+    "clarifications": dict
+}
 ```
+
+**Integração no loop:**
+- Se needs_refinement AND iteration < max → volta pro Estruturador
+- Se needs_refinement AND iteration >= max → força decisão
+- Se approved/rejected → END
 
 ---
 
@@ -246,6 +261,50 @@ def create_multi_agent_graph():
     
     # Compilar
     return graph.compile(checkpointer=MemorySaver())
+```
+
+---
+
+## Router após Metodologista (Épico 4)
+```python
+def route_after_methodologist(state: MultiAgentState) -> str:
+    """
+    Decide fluxo após Metodologista processar hipótese.
+    
+    Lógica:
+    - approved → END
+    - rejected → END
+    - needs_refinement:
+        - Se iteration < max → "structurer" (refinar)
+        - Se iteration >= max → "methodologist_force_decision"
+    """
+    output = state['methodologist_output']
+    status = output['status']
+    iteration = state['refinement_iteration']
+    max_iter = state['max_refinements']
+    
+    if status in ["approved", "rejected"]:
+        return END
+    
+    if status == "needs_refinement":
+        if iteration < max_iter:
+            return "structurer"
+        else:
+            return "methodologist_force_decision"
+    
+    return END
+
+
+# Adicionar ao grafo:
+graph.add_conditional_edges(
+    "methodologist",
+    route_after_methodologist,
+    {
+        "structurer": "structurer",
+        "methodologist_force_decision": "methodologist_force_decision",
+        END: END
+    }
+)
 ```
 
 ---
@@ -294,6 +353,32 @@ Status: approved
 Justificativa: Testável, falseável, específico
 
 
+### Cenário 4: Loop de Refinamento (Épico 4)
+
+**Input:** "Método X é mais rápido"
+
+**Fluxo:**
+Orquestrador: classifica "vague"
+↓
+Estruturador V1: "Como método X impacta velocidade?"
+↓
+Metodologista: "needs_refinement"
+
+gaps: população, métricas
+refinement_iteration: 0 → 1
+↓
+Router: volta pro Estruturador (iteration < max)
+↓
+Estruturador V2: "Método X reduz tempo em 30%, medido por sprints, em equipes de 2-5 devs"
+↓
+Metodologista: "approved"
+↓
+END
+
+**Resultado:**
+- Usuário recebe: V2 aprovada
+- Histórico: V1 (needs_refinement) → V2 (approved)
+- Total de iterações: 1 refinamento
 
 ---
 
@@ -343,26 +428,22 @@ RETORNE JSON:
 
 ## Evolução Futura
 
-### Próximos Passos (Épico 4 - Loop Colaborativo)
+### Próximos Passos (Épico 5+)
 
-- Metodologista em modo colaborativo (não rejeita, sugere melhorias)
-- Loop Estruturador ↔ Metodologista (até 2 iterações)
-- Memória de versões da hipótese
+- **Épico 5**: Pesquisador (busca bibliográfica)
+- **Épico 6**: Escritor (compilar artigo)
+- **Épico 7**: Interface Conversacional
+- **Épico 8**: Crítico (revisão final)
 
 ### Backlog "PRÓXIMOS"
 
-- Estruturador vira grafo próprio
-- Adicionar Pesquisador
-- Adicionar Escritor
-
-### Backlog "FUTURO DISTANTE"
-
+- Estruturador vira grafo próprio (loop interno)
 - RAG para knowledge base
 - Vector DB para memória de longo prazo
 
 ---
 
-**Versão:** 1.0
-**Data:** 10/11/2025
-**Status:** Proposta técnica para implementação do Épico 3
+**Versão:** 1.1 (Épico 4 - Loop de Refinamento)
+**Data:** 11/11/2025
+**Status:** Atualizado com refinamento colaborativo
 

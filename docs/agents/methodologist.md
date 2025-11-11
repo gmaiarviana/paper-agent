@@ -1,9 +1,9 @@
 Methodologist Agent
 ===================
 
-**Status:** Em desenvolvimento (Épico 2)
-**Versão:** 1.2
-**Data:** 10/11/2025
+**Status:** Em desenvolvimento (Épicos 2 → 4)
+**Versão:** 1.3
+**Data:** 11/11/2025
 
 ## Resumo
 
@@ -13,6 +13,36 @@ Agente especializado em avaliar rigor científico de hipóteses. Implementado co
 - Avaliar hipóteses segundo critérios metodológicos (testabilidade, falseabilidade, especificidade)
 
 ## Implementação Atual
+
+### Modo Colaborativo (Épico 4)
+
+**Objetivo:** Metodologista como PARCEIRO que ajuda a construir, não apenas validar.
+
+**3 Modos de operação:**
+
+1. **approved:**
+   - Hipótese testável, falseável, específica, operacionalizada
+   - Estrutura científica sólida
+   - Pronta para desenho experimental
+
+2. **needs_refinement (NOVO):**
+   - Ideia tem potencial científico
+   - Falta especificidade (população, métricas, variáveis)
+   - Pode ser melhorada com refinamento
+   - Campo `improvements` lista gaps específicos
+
+3. **rejected:**
+   - Sem base científica (crença popular, impossível testar)
+   - Vagueza extrema que refinamento não resolve
+   - Usado apenas em casos extremos
+
+**Quando usar cada modo:**
+
+| Input | Modo | Razão |
+|-------|------|-------|
+| "Método X reduz tempo em 30% em equipes 2-5 devs" | approved | Testável, específico |
+| "Método X é mais rápido" | needs_refinement | Potencial, falta população/métricas |
+| "X é bom porque todo mundo sabe" | rejected | Apelo à crença, não-testável |
 
 ### Estado (MethodologistState)
 
@@ -88,12 +118,42 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 3. Define status (approved/rejected)
 4. Gera justificativa detalhada
 
-**Output:**
+### Output (atualizado - Épico 4)
+
+**Estrutura:**
 ```python
 {
-    "status": "approved" | "rejected",
-    "justification": str,  # Explicação detalhada
-    "messages": [AIMessage]
+    "status": "approved" | "needs_refinement" | "rejected",
+    "justification": str,
+    "improvements": [  # NOVO - apenas se needs_refinement
+        {
+            "aspect": "população" | "métricas" | "variáveis" | "testabilidade",
+            "gap": str,
+            "suggestion": str
+        }
+    ],
+    "clarifications": dict  # Mantido do Épico 2
+}
+```
+
+**Exemplo de needs_refinement:**
+```python
+{
+    "status": "needs_refinement",
+    "justification": "Ideia central clara (método incremental impacta velocidade), mas falta operacionalização para teste empírico.",
+    "improvements": [
+        {
+            "aspect": "população",
+            "gap": "Não especificada",
+            "suggestion": "Definir população-alvo (ex: equipes de 2-5 desenvolvedores com experiência em LangGraph)"
+        },
+        {
+            "aspect": "métricas",
+            "gap": "Velocidade não mensurável",
+            "suggestion": "Operacionalizar velocidade (ex: tempo por sprint, bugs por deploy, taxa de retrabalho)"
+        }
+    ],
+    "clarifications": {}
 }
 ```
 
@@ -123,6 +183,43 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 - Exemplos práticos de aprovação e rejeição
 
 **Validação:** `scripts/validate_system_prompt.py`
+
+### Prompt Colaborativo (Épico 4)
+
+**Localização:** `utils/prompts.py` - `METHODOLOGIST_AGENT_SYSTEM_PROMPT_V2`
+
+**Instruções adicionadas:**
+```
+MODO COLABORATIVO (Épico 4):
+
+Você é um PARCEIRO que ajuda a CONSTRUIR hipóteses, não apenas validar
+Use "needs_refinement" quando a ideia tem potencial mas falta especificidade
+Use "rejected" APENAS quando não há base científica (crença popular, impossível testar)
+Campo "improvements": seja ESPECÍFICO sobre gaps e como preencher
+
+DECISÃO DE STATUS:
+
+approved: Testável + específico + operacionalizado
+needs_refinement: Potencial + falta elementos (população, métricas, variáveis)
+rejected: Sem base científica + impossível refinar
+
+CAMPO "improvements" (needs_refinement):
+[
+{
+"aspect": "população" | "métricas" | "variáveis" | "testabilidade",
+"gap": "Descrição clara do que falta",
+"suggestion": "Como preencher (exemplo concreto)"
+}
+]
+EXEMPLOS:
+Input: "Método X é melhor"
+Output: {
+"status": "needs_refinement",
+"improvements": [
+{"aspect": "métricas", "gap": "Melhor não mensurável", "suggestion": "Definir: reduz tempo em X%, aumenta qualidade em Y%"}
+]
+}
+```
 
 ### Fluxo de Execução
 
@@ -168,12 +265,21 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 - `scripts/validate_ask_user.py`: Valida tool ask_user
 - `scripts/validate_graph_nodes.py`: Valida nós do grafo
 
-## Futuras Melhorias (Pós-MVP)
+## Evolução (Épicos 2 → 4)
 
-- Tool `consult_methodology` para busca em knowledge base ampliada
-- Knowledge base completa (10+ páginas)
-- Nó `consult_knowledge` para interpretar knowledge base
-- Métricas: tempo de resposta, tokens consumidos
-- Logs estruturados em JSON
-- Retry logic para falhas de API
+**Épico 2:** Metodologista validador
+- ✅ Analisa hipótese
+- ✅ Faz perguntas (ask_user)
+- ✅ Decide: approved/rejected
+
+**Épico 4:** Metodologista colaborativo
+- ✅ Modo "needs_refinement" (novo)
+- ✅ Campo "improvements" com gaps específicos
+- ✅ Integrado no loop de refinamento
+- ✅ Decisão forçada após limite
+
+**Futuras melhorias (pós-Épico 4):**
+- Tool `consult_methodology` para knowledge base ampliada
+- Sugestões de desenho experimental
+- Validação de testes estatísticos
 

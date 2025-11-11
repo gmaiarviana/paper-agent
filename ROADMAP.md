@@ -6,7 +6,7 @@
 - ÉPICO 1: Setup e Infraestrutura Base ✅
 - ÉPICO 2: Agente Metodologista com LangGraph (MVP) ✅
 - ÉPICO 3: Orquestrador com Reasoning ✅ **CONCLUÍDO**
-- ÉPICO 4: Interface CLI e Streamlit
+- ÉPICO 4: Loop Colaborativo + Refinamento Iterativo ✅
 
 ### ⚠️ Épicos Não-Refinados (Requerem Discussão Antes da Implementação)
 - ÉPICO 5: Multi-Agente e Persistência Avançada
@@ -30,124 +30,165 @@ Ver detalhes das funcionalidades na seção "PRÓXIMAS FUNCIONALIDADES" abaixo.
 
 ## 📋 PRÓXIMAS FUNCIONALIDADES
 
-### ÉPICO 3: Orquestrador + Estruturador (Base Multi-Agente)
+## ÉPICO 4: Loop Colaborativo + Refinamento Iterativo
 
-**Objetivo:** Sistema com múltiplos agentes especializados (Metodologista + Estruturador) e orquestração inteligente que detecta maturidade da ideia e roteia para o agente correto.
+**Objetivo:** Sistema parceiro que ajuda o usuário a CONSTRUIR e REFINAR ideias até ficarem testáveis, ao invés de apenas validar ou rejeitar.
 
-**Documentação técnica:** `docs/orchestration/multi_agent_architecture.md`
-
-### Funcionalidades:
-
-#### ✅ 3.1 Orquestrador com Detecção de Maturidade (CONCLUÍDA)
-- **Descrição:** Nó do grafo (LangGraph) que analisa input do usuário e classifica maturidade: "vague" (ideia não estruturada) → Estruturador, "semi_formed" ou "complete" (hipótese) → Metodologista
-- **Status:** ✅ Implementada, testada e merged (PR #16)
-- **Critérios de Aceite:** ✅ Todos atendidos
-  - ✅ Classifica corretamente 3 tipos de input usando LLM
-  - ✅ Roteia para agente apropriado baseado na classificação
-  - ✅ Registra reasoning da decisão (por quê escolheu X)
-  - ✅ Output estruturado em MultiAgentState
-  - ✅ Router condicional funciona corretamente
-- **Arquivos:**
-  - `agents/orchestrator/state.py`: MultiAgentState
-  - `agents/orchestrator/nodes.py`: orchestrator_node
-  - `agents/orchestrator/router.py`: route_from_orchestrator
-  - `tests/unit/test_orchestrator.py`: 8 testes unitários
-  - `scripts/validate_orchestrator.py`: validação manual
-
-#### ✅ 3.2 Estruturador - Organizador de Ideias (CONCLUÍDA)
-- **Descrição:** Nó simples que recebe observações vagas e transforma em questões de pesquisa estruturadas, identificando contexto, problema e possível contribuição acadêmica
-- **Status:** ✅ Implementada e testada (aguardando merge)
-- **Critérios de Aceite:** ✅ Todos atendidos
-  - ✅ Extrai: contexto, problema, contribuição potencial
-  - ✅ Gera questão de pesquisa estruturada
-  - ✅ Output JSON estruturado (`structurer_output` no state)
-  - ✅ Não rejeita ideias (comportamento colaborativo)
-  - ✅ Não valida rigor científico (isso é do Metodologista)
-- **Arquivos:**
-  - `agents/structurer/nodes.py`: structurer_node
-  - `tests/unit/test_structurer.py`: 8 testes unitários
-  - `scripts/validate_structurer.py`: validação manual
-
-**Nota:** Estruturador é nó simples neste épico (POC). Evolução para grafo próprio com `ask_user` e loops vai para backlog "PRÓXIMOS".
-
-#### ✅ 3.3 Integração Multi-Agente (CONCLUÍDA)
-- **Descrição:** Super-grafo (LangGraph) que conecta Orquestrador, Estruturador e Metodologista com passagem de contexto via MultiAgentState híbrido
-- **Status:** ✅ Implementada e testada
-- **Critérios de Aceite:** ✅ Todos atendidos
-  - ✅ Super-grafo compilado com MemorySaver checkpointer
-  - ✅ Fluxo completo funciona: input vago → Orquestrador → Estruturador → Metodologista → resultado
-  - ✅ Fluxo direto funciona: hipótese → Orquestrador → Metodologista → resultado
-  - ✅ Contexto preservado entre chamadas (structurer_output passa para Metodologista)
-  - ✅ Metodologista integrado corretamente (reusa grafo existente via wrapper)
-  - ✅ Logs mostram decisões e transições
-- **Arquivos:**
-  - `agents/multi_agent_graph.py`: Super-grafo com StateGraph e MemorySaver
-  - `agents/methodologist/wrapper.py`: Adapter para integrar Metodologista
-  - `scripts/validate_multi_agent_flow.py`: Validação manual de 3 cenários
-  - `tests/integration/test_multi_agent_smoke.py`: 5 smoke tests de integração
-
-### 📋 Validação
-
-**Scripts de validação:**
-- ✅ `validate_orchestrator.py`: Testa classificação de inputs
-- ✅ `validate_structurer.py`: Testa organização de ideias vagas
-- ✅ `validate_multi_agent_flow.py`: Testa fluxo completo end-to-end (3 cenários)
-
-**Testes automatizados:**
-- ✅ Testes unitários: orchestrator (12 testes), structurer (8 testes) - **20/20 passando**
-- ✅ Testes de integração: multi_agent_smoke (5 testes) - **criados, requerem ANTHROPIC_API_KEY**
-
-**Comandos:**
-```bash
-# Testes unitários - 100% passando
-python -m pytest tests/unit/test_orchestrator.py -v    # 12 testes ✅
-python -m pytest tests/unit/test_structurer.py -v      # 8 testes ✅
-
-# Validação manual
-python scripts/validate_orchestrator.py
-python scripts/validate_structurer.py
-python scripts/validate_multi_agent_flow.py  # Requer ANTHROPIC_API_KEY
-
-# Teste de integração com API real
-python -m pytest tests/integration/test_multi_agent_smoke.py -v  # Requer ANTHROPIC_API_KEY
-```
-
-### 🎉 Épico 3 Concluído!
-
-O sistema multi-agente base está **funcionando e testado**:
-- ✅ Orquestrador detecta maturidade de ideias/hipóteses
-- ✅ Estruturador organiza ideias vagas em questões estruturadas
-- ✅ Metodologista valida rigor científico
-- ✅ Super-grafo integra todos os agentes com passagem de contexto
-- ✅ Fluxos completos testados (vague → structuring → validation)
-- ✅ Testes unitários: 20/20 passando
-- ✅ Infraestrutura pronta para Épico 4 (Loop Colaborativo)
-
-**Próximo passo:** Refinar Épico 4 para adicionar capacidades colaborativas e iterativas.
-
----
-
-## ÉPICO 4: Loop Colaborativo + Refinamento
-
-**Objetivo:** Sistema que refina ideias iterativamente até ficarem testáveis, ao invés de rejeitar prematuramente. Metodologista colabora ativamente na melhoria da hipótese.
-
-**Status:** ⚠️ Não refinado - aguardando validação do Épico 3
+**Status:** ✅ Refinado
 
 **Dependências:** 
 - Épico 3 concluído (sistema multi-agente base funcionando)
 
-**Funcionalidades planejadas (alto nível):**
-- Metodologista em modo colaborativo (sugere melhorias específicas sem rejeitar)
-- Loop Estruturador ↔ Metodologista (até 2 iterações de refinamento)
-- Memória de contexto entre iterações (rastreamento de evolução)
-- Versionamento de hipótese (V1 vaga → V2 refinada → V3 aprovada)
+### Funcionalidades:
 
-**Valor esperado:**
-- Resolve problema atual: sistema não rejeita mais ideias vagas, colabora na construção
-- Conversação fluida: usuário sente que está sendo ajudado, não julgado
-- Transparência: usuário vê como ideia evolui
+#### 4.1 Metodologista em Modo Colaborativo
+**Descrição:** Metodologista nunca rejeita sem dar caminhos de melhoria. Opera em 3 modos: approved, needs_refinement (novo), rejected (apenas casos extremos).
 
-**Nota:** Este épico será refinado após conclusão e validação do Épico 3. Refinamento incluirá critérios de aceite detalhados, arquitetura técnica e estratégia de implementação.
+**Critérios de Aceite:**
+- [ ] Output estruturado com 3 status possíveis:
+  - "approved": Hipótese testável, específica, operacionalizada
+  - "needs_refinement": Tem potencial mas faltam elementos (população, métricas, variáveis)
+  - "rejected": Apenas para casos sem potencial científico (crenças populares, impossível testar)
+- [ ] Campo `improvements` quando status="needs_refinement":
+```python
+"improvements": [
+  {
+    "aspect": "população" | "métricas" | "variáveis" | "testabilidade",
+    "gap": "Descrição do que falta",
+    "suggestion": "Sugestão específica de como preencher"
+  }
+]
+```
+- [ ] Prompt atualizado: instruções de modo colaborativo
+- [ ] Justificativa sempre construtiva (cita pontos fortes + gaps)
+- [ ] Status "rejected" usado apenas quando ideia não tem base científica
+
+**Arquivos:**
+- `agents/methodologist/nodes.py`: atualizar nó `decide` com nova lógica
+- `utils/prompts.py`: novo prompt colaborativo (V2)
+- `agents/orchestrator/state.py`: output do Metodologista permite "needs_refinement"
+
+#### 4.2 Loop de Refinamento (Super-Grafo)
+**Descrição:** Super-grafo permite loop: Estruturador → Metodologista → (se needs_refinement) → Estruturador novamente, até 2 iterações.
+
+**Critérios de Aceite:**
+- [ ] MultiAgentState rastreia iterações:
+```python
+refinement_iteration: int  # 0, 1, 2
+max_refinements: int  # default: 2
+```
+- [ ] Router após Metodologista:
+  - Se status="approved" → END
+  - Se status="needs_refinement" AND iteration < max → volta Estruturador
+  - Se status="needs_refinement" AND iteration >= max → força decisão (approved/rejected)
+  - Se status="rejected" → END
+- [ ] Estruturador recebe feedback do Metodologista no input
+- [ ] Loop termina quando: aprovado, rejeitado, ou atingiu limite
+- [ ] Logs registram: versão atual (V1, V2, V3), gaps identificados, refinamentos aplicados
+
+**Arquivos:**
+- `agents/multi_agent_graph.py`: adicionar router após Metodologista
+- `agents/orchestrator/state.py`: adicionar campos de rastreamento
+- `agents/structurer/nodes.py`: processar feedback do Metodologista
+
+#### 4.3 Estruturador Processa Feedback
+**Descrição:** Estruturador recebe feedback do Metodologista (gaps identificados) e gera versão refinada da questão de pesquisa.
+
+**Critérios de Aceite:**
+- [ ] Input do Estruturador inclui:
+  - `user_input`: input original do usuário
+  - `previous_question`: questão estruturada V1
+  - `methodologist_feedback`: output do Metodologista (improvements)
+- [ ] Prompt atualizado: instruções para processar feedback
+- [ ] Output V2 endereça gaps específicos do Metodologista:
+  - Se gap="população" → adiciona população específica
+  - Se gap="métricas" → adiciona métricas mensuráveis
+  - Se gap="variáveis" → define variáveis dep/indep
+- [ ] Mantém essência da ideia original (não muda direção)
+- [ ] Registra no output: `version: 2`, `addressed_gaps: ["população", "métricas"]`
+
+**Arquivos:**
+- `agents/structurer/nodes.py`: lógica de refinamento
+- `utils/prompts.py`: prompt do Estruturador V2 (com handling de feedback)
+
+#### 4.4 Versionamento e Rastreamento
+**Descrição:** Sistema rastreia evolução da hipótese (V1 → V2 → V3) e decisões de cada iteração.
+
+**Critérios de Aceite:**
+- [ ] Cada versão registrada no state:
+```python
+hypothesis_versions: [
+  {"version": 1, "question": "...", "feedback": "..."},
+  {"version": 2, "question": "...", "feedback": "..."}
+]
+```
+- [ ] Logs estruturados mostram:
+  - Versão atual (V1, V2, V3)
+  - Gaps identificados pelo Metodologista
+  - Refinamentos aplicados pelo Estruturador
+  - Reasoning de decisões
+- [ ] Output final inclui histórico de evolução
+- [ ] Usuário pode ver: o que mudou e por quê
+
+**Arquivos:**
+- `agents/orchestrator/state.py`: campo `hypothesis_versions`
+- `agents/multi_agent_graph.py`: logging estruturado
+
+#### 4.5 Limite de Iterações e Decisão Forçada
+**Descrição:** Após 2 refinamentos sem aprovação, sistema força decisão final (approved/rejected) com base no contexto disponível.
+
+**Critérios de Aceite:**
+- [ ] Limite padrão: `max_refinements = 2`
+- [ ] Na 3ª tentativa: Metodologista DEVE decidir (approved ou rejected)
+- [ ] Prompt da 3ª tentativa: "Esta é a última iteração, decida com o contexto disponível"
+- [ ] Justificativa clara se rejeitar após limite (o que falta para aprovar)
+- [ ] Logs indicam: "Limite de refinamentos atingido, forçando decisão final"
+
+**Arquivos:**
+- `agents/methodologist/nodes.py`: lógica de decisão forçada
+- `agents/multi_agent_graph.py`: router verifica limite
+
+### Validação
+
+**Comandos:**
+```bash
+Teste manual com casos reais
+python scripts/validate_refinement_loop.py
+Testes unitários
+pytest tests/unit/test_refinement_loop.py -v
+Teste de integração (API real)
+pytest tests/integration/test_refinement_smoke.py -v
+```
+
+**Cenários de teste:**
+1. **Ideia vaga + 1 refinamento → aprovada**
+   - Input: "Método X é mais rápido"
+   - V1: needs_refinement (falta população, métricas)
+   - V2: approved (população e métricas adicionadas)
+
+2. **Ideia vaga + 2 refinamentos → aprovada**
+   - Input: "Observei Y"
+   - V1: needs_refinement (falta contexto, problema)
+   - V2: needs_refinement (falta métricas)
+   - V3: approved (todas métricas adicionadas)
+
+3. **Ideia sem potencial → rejeitada imediatamente**
+   - Input: "Café é bom porque todo mundo sabe"
+   - V1: rejected (apelo à crença popular, não-testável)
+
+4. **Limite atingido → decisão forçada**
+   - Input: "Z melhora W"
+   - V1: needs_refinement
+   - V2: needs_refinement
+   - V3: rejected (ainda não testável após 2 refinamentos)
+
+### Valor Esperado
+
+- ✅ Usuário não fica travado com ideias vagas
+- ✅ Sistema ajuda a CONSTRUIR, não apenas criticar
+- ✅ Conversação fluida: ideia → refinamento → hipótese testável
+- ✅ Transparência: usuário vê evolução da ideia
+- ✅ Eficiência: loop automático sem interrupções desnecessárias
 
 ---
 
