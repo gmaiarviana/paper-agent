@@ -3,10 +3,10 @@
 ## 📋 Status dos Épicos
 
 ### ✅ Épicos Refinados (Prontos para Implementação)
-- ÉPICO 1: Setup e Infraestrutura Base ✅
-- ÉPICO 2: Agente Metodologista com LangGraph (MVP) ✅
+- ÉPICO 1: Setup e Infraestrutura Base ✅ **CONCLUÍDO**
+- ÉPICO 2: Agente Metodologista com LangGraph (MVP) ✅ **CONCLUÍDO**
 - ÉPICO 3: Orquestrador com Reasoning ✅ **CONCLUÍDO**
-- ÉPICO 4: Loop Colaborativo + Refinamento Iterativo ✅
+- ÉPICO 4: Loop Colaborativo + Refinamento Iterativo ✅ **CONCLUÍDO**
 
 ### ⚠️ Épicos Não-Refinados (Requerem Discussão Antes da Implementação)
 - ÉPICO 5: Multi-Agente e Persistência Avançada
@@ -18,6 +18,13 @@
 ---
 
 ## ✅ ÉPICOS CONCLUÍDOS
+
+**ÉPICO 4: Loop Colaborativo + Refinamento Iterativo** (12/11/2025)
+- ✅ 4.1 Metodologista em Modo Colaborativo
+- ✅ 4.2 Loop de Refinamento (Super-Grafo)
+- ✅ 4.3 Estruturador Processa Feedback
+- ✅ 4.4 Versionamento e Rastreamento
+- ✅ 4.5 Limite de Iterações e Decisão Forçada
 
 **ÉPICO 3: Orquestrador + Estruturador (Base Multi-Agente)**
 - ✅ 3.1 Orquestrador com Detecção de Maturidade
@@ -34,7 +41,7 @@ Ver detalhes das funcionalidades na seção "PRÓXIMAS FUNCIONALIDADES" abaixo.
 
 **Objetivo:** Sistema parceiro que ajuda o usuário a CONSTRUIR e REFINAR ideias até ficarem testáveis, ao invés de apenas validar ou rejeitar.
 
-**Status:** ✅ Refinado
+**Status:** ✅ **CONCLUÍDO** (12/11/2025)
 
 **Dependências:** 
 - Épico 3 concluído (sistema multi-agente base funcionando)
@@ -45,11 +52,11 @@ Ver detalhes das funcionalidades na seção "PRÓXIMAS FUNCIONALIDADES" abaixo.
 **Descrição:** Metodologista nunca rejeita sem dar caminhos de melhoria. Opera em 3 modos: approved, needs_refinement (novo), rejected (apenas casos extremos).
 
 **Critérios de Aceite:**
-- [ ] Output estruturado com 3 status possíveis:
+- [x] Output estruturado com 3 status possíveis:
   - "approved": Hipótese testável, específica, operacionalizada
   - "needs_refinement": Tem potencial mas faltam elementos (população, métricas, variáveis)
   - "rejected": Apenas para casos sem potencial científico (crenças populares, impossível testar)
-- [ ] Campo `improvements` quando status="needs_refinement":
+- [x] Campo `improvements` quando status="needs_refinement":
 ```python
 "improvements": [
   {
@@ -59,9 +66,9 @@ Ver detalhes das funcionalidades na seção "PRÓXIMAS FUNCIONALIDADES" abaixo.
   }
 ]
 ```
-- [ ] Prompt atualizado: instruções de modo colaborativo
-- [ ] Justificativa sempre construtiva (cita pontos fortes + gaps)
-- [ ] Status "rejected" usado apenas quando ideia não tem base científica
+- [x] Prompt atualizado: instruções de modo colaborativo
+- [x] Justificativa sempre construtiva (cita pontos fortes + gaps)
+- [x] Status "rejected" usado apenas quando ideia não tem base científica
 
 **Arquivos:**
 - `agents/methodologist/nodes.py`: atualizar nó `decide` com nova lógica
@@ -72,19 +79,19 @@ Ver detalhes das funcionalidades na seção "PRÓXIMAS FUNCIONALIDADES" abaixo.
 **Descrição:** Super-grafo permite loop: Estruturador → Metodologista → (se needs_refinement) → Estruturador novamente, até 2 iterações.
 
 **Critérios de Aceite:**
-- [ ] MultiAgentState rastreia iterações:
+- [x] MultiAgentState rastreia iterações:
 ```python
 refinement_iteration: int  # 0, 1, 2
 max_refinements: int  # default: 2
 ```
-- [ ] Router após Metodologista:
+- [x] Router após Metodologista:
   - Se status="approved" → END
   - Se status="needs_refinement" AND iteration < max → volta Estruturador
   - Se status="needs_refinement" AND iteration >= max → força decisão (approved/rejected)
   - Se status="rejected" → END
-- [ ] Estruturador recebe feedback do Metodologista no input
-- [ ] Loop termina quando: aprovado, rejeitado, ou atingiu limite
-- [ ] Logs registram: versão atual (V1, V2, V3), gaps identificados, refinamentos aplicados
+- [x] Estruturador recebe feedback do Metodologista no input
+- [x] Loop termina quando: aprovado, rejeitado, ou atingiu limite
+- [x] Logs registram: versão atual (V1, V2, V3), gaps identificados, refinamentos aplicados
 
 **Arquivos:**
 - `agents/multi_agent_graph.py`: adicionar router após Metodologista
@@ -95,17 +102,17 @@ max_refinements: int  # default: 2
 **Descrição:** Estruturador recebe feedback do Metodologista (gaps identificados) e gera versão refinada da questão de pesquisa.
 
 **Critérios de Aceite:**
-- [ ] Input do Estruturador inclui:
+- [x] Input do Estruturador inclui:
   - `user_input`: input original do usuário
   - `previous_question`: questão estruturada V1
   - `methodologist_feedback`: output do Metodologista (improvements)
-- [ ] Prompt atualizado: instruções para processar feedback
-- [ ] Output V2 endereça gaps específicos do Metodologista:
+- [x] Prompt atualizado: instruções para processar feedback
+- [x] Output V2 endereça gaps específicos do Metodologista:
   - Se gap="população" → adiciona população específica
   - Se gap="métricas" → adiciona métricas mensuráveis
   - Se gap="variáveis" → define variáveis dep/indep
-- [ ] Mantém essência da ideia original (não muda direção)
-- [ ] Registra no output: `version: 2`, `addressed_gaps: ["população", "métricas"]`
+- [x] Mantém essência da ideia original (não muda direção)
+- [x] Registra no output: `version: 2`, `addressed_gaps: ["população", "métricas"]`
 
 **Arquivos:**
 - `agents/structurer/nodes.py`: lógica de refinamento
@@ -115,20 +122,20 @@ max_refinements: int  # default: 2
 **Descrição:** Sistema rastreia evolução da hipótese (V1 → V2 → V3) e decisões de cada iteração.
 
 **Critérios de Aceite:**
-- [ ] Cada versão registrada no state:
+- [x] Cada versão registrada no state:
 ```python
 hypothesis_versions: [
   {"version": 1, "question": "...", "feedback": "..."},
   {"version": 2, "question": "...", "feedback": "..."}
 ]
 ```
-- [ ] Logs estruturados mostram:
+- [x] Logs estruturados mostram:
   - Versão atual (V1, V2, V3)
   - Gaps identificados pelo Metodologista
   - Refinamentos aplicados pelo Estruturador
   - Reasoning de decisões
-- [ ] Output final inclui histórico de evolução
-- [ ] Usuário pode ver: o que mudou e por quê
+- [x] Output final inclui histórico de evolução
+- [x] Usuário pode ver: o que mudou e por quê
 
 **Arquivos:**
 - `agents/orchestrator/state.py`: campo `hypothesis_versions`
@@ -138,11 +145,11 @@ hypothesis_versions: [
 **Descrição:** Após 2 refinamentos sem aprovação, sistema força decisão final (approved/rejected) com base no contexto disponível.
 
 **Critérios de Aceite:**
-- [ ] Limite padrão: `max_refinements = 2`
-- [ ] Na 3ª tentativa: Metodologista DEVE decidir (approved ou rejected)
-- [ ] Prompt da 3ª tentativa: "Esta é a última iteração, decida com o contexto disponível"
-- [ ] Justificativa clara se rejeitar após limite (o que falta para aprovar)
-- [ ] Logs indicam: "Limite de refinamentos atingido, forçando decisão final"
+- [x] Limite padrão: `max_refinements = 2`
+- [x] Na 3ª tentativa: Metodologista DEVE decidir (approved ou rejected)
+- [x] Prompt da 3ª tentativa: "Esta é a última iteração, decida com o contexto disponível"
+- [x] Justificativa clara se rejeitar após limite (o que falta para aprovar)
+- [x] Logs indicam: "Limite de refinamentos atingido, forçando decisão final"
 
 **Arquivos:**
 - `agents/methodologist/nodes.py`: lógica de decisão forçada

@@ -9,8 +9,10 @@
 ## Escopo Atual (POC)
 
 - Entradas via CLI; respostas estruturadas do Orquestrador.
-- Sistema multi-agente com 3 agentes: Orquestrador (roteamento), Estruturador (organização), Metodologista (validação).
-- Estado em memória gerenciado por LangGraph, sem persistência ou vector DB.
+- Sistema multi-agente com 4 componentes: Orquestrador (roteamento), Estruturador (organização/refinamento), Metodologista (validação colaborativa), force_decision (decisão forçada).
+- Loop de refinamento iterativo: até 2 refinamentos automáticos (V1 → V2 → V3).
+- Modo colaborativo: Metodologista ajuda a construir hipóteses (3 status: approved, needs_refinement, rejected).
+- Estado em memória gerenciado por LangGraph com rastreamento de versões (hypothesis_versions).
 - Infraestrutura mínima: Python 3.11+, Anthropic API, sem Docker ou banco de dados.
 
 ## Stack Técnico
@@ -105,16 +107,17 @@ paper-agent/
 
 ## Componentes Principais
 
-### Metodologista (`agents/methodologist.py`)
+### Metodologista (`agents/methodologist/`)
 Agente especializado em avaliar rigor científico de hipóteses usando LangGraph.
-Opera em modo colaborativo: `approved`, `needs_refinement` (novo), `rejected`.
+Opera em modo colaborativo: `approved`, `needs_refinement`, `rejected`.
 
-**Arquitetura:**
-- Estado gerenciado por `MethodologistState` (TypedDict)
-- Persistência de sessão via MemorySaver
-- 3 nós do grafo: `analyze`, `ask_clarification`, `decide`
-- Tool `ask_user` para interação via `interrupt()`
-- Knowledge base micro sobre método científico
+**Arquitetura (Épico 4 - Modo Colaborativo):**
+- Estado gerenciado por `MethodologistState` (grafo interno) ou `MultiAgentState` (super-grafo)
+- Nós colaborativos: `decide_collaborative`, `force_decision_collaborative`
+- Output estruturado com campo `improvements` (aspect, gap, suggestion)
+- 3 status: approved (testável), needs_refinement (tem potencial), rejected (sem base científica)
+- Usa Claude Sonnet 4 para maior confiabilidade
+- Registra versões em `hypothesis_versions`
 
 **Detalhes:** Ver `docs/agents/methodologist.md`
 
@@ -132,31 +135,35 @@ Agente responsável por classificar maturidade de inputs e rotear para agentes e
 **Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
 
 ### Estruturador (`agents/structurer/`)
-Agente responsável por organizar ideias vagas em questões de pesquisa estruturadas.
+Agente responsável por organizar ideias vagas e refinar questões de pesquisa baseado em feedback.
 
-**Arquitetura (Épico 3.2 - Implementado):**
-- Nó simples (não grafo completo nesta versão POC)
-- `structurer_node`: Extrai contexto, problema e contribuição potencial de observações vagas
-- Gera questão de pesquisa estruturada
-- Comportamento colaborativo: não rejeita ideias, apenas organiza
-- Não valida rigor científico (responsabilidade do Metodologista)
-- Output estruturado em `MultiAgentState.structurer_output`
+**Arquitetura (Épico 4 - Refinamento Colaborativo):**
+- Nó simples com 2 modos: estruturação inicial (V1) e refinamento (V2/V3)
+- `structurer_node`: Detecta modo automaticamente baseado em `methodologist_output`
+- **Modo 1 - Estruturação inicial:** Extrai contexto, problema, contribuição; gera questão V1
+- **Modo 2 - Refinamento:** Recebe feedback do Metodologista (`improvements`), gera questão refinada V2/V3
+- Usa prompt V2 (STRUCTURER_REFINEMENT_PROMPT_V1) para processar feedback
+- Mantém essência da ideia original ao refinar
+- Registra gaps endereçados (`addressed_gaps`)
+- Incrementa `refinement_iteration` a cada refinamento
 
-**Output:**
+**Output (Épico 4):**
 ```python
 {
-    "structured_question": str,  # Questão de pesquisa estruturada
+    "structured_question": str,  # Questão de pesquisa estruturada/refinada
     "elements": {
         "context": str,           # Contexto da observação
         "problem": str,           # Problema identificado
         "contribution": str       # Possível contribuição acadêmica
-    }
+    },
+    "version": int,               # V1, V2 ou V3
+    "addressed_gaps": list        # Gaps endereçados (apenas refinamento)
 }
 ```
 
-**Status:** Funcionalidade 3.2 implementada e testada. Próximo passo: Super-grafo (3.3)
+**Status:** Funcionalidades 3.2 e 4.3 implementadas. Loop de refinamento operacional.
 
-**Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
+**Detalhes:** Ver `docs/orchestration/refinement_loop.md`
 
 ### CLI (`cli/chat.py`)
 Loop interativo minimalista para testar o agente Metodologista.
@@ -179,19 +186,29 @@ python cli/chat.py
 - `cost_tracker.py`: Cálculo de custos de API
 - `prompts.py`: Prompts versionados dos agentes (futuro - Task 2.6)
 
-## Fluxo de Dados (resumo)
+## Fluxo de Dados (Épico 4 - Loop de Refinamento)
 
 ```
 Usuário (CLI) → Orquestrador (classifica maturidade) →
-  ├─ Input vago → Estruturador (organiza) ↔ Metodologista (valida/refina até 2x) → Usuário
-  └─ Hipótese formada → Metodologista (valida) → Usuário
+  ├─ Input vago → Estruturador (V1) → Metodologista (needs_refinement?)
+  │                      ↓ sim (iteration < max)           ↑
+  │                      └─ Estruturador (V2) ─────────────┘
+  │                                ↓ approved/rejected
+  │                                END (resultado com histórico V1→V2)
+  │
+  └─ Hipótese formada → Metodologista (approved/rejected) → END
+
+Decisão forçada (se iteration >= max_refinements):
+  Estruturador (V3) → Metodologista (needs_refinement) → force_decision → END
 ```
 
-**Cenários:**
-1. **Ideia vaga**: Orquestrador → Estruturador → Metodologista → Resultado
-2. **Hipótese parcial/completa**: Orquestrador → Metodologista → Resultado
+**Cenários (Épico 4):**
+1. **Ideia vaga + refinamento:** Orquestrador → Estruturador (V1) → Metodologista (needs_refinement) → Estruturador (V2) → Metodologista (approved) → END
+2. **Hipótese direta:** Orquestrador → Metodologista (approved/rejected) → END
+3. **Limite atingido:** ... → Metodologista (needs_refinement, iteration=2) → force_decision (approved/rejected) → END
+4. **Sem potencial:** Estruturador (V1) → Metodologista (rejected) → END
 
-Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra prompts e respostas brutas.
+Logs exibem: decisões, iterações, versões (V1/V2/V3), gaps identificados, refinamentos aplicados.
 
 ## Padrões Essenciais
 
@@ -204,8 +221,10 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 
 - Prioridade para CLI: permite automação com agentes (Claude Code / Cursor) sem dependência de navegador.
 - Sem persistência, Docker ou vector DB durante a POC para acelerar iteração.
-- Claude Sonnet 4 escolhido pelo equilíbrio entre custo e confiabilidade de JSON estruturado.
-- Épico 4: Loop de refinamento no super-grafo, limite 2 iterações.
+- Claude Sonnet 4 usado pelo Metodologista (modo colaborativo) para confiabilidade de JSON estruturado.
+- Claude Haiku usado pelo Estruturador (custo-benefício para estruturação/refinamento).
+- Loop de refinamento: limite padrão de 2 iterações (V1 → V2 → V3), configurável via `max_refinements`.
+- Modo colaborativo: prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar).
 
 ## Referências
 
@@ -216,5 +235,5 @@ Logs exibem decisões antes das chamadas de agentes; modo `--verbose` mostra pro
 - `docs/process/planning_guidelines.md`: governança de roadmap e práticas de planejamento.
 - `docs/orchestration/refinement_loop.md`: especificação técnica do loop de refinamento colaborativo.
 
-**Versão:** 1.7 (Épico 4 - Loop de Refinamento)
-**Data:** 11/11/2025
+**Versão:** 2.0 (Épico 4 - Loop de Refinamento Colaborativo COMPLETO)
+**Data:** 12/11/2025
