@@ -334,7 +334,8 @@ def decide_collaborative(state: dict) -> dict:
     """
     logger.info("=== NÓ DECIDE_COLLABORATIVE: Decisão colaborativa (Épico 4) ===")
 
-    # Obter questão estruturada
+    # Obter questão estruturada e input original
+    original_input = state.get('user_input', '')
     if state.get('structurer_output'):
         question = state['structurer_output']['structured_question']
         logger.info(f"Avaliando questão estruturada: {question}")
@@ -346,8 +347,25 @@ def decide_collaborative(state: dict) -> dict:
     iteration = state.get('refinement_iteration', 0)
     logger.info(f"Iteração de refinamento: {iteration}")
 
-    # Construir prompt com questão
-    full_prompt = f"""{METHODOLOGIST_DECIDE_PROMPT_V2}
+    # Construir prompt com questão E input original (para detectar falta de base científica)
+    # Na primeira iteração, incluir contexto do input original para detectar crenças populares
+    if iteration == 0 and state.get('structurer_output'):
+        # Primeira avaliação após estruturação: incluir input original
+        full_prompt = f"""{METHODOLOGIST_DECIDE_PROMPT_V2}
+
+INPUT ORIGINAL DO USUÁRIO:
+"{original_input}"
+
+QUESTÃO DE PESQUISA ESTRUTURADA:
+{question}
+
+ATENÇÃO: Verifique se o INPUT ORIGINAL demonstra crença popular, apelo ao senso comum ou falta de base científica.
+Se o input original mostra falta de fundamento científico (ex: "todo mundo sabe", "é óbvio"), use status "rejected" mesmo que a questão estruturada pareça boa.
+
+Avalie considerando TANTO o input original QUANTO a questão estruturada, e retorne APENAS o JSON com status, justification e improvements."""
+    else:
+        # Refinamento ou input direto: avaliar apenas a questão
+        full_prompt = f"""{METHODOLOGIST_DECIDE_PROMPT_V2}
 
 QUESTÃO DE PESQUISA A AVALIAR:
 {question}
