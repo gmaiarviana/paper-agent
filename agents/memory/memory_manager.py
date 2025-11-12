@@ -9,7 +9,7 @@ Data: 12/11/2025
 """
 
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass, field, asdict
 
 
@@ -120,7 +120,7 @@ class MemoryManager:
             tokens_output=tokens_output,
             tokens_total=tokens_input + tokens_output,
             summary=summary,
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
             metadata=metadata or {}
         )
 
