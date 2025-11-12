@@ -1,4 +1,4 @@
-"""
+r"""
 Script de validação manual para Loop de Refinamento Colaborativo (Épico 4).
 
 Testa os 4 cenários principais do ROADMAP:

@@ -353,8 +353,8 @@ QUESTÃO DE PESQUISA A AVALIAR:
 
 Avalie esta questão e retorne APENAS o JSON com status, justification e improvements."""
 
-    # Chamar LLM
-    llm = ChatAnthropic(model="claude-3-5-sonnet-20241022", temperature=0)
+    # Chamar LLM (usando Haiku para custo-benefício)
+    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
     response = llm.invoke([HumanMessage(content=full_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
@@ -481,8 +481,8 @@ Retorne APENAS JSON com:
   "improvements": []  // Vazio, pois não há mais refinamentos
 }}"""
 
-    # Chamar LLM
-    llm = ChatAnthropic(model="claude-3-5-sonnet-20241022", temperature=0)
+    # Chamar LLM (usando Haiku para custo-benefício)
+    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
     response = llm.invoke([HumanMessage(content=force_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
