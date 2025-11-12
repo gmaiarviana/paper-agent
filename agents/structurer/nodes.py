@@ -2,10 +2,11 @@
 Nós do grafo do agente Estruturador.
 
 Este módulo implementa o nó principal do Estruturador:
-- structurer_node: Organiza ideias vagas em questões de pesquisa estruturadas
+- structurer_node: Organiza ideias vagas em questões de pesquisa estruturadas (Épico 3)
+- Suporta refinamento baseado em feedback do Metodologista (Épico 4)
 
-Versão: 1.0 (Épico 3, Funcionalidade 3.2)
-Data: 11/11/2025
+Versão: 2.0 (Épico 4 - Refinamento Colaborativo)
+Data: 12/11/2025
 """
 
 import logging
@@ -15,6 +16,7 @@ from langchain_anthropic import ChatAnthropic
 
 from agents.orchestrator.state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
+from utils.prompts import STRUCTURER_REFINEMENT_PROMPT_V1
 
 logger = logging.getLogger(__name__)
 
@@ -23,11 +25,15 @@ def structurer_node(state: MultiAgentState) -> dict:
     """
     Nó que organiza ideias vagas em questões de pesquisa estruturadas.
 
-    Este nó recebe observações ou ideias não estruturadas e:
-    1. Identifica o contexto da observação
-    2. Extrai o problema ou gap observado
-    3. Identifica possível contribuição acadêmica/prática
-    4. Gera uma questão de pesquisa estruturada
+    Este nó opera em dois modos:
+
+    1. ESTRUTURAÇÃO INICIAL (Épico 3):
+       - Recebe observação vaga do usuário
+       - Gera questão de pesquisa estruturada (V1)
+
+    2. REFINAMENTO (Épico 4):
+       - Recebe feedback do Metodologista (needs_refinement)
+       - Gera versão refinada endereçando gaps específicos (V2, V3)
 
     IMPORTANTE: Este nó é COLABORATIVO:
     - NÃO rejeita ideias
@@ -40,27 +46,55 @@ def structurer_node(state: MultiAgentState) -> dict:
     Returns:
         dict: Dicionário com updates incrementais do estado:
             - structurer_output: Dict com elementos extraídos
-                {
-                    "structured_question": str,
-                    "elements": {
-                        "context": str,
-                        "problem": str,
-                        "contribution": str
-                    }
-                }
+            - refinement_iteration: Incrementado se modo refinamento
             - current_stage: "validating" (próximo: Metodologista)
             - messages: Mensagem do LLM adicionada ao histórico
 
     Example:
-        >>> state = create_initial_multi_agent_state("Observei que X é rápido")
+        >>> # Modo estruturação inicial
+        >>> state = create_initial_multi_agent_state("Método X é rápido")
         >>> result = structurer_node(state)
         >>> result['structurer_output']['structured_question']
-        'Em que condições X demonstra maior velocidade?'
-        >>> result['current_stage']
-        'validating'
+        'Como método X impacta velocidade?'
+
+        >>> # Modo refinamento
+        >>> state['methodologist_output'] = {
+        ...     "status": "needs_refinement",
+        ...     "improvements": [{"aspect": "população", ...}]
+        ... }
+        >>> result = structurer_node(state)
+        >>> result['refinement_iteration']
+        1
     """
-    logger.info("=== NÓ STRUCTURER: Iniciando estruturação de ideia vaga ===")
-    logger.info(f"Input do usuário: {state['user_input']}")
+    # Detectar modo: estruturação inicial ou refinamento
+    methodologist_feedback = state.get('methodologist_output')
+    is_refinement_mode = (
+        methodologist_feedback is not None and
+        methodologist_feedback.get('status') == 'needs_refinement'
+    )
+
+    current_iteration = state.get('refinement_iteration', 0)
+
+    if is_refinement_mode:
+        logger.info(f"=== NÓ STRUCTURER: Modo REFINAMENTO (Iteração {current_iteration + 1}) ===")
+        logger.info(f"Gaps a endereçar: {len(methodologist_feedback['improvements'])}")
+        return _refine_question(state, methodologist_feedback)
+    else:
+        logger.info("=== NÓ STRUCTURER: Modo ESTRUTURAÇÃO INICIAL ===")
+        logger.info(f"Input do usuário: {state['user_input']}")
+        return _structure_initial_question(state)
+
+
+def _structure_initial_question(state: MultiAgentState) -> dict:
+    """
+    Modo estruturação inicial: primeira vez, gera questão V1.
+
+    Args:
+        state (MultiAgentState): Estado do sistema.
+
+    Returns:
+        dict: Updates do estado com questão estruturada V1.
+    """
 
     # Criar prompt de estruturação
     structuring_prompt = f"""Você é um Estruturador que organiza ideias e observações vagas em questões de pesquisa estruturadas.
@@ -159,5 +193,121 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
     return {
         "structurer_output": structurer_output,
         "current_stage": "validating",  # Próximo: Metodologista
+        "messages": [ai_message]
+    }
+
+
+def _refine_question(state: MultiAgentState, methodologist_feedback: dict) -> dict:
+    """
+    Modo refinamento: gera versão refinada endereçando gaps do Metodologista (Épico 4).
+
+    Args:
+        state (MultiAgentState): Estado do sistema.
+        methodologist_feedback (dict): Output do Metodologista com improvements.
+
+    Returns:
+        dict: Updates do estado com questão refinada (V2/V3) e iteration incrementada.
+    """
+    # Obter questão anterior (da última versão)
+    if state.get('hypothesis_versions'):
+        last_version = state['hypothesis_versions'][-1]
+        previous_question = last_version['question']
+        current_version = last_version['version'] + 1
+    else:
+        # Fallback: usar structurer_output anterior
+        previous_question = state['structurer_output']['structured_question']
+        current_version = 2  # V1 foi inicial, agora V2
+
+    logger.info(f"Questão anterior (V{current_version - 1}): {previous_question}")
+
+    # Extrair gaps do feedback
+    improvements = methodologist_feedback['improvements']
+    logger.info(f"Refinando para V{current_version}...")
+
+    # Construir prompt de refinamento
+    improvements_str = json.dumps(improvements, ensure_ascii=False, indent=2)
+
+    refinement_prompt = f"""{STRUCTURER_REFINEMENT_PROMPT_V1}
+
+**Input original do usuário:**
+{state['user_input']}
+
+**Questão V{current_version - 1} (anterior):**
+{previous_question}
+
+**Feedback do Metodologista:**
+{{
+  "improvements": {improvements_str}
+}}
+
+Gere uma versão REFINADA (V{current_version}) que endereça TODOS os gaps listados.
+Retorne APENAS JSON com: context, problem, contribution, structured_question, addressed_gaps."""
+
+    # Chamar LLM
+    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
+    response = llm.invoke([HumanMessage(content=refinement_prompt)])
+
+    logger.info(f"Resposta do LLM: {response.content[:200]}...")
+
+    # Parse da resposta
+    try:
+        refined_data = extract_json_from_llm_response(response.content)
+
+        context = refined_data.get("context", "Contexto refinado não identificado")
+        problem = refined_data.get("problem", "Problema refinado não identificado")
+        contribution = refined_data.get("contribution", "Contribuição refinada não identificada")
+        structured_question = refined_data.get("structured_question", previous_question)
+        addressed_gaps = refined_data.get("addressed_gaps", [])
+
+        logger.debug(f"Questão refinada (V{current_version}): {structured_question}")
+        logger.debug(f"Gaps endereçados: {addressed_gaps}")
+
+        # Validar que questão foi refinada
+        if structured_question == previous_question:
+            logger.warning("LLM retornou mesma questão. Forçando diferenciação.")
+            # Adicionar indicação de versão
+            structured_question = f"{previous_question} [V{current_version} refinada]"
+
+    except json.JSONDecodeError as e:
+        logger.error(f"Falha ao parsear JSON do refinamento: {e}. Usando questão anterior.")
+        context = state['structurer_output']['elements']['context']
+        problem = state['structurer_output']['elements']['problem']
+        contribution = state['structurer_output']['elements']['contribution']
+        structured_question = f"{previous_question} [tentativa de refinamento V{current_version}]"
+        addressed_gaps = []
+
+    # Montar output refinado
+    structurer_output = {
+        "structured_question": structured_question,
+        "elements": {
+            "context": context,
+            "problem": problem,
+            "contribution": contribution
+        },
+        "version": current_version,
+        "addressed_gaps": addressed_gaps
+    }
+
+    # Incrementar refinement_iteration
+    new_iteration = state.get('refinement_iteration', 0) + 1
+
+    logger.info(f"Questão refinada V{current_version}: {structured_question}")
+    logger.info(f"Iteração de refinamento: {state.get('refinement_iteration', 0)} → {new_iteration}")
+    logger.info(f"Gaps endereçados: {addressed_gaps}")
+    logger.info("=== NÓ STRUCTURER (Refinamento): Finalizado ===\n")
+
+    # Criar AIMessage
+    ai_message = AIMessage(
+        content=f"Questão refinada V{current_version}: {structured_question}\n\n"
+                f"Gaps endereçados: {', '.join(addressed_gaps)}\n"
+                f"Contexto: {context}\n"
+                f"Problema: {problem}\n"
+                f"Contribuição potencial: {contribution}"
+    )
+
+    return {
+        "structurer_output": structurer_output,
+        "refinement_iteration": new_iteration,
+        "current_stage": "validating",  # Volta para Metodologista
         "messages": [ai_message]
     }
