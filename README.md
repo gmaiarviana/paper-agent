@@ -120,7 +120,9 @@ python cli/chat.py
 1. Digite sua hipótese quando solicitado
 2. Responda perguntas do agente para clarificar aspectos metodológicos
 3. Receba a avaliação final (aprovada/rejeitada) com justificativa
-4. Digite `exit` a qualquer momento para sair
+4. Comandos especiais:
+   - `exit`: Sair do CLI
+   - `reset`: Limpar histórico da sessão (Épico 6)
 
 **Exemplo de sessão:**
 ```
@@ -142,6 +144,30 @@ python cli/chat.py
 ```bash
 python scripts/validate_cli.py
 ```
+
+---
+
+### Validação de Configurações (Épico 6)
+
+Validar arquivos YAML de configuração de agentes e funcionalidade de memória:
+
+```bash
+python scripts/validate_agent_config.py
+```
+
+**O que é validado:**
+- Estrutura de diretórios (`config/agents/`, `agents/memory/`)
+- Arquivos YAML de configuração (orchestrator, structurer, methodologist)
+- Schema de configurações (campos obrigatórios, tipos)
+- Config Loader (carregamento e validação)
+- Memory Manager (histórico, metadados, reset)
+- Integração entre componentes
+
+**Resultado esperado:**
+- ✅ Todas as validações passando
+- 🎉 Confirmação de implementação do Épico 6
+
+---
 
 Documentação
 ------------

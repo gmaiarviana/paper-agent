@@ -23,6 +23,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from agents.methodologist import create_methodologist_graph, create_initial_state
+from agents.memory.memory_manager import MemoryManager
 from dotenv import load_dotenv
 from langgraph.types import Command
 
@@ -35,6 +36,9 @@ logging.basicConfig(
 # Carregar variáveis de ambiente
 load_dotenv()
 
+# Instância global do MemoryManager (Épico 6)
+memory_manager = MemoryManager()
+
 
 def print_header():
     """Exibe o cabeçalho do CLI."""
@@ -42,7 +46,9 @@ def print_header():
     print("CLI MINIMALISTA - AGENTE METODOLOGISTA")
     print("=" * 70)
     print("Digite sua hipótese para avaliação metodológica.")
-    print("Digite 'exit' a qualquer momento para sair.\n")
+    print("Comandos especiais:")
+    print("  - 'exit': Sair do CLI")
+    print("  - 'reset': Limpar histórico da sessão (Épico 6)\n")
 
 
 def print_separator():
@@ -68,30 +74,55 @@ def run_cli():
     graph = create_methodologist_graph()
     print("✅ Agente pronto!\n")
 
+    # Sessão única para este CLI (Épico 6)
+    session_id = f"cli-session-{uuid.uuid4()}"
+
     while True:
         print_separator()
 
         # Solicitar hipótese
-        hypothesis = input("📝 Digite sua hipótese (ou 'exit'): ").strip()
+        hypothesis = input("📝 Digite sua hipótese (ou 'exit'/'reset'): ").strip()
 
         # Verificar comando exit
         if hypothesis.lower() == 'exit':
             print("\n👋 Encerrando CLI. Até logo!")
             break
 
+        # Verificar comando reset (Épico 6)
+        if hypothesis.lower() == 'reset':
+            sessions_before = len(memory_manager.list_sessions())
+            if session_id in memory_manager.list_sessions():
+                totals = memory_manager.get_session_totals(session_id)
+                memory_manager.reset_session(session_id)
+                print(f"\n🔄 Sessão resetada!")
+                print(f"   Tokens limpos: {totals.get('total', 0)}")
+                print(f"   Histórico removido\n")
+            else:
+                print("\n⚠️  Nenhuma sessão ativa para resetar.\n")
+            continue
+
         # Validar input vazio
         if not hypothesis:
             print("⚠️  Hipótese vazia. Por favor, digite algo.")
             continue
 
-        # Gerar thread ID único para esta sessão
-        thread_id = f"cli-session-{uuid.uuid4()}"
+        # Usar thread ID baseado na sessão
+        thread_id = f"thread-{session_id}"
         config = {"configurable": {"thread_id": thread_id}}
 
         print(f"\n🔬 Analisando hipótese...\n")
 
         # Criar estado inicial
         state = create_initial_state(hypothesis)
+
+        # Registrar início da execução no MemoryManager (Épico 6)
+        memory_manager.add_execution(
+            session_id=session_id,
+            agent_name="methodologist",
+            tokens_input=0,  # Será atualizado após execução
+            tokens_output=0,
+            summary=f"Analisando: {hypothesis[:50]}..."
+        )
 
         # Loop de execução: continua enquanto houver interrupts
         try:
@@ -124,6 +155,16 @@ def run_cli():
                         print(f"⏳ Status: {status.upper()}")
 
                     print(f"\n📝 Justificativa:\n{justification}\n")
+
+                    # Mostrar estatísticas da sessão (Épico 6)
+                    totals = memory_manager.get_session_totals(session_id)
+                    executions = len(memory_manager.get_agent_history(session_id, "methodologist"))
+                    if totals.get('total', 0) > 0:
+                        print(f"📊 Estatísticas da sessão:")
+                        print(f"   Execuções: {executions}")
+                        print(f"   Total de tokens: {totals['total']}")
+                        print(f"   (use 'reset' para limpar histórico)\n")
+
                     break
 
                 # Se há tasks com interrupts, processar
