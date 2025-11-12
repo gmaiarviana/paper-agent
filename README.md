@@ -120,9 +120,8 @@ python cli/chat.py
 1. Digite sua hipótese quando solicitado
 2. Responda perguntas do agente para clarificar aspectos metodológicos
 3. Receba a avaliação final (aprovada/rejeitada) com justificativa
-4. Comandos especiais:
-   - `exit`: Sair do CLI
-   - `reset`: Limpar histórico da sessão (Épico 6)
+4. Cada análise começa com contexto limpo automaticamente (Épico 6)
+5. Digite `exit` a qualquer momento para sair
 
 **Exemplo de sessão:**
 ```
