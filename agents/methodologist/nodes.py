@@ -1,13 +1,19 @@
 """
 Nós do grafo do agente Metodologista.
 
-Este módulo implementa os 3 nós principais do raciocínio do agente:
+Este módulo implementa os nós do Metodologista:
+
+GRAFO INTERNO (MethodologistState - Épico 2):
 - analyze: Avalia a hipótese e decide se precisa de clarificações
 - ask_clarification: Solicita informações adicionais ao usuário
 - decide: Toma a decisão final (aprovar/rejeitar)
 
-Versão: 1.3
-Data: 10/11/2025
+MODO COLABORATIVO (MultiAgentState - Épico 4):
+- decide_collaborative: Decisão com 3 status (approved/needs_refinement/rejected)
+- force_decision_collaborative: Decisão forçada após limite de refinamentos
+
+Versão: 2.0 (Épico 4 - Modo Colaborativo)
+Data: 12/11/2025
 """
 
 import logging
@@ -18,6 +24,7 @@ from langchain_anthropic import ChatAnthropic
 from .state import MethodologistState
 from .tools import ask_user
 from utils.json_parser import extract_json_from_llm_response
+from utils.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
 
 logger = logging.getLogger(__name__)
 
@@ -285,5 +292,256 @@ RESPONDA EM JSON:
     return {
         "status": status,
         "justification": justification,
+        "messages": [response]
+    }
+
+
+# ==============================================================================
+# MODO COLABORATIVO (Épico 4) - Nós para MultiAgentState
+# ==============================================================================
+
+def decide_collaborative(state: dict) -> dict:
+    """
+    Nó de decisão colaborativa do Metodologista (Épico 4).
+
+    Opera no contexto do super-grafo (MultiAgentState).
+    Retorna 3 status possíveis: approved, needs_refinement, rejected.
+
+    Este nó:
+    1. Avalia a questão de pesquisa estruturada
+    2. Decide com base em critérios de rigor científico
+    3. Retorna improvements específicos se needs_refinement
+    4. Registra decisão no hypothesis_versions
+
+    Args:
+        state (MultiAgentState): Estado do sistema multi-agente.
+
+    Returns:
+        dict: Updates do estado:
+            - methodologist_output: {status, justification, improvements}
+            - hypothesis_versions: Versão adicionada com feedback
+            - messages: Mensagem do LLM
+
+    Example:
+        >>> state = {...}
+        >>> state['structurer_output'] = {
+        ...     "structured_question": "Como X impacta Y?"
+        ... }
+        >>> result = decide_collaborative(state)
+        >>> result['methodologist_output']['status']
+        'needs_refinement'  # ou 'approved' ou 'rejected'
+    """
+    logger.info("=== NÓ DECIDE_COLLABORATIVE: Decisão colaborativa (Épico 4) ===")
+
+    # Obter questão estruturada
+    if state.get('structurer_output'):
+        question = state['structurer_output']['structured_question']
+        logger.info(f"Avaliando questão estruturada: {question}")
+    else:
+        # Usar input direto se não passou pelo Estruturador
+        question = state['user_input']
+        logger.info(f"Avaliando input direto: {question}")
+
+    iteration = state.get('refinement_iteration', 0)
+    logger.info(f"Iteração de refinamento: {iteration}")
+
+    # Construir prompt com questão
+    full_prompt = f"""{METHODOLOGIST_DECIDE_PROMPT_V2}
+
+QUESTÃO DE PESQUISA A AVALIAR:
+{question}
+
+Avalie esta questão e retorne APENAS o JSON com status, justification e improvements."""
+
+    # Chamar LLM
+    llm = ChatAnthropic(model="claude-3-5-sonnet-20241022", temperature=0)
+    response = llm.invoke([HumanMessage(content=full_prompt)])
+
+    logger.info(f"Resposta do LLM: {response.content[:200]}...")
+
+    # Parse da decisão
+    try:
+        decision_data = extract_json_from_llm_response(response.content)
+        status = decision_data.get("status", "rejected")
+        justification = decision_data.get("justification", "Decisão não especificada.")
+        improvements = decision_data.get("improvements", [])
+
+        logger.debug(f"JSON parseado: status={status}, improvements={len(improvements)} gaps")
+
+        # Validar status
+        if status not in ["approved", "needs_refinement", "rejected"]:
+            logger.warning(f"Status inválido '{status}'. Usando 'rejected' como padrão.")
+            status = "rejected"
+            improvements = []
+
+    except json.JSONDecodeError as e:
+        logger.error(f"Falha ao parsear JSON da decisão: {e}. Rejeitando por segurança.")
+        status = "rejected"
+        justification = "Erro ao processar decisão do LLM."
+        improvements = []
+
+    # Montar output do Metodologista
+    methodologist_output = {
+        "status": status,
+        "justification": justification,
+        "improvements": improvements
+    }
+
+    # Calcular versão (V1, V2, V3)
+    current_version = len(state.get('hypothesis_versions', [])) + 1
+
+    # Registrar versão no histórico
+    version_entry = {
+        "version": current_version,
+        "question": question,
+        "feedback": {
+            "status": status,
+            "justification": justification,
+            "improvements": improvements
+        }
+    }
+
+    # Atualizar hypothesis_versions
+    new_versions = state.get('hypothesis_versions', []).copy() if state.get('hypothesis_versions') else []
+    new_versions.append(version_entry)
+
+    logger.info(f"Decisão: {status}")
+    logger.info(f"Versão registrada: V{current_version}")
+    if status == "needs_refinement":
+        logger.info(f"Gaps identificados: {len(improvements)}")
+        for imp in improvements:
+            logger.info(f"  - {imp['aspect']}: {imp['gap']}")
+    logger.info("=== NÓ DECIDE_COLLABORATIVE: Finalizado ===\n")
+
+    return {
+        "methodologist_output": methodologist_output,
+        "hypothesis_versions": new_versions,
+        "messages": [response]
+    }
+
+
+def force_decision_collaborative(state: dict) -> dict:
+    """
+    Nó de decisão FORÇADA após atingir limite de refinamentos (Épico 4).
+
+    Este nó é chamado quando refinement_iteration >= max_refinements.
+    Força o Metodologista a decidir entre approved ou rejected (sem needs_refinement).
+
+    Args:
+        state (MultiAgentState): Estado do sistema multi-agente.
+
+    Returns:
+        dict: Updates do estado:
+            - methodologist_output: {status, justification, improvements=[]}
+            - hypothesis_versions: Versão final adicionada
+            - current_stage: "done"
+            - messages: Mensagem do LLM
+
+    Example:
+        >>> state = {...}
+        >>> state['refinement_iteration'] = 2
+        >>> state['max_refinements'] = 2
+        >>> result = force_decision_collaborative(state)
+        >>> result['methodologist_output']['status'] in ['approved', 'rejected']
+        True
+    """
+    logger.info("=== NÓ FORCE_DECISION_COLLABORATIVE: Decisão forçada (limite atingido) ===")
+    logger.info(f"Iteração: {state.get('refinement_iteration')}/{state.get('max_refinements')}")
+
+    # Obter questão mais recente
+    if state.get('hypothesis_versions'):
+        last_version = state['hypothesis_versions'][-1]
+        question = last_version['question']
+        logger.info(f"Avaliando última versão: V{last_version['version']}")
+    elif state.get('structurer_output'):
+        question = state['structurer_output']['structured_question']
+        logger.info(f"Avaliando questão estruturada")
+    else:
+        question = state['user_input']
+        logger.info(f"Avaliando input direto")
+
+    logger.info(f"Questão: {question}")
+
+    # Construir prompt de decisão forçada
+    force_prompt = f"""{METHODOLOGIST_DECIDE_PROMPT_V2}
+
+IMPORTANTE: Esta é a ÚLTIMA iteração. Você DEVE decidir entre "approved" ou "rejected".
+NÃO use "needs_refinement" - o limite de refinamentos foi atingido.
+
+QUESTÃO DE PESQUISA A AVALIAR:
+{question}
+
+Se a questão tem estrutura científica básica (mesmo com lacunas), aprove.
+Se ainda falta base científica fundamental, rejeite com justificativa clara.
+
+Retorne APENAS JSON com:
+{{
+  "status": "approved" | "rejected",  // SEM needs_refinement
+  "justification": "Explicação detalhada da decisão final",
+  "improvements": []  // Vazio, pois não há mais refinamentos
+}}"""
+
+    # Chamar LLM
+    llm = ChatAnthropic(model="claude-3-5-sonnet-20241022", temperature=0)
+    response = llm.invoke([HumanMessage(content=force_prompt)])
+
+    logger.info(f"Resposta do LLM: {response.content[:200]}...")
+
+    # Parse da decisão
+    try:
+        decision_data = extract_json_from_llm_response(response.content)
+        status = decision_data.get("status", "rejected")
+        justification = decision_data.get("justification", "Decisão não especificada.")
+
+        # Forçar apenas approved ou rejected
+        if status == "needs_refinement":
+            logger.warning("LLM retornou needs_refinement, mas limite atingido. Forçando rejected.")
+            status = "rejected"
+            justification += " (Limite de refinamentos atingido - decisão forçada para rejected)"
+
+        if status not in ["approved", "rejected"]:
+            logger.warning(f"Status inválido '{status}'. Forçando rejected.")
+            status = "rejected"
+
+        logger.debug(f"JSON parseado: status={status} (decisão forçada)")
+
+    except json.JSONDecodeError as e:
+        logger.error(f"Falha ao parsear JSON: {e}. Rejeitando por segurança.")
+        status = "rejected"
+        justification = "Erro ao processar decisão do LLM após limite de refinamentos."
+
+    # Montar output
+    methodologist_output = {
+        "status": status,
+        "justification": justification,
+        "improvements": []  # Vazio - não há mais refinamentos
+    }
+
+    # Calcular versão final
+    current_version = len(state.get('hypothesis_versions', [])) + 1
+
+    # Registrar versão final
+    version_entry = {
+        "version": current_version,
+        "question": question,
+        "feedback": {
+            "status": status,
+            "justification": justification,
+            "improvements": [],
+            "forced_decision": True  # Flag para indicar decisão forçada
+        }
+    }
+
+    new_versions = state.get('hypothesis_versions', []).copy() if state.get('hypothesis_versions') else []
+    new_versions.append(version_entry)
+
+    logger.info(f"Decisão FORÇADA: {status}")
+    logger.info(f"Versão final: V{current_version}")
+    logger.info("=== NÓ FORCE_DECISION_COLLABORATIVE: Finalizado ===\n")
+
+    return {
+        "methodologist_output": methodologist_output,
+        "hypothesis_versions": new_versions,
+        "current_stage": "done",  # Finaliza processamento
         "messages": [response]
     }
