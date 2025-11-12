@@ -33,8 +33,9 @@ print("\n2. Testando LLM diretamente...")
 try:
     from langchain_anthropic import ChatAnthropic
     from langchain_core.messages import HumanMessage
+    from utils.config import get_anthropic_model
 
-    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
+    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     response = llm.invoke([HumanMessage(content="Responda apenas: OK")])
     print(f"   ✅ LLM funcionando: {response.content}")
 except Exception as e:

@@ -15,6 +15,7 @@ from langchain_anthropic import ChatAnthropic
 
 from .state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
+from utils.config import get_anthropic_model
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +103,7 @@ RESPONDA EM JSON:
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
 
     # Chamar LLM para classificação
-    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
+    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     messages = [HumanMessage(content=classification_prompt)]
     response = llm.invoke(messages)
 

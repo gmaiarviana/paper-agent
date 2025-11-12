@@ -17,6 +17,7 @@ from langchain_anthropic import ChatAnthropic
 from agents.orchestrator.state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import STRUCTURER_REFINEMENT_PROMPT_V1
+from utils.config import get_anthropic_model
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +137,7 @@ RESPONDA EM JSON:
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
 
     # Chamar LLM para estruturação
-    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
+    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     messages = [HumanMessage(content=structuring_prompt)]
     response = llm.invoke(messages)
 
@@ -244,7 +245,7 @@ Gere uma versão REFINADA (V{current_version}) que endereça TODOS os gaps lista
 Retorne APENAS JSON com: context, problem, contribution, structured_question, addressed_gaps."""
 
     # Chamar LLM
-    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
+    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     response = llm.invoke([HumanMessage(content=refinement_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")

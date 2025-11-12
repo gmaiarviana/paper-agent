@@ -25,6 +25,7 @@ from .state import MethodologistState
 from .tools import ask_user
 from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
+from utils.config import get_anthropic_model
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,7 @@ Se faltam detalhes ESSENCIAIS (população, variáveis, métricas, condições),
 Se a hipótese é claramente boa ou ruim com o contexto atual, marque true."""
 
     # Chamar LLM
-    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
+    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     messages = [HumanMessage(content=analysis_prompt)]
     response = llm.invoke(messages)
 
@@ -173,7 +174,7 @@ Foque em aspectos metodológicos críticos:
 RESPONDA APENAS COM A PERGUNTA (sem preâmbulo ou explicação)."""
 
     # Chamar LLM para gerar pergunta
-    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
+    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     response = llm.invoke([HumanMessage(content=question_prompt)])
     question = response.content.strip()
 
@@ -263,7 +264,7 @@ RESPONDA EM JSON:
 }}"""
 
     # Chamar LLM para decisão
-    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
+    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     response = llm.invoke([HumanMessage(content=decision_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content}")
@@ -354,7 +355,7 @@ QUESTÃO DE PESQUISA A AVALIAR:
 Avalie esta questão e retorne APENAS o JSON com status, justification e improvements."""
 
     # Chamar LLM (usando Haiku para custo-benefício)
-    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
+    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     response = llm.invoke([HumanMessage(content=full_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
@@ -482,7 +483,7 @@ Retorne APENAS JSON com:
 }}"""
 
     # Chamar LLM (usando Haiku para custo-benefício)
-    llm = ChatAnthropic(model="claude-3-5-haiku-20241022", temperature=0)
+    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     response = llm.invoke([HumanMessage(content=force_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
