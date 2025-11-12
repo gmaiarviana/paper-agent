@@ -7,8 +7,8 @@ do sistema (Orquestrador, Estruturador, Metodologista).
 O estado é híbrido: possui campos compartilhados (todos os agentes leem/escrevem)
 e campos específicos por agente (apenas o agente responsável escreve).
 
-Versão: 1.0 (Épico 3, Funcionalidade 3.1)
-Data: 11/11/2025
+Versão: 2.0 (Épico 4 - Loop de Refinamento Colaborativo)
+Data: 12/11/2025
 """
 
 from typing import TypedDict, Optional, Annotated, Literal
@@ -43,6 +43,32 @@ class MultiAgentState(TypedDict):
         - "validating": Metodologista está validando hipótese
         - "done": Processamento concluído
 
+    refinement_iteration (int):
+        Contador de iterações de refinamento (Épico 4).
+        Valores: 0, 1, 2 (incrementa a cada vez que Estruturador refina baseado em feedback)
+        Usado para controlar limite de refinamentos.
+
+    max_refinements (int):
+        Limite máximo de refinamentos permitidos (Épico 4).
+        Valor padrão: 2
+        Após atingir este limite, Metodologista deve forçar decisão final.
+
+    hypothesis_versions (list):
+        Histórico de versões da hipótese/questão de pesquisa (Épico 4).
+        Cada versão contém: version (int), question (str), feedback (dict)
+        Usado para rastreabilidade e transparência do processo de refinamento.
+        Estrutura:
+        [
+            {
+                "version": 1,
+                "question": "Como X impacta Y?",
+                "feedback": {
+                    "status": "needs_refinement",
+                    "improvements": [...]
+                }
+            }
+        ]
+
     === SEÇÃO 2: CAMPOS ESPECÍFICOS POR AGENTE ===
 
     orchestrator_classification (Optional[str]):
@@ -70,12 +96,17 @@ class MultiAgentState(TypedDict):
 
     methodologist_output (Optional[dict]):
         Output do Metodologista após validar hipótese.
-        Estrutura:
+        Estrutura (Épico 4 - Modo Colaborativo):
         {
-            "status": "approved" | "rejected",
+            "status": "approved" | "needs_refinement" | "rejected",
             "justification": str,           # Justificativa detalhada
-            "suggestions": List[str]        # Melhorias sugeridas (se aplicável)
+            "improvements": List[dict]      # Gaps e sugestões (se needs_refinement)
         }
+
+        Status:
+        - "approved": Hipótese testável, aprovada
+        - "needs_refinement": Tem potencial mas faltam elementos (volta para Estruturador)
+        - "rejected": Sem potencial científico (finaliza)
 
     === SEÇÃO 3: MENSAGENS (LangGraph) ===
 
@@ -96,6 +127,11 @@ class MultiAgentState(TypedDict):
     conversation_history: list
     current_stage: Literal["classifying", "structuring", "validating", "done"]
 
+    # === REFINAMENTO (Épico 4) ===
+    refinement_iteration: int
+    max_refinements: int
+    hypothesis_versions: list
+
     # === ESPECÍFICO: ORQUESTRADOR ===
     orchestrator_classification: Optional[str]
     orchestrator_reasoning: Optional[str]
@@ -110,12 +146,13 @@ class MultiAgentState(TypedDict):
     messages: Annotated[list, add_messages]
 
 
-def create_initial_multi_agent_state(user_input: str) -> MultiAgentState:
+def create_initial_multi_agent_state(user_input: str, max_refinements: int = 2) -> MultiAgentState:
     """
     Cria o estado inicial do sistema multi-agente com valores padrão.
 
     Args:
         user_input (str): Input do usuário (ideia, observação ou hipótese).
+        max_refinements (int): Limite máximo de refinamentos (padrão: 2).
 
     Returns:
         MultiAgentState: Estado inicial pronto para ser usado pelo super-grafo.
@@ -126,16 +163,23 @@ def create_initial_multi_agent_state(user_input: str) -> MultiAgentState:
         ... )
         >>> state['current_stage']
         'classifying'
-        >>> state['orchestrator_classification']
-        None
-        >>> state['user_input']
-        'Observei que desenvolver com Claude Code é mais rápido'
+        >>> state['refinement_iteration']
+        0
+        >>> state['max_refinements']
+        2
+        >>> state['hypothesis_versions']
+        []
     """
     return MultiAgentState(
         # Compartilhado
         user_input=user_input,
         conversation_history=[f"Usuário: {user_input}"],
         current_stage="classifying",
+
+        # Refinamento (Épico 4)
+        refinement_iteration=0,
+        max_refinements=max_refinements,
+        hypothesis_versions=[],
 
         # Específico: Orquestrador
         orchestrator_classification=None,
