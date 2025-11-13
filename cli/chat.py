@@ -23,6 +23,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from agents.methodologist import create_methodologist_graph, create_initial_state
+from agents.memory.memory_manager import MemoryManager
 from dotenv import load_dotenv
 from langgraph.types import Command
 
@@ -35,6 +36,9 @@ logging.basicConfig(
 # Carregar variáveis de ambiente
 load_dotenv()
 
+# Instância global do MemoryManager (Épico 6)
+memory_manager = MemoryManager()
+
 
 def print_header():
     """Exibe o cabeçalho do CLI."""
@@ -42,6 +46,7 @@ def print_header():
     print("CLI MINIMALISTA - AGENTE METODOLOGISTA")
     print("=" * 70)
     print("Digite sua hipótese para avaliação metodológica.")
+    print("Cada análise começa com contexto limpo.\n")
     print("Digite 'exit' a qualquer momento para sair.\n")
 
 
@@ -84,14 +89,24 @@ def run_cli():
             print("⚠️  Hipótese vazia. Por favor, digite algo.")
             continue
 
-        # Gerar thread ID único para esta sessão
-        thread_id = f"cli-session-{uuid.uuid4()}"
+        # Nova sessão a cada hipótese (Épico 6 - contexto limpo automático)
+        session_id = f"cli-session-{uuid.uuid4()}"
+        thread_id = f"thread-{session_id}"
         config = {"configurable": {"thread_id": thread_id}}
 
         print(f"\n🔬 Analisando hipótese...\n")
 
         # Criar estado inicial
         state = create_initial_state(hypothesis)
+
+        # Registrar início da execução no MemoryManager (Épico 6)
+        memory_manager.add_execution(
+            session_id=session_id,
+            agent_name="methodologist",
+            tokens_input=0,  # Será atualizado após execução
+            tokens_output=0,
+            summary=f"Analisando: {hypothesis[:50]}..."
+        )
 
         # Loop de execução: continua enquanto houver interrupts
         try:
@@ -124,6 +139,12 @@ def run_cli():
                         print(f"⏳ Status: {status.upper()}")
 
                     print(f"\n📝 Justificativa:\n{justification}\n")
+
+                    # Mostrar estatísticas da análise (Épico 6)
+                    totals = memory_manager.get_session_totals(session_id)
+                    if totals.get('total', 0) > 0:
+                        print(f"📊 Tokens utilizados: {totals['total']}\n")
+
                     break
 
                 # Se há tasks com interrupts, processar
