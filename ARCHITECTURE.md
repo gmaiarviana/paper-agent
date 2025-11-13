@@ -96,14 +96,17 @@ paper-agent/
 ├── utils/                 # Utilitários e helpers
 │   ├── __init__.py
 │   ├── prompts.py         # Prompts versionados dos agentes
-│   └── cost_tracker.py    # Cálculo de custos de API
+│   ├── cost_tracker.py    # Cálculo de custos de API
+│   ├── event_models.py    # Models Pydantic para eventos (Épico 5.1)
+│   └── event_bus.py       # EventBus para Dashboard (Épico 5.1)
 │
 ├── cli/                   # Interface de linha de comando
 │   ├── __init__.py
-│   └── chat.py            # CLI interativo para testar Metodologista
+│   └── chat.py            # CLI interativo (integrado com EventBus)
 │
-├── app/                   # Interface Streamlit (futura)
-│   └── __init__.py        # (Futuro: app.py)
+├── app/                   # Interface Streamlit (Épico 5.1)
+│   ├── __init__.py
+│   └── dashboard.py       # Dashboard web com timeline
 │
 ├── tests/                 # Testes automatizados (pytest)
 │   ├── __init__.py
@@ -114,7 +117,9 @@ paper-agent/
 │   │   ├── test_ask_user_tool.py        # Testes da tool ask_user
 │   │   ├── test_graph_nodes.py          # Testes dos nós do Metodologista
 │   │   ├── test_orchestrator.py         # Testes do Orquestrador (Épico 3.1)
-│   │   └── test_structurer.py           # Testes do Estruturador (Épico 3.2)
+│   │   ├── test_structurer.py           # Testes do Estruturador (Épico 3.2)
+│   │   ├── test_event_models.py         # Testes dos models de eventos (Épico 5.1)
+│   │   └── test_event_bus.py            # Testes do EventBus (Épico 5.1)
 │   ├── integration/       # Testes de integração (API real)
 │   │   └── __init__.py
 │   └── conftest.py        # Fixtures compartilhadas (futuro)
@@ -127,7 +132,8 @@ paper-agent/
 │   ├── validate_graph_nodes.py  # Validação dos nós do Metodologista
 │   ├── validate_orchestrator.py  # Validação do Orquestrador (Épico 3.1)
 │   ├── validate_structurer.py    # Validação do Estruturador (Épico 3.2)
-│   └── validate_cli.py    # Validação do CLI (fluxo completo)
+│   ├── validate_cli.py    # Validação do CLI (fluxo completo)
+│   └── validate_dashboard.py     # Validação do Dashboard (Épico 5.1)
 │
 └── docs/                  # Documentação detalhada por domínio
     ├── testing_guidelines.md  # Estratégia de testes
@@ -246,6 +252,63 @@ python cli/chat.py
 ### Utilitários (`utils/`)
 - `cost_tracker.py`: Cálculo de custos de API
 - `prompts.py`: Prompts versionados dos agentes (futuro - Task 2.6)
+
+### EventBus (`utils/event_bus.py`) - Épico 5.1
+Barramento de eventos para comunicação entre CLI/Graph e Dashboard.
+
+**Arquitetura:**
+- Publica eventos em arquivos JSON temporários (`/tmp/paper-agent-events/`)
+- Cada sessão tem arquivo próprio: `events-{session_id}.json`
+- Padrão singleton via `get_event_bus()`
+
+**Tipos de evento:**
+- `SessionStartedEvent`: Início de sessão com input do usuário
+- `AgentStartedEvent`: Agente inicia execução
+- `AgentCompletedEvent`: Agente finaliza com sucesso (inclui tokens e summary)
+- `AgentErrorEvent`: Agente falha durante execução
+- `SessionCompletedEvent`: Sessão finaliza com status e total de tokens
+
+**Métodos principais:**
+- `publish_*()`: Publicar eventos específicos
+- `get_session_events()`: Obter timeline de eventos de uma sessão
+- `list_active_sessions()`: Listar sessões com arquivos de evento
+- `get_session_summary()`: Obter resumo (status, total de eventos, timestamps)
+
+**Integração:**
+- CLI publica eventos de sessão (started/completed)
+- Graph instrumentado publica eventos de agentes (started/completed/error)
+- Dashboard consome eventos em tempo real
+
+**Status:** Funcionalidade 5.1 implementada e testada.
+
+### Dashboard Streamlit (`app/dashboard.py`) - Épico 5.1
+Interface web para visualização de sessões e eventos em tempo real.
+
+**Funcionalidades:**
+- 📋 Lista de sessões ativas na sidebar
+- 🕒 Timeline cronológica de eventos com ícones e cores por agente
+- 📊 Status visual (executando, concluído, erro) com indicadores coloridos
+- 🔄 Auto-refresh configurável (1-10 segundos, padrão: 2s)
+- 📈 Estatísticas: eventos por tipo, agentes executados, total de tokens
+- 🗑️ Ações: atualizar manualmente, limpar sessão
+
+**Componentes:**
+- `render_session_selector()`: Seletor de sessões
+- `render_session_summary()`: Métricas principais (status, eventos, timestamps)
+- `render_timeline()`: Timeline visual com eventos ordenados cronologicamente
+- `render_event_stats()`: Estatísticas e gráficos de uso
+
+**Tecnologia:**
+- Streamlit para UI
+- EventBus para consumo de eventos
+- Auto-refresh via `st.rerun()` com timer
+
+**Como executar:**
+```bash
+streamlit run app/dashboard.py
+```
+
+**Status:** Funcionalidade 5.1 implementada e testada.
 
 ## Fluxo de Dados (Atualizado - Épico 7)
 

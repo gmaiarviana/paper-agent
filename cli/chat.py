@@ -24,6 +24,7 @@ sys.path.insert(0, str(project_root))
 
 from agents.methodologist import create_methodologist_graph, create_initial_state
 from agents.memory.memory_manager import MemoryManager
+from utils.event_bus import get_event_bus
 from dotenv import load_dotenv
 from langgraph.types import Command
 
@@ -38,6 +39,9 @@ load_dotenv()
 
 # Instância global do MemoryManager (Épico 6)
 memory_manager = MemoryManager()
+
+# Instância global do EventBus (Épico 5.1)
+event_bus = get_event_bus()
 
 
 def print_header():
@@ -92,9 +96,18 @@ def run_cli():
         # Nova sessão a cada hipótese (Épico 6 - contexto limpo automático)
         session_id = f"cli-session-{uuid.uuid4()}"
         thread_id = f"thread-{session_id}"
-        config = {"configurable": {"thread_id": thread_id}}
+        config = {"configurable": {"thread_id": thread_id, "session_id": session_id}}
 
         print(f"\n🔬 Analisando hipótese...\n")
+
+        # Publicar evento de início de sessão (Épico 5.1)
+        try:
+            event_bus.publish_session_started(
+                session_id=session_id,
+                user_input=hypothesis
+            )
+        except Exception as e:
+            logger.warning(f"Falha ao publicar session_started: {e}")
 
         # Criar estado inicial
         state = create_initial_state(hypothesis)
@@ -142,8 +155,19 @@ def run_cli():
 
                     # Mostrar estatísticas da análise (Épico 6)
                     totals = memory_manager.get_session_totals(session_id)
-                    if totals.get('total', 0) > 0:
-                        print(f"📊 Tokens utilizados: {totals['total']}\n")
+                    tokens_total = totals.get('total', 0)
+                    if tokens_total > 0:
+                        print(f"📊 Tokens utilizados: {tokens_total}\n")
+
+                    # Publicar evento de conclusão de sessão (Épico 5.1)
+                    try:
+                        event_bus.publish_session_completed(
+                            session_id=session_id,
+                            final_status=status,
+                            tokens_total=tokens_total
+                        )
+                    except Exception as e:
+                        logger.warning(f"Falha ao publicar session_completed: {e}")
 
                     break
 
