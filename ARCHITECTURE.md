@@ -6,6 +6,45 @@
 - POC atual: validação de hipóteses com Orquestrador + Metodologista rodando sobre LangGraph.
 - Interfaces priorizadas: CLI (automação com agentes) e Streamlit opcional para uso humano.
 
+## Entidade Central: Tópico/Ideia
+
+O sistema trabalha com a entidade **Tópico**, que representa uma ideia em evolução até se tornar artigo.
+
+**Modelo conceitual (detalhes em `docs/product/vision.md` - Seção 4):**
+```python
+Topic:
+  id: str              # UUID único
+  title: str           # "Impacto de LLMs em produtividade"
+  article_type: str    # Ver tipos abaixo
+  stage: str           # Ver estágios abaixo
+  created_at: datetime
+  updated_at: datetime
+  artifacts: List[Artifact]  # outline, papers, drafts, decisions
+  thread_id: str       # LangGraph thread (para recuperar sessão)
+```
+
+**Tipos de artigo suportados:**
+1. `empirical` - Testa hipótese com dados coletados
+2. `review` - Revisão sistemática/literatura
+3. `theoretical` - Propõe framework/teoria
+4. `case_study` - Análise de caso(s) específico(s)
+5. `meta_analysis` - Análise quantitativa agregada
+6. `methodological` - Propõe/valida método/técnica
+
+**Estágios de maturidade:**
+- `ideation` - Ideia inicial vaga
+- `hypothesis` - Hipótese estruturada
+- `methodology` - Metodologia definida
+- `research` - Pesquisa em andamento
+- `writing` - Escrevendo artigo
+- `review` - Revisão final
+- `done` - Artigo completo
+
+**Evolução fluida:**
+- Sistema detecta `stage` automaticamente (não pergunta diretamente)
+- Usuário pode voltar etapas (ex: pesquisa altera metodologia)
+- Tipo pode ser inferido ou mudar ao longo da conversa
+
 ## Escopo Atual (POC)
 
 - Entradas via CLI; respostas estruturadas do Orquestrador.
@@ -134,6 +173,28 @@ Agente responsável por classificar maturidade de inputs e rotear para agentes e
 
 **Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
 
+### Detecção de Tipo de Artigo (Épico 7 - Futuro)
+
+**Responsabilidade:** Orquestrador infere tipo de artigo na conversa inicial e adapta fluxo de agentes.
+
+**Estratégia:**
+- Perguntas dinâmicas na primeira interação
+- Análise de palavras-chave (ex: "testar hipótese" → empírico, "revisão de literatura" → review)
+- Permite mudança de tipo ao longo da conversa (começa observacional, vira empírico)
+
+**Adaptação de fluxo:**
+
+| Tipo | Agentes Prioritários | Checkpoints Mínimos |
+|------|---------------------|---------------------|
+| empirical | Metodologista, Estruturador | Hipótese → Metodologia → Coleta → Análise |
+| review | Pesquisador, Estruturador | Questão PICO → Busca → Síntese |
+| theoretical | Metodologista, Estruturador | Problema → Argumento → Framework |
+| case_study | Metodologista, Estruturador | Caso → Contexto → Análise → Insights |
+| meta_analysis | Metodologista, Pesquisador | Questão → Busca → Extração → Análise estatística |
+| methodological | Metodologista, Estruturador | Método → Validação → Comparação |
+
+Ver `docs/product/vision.md` (Seções 2 e 3) para fluxos detalhados.
+
 ### Estruturador (`agents/structurer/`)
 Agente responsável por organizar ideias vagas e refinar questões de pesquisa baseado em feedback.
 
@@ -186,8 +247,9 @@ python cli/chat.py
 - `cost_tracker.py`: Cálculo de custos de API
 - `prompts.py`: Prompts versionados dos agentes (futuro - Task 2.6)
 
-## Fluxo de Dados (Épico 4 - Loop de Refinamento)
+## Fluxo de Dados (Atualizado - Épico 7)
 
+### Fluxo Base (POC Atual)
 ```
 Usuário (CLI) → Orquestrador (classifica maturidade) →
   ├─ Input vago → Estruturador (V1) → Metodologista (needs_refinement?)
@@ -197,18 +259,32 @@ Usuário (CLI) → Orquestrador (classifica maturidade) →
   │                                END (resultado com histórico V1→V2)
   │
   └─ Hipótese formada → Metodologista (approved/rejected) → END
-
-Decisão forçada (se iteration >= max_refinements):
-  Estruturador (V3) → Metodologista (needs_refinement) → force_decision → END
 ```
 
-**Cenários (Épico 4):**
-1. **Ideia vaga + refinamento:** Orquestrador → Estruturador (V1) → Metodologista (needs_refinement) → Estruturador (V2) → Metodologista (approved) → END
-2. **Hipótese direta:** Orquestrador → Metodologista (approved/rejected) → END
-3. **Limite atingido:** ... → Metodologista (needs_refinement, iteration=2) → force_decision (approved/rejected) → END
-4. **Sem potencial:** Estruturador (V1) → Metodologista (rejected) → END
+### Fluxo Futuro (Com Tipos de Artigo - Épico 7)
+```
+Usuário inicia sessão
+  ↓
+Orquestrador detecta tipo de artigo (empirical, review, theoretical, etc)
+  ↓
+Sistema adapta fluxo conforme tipo:
 
-Logs exibem: decisões, iterações, versões (V1/V2/V3), gaps identificados, refinamentos aplicados.
+EMPÍRICO:
+  Estruturador → Metodologista → [Desenho Experimental] → Pesquisador → Escritor → Crítico
+
+REVISÃO:
+  Estruturador (protocolo PICO) → Pesquisador (busca) → Escritor (síntese) → Crítico
+
+TEÓRICO:
+  Estruturador (argumento) → Metodologista (lógica) → Escritor (framework) → Crítico
+
+[Outros tipos seguem padrão similar]
+```
+
+**Persistência entre sessões:**
+- Tópico salvo em `/data/topics/{topic_id}/` (SqliteSaver)
+- Thread ID vinculado ao tópico (recupera contexto completo)
+- Artefatos versionados (V1, V2, V3)
 
 ## Padrões Essenciais
 
@@ -226,9 +302,19 @@ Logs exibem: decisões, iterações, versões (V1/V2/V3), gaps identificados, re
 - Loop de refinamento: limite padrão de 2 iterações (V1 → V2 → V3), configurável via `max_refinements`.
 - Modo colaborativo: prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar).
 
+### Modelo de Dados (Épico 7 - Planejado)
+
+- **Persistência:** SqliteSaver (LangGraph) para início, migração para PostgreSQL quando escalar
+- **Estrutura de diretórios:** `/data/topics/{topic_id}/checkpoints.db`
+- **Entidade Tópico:** TypedDict/Pydantic com article_type, stage, artifacts
+- **Versionamento:** Artefatos rastreados (V1, V2, V3), com opção de rollback futuro
+- **Detecção de tipo:** Orquestrador infere tipo automaticamente via LLM (ver vision.md)
+- **Estágios:** Detectados automaticamente pelo Orquestrador com base em artefatos presentes
+
 ## Referências
 
 - `README.md`: visão geral e execução.
+- `docs/product/vision.md`: visão de produto, tipos de artigo, jornada do usuário
 - `docs/agents/overview.md`: mapa completo de agentes planejados.
 - `docs/orchestration/orchestrator.md`: regras de decisão e estado.
 - `docs/interface/cli.md`: expectativas de UX e logging.
