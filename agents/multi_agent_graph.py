@@ -93,11 +93,20 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
     """
     def wrapper(state: MultiAgentState, config: Any = None) -> MultiAgentState:
         """Wrapper instrumentado que emite eventos."""
-        # Debug: verificar se config chegou
-        logger.debug(f"Wrapper de {agent_name}: config = {config}")
+        # Debug CRÍTICO: verificar se config chegou (usando print para forçar exibição)
+        print(f"[DEBUG] Wrapper {agent_name}: config recebido = {config}")
+        print(f"[DEBUG] Wrapper {agent_name}: type(config) = {type(config)}")
+
+        if config:
+            print(f"[DEBUG] Wrapper {agent_name}: tem config, verificando estrutura...")
+            if hasattr(config, 'get'):
+                configurable = config.get("configurable", {})
+                print(f"[DEBUG] Wrapper {agent_name}: configurable = {configurable}")
+            elif hasattr(config, '__dict__'):
+                print(f"[DEBUG] Wrapper {agent_name}: config.__dict__ = {config.__dict__}")
 
         session_id = _get_session_id_from_config(config)
-        logger.debug(f"Wrapper de {agent_name}: session_id extraído = {session_id}")
+        print(f"[DEBUG] Wrapper {agent_name}: session_id FINAL = {session_id}")
 
         # Emitir evento de início
         if EVENT_BUS_AVAILABLE:
