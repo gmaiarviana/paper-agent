@@ -25,6 +25,10 @@ class CostTracker:
             "input": 3.00,   # $3.00 per 1M input tokens
             "output": 15.00, # $15.00 per 1M output tokens
         },
+        "claude-sonnet-4-20250514": {
+            "input": 3.00,   # $3.00 per 1M input tokens (same as 3.5 Sonnet)
+            "output": 15.00, # $15.00 per 1M output tokens (same as 3.5 Sonnet)
+        },
         "claude-3-opus-20240229": {
             "input": 15.00,  # $15.00 per 1M input tokens
             "output": 75.00, # $75.00 per 1M output tokens
