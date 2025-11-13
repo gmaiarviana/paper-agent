@@ -27,103 +27,87 @@ Sistema multi-agente conduz refinamentos sucessivos da hipótese com feedback es
 **ÉPICO 3: Orquestrador + Estruturador (Base Multi-Agente)**  
 Orquestrador coordena metodologista e estruturador, avaliando maturidade da ideia, integrando respostas e registrando justificativas.
 
+**ÉPICO 5: Interface Conversacional e Transparência (parcial)** (13/11/2025)  
+Funcionalidade 5.1 concluída: Dashboard Streamlit com timeline de eventos em tempo real.
+
+**ÉPICO 6: Memória Dinâmica e Contexto por Agente (parcial)** (13/11/2025)  
+Funcionalidade 6.1 concluída: Configuração externa de agentes via YAML. Funcionalidade 6.2 em andamento: Registro de memória com metadados.
+
 ---
 
 ## 📋 PRÓXIMAS FUNCIONALIDADES
 
-## ÉPICO 5: Interface Conversacional e Transparência
+## ÉPICO 7: Orquestrador Conversacional Inteligente
 
-**Objetivo:** Proporcionar experiência visual que torne a execução multi-agente transparente e acompanhável em tempo real, destacando custos, decisões e evolução da sessão.
-Consulte `docs/product/vision.md` (Seção 5) para princípios de interação com usuário.
+**Objetivo:** Transformar sistema de "trilho fixo" em diálogo adaptativo onde usuário e sistema decidem caminho juntos através de negociação contínua.
 
-**Status:** 🟡 Em andamento (infraestrutura pronta, integrações pendentes)
+**Status:** 🟡 Em refinamento
 
 **Dependências:**
-- Épico 3 concluído (multi-agente base)
-- Épico 4 concluído (loop colaborativo)
+- Épico 6.2 concluído (registro de memória)
 
-### Funcionalidades:
+**Consulte:** `docs/orchestration/conversational_orchestrator.md` para especificação detalhada.
 
-#### ✅ 5.1 Dashboard Streamlit com Timeline (CONCLUÍDO - 13/11/2025)
-- **Descrição:** Entregar interface Streamlit que exibe timeline cronológica de eventos de cada sessão ativa.
-- **Critérios de Aceite:**
-  - ✅ Página principal lista sessões em andamento e permite abrir detalhes em tempo real.
-  - ✅ Timeline mostra início e término de cada agente com timestamps e status (executando, concluído, erro).
-  - ✅ Painel atualiza automaticamente (polling) sem recarregar a página manualmente.
-- **Implementado:**
-  - EventBus para comunicação entre CLI/Graph e Dashboard via arquivos JSON temporários
-  - Models Pydantic para eventos (SessionStarted, AgentStarted, AgentCompleted, AgentError, SessionCompleted)
-  - Instrumentação do multi_agent_graph.py para emitir eventos em cada nó
-  - Dashboard Streamlit com timeline visual, status coloridos por agente, e estatísticas
-  - Auto-refresh configurável (1-10s, padrão: 2s)
-  - Testes unitários completos (test_event_models.py, test_event_bus.py)
-  - Script de validação (scripts/validate_dashboard.py)
-- **Como usar:**
-  - Terminal 1: `streamlit run app/dashboard.py`
-  - Terminal 2: `python cli/chat.py`
-  - Veja eventos em tempo real no Dashboard!
+### Progressão POC → Protótipo → MVP
 
-#### 5.2 Métricas de Tokens e Custo
-- **Descrição:** Expor tokens e custo estimado por agente e o acumulado da sessão.
-- **Critérios de Aceite:**
-  - Para cada evento exibido, apresentar `tokens_input`, `tokens_output` e `tokens_total`.
-  - Calcular e exibir custo por agente e custo total da sessão usando tabela de preços configurável.
-  - Exibir alerta quando custo total ultrapassar limite configurado.
+#### POC (primeira entrega - foco mínimo viável)
+- 7.1: Orquestrador mantém diálogo fluido (não apenas roteia)
+- 7.2: Oferece opções ao usuário (não impõe caminho)
+- 7.3: Chama agentes sob demanda (quando usuário concorda)
 
-#### 5.3 Resumo Sintético do Pensamento
-- **Descrição:** Mostrar resumo curto da ação ou raciocínio entregue por cada agente.
-- **Critérios de Aceite:**
-  - Feed apresenta resumo textual (até 280 caracteres) do output/pensamento do agente, com indicação do tipo de ação.
-  - Usuário pode expandir um evento para ver a resposta completa do agente diretamente na interface.
-  - Disponibilizar botão para exportar o feed atual em JSON com os mesmos campos exibidos.
+**Critérios de aceite POC:**
+- Sistema conversa antes de chamar agente
+- Usuário pode escolher entre opções (A, B ou C)
+- Agentes só executam após confirmação
 
-#### 5.4 Integração com CLI Existente
-- **Descrição:** Adaptar CLI para publicar eventos consumidos pelo dashboard sem interromper o fluxo existente.
-- **Critérios de Aceite:**
-  - CLI gera eventos estruturados (`agent`, `action`, `started_at`, `finished_at`, `tokens`, `summary`) acessíveis ao Streamlit.
-  - Canal de comunicação pode ser arquivo temporário ou endpoint local, com abordagem documentada no código.
-  - Falhas no dashboard não bloqueiam a execução principal; CLI registra aviso em PT-BR quando não conseguir notificar a interface.
+#### Protótipo (segunda entrega - inteligência básica)
+- 7.4: Detecção inteligente de quando agente faz sentido
+- 7.5: Provocação de reflexão ("Você pensou em X?")
+- 7.6: Handling de mudança de direção
 
-**Fora de escopo:** Persistência durável das sessões (disco/DB) — mover para backlog.
+**Critérios de aceite Protótipo:**
+- Sistema sugere agente apropriado no momento certo
+- Faz perguntas esclarecedoras que ajudam usuário
+- Adapta quando usuário muda de ideia
+
+#### MVP (terceira entrega - sistema completo)
+- 7.7: Detecção emergente de estágio (exploration → hypothesis)
+- 7.8: Reasoning explícito das decisões
+- 7.9: Histórico de decisões do usuário (aprende preferências)
+
+**Critérios de aceite MVP:**
+- Sistema infere estágio sem classificar explicitamente
+- Explica por que sugeriu determinada ação
+- Adapta sugestões baseado em padrões do usuário
 
 ---
 
-## ÉPICO 6: Memória Dinâmica e Contexto por Agente
+## ÉPICO 8: Entidade Tópico + Persistência Básica
 
-**Objetivo:** Controlar o contexto de cada agente de forma configurável, registrando metadados de execução e permitindo resets confiáveis por sessão.
-Consulte `docs/product/vision.md` (Seção 4) para modelo conceitual de Tópico e artefatos.
+**Objetivo:** Permitir pausar/retomar conversas com contexto completo preservado, suportando múltiplos tópicos em evolução.
 
-**Status:** ✅ Refinado (Pronto para implementação)
+**Status:** ⚠️ Não refinado
 
 **Dependências:**
-- Épico 3 concluído (multi-agente base)
-- Épico 4 concluído (loop colaborativo)
-- Instrumentação do Épico 5 para exibir metadados (recomendado)
+- Épico 7 POC concluído
 
-### Progresso atual
+**Consulte:** `docs/architecture/state_evolution.md` para detalhes de evolução de estado.
 
-#### Entregas concluídas
-- Motor de memória dinâmica implementado (`MemoryManager` + `AgentExecution`) com cobertura de testes unitários (`tests/unit/test_memory_manager.py`).
-- Loader e validador de YAML para configurar prompts/limites (`load_agent_config`, `validate_agent_config_schema`) com testes de regressão.
+### Progressão POC → Protótipo → MVP
 
-#### Pendências principais
-- Integrar `config/agents/*.yaml` ao runtime dos agentes (prompts e limites ainda hard-coded em `agents/orchestrator/nodes.py`, `agents/methodologist/nodes.py`, etc.).
-- Conectar `MemoryManager` ao `MultiAgentState`/super-grafo para registrar tokens reais e expor dados para a interface do Épico 5.
-- Adicionar comando/flag de reset na CLI preservando logs já emitidos.
+#### POC (persistência básica)
+- 8.1: Modelo de dados Tópico (id, title, stage, artifacts)
+- 8.2: Persistência em SqliteSaver (salva checkpoints LangGraph)
+- 8.3: CLI: comandos `list`, `resume <id>`, `new`
 
-### Funcionalidades
+**Critérios de aceite POC:**
+- Usuário pode listar tópicos ativos
+- Pode retomar conversa de ontem com contexto preservado
+- Pode criar novo tópico a qualquer momento
 
-#### 6.1 Configuração Externa de Agentes
-- **Status:** ✅ Concluído (13/11/2025)
-- **Descrição:** Definir prompts e parâmetros de memória em arquivos `config/agents/<papel>.yaml`.
-- **Entregue:**
-  - Arquivos YAML por agente + loader/validador com testes (`load_agent_config`, `load_all_agent_configs`)
-  - Integração runtime em todos os nós: `orchestrator_node`, `structurer_node`, `decide_collaborative`, `force_decision_collaborative`
-  - Fallback automático para prompts hard-coded quando YAML não está disponível
-  - Mensagens de erro em PT-BR em todos os nós e no bootstrap
-  - Validação de configs no bootstrap do super-grafo (`create_multi_agent_graph`)
-  - Scripts de validação: `scripts/validate_runtime_config_simple.py`, `scripts/validate_syntax.py`
-  - Versões atualizadas: Orquestrador (v2.0), Estruturador (v3.0), Metodologista (v3.0), Super-grafo (v3.0)
+#### Protótipo (artefatos e timeline)
+- 8.4: Artefatos versionados (hypotheses V1/V2, research_notes, decisions)
+- 8.5: Timeline de evolução do tópico
 
 #### 6.2 Registro de Memória com Metadados
 - **Status:** ✅ Concluído (13/11/2025)
@@ -138,128 +122,80 @@ Consulte `docs/product/vision.md` (Seção 4) para modelo conceitual de Tópico 
   - Script de validação end-to-end: `scripts/validate_memory_integration.py`
   - Versões atualizadas: orchestrator_node v2.1, structurer_node v3.1, methodologist nodes v3.1
 
-#### 6.3 Reset Global de Sessão
-- **Status:** ⛔ Não iniciado
-- **Descrição:** Implementar reset que limpa memórias e estado compartilhado de uma sessão.
-- **Critérios de Aceite Ajustados:**
-  - CLI oferece comando/flag (`--reset` ou equivalente) para iniciar sessão limpa ou resetar sessão ativa durante execução.
-  - Reset remove históricos dos agentes sem afetar logs já emitidos na interface.
-  - Registro em backlog dedicado para reset individual por agente (fora do escopo deste épico).
+**Critérios de aceite Protótipo:**
+- Sistema rastreia versões de hipóteses (V1 → V2 → V3)
+- Usuário pode ver evolução temporal do tópico
+- Artefatos são recuperáveis
 
-#### 6.4 Telemetria do Super-Grafo
-- **Status:** ⛔ Não iniciado
-- **Descrição:** Expor métricas de tokens/custos e resumo mais recente para cada agente diretamente a partir do super-grafo.
-- **Critérios de Aceite:**
-  - Cada nó registra tokens de entrada/saída e resumo em `MemoryManager` ao concluir.
-  - `MultiAgentState` fornece acesso a estatísticas consolidadas para consumo pelo Épico 5.
-  - Logs emitidos incluem alertas quando limites configurados são ultrapassados.
+#### MVP (gestão completa)
+- 8.6: Múltiplos tópicos ativos (trabalha um por vez)
+- 8.7: Busca por tópicos (título, stage, data)
 
-**Fora de escopo:** Reset parcial por agente e persistência durável da memória — adicionar ao backlog.
+**Critérios de aceite MVP:**
+- Usuário gerencia vários tópicos simultaneamente
+- Pode buscar "tópicos sobre LLMs"
+- Dashboard mostra todos os tópicos em progresso
 
 ---
 
-## ÉPICO 7: Modelo de Dados e Persistência Durável
+## ÉPICO 9: Finalizar Interface + Telemetria
 
-**Objetivo:** Implementar modelo de dados "Tópico/Ideia" que persiste entre sessões, suportando múltiplos tipos de artigo e evolução fluida (ideação → artigo).
+**Objetivo:** Dashboard visual completo mostrando raciocínio do sistema em tempo real com métricas detalhadas.
 
-**Status:** ⚠️ Não refinado (Requer discussão madura)
-
-**Dependências identificadas:**
-- Épico 5 (Interface) para exibir lista de tópicos
-- Épico 6 (Memória) para contexto e RAG por tópico
-- `docs/product/vision.md` para tipos de artigo e fluxos adaptativos
-
-### Pontos a definir na próxima sessão:
-
-#### 7.1 Entidade "Tópico"
-- Definir modelo de dados completo (ver Seção 4 de `docs/product/vision.md`)
-- Campos: id, title, article_type, stage, created_at, updated_at, artifacts, thread_id
-- Tipos de artigo suportados: empirical, review, theoretical, case_study, meta_analysis, methodological
-- Estágios de maturidade: ideation, hypothesis, methodology, research, writing, review, done
-
-#### 7.2 Persistência Durável
-- Estratégia de persistência: SqliteSaver (LangGraph) vs PostgreSQL
-- Estrutura de diretórios: `/data/topics/{topic_id}/`
-- Checkpointer vinculado a thread_id do LangGraph
-- Migração de MemorySaver atual para persistência durável
-
-#### 7.3 Gestão de Sessões
-- Comandos CLI: `list` (listar tópicos), `resume ` (retomar), `new` (criar)
-- Retomar sessão semana depois (carregar contexto completo)
-- Trabalhar em múltiplos tópicos (mas um por vez)
-- Índice de tópicos em progresso (ordenado por updated_at)
-
-#### 7.4 Artefatos Versionados
-- Tipos de artefato: outline, papers (pesquisas), drafts (rascunhos), decisions (metodológicas)
-- Versionamento explícito (V1, V2, V3) vs apenas última versão
-- Estrutura de Artifact: type, content, created_at, version
-- Exportação futura (PDF, Word, LaTeX) - adicionar ao backlog
-
-#### 7.5 Detecção de Tipo de Artigo
-- Orquestrador infere tipo na conversa inicial (ver Seção 2 de `docs/product/vision.md`)
-- Perguntas dinâmicas para confirmar tipo quando ambíguo
-- Permitir mudança de tipo ao longo da conversa (começa observacional, vira empírico)
-- Adaptar fluxo de agentes conforme tipo detectado
-
-#### 7.6 Estágios de Maturidade
-- Sistema detecta stage automaticamente (não pergunta diretamente)
-- Transições fluidas e não-lineares (pode voltar de "methodology" para "hypothesis")
-- Orquestrador decide stage com base em artefatos presentes
-- Logs registram mudanças de stage para rastreabilidade
-
-### Observações de paralelização:
-- Implementação pode começar após Épicos 5 e 6 estarem estáveis
-- Funcionalidades 7.1 e 7.2 são base (fazer primeiro)
-- Funcionalidades 7.3-7.6 podem ser incrementais
-- Interface (Épico 5) precisará integrar lista de tópicos depois
-
----
-
-## ÉPICO 8: Pipeline Completo Ideia → Artigo
+**Status:** 🟡 Parcialmente refinado
 
 **Dependências:**
-- Épico 7 (Modelo de Dados) para tipos de artigo e fluxos adaptativos
-- Épico 5 para visualizar a evolução dos checkpoints
-- Épico 6 para manter contexto e resumos entre etapas
-- Ver `docs/product/vision.md` (Seções 2 e 3) para fluxos por tipo
+- Épico 7 POC (para exibir decisões do Orquestrador)
 
-**Objetivo:** Estruturar a evolução de uma sessão desde a ideia inicial até a preparação do artigo, articulando checkpoints obrigatórios e artefatos intermediários.
+### Funcionalidades (sem progressão - podem ser feitas em paralelo)
 
-**Status:** ⚠️ Não refinado (Requer definição arquitetural)
+#### 9.1: Métricas de Tokens e Custo (ex-5.2)
+- Exibir tokens_input, tokens_output, tokens_total por agente
+- Calcular custo por agente e custo total da sessão
+- Alerta quando custo ultrapassar limite configurável
 
-### Pontos em aberto:
-- Representação dos checkpoints mínimos (ideia, hipótese, metodologia, testes, outline) e respectivas transições.
-- Onde armazenar os artefatos intermediários (log compartilhado ou store dedicado).
-- Momento de entrada do Escritor e artefatos esperados em cada etapa (ex.: outline consolidado).
-- Estratégia para retomar sessões sem persistência durável, garantindo consistência das etapas concluídas.
+#### 9.2: Resumo Sintético do Pensamento (ex-5.3)
+- Feed com resumo curto (≤280 chars) do raciocínio de cada agente
+- Botão para expandir e ver resposta completa
+- Exportar feed em JSON
 
-### Observação de paralelização:
-- Assim que a arquitetura da entidade for definida, o design do pipeline pode avançar em paralelo ao refinamento do debate (Épico 9), reutilizando componentes da interface e memória.
+#### 9.3: Integração CLI com Telemetria (ex-5.4)
+- CLI gera eventos estruturados consumidos pelo Streamlit
+- Canal: arquivo JSONL em `runtime/streams/`
+- Falhas no dashboard não bloqueiam CLI
 
----
+#### 9.4: Reset Global de Sessão (ex-6.3)
+- CLI oferece comando/flag `--reset` para limpar sessão
+- Remove históricos dos agentes sem afetar logs emitidos
+- Backlog: reset individual por agente
 
-## ÉPICO 9: Debate Multi-Agente Mediado
-
-**Objetivo:** Permitir que o orquestrador conduza debates estruturados entre Estruturador e Metodologista, consolidando uma decisão final com voto de minerva e transparência sobre o processo.
-
-**Status:** ⚠️ Não refinado (Requer discussão madura)
-
-**Dependências identificadas:**
-- Épico 5 (interface) para expor o debate em tempo real.
-- Épico 6 (memória) para compartilhar contexto e resumos das contribuições.
-
-### Pontos a definir na próxima sessão:
-- Fluxo detalhado do debate (ordem das falas, número de rodadas, condições de parada).
-- Ajuste dinâmico do prompt do orquestrador (runtime versus edição de arquivos de configuração).
-- Critérios para o voto de minerva e como documentar a decisão final.
-- Escopo inicial de logging: registrar apenas decisão final e justificativa, mantendo logs individualizados como backlog.
-
-### Observação de paralelização:
-- Após a entrega dos épicos 5 e 6, a modelagem do fluxo de debate e prompts pode avançar em paralelo à evolução da interface, desde que compartilhem os metadados definidos na memória.
+#### 9.5: Telemetria do Super-Grafo (ex-6.4)
+- Cada nó registra tokens e resumo ao concluir
+- MultiAgentState expõe estatísticas consolidadas
+- Logs emitem alertas quando limites são ultrapassados
 
 ---
 
 ## 📋 BACKLOG
+
+### Movido do Roadmap Principal (não alinha com visão adaptativa)
+
+**Pipeline Completo Ideia → Artigo (antigo Épico 8):**
+- Checkpoints obrigatórios são muito prescritivos
+- Contradiz fluxo adaptativo onde usuário decide o caminho
+- Depende de Orquestrador inteligente funcionar primeiro
+
+**Debate Multi-Agente Mediado (antigo Épico 9):**
+- Assume fluxo de debates estruturados
+- Depende de Orquestrador conversacional estar maduro
+- Pode ser retomado quando sistema tiver conversas ricas
+
+**Detecção Automática de Tipo de Artigo:**
+- Sistema não deve classificar automaticamente no início
+- Tipo emerge da conversa (princípio de conversação)
+- Pode ser feature do Épico 7 MVP (detecção emergente)
+
+---
 
 ### 🗂️ PERSISTÊNCIA E DADOS (Épico 7 detalhado)
 
