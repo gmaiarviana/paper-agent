@@ -105,12 +105,47 @@ Tópico:
 - **Evolução fluida**: o usuário pode retroceder etapas; o tipo pode ser inferido ou ajustado; estágio é detectado pelo Orquestrador com base em artefatos e interações.
 
 ## 5. Interação com Usuário
-- Conversação em linguagem natural; sistema infere necessidades sem depender de comandos explícitos.
-- Perguntas dinâmicas para definir tipo de artigo, maturidade e lacunas.
+- Conversação em linguagem natural; sistema **negocia necessidades** sem impor classificações determinísticas.
+- Sistema **não detecta tipo de artigo automaticamente** no início; tipo emerge da conversa.
+- Perguntas dinâmicas e abertas para co-construir entendimento do que usuário precisa.
 - Transparência: interface exibe agentes acionados e suas justificativas (video reasoning ou logs resumidos).
 - Sessões vinculadas a um único tópico; o usuário pode pausar e retomar posteriormente.
 - Suporte a múltiplos tópicos ativos, processados um por vez para preservar contexto.
 - Usuário mantém voto de minerva: pode aceitar, ajustar ou rejeitar recomendações; preferências alimentam o Orquestrador.
+
+### 5.1 Princípios de Conversação
+
+**Sistema começa sem suposições:**
+- Não classifica tipo de artigo automaticamente no início
+- Não detecta estágio upfront
+- Começa com perguntas abertas para entender contexto
+
+**Negociação contínua:**
+- Sistema sugere próximos passos mas usuário decide
+- "Posso chamar o Metodologista para validar?" vs "Vou chamar o Metodologista"
+- Oferece opções: "Podemos A, B ou C. O que prefere?"
+
+**Detecção emergente:**
+- Tipo de artigo emerge da conversa (não é classificado upfront)
+- Estágio evolui organicamente conforme artefatos acumulam
+- Sistema infere contexto mas não impõe classificações rígidas
+
+**Mudança de direção é natural:**
+- Usuário pode voltar/avançar livremente
+- "Na verdade, quero fazer revisão de literatura" → sistema adapta
+- Decisões anteriores não prendem o fluxo
+
+**Perguntas esclarecedoras >> classificações:**
+- "O que você quer entender sobre X?" >> "Detectei que é empírico"
+- "Como você imagina investigar isso?" >> "Classifiquei como semi_formed"
+- Conversa guia, não rotula
+
+**Exemplo de início de conversa:**
+```
+❌ Sistema: "Detectei que seu input é vago. Vou estruturar."
+✅ Sistema: "Interessante! Me conta mais: você quer VER o que já existe 
+           sobre isso, ou quer TESTAR uma hipótese sua?"
+```
 
 ## 6. Casos de Uso Principais
 - **UC1: Validar Ideia** – De uma observação vaga para uma hipótese testável ou descarte fundamentado.
