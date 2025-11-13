@@ -146,6 +146,41 @@ python scripts/validate_cli.py
 
 ---
 
+### Dashboard Streamlit (Épico 5.1)
+
+Interface web para visualização de sessões e eventos em tempo real:
+
+```bash
+# Executar o dashboard
+streamlit run app/dashboard.py
+```
+
+**O Dashboard exibe:**
+- 📋 Lista de sessões ativas
+- 🕒 Timeline cronológica de eventos por sessão
+- 📊 Status visual dos agentes (executando, concluído, erro)
+- 🔄 Auto-refresh configurável (padrão: 2 segundos)
+- 📈 Estatísticas de tokens por agente
+
+**Como usar:**
+1. Execute o Dashboard em um terminal: `streamlit run app/dashboard.py`
+2. Execute o CLI em outro terminal: `python cli/chat.py`
+3. Digite uma hipótese no CLI
+4. Veja os eventos aparecerem em tempo real no Dashboard!
+
+**Validação do Dashboard:**
+```bash
+python scripts/validate_dashboard.py
+```
+
+**Resultado esperado:**
+- ✅ EventBus publica e consome eventos corretamente
+- ✅ Resumo de sessão funciona
+- ✅ Timeline mantém ordem cronológica
+- ✅ Auto-refresh atualiza em tempo real
+
+---
+
 ### Validação de Configurações (Épico 6)
 
 Validar arquivos YAML de configuração de agentes e funcionalidade de memória:

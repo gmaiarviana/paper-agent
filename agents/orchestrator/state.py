@@ -124,6 +124,7 @@ class MultiAgentState(TypedDict):
 
     # === COMPARTILHADO ===
     user_input: str
+    session_id: str  # ID único da sessão (Épico 5.1 - para EventBus)
     conversation_history: list
     current_stage: Literal["classifying", "structuring", "validating", "done"]
 
@@ -146,12 +147,13 @@ class MultiAgentState(TypedDict):
     messages: Annotated[list, add_messages]
 
 
-def create_initial_multi_agent_state(user_input: str, max_refinements: int = 2) -> MultiAgentState:
+def create_initial_multi_agent_state(user_input: str, session_id: str, max_refinements: int = 2) -> MultiAgentState:
     """
     Cria o estado inicial do sistema multi-agente com valores padrão.
 
     Args:
         user_input (str): Input do usuário (ideia, observação ou hipótese).
+        session_id (str): ID único da sessão (para EventBus - Épico 5.1).
         max_refinements (int): Limite máximo de refinamentos (padrão: 2).
 
     Returns:
@@ -159,10 +161,13 @@ def create_initial_multi_agent_state(user_input: str, max_refinements: int = 2) 
 
     Example:
         >>> state = create_initial_multi_agent_state(
-        ...     user_input="Observei que desenvolver com Claude Code é mais rápido"
+        ...     user_input="Observei que desenvolver com Claude Code é mais rápido",
+        ...     session_id="cli-session-abc123"
         ... )
         >>> state['current_stage']
         'classifying'
+        >>> state['session_id']
+        'cli-session-abc123'
         >>> state['refinement_iteration']
         0
         >>> state['max_refinements']
@@ -173,6 +178,7 @@ def create_initial_multi_agent_state(user_input: str, max_refinements: int = 2) 
     return MultiAgentState(
         # Compartilhado
         user_input=user_input,
+        session_id=session_id,
         conversation_history=[f"Usuário: {user_input}"],
         current_stage="classifying",
 

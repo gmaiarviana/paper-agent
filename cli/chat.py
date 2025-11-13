@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-CLI Minimalista para testar o agente Metodologista.
+CLI para sistema multi-agente Paper Agent.
 
 Este script implementa um loop interativo que:
-1. Recebe uma hipótese do usuário
-2. Executa o agente Metodologista
-3. Lida com interrupções (quando o agente precisa de clarificações)
-4. Exibe a decisão final
+1. Recebe uma hipótese ou ideia do usuário
+2. Executa sistema multi-agente (Orquestrador → Estruturador → Metodologista)
+3. Exibe timeline de execução e decisão final
+4. Publica eventos em tempo real para o Dashboard
 
-Versão: 1.0
-Data: 10/11/2025
+Versão: 2.0 (Épico 5.1 - Sistema Multi-Agente Completo)
+Data: 13/11/2025
 """
 
 import os
@@ -22,16 +22,18 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from agents.methodologist import create_methodologist_graph, create_initial_state
+from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
 from agents.memory.memory_manager import MemoryManager
+from utils.event_bus import get_event_bus
 from dotenv import load_dotenv
-from langgraph.types import Command
 
 # Configurar logging
 logging.basicConfig(
-    level=logging.WARNING,  # Apenas warnings e erros por padrão
+    level=logging.INFO,  # INFO para ver mensagens do EventBus
     format='%(levelname)s: %(message)s'
 )
+
+logger = logging.getLogger(__name__)
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -39,14 +41,17 @@ load_dotenv()
 # Instância global do MemoryManager (Épico 6)
 memory_manager = MemoryManager()
 
+# Instância global do EventBus (Épico 5.1)
+event_bus = get_event_bus()
+
 
 def print_header():
     """Exibe o cabeçalho do CLI."""
     print("=" * 70)
-    print("CLI MINIMALISTA - AGENTE METODOLOGISTA")
+    print("CLI - SISTEMA MULTI-AGENTE PAPER AGENT")
     print("=" * 70)
     print("Digite sua hipótese para avaliação metodológica.")
-    print("Cada análise começa com contexto limpo.\n")
+    print("Sistema: Orquestrador → Estruturador → Metodologista\n")
     print("Digite 'exit' a qualquer momento para sair.\n")
 
 
@@ -62,16 +67,16 @@ def run_cli():
     Implementa o fluxo completo:
     1. Solicita hipótese do usuário
     2. Cria thread ID único para sessão
-    3. Executa grafo do Metodologista
-    4. Lida com interrupts (perguntas do agente)
-    5. Exibe resultado final
+    3. Executa sistema multi-agente completo
+    4. Exibe resultado final
     """
     print_header()
 
     # Criar grafo uma vez
-    print("🔧 Inicializando agente Metodologista...")
-    graph = create_methodologist_graph()
-    print("✅ Agente pronto!\n")
+    print("🔧 Inicializando sistema multi-agente...")
+    graph = create_multi_agent_graph()
+    print("✅ Sistema pronto!")
+    print(f"📁 Eventos salvos em: {event_bus.events_dir}\n")
 
     while True:
         print_separator()
@@ -90,106 +95,70 @@ def run_cli():
             continue
 
         # Nova sessão a cada hipótese (Épico 6 - contexto limpo automático)
-        session_id = f"cli-session-{uuid.uuid4()}"
+        session_uuid = uuid.uuid4()
+        session_id = f"cli-session-{session_uuid}"
+        session_short = str(session_uuid)[:8]  # Primeiros 8 chars para identificação
         thread_id = f"thread-{session_id}"
-        config = {"configurable": {"thread_id": thread_id}}
+        config = {"configurable": {"thread_id": thread_id, "session_id": session_id}}
 
-        print(f"\n🔬 Analisando hipótese...\n")
+        print(f"\n🔬 Analisando hipótese... (Session: {session_short})\n")
 
-        # Criar estado inicial
-        state = create_initial_state(hypothesis)
-
-        # Registrar início da execução no MemoryManager (Épico 6)
-        memory_manager.add_execution(
-            session_id=session_id,
-            agent_name="methodologist",
-            tokens_input=0,  # Será atualizado após execução
-            tokens_output=0,
-            summary=f"Analisando: {hypothesis[:50]}..."
-        )
-
-        # Loop de execução: continua enquanto houver interrupts
+        # Publicar evento de início de sessão (Épico 5.1)
         try:
-            # Primeira invocação do grafo
-            graph.invoke(state, config=config)
+            event_bus.publish_session_started(
+                session_id=session_id,
+                user_input=hypothesis
+            )
+            logger.info(f"✅ Evento session_started publicado para {session_id}")
+        except Exception as e:
+            print(f"⚠️  Aviso: Não foi possível publicar eventos: {e}")
+            logger.exception("Erro ao publicar session_started:")
 
-            # Loop para processar interrupts até o grafo terminar
-            while True:
-                # Verificar estado atual do grafo
-                snapshot = graph.get_state(config)
+        # Criar estado inicial (com session_id para EventBus - Épico 5.1)
+        state = create_initial_multi_agent_state(hypothesis, session_id=session_id)
 
-                # Se não há mais nós pendentes (next vazio), o grafo terminou
-                if not snapshot.next:
-                    # Grafo finalizou - exibir resultado
-                    final_state = snapshot.values
+        # Executar sistema multi-agente
+        try:
+            # Executar grafo completo (Orquestrador → Estruturador → Metodologista)
+            final_state = graph.invoke(state, config=config)
 
-                    print_separator()
-                    print("📊 RESULTADO DA ANÁLISE")
-                    print_separator()
+            # Exibir resultado final
+            print_separator()
+            print("📊 RESULTADO DA ANÁLISE")
+            print_separator()
 
-                    status = final_state.get('status', 'pending')
-                    justification = final_state.get('justification', 'Sem justificativa.')
+            # Extrair resultado do estado multi-agente
+            methodologist_output = final_state.get('methodologist_output', {})
+            status = methodologist_output.get('status', 'pending')
+            justification = methodologist_output.get('justification', 'Sem justificativa.')
 
-                    # Formatar status
-                    if status == 'approved':
-                        print("✅ Status: APROVADA")
-                    elif status == 'rejected':
-                        print("❌ Status: REJEITADA")
-                    else:
-                        print(f"⏳ Status: {status.upper()}")
+            # Formatar status
+            if status == 'approved':
+                print("✅ Status: APROVADA")
+            elif status == 'rejected':
+                print("❌ Status: REJEITADA")
+            else:
+                print(f"⏳ Status: {status.upper()}")
 
-                    print(f"\n📝 Justificativa:\n{justification}\n")
+            print(f"\n📝 Justificativa:\n{justification}\n")
 
-                    # Mostrar estatísticas da análise (Épico 6)
-                    totals = memory_manager.get_session_totals(session_id)
-                    if totals.get('total', 0) > 0:
-                        print(f"📊 Tokens utilizados: {totals['total']}\n")
+            # Mostrar estatísticas da análise (Épico 6)
+            totals = memory_manager.get_session_totals(session_id)
+            tokens_total = totals.get('total', 0)
+            if tokens_total > 0:
+                print(f"📊 Tokens utilizados: {tokens_total}\n")
 
-                    break
-
-                # Se há tasks com interrupts, processar
-                interrupt_found = False
-                if snapshot.tasks:
-                    for task in snapshot.tasks:
-                        if task.interrupts:
-                            for interrupt_data in task.interrupts:
-                                question = interrupt_data.value
-                                interrupt_found = True
-
-                                # Exibir pergunta do agente
-                                print(f"❓ Agente pergunta: {question}")
-
-                                # Solicitar resposta do usuário
-                                user_answer = input("💬 Sua resposta: ").strip()
-
-                                # Verificar se usuário quer sair
-                                if user_answer.lower() == 'exit':
-                                    print("\n👋 Encerrando CLI. Até logo!")
-                                    return
-
-                                # Validar resposta vazia
-                                if not user_answer:
-                                    user_answer = "Sem resposta fornecida."
-
-                                print()  # Linha em branco para separar
-
-                                # Continuar execução com a resposta
-                                # Usamos Command para retomar após interrupt
-                                graph.invoke(
-                                    Command(resume=user_answer),
-                                    config=config
-                                )
-
-                                # Continuar loop para verificar próximo estado
-                                break
-
-                            if interrupt_found:
-                                break
-
-                # Se não encontrou interrupts mas há next, algo inesperado
-                if not interrupt_found and snapshot.next:
-                    print("⚠️  Estado inesperado do grafo. Encerrando.")
-                    break
+            # Publicar evento de conclusão de sessão (Épico 5.1)
+            try:
+                event_bus.publish_session_completed(
+                    session_id=session_id,
+                    final_status=status,
+                    tokens_total=tokens_total
+                )
+                logger.info(f"✅ Evento session_completed publicado para {session_id}")
+            except Exception as e:
+                print(f"⚠️  Aviso: Não foi possível publicar evento de conclusão: {e}")
+                logger.exception("Erro ao publicar session_completed:")
 
         except KeyboardInterrupt:
             print("\n\n⚠️  Execução interrompida pelo usuário.")
@@ -197,7 +166,7 @@ def run_cli():
             continue
 
         except Exception as e:
-            print(f"\n❌ Erro ao executar agente: {e}")
+            print(f"\n❌ Erro ao executar sistema multi-agente: {e}")
             logging.exception("Erro detalhado:")
             continue
 

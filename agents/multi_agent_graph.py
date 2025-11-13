@@ -17,11 +17,12 @@ Fluxo do sistema (Épico 4 - Loop de Refinamento):
    - "needs_refinement" + iteration < max → Estruturador (refina para V2/V3)
    - "needs_refinement" + iteration >= max → force_decision → END
 
-Versão: 3.0 (Épico 6, Funcionalidade 6.1 - Config externa)
+Versão: 3.1 (Épico 5.1 - Dashboard com EventBus + Épico 6.1 - Config externa)
 Data: 13/11/2025
 """
 
 import logging
+from typing import Callable, Any
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -32,7 +33,160 @@ from agents.structurer.nodes import structurer_node
 from agents.methodologist.nodes import decide_collaborative, force_decision_collaborative
 from agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
 
+# Import EventBus para emitir eventos (Épico 5.1)
+try:
+    from utils.event_bus import get_event_bus
+    EVENT_BUS_AVAILABLE = True
+except ImportError:
+    EVENT_BUS_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
+
+
+# === INSTRUMENTAÇÃO COM EVENTBUS (Épico 5.1) ===
+
+def _get_session_id_from_config(config: Any) -> str:
+    """
+    Extrai session_id do config do LangGraph.
+
+    Args:
+        config: Configuração do LangGraph
+
+    Returns:
+        str: Session ID ou fallback para thread_id
+    """
+    if not config:
+        logger.debug("_get_session_id_from_config: config é None/vazio")
+        return "unknown-session"
+
+    configurable = config.get("configurable", {})
+    session_id = configurable.get("session_id")
+
+    if session_id:
+        logger.debug(f"_get_session_id_from_config: session_id extraído = {session_id}")
+        return session_id
+
+    # Fallback: usar thread_id como session_id
+    thread_id = configurable.get("thread_id", "unknown-session")
+    logger.debug(f"_get_session_id_from_config: fallback para thread_id = {thread_id}")
+    return thread_id
+
+
+def instrument_node(node_func: Callable, agent_name: str) -> Callable:
+    """
+    Instrumenta um nó do grafo para emitir eventos via EventBus (Épico 5.1).
+
+    Wrapper que:
+    1. Emite evento agent_started antes da execução
+    2. Executa o nó original
+    3. Emite evento agent_completed após sucesso
+    4. Emite evento agent_error em caso de falha
+
+    Args:
+        node_func (Callable): Função do nó original
+        agent_name (str): Nome do agente (orchestrator, structurer, methodologist)
+
+    Returns:
+        Callable: Nó instrumentado
+
+    Example:
+        >>> instrumented_node = instrument_node(orchestrator_node, "orchestrator")
+    """
+    def wrapper(state: MultiAgentState, config: Any = None) -> MultiAgentState:
+        """Wrapper instrumentado que emite eventos."""
+        # Extrair session_id do state (método confiável - Épico 5.1)
+        # Config não é passado aos nodes pelo LangGraph, então usamos state
+        session_id = state.get("session_id", "unknown-session")
+        logger.debug(f"Wrapper {agent_name}: session_id do state = {session_id}")
+
+        # Emitir evento de início
+        if EVENT_BUS_AVAILABLE:
+            try:
+                bus = get_event_bus()
+                bus.publish_agent_started(
+                    session_id=session_id,
+                    agent_name=agent_name,
+                    metadata={"stage": state.get("current_stage", "unknown")}
+                )
+                logger.info(f"✅ Evento agent_started publicado para {agent_name} (session: {session_id})")
+            except Exception as e:
+                logger.warning(f"Falha ao publicar agent_started para {agent_name}: {e}")
+
+        # Executar nó original (nodes não recebem config como parâmetro)
+        try:
+            result = node_func(state)
+
+            # Emitir evento de conclusão
+            if EVENT_BUS_AVAILABLE:
+                try:
+                    bus = get_event_bus()
+
+                    # Extrair summary baseado no agente
+                    summary = _extract_summary(agent_name, result)
+
+                    bus.publish_agent_completed(
+                        session_id=session_id,
+                        agent_name=agent_name,
+                        summary=summary,
+                        tokens_input=0,  # TODO: Capturar tokens reais se disponível
+                        tokens_output=0,
+                        tokens_total=0,
+                        metadata={}
+                    )
+                    logger.info(f"✅ Evento agent_completed publicado para {agent_name} (session: {session_id})")
+                except Exception as e:
+                    logger.warning(f"Falha ao publicar agent_completed para {agent_name}: {e}")
+
+            return result
+
+        except Exception as error:
+            # Emitir evento de erro
+            if EVENT_BUS_AVAILABLE:
+                try:
+                    bus = get_event_bus()
+                    bus.publish_agent_error(
+                        session_id=session_id,
+                        agent_name=agent_name,
+                        error_message=str(error),
+                        error_type=type(error).__name__
+                    )
+                except Exception as e:
+                    logger.warning(f"Falha ao publicar agent_error para {agent_name}: {e}")
+
+            # Re-lançar exceção original
+            raise
+
+    return wrapper
+
+
+def _extract_summary(agent_name: str, state: MultiAgentState) -> str:
+    """
+    Extrai resumo da ação do agente baseado no resultado.
+
+    Args:
+        agent_name (str): Nome do agente
+        state (MultiAgentState): Estado após execução
+
+    Returns:
+        str: Resumo curto da ação
+    """
+    if agent_name == "orchestrator":
+        classification = state.get("orchestrator_classification", "unknown")
+        return f"Classificou input como '{classification}'"
+
+    elif agent_name == "structurer":
+        output = state.get("structurer_output", {})
+        version = output.get("version", "unknown")
+        return f"Estruturou questão de pesquisa (V{version})"
+
+    elif agent_name in ["methodologist", "force_decision"]:
+        output = state.get("methodologist_output", {})
+        status = output.get("status", "unknown")
+        return f"Decisão metodológica: {status}"
+
+    else:
+        return f"Executou {agent_name}"
+
 
 # MemorySaver: Checkpointer padrão do LangGraph para persistência de sessão em memória.
 # Permite que o estado do grafo seja salvo e recuperado durante a execução,
@@ -185,12 +339,13 @@ def create_multi_agent_graph():
     graph = StateGraph(MultiAgentState)
     logger.info("StateGraph criado com MultiAgentState")
 
-    # Adicionar nós do sistema (Épico 4)
-    graph.add_node("orchestrator", orchestrator_node)
-    graph.add_node("structurer", structurer_node)
-    graph.add_node("methodologist", decide_collaborative)  # Modo colaborativo
-    graph.add_node("force_decision", force_decision_collaborative)  # Decisão forçada
-    logger.info("Nós adicionados: orchestrator, structurer, methodologist (colaborativo), force_decision")
+    # Adicionar nós do sistema (Épico 4 + 5.1 com instrumentação)
+    # Instrumentar nós para emitir eventos via EventBus (Épico 5.1)
+    graph.add_node("orchestrator", instrument_node(orchestrator_node, "orchestrator"))
+    graph.add_node("structurer", instrument_node(structurer_node, "structurer"))
+    graph.add_node("methodologist", instrument_node(decide_collaborative, "methodologist"))  # Modo colaborativo
+    graph.add_node("force_decision", instrument_node(force_decision_collaborative, "force_decision"))  # Decisão forçada
+    logger.info("Nós adicionados (instrumentados): orchestrator, structurer, methodologist, force_decision")
 
     # Definir entry point
     graph.set_entry_point("orchestrator")

@@ -44,12 +44,24 @@ Consulte `docs/product/vision.md` (Seção 5) para princípios de interação co
 
 ### Funcionalidades:
 
-#### 5.1 Dashboard Streamlit com Timeline
+#### ✅ 5.1 Dashboard Streamlit com Timeline (CONCLUÍDO - 13/11/2025)
 - **Descrição:** Entregar interface Streamlit que exibe timeline cronológica de eventos de cada sessão ativa.
 - **Critérios de Aceite:**
-  - Página principal lista sessões em andamento e permite abrir detalhes em tempo real.
-  - Timeline mostra início e término de cada agente com timestamps e status (executando, concluído, erro).
-  - Painel atualiza automaticamente (polling ou websocket) sem recarregar a página manualmente.
+  - ✅ Página principal lista sessões em andamento e permite abrir detalhes em tempo real.
+  - ✅ Timeline mostra início e término de cada agente com timestamps e status (executando, concluído, erro).
+  - ✅ Painel atualiza automaticamente (polling) sem recarregar a página manualmente.
+- **Implementado:**
+  - EventBus para comunicação entre CLI/Graph e Dashboard via arquivos JSON temporários
+  - Models Pydantic para eventos (SessionStarted, AgentStarted, AgentCompleted, AgentError, SessionCompleted)
+  - Instrumentação do multi_agent_graph.py para emitir eventos em cada nó
+  - Dashboard Streamlit com timeline visual, status coloridos por agente, e estatísticas
+  - Auto-refresh configurável (1-10s, padrão: 2s)
+  - Testes unitários completos (test_event_models.py, test_event_bus.py)
+  - Script de validação (scripts/validate_dashboard.py)
+- **Como usar:**
+  - Terminal 1: `streamlit run app/dashboard.py`
+  - Terminal 2: `python cli/chat.py`
+  - Veja eventos em tempo real no Dashboard!
 
 #### 5.2 Métricas de Tokens e Custo
 - **Descrição:** Expor tokens e custo estimado por agente e o acumulado da sessão.
