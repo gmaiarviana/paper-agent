@@ -18,7 +18,9 @@ Data: 13/11/2025
 
 import logging
 import json
+from typing import Optional
 from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.runnables import RunnableConfig
 from langchain_anthropic import ChatAnthropic
 
 from .state import MethodologistState
@@ -27,6 +29,7 @@ from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
 from utils.config import get_anthropic_model
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
+from agents.memory.execution_tracker import register_execution
 
 logger = logging.getLogger(__name__)
 
@@ -302,7 +305,7 @@ RESPONDA EM JSON:
 # MODO COLABORATIVO (Épico 4) - Nós para MultiAgentState
 # ==============================================================================
 
-def decide_collaborative(state: dict) -> dict:
+def decide_collaborative(state: dict, config: Optional[RunnableConfig] = None) -> dict:
     """
     Nó de decisão colaborativa do Metodologista (Épico 4).
 
@@ -314,9 +317,11 @@ def decide_collaborative(state: dict) -> dict:
     2. Decide com base em critérios de rigor científico
     3. Retorna improvements específicos se needs_refinement
     4. Registra decisão no hypothesis_versions
+    5. Registra execução no MemoryManager (se configurado - Épico 6.2)
 
     Args:
         state (MultiAgentState): Estado do sistema multi-agente.
+        config (RunnableConfig, optional): Configuração do LangGraph (contém memory_manager)
 
     Returns:
         dict: Updates do estado:
@@ -391,6 +396,31 @@ Avalie esta questão e retorne APENAS o JSON com status, justification e improve
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
 
+    # Registrar execução no MemoryManager (Épico 6.2)
+    if config:
+        memory_manager = config.get("configurable", {}).get("memory_manager")
+        if memory_manager:
+            # Extrair status antes de registrar
+            try:
+                temp_data = extract_json_from_llm_response(response.content)
+                temp_status = temp_data.get("status", "unknown")
+            except:
+                temp_status = "unknown"
+
+            register_execution(
+                memory_manager=memory_manager,
+                config=config,
+                agent_name="methodologist",
+                response=response,
+                summary=f"Decisão: {temp_status}",
+                model_name=model_name,
+                extra_metadata={
+                    "mode": "collaborative",
+                    "iteration": iteration,
+                    "status": temp_status
+                }
+            )
+
     # Parse da decisão
     try:
         decision_data = extract_json_from_llm_response(response.content)
@@ -452,15 +482,17 @@ Avalie esta questão e retorne APENAS o JSON com status, justification e improve
     }
 
 
-def force_decision_collaborative(state: dict) -> dict:
+def force_decision_collaborative(state: dict, config: Optional[RunnableConfig] = None) -> dict:
     """
     Nó de decisão FORÇADA após atingir limite de refinamentos (Épico 4).
 
     Este nó é chamado quando refinement_iteration >= max_refinements.
     Força o Metodologista a decidir entre approved ou rejected (sem needs_refinement).
+    Registra execução no MemoryManager (se configurado - Épico 6.2).
 
     Args:
         state (MultiAgentState): Estado do sistema multi-agente.
+        config (RunnableConfig, optional): Configuração do LangGraph (contém memory_manager)
 
     Returns:
         dict: Updates do estado:
@@ -530,6 +562,32 @@ Retorne APENAS JSON com:
     response = llm.invoke([HumanMessage(content=force_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
+
+    # Registrar execução no MemoryManager (Épico 6.2)
+    if config:
+        memory_manager = config.get("configurable", {}).get("memory_manager")
+        if memory_manager:
+            # Extrair status antes de registrar
+            try:
+                temp_data = extract_json_from_llm_response(response.content)
+                temp_status = temp_data.get("status", "unknown")
+            except:
+                temp_status = "unknown"
+
+            register_execution(
+                memory_manager=memory_manager,
+                config=config,
+                agent_name="methodologist",
+                response=response,
+                summary=f"Decisão forçada: {temp_status}",
+                model_name=model_name,
+                extra_metadata={
+                    "mode": "force_decision",
+                    "iteration": state.get('refinement_iteration', 0),
+                    "status": temp_status,
+                    "forced": True
+                }
+            )
 
     # Parse da decisão
     try:

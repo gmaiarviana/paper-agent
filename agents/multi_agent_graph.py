@@ -144,6 +144,21 @@ def create_multi_agent_graph():
 
         - State: MultiAgentState com refinement_iteration, hypothesis_versions
 
+    Registro de Memória (Épico 6.2):
+        Para habilitar registro de tokens e custos, passe MemoryManager no config:
+
+        >>> from agents.memory.memory_manager import MemoryManager
+        >>> memory_manager = MemoryManager()
+        >>> config = {
+        ...     "configurable": {
+        ...         "thread_id": "session-123",
+        ...         "memory_manager": memory_manager  # Opcional (Épico 6.2)
+        ...     }
+        ... }
+        >>> result = graph.invoke(state, config=config)
+        >>> totals = memory_manager.get_session_totals("session-123")
+        >>> print(f"Total: {totals['total']} tokens")
+
     Returns:
         CompiledGraph: Super-grafo compilado pronto para execução via invoke()
 

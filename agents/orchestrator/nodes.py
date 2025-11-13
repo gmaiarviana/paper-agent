@@ -10,18 +10,21 @@ Data: 13/11/2025
 
 import logging
 import json
+from typing import Optional
 from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.runnables import RunnableConfig
 from langchain_anthropic import ChatAnthropic
 
 from .state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
 from utils.config import get_anthropic_model
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
+from agents.memory.execution_tracker import register_execution
 
 logger = logging.getLogger(__name__)
 
 
-def orchestrator_node(state: MultiAgentState) -> dict:
+def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> dict:
     """
     Nó que classifica a maturidade do input do usuário e decide roteamento.
 
@@ -30,6 +33,7 @@ def orchestrator_node(state: MultiAgentState) -> dict:
     2. Classifica a maturidade da ideia/hipótese
     3. Define o próximo estágio de processamento
     4. Registra reasoning para transparência
+    5. Registra execução no MemoryManager (se configurado - Épico 6.2)
 
     Classificação de Maturidade:
     - "vague": Ideia não estruturada, observação sem contexto claro
@@ -46,6 +50,7 @@ def orchestrator_node(state: MultiAgentState) -> dict:
 
     Args:
         state (MultiAgentState): Estado atual do sistema multi-agente.
+        config (RunnableConfig, optional): Configuração do LangGraph (contém memory_manager)
 
     Returns:
         dict: Dicionário com updates incrementais do estado:
@@ -116,6 +121,30 @@ Avalie este input e retorne APENAS JSON com classification e reasoning."""
     response = llm.invoke(messages)
 
     logger.info(f"Resposta do LLM: {response.content}")
+
+    # Registrar execução no MemoryManager (Épico 6.2)
+    if config:
+        memory_manager = config.get("configurable", {}).get("memory_manager")
+        if memory_manager:
+            # Extrair classificação antes de registrar (será usada no summary)
+            try:
+                temp_data = extract_json_from_llm_response(response.content)
+                temp_classification = temp_data.get("classification", "unknown")
+            except:
+                temp_classification = "unknown"
+
+            register_execution(
+                memory_manager=memory_manager,
+                config=config,
+                agent_name="orchestrator",
+                response=response,
+                summary=f"Classificação: {temp_classification}",
+                model_name=model_name,
+                extra_metadata={
+                    "classification": temp_classification,
+                    "user_input_length": len(state['user_input'])
+                }
+            )
 
     # Parse da resposta
     try:

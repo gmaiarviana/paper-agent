@@ -92,7 +92,12 @@ def run_cli():
         # Nova sessão a cada hipótese (Épico 6 - contexto limpo automático)
         session_id = f"cli-session-{uuid.uuid4()}"
         thread_id = f"thread-{session_id}"
-        config = {"configurable": {"thread_id": thread_id}}
+        config = {
+            "configurable": {
+                "thread_id": thread_id,
+                "memory_manager": memory_manager  # Épico 6.2
+            }
+        }
 
         print(f"\n🔬 Analisando hipótese...\n")
 
@@ -140,11 +145,35 @@ def run_cli():
 
                     print(f"\n📝 Justificativa:\n{justification}\n")
 
-                    # Mostrar estatísticas da análise (Épico 6)
+                    # Mostrar estatísticas detalhadas da análise (Épico 6.2)
+                    print_separator()
+                    print("📊 MÉTRICAS DE EXECUÇÃO")
+                    print_separator()
+
                     totals = memory_manager.get_session_totals(session_id)
                     if totals.get('total', 0) > 0:
-                        print(f"📊 Tokens utilizados: {totals['total']}\n")
+                        # Exibir por agente
+                        for agent_name, agent_total in totals.items():
+                            if agent_name == 'total':
+                                continue
+                            print(f"  {agent_name:>15}: {agent_total:>6} tokens")
 
+                        print(f"  {'TOTAL':>15}: {totals['total']:>6} tokens")
+
+                        # Calcular custo total estimado
+                        # Buscar execuções para calcular custo real
+                        history = memory_manager.get_session_history(session_id, "methodologist")
+                        total_cost = 0.0
+                        for execution in history:
+                            if execution.metadata and "cost_usd" in execution.metadata:
+                                total_cost += execution.metadata["cost_usd"]
+
+                        if total_cost > 0:
+                            print(f"  {'Custo estimado':>15}: ${total_cost:.6f}")
+                    else:
+                        print("  Nenhuma métrica registrada nesta execução.")
+
+                    print()
                     break
 
                 # Se há tasks com interrupts, processar

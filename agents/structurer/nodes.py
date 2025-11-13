@@ -11,7 +11,9 @@ Data: 13/11/2025
 
 import logging
 import json
+from typing import Optional
 from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.runnables import RunnableConfig
 from langchain_anthropic import ChatAnthropic
 
 from agents.orchestrator.state import MultiAgentState
@@ -19,11 +21,12 @@ from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import STRUCTURER_REFINEMENT_PROMPT_V1
 from utils.config import get_anthropic_model
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
+from agents.memory.execution_tracker import register_execution
 
 logger = logging.getLogger(__name__)
 
 
-def structurer_node(state: MultiAgentState) -> dict:
+def structurer_node(state: MultiAgentState, runtime_config: Optional[RunnableConfig] = None) -> dict:
     """
     Nó que organiza ideias vagas em questões de pesquisa estruturadas.
 
@@ -41,9 +44,11 @@ def structurer_node(state: MultiAgentState) -> dict:
     - NÃO rejeita ideias
     - NÃO valida rigor científico (isso é responsabilidade do Metodologista)
     - Apenas organiza e estrutura o pensamento do usuário
+    - Registra execução no MemoryManager (se configurado - Épico 6.2)
 
     Args:
         state (MultiAgentState): Estado atual do sistema multi-agente.
+        runtime_config (RunnableConfig, optional): Configuração do LangGraph (contém memory_manager)
 
     Returns:
         dict: Dicionário com updates incrementais do estado:
@@ -88,7 +93,7 @@ IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensa
         model_name = "claude-3-5-haiku-20241022"
 
     # Passar config para funções auxiliares
-    config = {"system_prompt": system_prompt, "model_name": model_name}
+    config = {"system_prompt": system_prompt, "model_name": model_name, "runtime_config": runtime_config}
 
     # Detectar modo: estruturação inicial ou refinamento
     methodologist_feedback = state.get('methodologist_output')
@@ -155,6 +160,24 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
     response = llm.invoke(messages)
 
     logger.info(f"Resposta do LLM: {response.content}")
+
+    # Registrar execução no MemoryManager (Épico 6.2)
+    runtime_config = config.get("runtime_config")
+    if runtime_config:
+        memory_manager = runtime_config.get("configurable", {}).get("memory_manager")
+        if memory_manager:
+            register_execution(
+                memory_manager=memory_manager,
+                config=runtime_config,
+                agent_name="structurer",
+                response=response,
+                summary="Estruturação V1",
+                model_name=model_name,
+                extra_metadata={
+                    "mode": "initial_structuring",
+                    "version": 1
+                }
+            )
 
     # Parse da resposta
     try:
@@ -265,6 +288,25 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
     response = llm.invoke([HumanMessage(content=refinement_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
+
+    # Registrar execução no MemoryManager (Épico 6.2)
+    runtime_config = config.get("runtime_config")
+    if runtime_config:
+        memory_manager = runtime_config.get("configurable", {}).get("memory_manager")
+        if memory_manager:
+            register_execution(
+                memory_manager=memory_manager,
+                config=runtime_config,
+                agent_name="structurer",
+                response=response,
+                summary=f"Refinamento V{current_version}",
+                model_name=model_name,
+                extra_metadata={
+                    "mode": "refinement",
+                    "version": current_version,
+                    "gaps_count": len(improvements)
+                }
+            )
 
     # Parse da resposta
     try:
