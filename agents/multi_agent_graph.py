@@ -101,6 +101,7 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                     agent_name=agent_name,
                     metadata={"stage": state.get("current_stage", "unknown")}
                 )
+                logger.info(f"✅ Evento agent_started publicado para {agent_name}")
             except Exception as e:
                 logger.warning(f"Falha ao publicar agent_started para {agent_name}: {e}")
 
@@ -125,6 +126,7 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                         tokens_total=0,
                         metadata={}
                     )
+                    logger.info(f"✅ Evento agent_completed publicado para {agent_name}")
                 except Exception as e:
                     logger.warning(f"Falha ao publicar agent_completed para {agent_name}: {e}")
 
