@@ -2,13 +2,49 @@
 
 ## Visão Geral
 
-Arquitetura de super-grafo LangGraph com múltiplos agentes especializados coordenados por um Orquestrador inteligente.
+Este documento detalha a **implementação técnica** do sistema multi-agente. Para visão arquitetural geral, consulte `ARCHITECTURE.md`.
 
-**Decisões arquiteturais:**
-- Orquestrador: Nó do grafo (não controller externo)
-- Estruturador: Nó simples inicialmente (pode evoluir para grafo no futuro)
-- Integração: Super-grafo (grafo de grafos)
-- State: Híbrido (compartilhado + campos específicos por agente)
+**Foco deste documento:**
+- Estrutura do MultiAgentState (campos, tipos, uso)
+- Implementação dos nós (código, decisões técnicas)
+- Routers e lógica de fluxo
+- Integração entre agentes
+- Prompts e configuração
+
+**Arquitetura de super-grafo LangGraph** com múltiplos agentes especializados coordenados por Orquestrador.
+
+**Status atual:** Sistema em transição de fluxo determinístico para conversacional adaptativo (Épico 7).
+
+---
+
+## Transição Arquitetural (Épico 7)
+
+### Sistema Atual (Épicos 3-4)
+- Orquestrador **classifica** maturidade (vague/semi_formed/complete)
+- **Roteia automaticamente** para agente apropriado
+- Loop de refinamento **automático** (até limite fixo)
+- Fluxo **determinístico**: Entrada → Classificação → Roteamento → Processamento
+
+### Sistema Futuro (Épico 7 em desenvolvimento)
+- Orquestrador **conversa** com usuário
+- **Oferece opções** em vez de rotear automaticamente
+- Refinamento **sob demanda** (usuário decide)
+- Fluxo **adaptativo**: Conversa → Negocia → Usuário decide → Executa
+
+### Impacto na Implementação
+**O que manter:**
+- ✅ MultiAgentState (estrutura boa)
+- ✅ Nós especializados (Estruturador, Metodologista funcionam)
+- ✅ Versionamento de hipóteses (V1 → V2 → V3)
+- ✅ Feedback estruturado do Metodologista
+
+**O que evoluir:**
+- 🔄 `orchestrator_node`: De classificador para facilitador
+- 🔄 Routers: De automático para negociado
+- 🔄 `route_after_methodologist`: De automático para oferece opções
+- ❌ `force_decision_collaborative`: Remover (não precisa limite fixo)
+
+**Especificação detalhada:** `docs/orchestration/conversational_orchestrator.md`
 
 ---
 
@@ -181,7 +217,11 @@ temperature: 0.2
 
 ### 1. Orchestrator Node
 
-**Responsabilidade:** Analisar input do usuário, classificar maturidade da ideia, rotear para agente apropriado.
+> **⚠️ EM TRANSIÇÃO (Épico 7):** Este nó evoluirá de classificador para facilitador conversacional. Implementação atual é POC que será expandida.
+
+**Responsabilidade atual:** Analisar input do usuário, classificar maturidade da ideia, rotear para agente apropriado.
+
+**Responsabilidade futura:** Manter diálogo fluido, detectar necessidades, oferecer opções, negociar caminho com usuário.
 
 **Implementação:**
 ```python
@@ -334,6 +374,9 @@ def create_multi_agent_graph():
 ---
 
 ## Router após Metodologista (Épico 4)
+
+> **⚠️ NOTA DE TRANSIÇÃO (Épico 7):** Este router será substituído por negociação com usuário. Em vez de decidir automaticamente, sistema oferecerá opções: "Metodologista sugeriu A e B. Quer refinar, pesquisar mais ou mudar direção?"
+
 ```python
 def route_after_methodologist(state: MultiAgentState) -> str:
     """
@@ -379,74 +422,70 @@ graph.add_conditional_edges(
 
 ## Fluxo de Execução
 
-### Cenário 1: Ideia vaga
-Usuário: "Observei que desenvolver com Claude Code é mais rápido"
-
-Orchestrator classifica: "vague"
-→ Structurer organiza:
-
-Contexto: Desenvolvimento com IA
-Problema: Falta método para medir produtividade
-Questão estruturada: "Método incremental aumenta eficácia?"
-
-
-→ Methodologist valida:
-
-Status: rejected (falta métricas, população)
-Sugestões: definir métricas, especificar população
-
-
-
-
-### Cenário 2: Hipótese semi-pronta
-Usuário: "Método incremental melhora desenvolvimento multi-agente"
-
-Orchestrator classifica: "semi_formed"
-→ Methodologist (direto):
-
-Status: rejected (falta especificidade)
-Sugestões: definir métricas, operacionalizar "melhora"
-
-
-
-
-### Cenário 3: Hipótese completa
-Usuário: "Método incremental reduz tempo de implementação de sistemas
-multi-agente em 30%, medido por sprints, em equipes de 2-5 devs"
-
-Orchestrator classifica: "complete"
-→ Methodologist (direto):
-
-Status: approved
-Justificativa: Testável, falseável, específico
-
-
-### Cenário 4: Loop de Refinamento (Épico 4)
-
-**Input:** "Método X é mais rápido"
-
-**Fluxo:**
+### Cenário 1: Ideia vaga + refinamento (Implementado - Épicos 3-4)
+```
+Usuário: "Método incremental é mais rápido"
+↓
 Orquestrador: classifica "vague"
 ↓
-Estruturador V1: "Como método X impacta velocidade?"
+Estruturador V1: "Como método incremental impacta velocidade?"
 ↓
-Metodologista: "needs_refinement"
-
-gaps: população, métricas
-refinement_iteration: 0 → 1
+Metodologista: "needs_refinement" (falta população, métricas)
+  refinement_iteration: 0 → 1
 ↓
 Router: volta pro Estruturador (iteration < max)
 ↓
-Estruturador V2: "Método X reduz tempo em 30%, medido por sprints, em equipes de 2-5 devs"
+Estruturador V2: "Método incremental reduz tempo em 30%, medido por sprints, em equipes 2-5 devs"
 ↓
 Metodologista: "approved"
 ↓
 END
+```
 
-**Resultado:**
-- Usuário recebe: V2 aprovada
-- Histórico: V1 (needs_refinement) → V2 (approved)
-- Total de iterações: 1 refinamento
+**Resultado:** Usuário recebe V2 aprovada com histórico V1 → V2
+
+### Cenário 2: Hipótese → Metodologista direto (Implementado - Épico 3)
+```
+Usuário: "Método X reduz tempo em 30% em equipes de 2-5 devs"
+↓
+Orquestrador: classifica "semi_formed" ou "complete"
+↓
+Metodologista: valida rigor científico
+↓
+Status: "approved" ou "rejected"
+↓
+END
+```
+
+### Cenário 3: Conversação adaptativa (Futuro - Épico 7 POC)
+```
+Usuário: "Quero entender impacto de LLMs em produtividade"
+↓
+Orquestrador: "Interessante! Você quer VER o que já existe ou TESTAR uma hipótese?"
+↓
+Usuário: "Testar"
+↓
+Orquestrador: "Legal! Me conta: o que é 'produtividade' pra você?"
+↓ [conversa continua]
+Usuário: "Velocidade de desenvolvimento"
+↓
+Orquestrador: "Entendi. Posso chamar o Metodologista pra validar se isso é testável?"
+↓
+Usuário: "Sim"
+↓
+[Chama Metodologista] → Feedback: "Falta população e métricas"
+↓
+Orquestrador: "Ele sugeriu especificar:
+               1. Quem você quer estudar?
+               2. Como medir velocidade?
+               Quer refinar agora ou pesquisar literatura primeiro?"
+↓
+Usuário: "Refinar"
+↓
+[Chama Estruturador] → V2 refinada
+↓
+[Loop continua conforme usuário decide]
+```
 
 ---
 
@@ -496,16 +535,30 @@ RETORNE JSON:
 
 ## Evolução Futura
 
-### Próximos Passos (Épico 5+)
+### Próximo Passo Imediato (Épico 7 POC)
 
-- **Épico 5**: Pesquisador (busca bibliográfica)
-- **Épico 6**: Escritor (compilar artigo)
-- **Épico 7**: Interface Conversacional
-- **Épico 8**: Crítico (revisão final)
+**Orquestrador Conversacional:**
+- Implementar diálogo fluido antes de chamar agentes
+- Sistema oferece opções em vez de rotear automaticamente
+- Usuário escolhe próximo passo (refinar, pesquisar, mudar direção)
+- Routers viram "ofertas de opções"
 
-### Backlog "PRÓXIMOS"
+**Código a criar:**
+- Novo prompt conversacional do Orquestrador
+- Lógica de detecção de necessidades
+- Sistema de oferta de opções
+- Handling de mudança de direção
 
-- Estruturador vira grafo próprio (loop interno)
+### Próximos Épicos
+
+**Épico 8:** Entidade Tópico + Persistência (pausar/retomar)
+**Épico 9:** Finalizar Interface + Telemetria completa
+
+### Backlog de Longo Prazo
+
+- Pesquisador (busca bibliográfica)
+- Escritor (compilar artigo)
+- Crítico (revisão final)
 - RAG para knowledge base
 - Vector DB para memória de longo prazo
 
