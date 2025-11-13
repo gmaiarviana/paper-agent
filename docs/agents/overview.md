@@ -14,40 +14,70 @@
 ## 1. ORQUESTRADOR
 
 ### Responsabilidades
+- **Facilitar conversação** entre usuário e sistema (não apenas classificar)
 - Gerenciar estado da conversa e progresso do artigo
-- Decidir qual agente chamar em cada momento
+- **Negociar caminhos** com o usuário (apresentar opções, não decidir sozinho)
 - Detectar quando há conflito entre agentes
 - Apresentar conflitos para o usuário resolver
 - Determinar quando o artigo está completo
-- Controlar limite de iterações
+- **Adaptar fluxo** conforme decisões do usuário
 
 ### PODE fazer
-- Chamar qualquer agente
+- **Perguntar ao usuário** antes de chamar agentes
+- **Apresentar opções** claras e contextuais
+- Chamar qualquer agente (após negociação)
 - Solicitar re-trabalho de qualquer etapa
 - Pedir esclarecimentos ao usuário
 - Salvar checkpoints do progresso
+- **Adaptar fluxo** quando usuário muda de direção
 - Encerrar processo (com aprovação do usuário)
 
 ### NÃO PODE fazer
+- **Decidir sozinho** qual agente chamar (deve negociar)
+- **Classificar automaticamente** sem explorar intenção
 - Avaliar conteúdo científico
 - Escrever ou editar texto
 - Tomar decisões sobre metodologia
 - Ignorar feedback de agentes especialistas
+- **Forçar fluxo rígido** (deve ser adaptativo)
 
 ### Input esperado
-- Do usuário: hipótese inicial, observação, constatação
+- Do usuário: hipótese inicial, observação, constatação, **decisões sobre caminhos**
 - De agentes: outputs validados ou rejeitados
 
 ### Output esperado
-- Comandos para próximo agente
+- **Perguntas e opções** para o usuário
+- Comandos para próximo agente (após negociação)
 - Resumos de progresso para usuário
 - Apresentação de conflitos com argumentos
 
 ### Critérios de qualidade
-- Fluxo lógico mantido
+- **Sempre pergunta antes de agir**
+- **Opções claras e contextuais** apresentadas
+- Fluxo lógico mantido (mas adaptativo)
 - Nenhum agente chamado fora de contexto
 - Conflitos sempre escalados para usuário
 - Estado sempre consistente
+- **Mudanças de direção aceitas sem questionar**
+
+### Mudança de Papel (13/11/2025)
+
+**ANTES (classificador):**
+- Orquestrador classificava input automaticamente
+- Router decidia próximo agente sem consultar usuário
+- Fluxo rígido e determinístico
+
+**AGORA (facilitador):**
+- Orquestrador explora intenção com perguntas abertas
+- Apresenta opções e negocia caminhos
+- Fluxo adaptativo e conversacional
+- Usuário mantém controle sobre decisões
+
+**Exemplo de mudança:**
+```
+❌ ANTES: "Detectei que seu input é vago. Chamando Estruturador automaticamente."
+✅ AGORA: "Interessante! Você quer testar uma hipótese ou verificar literatura?"
+```
 
 ---
 
@@ -286,35 +316,50 @@
 
 ---
 
-## Fluxo Semi-Linear com Loops
+## Fluxo Adaptativo e Conversacional
+
+**⚠️ MUDANÇA (13/11/2025):** Fluxo não é mais rígido. Orquestrador negocia cada passo com usuário.
 
 ```
 Usuário 
   ↓
-Orquestrador
+Orquestrador: "Interessante! Você quer testar hipótese ou verificar literatura?"
+  ↓ [Usuário escolhe]
+Orquestrador: "Posso chamar o Metodologista para validar?"
+  ↓ [Usuário: "Sim"]
+Metodologista → [feedback: approved/needs_refinement/rejected]
   ↓
-Metodologista → [SE REJEITAR: volta pro Usuário]
-  ↓ [SE APROVAR]
-Estruturador
+Orquestrador: "Ele sugeriu X. O que você quer fazer? 1) Refinar, 2) Pesquisar, 3) Outra direção"
+  ↓ [Usuário escolhe]
+[Fluxo adapta conforme decisão do usuário]
   ↓
-Pesquisador (pode chamar N vezes conforme gaps)
+Estruturador (se usuário escolher refinar)
   ↓
-Escritor
+Pesquisador (se usuário escolher pesquisar)
   ↓
-Crítico → [SE REJEITAR: volta pro Estruturador ou Pesquisador]
-  ↓ [SE APROVAR]
+[Continua com negociação em cada etapa]
+  ↓
 Usuário (revisão final)
 ```
 
+**Princípios do fluxo adaptativo:**
+- ✅ Cada etapa é negociada (não automática)
+- ✅ Usuário pode mudar de direção a qualquer momento
+- ✅ Sistema adapta sem questionar mudanças
+- ✅ Não há limites fixos de iterações (usuário controla)
+
 ---
 
-## Limites de Iteração (Inicial)
+## Controle de Iterações (Atualizado)
 
-- **Metodologista → Usuário:** máximo 3 idas e voltas
-- **Crítico → Estruturador:** máximo 2 idas e voltas
-- **Pesquisador:** sem limite fixo (controlado por token budget)
+**⚠️ MUDANÇA (13/11/2025):** Limites fixos foram removidos. Usuário controla iterações.
 
-Após atingir limites: Orquestrador escala para usuário decidir.
+- **Metodologista:** Pode fazer perguntas (máximo 3 sugerido, mas usuário pode continuar)
+- **Refinamento:** Não há limite fixo - usuário decide quando parar
+- **Pesquisador:** Sem limite fixo (controlado por token budget)
+- **Crítico → Estruturador:** Usuário decide se quer refinar após feedback
+
+**Princípio:** Sistema sugere, usuário decide. Não há "limite atingido" que força decisão.
 
 ---
 
@@ -375,7 +420,7 @@ Após atingir limites: Orquestrador escala para usuário decidir.
 
 ---
 
-**Versão:** 1.0  
-**Data:** 06/11/2025  
-**Status:** Documentação inicial - aguardando evolução da POC
+**Versão:** 2.0  
+**Data:** 13/11/2025  
+**Status:** Atualizado - Orquestrador como facilitador, fluxo adaptativo e conversacional
 

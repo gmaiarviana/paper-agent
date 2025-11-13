@@ -2,9 +2,11 @@
 
 ## Visão Geral
 
-Loop de refinamento colaborativo que permite ao sistema multi-agente melhorar ideias vagas até ficarem testáveis, ao invés de apenas validar ou rejeitar.
+Mecânica de refinamento colaborativo que permite ao sistema multi-agente melhorar ideias vagas até ficarem testáveis, ao invés de apenas validar ou rejeitar.
 
-**Decisão arquitetural:** Loop implementado no super-grafo (não criar grafo interno no Estruturador).
+**⚠️ MUDANÇA IMPORTANTE (13/11/2025):** O loop **não é mais automático**. O refinamento acontece **sob demanda**, quando o usuário decide refinar após receber feedback do Metodologista. O Orquestrador apresenta opções e o usuário escolhe o próximo passo.
+
+**Decisão arquitetural:** Mecânica implementada no super-grafo (não criar grafo interno no Estruturador).
 
 ---
 
@@ -165,106 +167,137 @@ População: "equipes de 2-5 devs"
 Métricas: "tempo em 30%", "sprints"
 ```
 
-### 4. Router do Super-Grafo
+### 4. Orquestrador - Negociação de Refinamento
 
-**Após Metodologista, decidir próximo nó:**
+**⚠️ MUDANÇA:** Router automático foi removido. Agora o Orquestrador apresenta opções ao usuário.
 
-```python
-def route_after_methodologist(state: MultiAgentState) -> str:
-    """
-    Router que decide fluxo após Metodologista processar hipótese.
-    
-    Lógica:
-    1. Se approved → END
-    2. Se rejected → END
-    3. Se needs_refinement:
-       - Se iteration < max_refinements → "structurer"
-       - Se iteration >= max_refinements → forçar decisão final
-    """
-    methodologist_output = state['methodologist_output']
-    status = methodologist_output['status']
-    iteration = state['refinement_iteration']
-    max_iter = state['max_refinements']
-    
-    if status == "approved":
-        return END
-    
-    if status == "rejected":
-        return END
-    
-    if status == "needs_refinement":
-        if iteration < max_iter:
-            # Ainda pode refinar
-            return "structurer"
-        else:
-            # Limite atingido, forçar decisão
-            return "methodologist_force_decision"
-    
-    # Fallback
-    return END
+**Após Metodologista dar feedback:**
+
+O Orquestrador recebe o output do Metodologista e:
+
+1. **Se status = "approved":** Informa aprovação e oferece próximos passos
+2. **Se status = "rejected":** Informa rejeição e oferece alternativas
+3. **Se status = "needs_refinement":** Apresenta feedback e **pergunta ao usuário** o que fazer
+
+**Exemplo de negociação (needs_refinement):**
+
 ```
+Orquestrador: "O Metodologista sugeriu refinamentos: falta população 
+              e métricas. O que você quer fazer?
+              1) Refinar agora (chamar Estruturador)
+              2) Pesquisar mais sobre métricas primeiro
+              3) Seguir em outra direção"
+              
+Usuário: "Refinar agora"
+         ↓
+Orquestrador: "Perfeito! Chamando Estruturador para refinar..."
+         ↓
+Estruturador V2: [refina com base no feedback]
+         ↓
+Orquestrador: "Versão refinada criada. Quer que eu chame o Metodologista 
+              para validar novamente?"
+```
+
+**Código a manter (mecânica técnica):**
+- `structurer_node` com lógica de refinamento (funciona bem)
+- `decide_collaborative` com feedback estruturado (útil)
+- Estado com versionamento (histórico de versões)
+
+**Código a remover/refatorar:**
+- ❌ Router automático `route_after_methodologist` (não consulta usuário)
+- ❌ Loop forçado (sistema decide sozinho)
+- ❌ `force_decision_collaborative` (não precisa mais - usuário decide)
 
 ---
 
-## Fluxo Completo
+## Fluxo Completo (Refinamento Sob Demanda)
 
-### Cenário 1: Ideia vaga + 1 refinamento → aprovada
+### Cenário 1: Ideia vaga + refinamento sob demanda → aprovada
 
 1. User: "Método incremental é mais rápido"
-2. Orquestrador: classifica "vague"
-3. Estruturador V1: "Como método incremental impacta velocidade?"
-4. Metodologista: "needs_refinement" (falta população, métricas)
-   - refinement_iteration: 0 → 1
-5. Estruturador V2: "Método incremental reduz tempo em 30%, medido por sprints, em equipes 2-5 devs"
-6. Metodologista: "approved"
-7. END (usuário recebe V2 aprovada)
+2. Orquestrador: "Interessante! Você quer testar uma hipótese ou verificar literatura?"
+3. User: "Testar hipótese"
+4. Orquestrador: "Posso chamar o Estruturador para ajudar a formular uma questão mais específica?"
+5. User: "Sim"
+6. Estruturador V1: "Como método incremental impacta velocidade?"
+7. Orquestrador: "O Metodologista pode validar essa questão. Quer que eu chame?"
+8. User: "Sim"
+9. Metodologista: "needs_refinement" (falta população, métricas)
+10. **Orquestrador: "Ele sugeriu refinamentos: falta população e métricas. O que você quer fazer? 1) Refinar agora, 2) Pesquisar mais, 3) Outra direção"**
+11. **User: "Refinar agora"**
+12. Estruturador V2: "Método incremental reduz tempo em 30%, medido por sprints, em equipes 2-5 devs"
+13. Orquestrador: "Versão refinada criada. Quer que eu chame o Metodologista para validar novamente?"
+14. User: "Sim"
+15. Metodologista: "approved"
+16. Orquestrador: "Ótimo! Podemos seguir com: 1) definir desenho experimental, 2) pesquisar literatura, ou 3) algo diferente?"
 
-### Cenário 2: Ideia vaga + 2 refinamentos → aprovada
+### Cenário 2: Usuário escolhe pesquisar antes de refinar
 
 1. User: "Observei X"
-2. Estruturador V1: "Como X se manifesta?"
-3. Metodologista: "needs_refinement" (falta contexto, problema)
-   - refinement_iteration: 0 → 1
-4. Estruturador V2: "Em que contexto X ocorre com maior frequência?"
-5. Metodologista: "needs_refinement" (falta métricas)
-   - refinement_iteration: 1 → 2
-6. Estruturador V3: "Em que contexto X (medido por Y) ocorre com maior frequência em população Z?"
-7. Metodologista: "approved"
-8. END
+2. [Estruturador V1 criado]
+3. Metodologista: "needs_refinement" (falta contexto, métricas)
+4. **Orquestrador: "Ele sugeriu refinamentos. O que você quer fazer? 1) Refinar agora, 2) Pesquisar mais sobre métricas, 3) Outra direção"**
+5. **User: "Pesquisar mais sobre métricas"**
+6. Orquestrador: "Perfeito! Chamando Pesquisador..."
+7. Pesquisador: [busca e sintetiza papers sobre métricas]
+8. Orquestrador: "Pesquisa concluída. Agora quer refinar a questão com essas informações?"
+9. User: "Sim"
+10. Estruturador V2: [refina usando informações da pesquisa]
+11. [Continua fluxo...]
 
-### Cenário 3: Limite atingido → decisão forçada
+### Cenário 3: Usuário muda de direção
 
-1. User: "Z melhora W"
-2. Estruturador V1: "Como Z impacta W?"
-3. Metodologista: "needs_refinement" (falta tudo)
-   - refinement_iteration: 0 → 1
-4. Estruturador V2: "Como Z impacta W em contexto Y?"
-5. Metodologista: "needs_refinement" (ainda falta métricas)
-   - refinement_iteration: 1 → 2
-6. Estruturador V3: "Como Z (medido por M) impacta W em contexto Y?"
-7. Metodologista (decisão forçada): "approved" ou "rejected"
-   - Prompt: "Esta é a última iteração. Decida com contexto disponível."
-8. END
+1. [Fluxo de refinamento em andamento]
+2. Metodologista: "needs_refinement" (falta métricas)
+3. **Orquestrador: "Ele sugeriu refinamentos. O que você quer fazer? 1) Refinar agora, 2) Pesquisar mais, 3) Outra direção"**
+4. **User: "Outra direção - na verdade quero fazer revisão de literatura"**
+5. Orquestrador: "Sem problema! Vamos adaptar. Posso chamar o Estruturador para ajudar a definir uma questão de pesquisa estruturada (tipo PICO/SPIDER)?"
+6. [Fluxo adapta para revisão...]
+
+**Diferenças principais:**
+- ✅ Usuário decide se quer refinar
+- ✅ Usuário pode escolher pesquisar antes
+- ✅ Usuário pode mudar de direção
+- ✅ Não há limite fixo de iterações (usuário controla)
+- ✅ Não há decisão forçada (sistema não decide sozinho)
 
 ---
 
 ## Implementação
 
-**Arquivos a modificar:**
+**⚠️ NOTA:** Esta seção descreve a mecânica técnica que deve ser mantida. O controle do fluxo agora é conversacional (Orquestrador pergunta ao usuário).
+
+**Arquivos com mecânica técnica (manter):**
 
 1. `agents/orchestrator/state.py`
-   - Adicionar campos: `refinement_iteration`, `max_refinements`, `hypothesis_versions`
+   - Campos úteis: `hypothesis_versions` (histórico de versões)
+   - ❌ Remover: `refinement_iteration`, `max_refinements` (não precisam mais - usuário controla)
+
 2. `agents/methodologist/nodes.py`
-   - Atualizar nó `decide`: nova lógica com 3 status
-   - Adicionar nó `force_decision`: decisão forçada após limite
+   - ✅ Manter: `decide_collaborative` com 3 status (approved/needs_refinement/rejected)
+   - ✅ Manter: Campo `improvements` com gaps específicos
+   - ❌ Remover: `force_decision_collaborative` (não precisa mais)
+
 3. `agents/structurer/nodes.py`
-   - Adicionar lógica de refinamento: processar feedback
+   - ✅ Manter: Lógica de refinamento (processar feedback do Metodologista)
+   - ✅ Manter: Versionamento (V1 → V2 → V3)
+
 4. `agents/multi_agent_graph.py`
-   - Adicionar router `route_after_methodologist`
-   - Configurar loop: Metodologista → Estruturador
+   - ❌ Remover: Router automático `route_after_methodologist`
+   - ✅ Adicionar: Nó do Orquestrador após Metodologista (negocia com usuário)
+   - ✅ Manter: Edge Metodologista → Orquestrador (não mais → Estruturador automático)
+
 5. `utils/prompts.py`
-   - Prompt do Metodologista V2 (modo colaborativo)
-   - Prompt do Estruturador V2 (handling de feedback)
+   - ✅ Manter: Prompt do Metodologista V2 (modo colaborativo)
+   - ✅ Manter: Prompt do Estruturador V2 (handling de feedback)
+
+**Fluxo conversacional (novo):**
+
+Após Metodologista processar:
+1. Metodologista → Orquestrador (sempre)
+2. Orquestrador apresenta feedback e opções ao usuário
+3. Usuário escolhe: refinar, pesquisar, ou outra direção
+4. Orquestrador roteia conforme decisão do usuário
 
 ---
 
@@ -288,8 +321,9 @@ def route_after_methodologist(state: MultiAgentState) -> str:
 
 ## Metadados
 
-- **Versão:** 1.0 (Épico 4)
-- **Data:** 11/11/2025
-- **Status:** Especificação completa para implementação
+- **Versão:** 2.0 (Refinamento Sob Demanda)
+- **Data:** 13/11/2025
+- **Status:** Especificação atualizada - loop não é mais automático, refinamento sob demanda
+- **Mudança principal:** Router automático removido, Orquestrador negocia com usuário
 
 

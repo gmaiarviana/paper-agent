@@ -2,8 +2,8 @@ Methodologist Agent
 ===================
 
 **Status:** Em desenvolvimento (Épicos 2 → 4)
-**Versão:** 1.3
-**Data:** 11/11/2025
+**Versão:** 1.4
+**Data:** 13/11/2025
 
 ## Resumo
 
@@ -11,6 +11,8 @@ Agente especializado em avaliar rigor científico de hipóteses. Implementado co
 - Fazer perguntas ao usuário para obter clarificações
 - Tomar decisões com raciocínio explícito
 - Avaliar hipóteses segundo critérios metodológicos (testabilidade, falseabilidade, especificidade)
+
+**⚠️ NOTA IMPORTANTE (13/11/2025):** O Metodologista é usado **sob demanda**, não automaticamente no fluxo. O Orquestrador negocia com o usuário antes de chamar o Metodologista, e após receber feedback, apresenta opções ao usuário (refinar, pesquisar, ou outra direção). O refinamento não é automático - usuário decide quando refinar.
 
 ## Implementação Atual
 
@@ -221,7 +223,7 @@ Output: {
 }
 ```
 
-### Fluxo de Execução
+### Fluxo de Execução (Interno do Metodologista)
 
 ```
 ┌─────────────┐
@@ -246,6 +248,49 @@ Output: {
 │     END     │
 └─────────────┘
 ```
+
+### Uso Sob Demanda no Fluxo Multi-Agente
+
+**⚠️ IMPORTANTE (13/11/2025):** O Metodologista não é chamado automaticamente. O Orquestrador negocia com o usuário.
+
+**Fluxo conversacional:**
+
+1. **Orquestrador pergunta:** "O Metodologista pode validar essa questão. Quer que eu chame?"
+2. **Usuário decide:** "Sim" ou "Não, prefiro X primeiro"
+3. **Se usuário aceitar:** Metodologista processa e retorna feedback
+4. **Orquestrador apresenta opções:** "Ele sugeriu refinamentos: X e Y. O que você quer fazer? 1) Refinar agora, 2) Pesquisar mais, 3) Outra direção"
+5. **Usuário escolhe:** Refinamento não é automático
+
+**Exemplo completo:**
+
+```
+Orquestrador: "Posso chamar o Metodologista para validar?"
+Usuário: "Sim"
+↓
+Metodologista: {status: "needs_refinement", improvements: [...]}
+↓
+Orquestrador: "Ele sugeriu refinamentos: falta população e métricas. 
+              O que você quer fazer?
+              1) Refinar agora (chamar Estruturador)
+              2) Pesquisar mais sobre métricas primeiro
+              3) Seguir em outra direção"
+Usuário: "Refinar agora"
+↓
+[Estruturador refina]
+↓
+Orquestrador: "Versão refinada criada. Quer que eu chame o Metodologista 
+              para validar novamente?"
+Usuário: "Sim"
+↓
+[Metodologista valida V2]
+```
+
+**Princípios:**
+- ✅ Metodologista é chamado **sob demanda** (não automático)
+- ✅ Refinamento é **negociado** (usuário decide)
+- ✅ Não há loop automático (sistema não decide sozinho)
+- ✅ Usuário pode escolher pesquisar antes de refinar
+- ✅ Usuário pode mudar de direção a qualquer momento
 
 ### LLM Utilizado
 
@@ -275,8 +320,9 @@ Output: {
 **Épico 4:** Metodologista colaborativo
 - ✅ Modo "needs_refinement" (novo)
 - ✅ Campo "improvements" com gaps específicos
-- ✅ Integrado no loop de refinamento
-- ✅ Decisão forçada após limite
+- ✅ Integrado no fluxo conversacional (não automático)
+- ⚠️ **Refinamento sob demanda** (usuário decide quando refinar)
+- ❌ Decisão forçada removida (usuário controla iterações)
 
 **Futuras melhorias (pós-Épico 4):**
 - Tool `consult_methodology` para knowledge base ampliada
