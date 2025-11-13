@@ -26,7 +26,7 @@ from agents.memory.execution_tracker import register_execution
 logger = logging.getLogger(__name__)
 
 
-def structurer_node(state: MultiAgentState, runtime_config: Optional[RunnableConfig] = None) -> dict:
+def structurer_node(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> dict:
     """
     Nó que organiza ideias vagas em questões de pesquisa estruturadas.
 
@@ -48,7 +48,7 @@ def structurer_node(state: MultiAgentState, runtime_config: Optional[RunnableCon
 
     Args:
         state (MultiAgentState): Estado atual do sistema multi-agente.
-        runtime_config (RunnableConfig, optional): Configuração do LangGraph (contém memory_manager)
+        config (RunnableConfig, optional): Configuração do LangGraph (contém memory_manager)
 
     Returns:
         dict: Dicionário com updates incrementais do estado:
@@ -93,7 +93,7 @@ IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensa
         model_name = "claude-3-5-haiku-20241022"
 
     # Passar config para funções auxiliares
-    config = {"system_prompt": system_prompt, "model_name": model_name, "runtime_config": runtime_config}
+    node_config = {"system_prompt": system_prompt, "model_name": model_name, "langgraph_config": config}
 
     # Detectar modo: estruturação inicial ou refinamento
     methodologist_feedback = state.get('methodologist_output')
@@ -107,11 +107,11 @@ IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensa
     if is_refinement_mode:
         logger.info(f"=== NÓ STRUCTURER: Modo REFINAMENTO (Iteração {current_iteration + 1}) ===")
         logger.info(f"Gaps a endereçar: {len(methodologist_feedback['improvements'])}")
-        return _refine_question(state, methodologist_feedback, config)
+        return _refine_question(state, methodologist_feedback, node_config)
     else:
         logger.info("=== NÓ STRUCTURER: Modo ESTRUTURAÇÃO INICIAL ===")
         logger.info(f"Input do usuário: {state['user_input']}")
-        return _structure_initial_question(state, config)
+        return _structure_initial_question(state, node_config)
 
 
 def _structure_initial_question(state: MultiAgentState, config: dict) -> dict:
@@ -162,13 +162,13 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
     logger.info(f"Resposta do LLM: {response.content}")
 
     # Registrar execução no MemoryManager (Épico 6.2)
-    runtime_config = config.get("runtime_config")
-    if runtime_config:
-        memory_manager = runtime_config.get("configurable", {}).get("memory_manager")
+    langgraph_config = config.get("langgraph_config")
+    if langgraph_config:
+        memory_manager = langgraph_config.get("configurable", {}).get("memory_manager")
         if memory_manager:
             register_execution(
                 memory_manager=memory_manager,
-                config=runtime_config,
+                config=langgraph_config,
                 agent_name="structurer",
                 response=response,
                 summary="Estruturação V1",
@@ -290,13 +290,13 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
 
     # Registrar execução no MemoryManager (Épico 6.2)
-    runtime_config = config.get("runtime_config")
-    if runtime_config:
-        memory_manager = runtime_config.get("configurable", {}).get("memory_manager")
+    langgraph_config = config.get("langgraph_config")
+    if langgraph_config:
+        memory_manager = langgraph_config.get("configurable", {}).get("memory_manager")
         if memory_manager:
             register_execution(
                 memory_manager=memory_manager,
-                config=runtime_config,
+                config=langgraph_config,
                 agent_name="structurer",
                 response=response,
                 summary=f"Refinamento V{current_version}",
