@@ -24,6 +24,7 @@ sys.path.insert(0, str(project_root))
 
 from agents.methodologist import create_methodologist_graph, create_initial_state
 from agents.memory.memory_manager import MemoryManager
+from utils.event_bus import get_event_bus
 from dotenv import load_dotenv
 from langgraph.types import Command
 
@@ -38,6 +39,9 @@ load_dotenv()
 
 # Instância global do MemoryManager (Épico 6)
 memory_manager = MemoryManager()
+
+# Instância global do EventBus (Épico 5.1)
+event_bus = get_event_bus()
 
 
 def print_header():
@@ -90,30 +94,35 @@ def run_cli():
             continue
 
         # Nova sessão a cada hipótese (Épico 6 - contexto limpo automático)
-        session_id = f"cli-session-{uuid.uuid4()}"
+        session_uuid = uuid.uuid4()
+        session_id = f"cli-session-{session_uuid}"
+        session_short = str(session_uuid)[:8]  # Primeiros 8 chars para identificação
         thread_id = f"thread-{session_id}"
         config = {
             "configurable": {
                 "thread_id": thread_id,
-                "memory_manager": memory_manager  # Épico 6.2
+                "session_id": session_id,  # Épico 5.1 - EventBus
+                "memory_manager": memory_manager  # Épico 6.2 - MemoryManager
             }
         }
 
-        print(f"\n🔬 Analisando hipótese...\n")
+        print(f"\n🔬 Analisando hipótese... (Session: {session_short})\n")
 
-        # Criar estado inicial
-        state = create_initial_state(hypothesis)
+        # Publicar evento de início de sessão (Épico 5.1)
+        try:
+            event_bus.publish_session_started(
+                session_id=session_id,
+                user_input=hypothesis
+            )
+            logger.info(f"✅ Evento session_started publicado para {session_id}")
+        except Exception as e:
+            print(f"⚠️  Aviso: Não foi possível publicar eventos: {e}")
+            logger.exception("Erro ao publicar session_started:")
 
-        # Registrar início da execução no MemoryManager (Épico 6)
-        memory_manager.add_execution(
-            session_id=session_id,
-            agent_name="methodologist",
-            tokens_input=0,  # Será atualizado após execução
-            tokens_output=0,
-            summary=f"Analisando: {hypothesis[:50]}..."
-        )
+        # Criar estado inicial (com session_id para EventBus - Épico 5.1)
+        state = create_initial_multi_agent_state(hypothesis, session_id=session_id)
 
-        # Loop de execução: continua enquanto houver interrupts
+        # Executar sistema multi-agente
         try:
             # Primeira invocação do grafo
             graph.invoke(state, config=config)
@@ -151,27 +160,41 @@ def run_cli():
                     print_separator()
 
                     totals = memory_manager.get_session_totals(session_id)
-                    if totals.get('total', 0) > 0:
+                    tokens_total = totals.get('total', 0)
+                    if tokens_total > 0:
                         # Exibir por agente
                         for agent_name, agent_total in totals.items():
                             if agent_name == 'total':
                                 continue
                             print(f"  {agent_name:>15}: {agent_total:>6} tokens")
 
-                        print(f"  {'TOTAL':>15}: {totals['total']:>6} tokens")
+                        print(f"  {'TOTAL':>15}: {tokens_total:>6} tokens")
 
                         # Calcular custo total estimado
-                        # Buscar execuções para calcular custo real
-                        history = memory_manager.get_session_history(session_id, "methodologist")
+                        # Buscar execuções de todos os agentes para calcular custo total
                         total_cost = 0.0
-                        for execution in history:
-                            if execution.metadata and "cost_usd" in execution.metadata:
-                                total_cost += execution.metadata["cost_usd"]
+                        for agent_name in ["orchestrator", "structurer", "methodologist", "force_decision"]:
+                            history = memory_manager.get_session_history(session_id, agent_name)
+                            for execution in history:
+                                if execution.metadata and "cost_usd" in execution.metadata:
+                                    total_cost += execution.metadata["cost_usd"]
 
                         if total_cost > 0:
                             print(f"  {'Custo estimado':>15}: ${total_cost:.6f}")
                     else:
                         print("  Nenhuma métrica registrada nesta execução.")
+
+                    # Publicar evento de conclusão de sessão (Épico 5.1)
+                    try:
+                        event_bus.publish_session_completed(
+                            session_id=session_id,
+                            final_status=status,
+                            tokens_total=tokens_total
+                        )
+                        logger.info(f"✅ Evento session_completed publicado para {session_id}")
+                    except Exception as e:
+                        print(f"⚠️  Aviso: Não foi possível publicar evento de conclusão: {e}")
+                        logger.exception("Erro ao publicar session_completed:")
 
                     print()
                     break
