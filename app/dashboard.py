@@ -139,7 +139,7 @@ def render_session_selector(sessions: List[str]) -> Optional[str]:
     for session_id in sessions:
         summary = bus.get_session_summary(session_id)
         if summary:
-            user_input = summary.get('user_input', '')
+            user_input = summary.get('user_input') or ''  # Garantir que não seja None
             # Session ID curto (primeiros 8 chars após "cli-session-")
             short_id = session_id.replace('cli-session-', '')[:8]
             # Truncar user_input se muito longo
@@ -167,7 +167,7 @@ def render_session_summary(summary: Dict[str, Any]):
     """
     # Cabeçalho com session ID e user input
     session_id = summary.get('session_id', 'unknown')
-    user_input = summary.get('user_input', 'N/A')
+    user_input = summary.get('user_input') or 'N/A'  # Garantir que não seja None
     short_id = session_id.replace('cli-session-', '')[:8]
 
     st.subheader(f"🔍 Sessão: {short_id}")
