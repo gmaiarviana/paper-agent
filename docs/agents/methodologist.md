@@ -182,7 +182,7 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 - Critérios científicos claros: testabilidade, falseabilidade, especificidade, operacionalização
 - Exemplos práticos de aprovação e rejeição
 
-**Validação:** `scripts/validate_system_prompt.py`
+**Validação:** `scripts/health_checks/validate_system_prompt.py`
 
 ### Prompt Colaborativo (Épico 4)
 
@@ -261,9 +261,9 @@ Output: {
 - **Nós do grafo:** `tests/unit/test_graph_nodes.py` (16/16)
 
 ### Scripts de Validação Manual
-- `scripts/validate_state.py`: Valida estado e checkpointer
-- `scripts/validate_ask_user.py`: Valida tool ask_user
-- `scripts/validate_graph_nodes.py`: Valida nós do grafo
+- `scripts/state_introspection/validate_state.py`: Valida estado e checkpointer
+- `scripts/state_introspection/validate_ask_user.py`: Valida tool ask_user
+- `scripts/state_introspection/validate_graph_nodes.py`: Valida nós do grafo
 
 ## Evolução (Épicos 2 → 4)
 

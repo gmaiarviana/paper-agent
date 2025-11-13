@@ -19,10 +19,21 @@ paper-agent/
 │
 ├── scripts/                    # Validação manual (dev local)
 │   ├── __init__.py
-│   ├── validate_api.py         # Health check manual
-│   ├── validate_state.py
-│   ├── validate_ask_user.py
-│   └── validate_graph.py
+│   ├── health_checks/          # Sanidade de ambiente e configs
+│   │   ├── validate_api.py
+│   │   ├── validate_agent_config.py
+│   │   ├── validate_runtime_config.py
+│   │   └── validate_system_prompt.py
+│   ├── state_introspection/    # Nós isolados e estados
+│   │   ├── validate_state.py
+│   │   ├── validate_graph.py
+│   │   └── validate_ask_user.py
+│   ├── flows/                  # Cenários completos (consomem API)
+│   │   ├── validate_cli.py
+│   │   ├── validate_multi_agent_flow.py
+│   │   └── validate_refinement_loop.py
+│   └── debug/                  # Diagnóstico ad hoc
+│       └── debug_multi_agent.py
 ```
 
 ---
@@ -61,5 +72,5 @@ Logger para rastrear custos em testes
 
 ---
 
-**Versão:** 2.0
-**Data:** 10/11/2025
+**Versão:** 2.1
+**Data:** 13/11/2025

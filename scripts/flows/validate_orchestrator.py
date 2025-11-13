@@ -12,13 +12,20 @@ Uso:
     python scripts/validate_orchestrator.py
 """
 
+import logging
 import os
 import sys
-import logging
-from dotenv import load_dotenv
+from pathlib import Path
 
-# Adicionar diretório raiz ao path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT_STR = str(PROJECT_ROOT)
+if PROJECT_ROOT_STR not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT_STR)
+
+from dotenv import load_dotenv
+from scripts.common import setup_project_path
+
+setup_project_path()
 
 from agents.orchestrator import (
     create_initial_multi_agent_state,

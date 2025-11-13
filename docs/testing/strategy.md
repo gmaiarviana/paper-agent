@@ -85,7 +85,7 @@ pytest tests/integration/ -m integration
 **Rodar:**
 ```bash
 # Roda com sua chave pessoal do .env
-python scripts/validate_api.py
+python scripts/health_checks/validate_api.py
 ```
 
 ---

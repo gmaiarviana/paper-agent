@@ -282,7 +282,7 @@ def route_after_methodologist(state: MultiAgentState) -> str:
 
 **Scripts de validação manual:**
 
-- `scripts/validate_refinement_loop.py`
+- `scripts/flows/validate_refinement_loop.py`
 
 ---
 

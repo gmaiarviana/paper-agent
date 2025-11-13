@@ -56,16 +56,19 @@ def _get_session_id_from_config(config: Any) -> str:
         str: Session ID ou fallback para thread_id
     """
     if not config:
+        logger.debug("_get_session_id_from_config: config é None/vazio")
         return "unknown-session"
 
     configurable = config.get("configurable", {})
     session_id = configurable.get("session_id")
 
     if session_id:
+        logger.debug(f"_get_session_id_from_config: session_id extraído = {session_id}")
         return session_id
 
     # Fallback: usar thread_id como session_id
     thread_id = configurable.get("thread_id", "unknown-session")
+    logger.debug(f"_get_session_id_from_config: fallback para thread_id = {thread_id}")
     return thread_id
 
 
@@ -91,7 +94,10 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
     """
     def wrapper(state: MultiAgentState, config: Any = None) -> MultiAgentState:
         """Wrapper instrumentado que emite eventos."""
-        session_id = _get_session_id_from_config(config)
+        # Extrair session_id do state (método confiável - Épico 5.1)
+        # Config não é passado aos nodes pelo LangGraph, então usamos state
+        session_id = state.get("session_id", "unknown-session")
+        logger.debug(f"Wrapper {agent_name}: session_id do state = {session_id}")
 
         # Emitir evento de início
         if EVENT_BUS_AVAILABLE:
@@ -102,12 +108,13 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                     agent_name=agent_name,
                     metadata={"stage": state.get("current_stage", "unknown")}
                 )
+                logger.info(f"✅ Evento agent_started publicado para {agent_name} (session: {session_id})")
             except Exception as e:
                 logger.warning(f"Falha ao publicar agent_started para {agent_name}: {e}")
 
-        # Executar nó original
+        # Executar nó original (nodes não recebem config como parâmetro)
         try:
-            result = node_func(state, config) if config else node_func(state)
+            result = node_func(state)
 
             # Emitir evento de conclusão
             if EVENT_BUS_AVAILABLE:
@@ -126,6 +133,7 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                         tokens_total=0,
                         metadata={}
                     )
+                    logger.info(f"✅ Evento agent_completed publicado para {agent_name} (session: {session_id})")
                 except Exception as e:
                     logger.warning(f"Falha ao publicar agent_completed para {agent_name}: {e}")
 

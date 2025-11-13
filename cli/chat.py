@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-CLI Minimalista para testar o agente Metodologista.
+CLI para sistema multi-agente Paper Agent.
 
 Este script implementa um loop interativo que:
-1. Recebe uma hipótese do usuário
-2. Executa o agente Metodologista
-3. Lida com interrupções (quando o agente precisa de clarificações)
-4. Exibe a decisão final
+1. Recebe uma hipótese ou ideia do usuário
+2. Executa sistema multi-agente (Orquestrador → Estruturador → Metodologista)
+3. Exibe timeline de execução e decisão final
+4. Publica eventos em tempo real para o Dashboard
 
-Versão: 1.0
-Data: 10/11/2025
+Versão: 2.0 (Épico 5.1 - Sistema Multi-Agente Completo)
+Data: 13/11/2025
 """
 
 import os
@@ -22,17 +22,18 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from agents.methodologist import create_methodologist_graph, create_initial_state
+from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
 from agents.memory.memory_manager import MemoryManager
 from utils.event_bus import get_event_bus
 from dotenv import load_dotenv
-from langgraph.types import Command
 
 # Configurar logging
 logging.basicConfig(
-    level=logging.WARNING,  # Apenas warnings e erros por padrão
+    level=logging.INFO,  # INFO para ver mensagens do EventBus
     format='%(levelname)s: %(message)s'
 )
+
+logger = logging.getLogger(__name__)
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -47,10 +48,10 @@ event_bus = get_event_bus()
 def print_header():
     """Exibe o cabeçalho do CLI."""
     print("=" * 70)
-    print("CLI MINIMALISTA - AGENTE METODOLOGISTA")
+    print("CLI - SISTEMA MULTI-AGENTE PAPER AGENT")
     print("=" * 70)
     print("Digite sua hipótese para avaliação metodológica.")
-    print("Cada análise começa com contexto limpo.\n")
+    print("Sistema: Orquestrador → Estruturador → Metodologista\n")
     print("Digite 'exit' a qualquer momento para sair.\n")
 
 
@@ -66,16 +67,16 @@ def run_cli():
     Implementa o fluxo completo:
     1. Solicita hipótese do usuário
     2. Cria thread ID único para sessão
-    3. Executa grafo do Metodologista
-    4. Lida com interrupts (perguntas do agente)
-    5. Exibe resultado final
+    3. Executa sistema multi-agente completo
+    4. Exibe resultado final
     """
     print_header()
 
     # Criar grafo uma vez
-    print("🔧 Inicializando agente Metodologista...")
-    graph = create_methodologist_graph()
-    print("✅ Agente pronto!\n")
+    print("🔧 Inicializando sistema multi-agente...")
+    graph = create_multi_agent_graph()
+    print("✅ Sistema pronto!")
+    print(f"📁 Eventos salvos em: {event_bus.events_dir}\n")
 
     while True:
         print_separator()
@@ -249,7 +250,7 @@ def run_cli():
             continue
 
         except Exception as e:
-            print(f"\n❌ Erro ao executar agente: {e}")
+            print(f"\n❌ Erro ao executar sistema multi-agente: {e}")
             logging.exception("Erro detalhado:")
             continue
 
