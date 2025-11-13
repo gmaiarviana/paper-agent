@@ -31,7 +31,20 @@ Orquestrador coordena metodologista e estruturador, avaliando maturidade da idei
 Funcionalidade 5.1 concluída: Dashboard Streamlit com timeline de eventos em tempo real.
 
 **ÉPICO 6: Memória Dinâmica e Contexto por Agente (parcial)** (13/11/2025)  
-Funcionalidade 6.1 concluída: Configuração externa de agentes via YAML. Funcionalidade 6.2 em andamento: Registro de memória com metadados.
+Funcionalidade 6.1 concluída: Configuração externa de agentes via YAML. 
+
+#### 6.2 Registro de Memória com Metadados
+- **Status:** ✅ Concluído (13/11/2025)
+- **Descrição:** Armazenar histórico leve por agente com tokens e resumo da última ação.
+- **Entregue:**
+  - Infraestrutura do `MemoryManager` com export, totais e API Python
+  - Helper `register_execution()` para captura de tokens de AIMessage
+  - Instrumentação completa dos nós: orchestrator, structurer, methodologist (decide_collaborative e force_decision)
+  - MemoryManager passado via config do super-grafo (opcional)
+  - Integração com CostTracker validada (custos calculados e registrados)
+  - CLI atualizado para exibir métricas de tokens e custos por agente
+  - Script de validação end-to-end: `scripts/validate_memory_integration.py`
+  - Versões atualizadas: orchestrator_node v2.1, structurer_node v3.1, methodologist nodes v3.1
 
 ---
 
@@ -108,19 +121,6 @@ Funcionalidade 6.1 concluída: Configuração externa de agentes via YAML. Funci
 #### Protótipo (artefatos e timeline)
 - 8.4: Artefatos versionados (hypotheses V1/V2, research_notes, decisions)
 - 8.5: Timeline de evolução do tópico
-
-#### 6.2 Registro de Memória com Metadados
-- **Status:** ✅ Concluído (13/11/2025)
-- **Descrição:** Armazenar histórico leve por agente com tokens e resumo da última ação.
-- **Entregue:**
-  - Infraestrutura do `MemoryManager` com export, totais e API Python
-  - Helper `register_execution()` para captura de tokens de AIMessage
-  - Instrumentação completa dos nós: orchestrator, structurer, methodologist (decide_collaborative e force_decision)
-  - MemoryManager passado via config do super-grafo (opcional)
-  - Integração com CostTracker validada (custos calculados e registrados)
-  - CLI atualizado para exibir métricas de tokens e custos por agente
-  - Script de validação end-to-end: `scripts/validate_memory_integration.py`
-  - Versões atualizadas: orchestrator_node v2.1, structurer_node v3.1, methodologist nodes v3.1
 
 **Critérios de aceite Protótipo:**
 - Sistema rastreia versões de hipóteses (V1 → V2 → V3)

@@ -42,30 +42,68 @@
 ```
 Usuário: "Observei que LLMs aumentam produtividade"
 ↓
-Sistema detecta: tipo empírico, maturidade baixa
+Orquestrador: "Interessante! Me conta mais: você quer VER o que já existe 
+               sobre isso, ou quer TESTAR uma hipótese sua?"
+↓
+Usuário: "Testar uma hipótese"
+↓
+Orquestrador: "Legal! Me conta mais sobre essa observação..."
+↓
+[Conversa até ficar claro o contexto]
+↓
+Orquestrador: "Posso chamar o Estruturador para ajudar a formular uma 
+               questão de pesquisa mais específica?"
+↓
+Usuário: "Sim"
 ↓
 Estruturador V1: "Como LLMs impactam produtividade?"
 ↓
+Orquestrador: "O Metodologista pode validar essa questão. Quer que eu chame?"
+↓
+Usuário: "Sim"
+↓
 Metodologista: needs_refinement (falta população, métricas)
 ↓
-Estruturador V2: "Como LLMs (ex.: Claude Code) reduzem tempo de desenvolvimento em 30%, medido por sprints, em equipes de 2-5 devs?"
+Orquestrador: "Ele sugeriu refinamentos. Quer que eu peça ao Estruturador 
+               para refinar agora?"
+↓
+Usuário: "Sim"
+↓
+Estruturador V2: "Como LLMs (ex.: Claude Code) reduzem tempo de desenvolvimento 
+                  em 30%, medido por sprints, em equipes de 2-5 devs?"
 ↓
 Metodologista: approved
 ↓
-[Sistema sugere] Próximo passo: definir desenho experimental
+Orquestrador: "Ótimo! Podemos seguir com: 1) definir desenho experimental, 
+               2) pesquisar literatura sobre métricas, ou 3) algo diferente?"
 ```
 
 ### Cenário B: Questão para Revisão
 ```
 Usuário: "Quero entender o estado da arte em multi-agente para escrita acadêmica"
 ↓
-Sistema detecta: tipo revisão, maturidade média
+Orquestrador: "Interessante! Você quer fazer uma REVISÃO de literatura ou 
+               tem uma HIPÓTESE específica para testar?"
 ↓
-Orquestrador: "Vou estruturar protocolo de revisão"
+Usuário: "Revisão de literatura"
+↓
+Orquestrador: "Perfeito! Posso chamar o Estruturador para ajudar a definir 
+               uma questão de pesquisa estruturada (tipo PICO/SPIDER)?"
+↓
+Usuário: "Sim"
 ↓
 Estruturador: define questão PICO/SPIDER
 ↓
+Orquestrador: "Agora podemos buscar papers. Quer que eu chame o Pesquisador?"
+↓
+Usuário: "Sim"
+↓
 Pesquisador: busca papers, realiza síntese
+↓
+Orquestrador: "Temos uma boa base. Quer que eu chame o Escritor para compilar 
+               a revisão ou prefere revisar os papers primeiro?"
+↓
+Usuário: "Compilar"
 ↓
 Escritor: compila revisão
 ```
@@ -74,13 +112,31 @@ Escritor: compila revisão
 ```
 Usuário: "Proponho modelo de governança para sistemas multi-agente"
 ↓
-Sistema detecta: tipo teórico, maturidade alta
+Orquestrador: "Fascinante! Você já tem o modelo estruturado ou está ainda 
+               explorando a ideia?"
 ↓
-Orquestrador: "Vou validar lógica e estrutura do framework"
+Usuário: "Tenho uma ideia inicial, mas preciso validar a lógica"
+↓
+Orquestrador: "Posso chamar o Metodologista para validar a consistência 
+               lógica do framework, ou prefere primeiro estruturar melhor 
+               o argumento com o Estruturador?"
+↓
+Usuário: "Validar a lógica primeiro"
 ↓
 Metodologista: valida consistência lógica
 ↓
+Orquestrador: "Ele aprovou a lógica! Agora podemos: 1) estruturar o argumento 
+               completo, 2) pesquisar frameworks similares, ou 3) começar 
+               a escrever. O que prefere?"
+↓
+Usuário: "Estruturar o argumento"
+↓
 Estruturador: organiza argumentação
+↓
+Orquestrador: "Argumento estruturado! Quer que eu chame o Escritor para 
+               redigir o artigo teórico?"
+↓
+Usuário: "Sim"
 ↓
 Escritor: redige artigo teórico
 ```
