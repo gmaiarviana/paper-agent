@@ -5,8 +5,8 @@ Este módulo implementa o nó principal do Estruturador:
 - structurer_node: Organiza ideias vagas em questões de pesquisa estruturadas (Épico 3)
 - Suporta refinamento baseado em feedback do Metodologista (Épico 4)
 
-Versão: 2.0 (Épico 4 - Refinamento Colaborativo)
-Data: 12/11/2025
+Versão: 3.0 (Épico 6, Funcionalidade 6.1 - Config externa)
+Data: 13/11/2025
 """
 
 import logging
@@ -18,6 +18,7 @@ from agents.orchestrator.state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import STRUCTURER_REFINEMENT_PROMPT_V1
 from utils.config import get_anthropic_model
+from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,28 @@ def structurer_node(state: MultiAgentState) -> dict:
         >>> result['refinement_iteration']
         1
     """
+    # Carregar prompt e modelo do YAML (Épico 6, Funcionalidade 6.1)
+    try:
+        system_prompt = get_agent_prompt("structurer")
+        model_name = get_agent_model("structurer")
+        logger.info("✅ Configurações carregadas do YAML: config/agents/structurer.yaml")
+    except ConfigLoadError as e:
+        logger.warning(f"⚠️ Falha ao carregar config do structurer: {e}")
+        logger.warning("⚠️ Usando prompt e modelo padrão (fallback)")
+        # Fallback: prompt hard-coded do YAML como referência
+        system_prompt = """Você é um Estruturador que organiza ideias em questões de pesquisa estruturadas.
+
+CONTEXTO:
+Você pode operar em dois modos:
+1. ESTRUTURAÇÃO INICIAL: Recebe ideia vaga e gera questão V1
+2. REFINAMENTO: Recebe feedback do Metodologista e gera versão refinada (V2/V3)
+
+IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensamento do usuário."""
+        model_name = "claude-3-5-haiku-20241022"
+
+    # Passar config para funções auxiliares
+    config = {"system_prompt": system_prompt, "model_name": model_name}
+
     # Detectar modo: estruturação inicial ou refinamento
     methodologist_feedback = state.get('methodologist_output')
     is_refinement_mode = (
@@ -79,26 +102,31 @@ def structurer_node(state: MultiAgentState) -> dict:
     if is_refinement_mode:
         logger.info(f"=== NÓ STRUCTURER: Modo REFINAMENTO (Iteração {current_iteration + 1}) ===")
         logger.info(f"Gaps a endereçar: {len(methodologist_feedback['improvements'])}")
-        return _refine_question(state, methodologist_feedback)
+        return _refine_question(state, methodologist_feedback, config)
     else:
         logger.info("=== NÓ STRUCTURER: Modo ESTRUTURAÇÃO INICIAL ===")
         logger.info(f"Input do usuário: {state['user_input']}")
-        return _structure_initial_question(state)
+        return _structure_initial_question(state, config)
 
 
-def _structure_initial_question(state: MultiAgentState) -> dict:
+def _structure_initial_question(state: MultiAgentState, config: dict) -> dict:
     """
     Modo estruturação inicial: primeira vez, gera questão V1.
 
     Args:
         state (MultiAgentState): Estado do sistema.
+        config (dict): Configuração com system_prompt e model_name.
 
     Returns:
         dict: Updates do estado com questão estruturada V1.
     """
 
-    # Criar prompt de estruturação
-    structuring_prompt = f"""Você é um Estruturador que organiza ideias e observações vagas em questões de pesquisa estruturadas.
+    # Extrair config
+    system_prompt = config["system_prompt"]
+    model_name = config["model_name"]
+
+    # Criar prompt de estruturação usando config do YAML
+    structuring_prompt = f"""{system_prompt}
 
 OBSERVAÇÃO DO USUÁRIO:
 {state['user_input']}
@@ -107,24 +135,9 @@ TAREFA:
 Extraia e estruture os seguintes elementos da observação acima:
 
 1. **Contexto**: De onde vem essa observação? Qual é o domínio ou área de aplicação?
-   - Exemplo: "Desenvolvimento de software com IA", "Educação online", "Gestão de projetos"
-
 2. **Problema**: Qual problema, gap ou fenômeno está sendo observado?
-   - Exemplo: "Falta de métodos para medir produtividade", "Dificuldade em engajamento"
-
 3. **Contribuição potencial**: Como essa observação pode contribuir para academia ou prática?
-   - Exemplo: "Método para avaliar eficácia de ferramentas IA", "Framework de engajamento"
-
 4. **Questão de pesquisa estruturada**: Transforme a observação em uma questão de pesquisa clara
-   - Deve ser uma pergunta bem formulada
-   - Não precisa ter todas as variáveis operacionalizadas (isso virá depois)
-   - Deve capturar a essência da observação
-
-COMPORTAMENTO ESPERADO:
-- Seja COLABORATIVO: ajude a estruturar, não critique
-- NÃO valide rigor científico (o Metodologista fará isso depois)
-- NÃO rejeite ou julgue a ideia
-- Trabalhe com o que foi fornecido, mesmo se incompleto
 
 RESPONDA EM JSON:
 {{
@@ -136,8 +149,8 @@ RESPONDA EM JSON:
 
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
 
-    # Chamar LLM para estruturação
-    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
+    # Chamar LLM para estruturação usando modelo do config
+    llm = ChatAnthropic(model=model_name, temperature=0)
     messages = [HumanMessage(content=structuring_prompt)]
     response = llm.invoke(messages)
 
@@ -198,17 +211,20 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
     }
 
 
-def _refine_question(state: MultiAgentState, methodologist_feedback: dict) -> dict:
+def _refine_question(state: MultiAgentState, methodologist_feedback: dict, config: dict) -> dict:
     """
     Modo refinamento: gera versão refinada endereçando gaps do Metodologista (Épico 4).
 
     Args:
         state (MultiAgentState): Estado do sistema.
         methodologist_feedback (dict): Output do Metodologista com improvements.
+        config (dict): Configuração com system_prompt e model_name.
 
     Returns:
         dict: Updates do estado com questão refinada (V2/V3) e iteration incrementada.
     """
+    # Extrair config
+    model_name = config["model_name"]
     # Obter questão anterior (da última versão)
     if state.get('hypothesis_versions'):
         last_version = state['hypothesis_versions'][-1]
@@ -244,8 +260,8 @@ def _refine_question(state: MultiAgentState, methodologist_feedback: dict) -> di
 Gere uma versão REFINADA (V{current_version}) que endereça TODOS os gaps listados.
 Retorne APENAS JSON com: context, problem, contribution, structured_question, addressed_gaps."""
 
-    # Chamar LLM
-    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
+    # Chamar LLM usando modelo do config
+    llm = ChatAnthropic(model=model_name, temperature=0)
     response = llm.invoke([HumanMessage(content=refinement_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")

@@ -102,10 +102,16 @@ Consulte `docs/product/vision.md` (Seção 4) para modelo conceitual de Tópico 
 ### Funcionalidades
 
 #### 6.1 Configuração Externa de Agentes
-- **Status:** ⚠️ Parcial
+- **Status:** ✅ Concluído (13/11/2025)
 - **Descrição:** Definir prompts e parâmetros de memória em arquivos `config/agents/<papel>.yaml`.
-- **Entregue:** Arquivos YAML por agente + loader/validador com testes (`load_agent_config`, `load_all_agent_configs`).
-- **Pendente:** `orchestrator_node`, `structurer_node` e `methodologist` devem consumir o YAML em runtime (substituir prompts/limites hard-coded); fallback e mensagens de erro em PT-BR devem ser tratados no bootstrap do super-grafo.
+- **Entregue:**
+  - Arquivos YAML por agente + loader/validador com testes (`load_agent_config`, `load_all_agent_configs`)
+  - Integração runtime em todos os nós: `orchestrator_node`, `structurer_node`, `decide_collaborative`, `force_decision_collaborative`
+  - Fallback automático para prompts hard-coded quando YAML não está disponível
+  - Mensagens de erro em PT-BR em todos os nós e no bootstrap
+  - Validação de configs no bootstrap do super-grafo (`create_multi_agent_graph`)
+  - Scripts de validação: `scripts/validate_runtime_config_simple.py`, `scripts/validate_syntax.py`
+  - Versões atualizadas: Orquestrador (v2.0), Estruturador (v3.0), Metodologista (v3.0), Super-grafo (v3.0)
 
 #### 6.2 Registro de Memória com Metadados
 - **Status:** ⚠️ Parcial
