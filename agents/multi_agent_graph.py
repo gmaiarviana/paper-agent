@@ -17,7 +17,7 @@ Fluxo do sistema (Épico 4 - Loop de Refinamento):
    - "needs_refinement" + iteration < max → Estruturador (refina para V2/V3)
    - "needs_refinement" + iteration >= max → force_decision → END
 
-Versão: 2.1 (Épico 5.1 - Dashboard com EventBus)
+Versão: 3.1 (Épico 5.1 - Dashboard com EventBus + Épico 6.1 - Config externa)
 Data: 13/11/2025
 """
 
@@ -31,6 +31,7 @@ from agents.orchestrator.nodes import orchestrator_node
 from agents.orchestrator.router import route_from_orchestrator
 from agents.structurer.nodes import structurer_node
 from agents.methodologist.nodes import decide_collaborative, force_decision_collaborative
+from agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
 
 # Import EventBus para emitir eventos (Épico 5.1)
 try:
@@ -310,6 +311,29 @@ def create_multi_agent_graph():
         2  # V1 + V2
     """
     logger.info("=== CRIANDO SUPER-GRAFO MULTI-AGENTE COM LOOP DE REFINAMENTO ===")
+
+    # Validar configurações dos agentes (Épico 6, Funcionalidade 6.1)
+    logger.info("Validando configurações dos agentes...")
+    try:
+        configs = load_all_agent_configs()
+        required_agents = ["orchestrator", "structurer", "methodologist"]
+
+        # Verificar que todos os agentes necessários estão presentes
+        for agent_name in required_agents:
+            if agent_name not in configs:
+                raise ConfigLoadError(
+                    f"⚠️ Configuração faltando para agente obrigatório: '{agent_name}'\n"
+                    f"Esperado em: config/agents/{agent_name}.yaml"
+                )
+
+        logger.info(f"✅ Configurações validadas com sucesso para {len(configs)} agentes")
+        logger.info(f"   Agentes configurados: {', '.join(configs.keys())}")
+
+    except ConfigLoadError as e:
+        logger.error(f"❌ ERRO ao carregar configurações dos agentes: {e}")
+        logger.warning("⚠️ ATENÇÃO: Sistema continuará com fallback para prompts hard-coded")
+        logger.warning("⚠️ Recomendação: Verifique os arquivos YAML em config/agents/")
+        # Não levantar exceção - permitir fallback para prompts hard-coded nos nós
 
     # Criar o StateGraph com MultiAgentState
     graph = StateGraph(MultiAgentState)

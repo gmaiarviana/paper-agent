@@ -12,8 +12,8 @@ MODO COLABORATIVO (MultiAgentState - Épico 4):
 - decide_collaborative: Decisão com 3 status (approved/needs_refinement/rejected)
 - force_decision_collaborative: Decisão forçada após limite de refinamentos
 
-Versão: 2.0 (Épico 4 - Modo Colaborativo)
-Data: 12/11/2025
+Versão: 3.0 (Épico 6, Funcionalidade 6.1 - Config externa)
+Data: 13/11/2025
 """
 
 import logging
@@ -26,6 +26,7 @@ from .tools import ask_user
 from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
 from utils.config import get_anthropic_model
+from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 
 logger = logging.getLogger(__name__)
 
@@ -334,6 +335,18 @@ def decide_collaborative(state: dict) -> dict:
     """
     logger.info("=== NÓ DECIDE_COLLABORATIVE: Decisão colaborativa (Épico 4) ===")
 
+    # Carregar prompt e modelo do YAML (Épico 6, Funcionalidade 6.1)
+    try:
+        system_prompt = get_agent_prompt("methodologist")
+        model_name = get_agent_model("methodologist")
+        logger.info("✅ Configurações carregadas do YAML: config/agents/methodologist.yaml")
+    except ConfigLoadError as e:
+        logger.warning(f"⚠️ Falha ao carregar config do methodologist: {e}")
+        logger.warning("⚠️ Usando prompt e modelo padrão (fallback)")
+        # Fallback: usar prompt da utils.prompts
+        system_prompt = METHODOLOGIST_DECIDE_PROMPT_V2
+        model_name = "claude-sonnet-4-20250514"
+
     # Obter questão estruturada e input original
     original_input = state.get('user_input', '')
     if state.get('structurer_output'):
@@ -351,7 +364,7 @@ def decide_collaborative(state: dict) -> dict:
     # Na primeira iteração, incluir contexto do input original para detectar crenças populares
     if iteration == 0 and state.get('structurer_output'):
         # Primeira avaliação após estruturação: incluir input original
-        full_prompt = f"""{METHODOLOGIST_DECIDE_PROMPT_V2}
+        full_prompt = f"""{system_prompt}
 
 INPUT ORIGINAL DO USUÁRIO:
 "{original_input}"
@@ -365,15 +378,15 @@ Se o input original mostra falta de fundamento científico (ex: "todo mundo sabe
 Avalie considerando TANTO o input original QUANTO a questão estruturada, e retorne APENAS o JSON com status, justification e improvements."""
     else:
         # Refinamento ou input direto: avaliar apenas a questão
-        full_prompt = f"""{METHODOLOGIST_DECIDE_PROMPT_V2}
+        full_prompt = f"""{system_prompt}
 
 QUESTÃO DE PESQUISA A AVALIAR:
 {question}
 
 Avalie esta questão e retorne APENAS o JSON com status, justification e improvements."""
 
-    # Chamar LLM (usando Haiku para custo-benefício)
-    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
+    # Chamar LLM usando modelo do config
+    llm = ChatAnthropic(model=model_name, temperature=0)
     response = llm.invoke([HumanMessage(content=full_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
@@ -467,6 +480,18 @@ def force_decision_collaborative(state: dict) -> dict:
     logger.info("=== NÓ FORCE_DECISION_COLLABORATIVE: Decisão forçada (limite atingido) ===")
     logger.info(f"Iteração: {state.get('refinement_iteration')}/{state.get('max_refinements')}")
 
+    # Carregar prompt e modelo do YAML (Épico 6, Funcionalidade 6.1)
+    try:
+        system_prompt = get_agent_prompt("methodologist")
+        model_name = get_agent_model("methodologist")
+        logger.info("✅ Configurações carregadas do YAML: config/agents/methodologist.yaml")
+    except ConfigLoadError as e:
+        logger.warning(f"⚠️ Falha ao carregar config do methodologist: {e}")
+        logger.warning("⚠️ Usando prompt e modelo padrão (fallback)")
+        # Fallback: usar prompt da utils.prompts
+        system_prompt = METHODOLOGIST_DECIDE_PROMPT_V2
+        model_name = "claude-sonnet-4-20250514"
+
     # Obter questão mais recente
     if state.get('hypothesis_versions'):
         last_version = state['hypothesis_versions'][-1]
@@ -482,7 +507,7 @@ def force_decision_collaborative(state: dict) -> dict:
     logger.info(f"Questão: {question}")
 
     # Construir prompt de decisão forçada
-    force_prompt = f"""{METHODOLOGIST_DECIDE_PROMPT_V2}
+    force_prompt = f"""{system_prompt}
 
 IMPORTANTE: Esta é a ÚLTIMA iteração. Você DEVE decidir entre "approved" ou "rejected".
 NÃO use "needs_refinement" - o limite de refinamentos foi atingido.
@@ -500,8 +525,8 @@ Retorne APENAS JSON com:
   "improvements": []  // Vazio, pois não há mais refinamentos
 }}"""
 
-    # Chamar LLM (usando Haiku para custo-benefício)
-    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
+    # Chamar LLM usando modelo do config
+    llm = ChatAnthropic(model=model_name, temperature=0)
     response = llm.invoke([HumanMessage(content=force_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")

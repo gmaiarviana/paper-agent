@@ -16,9 +16,14 @@ Data: 12/11/2025
 import sys
 from pathlib import Path
 
-# Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT_STR = str(PROJECT_ROOT)
+if PROJECT_ROOT_STR not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT_STR)
+
+from scripts.common import setup_project_path
+
+project_root = setup_project_path()
 
 from agents.memory.config_loader import (
     load_agent_config,

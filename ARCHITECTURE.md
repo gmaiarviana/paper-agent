@@ -59,9 +59,41 @@ Topic:
 - **Runtime:** Python 3.11+
 - **Orquestração:** LangGraph, LangChain Anthropic
 - **LLM:** Claude 3.5 Haiku (custo-benefício) / Sonnet (tarefas complexas)
-- **Validação:** Pydantic
+- **Validação:** Pydantic, PyYAML para configs
 - **Interfaces:** CLI (futura), Streamlit opcional (futura)
 - **Utilitários:** `colorama` para logging colorido, `python-dotenv` para variáveis
+
+## Configuração Externa de Agentes (Épico 6.1)
+
+Sistema de configuração dinâmica que permite definir prompts, modelos LLM e limites de contexto via arquivos YAML externos.
+
+**Arquitetura:**
+- **Arquivos YAML**: `config/agents/{agent_name}.yaml` - um por agente (orchestrator, structurer, methodologist)
+- **Loader**: `agents/memory/config_loader.py` - carrega e valida configs em runtime
+- **Validator**: `agents/memory/config_validator.py` - valida schema dos YAMLs
+- **Bootstrap**: Validação automática no `create_multi_agent_graph()`
+
+**Funcionalidades:**
+- Prompts carregados do YAML substituem prompts hard-coded em `utils/prompts.py`
+- Modelos LLM configuráveis por agente (Haiku para performance, Sonnet para precisão)
+- Limites de contexto (`max_input_tokens`, `max_output_tokens`, `max_total_tokens`) por agente
+- **Fallback automático**: Se YAML falhar, nós usam prompts hard-coded para não quebrar sistema
+- **Mensagens em PT-BR**: Todos os erros reportados em português
+
+**Integração runtime (Épico 6.1 - 13/11/2025):**
+- `orchestrator_node`: Carrega `config/agents/orchestrator.yaml` ao executar
+- `structurer_node`: Carrega `config/agents/structurer.yaml` ao executar (ambos modos: inicial e refinamento)
+- `decide_collaborative`: Carrega `config/agents/methodologist.yaml` ao executar
+- `force_decision_collaborative`: Carrega `config/agents/methodologist.yaml` ao executar
+- `create_multi_agent_graph`: Valida que todos YAMLs obrigatórios existem no bootstrap
+
+**Validação:**
+- Script: `scripts/validate_runtime_config_simple.py` - valida carregamento de configs
+- Script: `scripts/validate_syntax.py` - valida sintaxe Python dos módulos modificados
+- Testes: `tests/unit/test_config_loader.py` - cobertura de config loader
+
+**Versões atualizadas:**
+- Orquestrador v2.0, Estruturador v3.0, Metodologista v3.0, Super-grafo v3.0
 
 ## Estrutura do Projeto
 
@@ -74,23 +106,35 @@ paper-agent/
 ├── ARCHITECTURE.md        # Visão arquitetural (este arquivo)
 ├── development_guidelines.md  # Regras para desenvolvimento com agentes
 │
+├── config/                # Configurações externas (Épico 6)
+│   └── agents/            # Configs YAML por agente
+│       ├── orchestrator.yaml    # Prompt, modelo, limites do Orquestrador
+│       ├── structurer.yaml      # Prompt, modelo, limites do Estruturador
+│       └── methodologist.yaml   # Prompt, modelo, limites do Metodologista
+│
 ├── agents/                # Agentes especializados
 │   ├── __init__.py
 │   ├── methodologist/     # Agente Metodologista (Épico 2)
 │   │   ├── __init__.py
 │   │   ├── state.py       # MethodologistState
-│   │   ├── nodes.py       # analyze, ask_clarification, decide
+│   │   ├── nodes.py       # analyze, ask_clarification, decide (v3.0 com config YAML)
 │   │   ├── router.py      # route_after_analyze
 │   │   ├── graph.py       # Construção do grafo
 │   │   └── tools.py       # ask_user tool
 │   ├── orchestrator/      # Agente Orquestrador (Épico 3.1)
 │   │   ├── __init__.py
 │   │   ├── state.py       # MultiAgentState
-│   │   ├── nodes.py       # orchestrator_node
+│   │   ├── nodes.py       # orchestrator_node (v2.0 com config YAML)
 │   │   └── router.py      # route_from_orchestrator
 │   ├── structurer/        # Agente Estruturador (Épico 3.2)
 │   │   ├── __init__.py
-│   │   └── nodes.py       # structurer_node
+│   │   └── nodes.py       # structurer_node (v3.0 com config YAML)
+│   ├── memory/            # Sistema de memória e configuração (Épico 6)
+│   │   ├── __init__.py
+│   │   ├── config_loader.py      # Carregamento de configs YAML
+│   │   ├── config_validator.py   # Validação de schema YAML
+│   │   └── memory_manager.py     # Gestão de memória por agente
+│   ├── multi_agent_graph.py      # Super-grafo (v3.0 com validação de configs)
 │   └── methodologist_knowledge.md  # Base de conhecimento micro
 │
 ├── utils/                 # Utilitários e helpers
@@ -119,7 +163,8 @@ paper-agent/
 │   │   ├── test_orchestrator.py         # Testes do Orquestrador (Épico 3.1)
 │   │   ├── test_structurer.py           # Testes do Estruturador (Épico 3.2)
 │   │   ├── test_event_models.py         # Testes dos models de eventos (Épico 5.1)
-│   │   └── test_event_bus.py            # Testes do EventBus (Épico 5.1)
+│   │   ├── test_event_bus.py            # Testes do EventBus (Épico 5.1)
+│   │   └── test_config_loader.py        # Testes do config loader (Épico 6.1)
 │   ├── integration/       # Testes de integração (API real)
 │   │   └── __init__.py
 │   └── conftest.py        # Fixtures compartilhadas (futuro)
@@ -133,7 +178,11 @@ paper-agent/
 │   ├── validate_orchestrator.py  # Validação do Orquestrador (Épico 3.1)
 │   ├── validate_structurer.py    # Validação do Estruturador (Épico 3.2)
 │   ├── validate_cli.py    # Validação do CLI (fluxo completo)
-│   └── validate_dashboard.py     # Validação do Dashboard (Épico 5.1)
+│   ├── validate_dashboard.py     # Validação do Dashboard (Épico 5.1)
+│   ├── validate_agent_config.py  # Validação de configs YAML (Épico 6.1)
+│   ├── validate_runtime_config.py  # Validação de integração runtime (requer venv)
+│   ├── validate_runtime_config_simple.py  # Validação de configs sem deps
+│   └── validate_syntax.py  # Validação de sintaxe Python
 │
 └── docs/                  # Documentação detalhada por domínio
     ├── testing_guidelines.md  # Estratégia de testes

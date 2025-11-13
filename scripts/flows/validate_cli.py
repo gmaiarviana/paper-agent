@@ -18,12 +18,18 @@ import sys
 import uuid
 from pathlib import Path
 
-# Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT_STR = str(PROJECT_ROOT)
+if PROJECT_ROOT_STR not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT_STR)
+
+from scripts.common import setup_project_path
+
+setup_project_path()
 
 from agents.methodologist import create_methodologist_graph, create_initial_state
 from dotenv import load_dotenv
+from langgraph.types import Command
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -97,7 +103,7 @@ def validate_cli_flow():
                     print(f"   💬 Resposta simulada: {simulated_answer}")
 
                     # Continuar execução
-                    graph.invoke(None, config=config, input=simulated_answer)
+                    graph.invoke(Command(resume=simulated_answer), config=config)
                     response_count += 1
 
                     # Atualizar snapshot

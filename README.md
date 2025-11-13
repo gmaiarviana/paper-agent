@@ -186,7 +186,14 @@ python scripts/validate_dashboard.py
 Validar arquivos YAML de configuração de agentes e funcionalidade de memória:
 
 ```bash
+# Validação completa de configs (inclui MemoryManager)
 python scripts/validate_agent_config.py
+
+# Validação de configs YAML e carregamento (mais rápida, sem deps)
+python scripts/validate_runtime_config_simple.py
+
+# Validação de sintaxe Python dos módulos modificados
+python scripts/validate_syntax.py
 ```
 
 **O que é validado:**
@@ -195,11 +202,13 @@ python scripts/validate_agent_config.py
 - Schema de configurações (campos obrigatórios, tipos)
 - Config Loader (carregamento e validação)
 - Memory Manager (histórico, metadados, reset)
-- Integração entre componentes
+- Integração runtime nos nós (carregamento de prompts/modelos)
+- Fallback automático quando YAML não está disponível
+- Mensagens de erro em PT-BR
 
 **Resultado esperado:**
 - ✅ Todas as validações passando
-- 🎉 Confirmação de implementação do Épico 6
+- 🎉 Confirmação de implementação do Épico 6.1 (Configuração Externa)
 
 ---
 

@@ -10,14 +10,18 @@ Valida que o grafo do Metodologista foi construído corretamente com:
 - Grafo invocável e executável
 """
 
+import logging
 import sys
 from pathlib import Path
 
-# Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT_STR = str(PROJECT_ROOT)
+if PROJECT_ROOT_STR not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT_STR)
 
-import logging
+from scripts.common import setup_project_path
+
+setup_project_path()
 from agents.methodologist import (
     create_methodologist_graph,
     create_initial_state,

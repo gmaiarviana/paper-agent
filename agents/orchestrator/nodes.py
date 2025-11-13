@@ -4,8 +4,8 @@ Nós do grafo do agente Orquestrador.
 Este módulo implementa o nó principal do Orquestrador:
 - orchestrator_node: Classifica maturidade do input e decide roteamento
 
-Versão: 1.0 (Épico 3, Funcionalidade 3.1)
-Data: 11/11/2025
+Versão: 2.0 (Épico 6, Funcionalidade 6.1 - Config externa)
+Data: 13/11/2025
 """
 
 import logging
@@ -16,6 +16,7 @@ from langchain_anthropic import ChatAnthropic
 from .state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
 from utils.config import get_anthropic_model
+from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 
 logger = logging.getLogger(__name__)
 
@@ -64,46 +65,53 @@ def orchestrator_node(state: MultiAgentState) -> dict:
     logger.info("=== NÓ ORCHESTRATOR: Iniciando classificação de maturidade ===")
     logger.info(f"Input do usuário: {state['user_input']}")
 
-    # Criar prompt de classificação
-    classification_prompt = f"""Você é um Orquestrador que classifica inputs de usuários em sistemas de pesquisa científica.
+    # Carregar prompt e modelo do YAML (Épico 6, Funcionalidade 6.1)
+    try:
+        system_prompt = get_agent_prompt("orchestrator")
+        model_name = get_agent_model("orchestrator")
+        logger.info("✅ Configurações carregadas do YAML: config/agents/orchestrator.yaml")
+    except ConfigLoadError as e:
+        logger.warning(f"⚠️ Falha ao carregar config do orchestrator: {e}")
+        logger.warning("⚠️ Usando prompt e modelo padrão (fallback)")
+        # Fallback: prompt hard-coded
+        system_prompt = """Você é o Orquestrador do sistema multi-agente Paper Agent.
+
+SEU PAPEL:
+Classificar a maturidade do input do usuário e rotear para o agente apropriado.
+
+CLASSIFICAÇÕES POSSÍVEIS:
+1. "vague": Ideia não estruturada, observação casual → encaminhar para Estruturador
+2. "semi_formed": Hipótese parcial com alguma estrutura → encaminhar para Metodologista
+3. "complete": Hipótese bem formulada e testável → encaminhar para Metodologista
+
+CRITÉRIOS DE CLASSIFICAÇÃO:
+- "vague": Apenas observação, sem questão clara, termos vagos
+- "semi_formed": Questão de pesquisa presente mas falta especificidade (população, métricas)
+- "complete": Questão clara, população definida, métricas especificadas, testável
+
+OUTPUT OBRIGATÓRIO (SEMPRE JSON):
+{
+  "classification": "vague" | "semi_formed" | "complete",
+  "reasoning": "Justificativa específica da classificação"
+}
+
+INSTRUÇÕES:
+- Analise apenas MATURIDADE do input, não rigor científico
+- Seja objetivo: classifique baseado em estrutura presente
+- Não faça análise científica profunda (isso é do Metodologista)
+- SEMPRE retorne JSON válido"""
+        model_name = "claude-3-5-haiku-20241022"
+
+    # Construir prompt completo com input do usuário
+    classification_prompt = f"""{system_prompt}
 
 INPUT DO USUÁRIO:
 {state['user_input']}
 
-TAREFA:
-Classifique a maturidade deste input segundo os critérios abaixo.
-
-CRITÉRIOS DE CLASSIFICAÇÃO:
-
-1. **"vague"** - Ideia não estruturada:
-   - Observação empírica sem contexto claro
-   - Falta estruturação em forma de questão de pesquisa
-   - Não menciona população, variáveis ou métricas
-   - Exemplo: "Observei que desenvolver com IA é mais rápido"
-
-2. **"semi_formed"** - Hipótese parcial:
-   - Tem ideia central ou afirmação causal
-   - Falta especificidade em população, variáveis ou métricas
-   - É uma afirmação, mas não totalmente operacionalizada
-   - Exemplo: "Método incremental melhora desenvolvimento de sistemas multi-agente"
-
-3. **"complete"** - Hipótese completa:
-   - População/amostra claramente definida
-   - Variáveis (dependente/independente) especificadas
-   - Métricas e condições mencionadas
-   - Testável e falseável
-   - Exemplo: "Método incremental reduz tempo em 30% em equipes de 2-5 devs"
-
-RESPONDA EM JSON:
-{{
-    "classification": "vague" | "semi_formed" | "complete",
-    "reasoning": "breve justificativa (1-2 frases) de por que você escolheu essa classificação"
-}}
-
-IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
+Avalie este input e retorne APENAS JSON com classification e reasoning."""
 
     # Chamar LLM para classificação
-    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
+    llm = ChatAnthropic(model=model_name, temperature=0)
     messages = [HumanMessage(content=classification_prompt)]
     response = llm.invoke(messages)
 

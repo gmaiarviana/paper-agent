@@ -22,5 +22,8 @@ def setup_project_path():
     Note: This is a temporary solution for development. For production,
     prefer proper package installation with `pip install -e .`
     """
-    project_root = Path(__file__).parent.parent
-    sys.path.insert(0, str(project_root))
+    project_root = Path(__file__).resolve().parent.parent
+    project_root_str = str(project_root)
+    if project_root_str not in sys.path:
+        sys.path.insert(0, project_root_str)
+    return project_root

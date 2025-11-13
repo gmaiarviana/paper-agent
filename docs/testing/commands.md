@@ -22,33 +22,43 @@ pytest tests/
 pytest tests/unit/ --cov=utils --cov=agents --cov=orchestrator
 ```
 
-### Health check manual
+### Health checks (rápidos, sem fluxo completo)
 ```bash
-python scripts/validate_api.py
+python scripts/health_checks/validate_api.py
 ```
 
 ---
 
 ## Scripts de Validação Manual
 
-### Validar estado do Metodologista
+### State introspection (sem chamadas reais à API)
 ```bash
-python scripts/validate_state.py
+python scripts/state_introspection/validate_state.py
 ```
 
-### Validar tool ask_user
 ```bash
-python scripts/validate_ask_user.py
+python scripts/state_introspection/validate_graph.py
 ```
 
-### Validar nós do grafo
 ```bash
-python scripts/validate_graph_nodes.py
+python scripts/state_introspection/validate_graph_nodes.py
 ```
 
-### Validar construção do grafo
 ```bash
-python scripts/validate_graph.py
+python scripts/state_introspection/validate_ask_user.py
+```
+
+### Flows completos (consomem API)
+```bash
+python scripts/flows/validate_cli.py
+```
+
+```bash
+python scripts/flows/validate_multi_agent_flow.py
+```
+
+```bash
+python scripts/flows/validate_refinement_loop.py
 ```
 
 ---
@@ -105,5 +115,5 @@ pytest -m "not integration"
 
 ---
 
-**Versão:** 2.0
-**Data:** 10/11/2025
+**Versão:** 2.1
+**Data:** 13/11/2025

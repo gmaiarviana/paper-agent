@@ -36,7 +36,7 @@ Orquestrador coordena metodologista e estruturador, avaliando maturidade da idei
 **Objetivo:** Proporcionar experiência visual que torne a execução multi-agente transparente e acompanhável em tempo real, destacando custos, decisões e evolução da sessão.
 Consulte `docs/product/vision.md` (Seção 5) para princípios de interação com usuário.
 
-**Status:** ✅ Refinado (Pronto para implementação)
+**Status:** 🟡 Em andamento (infraestrutura pronta, integrações pendentes)
 
 **Dependências:**
 - Épico 3 concluído (multi-agente base)
@@ -100,28 +100,52 @@ Consulte `docs/product/vision.md` (Seção 4) para modelo conceitual de Tópico 
 - Épico 4 concluído (loop colaborativo)
 - Instrumentação do Épico 5 para exibir metadados (recomendado)
 
-### Funcionalidades:
+### Progresso atual
+
+#### Entregas concluídas
+- Motor de memória dinâmica implementado (`MemoryManager` + `AgentExecution`) com cobertura de testes unitários (`tests/unit/test_memory_manager.py`).
+- Loader e validador de YAML para configurar prompts/limites (`load_agent_config`, `validate_agent_config_schema`) com testes de regressão.
+
+#### Pendências principais
+- Integrar `config/agents/*.yaml` ao runtime dos agentes (prompts e limites ainda hard-coded em `agents/orchestrator/nodes.py`, `agents/methodologist/nodes.py`, etc.).
+- Conectar `MemoryManager` ao `MultiAgentState`/super-grafo para registrar tokens reais e expor dados para a interface do Épico 5.
+- Adicionar comando/flag de reset na CLI preservando logs já emitidos.
+
+### Funcionalidades
 
 #### 6.1 Configuração Externa de Agentes
+- **Status:** ✅ Concluído (13/11/2025)
 - **Descrição:** Definir prompts e parâmetros de memória em arquivos `config/agents/<papel>.yaml`.
-- **Critérios de Aceite:**
-  - Cada agente atual possui arquivo próprio com prompt, tags e limites de contexto.
-  - Sistema valida existência e schema dos arquivos na inicialização, exibindo erros em PT-BR quando inválidos.
-  - Alterar arquivos dispensa mudanças de código e recarrega configurações na próxima execução.
+- **Entregue:**
+  - Arquivos YAML por agente + loader/validador com testes (`load_agent_config`, `load_all_agent_configs`)
+  - Integração runtime em todos os nós: `orchestrator_node`, `structurer_node`, `decide_collaborative`, `force_decision_collaborative`
+  - Fallback automático para prompts hard-coded quando YAML não está disponível
+  - Mensagens de erro em PT-BR em todos os nós e no bootstrap
+  - Validação de configs no bootstrap do super-grafo (`create_multi_agent_graph`)
+  - Scripts de validação: `scripts/validate_runtime_config_simple.py`, `scripts/validate_syntax.py`
+  - Versões atualizadas: Orquestrador (v2.0), Estruturador (v3.0), Metodologista (v3.0), Super-grafo (v3.0)
 
 #### 6.2 Registro de Memória com Metadados
+- **Status:** ⚠️ Parcial
 - **Descrição:** Armazenar histórico leve por agente com tokens e resumo da última ação.
-- **Critérios de Aceite:**
-  - Estado mantém, para cada agente, os campos `tokens_input`, `tokens_output`, `tokens_total` e `summary`.
-  - Orquestrador consegue consultar esse histórico antes de chamar o agente seguinte.
-  - Dados ficam disponíveis para a interface do Épico 5 por meio de objeto compartilhado ou API interna.
+- **Entregue:** Infraestrutura do `MemoryManager` com export, totais e API Python.
+- **Pendente:** Instrumentar nós do LangGraph para registrar tokens/summary reais; expor `MemoryManager` para o dashboard do Épico 5 via objeto compartilhado ou serviço interno; validar integração com `CostTracker`.
 
 #### 6.3 Reset Global de Sessão
+- **Status:** ⛔ Não iniciado
 - **Descrição:** Implementar reset que limpa memórias e estado compartilhado de uma sessão.
-- **Critérios de Aceite:**
-  - CLI oferece comando/flag para iniciar sessão limpa ou resetar sessão ativa.
+- **Critérios de Aceite Ajustados:**
+  - CLI oferece comando/flag (`--reset` ou equivalente) para iniciar sessão limpa ou resetar sessão ativa durante execução.
   - Reset remove históricos dos agentes sem afetar logs já emitidos na interface.
-  - Registrar backlog dedicado para reset individual por agente (fora do escopo deste épico).
+  - Registro em backlog dedicado para reset individual por agente (fora do escopo deste épico).
+
+#### 6.4 Telemetria do Super-Grafo
+- **Status:** ⛔ Não iniciado
+- **Descrição:** Expor métricas de tokens/custos e resumo mais recente para cada agente diretamente a partir do super-grafo.
+- **Critérios de Aceite:**
+  - Cada nó registra tokens de entrada/saída e resumo em `MemoryManager` ao concluir.
+  - `MultiAgentState` fornece acesso a estatísticas consolidadas para consumo pelo Épico 5.
+  - Logs emitidos incluem alertas quando limites configurados são ultrapassados.
 
 **Fora de escopo:** Reset parcial por agente e persistência durável da memória — adicionar ao backlog.
 
