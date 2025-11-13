@@ -11,6 +11,7 @@ Data: 13/11/2025
 
 import json
 import logging
+import tempfile
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
@@ -28,14 +29,20 @@ logger = logging.getLogger(__name__)
 
 
 class EventBus:
-    """
+    r"""
     Barramento de eventos baseado em arquivos temporários.
 
     Publica eventos em arquivos JSON temporários que podem ser lidos pelo
     Dashboard Streamlit em tempo real. Cada sessão tem seu próprio arquivo.
 
     Estrutura do arquivo:
-        /tmp/paper-agent-events-{session_id}.json
+        {temp_dir}/paper-agent-events/events-{session_id}.json
+        Onde {temp_dir} é:
+        - Windows: C:\Users\{user}\AppData\Local\Temp\
+        - Linux: /tmp/
+        - Mac: /var/folders/.../
+
+        Conteúdo:
         {
             "session_id": "cli-session-abc123",
             "events": [
@@ -64,11 +71,17 @@ class EventBus:
 
         Args:
             events_dir (Path, optional): Diretório para armazenar eventos.
-                Default: /tmp/paper-agent-events
+                Default: {temp_dir}/paper-agent-events (multiplataforma)
         """
-        self.events_dir = events_dir or Path("/tmp/paper-agent-events")
+        if events_dir is None:
+            # Usar diretório temp do sistema operacional (funciona em Windows, Linux, Mac)
+            system_temp = Path(tempfile.gettempdir())
+            self.events_dir = system_temp / "paper-agent-events"
+        else:
+            self.events_dir = events_dir
+
         self.events_dir.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"EventBus inicializado: {self.events_dir}")
+        logger.info(f"EventBus inicializado: {self.events_dir}")
 
     def _get_event_file(self, session_id: str) -> Path:
         """

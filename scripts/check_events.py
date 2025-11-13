@@ -15,6 +15,7 @@ sys.path.insert(0, str(project_root))
 
 from utils.event_bus import get_event_bus
 import json
+import tempfile
 
 
 def main():
@@ -23,12 +24,19 @@ def main():
     print("=" * 70)
     print()
 
+    # Mostrar diretório temp do sistema
+    system_temp = Path(tempfile.gettempdir())
+    print(f"🖥️  Sistema Operacional: {sys.platform}")
+    print(f"📂 Diretório temp do sistema: {system_temp}")
+    print()
+
     # Obter EventBus
     bus = get_event_bus()
 
     # Mostrar diretório de eventos
-    print(f"📁 Diretório de eventos: {bus.events_dir}")
+    print(f"📁 Diretório de eventos (EventBus): {bus.events_dir}")
     print(f"   Existe? {bus.events_dir.exists()}")
+    print(f"   Caminho absoluto: {bus.events_dir.absolute()}")
     print()
 
     # Listar arquivos de eventos
