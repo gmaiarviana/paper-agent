@@ -118,7 +118,7 @@ def render_session_selector(sessions: List[str]) -> Optional[str]:
     Returns:
         Optional[str]: Session ID selecionada ou None
     """
-    st.sidebar.header("📋 Sessões Ativas")
+    st.sidebar.header("📋 Sessões Ativas (Últimos 10min)")
 
     if not sessions:
         st.sidebar.info("Nenhuma sessão ativa encontrada.")
@@ -133,11 +133,26 @@ def render_session_selector(sessions: List[str]) -> Optional[str]:
     # Mostrar contagem
     st.sidebar.metric("Total de sessões", len(sessions))
 
+    # Obter user_input de cada sessão para exibição
+    bus = get_event_bus()
+    session_labels = {}
+    for session_id in sessions:
+        summary = bus.get_session_summary(session_id)
+        if summary:
+            user_input = summary.get('user_input', '')
+            # Session ID curto (primeiros 8 chars após "cli-session-")
+            short_id = session_id.replace('cli-session-', '')[:8]
+            # Truncar user_input se muito longo
+            user_preview = user_input[:50] + "..." if len(user_input) > 50 else user_input
+            session_labels[session_id] = f"{short_id}: {user_preview}"
+        else:
+            session_labels[session_id] = session_id[:20]
+
     # Seletor de sessão
     selected_session = st.sidebar.selectbox(
         "Selecione uma sessão:",
         sessions,
-        format_func=lambda s: f"Session: {s[:20]}..." if len(s) > 20 else s
+        format_func=lambda s: session_labels.get(s, s)
     )
 
     return selected_session
@@ -150,6 +165,15 @@ def render_session_summary(summary: Dict[str, Any]):
     Args:
         summary (Dict): Resumo da sessão do EventBus
     """
+    # Cabeçalho com session ID e user input
+    session_id = summary.get('session_id', 'unknown')
+    user_input = summary.get('user_input', 'N/A')
+    short_id = session_id.replace('cli-session-', '')[:8]
+
+    st.subheader(f"🔍 Sessão: {short_id}")
+    st.markdown(f"**Hipótese:** {user_input}")
+    st.divider()
+
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
@@ -329,8 +353,8 @@ def main():
     # Obter EventBus
     event_bus = get_event_bus()
 
-    # Listar sessões ativas
-    sessions = event_bus.list_active_sessions()
+    # Listar sessões ativas (últimos 10 minutos)
+    sessions = event_bus.list_active_sessions(max_age_minutes=10)
 
     # Renderizar seletor de sessões
     selected_session = render_session_selector(sessions)

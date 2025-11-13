@@ -29,7 +29,7 @@ from dotenv import load_dotenv
 
 # Configurar logging
 logging.basicConfig(
-    level=logging.WARNING,  # Apenas warnings e erros por padrão
+    level=logging.INFO,  # INFO para ver mensagens do EventBus
     format='%(levelname)s: %(message)s'
 )
 
@@ -75,7 +75,8 @@ def run_cli():
     # Criar grafo uma vez
     print("🔧 Inicializando sistema multi-agente...")
     graph = create_multi_agent_graph()
-    print("✅ Sistema pronto!\n")
+    print("✅ Sistema pronto!")
+    print(f"📁 Eventos salvos em: {event_bus.events_dir}\n")
 
     while True:
         print_separator()
@@ -94,11 +95,13 @@ def run_cli():
             continue
 
         # Nova sessão a cada hipótese (Épico 6 - contexto limpo automático)
-        session_id = f"cli-session-{uuid.uuid4()}"
+        session_uuid = uuid.uuid4()
+        session_id = f"cli-session-{session_uuid}"
+        session_short = str(session_uuid)[:8]  # Primeiros 8 chars para identificação
         thread_id = f"thread-{session_id}"
         config = {"configurable": {"thread_id": thread_id, "session_id": session_id}}
 
-        print(f"\n🔬 Analisando hipótese...\n")
+        print(f"\n🔬 Analisando hipótese... (Session: {session_short})\n")
 
         # Publicar evento de início de sessão (Épico 5.1)
         try:
@@ -106,8 +109,10 @@ def run_cli():
                 session_id=session_id,
                 user_input=hypothesis
             )
+            logger.info(f"✅ Evento session_started publicado para {session_id}")
         except Exception as e:
-            logger.warning(f"Falha ao publicar session_started: {e}")
+            print(f"⚠️  Aviso: Não foi possível publicar eventos: {e}")
+            logger.exception("Erro ao publicar session_started:")
 
         # Criar estado inicial
         state = create_initial_multi_agent_state(hypothesis)
@@ -150,8 +155,10 @@ def run_cli():
                     final_status=status,
                     tokens_total=tokens_total
                 )
+                logger.info(f"✅ Evento session_completed publicado para {session_id}")
             except Exception as e:
-                logger.warning(f"Falha ao publicar session_completed: {e}")
+                print(f"⚠️  Aviso: Não foi possível publicar evento de conclusão: {e}")
+                logger.exception("Erro ao publicar session_completed:")
 
         except KeyboardInterrupt:
             print("\n\n⚠️  Execução interrompida pelo usuário.")

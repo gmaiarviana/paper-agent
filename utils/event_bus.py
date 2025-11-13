@@ -342,33 +342,65 @@ class EventBus:
         data = self._load_events(session_id)
         return data.get("events", [])
 
-    def list_active_sessions(self) -> List[str]:
+    def list_active_sessions(self, max_age_minutes: Optional[int] = 60) -> List[str]:
         """
-        Lista IDs de sessões ativas (com arquivo de eventos existente).
+        Lista IDs de sessões ativas (com eventos recentes).
+
+        Args:
+            max_age_minutes (int, optional): Idade máxima em minutos para considerar
+                sessão como ativa. None = listar todas. Default: 60 minutos.
 
         Returns:
-            List[str]: Lista de session IDs
+            List[str]: Lista de session IDs ordenados do mais recente para o mais antigo
 
         Example:
             >>> bus = EventBus()
             >>> bus.publish_session_started("session-1", "Test 1")
             >>> bus.publish_session_started("session-2", "Test 2")
-            >>> sessions = bus.list_active_sessions()
-            >>> len(sessions)
-            2
+            >>> sessions = bus.list_active_sessions(max_age_minutes=10)
             >>> "session-1" in sessions
             True
         """
         if not self.events_dir.exists():
             return []
 
-        sessions = []
+        sessions_with_time = []
+        now = datetime.now(timezone.utc)
+
         for file_path in self.events_dir.glob("events-*.json"):
             # Extrair session_id do nome do arquivo: events-{session_id}.json
             session_id = file_path.stem.replace("events-", "")
-            sessions.append(session_id)
 
-        return sessions
+            # Obter timestamp do último evento
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+
+                events = data.get('events', [])
+                if not events:
+                    continue
+
+                # Último evento
+                last_event = events[-1]
+                last_time_str = last_event.get('timestamp', '')
+                last_time = datetime.fromisoformat(last_time_str.replace('Z', '+00:00'))
+
+                # Calcular idade em minutos
+                age_minutes = (now - last_time).total_seconds() / 60
+
+                # Filtrar por idade se especificado
+                if max_age_minutes is None or age_minutes <= max_age_minutes:
+                    sessions_with_time.append((session_id, last_time))
+
+            except Exception as e:
+                logger.warning(f"Erro ao ler sessão {session_id}: {e}")
+                continue
+
+        # Ordenar do mais recente para o mais antigo
+        sessions_with_time.sort(key=lambda x: x[1], reverse=True)
+
+        # Retornar apenas os IDs
+        return [session_id for session_id, _ in sessions_with_time]
 
     def clear_session(self, session_id: str) -> bool:
         """
