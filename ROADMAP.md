@@ -2,13 +2,16 @@
 
 ## 📋 Status dos Épicos
 
+> **📖 Visão de Produto:** Para entender tipos de artigo, fluxos adaptativos e jornada do usuário, consulte `docs/product/vision.md`.
+
 ### ✅ Épicos Refinados (Prontos para Implementação)
 - ÉPICO 5: Interface Conversacional e Transparência
 - ÉPICO 6: Memória Dinâmica e Contexto por Agente
 
 ### ⚠️ Épicos Não-Refinados (Requerem Discussão Antes da Implementação)
-- ÉPICO 7: Debate Multi-Agente Mediado
+- ÉPICO 7: Modelo de Dados e Persistência Durável
 - ÉPICO 8: Pipeline Completo Ideia → Artigo
+- ÉPICO 9: Debate Multi-Agente Mediado
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -31,6 +34,7 @@ Orquestrador coordena metodologista e estruturador, avaliando maturidade da idei
 ## ÉPICO 5: Interface Conversacional e Transparência
 
 **Objetivo:** Proporcionar experiência visual que torne a execução multi-agente transparente e acompanhável em tempo real, destacando custos, decisões e evolução da sessão.
+Consulte `docs/product/vision.md` (Seção 5) para princípios de interação com usuário.
 
 **Status:** ✅ Refinado (Pronto para implementação)
 
@@ -75,6 +79,7 @@ Orquestrador coordena metodologista e estruturador, avaliando maturidade da idei
 ## ÉPICO 6: Memória Dinâmica e Contexto por Agente
 
 **Objetivo:** Controlar o contexto de cada agente de forma configurável, registrando metadados de execução e permitindo resets confiáveis por sessão.
+Consulte `docs/product/vision.md` (Seção 4) para modelo conceitual de Tópico e artefatos.
 
 **Status:** ✅ Refinado (Pronto para implementação)
 
@@ -110,7 +115,87 @@ Orquestrador coordena metodologista e estruturador, avaliando maturidade da idei
 
 ---
 
-## ÉPICO 7: Debate Multi-Agente Mediado
+## ÉPICO 7: Modelo de Dados e Persistência Durável
+
+**Objetivo:** Implementar modelo de dados "Tópico/Ideia" que persiste entre sessões, suportando múltiplos tipos de artigo e evolução fluida (ideação → artigo).
+
+**Status:** ⚠️ Não refinado (Requer discussão madura)
+
+**Dependências identificadas:**
+- Épico 5 (Interface) para exibir lista de tópicos
+- Épico 6 (Memória) para contexto e RAG por tópico
+- `docs/product/vision.md` para tipos de artigo e fluxos adaptativos
+
+### Pontos a definir na próxima sessão:
+
+#### 7.1 Entidade "Tópico"
+- Definir modelo de dados completo (ver Seção 4 de `docs/product/vision.md`)
+- Campos: id, title, article_type, stage, created_at, updated_at, artifacts, thread_id
+- Tipos de artigo suportados: empirical, review, theoretical, case_study, meta_analysis, methodological
+- Estágios de maturidade: ideation, hypothesis, methodology, research, writing, review, done
+
+#### 7.2 Persistência Durável
+- Estratégia de persistência: SqliteSaver (LangGraph) vs PostgreSQL
+- Estrutura de diretórios: `/data/topics/{topic_id}/`
+- Checkpointer vinculado a thread_id do LangGraph
+- Migração de MemorySaver atual para persistência durável
+
+#### 7.3 Gestão de Sessões
+- Comandos CLI: `list` (listar tópicos), `resume ` (retomar), `new` (criar)
+- Retomar sessão semana depois (carregar contexto completo)
+- Trabalhar em múltiplos tópicos (mas um por vez)
+- Índice de tópicos em progresso (ordenado por updated_at)
+
+#### 7.4 Artefatos Versionados
+- Tipos de artefato: outline, papers (pesquisas), drafts (rascunhos), decisions (metodológicas)
+- Versionamento explícito (V1, V2, V3) vs apenas última versão
+- Estrutura de Artifact: type, content, created_at, version
+- Exportação futura (PDF, Word, LaTeX) - adicionar ao backlog
+
+#### 7.5 Detecção de Tipo de Artigo
+- Orquestrador infere tipo na conversa inicial (ver Seção 2 de `docs/product/vision.md`)
+- Perguntas dinâmicas para confirmar tipo quando ambíguo
+- Permitir mudança de tipo ao longo da conversa (começa observacional, vira empírico)
+- Adaptar fluxo de agentes conforme tipo detectado
+
+#### 7.6 Estágios de Maturidade
+- Sistema detecta stage automaticamente (não pergunta diretamente)
+- Transições fluidas e não-lineares (pode voltar de "methodology" para "hypothesis")
+- Orquestrador decide stage com base em artefatos presentes
+- Logs registram mudanças de stage para rastreabilidade
+
+### Observações de paralelização:
+- Implementação pode começar após Épicos 5 e 6 estarem estáveis
+- Funcionalidades 7.1 e 7.2 são base (fazer primeiro)
+- Funcionalidades 7.3-7.6 podem ser incrementais
+- Interface (Épico 5) precisará integrar lista de tópicos depois
+
+---
+
+## ÉPICO 8: Pipeline Completo Ideia → Artigo
+
+**Dependências:**
+- Épico 7 (Modelo de Dados) para tipos de artigo e fluxos adaptativos
+- Épico 5 para visualizar a evolução dos checkpoints
+- Épico 6 para manter contexto e resumos entre etapas
+- Ver `docs/product/vision.md` (Seções 2 e 3) para fluxos por tipo
+
+**Objetivo:** Estruturar a evolução de uma sessão desde a ideia inicial até a preparação do artigo, articulando checkpoints obrigatórios e artefatos intermediários.
+
+**Status:** ⚠️ Não refinado (Requer definição arquitetural)
+
+### Pontos em aberto:
+- Representação dos checkpoints mínimos (ideia, hipótese, metodologia, testes, outline) e respectivas transições.
+- Onde armazenar os artefatos intermediários (log compartilhado ou store dedicado).
+- Momento de entrada do Escritor e artefatos esperados em cada etapa (ex.: outline consolidado).
+- Estratégia para retomar sessões sem persistência durável, garantindo consistência das etapas concluídas.
+
+### Observação de paralelização:
+- Assim que a arquitetura da entidade for definida, o design do pipeline pode avançar em paralelo ao refinamento do debate (Épico 9), reutilizando componentes da interface e memória.
+
+---
+
+## ÉPICO 9: Debate Multi-Agente Mediado
 
 **Objetivo:** Permitir que o orquestrador conduza debates estruturados entre Estruturador e Metodologista, consolidando uma decisão final com voto de minerva e transparência sobre o processo.
 
@@ -131,37 +216,34 @@ Orquestrador coordena metodologista e estruturador, avaliando maturidade da idei
 
 ---
 
-## ÉPICO 8: Pipeline Completo Ideia → Artigo
-
-**Objetivo:** Estruturar a evolução de uma sessão desde a ideia inicial até a preparação do artigo, articulando checkpoints obrigatórios e artefatos intermediários.
-
-**Status:** ⚠️ Não refinado (Requer definição arquitetural)
-
-**Dependências identificadas:**
-- Épico 5 para visualizar a evolução dos checkpoints.
-- Épico 6 para manter contexto e resumos entre etapas.
-- Definição do modelo de dados “sessão → ideia → hipótese → artigo”.
-
-### Pontos em aberto:
-- Representação dos checkpoints mínimos (ideia, hipótese, metodologia, testes, outline) e respectivas transições.
-- Onde armazenar os artefatos intermediários (log compartilhado ou store dedicado).
-- Momento de entrada do Escritor e artefatos esperados em cada etapa (ex.: outline consolidado).
-- Estratégia para retomar sessões sem persistência durável, garantindo consistência das etapas concluídas.
-
-### Observação de paralelização:
-- Assim que a arquitetura da entidade for definida, o design do pipeline pode avançar em paralelo ao refinamento do debate (Épico 7), reutilizando componentes da interface e memória.
-
----
-
 ## 📋 BACKLOG
+
+### 🗂️ PERSISTÊNCIA E DADOS (Épico 7 detalhado)
+
+**Migração para Banco de Dados:**
+- Avaliar migração de SqliteSaver para PostgreSQL (quando escalar)
+- Considerar replicação/backup de tópicos
+- Performance: índices, queries otimizadas
+
+**Exportação de Artefatos:**
+- Gerar PDF/Word/LaTeX do artigo final
+- Exportar outline, pesquisas, decisões separadamente
+- Templates formatados por tipo de artigo
+
+**Gestão Avançada de Tópicos:**
+- Arquivar tópicos concluídos
+- Busca por tópicos (título, tipo, stage)
+- Tags/labels customizáveis
+- Estatísticas (tópicos por tipo, tempo médio por stage)
+
+**Versionamento Completo:**
+- Git-like para artefatos (diff, merge, rollback)
+- Histórico de decisões do Orquestrador
+- Timeline visual de evolução
 
 ### 🔜 PRÓXIMOS PASSOS
 
 Funcionalidades que agregarão valor, mas dependem do sistema multi-agente core (Épicos 3-5) estar validado e sólido.
-
-**Persistência de Sessões para Replay/Export:**
-- Armazenar feed completo das execuções (eventos + métricas) em disco/DB para replay e export futuros
-- Permitir recarregar execução encerrada na interface Streamlit
 
 **Reset Parcial por Agente:**
 - Permitir limpar memória de um agente específico sem encerrar a sessão inteira
