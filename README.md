@@ -181,7 +181,7 @@ python scripts/validate_dashboard.py
 
 ---
 
-### Validação de Configurações (Épico 6)
+### Validação de Configurações e Memória (Épico 6)
 
 Validar arquivos YAML de configuração de agentes e funcionalidade de memória:
 
@@ -194,6 +194,9 @@ python scripts/validate_runtime_config_simple.py
 
 # Validação de sintaxe Python dos módulos modificados
 python scripts/validate_syntax.py
+
+# Validação end-to-end da integração de MemoryManager (Épico 6.2)
+python scripts/validate_memory_integration.py
 ```
 
 **O que é validado:**
@@ -203,12 +206,16 @@ python scripts/validate_syntax.py
 - Config Loader (carregamento e validação)
 - Memory Manager (histórico, metadados, reset)
 - Integração runtime nos nós (carregamento de prompts/modelos)
+- **Registro de tokens e custos** (Épico 6.2)
+- **Integração com CostTracker** (Épico 6.2)
+- **Fluxo completo multi-agente** (orchestrator → structurer → methodologist)
 - Fallback automático quando YAML não está disponível
 - Mensagens de erro em PT-BR
 
 **Resultado esperado:**
 - ✅ Todas as validações passando
 - 🎉 Confirmação de implementação do Épico 6.1 (Configuração Externa)
+- 🎉 Confirmação de implementação do Épico 6.2 (Registro de Memória)
 
 ---
 

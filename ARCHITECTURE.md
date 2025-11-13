@@ -95,6 +95,58 @@ Sistema de configuração dinâmica que permite definir prompts, modelos LLM e l
 **Versões atualizadas:**
 - Orquestrador v2.0, Estruturador v3.0, Metodologista v3.0, Super-grafo v3.0
 
+## Registro de Memória e Metadados (Épico 6.2)
+
+Sistema de captura e agregação de tokens, custos e metadados de execução por agente.
+
+**Arquitetura:**
+- **ExecutionTracker**: `agents/memory/execution_tracker.py` - helper para capturar tokens de AIMessage e registrar no MemoryManager
+- **MemoryManager**: `agents/memory/memory_manager.py` - armazena histórico de execuções por sessão e agente
+- **CostTracker**: `utils/cost_tracker.py` - calcula custos baseado em tokens e modelo LLM
+- **Integração**: Nós do LangGraph recebem config com `memory_manager` e registram após cada invocação LLM
+
+**Funcionalidades (13/11/2025):**
+- Captura automática de tokens de respostas LLM (LangChain AIMessage)
+- Cálculo de custos integrado (suporta Haiku, Sonnet, Opus)
+- Registro de metadados personalizados por agente (classificação, modo, versão, etc)
+- Agregação de totais por agente e por sessão
+- Export JSON serializável para integração com dashboard (Épico 5)
+- Passagem opcional via config - não quebra nós existentes
+
+**Nós instrumentados:**
+- `orchestrator_node` (v2.1): Registra classificação de maturidade + tokens
+- `structurer_node` (v3.1): Registra estruturação inicial (V1) e refinamentos (V2/V3) + tokens
+- `decide_collaborative` (v3.1): Registra decisões colaborativas (approved/needs_refinement/rejected) + tokens
+- `force_decision_collaborative` (v3.1): Registra decisões forçadas após limite + tokens
+
+**Validação:**
+- Script: `scripts/validate_memory_integration.py` - validação end-to-end do fluxo completo
+- Script: `scripts/validate_execution_tracker.py` - validação unitária do helper
+- CLI: `cli/chat.py` atualizado para exibir métricas de tokens e custos
+
+**Exemplo de uso:**
+```python
+from agents.multi_agent_graph import create_multi_agent_graph
+from agents.memory.memory_manager import MemoryManager
+
+memory_manager = MemoryManager()
+graph = create_multi_agent_graph()
+
+config = {
+    "configurable": {
+        "thread_id": "session-123",
+        "memory_manager": memory_manager  # Opcional (Épico 6.2)
+    }
+}
+
+result = graph.invoke(state, config=config)
+
+# Obter métricas
+totals = memory_manager.get_session_totals("session-123")
+print(f"Total: {totals['total']} tokens")
+print(f"Orchestrador: {totals['orchestrator']} tokens")
+```
+
 ## Estrutura do Projeto
 
 ```
@@ -182,7 +234,8 @@ paper-agent/
 │   ├── validate_agent_config.py  # Validação de configs YAML (Épico 6.1)
 │   ├── validate_runtime_config.py  # Validação de integração runtime (requer venv)
 │   ├── validate_runtime_config_simple.py  # Validação de configs sem deps
-│   └── validate_syntax.py  # Validação de sintaxe Python
+│   ├── validate_syntax.py  # Validação de sintaxe Python
+│   └── validate_memory_integration.py  # Validação da integração do MemoryManager (Épico 6.2)
 │
 └── docs/                  # Documentação detalhada por domínio
     ├── testing_guidelines.md  # Estratégia de testes

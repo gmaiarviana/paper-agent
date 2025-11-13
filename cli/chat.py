@@ -99,7 +99,13 @@ def run_cli():
         session_id = f"cli-session-{session_uuid}"
         session_short = str(session_uuid)[:8]  # Primeiros 8 chars para identificação
         thread_id = f"thread-{session_id}"
-        config = {"configurable": {"thread_id": thread_id, "session_id": session_id}}
+        config = {
+            "configurable": {
+                "thread_id": thread_id,
+                "session_id": session_id,  # Épico 5.1 - EventBus
+                "memory_manager": memory_manager  # Épico 6.2 - MemoryManager
+            }
+        }
 
         print(f"\n🔬 Analisando hipótese... (Session: {session_short})\n")
 
@@ -119,46 +125,124 @@ def run_cli():
 
         # Executar sistema multi-agente
         try:
-            # Executar grafo completo (Orquestrador → Estruturador → Metodologista)
-            final_state = graph.invoke(state, config=config)
+            # Primeira invocação do grafo
+            graph.invoke(state, config=config)
 
-            # Exibir resultado final
-            print_separator()
-            print("📊 RESULTADO DA ANÁLISE")
-            print_separator()
+            # Loop para processar interrupts até o grafo terminar
+            while True:
+                # Verificar estado atual do grafo
+                snapshot = graph.get_state(config)
 
-            # Extrair resultado do estado multi-agente
-            methodologist_output = final_state.get('methodologist_output', {})
-            status = methodologist_output.get('status', 'pending')
-            justification = methodologist_output.get('justification', 'Sem justificativa.')
+                # Se não há mais nós pendentes (next vazio), o grafo terminou
+                if not snapshot.next:
+                    # Grafo finalizou - exibir resultado
+                    final_state = snapshot.values
 
-            # Formatar status
-            if status == 'approved':
-                print("✅ Status: APROVADA")
-            elif status == 'rejected':
-                print("❌ Status: REJEITADA")
-            else:
-                print(f"⏳ Status: {status.upper()}")
+                    print_separator()
+                    print("📊 RESULTADO DA ANÁLISE")
+                    print_separator()
 
-            print(f"\n📝 Justificativa:\n{justification}\n")
+                    status = final_state.get('status', 'pending')
+                    justification = final_state.get('justification', 'Sem justificativa.')
 
-            # Mostrar estatísticas da análise (Épico 6)
-            totals = memory_manager.get_session_totals(session_id)
-            tokens_total = totals.get('total', 0)
-            if tokens_total > 0:
-                print(f"📊 Tokens utilizados: {tokens_total}\n")
+                    # Formatar status
+                    if status == 'approved':
+                        print("✅ Status: APROVADA")
+                    elif status == 'rejected':
+                        print("❌ Status: REJEITADA")
+                    else:
+                        print(f"⏳ Status: {status.upper()}")
 
-            # Publicar evento de conclusão de sessão (Épico 5.1)
-            try:
-                event_bus.publish_session_completed(
-                    session_id=session_id,
-                    final_status=status,
-                    tokens_total=tokens_total
-                )
-                logger.info(f"✅ Evento session_completed publicado para {session_id}")
-            except Exception as e:
-                print(f"⚠️  Aviso: Não foi possível publicar evento de conclusão: {e}")
-                logger.exception("Erro ao publicar session_completed:")
+                    print(f"\n📝 Justificativa:\n{justification}\n")
+
+                    # Mostrar estatísticas detalhadas da análise (Épico 6.2)
+                    print_separator()
+                    print("📊 MÉTRICAS DE EXECUÇÃO")
+                    print_separator()
+
+                    totals = memory_manager.get_session_totals(session_id)
+                    tokens_total = totals.get('total', 0)
+                    if tokens_total > 0:
+                        # Exibir por agente
+                        for agent_name, agent_total in totals.items():
+                            if agent_name == 'total':
+                                continue
+                            print(f"  {agent_name:>15}: {agent_total:>6} tokens")
+
+                        print(f"  {'TOTAL':>15}: {tokens_total:>6} tokens")
+
+                        # Calcular custo total estimado
+                        # Buscar execuções de todos os agentes para calcular custo total
+                        total_cost = 0.0
+                        for agent_name in ["orchestrator", "structurer", "methodologist", "force_decision"]:
+                            history = memory_manager.get_session_history(session_id, agent_name)
+                            for execution in history:
+                                if execution.metadata and "cost_usd" in execution.metadata:
+                                    total_cost += execution.metadata["cost_usd"]
+
+                        if total_cost > 0:
+                            print(f"  {'Custo estimado':>15}: ${total_cost:.6f}")
+                    else:
+                        print("  Nenhuma métrica registrada nesta execução.")
+
+                    # Publicar evento de conclusão de sessão (Épico 5.1)
+                    try:
+                        event_bus.publish_session_completed(
+                            session_id=session_id,
+                            final_status=status,
+                            tokens_total=tokens_total
+                        )
+                        logger.info(f"✅ Evento session_completed publicado para {session_id}")
+                    except Exception as e:
+                        print(f"⚠️  Aviso: Não foi possível publicar evento de conclusão: {e}")
+                        logger.exception("Erro ao publicar session_completed:")
+
+                    print()
+                    break
+
+                # Se há tasks com interrupts, processar
+                interrupt_found = False
+                if snapshot.tasks:
+                    for task in snapshot.tasks:
+                        if task.interrupts:
+                            for interrupt_data in task.interrupts:
+                                question = interrupt_data.value
+                                interrupt_found = True
+
+                                # Exibir pergunta do agente
+                                print(f"❓ Agente pergunta: {question}")
+
+                                # Solicitar resposta do usuário
+                                user_answer = input("💬 Sua resposta: ").strip()
+
+                                # Verificar se usuário quer sair
+                                if user_answer.lower() == 'exit':
+                                    print("\n👋 Encerrando CLI. Até logo!")
+                                    return
+
+                                # Validar resposta vazia
+                                if not user_answer:
+                                    user_answer = "Sem resposta fornecida."
+
+                                print()  # Linha em branco para separar
+
+                                # Continuar execução com a resposta
+                                # Usamos Command para retomar após interrupt
+                                graph.invoke(
+                                    Command(resume=user_answer),
+                                    config=config
+                                )
+
+                                # Continuar loop para verificar próximo estado
+                                break
+
+                            if interrupt_found:
+                                break
+
+                # Se não encontrou interrupts mas há next, algo inesperado
+                if not interrupt_found and snapshot.next:
+                    print("⚠️  Estado inesperado do grafo. Encerrando.")
+                    break
 
         except KeyboardInterrupt:
             print("\n\n⚠️  Execução interrompida pelo usuário.")

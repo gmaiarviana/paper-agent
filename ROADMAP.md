@@ -126,10 +126,17 @@ Consulte `docs/product/vision.md` (Seção 4) para modelo conceitual de Tópico 
   - Versões atualizadas: Orquestrador (v2.0), Estruturador (v3.0), Metodologista (v3.0), Super-grafo (v3.0)
 
 #### 6.2 Registro de Memória com Metadados
-- **Status:** ⚠️ Parcial
+- **Status:** ✅ Concluído (13/11/2025)
 - **Descrição:** Armazenar histórico leve por agente com tokens e resumo da última ação.
-- **Entregue:** Infraestrutura do `MemoryManager` com export, totais e API Python.
-- **Pendente:** Instrumentar nós do LangGraph para registrar tokens/summary reais; expor `MemoryManager` para o dashboard do Épico 5 via objeto compartilhado ou serviço interno; validar integração com `CostTracker`.
+- **Entregue:**
+  - Infraestrutura do `MemoryManager` com export, totais e API Python
+  - Helper `register_execution()` para captura de tokens de AIMessage
+  - Instrumentação completa dos nós: orchestrator, structurer, methodologist (decide_collaborative e force_decision)
+  - MemoryManager passado via config do super-grafo (opcional)
+  - Integração com CostTracker validada (custos calculados e registrados)
+  - CLI atualizado para exibir métricas de tokens e custos por agente
+  - Script de validação end-to-end: `scripts/validate_memory_integration.py`
+  - Versões atualizadas: orchestrator_node v2.1, structurer_node v3.1, methodologist nodes v3.1
 
 #### 6.3 Reset Global de Sessão
 - **Status:** ⛔ Não iniciado
