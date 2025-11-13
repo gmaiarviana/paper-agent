@@ -114,8 +114,8 @@ def run_cli():
             print(f"⚠️  Aviso: Não foi possível publicar eventos: {e}")
             logger.exception("Erro ao publicar session_started:")
 
-        # Criar estado inicial
-        state = create_initial_multi_agent_state(hypothesis)
+        # Criar estado inicial (com session_id para EventBus - Épico 5.1)
+        state = create_initial_multi_agent_state(hypothesis, session_id=session_id)
 
         # Executar sistema multi-agente
         try:

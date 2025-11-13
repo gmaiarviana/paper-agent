@@ -93,20 +93,10 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
     """
     def wrapper(state: MultiAgentState, config: Any = None) -> MultiAgentState:
         """Wrapper instrumentado que emite eventos."""
-        # Debug CRÍTICO: verificar se config chegou (usando print para forçar exibição)
-        print(f"[DEBUG] Wrapper {agent_name}: config recebido = {config}")
-        print(f"[DEBUG] Wrapper {agent_name}: type(config) = {type(config)}")
-
-        if config:
-            print(f"[DEBUG] Wrapper {agent_name}: tem config, verificando estrutura...")
-            if hasattr(config, 'get'):
-                configurable = config.get("configurable", {})
-                print(f"[DEBUG] Wrapper {agent_name}: configurable = {configurable}")
-            elif hasattr(config, '__dict__'):
-                print(f"[DEBUG] Wrapper {agent_name}: config.__dict__ = {config.__dict__}")
-
-        session_id = _get_session_id_from_config(config)
-        print(f"[DEBUG] Wrapper {agent_name}: session_id FINAL = {session_id}")
+        # Extrair session_id do state (método confiável - Épico 5.1)
+        # Config não é passado aos nodes pelo LangGraph, então usamos state
+        session_id = state.get("session_id", "unknown-session")
+        logger.debug(f"Wrapper {agent_name}: session_id do state = {session_id}")
 
         # Emitir evento de início
         if EVENT_BUS_AVAILABLE:
