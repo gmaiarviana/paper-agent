@@ -34,7 +34,7 @@ Para cada tarefa, seguir ciclo:
 
 Antes de seguir para próxima tarefa:
 - ✅ Testes passando (se houver)
-- ✅ **Script de validação criado** (scripts/validate_*.py) - **PRÁTICA RECOMENDADA**
+- ✅ **Script de validação criado** (scripts/<categoria>/validate_*.py) - **PRÁTICA RECOMENDADA**
 - ✅ Aplicação rodando sem erros
 - ✅ Comportamento esperado funcionando
 - ✅ Documentação da tarefa atualizada (incremental)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         sys.exit(1)
 ```
 
-**Localização:** `scripts/validate_*.py` (ex: `scripts/validate_ask_user.py`)
+**Localização:** `scripts/<categoria>/validate_*.py` (ex: `scripts/state_introspection/validate_ask_user.py`)
 
 ### D) Commit (Opcional e Estratégico)
 

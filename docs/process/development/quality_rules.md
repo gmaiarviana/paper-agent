@@ -42,7 +42,7 @@
 - ✅ **Status de funcionalidades**: Vive APENAS no ROADMAP.md
 - ✅ **Estrutura do projeto**: Vive APENAS no ARCHITECTURE.md
 - ✅ **Setup e comandos gerais**: Vive APENAS no README.md
-- ✅ **Validação de funcionalidades**: Acontece durante a sessão de trabalho via scripts (`scripts/validate_*.py`)
+- ✅ **Validação de funcionalidades**: Acontece durante a sessão de trabalho via scripts (`scripts/**/validate_*.py`)
 - ❌ **NUNCA duplicar informações** entre documentos - sempre referenciar
 - ❌ **NUNCA adicionar histórico de validação no ROADMAP** - validação é feita durante implementação
 
@@ -51,7 +51,7 @@
 ## Comandos e Validação
 
 - **PowerShell como padrão**: Dev usa Windows, sempre fornecer comandos em PowerShell
-- **Validação durante implementação**: Criar scripts de validação (`scripts/validate_*.py`) e executar durante a sessão
+- **Validação durante implementação**: Criar scripts de validação (`scripts/**/validate_*.py`) e executar durante a sessão
 - **Validação no PR**: Fornecer comandos de validação na mensagem final ao dev (não no ROADMAP)
 - **Checkout de branch obrigatório**: Sempre incluir passos de fetch/checkout nas instruções de validação
 
@@ -73,7 +73,7 @@ pip install -r requirements.txt
 python -m pytest tests/unit/test_*.py -v
 
 # 4. Validação manual (script - RECOMENDADO!)
-python scripts/validate_*.py
+python scripts/<categoria>/validate_*.py
 
 # Resultados esperados:
 # - ✅ X/X testes passando

@@ -15,7 +15,7 @@ pytest tests/unit/
 pytest tests/integration/ -m integration
 
 # Health check manual
-python scripts/validate_api.py
+python scripts/health_checks/validate_api.py
 ```
 
 ## 💡 TL;DR
@@ -26,6 +26,6 @@ python scripts/validate_api.py
 
 ---
 
-**Versão:** 2.0
-**Data:** 10/11/2025
+**Versão:** 2.1
+**Data:** 13/11/2025
 **Status:** Documentação modularizada e enxuta

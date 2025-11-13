@@ -12,14 +12,18 @@ Versão: 1.0 (Épico 3, Funcionalidade 3.3)
 Data: 11/11/2025
 """
 
-import sys
-import os
-from pathlib import Path
 import logging
+import sys
+from pathlib import Path
 
-# Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT_STR = str(PROJECT_ROOT)
+if PROJECT_ROOT_STR not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT_STR)
+
+from scripts.common import setup_project_path
+
+setup_project_path()
 
 # Carregar variáveis de ambiente do .env
 from dotenv import load_dotenv

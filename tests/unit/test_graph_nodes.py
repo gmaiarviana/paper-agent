@@ -140,12 +140,12 @@ class TestAskClarificationNode:
 
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_question_response
-            mock_ask_user.return_value = mock_user_answer
+            mock_ask_user.invoke.return_value = mock_user_answer
 
             result = ask_clarification(state)
 
         # Verificar que ask_user foi chamado
-        mock_ask_user.assert_called_once()
+        mock_ask_user.invoke.assert_called_once_with({"question": "Qual é a população-alvo do estudo?"})
 
         # Verificar updates do estado
         assert 'clarifications' in result
@@ -171,7 +171,7 @@ class TestAskClarificationNode:
 
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_question_response
-            mock_ask_user.return_value = mock_user_answer
+            mock_ask_user.invoke.return_value = mock_user_answer
 
             result = ask_clarification(state)
 
@@ -188,7 +188,7 @@ class TestAskClarificationNode:
             result = ask_clarification(state)
 
         # Não deve chamar ask_user
-        mock_ask_user.assert_not_called()
+        mock_ask_user.invoke.assert_not_called()
 
         # Deve retornar mensagem indicando que atingiu o limite
         assert 'messages' in result
@@ -206,7 +206,7 @@ class TestAskClarificationNode:
 
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_question_response
-            mock_ask_user.return_value = "Tempo de reação no teste PVT"
+            mock_ask_user.invoke.return_value = "Tempo de reação no teste PVT"
 
             result = ask_clarification(state)
             call_args = mock_llm.invoke.call_args
@@ -228,7 +228,7 @@ class TestAskClarificationNode:
 
             mock_llm = MockLLM.return_value
             mock_llm.invoke.return_value = mock_question_response
-            mock_ask_user.return_value = mock_user_answer
+            mock_ask_user.invoke.return_value = mock_user_answer
 
             with caplog.at_level('INFO'):
                 ask_clarification(state)
