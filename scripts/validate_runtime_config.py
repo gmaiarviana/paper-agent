@@ -133,7 +133,9 @@ def validate_node_runtime():
 
         # Executar apenas o primeiro passo (orchestrator)
         print("\nExecutando orchestrator_node...")
-        result = graph.invoke(state, config, {"recursion_limit": 1})
+        # Merge recursion_limit into config dict
+        config_with_limit = {**config, "recursion_limit": 1}
+        result = graph.invoke(state, config_with_limit)
 
         print("\n✅ Nó executado com sucesso")
         print("✅ Se você viu '✅ Configurações carregadas do YAML' acima, a integração está funcionando!")
