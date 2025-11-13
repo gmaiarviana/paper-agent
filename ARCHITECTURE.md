@@ -3,8 +3,9 @@
 ## Visão Geral
 
 - Plataforma colaborativa com agentes de IA para apoiar produção de artigos científicos ponta a ponta.
-- POC atual: validação de hipóteses com Orquestrador + Metodologista rodando sobre LangGraph.
-- Interfaces priorizadas: CLI (automação com agentes) e Streamlit opcional para uso humano.
+- **Arquitetura atual:** Sistema multi-agente conversacional sobre LangGraph com Orquestrador facilitador, Estruturador organizador e Metodologista validador.
+- **Em evolução:** Transição de fluxo determinístico para conversação adaptativa onde sistema e usuário negociam caminho juntos (Épico 7).
+- **Interfaces:** CLI para conversação (principal) e Streamlit para visualização de raciocínio em tempo real.
 
 ## Entidade Central: Tópico/Ideia
 
@@ -45,14 +46,57 @@ Topic:
 - Usuário pode voltar etapas (ex: pesquisa altera metodologia)
 - Tipo pode ser inferido ou mudar ao longo da conversa
 
-## Escopo Atual (POC)
+## Escopo Atual
 
-- Entradas via CLI; respostas estruturadas do Orquestrador.
-- Sistema multi-agente com 4 componentes: Orquestrador (roteamento), Estruturador (organização/refinamento), Metodologista (validação colaborativa), force_decision (decisão forçada).
-- Loop de refinamento iterativo: até 2 refinamentos automáticos (V1 → V2 → V3).
-- Modo colaborativo: Metodologista ajuda a construir hipóteses (3 status: approved, needs_refinement, rejected).
-- Estado em memória gerenciado por LangGraph com rastreamento de versões (hypothesis_versions).
-- Infraestrutura mínima: Python 3.11+, Anthropic API, sem Docker ou banco de dados.
+**Sistema Multi-Agente Conversacional:**
+- **Orquestrador:** Classifica maturidade inicial e roteia para agentes (em evolução para facilitador conversacional)
+- **Estruturador:** Organiza ideias vagas e refina questões baseado em feedback estruturado
+- **Metodologista:** Valida rigor científico em modo colaborativo (approved/needs_refinement/rejected)
+- **Interface visual:** Dashboard Streamlit com timeline de eventos em tempo real
+
+**Estado compartilhado:**
+- MultiAgentState híbrido (campos compartilhados + específicos por agente)
+- Versionamento de hipóteses (V1 → V2 → V3)
+- Rastreamento de iterações de refinamento
+
+**Infraestrutura:**
+- Python 3.11+, Anthropic API, LangGraph
+- Configuração externa de agentes (YAML)
+- EventBus para comunicação CLI ↔ Dashboard
+- MemoryManager para registro de metadados
+
+**Em desenvolvimento (Épico 7):**
+- Orquestrador conversacional que negocia caminho com usuário
+- Detecção dinâmica de quando chamar agentes especializados
+- Handling de mudança de direção do usuário
+
+## Orquestrador Conversacional (Épico 7)
+
+**Transição arquitetural em andamento:**
+
+### De: Classificador Determinístico
+```
+Input → Classifica (vague/semi_formed/complete) → Roteia automaticamente
+```
+
+### Para: Facilitador Conversacional
+```
+Input → Conversa → Detecta necessidade → Oferece opções → Usuário decide → Executa
+```
+
+**Novo papel do Orquestrador:**
+- **Diálogo fluido:** Mantém conversa antes de acionar agentes
+- **Negociação:** Oferece opções ("Posso chamar Metodologista?" vs "Vou chamar")
+- **Detecção inteligente:** Infere quando agente faz sentido (mas não impõe)
+- **Adaptação:** Responde a mudanças de direção do usuário
+- **Provocação:** Faz perguntas esclarecedoras que ajudam reflexão
+
+**Progressão POC → MVP:**
+- **POC:** Conversação básica + oferece opções + chama sob demanda
+- **Protótipo:** Detecção inteligente + provocação + handling de mudança
+- **MVP:** Detecção emergente de estágio + reasoning explícito + aprende preferências
+
+**Especificação detalhada:** `docs/orchestration/conversational_orchestrator.md`
 
 ## Stack Técnico
 
@@ -269,17 +313,28 @@ Opera em modo colaborativo: `approved`, `needs_refinement`, `rejected`.
 **Detalhes:** Ver `docs/agents/methodologist.md`
 
 ### Orquestrador (`agents/orchestrator/`)
-Agente responsável por classificar maturidade de inputs e rotear para agentes especializados.
+Agente responsável por facilitar conversa e coordenar chamadas a agentes especializados.
 
-**Arquitetura (Épico 3.1 - Implementado):**
+**Arquitetura (em transição - Épico 7):**
 - Estado compartilhado gerenciado por `MultiAgentState` (TypedDict híbrido)
-- Nó de classificação: `orchestrator_node` (usa LLM para detectar maturidade)
+- **Atual:** Nó de classificação `orchestrator_node` (classifica maturidade)
+- **Futuro:** Facilitador conversacional (negocia caminho com usuário)
 - Router condicional: `route_from_orchestrator` (roteia para Estruturador ou Metodologista)
-- Classificações: "vague" (→ Estruturador), "semi_formed" (→ Metodologista), "complete" (→ Metodologista)
 
-**Status:** Funcionalidade 3.1 implementada e testada.
+**Classificações atuais (POC):**
+- "vague" → Estruturador (ideia não estruturada)
+- "semi_formed" → Metodologista (hipótese parcial)
+- "complete" → Metodologista (hipótese completa)
 
-**Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
+**Evolução (Épico 7):**
+- Conversação > classificação
+- Oferece opções > roteia automaticamente
+- Detecta dinamicamente > fluxo fixo
+- Adapta a mudanças > fluxo linear
+
+**Status:** Funcionalidade 3.1 implementada (classificação). Épico 7 em planejamento (conversação).
+
+**Detalhes:** Ver `docs/orchestration/conversational_orchestrator.md`
 
 ### Detecção de Tipo de Artigo (Épico 7 - Futuro)
 
@@ -414,16 +469,42 @@ streamlit run app/dashboard.py
 
 ## Fluxo de Dados (Atualizado - Épico 7)
 
-### Fluxo Base (POC Atual)
+### Fluxo Atual (Transição)
+
+**Implementado (Épicos 3-4):**
 ```
 Usuário (CLI) → Orquestrador (classifica maturidade) →
-  ├─ Input vago → Estruturador (V1) → Metodologista (needs_refinement?)
-  │                      ↓ sim (iteration < max)           ↑
-  │                      └─ Estruturador (V2) ─────────────┘
-  │                                ↓ approved/rejected
-  │                                END (resultado com histórico V1→V2)
+  ├─ Input vago → Estruturador (V1) → Metodologista
+  │                  ↓ needs_refinement (< max iterations)
+  │                  └─ Estruturador (V2) → Metodologista
+  │                           ↓ approved/rejected
+  │                           END (V1 → V2 com feedback)
   │
-  └─ Hipótese formada → Metodologista (approved/rejected) → END
+  └─ Hipótese formada → Metodologista → END
+```
+
+**Em desenvolvimento (Épico 7 POC):**
+```
+Usuário: "Quero entender X"
+  ↓
+Orquestrador: [conversa] "Você quer VER literatura ou TESTAR hipótese?"
+  ↓
+Usuário: "Testar"
+  ↓
+Orquestrador: "Legal! Me conta mais sobre X..."
+  ↓ [conversa até ficar claro]
+Orquestrador: "Posso chamar Metodologista para validar?"
+  ↓
+Usuário: "Sim"
+  ↓
+[Chama Metodologista] → Feedback
+  ↓
+Orquestrador: "Ele sugeriu A e B. O que quer fazer?
+               1. Refinar agora
+               2. Pesquisar sobre B
+               3. Mudar direção"
+  ↓
+Usuário decide → Sistema executa
 ```
 
 ### Fluxo Futuro (Com Tipos de Artigo - Épico 7)
@@ -465,6 +546,9 @@ TEÓRICO:
 - Claude Sonnet 4 usado pelo Metodologista (modo colaborativo) para confiabilidade de JSON estruturado.
 - Claude Haiku usado pelo Estruturador (custo-benefício para estruturação/refinamento).
 - Loop de refinamento: limite padrão de 2 iterações (V1 → V2 → V3), configurável via `max_refinements`.
+- **Transição para conversação adaptativa (Épico 7):** Orquestrador evolui de classificador para facilitador que negocia caminho com usuário.
+- **Refinamento sob demanda:** Loop não é mais automático; usuário decide quando refinar baseado em feedback do Metodologista.
+- **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários.
 - Modo colaborativo: prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar).
 
 ### Modelo de Dados (Épico 7 - Planejado)
