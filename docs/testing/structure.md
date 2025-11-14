@@ -22,18 +22,32 @@ paper-agent/
 │   ├── health_checks/          # Sanidade de ambiente e configs
 │   │   ├── validate_api.py
 │   │   ├── validate_agent_config.py
-│   │   ├── validate_runtime_config.py
-│   │   └── validate_system_prompt.py
+│   │   ├── validate_runtime_config_simple.py
+│   │   ├── validate_syntax.py
+│   │   ├── validate_system_prompt.py
+│   │   ├── validate_execution_tracker.py
+│   │   └── validate_orchestrator_json_parsing.py
 │   ├── state_introspection/    # Nós isolados e estados
 │   │   ├── validate_state.py
 │   │   ├── validate_graph.py
+│   │   ├── validate_graph_nodes.py
+│   │   ├── validate_state_syntax.py
+│   │   ├── validate_multi_agent_state.py
 │   │   └── validate_ask_user.py
 │   ├── flows/                  # Cenários completos (consomem API)
 │   │   ├── validate_cli.py
+│   │   ├── validate_cli_integration.py
+│   │   ├── validate_dashboard.py
+│   │   ├── validate_memory_integration.py
 │   │   ├── validate_multi_agent_flow.py
-│   │   └── validate_refinement_loop.py
+│   │   ├── validate_orchestrator.py
+│   │   ├── validate_refinement_loop.py
+│   │   ├── validate_structurer.py
+│   │   ├── validate_structurer_refinement.py
+│   │   └── validate_build_context.py
 │   └── debug/                  # Diagnóstico ad hoc
-│       └── debug_multi_agent.py
+│       ├── debug_multi_agent.py
+│       └── check_events.py
 ```
 
 ---

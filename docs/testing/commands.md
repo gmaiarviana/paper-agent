@@ -54,11 +54,53 @@ python scripts/flows/validate_cli.py
 ```
 
 ```bash
+python scripts/flows/validate_cli_integration.py
+```
+
+```bash
+python scripts/flows/validate_dashboard.py
+```
+
+```bash
+python scripts/flows/validate_memory_integration.py
+```
+
+```bash
 python scripts/flows/validate_multi_agent_flow.py
 ```
 
 ```bash
+python scripts/flows/validate_orchestrator.py
+```
+
+```bash
 python scripts/flows/validate_refinement_loop.py
+```
+
+```bash
+python scripts/flows/validate_structurer.py
+```
+
+```bash
+python scripts/flows/validate_structurer_refinement.py
+```
+
+```bash
+python scripts/flows/validate_build_context.py
+```
+
+### Health checks adicionais
+```bash
+python scripts/health_checks/validate_execution_tracker.py
+```
+
+```bash
+python scripts/health_checks/validate_orchestrator_json_parsing.py
+```
+
+### Debug
+```bash
+python scripts/debug/check_events.py
 ```
 
 ---

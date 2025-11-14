@@ -164,8 +164,8 @@ Sistema de captura e agregação de tokens, custos e metadados de execução por
 - `force_decision_collaborative` (v3.1): Registra decisões forçadas após limite + tokens
 
 **Validação:**
-- Script: `scripts/validate_memory_integration.py` - validação end-to-end do fluxo completo
-- Script: `scripts/validate_execution_tracker.py` - validação unitária do helper
+- Script: `scripts/flows/validate_memory_integration.py` - validação end-to-end do fluxo completo
+- Script: `scripts/health_checks/validate_execution_tracker.py` - validação unitária do helper
 - CLI: `cli/chat.py` atualizado para exibir métricas de tokens e custos
 
 **Exemplo de uso:**
@@ -272,14 +272,32 @@ paper-agent/
 │   ├── validate_ask_user.py  # Validação da tool ask_user
 │   ├── validate_graph_nodes.py  # Validação dos nós do Metodologista
 │   ├── validate_orchestrator.py  # Validação do Orquestrador (Épico 3.1)
-│   ├── validate_structurer.py    # Validação do Estruturador (Épico 3.2)
-│   ├── validate_cli.py    # Validação do CLI (fluxo completo)
-│   ├── validate_dashboard.py     # Validação do Dashboard (Épico 5.1)
-│   ├── validate_agent_config.py  # Validação de configs YAML (Épico 6.1)
-│   ├── validate_runtime_config.py  # Validação de integração runtime (requer venv)
-│   ├── validate_runtime_config_simple.py  # Validação de configs sem deps
-│   ├── validate_syntax.py  # Validação de sintaxe Python
-│   └── validate_memory_integration.py  # Validação da integração do MemoryManager (Épico 6.2)
+│   ├── health_checks/            # Sanidade de ambiente e configs
+│   │   ├── validate_api.py
+│   │   ├── validate_agent_config.py  # Validação de configs YAML (Épico 6.1)
+│   │   ├── validate_runtime_config_simple.py  # Validação de configs sem deps
+│   │   ├── validate_syntax.py  # Validação de sintaxe Python
+│   │   ├── validate_system_prompt.py
+│   │   ├── validate_execution_tracker.py  # Validação unitária do helper
+│   │   └── validate_orchestrator_json_parsing.py
+│   ├── flows/                    # Cenários completos (consomem API)
+│   │   ├── validate_cli.py    # Validação do CLI (fluxo completo)
+│   │   ├── validate_cli_integration.py  # Validação de integração CLI
+│   │   ├── validate_dashboard.py     # Validação do Dashboard (Épico 5.1)
+│   │   ├── validate_memory_integration.py  # Validação da integração do MemoryManager (Épico 6.2)
+│   │   ├── validate_multi_agent_flow.py
+│   │   ├── validate_orchestrator.py
+│   │   ├── validate_refinement_loop.py
+│   │   ├── validate_structurer.py    # Validação do Estruturador (Épico 3.2)
+│   │   ├── validate_structurer_refinement.py
+│   │   └── validate_build_context.py
+│   ├── state_introspection/      # Nós isolados e estados
+│   │   ├── validate_state.py
+│   │   ├── validate_graph.py
+│   │   └── validate_ask_user.py
+│   └── debug/                    # Diagnóstico ad hoc
+│       ├── debug_multi_agent.py
+│       └── check_events.py
 │
 └── docs/                  # Documentação detalhada por domínio
     ├── testing_guidelines.md  # Estratégia de testes

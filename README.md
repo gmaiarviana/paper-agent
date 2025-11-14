@@ -78,7 +78,7 @@ Validação e Testes
 Valide a conexão com a API Anthropic:
 
 ```bash
-python scripts/validate_api.py
+python scripts/health_checks/validate_api.py
 ```
 
 **Resultado esperado:**
@@ -141,7 +141,7 @@ python cli/chat.py
 
 **Validação do CLI (sem interação):**
 ```bash
-python scripts/validate_cli.py
+python scripts/flows/validate_cli.py
 ```
 
 ---
@@ -170,7 +170,7 @@ streamlit run app/dashboard.py
 
 **Validação do Dashboard:**
 ```bash
-python scripts/validate_dashboard.py
+python scripts/flows/validate_dashboard.py
 ```
 
 **Resultado esperado:**
@@ -187,16 +187,16 @@ Validar arquivos YAML de configuração de agentes e funcionalidade de memória:
 
 ```bash
 # Validação completa de configs (inclui MemoryManager)
-python scripts/validate_agent_config.py
+python scripts/health_checks/validate_agent_config.py
 
 # Validação de configs YAML e carregamento (mais rápida, sem deps)
-python scripts/validate_runtime_config_simple.py
+python scripts/health_checks/validate_runtime_config_simple.py
 
 # Validação de sintaxe Python dos módulos modificados
-python scripts/validate_syntax.py
+python scripts/health_checks/validate_syntax.py
 
 # Validação end-to-end da integração de MemoryManager (Épico 6.2)
-python scripts/validate_memory_integration.py
+python scripts/flows/validate_memory_integration.py
 ```
 
 **O que é validado:**

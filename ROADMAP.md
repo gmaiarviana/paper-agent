@@ -43,7 +43,7 @@ Funcionalidade 6.1 concluída: Configuração externa de agentes via YAML.
   - MemoryManager passado via config do super-grafo (opcional)
   - Integração com CostTracker validada (custos calculados e registrados)
   - CLI atualizado para exibir métricas de tokens e custos por agente
-  - Script de validação end-to-end: `scripts/validate_memory_integration.py`
+  - Script de validação end-to-end: `scripts/flows/validate_memory_integration.py`
   - Versões atualizadas: orchestrator_node v2.1, structurer_node v3.1, methodologist nodes v3.1
 
 ---
