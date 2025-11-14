@@ -172,11 +172,19 @@ CONTEXTO DA CONVERSA:
 Analise o contexto completo acima e responda APENAS com JSON estruturado conforme especificado."""
 
     # Chamar LLM para análise conversacional
-    # DECISÃO: Usar Claude Sonnet (hard-coded) para Orquestrador Conversacional (Épico 7)
+    # DECISÃO: Tentar usar modelo mais potente para raciocínio complexo (Épico 7)
+    # Fallback: Se não disponível, usa modelo do YAML (config/agents/orchestrator.yaml)
     # Razão: Análise contextual complexa requer raciocínio avançado
     #        (detecção de mudança de direção, reconstrução de argumento focal)
-    # Nota: Outros agentes (Estruturador, Metodologista) usam config do YAML (Haiku por padrão)
-    model_name = "claude-3-5-sonnet-20240620"
+    try:
+        # Tentar carregar modelo do YAML primeiro (mais flexível)
+        model_name = get_agent_model("orchestrator")
+        logger.info(f"Usando modelo do YAML: {model_name}")
+    except ConfigLoadError:
+        # Fallback: modelo padrão Haiku (mais econômico e sempre disponível)
+        model_name = "claude-3-5-haiku-20241022"
+        logger.warning(f"Config YAML não disponível. Usando fallback: {model_name}")
+
     llm = ChatAnthropic(model=model_name, temperature=0)
     messages = [HumanMessage(content=conversational_prompt)]
     response = llm.invoke(messages)
