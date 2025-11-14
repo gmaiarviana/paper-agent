@@ -53,7 +53,6 @@ def structurer_node(state: MultiAgentState, config: Optional[RunnableConfig] = N
     Returns:
         dict: Dicionário com updates incrementais do estado:
             - structurer_output: Dict com elementos extraídos
-            - refinement_iteration: Incrementado se modo refinamento
             - current_stage: "validating" (próximo: Metodologista)
             - messages: Mensagem do LLM adicionada ao histórico
 
@@ -102,10 +101,8 @@ IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensa
         methodologist_feedback.get('status') == 'needs_refinement'
     )
 
-    current_iteration = state.get('refinement_iteration', 0)
-
     if is_refinement_mode:
-        logger.info(f"=== NÓ STRUCTURER: Modo REFINAMENTO (Iteração {current_iteration + 1}) ===")
+        logger.info("=== NÓ STRUCTURER: Modo REFINAMENTO ===")
         logger.info(f"Gaps a endereçar: {len(methodologist_feedback['improvements'])}")
         return _refine_question(state, methodologist_feedback, node_config)
     else:
@@ -347,11 +344,7 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
         "addressed_gaps": addressed_gaps
     }
 
-    # Incrementar refinement_iteration
-    new_iteration = state.get('refinement_iteration', 0) + 1
-
     logger.info(f"Questão refinada V{current_version}: {structured_question}")
-    logger.info(f"Iteração de refinamento: {state.get('refinement_iteration', 0)} → {new_iteration}")
     logger.info(f"Gaps endereçados: {addressed_gaps}")
     logger.info("=== NÓ STRUCTURER (Refinamento): Finalizado ===\n")
 
@@ -366,7 +359,6 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
 
     return {
         "structurer_output": structurer_output,
-        "refinement_iteration": new_iteration,
         "current_stage": "validating",  # Volta para Metodologista
         "messages": [ai_message]
     }

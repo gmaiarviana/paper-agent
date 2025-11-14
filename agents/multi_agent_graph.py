@@ -4,18 +4,16 @@ Super-grafo multi-agente que integra Orquestrador, Estruturador e Metodologista.
 Este módulo implementa o grafo principal do sistema Paper Agent, conectando
 múltiplos agentes especializados em uma arquitetura de super-grafo.
 
-Fluxo do sistema (Épico 4 - Loop de Refinamento):
+Fluxo do sistema (Épico 4 - Refinamento Sob Demanda):
 1. Orquestrador: Classifica maturidade do input (vague/semi_formed/complete)
 2. Router 1: Decide próximo agente baseado na classificação
    - "vague" → Estruturador → Metodologista
    - "semi_formed" ou "complete" → Metodologista direto
 3. Estruturador (se necessário): Organiza ideia vaga em questão estruturada (V1)
 4. Metodologista: Valida rigor científico (3 status: approved, needs_refinement, rejected)
-5. Router 2: Decide se continua loop ou finaliza
-   - "approved" → END
-   - "rejected" → END
-   - "needs_refinement" + iteration < max → Estruturador (refina para V2/V3)
-   - "needs_refinement" + iteration >= max → force_decision → END
+5. Após Metodologista: Sempre retorna para Orquestrador (que negocia com usuário)
+   - Orquestrador apresenta feedback e opções ao usuário
+   - Usuário decide: refinar, pesquisar, ou outra direção
 
 Versão: 3.1 (Épico 5.1 - EventBus + Épico 6 - Config externa e MemoryManager)
 Data: 13/11/2025
@@ -30,7 +28,7 @@ from agents.orchestrator.state import MultiAgentState, create_initial_multi_agen
 from agents.orchestrator.nodes import orchestrator_node
 from agents.orchestrator.router import route_from_orchestrator
 from agents.structurer.nodes import structurer_node
-from agents.methodologist.nodes import decide_collaborative, force_decision_collaborative
+from agents.methodologist.nodes import decide_collaborative
 from agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
 
 # Import EventBus para emitir eventos (Épico 5.1)
@@ -198,62 +196,30 @@ def route_after_methodologist(state: MultiAgentState) -> str:
     """
     Router que decide o fluxo após o Metodologista processar a hipótese (Épico 4).
 
-    Lógica de decisão:
-    1. Se status = "approved" → END (finaliza)
-    2. Se status = "rejected" → END (finaliza)
-    3. Se status = "needs_refinement":
-       a. Se iteration < max_refinements → "structurer" (refina)
-       b. Se iteration >= max_refinements → "force_decision" (força decisão final)
+    NOVO COMPORTAMENTO (Refinamento Sob Demanda):
+    - Sempre retorna para o Orquestrador após o Metodologista
+    - Orquestrador apresenta feedback e opções ao usuário
+    - Usuário decide se quer refinar, pesquisar, ou mudar de direção
 
     Args:
         state (MultiAgentState): Estado do sistema multi-agente.
 
     Returns:
-        str: Nome do próximo nó ("structurer", "force_decision" ou END)
-
-    Example:
-        >>> state = {...}
-        >>> state['methodologist_output'] = {"status": "needs_refinement", ...}
-        >>> state['refinement_iteration'] = 1
-        >>> state['max_refinements'] = 2
-        >>> route_after_methodologist(state)
-        'structurer'  # Ainda pode refinar
-
-        >>> state['refinement_iteration'] = 2
-        >>> route_after_methodologist(state)
-        'force_decision'  # Limite atingido
+        str: Sempre "orchestrator" (para negociação com usuário)
     """
     methodologist_output = state.get('methodologist_output')
 
     if not methodologist_output:
-        logger.warning("methodologist_output não encontrado. Finalizando.")
-        return END
+        logger.warning("methodologist_output não encontrado. Retornando para Orquestrador.")
+        return "orchestrator"
 
     status = methodologist_output.get('status')
-    iteration = state.get('refinement_iteration', 0)
-    max_iter = state.get('max_refinements', 2)
-
     logger.info(f"=== ROUTER APÓS METODOLOGISTA ===")
     logger.info(f"Status: {status}")
-    logger.info(f"Iteração: {iteration}/{max_iter}")
+    logger.info("Retornando para Orquestrador (negociação com usuário)")
 
-    # Decisão final (approved ou rejected)
-    if status in ["approved", "rejected"]:
-        logger.info(f"Decisão final: {status}. Finalizando.")
-        return END
-
-    # Precisa de refinamento
-    if status == "needs_refinement":
-        if iteration < max_iter:
-            logger.info(f"Precisa refinamento. Voltando para Estruturador (V{iteration + 2}).")
-            return "structurer"
-        else:
-            logger.info(f"Limite de refinamentos atingido ({max_iter}). Forçando decisão final.")
-            return "force_decision"
-
-    # Fallback: status desconhecido
-    logger.warning(f"Status desconhecido '{status}'. Finalizando por segurança.")
-    return END
+    # Sempre retorna para Orquestrador (que negocia com usuário)
+    return "orchestrator"
 
 
 def create_multi_agent_graph():
@@ -275,28 +241,24 @@ def create_multi_agent_graph():
               → Metodologista (valida: "approved" ou "rejected")
               → END
 
-    Fluxo 3 - Limite de refinamentos atingido:
-        ...  → Metodologista (valida: "needs_refinement", iteration=2)
-             → force_decision (decide "approved" ou "rejected")
-             → END
+    Fluxo 3 - Refinamento sob demanda:
+        ...  → Metodologista (valida: "needs_refinement")
+             → Orquestrador (apresenta opções ao usuário)
+             → [usuário decide próximo passo]
 
-    Estrutura do grafo (Épico 4):
+    Estrutura do grafo (Épico 4 - Refinamento Sob Demanda):
         - Nós:
-            * orchestrator: Classifica maturidade do input
+            * orchestrator: Classifica maturidade do input e negocia com usuário
             * structurer: Organiza/refina questões (V1, V2, V3)
             * methodologist: Valida rigor (modo colaborativo)
-            * force_decision: Decisão forçada após limite
 
         - Edges:
             * START → orchestrator
             * orchestrator → [router 1] → structurer | methodologist
             * structurer → methodologist
-            * methodologist → [router 2] → structurer | force_decision | END
-            * force_decision → END
+            * methodologist → orchestrator (sempre - para negociação com usuário)
 
-        - Loop: methodologist → structurer (até max_refinements=2)
-
-        - State: MultiAgentState com refinement_iteration, hypothesis_versions
+        - State: MultiAgentState com hypothesis_versions (histórico de versões)
 
     Registro de Memória (Épico 6.2):
         Para habilitar registro de tokens e custos, passe MemoryManager no config:
@@ -359,8 +321,7 @@ def create_multi_agent_graph():
     graph.add_node("orchestrator", instrument_node(orchestrator_node, "orchestrator"))
     graph.add_node("structurer", instrument_node(structurer_node, "structurer"))
     graph.add_node("methodologist", instrument_node(decide_collaborative, "methodologist"))  # Modo colaborativo
-    graph.add_node("force_decision", instrument_node(force_decision_collaborative, "force_decision"))  # Decisão forçada
-    logger.info("Nós adicionados (instrumentados): orchestrator, structurer, methodologist, force_decision")
+    logger.info("Nós adicionados (instrumentados): orchestrator, structurer, methodologist")
 
     # Definir entry point
     graph.set_entry_point("orchestrator")
@@ -381,21 +342,15 @@ def create_multi_agent_graph():
     graph.add_edge("structurer", "methodologist")
     logger.info("Edge fixo: structurer → methodologist")
 
-    # ROUTER 2: Metodologista → Estruturador | force_decision | END (loop de refinamento)
+    # ROUTER 2: Metodologista → Orquestrador (sempre - para negociação com usuário)
     graph.add_conditional_edges(
         "methodologist",
         route_after_methodologist,
         {
-            "structurer": "structurer",  # Loop: refina V2, V3
-            "force_decision": "force_decision",  # Limite atingido
-            END: END  # approved ou rejected
+            "orchestrator": "orchestrator"  # Sempre retorna para Orquestrador
         }
     )
-    logger.info("Edge condicional: methodologist → [router2] → structurer | force_decision | END")
-
-    # force_decision → END (finaliza)
-    graph.add_edge("force_decision", END)
-    logger.info("Edge fixo: force_decision → END")
+    logger.info("Edge condicional: methodologist → orchestrator (negociação com usuário)")
 
     # Compilar o grafo com checkpointer
     compiled_graph = graph.compile(checkpointer=checkpointer)
@@ -403,12 +358,11 @@ def create_multi_agent_graph():
 
     logger.info("=== SUPER-GRAFO COM LOOP DE REFINAMENTO CRIADO COM SUCESSO ===")
     logger.info("")
-    logger.info("Fluxos disponíveis (Épico 4):")
+    logger.info("Fluxos disponíveis (Épico 4 - Refinamento Sob Demanda):")
     logger.info("  1. Ideia vaga → Orquestrador → Estruturador (V1) → Metodologista")
-    logger.info("     → [se needs_refinement] → Estruturador (V2) → Metodologista → END")
-    logger.info("  2. Hipótese → Orquestrador → Metodologista → END")
-    logger.info("  3. Loop: até 2 refinamentos (V1 → V2 → V3)")
-    logger.info("  4. Limite: force_decision após 2 refinamentos")
+    logger.info("     → Orquestrador (apresenta feedback) → [usuário decide próximo passo]")
+    logger.info("  2. Hipótese → Orquestrador → Metodologista → Orquestrador")
+    logger.info("  3. Refinamento: controlado pelo usuário (sem limite fixo)")
     logger.info("")
 
     return compiled_graph

@@ -545,9 +545,8 @@ TEÓRICO:
 - Sem persistência, Docker ou vector DB durante a POC para acelerar iteração.
 - Claude Sonnet 4 usado pelo Metodologista (modo colaborativo) para confiabilidade de JSON estruturado.
 - Claude Haiku usado pelo Estruturador (custo-benefício para estruturação/refinamento).
-- Loop de refinamento: limite padrão de 2 iterações (V1 → V2 → V3), configurável via `max_refinements`.
+- **Refinamento sob demanda (Épico 4):** Loop não é automático; usuário decide quando refinar baseado em feedback do Metodologista. Sem limite fixo de iterações.
 - **Transição para conversação adaptativa (Épico 7):** Orquestrador evolui de classificador para facilitador que negocia caminho com usuário.
-- **Refinamento sob demanda:** Loop não é mais automático; usuário decide quando refinar baseado em feedback do Metodologista.
 - **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários.
 - Modo colaborativo: prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar).
 

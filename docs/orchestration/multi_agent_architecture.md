@@ -42,7 +42,7 @@ Este documento detalha a **implementação técnica** do sistema multi-agente. P
 - 🔄 `orchestrator_node`: De classificador para facilitador
 - 🔄 Routers: De automático para negociado
 - 🔄 `route_after_methodologist`: De automático para oferece opções
-- ❌ `force_decision_collaborative`: Remover (não precisa limite fixo)
+- ✅ Refinamento sob demanda: usuário controla quando refinar (sem limite fixo)
 
 **Especificação detalhada:** `docs/orchestration/conversational_orchestrator.md`
 
@@ -77,10 +77,8 @@ Este documento detalha a **implementação técnica** do sistema multi-agente. P
 class MultiAgentState(TypedDict):
     # ... campos do Épico 3 ...
     
-    # === ÉPICO 4: REFINEMENT LOOP ===
-    refinement_iteration: int  # Contador de refinamentos (0, 1, 2)
-    max_refinements: int       # Limite padrão: 2
-    hypothesis_versions: list  # Histórico de evolução da hipótese
+    # === ÉPICO 4: VERSIONAMENTO ===
+    hypothesis_versions: list  # Histórico de evolução da hipótese (V1, V2, V3...)
 ```
 
 **Estrutura de hypothesis_versions:**
@@ -373,37 +371,23 @@ def create_multi_agent_graph():
 
 ---
 
-## Router após Metodologista (Épico 4)
+## Router após Metodologista (Épico 4 - Refinamento Sob Demanda)
 
-> **⚠️ NOTA DE TRANSIÇÃO (Épico 7):** Este router será substituído por negociação com usuário. Em vez de decidir automaticamente, sistema oferecerá opções: "Metodologista sugeriu A e B. Quer refinar, pesquisar mais ou mudar direção?"
+**Comportamento atual:** Sempre retorna para o Orquestrador após o Metodologista processar. O Orquestrador apresenta feedback e opções ao usuário, que decide o próximo passo (refinar, pesquisar, ou mudar direção).
 
 ```python
 def route_after_methodologist(state: MultiAgentState) -> str:
     """
-    Decide fluxo após Metodologista processar hipótese.
-    
-    Lógica:
-    - approved → END
-    - rejected → END
-    - needs_refinement:
-        - Se iteration < max → "structurer" (refinar)
-        - Se iteration >= max → "methodologist_force_decision"
+    Router que sempre retorna para Orquestrador após Metodologista.
+    Orquestrador negocia com usuário sobre próximo passo.
     """
-    output = state['methodologist_output']
-    status = output['status']
-    iteration = state['refinement_iteration']
-    max_iter = state['max_refinements']
+    methodologist_output = state.get('methodologist_output')
     
-    if status in ["approved", "rejected"]:
-        return END
+    if not methodologist_output:
+        return "orchestrator"
     
-    if status == "needs_refinement":
-        if iteration < max_iter:
-            return "structurer"
-        else:
-            return "methodologist_force_decision"
-    
-    return END
+    # Sempre retorna para Orquestrador (que negocia com usuário)
+    return "orchestrator"
 
 
 # Adicionar ao grafo:
@@ -411,9 +395,7 @@ graph.add_conditional_edges(
     "methodologist",
     route_after_methodologist,
     {
-        "structurer": "structurer",
-        "methodologist_force_decision": "methodologist_force_decision",
-        END: END
+        "orchestrator": "orchestrator"  # Sempre retorna para Orquestrador
     }
 )
 ```
@@ -431,9 +413,9 @@ Orquestrador: classifica "vague"
 Estruturador V1: "Como método incremental impacta velocidade?"
 ↓
 Metodologista: "needs_refinement" (falta população, métricas)
-  refinement_iteration: 0 → 1
+  hypothesis_versions: [] → [V1] → [V1, V2]
 ↓
-Router: volta pro Estruturador (iteration < max)
+Orquestrador: apresenta feedback e opções ao usuário → usuário decide refinar
 ↓
 Estruturador V2: "Método incremental reduz tempo em 30%, medido por sprints, em equipes 2-5 devs"
 ↓

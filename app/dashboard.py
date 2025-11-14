@@ -94,7 +94,6 @@ def get_agent_color(agent_name: str) -> str:
         "orchestrator": "#4A90E2",  # Azul
         "structurer": "#7ED321",    # Verde
         "methodologist": "#F5A623",  # Laranja
-        "force_decision": "#D0021B"  # Vermelho
     }
     return colors.get(agent_name, "#9B9B9B")
 

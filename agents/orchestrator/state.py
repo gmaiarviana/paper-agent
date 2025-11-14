@@ -43,15 +43,6 @@ class MultiAgentState(TypedDict):
         - "validating": Metodologista está validando hipótese
         - "done": Processamento concluído
 
-    refinement_iteration (int):
-        Contador de iterações de refinamento (Épico 4).
-        Valores: 0, 1, 2 (incrementa a cada vez que Estruturador refina baseado em feedback)
-        Usado para controlar limite de refinamentos.
-
-    max_refinements (int):
-        Limite máximo de refinamentos permitidos (Épico 4).
-        Valor padrão: 2
-        Após atingir este limite, Metodologista deve forçar decisão final.
 
     hypothesis_versions (list):
         Histórico de versões da hipótese/questão de pesquisa (Épico 4).
@@ -128,9 +119,7 @@ class MultiAgentState(TypedDict):
     conversation_history: list
     current_stage: Literal["classifying", "structuring", "validating", "done"]
 
-    # === REFINAMENTO (Épico 4) ===
-    refinement_iteration: int
-    max_refinements: int
+    # === VERSIONAMENTO (Épico 4) ===
     hypothesis_versions: list
 
     # === ESPECÍFICO: ORQUESTRADOR ===
@@ -147,14 +136,13 @@ class MultiAgentState(TypedDict):
     messages: Annotated[list, add_messages]
 
 
-def create_initial_multi_agent_state(user_input: str, session_id: str, max_refinements: int = 2) -> MultiAgentState:
+def create_initial_multi_agent_state(user_input: str, session_id: str) -> MultiAgentState:
     """
     Cria o estado inicial do sistema multi-agente com valores padrão.
 
     Args:
         user_input (str): Input do usuário (ideia, observação ou hipótese).
         session_id (str): ID único da sessão (para EventBus - Épico 5.1).
-        max_refinements (int): Limite máximo de refinamentos (padrão: 2).
 
     Returns:
         MultiAgentState: Estado inicial pronto para ser usado pelo super-grafo.
@@ -168,10 +156,6 @@ def create_initial_multi_agent_state(user_input: str, session_id: str, max_refin
         'classifying'
         >>> state['session_id']
         'cli-session-abc123'
-        >>> state['refinement_iteration']
-        0
-        >>> state['max_refinements']
-        2
         >>> state['hypothesis_versions']
         []
     """
@@ -182,9 +166,7 @@ def create_initial_multi_agent_state(user_input: str, session_id: str, max_refin
         conversation_history=[f"Usuário: {user_input}"],
         current_stage="classifying",
 
-        # Refinamento (Épico 4)
-        refinement_iteration=0,
-        max_refinements=max_refinements,
+        # Versionamento (Épico 4)
         hypothesis_versions=[],
 
         # Específico: Orquestrador

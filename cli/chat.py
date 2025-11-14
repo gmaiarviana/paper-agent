@@ -174,7 +174,7 @@ def run_cli():
                         # Calcular custo total estimado
                         # Buscar execuções de todos os agentes para calcular custo total
                         total_cost = 0.0
-                        for agent_name in ["orchestrator", "structurer", "methodologist", "force_decision"]:
+                        for agent_name in ["orchestrator", "structurer", "methodologist"]:
                             history = memory_manager.get_session_history(session_id, agent_name)
                             for execution in history:
                                 if execution.metadata and "cost_usd" in execution.metadata:
