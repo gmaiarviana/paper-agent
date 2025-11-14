@@ -44,9 +44,9 @@
 - ✅ Detecção de mudança de direção
 
 **Limitações conhecidas do POC:**
-- Argumento focal implícito (via histórico) - será explícito no Protótipo
-- Ignora limite de contexto - será tratado no Protótipo
-- Raciocínio básico - será refinado no Protótipo
+- Argumento focal implícito (via histórico) - será explícito no MVP
+- Ignora limite de contexto - será tratado no Protótipo (baixa prioridade)
+- Raciocínio básico - será refinado no Protótipo (transparência do raciocínio)
 
 **Consulte:** 
 - `docs/orchestration/conversational_orchestrator.md` - especificação técnica completa
@@ -54,15 +54,49 @@
 
 ---
 
-#### Protótipo (segunda entrega - ⚠️ NÃO REFINADO)
+#### Protótipo (segunda entrega - ⚠️ REFINADO)
 
 **Status:** Aguarda refinamento após POC validado
 
+⚠️ **Foco: Experiência conversacional real na CLI**
+
 **Funcionalidades planejadas:**
-- 7.5: Argumento focal explícito (campo no state)
-- 7.6: Detecção inteligente avançada
-- 7.7: Provocação de reflexão ("Você pensou em X?")
-- 7.8: Handling de contexto longo (truncamento inteligente)
+
+#### 7.5: CLI Conversacional Contínua
+- **Descrição:** Transformar CLI de loop único em chat contínuo com múltiplos turnos
+- **Critérios de Aceite:**
+  - CLI mantém conversa sem voltar para "Digite sua hipótese" após cada resposta
+  - Thread ID preservado ao longo da sessão
+  - Contexto acumulado (histórico completo) usado pelo Orquestrador
+  - Loop conversacional: Você → Sistema → Você → Sistema (N turnos)
+  - Sistema só para quando usuário decide chamar agente ou digita 'exit'
+
+#### 7.6: Detecção Inteligente de Momento Certo
+- **Descrição:** Orquestrador detecta quando tem informação suficiente para sugerir chamar agente (não determinístico)
+- **Critérios de Aceite:**
+  - Usa LLM para julgar "momento certo" (não regras fixas)
+  - Considera quantidade e qualidade de informação acumulada
+  - Sugere agente quando chamar agregaria valor (não apenas "protocolo")
+  - next_step: "explore" → continua perguntando
+  - next_step: "suggest_agent" → sugere chamar agente específico
+
+#### 7.7: Transparência do Raciocínio
+- **Descrição:** Expor reasoning do Orquestrador de forma acessível sem poluir CLI
+- **Critérios de Aceite:**
+  - CLI exibe apenas mensagem limpa por padrão
+  - Flag `--verbose` opcional exibe reasoning inline
+  - EventBus emite eventos com reasoning completo
+  - Dashboard Streamlit consome e exibe reasoning em tempo real
+  - Usa infraestrutura existente do Épico 5 (eventos)
+
+#### 7.8: Handling de Contexto Longo
+- **Descrição:** Truncamento inteligente quando histórico excede limite de contexto
+- **Critérios de Aceite:**
+  - Prioriza mensagens mais recentes
+  - Mantém mensagens iniciais (hipótese original) quando possível
+  - Resumo comprimido de trechos intermediários
+  - Aviso ao usuário quando truncamento ocorre
+  - *Nota: Baixa prioridade, implementar se sobrar tempo*
 
 ---
 
@@ -71,10 +105,53 @@
 **Status:** Aguarda refinamento após Protótipo validado
 
 **Funcionalidades planejadas:**
-- 7.9: Detecção emergente de estágio (exploration → hypothesis)
-- 7.10: Reasoning explícito das decisões
-- 7.11: Histórico de decisões do usuário (aprende preferências)
-- 7.12: Argumento focal persistente (entidade Topic - integração com Épico 8)
+
+#### 7.9: Argumento Focal Explícito
+- **Descrição:** Campo explícito no state para argumento focal da conversa (extraído do histórico)
+- **Critérios de Aceite:**
+  - Orquestrador extrai e atualiza argumento focal automaticamente
+  - Campo `focal_argument` presente no state do Orquestrador
+  - Usado como contexto prioritário nas decisões de roteamento
+  - Persistido entre turnos da conversa
+
+#### 7.10: Provocação de Reflexão
+- **Descrição:** Orquestrador sugere ângulos não explorados ("Você pensou em X?")
+- **Critérios de Aceite:**
+  - Detecta quando usuário pode estar pensando de forma limitada
+  - Sugere alternativas ou perspectivas não mencionadas
+  - Integrado naturalmente no fluxo conversacional
+  - Não interrompe fluxo se usuário quer focar em direção específica
+
+#### 7.11: Detecção Emergente de Estágio
+- **Descrição:** Orquestrador detecta transição natural de exploration → hypothesis
+- **Critérios de Aceite:**
+  - Identifica quando usuário convergiu para hipótese formada
+  - Sugere mudança de estágio (exploration → hypothesis)
+  - Usuário pode confirmar ou refutar detecção
+
+#### 7.12: Reasoning Explícito das Decisões
+- **Descrição:** Orquestrador expõe raciocínio detalhado por trás de cada decisão
+- **Critérios de Aceite:**
+  - Reasoning estruturado e legível
+  - Exibido no Dashboard em tempo real
+  - Disponível via flag `--verbose` na CLI
+  - Ajuda usuário a entender "por quê" de cada sugestão
+
+#### 7.13: Histórico de Decisões do Usuário
+- **Descrição:** Sistema aprende padrões de preferências do usuário ao longo do tempo
+- **Critérios de Aceite:**
+  - Rastreia decisões do usuário (aceitou/refutou sugestões)
+  - Identifica padrões de preferência
+  - Adapta comportamento futuro baseado em histórico
+  - Preferências persistidas entre sessões
+
+#### 7.14: Argumento Focal Persistente
+- **Descrição:** Integração com entidade Topic do Épico 8 para persistir argumento focal
+- **Critérios de Aceite:**
+  - Argumento focal vinculado a Topic persistente
+  - Retomável entre sessões
+  - Evolui com o tempo (versão V1, V2, etc.)
+  - Integração com Épico 8 (dependência)
 
 ---
 
