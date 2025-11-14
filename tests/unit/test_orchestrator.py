@@ -13,10 +13,10 @@ Data: 11/11/2025
 
 import pytest
 from unittest.mock import Mock, patch
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, HumanMessage
 
 from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
-from agents.orchestrator.nodes import orchestrator_node
+from agents.orchestrator.nodes import orchestrator_node, _build_context
 from agents.orchestrator.router import route_from_orchestrator
 
 
@@ -237,3 +237,184 @@ class TestMultiAgentState:
         # Assert
         assert state['orchestrator_classification'] == "vague"
         assert state['current_stage'] == "structuring"
+
+
+class TestBuildContext:
+    """
+    Testes para a função _build_context().
+
+    Esta função helper reconstrói o "argumento focal" implícito da conversa
+    analisando todo o histórico de mensagens (Épico 7, Tarefa 7.1.3).
+    """
+
+    def test_build_context_with_only_initial_input(self):
+        """Testa construção de contexto com apenas input inicial (sem histórico)."""
+        # Arrange
+        state = create_initial_multi_agent_state(
+            user_input="Observei que LLMs aumentam produtividade",
+            session_id="session-123"
+        )
+
+        # Act
+        context = _build_context(state)
+
+        # Assert
+        assert "INPUT INICIAL DO USUÁRIO:" in context
+        assert "Observei que LLMs aumentam produtividade" in context
+        assert "HISTÓRICO DA CONVERSA:" not in context  # Sem mensagens, não inclui histórico
+
+    def test_build_context_with_human_messages(self):
+        """Testa construção de contexto com mensagens do usuário."""
+        # Arrange
+        state = create_initial_multi_agent_state(
+            user_input="Observei que LLMs aumentam produtividade",
+            session_id="session-123"
+        )
+        state['messages'] = [
+            HumanMessage(content="Na minha equipe, usando Claude Code"),
+            HumanMessage(content="Tarefas que levavam 2h agora levam 30min")
+        ]
+
+        # Act
+        context = _build_context(state)
+
+        # Assert
+        assert "INPUT INICIAL DO USUÁRIO:" in context
+        assert "Observei que LLMs aumentam produtividade" in context
+        assert "HISTÓRICO DA CONVERSA:" in context
+        assert "[Usuário]: Na minha equipe, usando Claude Code" in context
+        assert "[Usuário]: Tarefas que levavam 2h agora levam 30min" in context
+
+    def test_build_context_with_ai_messages(self):
+        """Testa construção de contexto com mensagens do assistente."""
+        # Arrange
+        state = create_initial_multi_agent_state(
+            user_input="Observei que LLMs aumentam produtividade",
+            session_id="session-123"
+        )
+        state['messages'] = [
+            AIMessage(content="Interessante! Me conta mais sobre isso."),
+            AIMessage(content="Você mediu isso de alguma forma?")
+        ]
+
+        # Act
+        context = _build_context(state)
+
+        # Assert
+        assert "HISTÓRICO DA CONVERSA:" in context
+        assert "[Assistente]: Interessante! Me conta mais sobre isso." in context
+        assert "[Assistente]: Você mediu isso de alguma forma?" in context
+
+    def test_build_context_with_mixed_messages(self):
+        """Testa construção de contexto com mix de mensagens (usuário + assistente)."""
+        # Arrange
+        state = create_initial_multi_agent_state(
+            user_input="Observei que LLMs aumentam produtividade",
+            session_id="session-123"
+        )
+        state['messages'] = [
+            AIMessage(content="Interessante! Me conta mais."),
+            HumanMessage(content="Vi na minha equipe, usando Claude Code"),
+            AIMessage(content="Você mediu isso?"),
+            HumanMessage(content="Tarefas que levavam 2h agora levam 30min")
+        ]
+
+        # Act
+        context = _build_context(state)
+
+        # Assert
+        assert "INPUT INICIAL DO USUÁRIO:" in context
+        assert "HISTÓRICO DA CONVERSA:" in context
+        assert "[Assistente]: Interessante! Me conta mais." in context
+        assert "[Usuário]: Vi na minha equipe, usando Claude Code" in context
+        assert "[Assistente]: Você mediu isso?" in context
+        assert "[Usuário]: Tarefas que levavam 2h agora levam 30min" in context
+
+    def test_build_context_preserves_chronological_order(self):
+        """Testa que contexto preserva ordem cronológica das mensagens."""
+        # Arrange
+        state = create_initial_multi_agent_state(
+            user_input="Input inicial",
+            session_id="session-123"
+        )
+        state['messages'] = [
+            HumanMessage(content="Mensagem 1"),
+            AIMessage(content="Resposta 1"),
+            HumanMessage(content="Mensagem 2"),
+            AIMessage(content="Resposta 2")
+        ]
+
+        # Act
+        context = _build_context(state)
+        lines = context.split("\n")
+
+        # Assert - Ordem deve ser mantida
+        msg1_idx = next(i for i, line in enumerate(lines) if "Mensagem 1" in line)
+        resp1_idx = next(i for i, line in enumerate(lines) if "Resposta 1" in line)
+        msg2_idx = next(i for i, line in enumerate(lines) if "Mensagem 2" in line)
+        resp2_idx = next(i for i, line in enumerate(lines) if "Resposta 2" in line)
+
+        assert msg1_idx < resp1_idx < msg2_idx < resp2_idx
+
+    def test_build_context_format_is_llm_friendly(self):
+        """Testa que formato do contexto é adequado para análise pelo LLM."""
+        # Arrange
+        state = create_initial_multi_agent_state(
+            user_input="Observei X",
+            session_id="session-123"
+        )
+        state['messages'] = [
+            AIMessage(content="Pergunta aberta"),
+            HumanMessage(content="Resposta do usuário")
+        ]
+
+        # Act
+        context = _build_context(state)
+
+        # Assert - Formato deve ter estrutura clara
+        assert context.startswith("INPUT INICIAL DO USUÁRIO:")
+        assert "\n\n" in context  # Linhas em branco para separação visual
+        assert "[Usuário]:" in context  # Prefixos claros
+        assert "[Assistente]:" in context
+
+    def test_build_context_with_empty_messages_list(self):
+        """Testa construção de contexto quando messages está vazio."""
+        # Arrange
+        state = create_initial_multi_agent_state(
+            user_input="Input teste",
+            session_id="session-123"
+        )
+        state['messages'] = []  # Lista vazia explícita
+
+        # Act
+        context = _build_context(state)
+
+        # Assert
+        assert "INPUT INICIAL DO USUÁRIO:" in context
+        assert "Input teste" in context
+        assert "HISTÓRICO DA CONVERSA:" not in context  # Não deve incluir seção vazia
+
+    def test_build_context_detects_change_in_direction(self):
+        """
+        Testa que contexto construído permite detecção de mudança de direção.
+
+        Este teste valida que o histórico completo é preservado,
+        permitindo ao LLM detectar contradições ou mudanças de foco.
+        """
+        # Arrange
+        state = create_initial_multi_agent_state(
+            user_input="Quero estudar impacto de LLMs em produtividade",
+            session_id="session-123"
+        )
+        state['messages'] = [
+            AIMessage(content="Vamos explorar produtividade então"),
+            HumanMessage(content="Na verdade, quero focar em qualidade de código")
+        ]
+
+        # Act
+        context = _build_context(state)
+
+        # Assert - Ambas direções devem estar presentes no contexto
+        assert "produtividade" in context
+        assert "qualidade de código" in context
+        # LLM pode detectar mudança comparando "produtividade" vs "qualidade"
