@@ -196,6 +196,35 @@ def render_session_summary(summary: Dict[str, Any]):
     if summary["user_input"]:
         st.info(f"**Input:** {summary['user_input']}")
 
+    # Argumento Focal Implícito (Épico 7 - reconstruído do histórico)
+    # Buscar último evento do orquestrador para exibir análise contextual
+    bus = get_event_bus()
+    events = bus.get_session_events(session_id)
+    orchestrator_events = [e for e in events
+                          if e.get("event_type") == "agent_completed"
+                          and e.get("agent_name") == "orchestrator"]
+
+    if orchestrator_events:
+        last_orchestrator = orchestrator_events[-1]
+        metadata = last_orchestrator.get("metadata", {})
+
+        # Exibir em expander para não poluir a interface
+        with st.expander("🧠 Argumento Focal (Raciocínio do Orquestrador)"):
+            summary_text = last_orchestrator.get("summary", "")
+            if "Próximo passo:" in summary_text:
+                st.markdown(f"**{summary_text}**")
+
+            next_step = metadata.get("next_step")
+            if next_step:
+                next_step_label = {
+                    "explore": "🔍 Explorar contexto (mais perguntas necessárias)",
+                    "clarify": "❓ Clarificar ambiguidade",
+                    "suggest_agent": "🤖 Sugerir agente especializado"
+                }.get(next_step, next_step)
+                st.markdown(f"**Próximo passo:** {next_step_label}")
+
+            st.caption("O argumento focal é reconstruído implicitamente do histórico da conversa no POC do Épico 7.")
+
 
 def render_timeline(events: List[Dict[str, Any]]):
     """
@@ -246,6 +275,20 @@ def render_timeline(events: List[Dict[str, Any]]):
                     st.caption(f"📝 {summary_text}")
                     if tokens > 0:
                         st.caption(f"🔢 Tokens: {tokens}")
+
+                    # Exibir informações do Orquestrador Conversacional (Épico 7)
+                    if agent_name == "orchestrator":
+                        metadata = event.get("metadata", {})
+                        next_step = metadata.get("next_step")
+
+                        if next_step:
+                            next_step_emoji = {
+                                "explore": "🔍",
+                                "clarify": "❓",
+                                "suggest_agent": "🤖"
+                            }.get(next_step, "➡️")
+                            st.caption(f"{next_step_emoji} Próximo passo: {next_step}")
+
                     st.markdown(f"<div style='height:4px; background-color:{color}; border-radius:2px;'></div>", unsafe_allow_html=True)
 
                 elif event_type == "agent_error":

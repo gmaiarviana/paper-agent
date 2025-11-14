@@ -4,19 +4,21 @@ Super-grafo multi-agente que integra Orquestrador, Estruturador e Metodologista.
 Este módulo implementa o grafo principal do sistema Paper Agent, conectando
 múltiplos agentes especializados em uma arquitetura de super-grafo.
 
-Fluxo do sistema (Épico 4 - Refinamento Sob Demanda):
-1. Orquestrador: Classifica maturidade do input (vague/semi_formed/complete)
-2. Router 1: Decide próximo agente baseado na classificação
-   - "vague" → Estruturador → Metodologista
-   - "semi_formed" ou "complete" → Metodologista direto
-3. Estruturador (se necessário): Organiza ideia vaga em questão estruturada (V1)
-4. Metodologista: Valida rigor científico (3 status: approved, needs_refinement, rejected)
-5. Após Metodologista: Sempre retorna para Orquestrador (que negocia com usuário)
-   - Orquestrador apresenta feedback e opções ao usuário
-   - Usuário decide: refinar, pesquisar, ou outra direção
+Fluxo do sistema (Épico 7 - Orquestrador Conversacional):
+1. Orquestrador Conversacional: Analisa input + histórico e decide próximo passo
+   - next_step = "explore" → Retorna para usuário (END) - mais perguntas necessárias
+   - next_step = "clarify" → Retorna para usuário (END) - esclarecer ambiguidade
+   - next_step = "suggest_agent" → Roteia para agente sugerido
+2. Router 1: Decide destino baseado em next_step
+   - "user" → END (retorna para usuário)
+   - "structurer" → Estruturador → Metodologista
+   - "methodologist" → Metodologista direto
+3. Estruturador (se chamado): Organiza ideia vaga em questão estruturada
+4. Metodologista (se chamado): Valida rigor científico (3 status: approved, needs_refinement, rejected)
+5. Router 2: Metodologista sempre retorna para Orquestrador (apresenta feedback ao usuário)
 
-Versão: 3.1 (Épico 5.1 - EventBus + Épico 6 - Config externa e MemoryManager)
-Data: 13/11/2025
+Versão: 4.0 (Épico 7 POC - Orquestrador Conversacional + integração com Épico 5.1/6)
+Data: 14/11/2025
 """
 
 import logging
@@ -110,9 +112,9 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
             except Exception as e:
                 logger.warning(f"Falha ao publicar agent_started para {agent_name}: {e}")
 
-        # Executar nó original (nodes não recebem config como parâmetro)
+        # Executar nó original (passando config para nodes que precisam - Épico 6.2 MemoryManager)
         try:
-            result = node_func(state)
+            result = node_func(state, config)
 
             # Emitir evento de conclusão
             if EVENT_BUS_AVAILABLE:
@@ -169,6 +171,11 @@ def _extract_summary(agent_name: str, state: MultiAgentState) -> str:
         str: Resumo curto da ação
     """
     if agent_name == "orchestrator":
+        # Épico 7: Orquestrador conversacional (novos campos)
+        next_step = state.get("next_step")
+        if next_step:
+            return f"Próximo passo: {next_step}"
+        # Fallback: Épico 3 (campos antigos - para compatibilidade)
         classification = state.get("orchestrator_classification", "unknown")
         return f"Classificou input como '{classification}'"
 
@@ -327,16 +334,18 @@ def create_multi_agent_graph():
     graph.set_entry_point("orchestrator")
     logger.info("Entry point: orchestrator")
 
-    # ROUTER 1: Orquestrador → Estruturador | Metodologista
+    # ROUTER 1: Orquestrador → Estruturador | Metodologista | User (Épico 7)
+    # Épico 7 POC: Orquestrador conversacional pode retornar "user" quando precisa explorar mais
     graph.add_conditional_edges(
         "orchestrator",
         route_from_orchestrator,
         {
             "structurer": "structurer",
-            "methodologist": "methodologist"
+            "methodologist": "methodologist",
+            "user": END  # Épico 7: Retornar para usuário (mais perguntas necessárias)
         }
     )
-    logger.info("Edge condicional: orchestrator → [router1] → structurer | methodologist")
+    logger.info("Edge condicional: orchestrator → [router1] → structurer | methodologist | user (END)")
 
     # Estruturador → Metodologista (sempre)
     graph.add_edge("structurer", "methodologist")

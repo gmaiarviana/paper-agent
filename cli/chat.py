@@ -139,6 +139,39 @@ def run_cli():
                     final_state = snapshot.values
 
                     print_separator()
+                    print("🧠 RACIOCÍNIO DO ORQUESTRADOR")
+                    print_separator()
+
+                    # Exibir análise do orquestrador conversacional (Épico 7)
+                    orchestrator_analysis = final_state.get('orchestrator_analysis')
+                    next_step = final_state.get('next_step')
+                    agent_suggestion = final_state.get('agent_suggestion')
+
+                    if orchestrator_analysis:
+                        print(f"Análise contextual:")
+                        # Limitar a 200 chars para não poluir
+                        analysis_preview = orchestrator_analysis[:200]
+                        if len(orchestrator_analysis) > 200:
+                            analysis_preview += "..."
+                        print(f"  {analysis_preview}\n")
+
+                    if next_step:
+                        next_step_display = {
+                            "explore": "🔍 Explorar contexto (mais perguntas)",
+                            "clarify": "❓ Clarificar ambiguidade",
+                            "suggest_agent": "🤖 Sugerir agente especializado"
+                        }.get(next_step, next_step)
+                        print(f"Próximo passo: {next_step_display}")
+
+                    if agent_suggestion:
+                        agent_name = agent_suggestion.get('agent', 'N/A')
+                        justification_agent = agent_suggestion.get('justification', 'N/A')
+                        print(f"Agente sugerido: {agent_name}")
+                        print(f"Justificativa: {justification_agent[:150]}...")
+
+                    print()
+
+                    print_separator()
                     print("📊 RESULTADO DA ANÁLISE")
                     print_separator()
 
