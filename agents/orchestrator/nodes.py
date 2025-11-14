@@ -114,27 +114,24 @@ def _build_context(state: MultiAgentState) -> str:
 
 def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> dict:
     """
-    Nó que classifica a maturidade do input do usuário e decide roteamento.
+    Nó conversacional que facilita diálogo adaptativo com o usuário.
 
-    Este nó é o ponto de entrada do sistema multi-agente. Ele:
-    1. Analisa o input do usuário
-    2. Classifica a maturidade da ideia/hipótese
-    3. Define o próximo estágio de processamento
-    4. Registra reasoning para transparência
-    5. Registra execução no MemoryManager (se configurado - Épico 6.2)
+    Este nó é o facilitador inteligente do sistema multi-agente (Épico 7 POC). Ele:
+    1. Analisa input + histórico completo da conversa
+    2. Explora contexto através de perguntas abertas
+    3. Sugere próximos passos com justificativas claras
+    4. Negocia com o usuário antes de chamar agentes
+    5. Detecta mudanças de direção e adapta sem questionar
+    6. Registra execução no MemoryManager (se configurado - Épico 6.2)
 
-    Classificação de Maturidade:
-    - "vague": Ideia não estruturada, observação sem contexto claro
-              → Próximo: Estruturador
-              → Exemplo: "Observei que X é mais rápido"
+    MUDANÇA ARQUITETURAL (Épico 7):
+    - ANTES: Classificava input (vague/semi_formed/complete) e roteava automaticamente
+    - DEPOIS: Conversa, analisa contexto, sugere opções, negocia com usuário
 
-    - "semi_formed": Hipótese parcial, tem ideia central mas falta especificidade
-                     → Próximo: Metodologista
-                     → Exemplo: "Método Y melhora desenvolvimento"
-
-    - "complete": Hipótese completa com população, variáveis e métricas
-                  → Próximo: Metodologista
-                  → Exemplo: "Método Y reduz tempo em 30% em equipes de 2-5 devs"
+    Comportamento Conversacional:
+    - "explore": Fazer perguntas abertas para entender contexto
+    - "suggest_agent": Sugerir agente específico com justificativa
+    - "clarify": Esclarecer ambiguidade ou contradição detectada
 
     Args:
         state (MultiAgentState): Estado atual do sistema multi-agente.
@@ -142,138 +139,115 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
 
     Returns:
         dict: Dicionário com updates incrementais do estado:
-            - orchestrator_classification: Classificação da maturidade
-            - orchestrator_reasoning: Justificativa da decisão
-            - current_stage: Próximo estágio ("structuring" ou "validating")
-            - messages: Mensagem do LLM adicionada ao histórico
+            - orchestrator_analysis: Raciocínio detalhado sobre contexto e histórico
+            - next_step: Próxima ação ("explore", "suggest_agent", "clarify")
+            - agent_suggestion: Sugestão de agente com justificativa (se next_step="suggest_agent")
+            - messages: Mensagem conversacional adicionada ao histórico
 
     Example:
-        >>> state = create_initial_multi_agent_state("Observei que X é rápido")
+        >>> state = create_initial_multi_agent_state("Observei que LLMs aumentam produtividade", "session-1")
         >>> result = orchestrator_node(state)
-        >>> result['orchestrator_classification']
-        'vague'
-        >>> result['current_stage']
-        'structuring'
+        >>> result['next_step']
+        'explore'
+        >>> result['orchestrator_analysis']
+        'Usuário tem observação mas não especificou contexto...'
     """
-    logger.info("=== NÓ ORCHESTRATOR: Iniciando classificação de maturidade ===")
+    logger.info("=== NÓ ORCHESTRATOR CONVERSACIONAL: Iniciando análise contextual ===")
     logger.info(f"Input do usuário: {state['user_input']}")
 
-    # Carregar prompt e modelo do YAML (Épico 6, Funcionalidade 6.1)
-    try:
-        system_prompt = get_agent_prompt("orchestrator")
-        model_name = get_agent_model("orchestrator")
-        logger.info("✅ Configurações carregadas do YAML: config/agents/orchestrator.yaml")
-    except ConfigLoadError as e:
-        logger.warning(f"⚠️ Falha ao carregar config do orchestrator: {e}")
-        logger.warning("⚠️ Usando prompt e modelo padrão (fallback)")
-        # Fallback: prompt hard-coded
-        system_prompt = """Você é o Orquestrador do sistema multi-agente Paper Agent.
+    # Usar prompt conversacional do Épico 7
+    from utils.prompts import ORCHESTRATOR_CONVERSATIONAL_PROMPT_V1
 
-SEU PAPEL:
-Classificar a maturidade do input do usuário e rotear para o agente apropriado.
+    # Construir contexto completo (histórico + input atual)
+    full_context = _build_context(state)
+    logger.info("Contexto construído com histórico completo")
+    logger.debug(f"Contexto:\n{full_context}")
 
-CLASSIFICAÇÕES POSSÍVEIS:
-1. "vague": Ideia não estruturada, observação casual → encaminhar para Estruturador
-2. "semi_formed": Hipótese parcial com alguma estrutura → encaminhar para Metodologista
-3. "complete": Hipótese bem formulada e testável → encaminhar para Metodologista
+    # Construir prompt completo
+    conversational_prompt = f"""{ORCHESTRATOR_CONVERSATIONAL_PROMPT_V1}
 
-CRITÉRIOS DE CLASSIFICAÇÃO:
-- "vague": Apenas observação, sem questão clara, termos vagos
-- "semi_formed": Questão de pesquisa presente mas falta especificidade (população, métricas)
-- "complete": Questão clara, população definida, métricas especificadas, testável
+CONTEXTO DA CONVERSA:
+{full_context}
 
-OUTPUT OBRIGATÓRIO (SEMPRE JSON):
-{
-  "classification": "vague" | "semi_formed" | "complete",
-  "reasoning": "Justificativa específica da classificação"
-}
+Analise o contexto completo acima e responda APENAS com JSON estruturado conforme especificado."""
 
-INSTRUÇÕES:
-- Analise apenas MATURIDADE do input, não rigor científico
-- Seja objetivo: classifique baseado em estrutura presente
-- Não faça análise científica profunda (isso é do Metodologista)
-- SEMPRE retorne JSON válido"""
-        model_name = "claude-3-5-haiku-20241022"
-
-    # Construir prompt completo com input do usuário
-    classification_prompt = f"""{system_prompt}
-
-INPUT DO USUÁRIO:
-{state['user_input']}
-
-Avalie este input e retorne APENAS JSON com classification e reasoning."""
-
-    # Chamar LLM para classificação
+    # Chamar LLM para análise conversacional
+    # Usar modelo mais potente para raciocínio complexo (Claude Sonnet)
+    model_name = "claude-3-5-sonnet-20241022"
     llm = ChatAnthropic(model=model_name, temperature=0)
-    messages = [HumanMessage(content=classification_prompt)]
+    messages = [HumanMessage(content=conversational_prompt)]
     response = llm.invoke(messages)
 
-    logger.info(f"Resposta do LLM: {response.content}")
+    logger.info(f"Resposta do LLM (primeiros 200 chars): {response.content[:200]}...")
 
     # Registrar execução no MemoryManager (Épico 6.2)
     if config:
         memory_manager = config.get("configurable", {}).get("memory_manager")
         if memory_manager:
-            # Extrair classificação antes de registrar (será usada no summary)
+            # Extrair next_step antes de registrar (será usada no summary)
             try:
                 temp_data = extract_json_from_llm_response(response.content)
-                temp_classification = temp_data.get("classification", "unknown")
+                temp_next_step = temp_data.get("next_step", "unknown")
             except:
-                temp_classification = "unknown"
+                temp_next_step = "unknown"
 
             register_execution(
                 memory_manager=memory_manager,
                 config=config,
                 agent_name="orchestrator",
                 response=response,
-                summary=f"Classificação: {temp_classification}",
+                summary=f"Próximo passo: {temp_next_step}",
                 model_name=model_name,
                 extra_metadata={
-                    "classification": temp_classification,
-                    "user_input_length": len(state['user_input'])
+                    "next_step": temp_next_step,
+                    "context_length": len(full_context)
                 }
             )
 
-    # Parse da resposta
+    # Parse da resposta JSON
     try:
-        classification_data = extract_json_from_llm_response(response.content)
-        classification = classification_data.get("classification", "vague")
-        reasoning = classification_data.get("reasoning", "Classificação padrão por falha no parsing")
+        orchestrator_response = extract_json_from_llm_response(response.content)
 
-        # Validar classificação
-        valid_classifications = ["vague", "semi_formed", "complete"]
-        if classification not in valid_classifications:
-            logger.warning(f"Classificação inválida '{classification}'. Usando 'vague' como padrão.")
-            classification = "vague"
-            reasoning = f"Classificação inválida detectada. Assumindo input vago por segurança."
+        reasoning = orchestrator_response.get("reasoning", "Raciocínio não fornecido")
+        next_step = orchestrator_response.get("next_step", "explore")
+        message = orchestrator_response.get("message", "Entendi. Como posso ajudar?")
+        agent_suggestion = orchestrator_response.get("agent_suggestion", None)
 
-        logger.debug(f"Classificação parseada: {classification}")
-        logger.debug(f"Reasoning: {reasoning}")
+        # Validar next_step
+        valid_next_steps = ["explore", "suggest_agent", "clarify"]
+        if next_step not in valid_next_steps:
+            logger.warning(f"next_step inválido '{next_step}'. Usando 'explore' como padrão.")
+            next_step = "explore"
+
+        # Validar consistência: se next_step="suggest_agent", agent_suggestion deve existir
+        if next_step == "suggest_agent" and not agent_suggestion:
+            logger.warning("next_step='suggest_agent' mas agent_suggestion é None. Mudando para 'explore'.")
+            next_step = "explore"
+            message = "Preciso entender melhor o contexto. Me conta mais sobre sua ideia?"
+
+        logger.info(f"Raciocínio: {reasoning[:100]}...")
+        logger.info(f"Próximo passo: {next_step}")
+        logger.info(f"Mensagem ao usuário: {message[:100]}...")
+        if agent_suggestion:
+            logger.info(f"Sugestão de agente: {agent_suggestion.get('agent', 'N/A')}")
 
     except json.JSONDecodeError as e:
-        logger.error(f"Falha ao parsear JSON da classificação: {e}. Usando 'vague' como padrão.")
-        classification = "vague"
-        reasoning = "Erro ao processar classificação do LLM. Assumindo input vago por segurança."
+        logger.error(f"Falha ao parsear JSON do orquestrador: {e}")
+        logger.error(f"Resposta recebida: {response.content[:300]}...")
+        # Fallback seguro
+        reasoning = "Erro ao processar resposta do orquestrador"
+        next_step = "explore"
+        message = "Desculpe, tive dificuldade em processar. Pode reformular sua ideia?"
+        agent_suggestion = None
 
-    # Determinar próximo estágio baseado na classificação
-    if classification == "vague":
-        next_stage = "structuring"  # Vai para Estruturador
-    else:  # semi_formed ou complete
-        next_stage = "validating"  # Vai para Metodologista
+    logger.info("=== NÓ ORCHESTRATOR CONVERSACIONAL: Finalizado ===\n")
 
-    logger.info(f"Classificação: {classification}")
-    logger.info(f"Próximo estágio: {next_stage}")
-    logger.info(f"Reasoning: {reasoning}")
-    logger.info("=== NÓ ORCHESTRATOR: Finalizado ===\n")
-
-    # Criar AIMessage com o conteúdo da classificação para histórico
-    ai_message = AIMessage(
-        content=f"Classificação: {classification}\nReasoning: {reasoning}"
-    )
+    # Criar AIMessage com a mensagem conversacional para histórico
+    ai_message = AIMessage(content=message)
 
     return {
-        "orchestrator_classification": classification,
-        "orchestrator_reasoning": reasoning,
-        "current_stage": next_stage,
+        "orchestrator_analysis": reasoning,
+        "next_step": next_step,
+        "agent_suggestion": agent_suggestion,
         "messages": [ai_message]
     }
