@@ -173,7 +173,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
 
     # Chamar LLM para análise conversacional
     # Usar modelo mais potente para raciocínio complexo (Claude Sonnet)
-    model_name = "claude-3-5-sonnet-20241022"
+    model_name = "claude-3-5-sonnet-20240620"
     llm = ChatAnthropic(model=model_name, temperature=0)
     messages = [HumanMessage(content=conversational_prompt)]
     response = llm.invoke(messages)
