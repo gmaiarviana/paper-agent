@@ -1,5 +1,58 @@
 # Planning Guidelines
 
+## Filosofia de Desenvolvimento
+
+Este projeto segue mentalidade **incremental e pragmática**:
+
+### Progressão por Estágios
+- **POC (Proof of Concept):** Validar viabilidade técnica com funcionalidade mínima
+- **Protótipo:** Expandir funcionalidade com refinamentos identificados no POC
+- **MVP:** Versão publicável com escopo mínimo valioso
+- **Melhorias:** Expansão gradual baseada em feedback de uso real
+
+### Princípios de Planejamento
+1. **Refinar apenas o que está claro**
+   - Épicos só são refinados quando se tornam prioritários
+   - Refinamento requer compreensão técnica do estado atual do sistema
+   - Funcionalidades detalhadas só após sessão de refinamento dedicada
+
+2. **Fazer > Planejar demais**
+   - Implementar POC mínimo e validar antes de expandir
+   - Aprender com código real, não especulação
+   - Ajustar plano baseado em implementação, não o contrário
+
+3. **Validar > Assumir**
+   - Cada estágio (POC/Protótipo/MVP) deve ser validado antes do próximo
+   - Validação = rodar sistema com cenários reais, não apenas testes passando
+   - Feedback de validação informa refinamento do próximo estágio
+
+4. **Iterar > Acertar de primeira**
+   - Versão 1.0 de qualquer funcionalidade será imperfeita
+   - Sistema evolui através de iterações sucessivas
+   - Aceitamos limitações conhecidas em versões iniciais
+
+5. **Funcionalidade mínima > Feature completa**
+   - Entregar valor incremental cedo e frequentemente
+   - Preferir funcionalidade simples que funciona a feature complexa incompleta
+   - Expandir apenas quando mínimo está sólido
+
+### Gestão do Backlog
+- **Backlog = Desejo, não compromisso**
+- Ideias vão para backlog sem serem épicos formais
+- Épicos não-refinados aguardam priorização + clareza técnica
+- Remover do backlog é tão válido quanto adicionar (não há apego)
+
+### Quando Refinar um Épico
+Refine quando **TODOS** estes critérios forem atendidos:
+- ✅ Épico se tornou prioritário (próximo na fila)
+- ✅ Dependências técnicas foram implementadas e validadas
+- ✅ Estado atual do sistema é bem compreendido
+- ✅ Há clareza sobre valor de negócio e viabilidade técnica
+
+**Não refine:** épicos distantes, dependências não validadas, incerteza técnica.
+
+---
+
 ## Princípio Fundamental
 
 **Roadmap = FUTURO** (próximos passos + ideias)
