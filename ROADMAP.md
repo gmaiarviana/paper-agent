@@ -7,9 +7,9 @@
 ### ✅ Épicos Refinados (Prontos para Implementação)
 - ÉPICO 5: Interface Conversacional e Transparência
 - ÉPICO 6: Memória Dinâmica e Contexto por Agente
+- ÉPICO 7: Orquestrador Conversacional Inteligente (POC refinado)
 
 ### ⚠️ Épicos Não-Refinados (Requerem Discussão Antes da Implementação)
-- ÉPICO 7: Modelo de Dados e Persistência Durável
 - ÉPICO 8: Pipeline Completo Ideia → Artigo
 - ÉPICO 9: Debate Multi-Agente Mediado
 
@@ -54,44 +54,94 @@ Funcionalidade 6.1 concluída: Configuração externa de agentes via YAML.
 
 **Objetivo:** Transformar sistema de "trilho fixo" em diálogo adaptativo onde usuário e sistema decidem caminho juntos através de negociação contínua.
 
-**Status:** 🟡 Em refinamento
+**Status:** 🟡 Parcialmente refinado - POC pronto, Protótipo e MVP aguardam refinamento
 
 **Dependências:**
-- Épico 6.2 concluído (registro de memória)
+- Épico 6.2 concluído ✅
 
-**Consulte:** `docs/orchestration/conversational_orchestrator.md` para especificação detalhada.
+**Consulte:** 
+- `docs/orchestration/conversational_orchestrator.md` - especificação técnica completa
+- `docs/product/conversation_patterns.md` - padrões de conversa esperados
 
-### Progressão POC → Protótipo → MVP
+---
 
-#### POC (primeira entrega - foco mínimo viável)
-- 7.1: Orquestrador mantém diálogo fluido (não apenas roteia)
-- 7.2: Oferece opções ao usuário (não impõe caminho)
-- 7.3: Chama agentes sob demanda (quando usuário concorda)
+#### POC (primeira entrega - ✅ REFINADO)
+
+**Status:** Pronto para implementação
+
+**Funcionalidades:**
+
+**7.1: Exploração com Perguntas Abertas**
+- Orquestrador faz perguntas abertas para entender intenção
+- Não classifica automaticamente (vague/semi_formed/complete)
+- Remove lógica de classificação atual
+- Exemplo: "Interessante! Você quer VER literatura ou TESTAR hipótese?"
+
+**7.2: Análise Contextual**
+- Analisa input + histórico completo da conversa
+- Identifica o que está claro e o que falta
+- Detecta padrões: crença vs observação vs hipótese
+- Constrói "argumento focal" implícito (via histórico)
+
+**7.3: Sugestão com Justificativa**
+- Sugere próximos passos com razão clara
+- Sempre apresenta opções, não decide sozinho
+- Exemplo: "Posso chamar Metodologista porque você mencionou população e métricas"
+
+**7.4: Detecção de Mudança de Direção**
+- LLM compara novo input com histórico
+- Detecta contradições ou mudanças de foco
+- Adapta sem questionar mudanças
+- Atualiza argumento focal implícito
 
 **Critérios de aceite POC:**
-- Sistema conversa antes de chamar agente
-- Usuário pode escolher entre opções (A, B ou C)
-- Agentes só executam após confirmação
+- ✅ Sistema conversa antes de chamar agente
+- ✅ Perguntas abertas (não classificação)
+- ✅ Análise contextual (não garçom)
+- ✅ Sugestões com justificativa
+- ✅ Detecção de mudança via LLM
+- ✅ Conversação natural (não números/keywords)
 
-#### Protótipo (segunda entrega - inteligência básica)
-- 7.4: Detecção inteligente de quando agente faz sentido
-- 7.5: Provocação de reflexão ("Você pensou em X?")
-- 7.6: Handling de mudança de direção
+**Tarefas de implementação:**
+- [ ] 7.1.1: Criar `ORCHESTRATOR_CONVERSATIONAL_PROMPT_V1` em `utils/prompts.py`
+- [ ] 7.1.2: Substituir `orchestrator_node` atual em `agents/orchestrator/nodes.py`
+- [ ] 7.1.3: Implementar `_build_context()` para construir histórico completo
+- [ ] 7.1.4: Adicionar parsing de JSON response com error handling
+- [ ] 7.1.5: Atualizar `MultiAgentState` com campos: `orchestrator_analysis`, `next_step`, `agent_suggestion`
+- [ ] 7.1.6: Remover `route_from_orchestrator` (não mais necessário)
+- [ ] 7.1.7: Criar testes unitários: `tests/unit/test_orchestrator_conversational.py`
+- [ ] 7.1.8: Criar script de validação: `scripts/flows/validate_conversational_orchestrator.py`
+- [ ] 7.1.9: Atualizar CLI para exibir raciocínio do orquestrador
+- [ ] 7.1.10: Atualizar Dashboard para exibir "argumento focal" implícito
 
-**Critérios de aceite Protótipo:**
-- Sistema sugere agente apropriado no momento certo
-- Faz perguntas esclarecedoras que ajudam usuário
-- Adapta quando usuário muda de ideia
+**Limitações conhecidas do POC:**
+- Argumento focal é implícito (via histórico) - será explícito no Protótipo
+- Ignora limite de contexto do Claude - será tratado no Protótipo
+- Raciocínio básico - será refinado no Protótipo
 
-#### MVP (terceira entrega - sistema completo)
-- 7.7: Detecção emergente de estágio (exploration → hypothesis)
-- 7.8: Reasoning explícito das decisões
-- 7.9: Histórico de decisões do usuário (aprende preferências)
+---
 
-**Critérios de aceite MVP:**
-- Sistema infere estágio sem classificar explicitamente
-- Explica por que sugeriu determinada ação
-- Adapta sugestões baseado em padrões do usuário
+#### Protótipo (segunda entrega - ⚠️ NÃO REFINADO)
+
+**Status:** Aguarda refinamento após POC validado
+
+**Funcionalidades planejadas:**
+- 7.5: Argumento focal explícito (campo no state)
+- 7.6: Detecção inteligente avançada
+- 7.7: Provocação de reflexão ("Você pensou em X?")
+- 7.8: Handling de contexto longo (truncamento inteligente)
+
+---
+
+#### MVP (terceira entrega - ⚠️ NÃO REFINADO)
+
+**Status:** Aguarda refinamento após Protótipo validado
+
+**Funcionalidades planejadas:**
+- 7.9: Detecção emergente de estágio (exploration → hypothesis)
+- 7.10: Reasoning explícito das decisões
+- 7.11: Histórico de decisões do usuário (aprende preferências)
+- 7.12: Argumento focal persistente (entidade Topic - integração com Épico 8)
 
 ---
 
@@ -194,6 +244,12 @@ Funcionalidade 6.1 concluída: Configuração externa de agentes via YAML.
 - Sistema não deve classificar automaticamente no início
 - Tipo emerge da conversa (princípio de conversação)
 - Pode ser feature do Épico 7 MVP (detecção emergente)
+
+**Argumento Focal (Épico 7 + 8):**
+- Conceito introduzido no Épico 7 (implícito)
+- Torna-se explícito no Épico 8 (entidade Topic)
+- Permite detecção de mudança de direção
+- Base para inferência de article_type e stage
 
 ---
 

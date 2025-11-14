@@ -253,6 +253,9 @@ Sistema: "Você já escolheu hipótese empírica. Não posso mudar agora."
 
 ## 6. Exemplos de Conversas Boas vs Ruins
 
+> **Nota sobre Análise Contextual (Épico 7 POC):**  
+> Todos os exemplos seguem o padrão de "análise contextual" onde o Orquestrador analisa o histórico da conversa e o contexto atual antes de tomar decisões. O sistema não classifica automaticamente no primeiro turno, mas explora a intenção do usuário através de diálogo, considerando todo o contexto acumulado para oferecer opções relevantes.
+
 ### 6.1 Conversa BOA: Exploração Colaborativa
 
 ```
@@ -282,10 +285,10 @@ Sistema: "Ótimo! Podemos seguir com: 1) definir desenho experimental,
 ```
 
 **Por que é boa:**
-- ✅ Sistema explora sem impor
-- ✅ Cada passo é negociado
-- ✅ Usuário tem controle
-- ✅ Opções claras e contextuais
+- ✅ Sistema explora sem impor (análise contextual antes de classificar)
+- ✅ Cada passo é negociado (considera contexto acumulado)
+- ✅ Usuário tem controle (sistema oferece opções baseadas no contexto)
+- ✅ Opções claras e contextuais (derivadas da análise do histórico)
 
 ### 6.2 Conversa RUIM: Pipeline Rígido
 
@@ -305,10 +308,10 @@ Sistema: "Hipótese aprovada. Finalizando."
 ```
 
 **Por que é ruim:**
-- ❌ Sistema decide sozinho
-- ❌ Usuário não participa
-- ❌ Sem negociação
-- ❌ Fluxo determinístico
+- ❌ Sistema decide sozinho (classifica sem análise contextual)
+- ❌ Usuário não participa (não explora intenção através de diálogo)
+- ❌ Sem negociação (ignora contexto da conversa)
+- ❌ Fluxo determinístico (roteia automaticamente sem considerar histórico)
 
 ### 6.3 Conversa BOA: Mudança de Direção
 
@@ -328,10 +331,10 @@ Sistema: "Agora podemos buscar papers. Quer que eu chame o Pesquisador?"
 ```
 
 **Por que é boa:**
-- ✅ Sistema aceita mudança sem questionar
-- ✅ Adapta imediatamente
-- ✅ Preserva contexto útil
-- ✅ Oferece próximo passo relevante
+- ✅ Sistema aceita mudança sem questionar (analisa novo contexto)
+- ✅ Adapta imediatamente (atualiza análise contextual)
+- ✅ Preserva contexto útil (mantém informações relevantes do histórico)
+- ✅ Oferece próximo passo relevante (baseado no novo contexto)
 
 ### 6.4 Conversa RUIM: Resistência a Mudança
 
@@ -344,10 +347,10 @@ Sistema: "Você já escolheu hipótese empírica. Não posso mudar agora.
 ```
 
 **Por que é ruim:**
-- ❌ Sistema resiste a mudança
-- ❌ Força continuidade
-- ❌ Não adapta
-- ❌ Cria fricção desnecessária
+- ❌ Sistema resiste a mudança (ignora novo contexto)
+- ❌ Força continuidade (não atualiza análise contextual)
+- ❌ Não adapta (mantém decisão anterior sem reanalisar)
+- ❌ Cria fricção desnecessária (não considera evolução do argumento focal)
 
 ---
 
@@ -394,7 +397,102 @@ Antes de implementar uma interação, verificar:
 
 ---
 
-**Versão:** 1.0  
-**Data:** 13/11/2025  
-**Status:** Especificação completa
+## 9. Argumento Focal (Conceito para Épico 8)
+
+### O que é Argumento Focal?
+
+O Orquestrador está construindo um **"argumento focal"** sobre o que o usuário quer fazer. Esse argumento evolui ao longo da conversa e serve como âncora para detectar contexto e mudanças de direção.
+
+### Evolução do Argumento Focal
+
+**Turno 1:** Usuário tem observação vaga  
+Argumento focal: "Usuário observou que LLMs aumentam produtividade"
+
+**Turno 3:** Usuário quer testar hipótese  
+Argumento focal: "Usuário quer testar hipótese: LLMs aumentam produtividade"
+
+**Turno 5:** Metodologista sugere refinamento  
+Argumento focal: "Usuário quer testar hipótese: LLMs aumentam produtividade em equipes de 2-5 devs, medido por tempo de sprint"
+
+**Turno 8:** Usuário muda para revisão  
+Argumento focal: "Usuário quer fazer revisão de literatura sobre LLMs e produtividade" [argumento anterior abandonado]
+
+### Benefícios do Argumento Focal
+
+**1. Detecção de Mudança de Direção**
+- Sistema compara novo input com argumento focal atual
+- Se contradiz → mudança de direção detectada
+- Adapta sem questionar
+
+**2. Contexto Preservado**
+- Argumento focal acumula decisões do usuário
+- Sistema lembra o que foi decidido anteriormente
+- Evita perguntas repetitivas
+
+**3. Sugestões Contextuais**
+- Sistema sugere próximos passos baseado no argumento focal
+- Exemplo: Se argumento focal tem população + métricas → sugerir Metodologista
+
+### Conexão com Épico 8
+
+No Épico 8, argumento focal se tornará explícito:
+```python
+Topic:
+  id: UUID
+  title: "Impacto de LLMs em produtividade"
+  focal_argument: {
+    "intent": "test_hypothesis",  # ou "review_literature", "build_theory"
+    "subject": "LLMs impact on developer productivity",
+    "population": "teams of 2-5 developers",
+    "metrics": "time per sprint",
+    "article_type": "empirical"  # inferido do argumento
+  }
+  stage: "hypothesis"  # derivado do argumento focal
+  created_at: timestamp
+  updated_at: timestamp
+```
+
+**Campos derivados do argumento focal:**
+- `article_type`: emerge do intent (test_hypothesis → empirical)
+- `stage`: emerge dos elementos presentes (população + métricas → hypothesis)
+- `title`: extraído do subject do argumento focal
+
+### Implementação no POC
+
+**POC (implícito):**
+- Argumento focal vive apenas no histórico da conversa
+- LLM reconstrói argumento focal a cada turno analisando histórico
+- Funciona mas é ineficiente
+
+**Protótipo (explícito):**
+- Argumento focal vira campo no `MultiAgentState`
+- Atualizado explicitamente pelo Orquestrador
+- Mais eficiente e rastreável
+
+**MVP (persistente):**
+- Argumento focal salvo na entidade `Topic`
+- Permite pausar/retomar com contexto preservado
+- Histórico de argumentos focais (rollback possível)
+
+### Exemplo de Uso na Detecção de Mudança
+```python
+# Argumento focal atual (implícito no POC)
+current_focal = "Usuário quer testar hipótese: método X reduz tempo em 30%"
+
+# Novo input
+new_input = "Na verdade, quero fazer revisão de literatura"
+
+# LLM compara
+comparison = llm.compare(current_focal, new_input)
+# Result: "Contradição detectada: foco mudou de 'testar' para 'revisar'"
+
+# Sistema adapta
+new_focal = "Usuário quer fazer revisão de literatura sobre método X"
+```
+
+---
+
+**Versão:** 1.1  
+**Data:** 15/11/2025  
+**Status:** Especificação completa - Revisado para alinhamento com Épico 7 POC
 
