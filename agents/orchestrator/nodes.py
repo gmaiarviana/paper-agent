@@ -24,6 +24,94 @@ from agents.memory.execution_tracker import register_execution
 logger = logging.getLogger(__name__)
 
 
+def _build_context(state: MultiAgentState) -> str:
+    """
+    Constrói contexto completo a partir do histórico de mensagens.
+
+    Esta função helper reconstrói o "argumento focal" implícito da conversa
+    analisando todo o histórico de mensagens (user_input + messages).
+
+    O argumento focal é o entendimento atual do sistema sobre:
+    - O que o usuário quer fazer (intenção)
+    - Contexto compartilhado até agora
+    - Direção da conversa
+
+    No POC do Épico 7, o argumento focal é implícito (reconstruído via histórico).
+    No Protótipo/MVP, será campo explícito no state.
+
+    Args:
+        state (MultiAgentState): Estado atual do sistema multi-agente.
+
+    Returns:
+        str: Histórico formatado para análise contextual pelo LLM.
+            Formato:
+            ```
+            INPUT INICIAL DO USUÁRIO:
+            {user_input}
+
+            HISTÓRICO DA CONVERSA:
+            [Usuário]: {mensagem 1}
+            [Assistente]: {resposta 1}
+            [Usuário]: {mensagem 2}
+            ...
+            ```
+
+    Example:
+        >>> state = create_initial_multi_agent_state(
+        ...     "Observei que LLMs aumentam produtividade",
+        ...     "session-123"
+        ... )
+        >>> context = _build_context(state)
+        >>> "INPUT INICIAL DO USUÁRIO" in context
+        True
+        >>> "Observei que LLMs aumentam produtividade" in context
+        True
+
+    Notes:
+        - Se não houver mensagens, retorna apenas o input inicial
+        - Formato é otimizado para análise contextual pelo LLM
+        - Usado pelo orchestrator_node conversacional (Épico 7)
+
+    Technical Details:
+        - Lê state['user_input'] como input inicial
+        - Lê state['messages'] (gerenciado por LangGraph com add_messages)
+        - HumanMessage → "[Usuário]"
+        - AIMessage → "[Assistente]"
+        - Mantém ordem cronológica (importante para detectar mudanças de direção)
+    """
+    # Input inicial do usuário
+    context_parts = [
+        "INPUT INICIAL DO USUÁRIO:",
+        state["user_input"],
+        ""  # linha em branco
+    ]
+
+    # Histórico de mensagens (se houver)
+    messages = state.get("messages", [])
+    if messages:
+        context_parts.append("HISTÓRICO DA CONVERSA:")
+
+        for msg in messages:
+            # Identificar tipo de mensagem
+            if hasattr(msg, '__class__'):
+                msg_type = msg.__class__.__name__
+            else:
+                msg_type = "Unknown"
+
+            # Formatar conforme tipo
+            if msg_type == "HumanMessage":
+                context_parts.append(f"[Usuário]: {msg.content}")
+            elif msg_type == "AIMessage":
+                context_parts.append(f"[Assistente]: {msg.content}")
+            else:
+                # Fallback para outros tipos de mensagem
+                context_parts.append(f"[{msg_type}]: {msg.content}")
+
+        context_parts.append("")  # linha em branco final
+
+    return "\n".join(context_parts)
+
+
 def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> dict:
     """
     Nó que classifica a maturidade do input do usuário e decide roteamento.
