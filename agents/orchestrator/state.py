@@ -7,8 +7,8 @@ do sistema (Orquestrador, Estruturador, Metodologista).
 O estado é híbrido: possui campos compartilhados (todos os agentes leem/escrevem)
 e campos específicos por agente (apenas o agente responsável escreve).
 
-Versão: 2.0 (Épico 4 - Loop de Refinamento Colaborativo)
-Data: 12/11/2025
+Versão: 2.1 (Épico 7, Task 7.1.5 - Orquestrador Conversacional POC)
+Data: 14/11/2025
 """
 
 from typing import TypedDict, Optional, Annotated, Literal
@@ -62,16 +62,28 @@ class MultiAgentState(TypedDict):
 
     === SEÇÃO 2: CAMPOS ESPECÍFICOS POR AGENTE ===
 
-    orchestrator_classification (Optional[str]):
-        Classificação feita pelo Orquestrador sobre a maturidade do input.
-        Valores possíveis:
-        - "vague": Ideia não estruturada → encaminha para Estruturador
-        - "semi_formed": Hipótese parcial → encaminha para Metodologista
-        - "complete": Hipótese completa → encaminha para Metodologista
-
-    orchestrator_reasoning (Optional[str]):
-        Justificativa do Orquestrador sobre por que escolheu aquela classificação.
+    orchestrator_analysis (Optional[str]):
+        Análise do Orquestrador sobre o contexto e histórico conversacional (Épico 7).
+        Contém o raciocínio do Orquestrador sobre o que está claro e o que falta.
         Usado para transparência e debugging.
+        Exemplo: "Usuário mencionou produtividade mas não especificou métricas..."
+
+    next_step (Optional[Literal["explore", "suggest_agent", "clarify"]]):
+        Próximo passo definido pelo Orquestrador (Épico 7).
+        Valores possíveis:
+        - "explore": Fazer perguntas abertas para entender melhor o contexto
+        - "suggest_agent": Sugerir chamada de agente especializado
+        - "clarify": Esclarecer algum aspecto específico do input
+
+    agent_suggestion (Optional[dict]):
+        Sugestão de agente com justificativa (Épico 7).
+        Apenas preenchido quando next_step = "suggest_agent".
+        Estrutura:
+        {
+            "agent": str,            # Nome do agente (ex: "methodologist", "structurer")
+            "justification": str     # Por que faz sentido chamar este agente
+        }
+        Exemplo: {"agent": "methodologist", "justification": "Usuário definiu população e métricas"}
 
     structurer_output (Optional[dict]):
         Output do Estruturador após processar ideia vaga.
@@ -122,9 +134,10 @@ class MultiAgentState(TypedDict):
     # === VERSIONAMENTO (Épico 4) ===
     hypothesis_versions: list
 
-    # === ESPECÍFICO: ORQUESTRADOR ===
-    orchestrator_classification: Optional[str]
-    orchestrator_reasoning: Optional[str]
+    # === ESPECÍFICO: ORQUESTRADOR (Épico 7 - Conversacional) ===
+    orchestrator_analysis: Optional[str]
+    next_step: Optional[Literal["explore", "suggest_agent", "clarify"]]
+    agent_suggestion: Optional[dict]
 
     # === ESPECÍFICO: ESTRUTURADOR ===
     structurer_output: Optional[dict]
@@ -169,9 +182,10 @@ def create_initial_multi_agent_state(user_input: str, session_id: str) -> MultiA
         # Versionamento (Épico 4)
         hypothesis_versions=[],
 
-        # Específico: Orquestrador
-        orchestrator_classification=None,
-        orchestrator_reasoning=None,
+        # Específico: Orquestrador (Épico 7 - Conversacional)
+        orchestrator_analysis=None,
+        next_step=None,
+        agent_suggestion=None,
 
         # Específico: Estruturador
         structurer_output=None,
