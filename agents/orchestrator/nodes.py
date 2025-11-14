@@ -172,7 +172,10 @@ CONTEXTO DA CONVERSA:
 Analise o contexto completo acima e responda APENAS com JSON estruturado conforme especificado."""
 
     # Chamar LLM para análise conversacional
-    # Usar modelo mais potente para raciocínio complexo (Claude Sonnet)
+    # DECISÃO: Usar Claude Sonnet (hard-coded) para Orquestrador Conversacional (Épico 7)
+    # Razão: Análise contextual complexa requer raciocínio avançado
+    #        (detecção de mudança de direção, reconstrução de argumento focal)
+    # Nota: Outros agentes (Estruturador, Metodologista) usam config do YAML (Haiku por padrão)
     model_name = "claude-3-5-sonnet-20240620"
     llm = ChatAnthropic(model=model_name, temperature=0)
     messages = [HumanMessage(content=conversational_prompt)]
