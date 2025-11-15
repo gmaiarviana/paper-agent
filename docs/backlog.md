@@ -125,6 +125,20 @@ Funcionalidades desejáveis mas não essenciais para MVP.
 
 ---
 
+### SSE (Server-Sent Events) para Interface Web
+Otimização de performance para streaming de eventos em tempo real na interface web.
+
+- Implementar endpoint SSE: `/events/<session_id>` (FastAPI separado)
+- Interface consome eventos via `EventSource` API (JavaScript)
+- Substituir polling por SSE (elimina delay de 1s)
+- Fallback automático para polling se SSE falhar
+- Reconnect automático em caso de desconexão
+- Deploy: 2 processos (Streamlit :8501 + FastAPI :8000)
+
+**Contexto:** Funcionalidade planejada originalmente para MVP do Épico 9, mas movida para Backlog. Sistema já funciona bem com polling (1s), SSE é otimização adicional quando/se delay se tornar problema na prática.
+
+---
+
 ### Alertas de Custo
 Avisos automáticos para evitar surpresas com gastos de API.
 

@@ -69,22 +69,78 @@ python -c "import langgraph; print('✅ LangGraph instalado com sucesso!')"
 > - **Linux/Mac:** Use `python3` para garantir que está usando Python 3.x, ou `python` se estiver com venv ativado.
 > - **Regra geral:** Com venv ativado, `python` sempre aponta para o Python do ambiente virtual, independentemente do sistema operacional.
 
-Comandos Básicos
-----------------
+Interfaces do Sistema
+---------------------
 
-### Interface Web
+O Paper Agent oferece **duas interfaces web** para diferentes necessidades, além de CLI para desenvolvimento:
 
-> **⚠️ NOTA:** Interface web conversacional (`app/chat.py`) será implementada no Épico 9. Atualmente disponível apenas o Dashboard (`app/dashboard.py`) para visualização de eventos.
+### 1. Interface Web Conversacional (Principal)
 
+Interface web como experiência principal com chat fluido e painel "Bastidores" para transparência:
 ```bash
-# Executar dashboard de visualização
+# Executar interface principal
+streamlit run app/chat.py
+```
+
+Navegador abre em `http://localhost:8501`.
+
+**O que oferece:**
+- 💬 **Chat conversacional**: Input de mensagens, histórico, métricas inline
+- 🔍 **Bastidores (opcional)**: Reasoning dos agentes em tempo real
+- 📊 **Timeline**: Histórico de decisões dos agentes (colapsado)
+- 💰 **Métricas discretas**: Custo e tokens por mensagem
+- 📂 **Sessões**: Sidebar com últimas 10 conversas (backend SqliteSaver)
+- 💾 **Persistência**: Sessões sobrevivem entre visitas (sem autenticação)
+
+**Uso:**
+1. Execute o comando acima
+2. Digite sua ideia ou observação no chat
+3. Converse naturalmente - sistema faz perguntas para entender contexto
+4. Clique "🔍 Ver raciocínio" para ver bastidores (opcional)
+5. Sistema sugere quando chamar agentes especializados
+6. Você decide aceitar ou continuar conversando
+
+**Bastidores (quando aberto):**
+````
+┌─────────────────────────────────────┐
+│ 🧠 Orquestrador                     │
+│                                     │
+│ Usuário tem observação com contexto,│
+│ mas falta estruturação formal.      │
+│                                     │
+│ [📄 Ver raciocínio completo]        │
+│                                     │
+│ ⏱️ 1.2s | 💰 $0.0012 | 📊 215 tokens│
+└─────────────────────────────────────┘
+````
+
+### 2. Dashboard (Debug/Monitoring)
+
+Interface de debug mantida para desenvolvedores visualizarem eventos de todas as sessões:
+```bash
+# Executar dashboard de debug
 streamlit run app/dashboard.py
 ```
 
-Dashboard exibe eventos e reasoning dos agentes em tempo real.
+Navegador abre em `http://localhost:8501` (mesma porta, app diferente).
 
-### CLI (Desenvolvimento)
+**O que oferece:**
+- 📋 Lista todas as sessões ativas do sistema
+- 🕒 Timeline cronológica de eventos por sessão
+- 📊 Status visual dos agentes (executando, concluído, erro)
+- 🔄 Auto-refresh configurável (padrão: 2 segundos)
+- 📈 Estatísticas: eventos por tipo, agentes executados, total de tokens
+- 🗑️ Ações: atualizar manualmente, limpar sessão
 
+**Quando usar:**
+- ✅ Debug de problemas em sessões específicas
+- ✅ Monitoring de uso geral do sistema
+- ✅ Desenvolvimento/validação de novos agentes
+- ❌ Uso interativo normal (preferir chat.py)
+
+### 3. CLI (Desenvolvimento)
+
+Interface de linha de comando mantida para desenvolvimento e automação (não para uso interativo):
 ```bash
 # Modo padrão
 python cli/chat.py
@@ -93,21 +149,13 @@ python cli/chat.py
 python cli/chat.py --verbose
 ```
 
-### Validação e Testes
+**Quando usar CLI:**
+- ✅ Testes automatizados (scripts, CI/CD)
+- ✅ Debugging de agentes
+- ✅ Validação rápida de prompts
+- ❌ Uso interativo (preferir interface web)
 
-```bash
-# Health check da API
-python scripts/health_checks/validate_api.py
-
-# Testes unitários (rápidos, sem API)
-python -m pytest tests/unit/ -v
-
-# Testes de integração (requer API key)
-python -m pytest tests/integration/ -v
-
-# Validação de configurações
-python scripts/health_checks/validate_agent_config.py
-```
+**Nota:** CLI compartilha mesmo backend da interface web (LangGraph + EventBus). Funcionalidade congelada - novas features vão para web.
 
 ---
 

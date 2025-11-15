@@ -15,6 +15,30 @@
 
 ---
 
+## 1.1 Dashboard vs Chat
+
+O sistema mantém **duas interfaces web** com propósitos distintos:
+
+### Interface Principal: Chat (`app/chat.py`)
+- **Propósito:** Experiência do usuário final
+- **Foco:** Uma sessão ativa por vez
+- **Bastidores:** Reasoning visível opcionalmente
+- **Público:** Pesquisadores usando o sistema
+
+### Interface de Debug: Dashboard (`app/dashboard.py`)
+- **Propósito:** Monitoring e debug
+- **Foco:** Visão global de todas as sessões
+- **Eventos:** Timeline completa de todas as sessões
+- **Público:** Desenvolvedores e administradores
+
+**Diferenças técnicas:**
+- **Chat:** Interface rica, conversação fluida, bastidores inline
+- **Dashboard:** Visão consolidada, eventos agregados, telemetria
+- **Backend:** Ambos usam LangGraph + EventBus (compartilhado)
+- **Porta:** Ambos rodam em :8501 (apps separados, mesma porta)
+
+---
+
 ## 2. Arquitetura
 
 ### Stack Técnico
@@ -350,14 +374,17 @@ def render_backstage_polling(session_id: str):
 - ✅ Simples de implementar (EventBus já existe)
 - ✅ Suficiente para POC (valida valor da interface)
 
-**Migração para SSE (MVP):**
-- Implementar endpoint SSE (seção 5.3)
-- Interface consome via `EventSource` API
-- Fallback para polling se SSE falhar
+**Otimização no Protótipo e MVP:**
+- Intervalo mantido em 1s (suficiente para experiência)
+- SSE planejado movido para Backlog (ver BACKLOG.md)
+- Decisão: Simplicidade > Performance prematura
 
 ### 5.3 SSE (Server-Sent Events) - MVP
 
-> **📌 Nota:** SSE é implementado no MVP como otimização de performance. POC usa polling (seção 5.2).
+> **📌 Status:** Funcionalidade movida para Backlog (BACKLOG.md).  
+> MVP usa polling otimizado (1s). SSE será implementado se/quando delay se tornar problema na prática.
+
+---
 
 **Arquivo: `app/sse.py`**
 ```python
@@ -410,19 +437,68 @@ def consume_sse(session_id: str):
 
 ## 6. Persistência de Sessões
 
-### Opções (a definir na implementação)
+### Progressão POC → Protótipo → MVP
 
-**Opção A: SqliteSaver (LangGraph)**
-- ✅ Já usado no backend (checkpoints)
-- ✅ Recupera histórico completo via thread_id
-- ⚠️ Precisa mapear thread_id → título da sessão
+**POC (9.1-9.5):**
+- **Armazenamento:** `st.session_state` (temporário)
+- **Comportamento:** Recarregar página = perde histórico completo
+- **Justificativa:** Validar UX de chat antes de complicar com persistência
+- **Código:** Nativo Streamlit (sem dependências extras)
 
-**Opção B: localStorage (navegador)**
-- ✅ Mais simples (frontend only)
-- ✅ Funciona sem backend adicional
-- ⚠️ Limitado ao navegador (não funciona em múltiplos dispositivos)
+**Protótipo (9.6-9.9):**
+- **Armazenamento:** `localStorage` (navegador)
+- **Comportamento:** Sessões sobrevivem reload da página
+- **Limitação:** Sessões por device (não compartilhadas entre navegadores)
+- **Implementação:** ~20 linhas JavaScript via `st.components.v1.html`
+```python
+# Exemplo Protótipo - localStorage
+import streamlit.components.v1 as components
 
-**Recomendação inicial:** Começar com localStorage (POC), migrar para SqliteSaver (MVP).
+def save_to_localstorage(session_id, data):
+    components.html(f"""
+    <script>
+    localStorage.setItem('{session_id}', JSON.stringify({data}));
+    </script>
+    """, height=0)
+
+def load_from_localstorage(session_id):
+    result = components.html(f"""
+    <script>
+    const data = localStorage.getItem('{session_id}');
+    window.parent.postMessage(data, '*');
+    </script>
+    """, height=0)
+    return json.loads(result) if result else None
+```
+
+**MVP (9.10-9.11):**
+- **Armazenamento:** `SqliteSaver` (backend LangGraph)
+- **Comportamento:** Sessões persistem entre visitas/dispositivos
+- **Limitação:** Sem autenticação - todas as sessões compartilhadas
+- **Sidebar:** Últimas 10 sessões do banco (query ordenada por data)
+```python
+# Exemplo MVP - SqliteSaver
+from langgraph.checkpoint.sqlite import SqliteSaver
+
+# Setup
+checkpointer = SqliteSaver.from_conn_string("checkpoints.db")
+graph = create_multi_agent_graph().compile(checkpointer=checkpointer)
+
+# Listar sessões recentes
+def get_recent_sessions(limit=10):
+    # Query no SqliteSaver para últimas sessões
+    return checkpointer.list_sessions(limit=limit)
+
+# Carregar sessão específica
+def load_session(thread_id):
+    config = {"configurable": {"thread_id": thread_id}}
+    return graph.get_state(config)
+```
+
+**Evolução Futura (Épico 10):**
+- Entidade `Topic` com metadados (título, tipo artigo, estágio)
+- Autenticação (Google OAuth) para filtrar sessões por usuário
+- Persistência cross-device real (não apenas compartilhada)
 
 ---
 
@@ -433,18 +509,22 @@ def consume_sse(session_id: str):
 - ✅ Histórico visível
 - ✅ Métricas inline
 - ✅ Backend compartilhado
-- ✅ **Polling de eventos (1s)**
+- ✅ Polling (1s)
+- ⚠️ **Persistência:** session_state apenas (temporário)
 
 ### Protótipo (Épico 9.6-9.9)
 - ✅ Bastidores (collapsible)
-- ✅ Reasoning resumido + completo
+- ✅ Reasoning resumido + completo (modal)
 - ✅ Timeline de agentes
-- ✅ **Continua usando polling**
+- ✅ **Persistência:** localStorage (sobrevive reload)
+- ✅ Mantém polling
 
-### MVP (Épico 9.10-9.12)
-- ✅ **SSE para streaming (otimização)**
-- ✅ Sidebar com sessões (temporárias)
+### MVP (Épico 9.10-9.11)
+- ✅ **Persistência:** SqliteSaver (backend)
+- ✅ Sidebar (últimas 10 sessões)
 - ✅ Métricas consolidadas
+- ✅ Polling otimizado (1s mantido)
+- ❌ **SSE movido para Backlog**
 
 ---
 

@@ -125,7 +125,11 @@
 **9.2: Backend conversacional integrado**
 **9.3: Histórico de conversa visível**
 **9.4: Métricas inline discretas**
-**9.5: Polling de eventos**
+**9.5: Polling de eventos (1s)**
+- Interface faz polling no EventBus a cada 1 segundo
+- Atualiza bastidores quando eventos chegam
+- Delay aceitável (~1s) para POC
+- **Persistência:** Apenas `st.session_state` (temporário - recarregar = perde tudo)
 
 **Critérios de aceite POC:**
 - Usuário pode conversar via web (input → output)
@@ -140,8 +144,18 @@
 
 **9.6: Painel "Bastidores" (collapsible)**
 **9.7: Reasoning resumido dos agentes**
+- Mostra agente ativo (Orquestrador, Estruturador, Metodologista)
+- Reasoning resumido (~280 chars)
+- **Botão "📄 Ver raciocínio completo"** abre modal com JSON estruturado
+- Tempo, tokens, custo do agente
+
 **9.8: Timeline de agentes (histórico)**
-**9.9: Reasoning completo (modal)**
+**9.9: Persistência básica (localStorage)**
+- Sessões sobrevivem reload da página
+- Armazenamento no navegador via `localStorage`
+- Recupera histórico ao recarregar página
+- **Limitação:** Sessões por device (não compartilhadas entre navegadores)
+- Implementação: ~20 linhas JavaScript via `st.components.v1.html`
 
 **Critérios de aceite Protótipo:**
 - Bastidores exibem reasoning via polling (1s)
@@ -153,16 +167,21 @@
 
 #### MVP (experiência completa)
 
-**9.10: SSE (Server-Sent Events) para streaming**
-**9.11: Sidebar com lista de sessões**
-**9.12: Métricas consolidadas**
+**9.10: Sidebar com lista de sessões**
+- Migração de `localStorage` para `SqliteSaver` (backend)
+- Lista das últimas 10 sessões do banco
+- Usuário pode alternar entre sessões (uma ativa por vez)
+- Botão "+ Nova conversa"
+- **Limitação:** Sem autenticação - todas as sessões compartilhadas entre usuários
+**9.11: Métricas consolidadas**
 
 **Critérios de aceite MVP:**
-- SSE funciona (streaming em tempo real, sem delay)
-- Múltiplas sessões gerenciadas pela sidebar
-- Sessões NÃO persistem entre reloads (temporárias)
+- Sessões persistem entre visitas (SqliteSaver backend)
+- Sidebar gerencia múltiplas sessões
+- Uma sessão ativa por vez (alternar via sidebar)
+- Polling otimizado (1s de intervalo - SSE movido para Backlog)
 - Métricas consolidadas visíveis
-- Fallback para polling se SSE falhar
+- Todas as sessões compartilhadas (sem autenticação)
 
 ---
 

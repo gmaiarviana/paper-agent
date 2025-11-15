@@ -50,6 +50,45 @@ Topic:
 
 **Detalhes de fluxo:** Ver `docs/orchestration/multi_agent_architecture.md`
 
+---
+
+## Interfaces Mantidas
+
+O sistema oferece **duas interfaces web** com propósitos distintos:
+
+### Chat Web (`app/chat.py`) - Experiência Principal
+- Interface conversacional para usuários finais
+- Chat fluido + bastidores opcionais (reasoning inline)
+- Sidebar com últimas 10 sessões (SqliteSaver backend)
+- Persistência entre visitas (sem autenticação - sessões compartilhadas)
+- **Porta:** :8501
+
+### Dashboard (`app/dashboard.py`) - Debug/Monitoring
+- Visão global de todas as sessões ativas
+- Timeline de eventos por sessão
+- Estatísticas agregadas (tokens, custos, agentes)
+- Auto-refresh configurável (padrão: 2s)
+- **Porta:** :8501 (mesmo Streamlit, apps separados)
+
+### CLI (`cli/chat.py`) - Desenvolvimento
+- Interface de linha de comando para automação
+- Backend compartilhado (LangGraph + EventBus)
+- Funcionalidade congelada (novas features → web)
+- **Uso:** Testes, debugging, scripts
+
+**Backend Compartilhado:**
+- Todas as interfaces usam mesmo LangGraph + EventBus
+- Chat e Dashboard consomem mesmos eventos (JSON files)
+- CLI publica eventos consumidos pelo Dashboard
+
+**Decisão Arquitetural:**
+- Chat: UX rica, foco em uma sessão
+- Dashboard: Telemetria, visão global
+- CLI: Automação, sem depender de navegador
+- Custo de manutenção baixo (EventBus já existe)
+
+---
+
 ## Orquestrador Conversacional
 
 Facilitador conversacional que mantém diálogo fluido, detecta necessidades, oferece opções ao usuário e adapta-se a mudanças de direção. Extrai e atualiza argumento focal a cada turno, provoca reflexão sobre lacunas e detecta emergência de novo estágio.
