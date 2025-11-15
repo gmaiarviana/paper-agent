@@ -7,8 +7,8 @@ do sistema (Orquestrador, Estruturador, Metodologista).
 O estado é híbrido: possui campos compartilhados (todos os agentes leem/escrevem)
 e campos específicos por agente (apenas o agente responsável escreve).
 
-Versão: 2.1 (Épico 7, Task 7.1.5 - Orquestrador Conversacional POC)
-Data: 14/11/2025
+Versão: 3.0 (Épico 7 MVP - Argumento Focal Explícito + Provocação + Detecção de Estágio)
+Data: 15/11/2025
 """
 
 from typing import TypedDict, Optional, Annotated, Literal
@@ -85,6 +85,52 @@ class MultiAgentState(TypedDict):
         }
         Exemplo: {"agent": "methodologist", "justification": "Usuário definiu população e métricas"}
 
+    focal_argument (Optional[dict]):
+        Argumento focal explícito extraído/atualizado pelo Orquestrador (Épico 7.8).
+        Representa o entendimento atual do sistema sobre o que o usuário quer fazer.
+        Atualizado a cada turno de conversa pelo Orquestrador.
+        Usado para:
+        - Detecção eficiente de mudança de direção (compara focal atual vs novo)
+        - Contexto preservado entre turnos
+        - Fundação para persistência (Épico 10)
+        Estrutura:
+        {
+            "intent": str,           # "test_hypothesis", "review_literature", "build_theory"
+            "subject": str,          # Tópico principal (ex: "LLMs impact on productivity")
+            "population": str,       # População-alvo (ex: "teams of 2-5 developers")
+            "metrics": str,          # Métricas mencionadas (ex: "time per sprint")
+            "article_type": str      # Tipo inferido: "empirical", "review", "theoretical", etc.
+        }
+        Exemplo: {
+            "intent": "test_hypothesis",
+            "subject": "LLMs impact on developer productivity",
+            "population": "teams of 2-5 developers",
+            "metrics": "time per sprint",
+            "article_type": "empirical"
+        }
+
+    reflection_prompt (Optional[str]):
+        Provocação de reflexão gerada pelo Orquestrador (Épico 7.9).
+        Pergunta que ajuda usuário a pensar sobre aspectos não explorados.
+        Apenas preenchida quando Orquestrador identifica lacuna na conversa.
+        Exemplo: "Você mencionou produtividade, mas e QUALIDADE do código? Isso importa para sua pesquisa?"
+
+    stage_suggestion (Optional[dict]):
+        Sugestão emergente de mudança de estágio (Épico 7.10).
+        Orquestrador detecta quando conversa evoluiu naturalmente.
+        Apenas preenchida quando sistema infere mudança de estágio.
+        Estrutura:
+        {
+            "from_stage": str,       # Estágio atual inferido (ex: "exploration")
+            "to_stage": str,         # Estágio sugerido (ex: "hypothesis")
+            "justification": str     # Por que sistema acha que evoluiu
+        }
+        Exemplo: {
+            "from_stage": "exploration",
+            "to_stage": "hypothesis",
+            "justification": "Usuário definiu população, métricas e contexto. Parece que temos hipótese formada."
+        }
+
     structurer_output (Optional[dict]):
         Output do Estruturador após processar ideia vaga.
         Estrutura:
@@ -134,10 +180,13 @@ class MultiAgentState(TypedDict):
     # === VERSIONAMENTO (Épico 4) ===
     hypothesis_versions: list
 
-    # === ESPECÍFICO: ORQUESTRADOR (Épico 7 - Conversacional) ===
+    # === ESPECÍFICO: ORQUESTRADOR (Épico 7 - Conversacional MVP) ===
     orchestrator_analysis: Optional[str]
     next_step: Optional[Literal["explore", "suggest_agent", "clarify"]]
     agent_suggestion: Optional[dict]
+    focal_argument: Optional[dict]  # Épico 7.8: Argumento focal explícito
+    reflection_prompt: Optional[str]  # Épico 7.9: Provocação de reflexão
+    stage_suggestion: Optional[dict]  # Épico 7.10: Detecção emergente de estágio
 
     # === ESPECÍFICO: ESTRUTURADOR ===
     structurer_output: Optional[dict]
@@ -182,10 +231,13 @@ def create_initial_multi_agent_state(user_input: str, session_id: str) -> MultiA
         # Versionamento (Épico 4)
         hypothesis_versions=[],
 
-        # Específico: Orquestrador (Épico 7 - Conversacional)
+        # Específico: Orquestrador (Épico 7 - Conversacional MVP)
         orchestrator_analysis=None,
         next_step=None,
         agent_suggestion=None,
+        focal_argument=None,  # Épico 7.8
+        reflection_prompt=None,  # Épico 7.9
+        stage_suggestion=None,  # Épico 7.10
 
         # Específico: Estruturador
         structurer_output=None,

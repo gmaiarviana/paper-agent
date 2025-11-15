@@ -2,10 +2,10 @@
 Nós do grafo do agente Orquestrador.
 
 Este módulo implementa o nó principal do Orquestrador:
-- orchestrator_node: Classifica maturidade do input e decide roteamento
+- orchestrator_node: Facilitador conversacional MVP com argumento focal explícito
 
-Versão: 2.0 (Épico 6, Funcionalidade 6.1 - Config externa)
-Data: 13/11/2025
+Versão: 3.0 (Épico 7 MVP - Funcionalidades 7.8, 7.9, 7.10)
+Data: 15/11/2025
 """
 
 import logging
@@ -114,19 +114,23 @@ def _build_context(state: MultiAgentState) -> str:
 
 def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> dict:
     """
-    Nó conversacional que facilita diálogo adaptativo com o usuário.
+    Nó conversacional MVP que facilita diálogo adaptativo com argumento focal explícito.
 
-    Este nó é o facilitador inteligente do sistema multi-agente (Épico 7 POC). Ele:
+    Este nó é o facilitador inteligente do sistema multi-agente (Épico 7 MVP). Ele:
     1. Analisa input + histórico completo da conversa
-    2. Explora contexto através de perguntas abertas
-    3. Sugere próximos passos com justificativas claras
-    4. Negocia com o usuário antes de chamar agentes
-    5. Detecta mudanças de direção e adapta sem questionar
-    6. Registra execução no MemoryManager (se configurado - Épico 6.2)
+    2. Extrai e atualiza ARGUMENTO FOCAL explícito a cada turno (7.8)
+    3. Explora contexto através de perguntas abertas
+    4. Provoca REFLEXÃO sobre lacunas quando relevante (7.9)
+    5. Detecta EMERGÊNCIA de novo estágio naturalmente (7.10)
+    6. Sugere próximos passos com justificativas claras
+    7. Negocia com o usuário antes de chamar agentes
+    8. Detecta mudanças de direção comparando focal_argument (7.8)
+    9. Registra execução no MemoryManager (se configurado - Épico 6.2)
 
-    MUDANÇA ARQUITETURAL (Épico 7):
-    - ANTES: Classificava input (vague/semi_formed/complete) e roteava automaticamente
-    - DEPOIS: Conversa, analisa contexto, sugere opções, negocia com usuário
+    NOVIDADES MVP (Épico 7.8-7.10):
+    - focal_argument: Campo explícito extraído a cada turno (intent, subject, population, metrics, article_type)
+    - reflection_prompt: Provocação de reflexão quando lacuna clara detectada
+    - stage_suggestion: Sugestão emergente quando estágio evolui (exploration → hypothesis)
 
     Comportamento Conversacional:
     - "explore": Fazer perguntas abertas para entender contexto
@@ -140,35 +144,55 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
     Returns:
         dict: Dicionário com updates incrementais do estado:
             - orchestrator_analysis: Raciocínio detalhado sobre contexto e histórico
+            - focal_argument: Argumento focal extraído/atualizado (OBRIGATÓRIO)
             - next_step: Próxima ação ("explore", "suggest_agent", "clarify")
             - agent_suggestion: Sugestão de agente com justificativa (se next_step="suggest_agent")
+            - reflection_prompt: Provocação de reflexão (se lacuna detectada)
+            - stage_suggestion: Sugestão de mudança de estágio (se evolução detectada)
             - messages: Mensagem conversacional adicionada ao histórico
 
     Example:
         >>> state = create_initial_multi_agent_state("Observei que LLMs aumentam produtividade", "session-1")
         >>> result = orchestrator_node(state)
+        >>> result['focal_argument']['intent']
+        'unclear'
+        >>> result['focal_argument']['subject']
+        'LLMs impact on productivity'
         >>> result['next_step']
         'explore'
-        >>> result['orchestrator_analysis']
-        'Usuário tem observação mas não especificou contexto...'
     """
-    logger.info("=== NÓ ORCHESTRATOR CONVERSACIONAL: Iniciando análise contextual ===")
+    logger.info("=== NÓ ORCHESTRATOR MVP: Iniciando análise contextual (7.8-7.10) ===")
     logger.info(f"Input do usuário: {state['user_input']}")
 
-    # Usar prompt conversacional do Épico 7
-    from utils.prompts import ORCHESTRATOR_CONVERSATIONAL_PROMPT_V1
+    # Verificar se já existe argumento focal anterior (para detectar mudança de direção)
+    previous_focal = state.get("focal_argument")
+    if previous_focal:
+        logger.info(f"Argumento focal anterior: intent={previous_focal.get('intent')}, subject={previous_focal.get('subject')}")
+
+    # Usar prompt MVP do Épico 7 MVP
+    from utils.prompts import ORCHESTRATOR_MVP_PROMPT_V1
 
     # Construir contexto completo (histórico + input atual)
     full_context = _build_context(state)
     logger.info("Contexto construído com histórico completo")
     logger.debug(f"Contexto:\n{full_context}")
 
+    # Adicionar argumento focal anterior ao contexto (se existir)
+    focal_context = ""
+    if previous_focal:
+        focal_context = f"""
+ARGUMENTO FOCAL ANTERIOR:
+{json.dumps(previous_focal, indent=2, ensure_ascii=False)}
+
+(Compare com novo input para detectar mudança de direção)
+"""
+
     # Construir prompt completo
-    conversational_prompt = f"""{ORCHESTRATOR_CONVERSATIONAL_PROMPT_V1}
+    conversational_prompt = f"""{ORCHESTRATOR_MVP_PROMPT_V1}
 
 CONTEXTO DA CONVERSA:
 {full_context}
-
+{focal_context}
 Analise o contexto completo acima e responda APENAS com JSON estruturado conforme especificado."""
 
     # Chamar LLM para análise conversacional
@@ -220,9 +244,25 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         orchestrator_response = extract_json_from_llm_response(response.content)
 
         reasoning = orchestrator_response.get("reasoning", "Raciocínio não fornecido")
+        focal_argument = orchestrator_response.get("focal_argument")
         next_step = orchestrator_response.get("next_step", "explore")
         message = orchestrator_response.get("message", "Entendi. Como posso ajudar?")
         agent_suggestion = orchestrator_response.get("agent_suggestion", None)
+        reflection_prompt = orchestrator_response.get("reflection_prompt", None)
+        stage_suggestion = orchestrator_response.get("stage_suggestion", None)
+
+        # Validar focal_argument (OBRIGATÓRIO no MVP)
+        if not focal_argument:
+            logger.error("ERRO: focal_argument é obrigatório no MVP mas não foi fornecido pelo LLM!")
+            # Fallback: criar focal_argument mínimo
+            focal_argument = {
+                "intent": "unclear",
+                "subject": "not specified",
+                "population": "not specified",
+                "metrics": "not specified",
+                "article_type": "unclear"
+            }
+            logger.warning(f"Usando focal_argument fallback: {focal_argument}")
 
         # Validar next_step
         valid_next_steps = ["explore", "suggest_agent", "clarify"]
@@ -236,29 +276,54 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
             next_step = "explore"
             message = "Preciso entender melhor o contexto. Me conta mais sobre sua ideia?"
 
+        # Detectar mudança de direção (7.8)
+        if previous_focal and focal_argument:
+            prev_intent = previous_focal.get('intent')
+            new_intent = focal_argument.get('intent')
+            if prev_intent and new_intent and prev_intent != new_intent and prev_intent != 'unclear' and new_intent != 'unclear':
+                logger.info(f"🔄 MUDANÇA DE DIREÇÃO DETECTADA: {prev_intent} → {new_intent}")
+
+        # Logs MVP
         logger.info(f"Raciocínio: {reasoning[:100]}...")
+        logger.info(f"Argumento focal: intent={focal_argument.get('intent')}, subject={focal_argument.get('subject', 'N/A')[:50]}")
         logger.info(f"Próximo passo: {next_step}")
         logger.info(f"Mensagem ao usuário: {message[:100]}...")
         if agent_suggestion:
             logger.info(f"Sugestão de agente: {agent_suggestion.get('agent', 'N/A')}")
+        if reflection_prompt:
+            logger.info(f"💭 Provocação de reflexão: {reflection_prompt[:80]}...")
+        if stage_suggestion:
+            logger.info(f"🎯 Sugestão de estágio: {stage_suggestion.get('from_stage')} → {stage_suggestion.get('to_stage')}")
 
     except json.JSONDecodeError as e:
         logger.error(f"Falha ao parsear JSON do orquestrador: {e}")
         logger.error(f"Resposta recebida: {response.content[:300]}...")
         # Fallback seguro
         reasoning = "Erro ao processar resposta do orquestrador"
+        focal_argument = {
+            "intent": "unclear",
+            "subject": "not specified",
+            "population": "not specified",
+            "metrics": "not specified",
+            "article_type": "unclear"
+        }
         next_step = "explore"
         message = "Desculpe, tive dificuldade em processar. Pode reformular sua ideia?"
         agent_suggestion = None
+        reflection_prompt = None
+        stage_suggestion = None
 
-    logger.info("=== NÓ ORCHESTRATOR CONVERSACIONAL: Finalizado ===\n")
+    logger.info("=== NÓ ORCHESTRATOR MVP: Finalizado ===\n")
 
     # Criar AIMessage com a mensagem conversacional para histórico
     ai_message = AIMessage(content=message)
 
     return {
         "orchestrator_analysis": reasoning,
+        "focal_argument": focal_argument,
         "next_step": next_step,
         "agent_suggestion": agent_suggestion,
+        "reflection_prompt": reflection_prompt,
+        "stage_suggestion": stage_suggestion,
         "messages": [ai_message]
     }
