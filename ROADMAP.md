@@ -95,27 +95,30 @@
 
 ---
 
-#### MVP (terceira entrega - 🟡 Refinado)
+#### MVP (terceira entrega - ✅ Concluído)
 
 **Funcionalidades mantidas no MVP:**
 
-#### 7.8: Argumento Focal Explícito
+#### 7.8: Argumento Focal Explícito ✅
 - **Descrição:** Campo `focal_argument` no MultiAgentState
-- **Critérios de Aceite:**
-  - Orquestrador extrai e atualiza argumento focal explicitamente
-  - Campo armazena: intent, subject, population, metrics, article_type
-  - Detecção de mudança de direção mais eficiente (compara focal atual vs novo input)
-  - Fundação para Épico 10 (persistência)
+- **Implementação:**
+  - ✅ Orquestrador extrai e atualiza argumento focal explicitamente a cada turno
+  - ✅ Campo armazena: intent, subject, population, metrics, article_type
+  - ✅ Detecção de mudança de direção (compara focal atual vs novo input)
+  - ✅ Fundação para Épico 10 (persistência)
+  - ✅ CLI exibe argumento focal no modo --verbose
 
-#### 7.9: Provocação de Reflexão (versão simples)
+#### 7.9: Provocação de Reflexão (versão simples) ✅
 
 **Descrição:** Orquestrador faz perguntas inteligentes que ajudam usuário a refletir sobre aspectos não explorados da conversa.
 
 **Implementação:**
-- Baseado em análise contextual do LLM (não precisa de RAG ou histórico entre sessões)
-- Identifica lacunas na conversa através do histórico de mensagens
-- Faz perguntas sobre aspectos importantes mas não mencionados
-  - Integrado naturalmente no fluxo conversacional
+- ✅ Baseado em análise contextual do LLM (não precisa de RAG ou histórico entre sessões)
+- ✅ Identifica lacunas na conversa através do histórico de mensagens
+- ✅ Faz perguntas sobre aspectos importantes mas não mencionados
+- ✅ Integrado naturalmente no fluxo conversacional
+- ✅ Campo `reflection_prompt` no output do Orquestrador
+- ✅ CLI exibe provocações quando geradas
 
 **Exemplos de provocação:**
 
@@ -183,13 +186,15 @@ NÃO faça múltiplas perguntas de uma vez.
 - Preferências: Adaptar provocações ao estilo do usuário
 - [Backlog - não refinado]
 
-#### 7.10: Detecção Emergente de Estágio
+#### 7.10: Detecção Emergente de Estágio ✅
 - **Descrição:** Orquestrador infere quando usuário convergiu naturalmente
-- **Critérios de Aceite:**
-  - Sistema detecta quando conversa evoluiu (exploration → hypothesis)
-  - Sugere mudança de estágio: "Parece que temos hipótese formada. Quer validar com Metodologista?"
-  - Não classifica upfront (detecta emergência durante conversa)
-  - Usuário pode confirmar ou refutar inferência
+- **Implementação:**
+  - ✅ Sistema detecta quando conversa evoluiu (exploration → hypothesis)
+  - ✅ Sugere mudança de estágio: "Parece que temos hipótese formada. Quer validar com Metodologista?"
+  - ✅ Não classifica upfront (detecta emergência durante conversa)
+  - ✅ Usuário pode confirmar ou refutar inferência
+  - ✅ Campo `stage_suggestion` no output do Orquestrador (from_stage, to_stage, justification)
+  - ✅ CLI exibe sugestões de estágio quando detectadas
 
 ---
 

@@ -8,8 +8,9 @@ Este script implementa um chat contínuo que:
 3. Executa sistema multi-agente (Orquestrador → Estruturador → Metodologista)
 4. Exibe timeline de execução e decisão final
 5. Publica eventos em tempo real para o Dashboard
+6. Exibe argumento focal, provocações e sugestões de estágio (MVP)
 
-Versão: 3.0 (Épico 7 Protótipo - CLI Conversacional Contínua)
+Versão: 4.0 (Épico 7 MVP - CLI com Argumento Focal + Provocação + Detecção de Estágio)
 Data: 15/11/2025
 """
 
@@ -205,10 +206,34 @@ def run_cli(verbose=False):
                         print(f"{reasoning}")
                         print(f"{'=' * 70}\n")
 
+                    # Exibir argumento focal (se verbose - MVP 7.8)
+                    if verbose and final_state.get('focal_argument'):
+                        focal = final_state['focal_argument']
+                        print("📌 ARGUMENTO FOCAL:")
+                        print(f"   Intent: {focal.get('intent')}")
+                        print(f"   Subject: {focal.get('subject')}")
+                        print(f"   Population: {focal.get('population')}")
+                        print(f"   Metrics: {focal.get('metrics')}")
+                        print(f"   Type: {focal.get('article_type')}\n")
+
                     # Exibir mensagem conversacional
                     if final_state.get('messages'):
                         last_message = final_state['messages'][-1].content
                         print(f"Sistema: {last_message}")
+
+                    # Exibir provocação de reflexão (se existir - MVP 7.9)
+                    if final_state.get('reflection_prompt'):
+                        reflection = final_state['reflection_prompt']
+                        print(f"\n💭 Reflexão: {reflection}")
+
+                    # Exibir sugestão de estágio (se existir - MVP 7.10)
+                    if final_state.get('stage_suggestion'):
+                        stage_sug = final_state['stage_suggestion']
+                        from_stage = stage_sug.get('from_stage')
+                        to_stage = stage_sug.get('to_stage')
+                        justif = stage_sug.get('justification')
+                        print(f"\n🎯 Sugestão de Estágio: {from_stage} → {to_stage}")
+                        print(f"   {justif}")
 
                     # Continuar loop (próximo turno)
                     continue
@@ -228,6 +253,16 @@ def run_cli(verbose=False):
                         print(f"{reasoning}")
                         print(f"{'=' * 70}\n")
 
+                    # Exibir argumento focal (se verbose - MVP 7.8)
+                    if verbose and final_state.get('focal_argument'):
+                        focal = final_state['focal_argument']
+                        print("📌 ARGUMENTO FOCAL:")
+                        print(f"   Intent: {focal.get('intent')}")
+                        print(f"   Subject: {focal.get('subject')}")
+                        print(f"   Population: {focal.get('population')}")
+                        print(f"   Metrics: {focal.get('metrics')}")
+                        print(f"   Type: {focal.get('article_type')}\n")
+
                     # Exibir sugestão
                     if final_state.get('messages'):
                         last_message = final_state['messages'][-1].content
@@ -235,6 +270,20 @@ def run_cli(verbose=False):
 
                     print(f"\n📌 Agente sugerido: {suggested_agent}")
                     print(f"📝 Justificativa: {justification}")
+
+                    # Exibir provocação de reflexão (se existir - MVP 7.9)
+                    if final_state.get('reflection_prompt'):
+                        reflection = final_state['reflection_prompt']
+                        print(f"\n💭 Reflexão: {reflection}")
+
+                    # Exibir sugestão de estágio (se existir - MVP 7.10)
+                    if final_state.get('stage_suggestion'):
+                        stage_sug = final_state['stage_suggestion']
+                        from_stage = stage_sug.get('from_stage')
+                        to_stage = stage_sug.get('to_stage')
+                        justif_stage = stage_sug.get('justification')
+                        print(f"\n🎯 Sugestão de Estágio: {from_stage} → {to_stage}")
+                        print(f"   {justif_stage}")
 
                     # Perguntar se usuário quer chamar agente
                     confirmation = input("\n💬 Você quer que eu chame este agente? (sim/não): ").strip().lower()
