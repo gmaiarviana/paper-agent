@@ -11,7 +11,7 @@
 ## 📋 Status dos Épicos
 
 ### ✅ Épicos Refinados (Prontos para Implementação)
-- ÉPICO 8: Telemetria e Observabilidade (parcialmente refinado)
+- ÉPICO 8: Telemetria e Observabilidade (refinado)
 - ÉPICO 9: Interface Web Conversacional (refinado)
 
 ### ⚠️ Épicos Não-Refinados (Requerem Discussão Antes da Implementação)
@@ -28,7 +28,7 @@
 
 **Objetivo:** Instrumentar todos os agentes para capturar reasoning, decisões e métricas, e implementar streaming de eventos em tempo real.
 
-**Status:** 🟡 Parcialmente refinado
+**Status:** 🟡 Refinado
 
 **Dependências:**
 - Épico 7 concluído (Orquestrador Conversacional)
