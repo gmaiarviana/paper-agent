@@ -74,12 +74,14 @@ Comandos Básicos
 
 ### Interface Web
 
+> **⚠️ NOTA:** Interface web conversacional (`app/chat.py`) será implementada no Épico 9. Atualmente disponível apenas o Dashboard (`app/dashboard.py`) para visualização de eventos.
+
 ```bash
-# Executar interface web conversacional
-streamlit run app/chat.py
+# Executar dashboard de visualização
+streamlit run app/dashboard.py
 ```
 
-Navegador abre em `http://localhost:8501`. Digite sua ideia ou observação no chat e converse naturalmente.
+Dashboard exibe eventos e reasoning dos agentes em tempo real.
 
 ### CLI (Desenvolvimento)
 

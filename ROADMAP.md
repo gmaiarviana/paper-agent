@@ -175,7 +175,10 @@
 **Dependências:**
 - Épico 9 concluído (Interface Web)
 
-**Consulte:** `docs/architecture/state_evolution.md` para detalhes de evolução de estado.
+**Consulte:** 
+- `docs/product/vision.md` (Seção 4) - Modelo conceitual da entidade Tópico e estágios de maturidade
+- `docs/orchestration/multi_agent_architecture.md` - Schema completo do MultiAgentState e gerenciamento de estado
+- `ARCHITECTURE.md` - Visão geral da entidade Tópico e evolução fluida
 
 ---
 

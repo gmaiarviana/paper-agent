@@ -51,7 +51,9 @@ Cada prompt é enxuto mas claro, deixando Cursor pensar também.
 2. Pergunta: "Persistência local (SqliteSaver) ou remota (PostgreSQL)? Trade-off: simplicidade vs escalabilidade"
 3. Recomenda: "Começar com SqliteSaver (POC), migrar pra PostgreSQL (MVP se necessário)"
 4. Propõe funcionalidades 10.1-10.5 com critérios de aceite claros
-5. Gera prompts pra Cursor atualizar ROADMAP + criar docs/architecture/persistence.md
+5. Gera prompts pra Cursor atualizar ROADMAP + criar `docs/architecture/persistence.md` (arquivo será criado durante refinamento, não existe ainda)
+
+> **📌 Nota:** Este é um exemplo hipotético de refinamento. O arquivo `docs/architecture/persistence.md` será criado quando o Épico 10 for refinado.
 
 **Resultado:** Épico refinado, specs criadas, pronto pra Claude Code implementar.
 
@@ -302,7 +304,7 @@ Processo: Fazer → Validar → Commit → Iterar
 ## Estratégia de Testes
 - TDD pragmático (lógica crítica primeiro)
 - Reavalie a estratégia conforme o projeto evolui
-- **Detalhes técnicos**: `docs/testing_guidelines.md` (pirâmide de testes, mocks vs API real, estrutura)
+- **Detalhes técnicos**: `docs/testing/README.md` (pirâmide de testes, mocks vs API real, estrutura)
 
 ---
 

@@ -211,7 +211,9 @@
 
 ### 5.1 Componentes Streamlit
 
-**Arquivo: `app/chat.py` (principal)**
+> **⚠️ NOTA:** Interface web conversacional (`app/chat.py`) será implementada no Épico 9. Este é um exemplo da arquitetura planejada.
+
+**Arquivo: `app/chat.py` (principal - planejado)**
 ```python
 import streamlit as st
 from components.chat_input import render_chat_input

@@ -174,8 +174,8 @@ paper-agent/
 │
 ├── app/                   # Interface Web Conversacional
 │   ├── __init__.py
-│   ├── dashboard.py       # DEPRECATED: Visualização de eventos
-│   ├── chat.py            # Chat conversacional principal
+│   ├── dashboard.py       # Dashboard de visualização de eventos
+│   ├── chat.py            # Chat conversacional principal (planejado - Épico 9)
 │   ├── components/        # Componentes reutilizáveis
 │   │   ├── __init__.py
 │   │   ├── chat_input.py     # Input de mensagens
