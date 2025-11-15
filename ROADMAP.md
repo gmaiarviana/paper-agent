@@ -11,7 +11,7 @@
 ## 📋 Status dos Épicos
 
 ### ✅ Épicos Refinados (Prontos para Implementação)
-- ÉPICO 8: Telemetria e Observabilidade (refinado)
+- ÉPICO 8: Telemetria e Observabilidade (POC concluída - 15/11/2025)
 - ÉPICO 9: Interface Web Conversacional (refinado)
 
 ### ⚠️ Épicos Não-Refinados (Requerem Discussão Antes da Implementação)
@@ -48,19 +48,28 @@
 
 #### POC (instrumentação básica)
 
-**8.1: Instrumentar Estruturador**
-- Adicionar publicação de eventos no `structurer_node`
-- Incluir reasoning via `metadata={"reasoning": "..."}`
-- Reasoning texto livre: "Estruturando V1 com base em: [contexto, problema, contribuição]"
-- Dashboard exibe reasoning em expander (padrão já existe para Orquestrador)
-- **Nota técnica:** EventBus já suporta metadata, apenas replicar padrão
+**8.1: Instrumentar Estruturador** ✅ **CONCLUÍDO (15/11/2025)**
+- ✅ Publicação de eventos no `structurer_node` (via wrapper `instrument_node`)
+- ✅ Reasoning incluído via `metadata={"reasoning": "..."}`
+- ✅ Reasoning texto livre implementado:
+  - Modo inicial: "Estruturando V1 com base em: contexto, problema, contribuição"
+  - Modo refinamento: "Refinando V{N} endereçando {X} gaps: [lista]"
+- ✅ Dashboard exibe reasoning em expander para todos os agentes
+- ✅ Função `_extract_reasoning()` implementada em `multi_agent_graph.py`
+- ✅ Script de validação unitária criado: `scripts/flows/validate_epic8_poc_unit.py`
 
-**Critérios de aceite POC:**
-- Estruturador publica `agent_started` e `agent_completed` com reasoning
-- Dashboard exibe reasoning do Estruturador (via expander)
-- Polling funciona (já implementado no Épico 5.1)
-- Formato consistente com eventos existentes (usa `metadata`)
-- Reasoning visível e compreensível para usuário
+**Critérios de aceite POC:** ✅ **TODOS ATENDIDOS**
+- ✅ Estruturador publica `agent_started` e `agent_completed` com reasoning
+- ✅ Dashboard exibe reasoning do Estruturador (via expander)
+- ✅ Polling funciona (já implementado no Épico 5.1)
+- ✅ Formato consistente com eventos existentes (usa `metadata`)
+- ✅ Reasoning visível e compreensível para usuário
+
+**Arquivos modificados:**
+- `agents/multi_agent_graph.py`: função `_extract_reasoning()` + metadata em eventos
+- `app/dashboard.py`: expander para reasoning em `agent_completed`
+- `scripts/flows/validate_epic8_poc_unit.py`: validação unitária (novo)
+- `scripts/flows/validate_epic8_poc.py`: validação end-to-end com API (novo)
 
 ---
 
