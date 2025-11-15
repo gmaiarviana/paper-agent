@@ -1,5 +1,17 @@
 # Multi-Agent Architecture - Épico 3
 
+## 🎯 Fonte Única da Verdade
+
+**Este documento é a fonte única da verdade para:**
+- ✅ **Fluxo de agentes:** Todos os fluxos de execução do sistema multi-agente
+- ✅ **MultiAgentState:** Schema completo com todos os campos e estruturas
+- ✅ **Construção do super-grafo:** Especificação completa da arquitetura LangGraph
+
+**Outros documentos devem referenciar este arquivo:**
+- `ARCHITECTURE.md`: Resumo + referência para este documento
+- `docs/agents/overview.md`: Referência para fluxo e estado
+- `docs/orchestration/refinement_loop.md`: Referência para schema completo
+
 ## Visão Geral
 
 Este documento detalha a **implementação técnica** do sistema multi-agente. Para visão arquitetural geral, consulte `ARCHITECTURE.md`.
@@ -72,74 +84,136 @@ Este documento detalha a **implementação técnica** do sistema multi-agente. P
 
 ## State Management
 
-### MultiAgentState - Campos do Épico 4
+### MultiAgentState - Schema Completo
+
+**Fonte única da verdade:** Este é o schema completo e autoritativo do `MultiAgentState`. Todos os outros documentos devem referenciar este schema.
+
 ```python
+from typing import TypedDict, Optional, Annotated, Literal
+from langgraph.graph.message import add_messages
+
 class MultiAgentState(TypedDict):
-    # ... campos do Épico 3 ...
+    """
+    Estado compartilhado entre todos os agentes do sistema multi-agente.
     
-    # === ÉPICO 4: VERSIONAMENTO ===
-    hypothesis_versions: list  # Histórico de evolução da hipótese (V1, V2, V3...)
+    Organizado em 3 seções principais:
+    1. COMPARTILHADO: Campos que todos os agentes leem e escrevem
+    2. ESPECÍFICO POR AGENTE: Campos que apenas um agente específico escreve
+    3. MENSAGENS (LangGraph): Histórico de mensagens do LLM
+    """
+    
+    # === SEÇÃO 1: CAMPOS COMPARTILHADOS ===
+    user_input: str  # Input original do usuário
+    session_id: str  # ID único da sessão (para EventBus)
+    conversation_history: list  # Histórico legível da conversa
+    current_stage: Literal["classifying", "structuring", "validating", "done"]  # Estágio atual
+    
+    # === VERSIONAMENTO (Épico 4) ===
+    hypothesis_versions: list  # Histórico de versões da hipótese (V1, V2, V3...)
+    
+    # === SEÇÃO 2: ESPECÍFICO POR AGENTE ===
+    
+    # Orquestrador (Épico 7 - Conversacional MVP)
+    orchestrator_analysis: Optional[str]  # Análise do contexto conversacional
+    next_step: Optional[Literal["explore", "suggest_agent", "clarify"]]  # Próximo passo
+    agent_suggestion: Optional[dict]  # Sugestão de agente com justificativa
+    focal_argument: Optional[dict]  # Argumento focal explícito (intent, subject, population, metrics, article_type)
+    reflection_prompt: Optional[str]  # Provocação de reflexão sobre lacunas
+    stage_suggestion: Optional[dict]  # Sugestão emergente de mudança de estágio
+    
+    # Estruturador
+    structurer_output: Optional[dict]  # Output do Estruturador
+    
+    # Metodologista
+    methodologist_output: Optional[dict]  # Output do Metodologista
+    
+    # === SEÇÃO 3: MENSAGENS (LangGraph) ===
+    messages: Annotated[list, add_messages]  # Histórico de mensagens LLM
 ```
 
-**Estrutura de hypothesis_versions:**
+**Estrutura de `hypothesis_versions`:**
 ```python
-[
+hypothesis_versions: [
     {
         "version": 1,
-        "question": str,
+        "question": "Como X impacta Y?",
         "feedback": {
-            "status": str,
-            "improvements": list
+            "status": "needs_refinement",
+            "improvements": [
+                {
+                    "aspect": "população",
+                    "gap": "Não especificada",
+                    "suggestion": "Definir: adultos 18-40 anos"
+                }
+            ]
         }
     },
-    # ...
+    {
+        "version": 2,
+        "question": "Como X impacta Y em adultos 18-40 anos?",
+        "feedback": {
+            "status": "approved",
+            "improvements": []
+        }
+    }
 ]
 ```
 
-### MultiAgentState (TypedDict)
+**Estrutura de `structurer_output`:**
 ```python
-class MultiAgentState(TypedDict):
-    """
-    Estado compartilhado entre todos os agentes do sistema.
-    
-    Organizado em 3 seções:
-    1. COMPARTILHADO: Todos os agentes leem/escrevem
-    2. ESPECÍFICO: Cada agente tem seu espaço
-    3. MENSAGENS: Histórico LangGraph
-    """
-    
-    # === COMPARTILHADO ===
-    user_input: str  # Input original do usuário
-    conversation_history: list  # Histórico legível da conversa
-    current_stage: str  # Estado atual: "structuring" | "validating" | "done"
-    
-    # === ESPECÍFICO POR AGENTE ===
-    structurer_output: Optional[dict]  # Output do Estruturador
-    methodologist_output: Optional[dict]  # Output do Metodologista
-    
-    # === MENSAGENS (LangGraph) ===
-    messages: Annotated[list, add_messages]  # Mensagens LLM
-```
-
-**Estrutura dos outputs específicos:**
-```python
-# structurer_output
-{
-    "structured_question": str,  # Questão de pesquisa estruturada
+structurer_output: {
+    "structured_question": str,  # Questão de pesquisa estruturada/refinada
     "elements": {
         "context": str,  # Contexto da observação
         "problem": str,  # Problema identificado
         "contribution": str  # Possível contribuição acadêmica
-    }
-}
-
-# methodologist_output
-{
-    "status": "approved" | "rejected",
-    "justification": str,
-    "suggestions": List[str]  # Melhorias sugeridas
+    },
+    "version": int,  # V1, V2 ou V3
+    "addressed_gaps": list  # Gaps endereçados (apenas refinamento)
 }
 ```
+
+**Estrutura de `methodologist_output` (Épico 4 - Modo Colaborativo):**
+```python
+methodologist_output: {
+    "status": "approved" | "needs_refinement" | "rejected",
+    "justification": str,  # Justificativa detalhada
+    "improvements": [  # Apenas se needs_refinement
+        {
+            "aspect": "população" | "métricas" | "variáveis" | "testabilidade",
+            "gap": str,  # O que está faltando
+            "suggestion": str  # Como preencher
+        }
+    ],
+    "clarifications": dict  # Mantido do Épico 2
+}
+```
+
+**Estrutura de `focal_argument` (Épico 7.8):**
+```python
+focal_argument: {
+    "intent": str,  # "test_hypothesis", "review_literature", "build_theory"
+    "subject": str,  # Tópico principal
+    "population": str,  # População-alvo
+    "metrics": str,  # Métricas mencionadas
+    "article_type": str  # "empirical", "review", "theoretical", etc.
+}
+```
+
+**Estrutura de `stage_suggestion` (Épico 7.10):**
+```python
+stage_suggestion: {
+    "from_stage": str,  # Estágio atual inferido (ex: "exploration")
+    "to_stage": str,  # Estágio sugerido (ex: "hypothesis")
+    "justification": str  # Por que sistema acha que evoluiu
+}
+```
+
+**Observações:**
+- Campos `Optional` começam como `None`
+- Cada agente atualiza apenas seus campos específicos
+- Orquestrador não conhece detalhes de outros agentes
+- Estado persiste entre nós via checkpointer do LangGraph
 
 ---
 
@@ -332,8 +406,31 @@ def structurer_node(state: MultiAgentState) -> dict:
 ---
 
 ## Construção do Super-Grafo
+
+**Fonte única da verdade:** Esta é a especificação completa da construção do super-grafo. Implementação em `agents/multi_agent_graph.py`.
+
+### Estrutura do Grafo
+
+```
+START
+  ↓
+orchestrator (entry point)
+  ↓ [router 1: route_from_orchestrator]
+  ├─→ structurer → methodologist → orchestrator (router 2)
+  ├─→ methodologist → orchestrator (router 2)
+  └─→ END (retorna para usuário - Épico 7)
+```
+
+### Implementação
+
 ```python
 from langgraph.graph import StateGraph, END
+from langgraph.checkpoint.memory import MemorySaver
+from agents.orchestrator.state import MultiAgentState
+from agents.orchestrator.nodes import orchestrator_node
+from agents.orchestrator.router import route_from_orchestrator
+from agents.structurer.nodes import structurer_node
+from agents.methodologist.nodes import decide_collaborative
 
 def create_multi_agent_graph():
     """Cria super-grafo com múltiplos agentes."""
@@ -341,33 +438,51 @@ def create_multi_agent_graph():
     # Criar grafo
     graph = StateGraph(MultiAgentState)
     
-    # Adicionar nós
-    graph.add_node("orchestrator", orchestrator_node)
-    graph.add_node("structurer", structurer_node)
-    graph.add_node("methodologist", methodologist_node)
+    # Adicionar nós (instrumentados com EventBus - Épico 5.1)
+    graph.add_node("orchestrator", instrument_node(orchestrator_node, "orchestrator"))
+    graph.add_node("structurer", instrument_node(structurer_node, "structurer"))
+    graph.add_node("methodologist", instrument_node(decide_collaborative, "methodologist"))
     
     # Entry point
     graph.set_entry_point("orchestrator")
     
-    # Edges condicionais do Orchestrator
+    # ROUTER 1: Orquestrador → Estruturador | Metodologista | User (END)
     graph.add_conditional_edges(
         "orchestrator",
         route_from_orchestrator,
         {
             "structurer": "structurer",
-            "methodologist": "methodologist"
+            "methodologist": "methodologist",
+            "user": END  # Épico 7: Retornar para usuário
         }
     )
     
-    # Structurer sempre vai para Methodologist
+    # Estruturador → Metodologista (sempre)
     graph.add_edge("structurer", "methodologist")
     
-    # Methodologist finaliza
-    graph.add_edge("methodologist", END)
+    # ROUTER 2: Metodologista → Orquestrador (sempre - para negociação com usuário)
+    graph.add_conditional_edges(
+        "methodologist",
+        route_after_methodologist,
+        {
+            "orchestrator": "orchestrator"  # Sempre retorna para Orquestrador
+        }
+    )
     
-    # Compilar
+    # Compilar com checkpointer
     return graph.compile(checkpointer=MemorySaver())
 ```
+
+### Routers
+
+**Router 1: `route_from_orchestrator`**
+- Decide destino baseado em `next_step` do Orquestrador
+- Valores possíveis: `"structurer"`, `"methodologist"`, `"user"` (END)
+
+**Router 2: `route_after_methodologist`**
+- Sempre retorna `"orchestrator"` após Metodologista processar
+- Orquestrador apresenta feedback e opções ao usuário
+- Usuário decide próximo passo (refinar, pesquisar, ou mudar direção)
 
 ---
 

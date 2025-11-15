@@ -33,7 +33,7 @@ Topic:
 - **Orquestrador:** Facilitador conversacional que mantém diálogo, detecta necessidades e sugere agentes
 - **Estruturador:** Organiza ideias vagas e refina questões baseado em feedback estruturado
 - **Metodologista:** Valida rigor científico em modo colaborativo (approved/needs_refinement/rejected)
-- **Interface conversacional:** Web app Streamlit com chat + painel "Bastidores" (reasoning dos agentes)
+- **Interface conversacional:** Web app Streamlit (Épico 9)
 - **Interface CLI:** Ferramenta de desenvolvimento (congelada, backend compartilhado)
 
 **Estado compartilhado:**
@@ -68,7 +68,7 @@ MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento fo
 - **Orquestração:** LangGraph, LangChain Anthropic
 - **LLM:** Claude 3.5 Haiku (custo-benefício) / Sonnet (tarefas complexas)
 - **Validação:** Pydantic, PyYAML para configs
-- **Interface Web:** Streamlit, SSE (Server-Sent Events), componentes customizados
+- **Interface Web:** Streamlit (ver spec técnica completa em `docs/interface/web.md`)
 - **CLI:** Ferramenta de desenvolvimento (backend compartilhado com web)
 - **Utilitários:** `colorama` para logging colorido, `python-dotenv` para variáveis
 
@@ -262,7 +262,7 @@ Agente responsável por organizar ideias vagas e refinar questões de pesquisa b
 **Detalhes:** Ver `docs/orchestration/refinement_loop.md`
 
 ### Interface Web (`app/`)
-Interface web conversacional com chat principal, painel "Bastidores" (reasoning dos agentes), métricas inline, sessões persistidas e streaming via SSE.
+Interface web conversacional (Streamlit) como experiência principal do sistema. Chat fluido com reasoning dos agentes visível ("Bastidores"), métricas inline e streaming de eventos. Componentes: chat, bastidores, timeline, sidebar. Eventos consumidos via polling (POC) ou SSE (MVP).
 
 **Detalhes:** Ver `docs/interface/web.md`
 
@@ -278,7 +278,7 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 - **Claude Sonnet 4 usado pelo Metodologista:** Para confiabilidade de JSON estruturado
 - **Claude Haiku usado pelo Estruturador:** Custo-benefício para estruturação/refinamento
 - **Refinamento sob demanda:** Loop não é automático; usuário decide quando refinar baseado em feedback do Metodologista. Sem limite fixo de iterações
-- **Transição para conversação adaptativa:** Orquestrador evolui de classificador para facilitador que negocia caminho com usuário
+- **Transição para conversação adaptativa:** Ver `docs/orchestration/conversational_orchestrator.md` para padrões de conversa vs classificação
 - **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários
 - **Modo colaborativo:** Prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar)
 

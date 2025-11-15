@@ -1,5 +1,9 @@
 # Planning Guidelines
 
+> **📌 Localização:** Este documento está na RAIZ do projeto.
+> **📌 Público:** Claude Web (refinamento) e desenvolvedores (governança).
+> **📌 Sempre enviar:** Incluir no contexto inicial junto com CONSTITUTION, ROADMAP, ARCHITECTURE.
+
 ## Filosofia de Desenvolvimento
 
 Este projeto segue mentalidade **incremental e pragmática**:
@@ -9,6 +13,49 @@ Este projeto segue mentalidade **incremental e pragmática**:
 - **Protótipo:** Expandir funcionalidade com refinamentos identificados no POC
 - **MVP:** Versão publicável com escopo mínimo valioso
 - **Melhorias:** Expansão gradual baseada em feedback de uso real
+
+## Processo de Refinamento com Claude Web
+
+Este projeto usa Claude Web como consultor estratégico para refinar épicos e discutir comportamentos. O processo é documentado aqui para garantir consistência.
+
+### Input Esperado
+Você fornece ao Claude Web:
+- Comportamento desejado OU problema existente
+- Contexto: épico novo, ajuste de funcionalidade, ou discussão arquitetural
+- 4 arquivos essenciais: CONSTITUTION, ROADMAP, ARCHITECTURE, planning_guidelines (este)
+
+### Claude Web Deve
+1. **Análise Contextual:** Consultar vision.md, ROADMAP (épicos anteriores), specs técnicas via mapa
+2. **Clarificação:** Fazer perguntas específicas, validar entendimento, apontar trade-offs
+3. **Recomendação:** Oferecer opções + recomendação balizada por vision.md e guidelines
+4. **Gerar Prompts:** Múltiplos prompts (1 por arquivo), instruções enxutas, manter padrões
+5. **Validação:** Confirmar que prompts fazem sentido
+
+### Output Gerado
+Claude Web gera prompts separados para Cursor executar:
+- PROMPT 1: ROADMAP.md
+- PROMPT 2: docs/[spec técnica]
+- PROMPT 3: ARCHITECTURE.md (se necessário)
+
+Cada prompt é enxuto mas claro, deixando Cursor pensar também.
+
+### Exemplo de Refinamento Bem Feito
+
+**Cenário:** Refinar Épico 10 - Persistência
+
+**Input do usuário:**
+"Vamos refinar Épico 10. Quero pausar/retomar conversas com contexto preservado."
+
+**Claude Web:**
+1. Consulta vision.md (entidade Tópico), ROADMAP (padrão de épicos anteriores)
+2. Pergunta: "Persistência local (SqliteSaver) ou remota (PostgreSQL)? Trade-off: simplicidade vs escalabilidade"
+3. Recomenda: "Começar com SqliteSaver (POC), migrar pra PostgreSQL (MVP se necessário)"
+4. Propõe funcionalidades 10.1-10.5 com critérios de aceite claros
+5. Gera prompts pra Cursor atualizar ROADMAP + criar docs/architecture/persistence.md
+
+**Resultado:** Épico refinado, specs criadas, pronto pra Claude Code implementar.
+
+---
 
 ### Princípios de Planejamento
 1. **Refinar apenas o que está claro**

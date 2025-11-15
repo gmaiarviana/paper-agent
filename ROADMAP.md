@@ -65,11 +65,7 @@
 - Adicionar reasoning explícito no metadata para todos os agentes
 
 **8.3: SSE (Server-Sent Events)**
-- Implementar endpoint SSE: `/events/<session_id>`
-- Interface web consome eventos via `EventSource` API
-- Substituir polling por SSE
-- Fallback automático para polling se SSE falhar
-- Reconnect automático em caso de desconexão
+- Ver spec técnica completa em `docs/interface/web.md`
 
 **8.4: Métricas consolidadas**
 - Tokens e custo por agente
@@ -80,7 +76,7 @@
 
 **Critérios de aceite Protótipo:**
 - Todos os agentes emitem reasoning
-- Dashboard recebe eventos em tempo real via SSE
+- Dashboard recebe eventos em tempo real via SSE (ver spec técnica em `docs/interface/web.md`)
 - Fallback para polling funciona
 - Métricas consolidadas exibidas corretamente
 - Performance: SSE não adiciona latência perceptível (< 100ms)
@@ -117,7 +113,7 @@
 - ✅ Épico 8 POC concluído (reasoning instrumentado)
 - ✅ Épico 7 concluído (Orquestrador Conversacional)
 
-**Consulte:** `docs/interface/web.md` para especificação técnica completa
+**Ver spec técnica completa em `docs/interface/web.md`**
 
 ---
 
@@ -125,30 +121,11 @@
 
 #### POC (chat básico funcionando)
 
-**9.1: Input de chat na interface Streamlit**
-- Campo de texto para enviar mensagens
-- Botão "Enviar" ou Enter para submeter
-- Estado de "digitando..." enquanto processa
-
+**9.1: Input de chat na interface**
 **9.2: Backend conversacional integrado**
-- Mensagens enviadas para LangGraph (mesmo backend do CLI)
-- Orquestrador processa via thread_id único por sessão
-- Resposta retorna para interface
-
 **9.3: Histórico de conversa visível**
-- Exibir mensagens anteriores (Você: / Sistema:)
-- Scroll automático para última mensagem
-- Layout limpo e legível
-
 **9.4: Métricas inline discretas**
-- Custo e tokens por mensagem (pequeno, após resposta)
-- Formato: "💰 $0.0012 · 215 tokens · 1.2s"
-- Não distrai da conversa
-
-**9.5: Polling de eventos (1s)**
-- EventBus publica eventos em arquivos JSON (infraestrutura existente)
-- Interface faz polling a cada 1 segundo para buscar novos eventos
-- Atualiza bastidores e timeline quando eventos chegam
+**9.5: Polling de eventos**
 
 **Critérios de aceite POC:**
 - Usuário pode conversar via web (input → output)
@@ -162,24 +139,9 @@
 #### Protótipo (bastidores e transparência)
 
 **9.6: Painel "Bastidores" (collapsible)**
-- Sidebar ou painel lateral (40% da tela)
-- Botão "🔍 Ver raciocínio" (fechado por padrão)
-- Abre/fecha com toggle
-
 **9.7: Reasoning resumido dos agentes**
-- Mostra agente ativo (Orquestrador, Estruturador, Metodologista)
-- Reasoning resumido (~280 chars)
-- Tempo, tokens, custo do agente
-
 **9.8: Timeline de agentes (histórico)**
-- Lista de agentes executados (colapsado)
-- Expandir para ver reasoning de passos anteriores
-- Ordenado cronologicamente
-
 **9.9: Reasoning completo (modal)**
-- Botão "📄 Ver raciocínio completo" ao lado do resumo
-- Modal/dialog com JSON estruturado
-- Mostra todos os campos do agente
 
 **Critérios de aceite Protótipo:**
 - Bastidores exibem reasoning via polling (1s)
@@ -192,20 +154,8 @@
 #### MVP (experiência completa)
 
 **9.10: SSE (Server-Sent Events) para streaming**
-- Implementar endpoint SSE: `/events/<session_id>`
-- Interface consome eventos em tempo real (não polling)
-- Fallback para polling se SSE falhar
-- Reconnect automático em caso de falha
-
 **9.11: Sidebar com lista de sessões**
-- Lista de conversas anteriores (título, data)
-- Criar nova sessão
-- Alternar entre sessões (não simultâneo)
-
 **9.12: Métricas consolidadas**
-- Total de tokens e custo da sessão
-- Breakdown por agente (Orquestrador: X tokens, Metodologista: Y tokens)
-- Exibido em painel ou tooltip
 
 **Critérios de aceite MVP:**
 - SSE funciona (streaming em tempo real, sem delay)

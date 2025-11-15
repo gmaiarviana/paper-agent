@@ -316,86 +316,11 @@
 
 ---
 
-## Fluxo Adaptativo e Conversacional
+## Fluxo e Estado Compartilhado
 
-**⚠️ MUDANÇA (13/11/2025):** Fluxo não é mais rígido. Orquestrador negocia cada passo com usuário.
+Ver fluxo técnico completo em `docs/orchestration/multi_agent_architecture.md`.
 
-```
-Usuário 
-  ↓
-Orquestrador: "Interessante! Você quer testar hipótese ou verificar literatura?"
-  ↓ [Usuário escolhe]
-Orquestrador: "Posso chamar o Metodologista para validar?"
-  ↓ [Usuário: "Sim"]
-Metodologista → [feedback: approved/needs_refinement/rejected]
-  ↓
-Orquestrador: "Ele sugeriu X. O que você quer fazer? 1) Refinar, 2) Pesquisar, 3) Outra direção"
-  ↓ [Usuário escolhe]
-[Fluxo adapta conforme decisão do usuário]
-  ↓
-Estruturador (se usuário escolher refinar)
-  ↓
-Pesquisador (se usuário escolher pesquisar)
-  ↓
-[Continua com negociação em cada etapa]
-  ↓
-Usuário (revisão final)
-```
-
-**Princípios do fluxo adaptativo:**
-- ✅ Cada etapa é negociada (não automática)
-- ✅ Usuário pode mudar de direção a qualquer momento
-- ✅ Sistema adapta sem questionar mudanças
-- ✅ Não há limites fixos de iterações (usuário controla)
-
----
-
-## Controle de Iterações (Atualizado)
-
-**⚠️ MUDANÇA (13/11/2025):** Limites fixos foram removidos. Usuário controla iterações.
-
-- **Metodologista:** Pode fazer perguntas (máximo 3 sugerido, mas usuário pode continuar)
-- **Refinamento:** Não há limite fixo - usuário decide quando parar
-- **Pesquisador:** Sem limite fixo (controlado por token budget)
-- **Crítico → Estruturador:** Usuário decide se quer refinar após feedback
-
-**Princípio:** Sistema sugere, usuário decide. Não há "limite atingido" que força decisão.
-
----
-
-## Comunicação entre Agentes
-
-**Formato de mensagem sugerido:**
-```json
-{
-  "agent": "nome_do_agente",
-  "status": "approved" | "rejected" | "in_progress",
-  "output": "conteúdo relevante",
-  "next_action": "sugestão do próximo passo",
-  "feedback": ["lista", "de", "observações"],
-  "metadata": {
-    "iteration": 1,
-    "token_usage": 1234,
-    "timestamp": "ISO8601"
-  }
-}
-```
-
----
-
-## Memória
-
-### Curto Prazo (1 artigo)
-- Estado em memória (LangGraph state)
-- Checkpoint em JSON a cada transição
-- Localização: `/tmp/article_checkpoints/`
-
-### Longo Prazo (entre artigos)
-- Vector database (decisão: Chroma local gratuito para início)
-- Armazena: artigos finalizados, pesquisas, feedbacks
-- Permite: busca semântica, identificação de padrões
-
-**⚠️ Decisão pendente:** Estrutura exata do vector DB (a definir na POC)
+Ver `MultiAgentState` em `docs/orchestration/multi_agent_architecture.md`.
 
 ---
 

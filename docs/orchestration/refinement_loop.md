@@ -12,67 +12,13 @@ Mecânica de refinamento colaborativo que permite ao sistema multi-agente melhor
 
 ## Componentes
 
-### 1. MultiAgentState (atualizado)
+### 1. MultiAgentState
 
-**Campos novos:**
-
-```python
-class MultiAgentState(TypedDict):
-    # ... campos existentes ...
-    
-    # NOVOS (Épico 4):
-    refinement_iteration: int  # Contador de refinamentos (0, 1, 2)
-    max_refinements: int       # Limite padrão: 2
-    hypothesis_versions: list  # Histórico de versões
-```
-
-**Estrutura de hypothesis_versions:**
-
-```python
-hypothesis_versions: [
-    {
-        "version": 1,
-        "question": "Como X impacta Y?",
-        "feedback": {
-            "status": "needs_refinement",
-            "improvements": [
-                {
-                    "aspect": "população",
-                    "gap": "Não especificada",
-                    "suggestion": "Definir: adultos 18-40 anos"
-                }
-            ]
-        }
-    },
-    {
-        "version": 2,
-        "question": "Como X impacta Y em adultos 18-40 anos?",
-        "feedback": {
-            "status": "approved",
-            "improvements": []
-        }
-    }
-]
-```
+Ver schema completo em `docs/orchestration/multi_agent_architecture.md`.
 
 ### 2. Metodologista - Modo Colaborativo
 
-**Output atualizado:**
-
-```python
-{
-    "status": "approved" | "needs_refinement" | "rejected",
-    "justification": str,
-    "improvements": [  # Apenas se needs_refinement
-        {
-            "aspect": "população" | "métricas" | "variáveis" | "testabilidade",
-            "gap": str,
-            "suggestion": str
-        }
-    ],
-    "clarifications": dict  # Mantido do Épico 2
-}
-```
+**Output:** Ver estrutura completa em `docs/orchestration/multi_agent_architecture.md` (seção "Estrutura de `methodologist_output`").
 
 **Lógica de decisão:**
 
@@ -124,19 +70,7 @@ Output: {
 
 ### 3. Estruturador - Processamento de Feedback
 
-**Input no refinamento (V2+):**
-
-```python
-{
-    "user_input": str,  # Input original
-    "previous_question": str,  # Questão V1
-    "methodologist_feedback": {
-        "status": "needs_refinement",
-        "improvements": [...]
-    },
-    "version": int  # 2, 3
-}
-```
+**Input no refinamento (V2+):** Estruturador recebe `methodologist_output` do estado compartilhado (`MultiAgentState`). Ver `docs/orchestration/multi_agent_architecture.md` para estrutura completa.
 
 **Lógica de refinamento:**
 
