@@ -270,6 +270,7 @@ def render_timeline(events: List[Dict[str, Any]]):
                     summary_text = event.get("summary", "Concluído")
                     tokens = event.get("tokens_total", 0)
                     color = get_agent_color(agent_name)
+                    metadata = event.get("metadata", {})
 
                     st.markdown(f"**✅ Agente concluído:** `{agent_name}`")
                     st.caption(f"📝 {summary_text}")
@@ -278,7 +279,6 @@ def render_timeline(events: List[Dict[str, Any]]):
 
                     # Exibir informações do Orquestrador Conversacional (Épico 7)
                     if agent_name == "orchestrator":
-                        metadata = event.get("metadata", {})
                         next_step = metadata.get("next_step")
 
                         if next_step:
@@ -288,6 +288,12 @@ def render_timeline(events: List[Dict[str, Any]]):
                                 "suggest_agent": "🤖"
                             }.get(next_step, "➡️")
                             st.caption(f"{next_step_emoji} Próximo passo: {next_step}")
+
+                    # Exibir reasoning em expander (Épico 8.1)
+                    reasoning = metadata.get("reasoning")
+                    if reasoning:
+                        with st.expander(f"🧠 Ver raciocínio do {agent_name}"):
+                            st.markdown(reasoning)
 
                     st.markdown(f"<div style='height:4px; background-color:{color}; border-radius:2px;'></div>", unsafe_allow_html=True)
 

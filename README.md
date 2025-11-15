@@ -283,6 +283,33 @@ python scripts/flows/validate_memory_integration.py
 
 ---
 
+### Validação de Telemetria e Observabilidade (Épico 8 POC)
+
+Validar instrumentação do Estruturador com reasoning:
+
+```bash
+# Validação unitária (não requer API)
+python scripts/flows/validate_epic8_poc_unit.py
+
+# Validação end-to-end (requer ANTHROPIC_API_KEY)
+python scripts/flows/validate_epic8_poc.py
+```
+
+**O que é validado (POC 8.1):**
+- Estruturador publica eventos `agent_started` e `agent_completed`
+- Reasoning incluído no metadata dos eventos
+- Função `_extract_reasoning()` funciona para todos os agentes
+- Formato consistente com EventBus
+- Dashboard exibe reasoning em expander
+
+**Resultado esperado:**
+- ✅ Estruturador instrumentado com reasoning
+- ✅ Reasoning formatado corretamente (modo inicial e refinamento)
+- ✅ Dashboard pronto para exibir reasoning
+- 🎉 Confirmação de implementação do Épico 8 POC (Instrumentação Básica)
+
+---
+
 Documentação
 ------------
 - **Status de desenvolvimento**: `ROADMAP.md`

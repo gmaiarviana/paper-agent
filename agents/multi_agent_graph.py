@@ -106,7 +106,10 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                 bus.publish_agent_started(
                     session_id=session_id,
                     agent_name=agent_name,
-                    metadata={"stage": state.get("current_stage", "unknown")}
+                    metadata={
+                        "stage": state.get("current_stage", "unknown"),
+                        "reasoning": f"Iniciando processamento do agente {agent_name}"  # Épico 8.1
+                    }
                 )
                 logger.info(f"✅ Evento agent_started publicado para {agent_name} (session: {session_id})")
             except Exception as e:
@@ -124,6 +127,9 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                     # Extrair summary baseado no agente
                     summary = _extract_summary(agent_name, result)
 
+                    # Extrair reasoning para metadata (Épico 8.1)
+                    reasoning = _extract_reasoning(agent_name, result)
+
                     bus.publish_agent_completed(
                         session_id=session_id,
                         agent_name=agent_name,
@@ -131,9 +137,10 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                         tokens_input=0,  # TODO: Capturar tokens reais se disponível
                         tokens_output=0,
                         tokens_total=0,
-                        metadata={}
+                        metadata={"reasoning": reasoning}  # Épico 8.1: reasoning em metadata
                     )
                     logger.info(f"✅ Evento agent_completed publicado para {agent_name} (session: {session_id})")
+                    logger.debug(f"   Reasoning: {reasoning[:100]}...")
                 except Exception as e:
                     logger.warning(f"Falha ao publicar agent_completed para {agent_name}: {e}")
 
@@ -191,6 +198,80 @@ def _extract_summary(agent_name: str, state: MultiAgentState) -> str:
 
     else:
         return f"Executou {agent_name}"
+
+
+def _extract_reasoning(agent_name: str, state: MultiAgentState) -> str:
+    """
+    Extrai reasoning detalhado da ação do agente (Épico 8.1).
+
+    Este reasoning é texto livre que explica o processo de pensamento do agente,
+    permitindo transparência completa do sistema para o usuário.
+
+    Args:
+        agent_name (str): Nome do agente
+        state (MultiAgentState): Estado após execução
+
+    Returns:
+        str: Reasoning detalhado em texto livre
+    """
+    if agent_name == "orchestrator":
+        # Épico 7 MVP: Orquestrador conversacional tem analysis completo
+        analysis = state.get("orchestrator_analysis", "")
+        if analysis:
+            return analysis
+        # Fallback para compatibilidade
+        return "Análise contextual do input do usuário"
+
+    elif agent_name == "structurer":
+        # Épico 8.1: Estruturador reasoning baseado em modo
+        output = state.get("structurer_output", {})
+
+        # Detectar modo: estruturação inicial ou refinamento
+        methodologist_feedback = state.get('methodologist_output')
+        is_refinement = (
+            methodologist_feedback is not None and
+            methodologist_feedback.get('status') == 'needs_refinement'
+        )
+
+        if is_refinement:
+            # Modo refinamento
+            version = output.get("version", 2)
+            addressed_gaps = output.get("addressed_gaps", [])
+            gaps_count = len(addressed_gaps)
+            gaps_str = ", ".join(addressed_gaps) if addressed_gaps else "nenhum gap específico"
+
+            return (
+                f"Refinando questão para V{version}. "
+                f"Endereçando {gaps_count} gap(s) do Metodologista: {gaps_str}. "
+                f"Mantendo essência da ideia original enquanto incorpora feedback científico."
+            )
+        else:
+            # Modo estruturação inicial
+            elements = output.get("elements", {})
+            context = elements.get("context", "N/A")[:50]
+            problem = elements.get("problem", "N/A")[:50]
+            contribution = elements.get("contribution", "N/A")[:50]
+
+            return (
+                f"Estruturando V1 com base em: "
+                f"contexto ({context}...), "
+                f"problema ({problem}...), "
+                f"contribuição potencial ({contribution}...)."
+            )
+
+    elif agent_name in ["methodologist", "force_decision"]:
+        # Épico 8: Metodologista reasoning
+        output = state.get("methodologist_output", {})
+        status = output.get("status", "unknown")
+        justification = output.get("justification", "")
+
+        if justification:
+            return f"Decisão: {status}. Justificativa: {justification}"
+        else:
+            return f"Validação metodológica resultou em: {status}"
+
+    else:
+        return f"Processamento do agente {agent_name}"
 
 
 # MemorySaver: Checkpointer padrão do LangGraph para persistência de sessão em memória.
