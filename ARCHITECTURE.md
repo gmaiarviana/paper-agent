@@ -4,7 +4,7 @@
 
 - Plataforma colaborativa com agentes de IA para apoiar produção de artigos científicos ponta a ponta.
 - **Arquitetura atual:** Sistema multi-agente conversacional sobre LangGraph com Orquestrador facilitador, Estruturador organizador e Metodologista validador.
-- **Em evolução:** Transição de fluxo determinístico para conversação adaptativa onde sistema e usuário negociam caminho juntos (Épico 7).
+- **Conversação adaptativa:** Sistema mantém diálogo fluido onde usuário e agentes negociam caminho juntos (Épico 7 MVP concluído).
 - **Interfaces:** Interface web conversacional (Streamlit) como principal; CLI mantido para desenvolvimento e automação.
 
 ## Entidade Central: Tópico/Ideia
@@ -49,7 +49,7 @@ Topic:
 ## Escopo Atual
 
 **Sistema Multi-Agente Conversacional:**
-- **Orquestrador:** Classifica maturidade inicial e roteia para agentes (em evolução para facilitador conversacional)
+- **Orquestrador:** Facilitador conversacional que mantém diálogo, detecta necessidades e sugere agentes (Épico 7 MVP concluído)
 - **Estruturador:** Organiza ideias vagas e refina questões baseado em feedback estruturado
 - **Metodologista:** Valida rigor científico em modo colaborativo (approved/needs_refinement/rejected)
 - **Interface conversacional:** Web app Streamlit com chat + painel "Bastidores" (reasoning dos agentes)
@@ -59,6 +59,7 @@ Topic:
 - MultiAgentState híbrido (campos compartilhados + específicos por agente)
 - Versionamento de hipóteses (V1 → V2 → V3)
 - Rastreamento de iterações de refinamento
+- Argumento focal explícito (intent, subject, population, metrics, article_type)
 
 **Infraestrutura:**
 - Python 3.11+, Anthropic API, LangGraph
@@ -66,36 +67,43 @@ Topic:
 - EventBus para comunicação CLI ↔ Dashboard
 - MemoryManager para registro de metadados
 
-**Em desenvolvimento (Épico 7):**
-- Orquestrador conversacional que negocia caminho com usuário
-- Detecção dinâmica de quando chamar agentes especializados
+**Funcionalidades conversacionais MVP (Épico 7 - concluído):**
+- CLI conversacional contínua com múltiplos turnos
+- Detecção inteligente de quando chamar agentes especializados
 - Handling de mudança de direção do usuário
+- Argumento focal explícito extraído e atualizado a cada turno
+- Provocação de reflexão sobre lacunas na conversa
+- Detecção emergente de estágio (exploration → hypothesis)
 
 ## Orquestrador Conversacional (Épico 7)
 
-**Transição arquitetural em andamento:**
+**Status:** ✅ MVP Concluído (15/11/2025)
+
+**Transição arquitetural concluída:**
 
 ### De: Classificador Determinístico
 ```
 Input → Classifica (vague/semi_formed/complete) → Roteia automaticamente
 ```
 
-### Para: Facilitador Conversacional
+### Para: Facilitador Conversacional (✅ Implementado)
 ```
 Input → Conversa → Detecta necessidade → Oferece opções → Usuário decide → Executa
 ```
 
-**Novo papel do Orquestrador:**
+**Papel atual do Orquestrador:**
 - **Diálogo fluido:** Mantém conversa antes de acionar agentes
 - **Negociação:** Oferece opções ("Posso chamar Metodologista?" vs "Vou chamar")
 - **Detecção inteligente:** Infere quando agente faz sentido (mas não impõe)
 - **Adaptação:** Responde a mudanças de direção do usuário
 - **Provocação:** Faz perguntas esclarecedoras que ajudam reflexão
+- **Argumento focal:** Extrai e atualiza explicitamente (intent, subject, population, metrics, article_type)
+- **Detecção emergente:** Sugere mudança de estágio quando conversa evolui
 
-**Progressão POC → MVP:**
-- **POC:** Conversação básica + oferece opções + chama sob demanda
-- **Protótipo:** Detecção inteligente + provocação + handling de mudança
-- **MVP:** Detecção emergente de estágio + reasoning explícito + aprende preferências
+**Progressão implementada:**
+- ✅ **POC:** Conversação básica + oferece opções + chama sob demanda
+- ✅ **Protótipo:** Detecção inteligente + transparência + CLI conversacional
+- ✅ **MVP:** Argumento focal explícito + provocação de reflexão + detecção emergente
 
 **Especificação detalhada:** `docs/orchestration/conversational_orchestrator.md`
 
@@ -467,24 +475,22 @@ Opera em modo colaborativo: `approved`, `needs_refinement`, `rejected`.
 ### Orquestrador (`agents/orchestrator/`)
 Agente responsável por facilitar conversa e coordenar chamadas a agentes especializados.
 
-**Arquitetura (em transição - Épico 7):**
+**Arquitetura (Épico 7 MVP - concluído):**
 - Estado compartilhado gerenciado por `MultiAgentState` (TypedDict híbrido)
-- **Atual:** Nó de classificação `orchestrator_node` (classifica maturidade)
-- **Futuro:** Facilitador conversacional (negocia caminho com usuário)
+- **Implementado:** Facilitador conversacional que negocia caminho com usuário
+- **Campos MVP:** `focal_argument`, `reflection_prompt`, `stage_suggestion`
 - Router condicional: `route_from_orchestrator` (roteia para Estruturador ou Metodologista)
 
-**Classificações atuais (POC):**
-- "vague" → Estruturador (ideia não estruturada)
-- "semi_formed" → Metodologista (hipótese parcial)
-- "complete" → Metodologista (hipótese completa)
+**Comportamento conversacional:**
+- Mantém diálogo fluido antes de chamar agentes
+- Oferece opções ao usuário (não impõe caminho)
+- Detecta dinamicamente quando agente faz sentido
+- Adapta a mudanças de direção do usuário
+- Extrai e atualiza argumento focal a cada turno
+- Provoca reflexão sobre lacunas na conversa
+- Detecta emergência de novo estágio
 
-**Evolução (Épico 7):**
-- Conversação > classificação
-- Oferece opções > roteia automaticamente
-- Detecta dinamicamente > fluxo fixo
-- Adapta a mudanças > fluxo linear
-
-**Status:** Funcionalidade 3.1 implementada (classificação). Épico 7 em planejamento (conversação).
+**Status:** ✅ Épico 7 MVP concluído (15/11/2025)
 
 **Detalhes:** Ver `docs/orchestration/conversational_orchestrator.md`
 
