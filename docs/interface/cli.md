@@ -1,17 +1,44 @@
 CLI e Interfaces
 ================
 
+> **📌 Mudança de Papel (15/11/2025):** CLI passou de interface principal para ferramenta de desenvolvimento. Interface web conversacional (Streamlit) é agora a experiência principal do sistema. Ver `docs/interface/web.md` para detalhes.
+
+---
+
 CLI (chat.py)
 -------------
-- Interface principal para desenvolvimento e testes automatizados.
-- Comunicação via stdin/stdout para compatibilidade com Claude Code e Cursor background.
+- Ferramenta de desenvolvimento para testes automatizados, debugging e scripts
+- Funcionalidade congelada (novas features vão para interface web)
+- Backend compartilhado com interface web (LangGraph + EventBus)
+- Útil para CI/CD, validação rápida de prompts, automação
+- Comunicação via stdin/stdout para compatibilidade com Claude Code e Cursor background
 - Funcionalidade básica:
   - Loop contínuo até `exit`/`quit`
   - Logs dos componentes com ícones/cores (via `rich` ou similar)
   - Flag `--verbose` habilita nível `DEBUG` para prompts e respostas completas
 
+## Quando Usar CLI vs Interface Web
+
+### Use CLI quando:
+- ✅ **Testes automatizados**: Scripts de validação, CI/CD
+- ✅ **Debugging**: Testar prompts rapidamente sem abrir navegador
+- ✅ **Automação**: Scripts que invocam o sistema (ex: batch processing)
+- ✅ **Desenvolvimento de agentes**: Validar mudanças sem UI
+
+### Use Interface Web quando:
+- ✅ **Uso interativo**: Conversar com o sistema naturalmente
+- ✅ **Ver bastidores**: Acompanhar reasoning dos agentes em tempo real
+- ✅ **Múltiplas sessões**: Gerenciar várias conversas
+- ✅ **Persistência**: Pausar e retomar conversas entre visitas
+- ✅ **Experiência visual**: Timeline, métricas, interface rica
+
+**Recomendação:** Usuários finais devem preferir interface web. CLI é para desenvolvedores.
+
 Experiência Esperada
 --------------------
+
+> **Nota:** CLI oferece experiência minimalista focada em texto. Para interface visual com bastidores e timeline, use a interface web (`streamlit run app/chat.py`).
+
 - Mensagens de decisão do Orquestrador antecedem qualquer chamada de agente (`🎯 Orquestrador decidiu: ...`).
 - Quando o Metodologista é chamado, a CLI exibe status e resumo da decisão (`🧪`, `✅`/`❌`).
 - Histórico recente permanece visível no terminal para contexto rápido.
@@ -27,9 +54,18 @@ Streamlit (Opcional)
 
 Roteiro de Evolução
 -------------------
-- Adicionar painel de logs enriquecido no terminal (Épico 4.2)
-- Avaliar suporte a execução não interativa (`--input "..."`) para testes automatizados
-- Documentar aqui quaisquer argumentos novos ou variações de execução
+
+**CLI está congelado para novas features.** Melhorias futuras vão para interface web.
+
+**Manutenção mínima:**
+- Bugs críticos serão corrigidos
+- Backend compartilhado mantém funcionalidade
+- Documentação preservada para referência
+
+**Migração para Web:**
+- Novas funcionalidades implementadas em `app/chat.py`
+- Bastidores, timeline, sessões → exclusivos da web
+- CLI permanece útil para automação e testes
 
 Telemetria em Tempo Real (Épicos 5 e 6)
 ---------------------------------------

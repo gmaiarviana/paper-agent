@@ -5,7 +5,7 @@
 - Plataforma colaborativa com agentes de IA para apoiar produção de artigos científicos ponta a ponta.
 - **Arquitetura atual:** Sistema multi-agente conversacional sobre LangGraph com Orquestrador facilitador, Estruturador organizador e Metodologista validador.
 - **Em evolução:** Transição de fluxo determinístico para conversação adaptativa onde sistema e usuário negociam caminho juntos (Épico 7).
-- **Interfaces:** CLI para conversação (principal) e Streamlit para visualização de raciocínio em tempo real.
+- **Interfaces:** Interface web conversacional (Streamlit) como principal; CLI mantido para desenvolvimento e automação.
 
 ## Entidade Central: Tópico/Ideia
 
@@ -52,7 +52,8 @@ Topic:
 - **Orquestrador:** Classifica maturidade inicial e roteia para agentes (em evolução para facilitador conversacional)
 - **Estruturador:** Organiza ideias vagas e refina questões baseado em feedback estruturado
 - **Metodologista:** Valida rigor científico em modo colaborativo (approved/needs_refinement/rejected)
-- **Interface visual:** Dashboard Streamlit com timeline de eventos em tempo real
+- **Interface conversacional:** Web app Streamlit com chat + painel "Bastidores" (reasoning dos agentes)
+- **Interface CLI:** Ferramenta de desenvolvimento (congelada, backend compartilhado)
 
 **Estado compartilhado:**
 - MultiAgentState híbrido (campos compartilhados + específicos por agente)
@@ -98,13 +99,137 @@ Input → Conversa → Detecta necessidade → Oferece opções → Usuário dec
 
 **Especificação detalhada:** `docs/orchestration/conversational_orchestrator.md`
 
+## Interface Web Conversacional (Épico 9)
+
+**Transição arquitetural: Dashboard → Chat Interativo**
+
+### De: Visualização Passiva
+```
+Dashboard Streamlit (Épico 5.1) → Apenas visualiza eventos do CLI
+```
+
+### Para: Interface Principal
+```
+Web App Conversacional → Chat + Bastidores + Métricas + Sessões
+```
+
+**Papel da Interface Web:**
+- **Chat principal:** Input de mensagens, histórico de conversa
+- **Bastidores (opcional):** Reasoning dos agentes em tempo real
+- **Métricas inline:** Tokens e custo por mensagem (discreto)
+- **Sessões:** Sidebar com lista de conversas (não simultâneo)
+- **Persistência:** Salvar/retomar conversas entre visitas
+
+**Progressão POC → MVP:**
+
+**POC (chat básico):**
+- ✅ Input de texto + enviar mensagem
+- ✅ Histórico de conversa visível
+- ✅ Métricas inline (custo/tokens discreto)
+- ✅ Backend compartilhado (LangGraph + EventBus)
+
+**Protótipo (bastidores):**
+- ✅ Painel collapsible "Ver raciocínio"
+- ✅ Reasoning resumido (~280 chars) + completo (modal)
+- ✅ Timeline de agentes (histórico colapsado)
+- ✅ Streaming via SSE (eventos em tempo real)
+
+**MVP (experiência completa):**
+- ✅ Sidebar com lista de sessões
+- ✅ Persistência básica (SqliteSaver ou localStorage)
+- ✅ Métricas consolidadas (total + por agente)
+
+**Especificação detalhada:** `docs/interface/web.md`
+
+---
+
+### Arquitetura da Interface Web
+
+**Stack Técnico:**
+- **Framework:** Streamlit
+- **Streaming:** SSE (Server-Sent Events) via endpoint `/events`
+- **Backend:** LangGraph + EventBus (compartilhado com CLI)
+- **Persistência:** SqliteSaver (LangGraph checkpoints) ou localStorage
+
+**Componentes:**
+
+**1. Chat Component**
+- Input de texto (field + botão enviar)
+- Histórico de mensagens (você/sistema)
+- Estado "digitando..." durante processamento
+- Métricas inline após cada mensagem
+
+**2. Bastidores Component (Collapsible)**
+- Toggle "🔍 Ver raciocínio" (fechado por padrão)
+- Agente ativo (Orquestrador/Estruturador/Metodologista)
+- Reasoning resumido (~280 chars)
+- Botão "Ver completo" (expande modal com JSON)
+- Métricas do agente (tempo, tokens, custo)
+
+**3. Timeline Component**
+- Histórico de agentes executados
+- Colapsado por padrão (expansível)
+- Ordenado cronologicamente
+- Permite revisitar reasoning de passos anteriores
+
+**4. Sidebar Component**
+- Lista de sessões (título, data)
+- Botão "Nova conversa"
+- Sessão ativa destacada
+- Alternância entre sessões
+
+**Fluxo de Dados:**
+```
+┌──────────────┐
+│   Usuário    │
+│  (Interface) │
+└──────┬───────┘
+       │ 1. Envia mensagem
+       ▼
+┌──────────────┐
+│   Streamlit  │
+│  (Frontend)  │
+└──────┬───────┘
+       │ 2. Invoke LangGraph
+       ▼
+┌──────────────┐
+│  LangGraph   │──────┐ 3. Publica eventos
+│   Backend    │      │
+└──────┬───────┘      │
+       │              ▼
+       │        ┌──────────────┐
+       │        │  EventBus    │
+       │        │  (SSE)       │
+       │        └──────┬───────┘
+       │               │ 4. Stream eventos
+       │               ▼
+       ▼         ┌──────────────┐
+┌──────────────┐ │  Bastidores  │
+│   Chat UI    │ │  Component   │
+│  (resposta)  │ │  (reasoning) │
+└──────────────┘ └──────────────┘
+```
+
+**SSE (Server-Sent Events):**
+- Endpoint: `/events/<session_id>`
+- Eventos: `agent_started`, `agent_completed`, `agent_error`
+- Fallback: Polling (2s) se SSE falhar
+- Reconnect automático em caso de falha
+
+**Diferencial vs CLI:**
+- ✅ Interface visual rica (não só texto)
+- ✅ Bastidores inline (não precisa verbose flag)
+- ✅ Timeline interativa (não logs lineares)
+- ✅ Sessões persistidas (não apenas thread_id)
+
 ## Stack Técnico
 
 - **Runtime:** Python 3.11+
 - **Orquestração:** LangGraph, LangChain Anthropic
 - **LLM:** Claude 3.5 Haiku (custo-benefício) / Sonnet (tarefas complexas)
 - **Validação:** Pydantic, PyYAML para configs
-- **Interfaces:** CLI (futura), Streamlit opcional (futura)
+- **Interface Web:** Streamlit, SSE (Server-Sent Events), componentes customizados
+- **CLI:** Ferramenta de desenvolvimento (backend compartilhado com web)
 - **Utilitários:** `colorama` para logging colorido, `python-dotenv` para variáveis
 
 ## Configuração Externa de Agentes (Épico 6.1)
@@ -244,9 +369,18 @@ paper-agent/
 │   ├── __init__.py
 │   └── chat.py            # CLI interativo (integrado com EventBus)
 │
-├── app/                   # Interface Streamlit (Épico 5.1)
+├── app/                   # Interface Web Conversacional (Épico 9)
 │   ├── __init__.py
-│   └── dashboard.py       # Dashboard web com timeline
+│   ├── dashboard.py       # DEPRECATED: Visualização de eventos (Épico 5.1)
+│   ├── chat.py            # Chat conversacional principal (Épico 9)
+│   ├── components/        # Componentes reutilizáveis
+│   │   ├── __init__.py
+│   │   ├── chat_input.py     # Input de mensagens
+│   │   ├── chat_history.py   # Histórico de conversa
+│   │   ├── backstage.py      # Painel "Bastidores"
+│   │   ├── timeline.py       # Timeline de agentes
+│   │   └── sidebar.py        # Lista de sessões
+│   └── sse.py             # Server-Sent Events endpoint
 │
 ├── tests/                 # Testes automatizados (pytest)
 │   ├── __init__.py

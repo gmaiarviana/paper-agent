@@ -5,7 +5,7 @@ Visão Geral
 -----------
 - Plataforma colaborativa com agentes de IA pensada para apoiar todo o ciclo de produção de artigos, combinando especialistas virtuais e orquestração automatizada.
 - POC atual valida a primeira etapa dessa visão: análise de hipóteses com um agente Metodologista coordenado por um Orquestrador construído sobre LangGraph.
-- Fluxo principal acontece via CLI; Streamlit serve como visualização opcional para uso humano.
+- Interface web conversacional (Streamlit) como experiência principal; CLI mantido como ferramenta auxiliar para desenvolvimento.
 - Projeto orientado para colaboração com agentes de IA (Claude Code, Cursor background), com documentação enxuta e responsabilidades bem separadas.
 
 Pré-requisitos
@@ -108,75 +108,109 @@ python -m pytest tests/unit/ --cov=utils --cov=agents --cov=orchestrator
 
 ---
 
-### CLI Conversacional (Épico 7 Protótipo)
+### Interface Web Conversacional (Épico 9)
 
-Interface de linha de comando com chat contínuo e múltiplos turnos:
-
+Interface web como experiência principal com chat fluido e painel "Bastidores" para transparência:
 ```bash
-# Modo padrão (CLI limpa)
-python cli/chat.py
-
-# Modo verbose (exibe raciocínio do orquestrador)
-python cli/chat.py --verbose
-python cli/chat.py -v
+# Executar interface web
+streamlit run app/chat.py
 ```
 
+**O que a Interface Web oferece:**
+- 💬 **Chat conversacional**: Input de mensagens, histórico, métricas inline
+- 🔍 **Bastidores (opcional)**: Reasoning dos agentes em tempo real
+- 📊 **Timeline**: Histórico de decisões dos agentes (colapsado)
+- 💰 **Métricas discretas**: Custo e tokens por mensagem
+- 📂 **Sessões**: Sidebar com lista de conversas
+
 **Uso:**
-1. Sistema inicia conversa perguntando sobre sua ideia
-2. Converse naturalmente - sistema faz perguntas para entender contexto
-3. Sistema sugere quando chamar agentes especializados
-4. Você decide aceitar ou continuar conversando
-5. Digite `exit` ou `sair` a qualquer momento para encerrar
+1. Execute o comando acima
+2. Navegador abre em `http://localhost:8501`
+3. Digite sua ideia ou observação no chat
+4. Converse naturalmente - sistema faz perguntas para entender contexto
+5. Clique "🔍 Ver raciocínio" para ver bastidores (opcional)
+6. Sistema sugere quando chamar agentes especializados
+7. Você decide aceitar ou continuar conversando
 
 **Exemplo de sessão conversacional:**
 ```
-Sistema: Olá! Me conte sobre sua ideia ou observação.
+Você: "Observei que TDD reduz bugs"
 
-Você: tdd reduz bugs
+Sistema: "Interessante! Em que contexto você observou isso?"
+💰 $0.0012 · 215 tokens · 1.2s
 
-Sistema: Interessante observação sobre TDD! Poderia me contar um pouco mais?
-         Em que contexto você notou que TDD reduz bugs?
+Você: "Na minha equipe Python"
 
-Você: na minha equipe Python
+Sistema: "E como você mediu essa redução de bugs?"
+💰 $0.0008 · 180 tokens · 0.9s
 
-Sistema: Entendi! E como você mediu essa redução de bugs? Tem dados
-         ou é uma impressão geral?
+Você: "Impressão geral, mas bugs caíram bastante"
 
-Você: impressão geral, mas bugs caíram bastante
+Sistema: "Posso chamar o Estruturador para transformar isso em 
+         uma questão de pesquisa estruturada?"
 
-Sistema: Perfeito! Baseado no que você me contou, posso chamar o
-         Estruturador para transformar isso em uma questão de
-         pesquisa estruturada?
+Você: "Sim"
 
-📌 Agente sugerido: structurer
-📝 Justificativa: Usuário tem observação com contexto, mas precisa
-   estruturar em questão de pesquisa formal
-
-Você quer que eu chame este agente? (sim/não): sim
-
-🤖 Chamando structurer...
-[Sistema processa...]
+🤖 Estruturando questão de pesquisa...
+[Sistema processa e estrutura V1]
 ```
 
-**Modo Verbose (transparência):**
-```bash
-python cli/chat.py --verbose
-
-# Exibe raciocínio inline:
-🧠 Raciocínio: Input vago sobre TDD. Preciso contexto: onde observou,
-   como mediu, qual população. Não tenho informação suficiente...
-
-Sistema: Interessante observação sobre TDD! Poderia me contar...
+**Bastidores (quando aberto):**
+```
+┌─────────────────────────────────────┐
+│ 🧠 Orquestrador                     │
+│                                     │
+│ Usuário tem observação com contexto,│
+│ mas falta estruturação formal.      │
+│ Estruturador pode ajudar.           │
+│                                     │
+│ [📄 Ver raciocínio completo]        │
+│                                     │
+│ ⏱️ 1.2s | 💰 $0.0012 | 📊 215 tokens│
+└─────────────────────────────────────┘
 ```
 
-**Validação do CLI Conversacional:**
+**Validação da Interface Web:**
 ```bash
-python scripts/flows/validate_conversational_cli.py
+# Backend deve estar funcionando
+python scripts/flows/validate_multi_agent_flow.py
+
+# Validar SSE (streaming)
+python scripts/flows/validate_sse_endpoint.py
 ```
 
 ---
 
+### CLI: Ferramenta de Desenvolvimento
+
+Interface de linha de comando mantida para desenvolvimento e automação (não para uso interativo):
+```bash
+# Modo padrão (CLI limpa)
+python cli/chat.py
+
+# Modo verbose (exibe raciocínio)
+python cli/chat.py --verbose
+```
+
+**Quando usar CLI:**
+- ✅ Testes automatizados (scripts, CI/CD)
+- ✅ Debugging de agentes
+- ✅ Validação rápida de prompts
+- ❌ Uso interativo (preferir interface web)
+
+**Uso:**
+1. Execute o comando acima
+2. Sistema pergunta sobre sua ideia
+3. Converse via terminal
+4. Digite `exit` ou `sair` para encerrar
+
+**Nota:** CLI compartilha mesmo backend da interface web (LangGraph + EventBus). Funcionalidade congelada - novas features vão para web.
+
+---
+
 ### Dashboard Streamlit (Épico 5.1)
+
+> **⚠️ DEPRECATED:** Dashboard de visualização foi substituído pela interface web conversacional (Épico 9). Documentação mantida para referência histórica.
 
 Interface web para visualização de sessões e eventos em tempo real:
 

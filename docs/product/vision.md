@@ -38,6 +38,9 @@
 - **Agentes relevantes**: Metodologista (constrói validação), Estruturador (documenta passo a passo), Orquestrador (assegura cobertura), Escritor (formaliza resultados).
 
 ## 3. Jornada do Usuário
+
+> **💡 Nota de Interface:** Todos os cenários abaixo ocorrem na interface web conversacional. CLI mantém mesma funcionalidade mas é ferramenta auxiliar para desenvolvimento.
+
 ### Cenário A: Ideia Vaga (Empírico)
 ```
 Usuário: "Observei que LLMs aumentam produtividade"
@@ -161,7 +164,9 @@ Tópico:
 - **Evolução fluida**: o usuário pode retroceder etapas; o tipo pode ser inferido ou ajustado; estágio é detectado pelo Orquestrador com base em artefatos e interações.
 
 ## 5. Interação com Usuário
-- Conversação em linguagem natural; sistema **negocia necessidades** sem impor classificações determinísticas.
+- **Interface web conversacional** como experiência principal (Streamlit)
+- Conversação em linguagem natural; sistema **negocia necessidades** sem impor classificações determinísticas
+- CLI mantido como ferramenta auxiliar para desenvolvimento e automação
 - Sistema **não detecta tipo de artigo automaticamente** no início; tipo emerge da conversa.
 - Perguntas dinâmicas e abertas para co-construir entendimento do que usuário precisa.
 - Transparência: interface exibe agentes acionados e suas justificativas (video reasoning ou logs resumidos).
@@ -202,6 +207,69 @@ Tópico:
 ✅ Sistema: "Interessante! Me conta mais: você quer VER o que já existe 
            sobre isso, ou quer TESTAR uma hipótese sua?"
 ```
+
+### 5.2 Interface Web: Chat + Bastidores
+
+**Experiência principal:**
+- Interface web (Streamlit) como ponto de entrada do sistema
+- Chat limpo e focado (similar ao Claude, mas especializado em organizar pensamentos)
+- Painel "Bastidores" opcional para ver reasoning dos agentes
+
+**Layout:**
+```
+┌─────────────────────────────────────────────────┐
+│  [Chat Principal - 60% largura]                 │
+│                                                 │
+│  Você: "Observei que LLMs aumentam produtividade"│
+│  💰 $0.0012 · 215 tokens · 1.2s                 │ ← inline, discreto
+│                                                 │
+│  Sistema: "Interessante! Me conta mais..."     │
+│  [digitando...]                                 │
+└─────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│  [🔍 Bastidores - 40% - Collapsible]            │
+│                                                 │
+│  🧠 Orquestrador (agora):                       │
+│  "Usuário tem observação vaga. Preciso contexto"│ ← resumido
+│  [📄 Ver raciocínio completo]                   │ ← expande modal
+│                                                 │
+│  ⏱️ Tempo: 1.2s | Tokens: 215 | Custo: $0.0012  │
+└─────────────────────────────────────────────────┘
+```
+
+**Transparência diferencial:**
+- **Ver agentes pensando**: Reasoning de Orquestrador, Estruturador, Metodologista
+- **Tempo real**: Eventos via SSE (Server-Sent Events)
+- **3 níveis**: Inline (discreto) → Resumido (280 chars) → Completo (modal)
+- **Timeline**: Histórico de raciocínio colapsado (expansível)
+
+**Bastidores fechados por padrão:**
+- Interface limpa ao iniciar
+- Usuário descobre/ativa se quiser transparência total
+- Reduz sobrecarga cognitiva para iniciantes
+
+**Métricas inline:**
+- Custo e tokens por mensagem (pequeno, após resposta)
+- Acumulado da sessão visível mas não intrusivo
+- Formato: "💰 $0.0012 · 215 tokens · 1.2s"
+
+### 5.3 CLI: Ferramenta de Desenvolvimento
+
+**Papel secundário:**
+- Interface de linha de comando mantida para desenvolvimento e automação
+- Útil para testes, debugging, scripts automatizados
+- Funcionalidade congelada (não recebe features novas)
+- Backend compartilhado com interface web (LangGraph + EventBus)
+
+**Quando usar CLI:**
+- ✅ Testes automatizados (CI/CD)
+- ✅ Debugging de agentes
+- ✅ Validação rápida de prompts
+- ✅ Scripts de automação
+- ❌ Uso interativo por usuários finais (usar web)
+
+**Documentação:** Ver `docs/interface/cli.md` e `docs/interface/web.md`
 
 ## 6. Casos de Uso Principais
 - **UC1: Validar Ideia** – De uma observação vaga para uma hipótese testável ou descarte fundamentado.

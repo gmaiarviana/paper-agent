@@ -321,18 +321,19 @@ A estrutura básica se mantém, mas o raciocínio evolui incrementalmente:
 #### MVP (terceira entrega - sistema completo)
 
 **Raciocínio:**
+- Argumento focal explícito: extrai e atualiza campo focal_argument no state
+- Provocação de reflexão: identifica lacunas na conversa e faz perguntas inteligentes
 - Detecção emergente: infere estágio sem classificar explicitamente
-- Aprende preferências: adapta sugestões baseado em padrões do usuário
 
 **Funcionalidades:**
-- 7.7: Detecção emergente de estágio (exploration → hypothesis)
-- 7.8: Reasoning explícito das decisões
-- 7.9: Histórico de decisões do usuário (aprende preferências)
+- 7.8: Argumento Focal Explícito (campo no MultiAgentState)
+- 7.9: Provocação de Reflexão (versão simples)
+- 7.10: Detecção Emergente de Estágio (exploration → hypothesis)
 
 **Critérios de aceite:**
-- Sistema infere estágio sem classificar explicitamente
-- Explica por que sugeriu determinada ação
-- Adapta sugestões baseado em padrões do usuário
+- Orquestrador extrai e atualiza argumento focal explicitamente (campo focal_argument)
+- Identifica lacunas na conversa e faz perguntas que ajudam usuário a refletir
+- Sistema detecta quando conversa evoluiu (exploration → hypothesis) e sugere mudança de estágio
 
 ---
 
@@ -692,10 +693,14 @@ event_bus.publish_agent_completed(
 
 ### Próximos Passos (MVP)
 
-- 7.9: Argumento focal explícito (campo no state)
-- 7.10: Detecção emergente de estágio
-- 7.11: Histórico de decisões (aprende preferências)
-- 7.12: Provocação de reflexão avançada
+- 7.8: Argumento Focal Explícito (campo no state)
+- 7.9: Provocação de Reflexão (versão simples)
+- 7.10: Detecção Emergente de Estágio
+
+**Nota:** Funcionalidades 7.12-7.14 foram movidas para outros épicos:
+- 7.12: Reasoning Explícito das Decisões → Épico 9.6/9.7 (Interface Web)
+- 7.13: Histórico de Decisões → Épico 10.7 (Persistência)
+- 7.14: Argumento Focal Persistente → Épico 10.2 (Persistência)
 
 **Especificação técnica completa:** `docs/interface/conversational_cli.md`
 

@@ -57,8 +57,10 @@ Budget por sessão para evitar gastos inesperados.
 - Budget configurável por sessão (default: $1, max: $10)
 - Stop automático ao exceder budget
 - Warning ao atingir 80% do budget
-- Métricas de custo no dashboard Streamlit
+- Métricas de custo no dashboard
 - Config em `.env`: `MAX_COST_PER_SESSION=1.0`
+
+**Pendente:** Budget detalhado por tipo de artigo, alertas preventivos baseados em histórico.
 
 ---
 
@@ -131,6 +133,30 @@ Reproduzir sessões passo a passo para debugging avançado.
 - CLI: `python cli/replay_session.py session-123`
 - Breakpoints interativos (pause em nó específico)
 - Step-by-step execution com inspeção de estado
+
+---
+
+### Handling de Contexto Longo
+Truncamento inteligente quando histórico exceder limite de contexto.
+
+- Detectar quando histórico + input ultrapassa limite do modelo
+- Estratégias de truncamento:
+  - Manter argumento focal + últimos N turnos
+  - Resumir turnos antigos via LLM
+  - Priorizar turnos com decisões importantes
+- Reconexão transparente (usuário não percebe truncamento)
+
+---
+
+### Provocação de Reflexão Avançada (RAG)
+Versão avançada da provocação de reflexão usando RAG e análise de padrões.
+
+- RAG para sugerir ângulos baseado em papers científicos
+- Análise de vieses cognitivos recorrentes do usuário
+- Adaptação de tom/frequência ao estilo do usuário
+- Requer: RAG Infrastructure + Épico 10 (persistência)
+
+**Nota:** Versão simples já implementada no Épico 7 MVP (análise via LLM do histórico atual).
 
 ---
 
