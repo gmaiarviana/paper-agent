@@ -12,7 +12,7 @@
 - ÉPICO 5: Interface Conversacional e Transparência (Dashboard)
 - ÉPICO 6: Memória Dinâmica e Contexto por Agente (Config YAML + MemoryManager)
 - ÉPICO 7: Orquestrador Conversacional Inteligente (POC completo)
-- ÉPICO 8: Telemetria e Observabilidade (parcialmente refinado)
+- ÉPICO 8: Telemetria e Observabilidade (refinado)
 - ÉPICO 9: Interface Web Conversacional (refinado)
 
 ### ⚠️ Épicos Não-Refinados (Requerem Discussão Antes da Implementação)
@@ -216,65 +216,100 @@ As funcionalidades abaixo foram planejadas para o MVP do Épico 7, mas movidas p
 
 ## ÉPICO 8: Telemetria e Observabilidade
 
-**Objetivo:** Instrumentar todos os agentes para capturar reasoning, decisões e métricas, e implementar streaming de eventos em tempo real.
+**Objetivo:** Instrumentar todos os agentes para capturar reasoning, decisões e métricas, implementar streaming de eventos em tempo real, e fornecer ferramentas para análise e otimização do sistema.
 
-**Status:** 🟡 Parcialmente refinado
+**Status:** 🟡 Refinado
 
 **Dependências:**
-- Épico 7 concluído (Orquestrador Conversacional)
+- Épico 7 Protótipo concluído (Orquestrador Conversacional com transparência)
+- Épico 5.1 concluído (EventBus e Dashboard - infraestrutura base)
+- Épico 6.2 concluído (MemoryManager - rastreamento de tokens)
+
+**Infraestrutura Existente:**
+- ✅ EventBus implementado (`utils/event_bus.py`) com campo `metadata` livre
+- ✅ Dashboard Streamlit com polling (auto-refresh 2s)
+- ✅ Rastreamento de tokens já funcional (Épico 6.2)
+- ✅ Orquestrador já publica eventos com metadata
+- 👉 **POC 8.1 é replicar padrão existente para Estruturador**
+
+---
 
 ### Progressão POC → Protótipo → MVP
 
 #### POC (instrumentação básica)
 
 **8.1: Instrumentar Estruturador**
-- Adicionar campo reasoning no output do Estruturador
-- Reasoning simples: "Estruturando V1 com base em: [contexto, problema, contribuição]"
-- EventBus publica reasoning do Estruturador
+- Adicionar publicação de eventos no `structurer_node`
+- Incluir reasoning via `metadata={"reasoning": "..."}`
+- Reasoning texto livre: "Estruturando V1 com base em: [contexto, problema, contribuição]"
+- Dashboard exibe reasoning em expander (padrão já existe para Orquestrador)
+- **Nota técnica:** EventBus já suporta metadata, apenas replicar padrão
 
 **Critérios de aceite POC:**
-- Estruturador emite evento com reasoning
-- Dashboard pode exibir reasoning do Estruturador
-- Formato consistente com outros agentes
+- Estruturador publica `agent_started` e `agent_completed` com reasoning
+- Dashboard exibe reasoning do Estruturador (via expander)
+- Polling funciona (já implementado no Épico 5.1)
+- Formato consistente com eventos existentes (usa `metadata`)
+- Reasoning visível e compreensível para usuário
+
+---
 
 #### Protótipo (streaming e métricas)
 
-**8.2: Instrumentar Metodologista**
-- Adicionar campo reasoning no output (além da justification existente)
-- Reasoning detalha processo: "Analisei testabilidade, falseabilidade, especificidade..."
-- justification mantém conclusão resumida
+**8.2: Instrumentar Orquestrador e Metodologista**
+- Orquestrador: adicionar reasoning explícito no metadata (já publica eventos)
+- Metodologista: adicionar publicação de eventos + reasoning no metadata
+- Reasoning detalha processo de cada agente:
+  - Orquestrador: análise contextual e decisões
+  - Metodologista: processo de validação (complementa justification)
+- Dashboard replica expander para todos os agentes
+- **Nota técnica:** Orquestrador parcialmente instrumentado, Metodologista precisa adicionar publicação
 
 **8.3: SSE (Server-Sent Events)**
-- Implementar endpoint SSE para streaming de eventos
-- Dashboard consome eventos em tempo real (não polling)
-- Fallback para polling se SSE falhar
+- Implementar endpoint SSE: `/events/<session_id>` (FastAPI/Starlette)
+- Interface web consome eventos via `EventSource` API
+- Substituir polling por SSE (melhora experiência)
+- Fallback automático para polling se SSE falhar
+- Reconnect automático em caso de desconexão
+- **Nota técnica:** Única parte complexa do Épico 8 (requer FastAPI)
 
 **8.4: Métricas consolidadas**
-- Tokens e custo por agente
+- Tokens e custo por agente (ex: "Orquestrador: 500 tokens, $0.003")
 - Tokens e custo total da sessão
 - Tempo de execução por agente
+- Exibição clara na interface web (sidebar ou painel dedicado)
+- Atualização em tempo real via SSE
+- **Nota técnica:** CostTracker já calcula custos, apenas agregar e exibir
 
 **Critérios de aceite Protótipo:**
-- Todos os agentes emitem reasoning estruturado
+- Todos os agentes (Orquestrador, Estruturador, Metodologista) emitem reasoning
 - Dashboard recebe eventos em tempo real via SSE
-- Métricas exibidas corretamente
+- Fallback para polling funciona se SSE falhar
+- Métricas consolidadas exibidas corretamente
+- Performance: SSE não adiciona latência perceptível (< 100ms)
 
-#### MVP (alertas e otimizações)
+---
 
-**8.5: Alertas de custo**
-- Alerta quando custo da sessão ultrapassar threshold ($0.50, $1.00)
-- Exibir custo acumulado do dia
-- Warning ao atingir 80% do budget configurado
+#### MVP (export e estatísticas)
+
+**8.5: Export de Reasoning e Estatísticas**
+- Export de histórico completo de reasoning (JSON, markdown)
+- Estatísticas agregadas por sessão:
+  - Agente mais usado na sessão
+  - Custo total por tipo de agente
+  - Distribuição de tokens (input vs output)
+  - Tempo médio por agente
+- Dados exportáveis para análise offline
+- Visualização básica de padrões (opcional: gráficos simples com Plotly)
+- **Nota técnica:** EventBus já persiste eventos em JSON, export é leitura + formatação
 
 **Critérios de aceite MVP:**
-- Sistema alerta usuário sobre custos
-- Budget configurável via .env
-- Logs estruturados de custos
-
-**Melhorias futuras (Backlog):**
-- Replay de sessão (ver reasoning passo a passo)
-- Export de reasoning (JSON, markdown)
-- Análise de padrões (quais agentes mais usados)
+- Usuário pode exportar histórico completo de reasoning (botão no Dashboard)
+- Estatísticas básicas disponíveis e corretas
+- Formato de export utilizável:
+  - JSON: válido e bem estruturado
+  - Markdown: legível e formatado
+- Dados permitem identificar oportunidades de otimização (ex: agente mais caro)
 
 ---
 
@@ -382,13 +417,6 @@ As funcionalidades abaixo foram planejadas para o MVP do Épico 7, mas movidas p
 - Sessões NÃO persistem entre reloads (temporárias)
 - Métricas consolidadas visíveis
 - Fallback para polling se SSE falhar
-
-**Melhorias futuras (Backlog):**
-- Mobile responsivo (bastidores como modal/overlay)
-- Export de conversas (markdown, PDF)
-- Replay de sessão (ver conversa + reasoning passo a passo)
-- Temas (claro/escuro)
-- Atalhos de teclado
 
 ---
 

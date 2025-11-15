@@ -590,6 +590,9 @@ Barramento de eventos para comunicação entre CLI/Graph e Dashboard.
 
 **Status:** Funcionalidade 5.1 implementada e testada.
 
+**Evolução para Telemetria (Épico 8):**
+O EventBus foi projetado com campo `metadata: Dict[str, Any]` livre, permitindo extensão sem mudanças estruturais. No Épico 8, este campo é usado para incluir `reasoning` dos agentes, viabilizando transparência completa do sistema. A arquitetura suporta tanto polling (implementado) quanto SSE (planejado para Protótipo 8.3) sem modificações no EventBus core.
+
 ### Dashboard Streamlit (`app/dashboard.py`) - Épico 5.1
 Interface web para visualização de sessões e eventos em tempo real.
 

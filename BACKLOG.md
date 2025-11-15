@@ -125,6 +125,20 @@ Funcionalidades desejáveis mas não essenciais para MVP.
 
 ---
 
+### Alertas de Custo
+Avisos automáticos para evitar surpresas com gastos de API.
+
+- Budget configurável por sessão (default: $1, max: $10)
+- Stop automático ao exceder budget
+- Warning ao atingir 80% do budget
+- Alertas em tempo real na interface web
+- Config em `.env`: `MAX_COST_PER_SESSION=1.0`
+- Dashboard com histórico de gastos (últimos 30 dias)
+
+**Contexto:** Funcionalidade planejada originalmente para MVP do Épico 8, mas movida para Backlog. Sistema já tem métricas de custo (Épico 8.4), alertas são otimização adicional.
+
+---
+
 ### Session Replay (Debug)
 Reproduzir sessões passo a passo para debugging avançado.
 
@@ -259,7 +273,9 @@ Sistema multi-usuário e integrações externas.
 ### Analytics e Melhorias
 Dashboard de métricas e otimização contínua.
 
-- Dashboard de métricas de uso (tokens, custos, tempo)
+- Dashboard de métricas consolidadas (tokens, custos, tempo) com histórico temporal (últimos 7/30 dias)
+- Análise de padrões de uso (quais agentes mais usados, prompts mais eficientes)
+- Comparação entre sessões (métricas agregadas ao longo do tempo)
 - Análise de qualidade de artigos gerados
 - Sugestões automáticas de melhoria baseadas em patterns
 - A/B testing de prompts de agentes
@@ -273,6 +289,19 @@ Suporte a múltiplos formatos e publicação.
 - Templates de revistas científicas específicas
 - Submissão automática para repositórios de preprints (arXiv, bioRxiv)
 - Geração de apresentações (slides) a partir do artigo
+
+---
+
+### Melhorias de Interface Web
+Funcionalidades desejáveis para aprimorar experiência do usuário na interface web.
+
+- Mobile responsivo (bastidores como modal/overlay)
+- Export de conversas (markdown, PDF)
+- Replay de sessão (ver conversa + reasoning passo a passo)
+- Temas (claro/escuro)
+- Atalhos de teclado
+
+**Contexto:** Melhorias planejadas para o Épico 9 (Interface Web Conversacional), mas movidas para Backlog como funcionalidades não essenciais para MVP.
 
 ---
 
