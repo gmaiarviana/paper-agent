@@ -149,7 +149,7 @@ Avisos automáticos para evitar surpresas com gastos de API.
 - Config em `.env`: `MAX_COST_PER_SESSION=1.0`
 - Dashboard com histórico de gastos (últimos 30 dias)
 
-**Contexto:** Funcionalidade planejada originalmente para MVP do Épico 8, mas movida para Backlog. Sistema já tem métricas de custo (Épico 8.4), alertas são otimização adicional.
+**Contexto:** Funcionalidade planejada originalmente para MVP do Épico 8, mas movida para Backlog. Sistema já tem métricas consolidadas (Épico 8.3), alertas são otimização adicional.
 
 ---
 
@@ -161,6 +161,23 @@ Reproduzir sessões passo a passo para debugging avançado.
 - CLI: `python cli/replay_session.py session-123`
 - Breakpoints interativos (pause em nó específico)
 - Step-by-step execution com inspeção de estado
+
+---
+
+### Export de Reasoning e Estatísticas
+Exportar histórico completo de reasoning e estatísticas agregadas para análise offline.
+
+- Export de histórico completo de reasoning (JSON, markdown)
+- Estatísticas agregadas por sessão:
+  - Agente mais usado
+  - Custo total por tipo de agente
+  - Distribuição de tokens (input vs output)
+  - Tempo médio por agente
+- Dados exportáveis para análise offline
+- Visualização básica de padrões (opcional: gráficos com Plotly)
+- Botão de export no Dashboard
+
+**Contexto:** Funcionalidade planejada originalmente para MVP do Épico 8, mas movida para Backlog. Sistema já tem métricas consolidadas (Épico 8.3), export é funcionalidade adicional para análise avançada.
 
 ---
 

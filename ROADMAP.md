@@ -29,7 +29,7 @@
 
 ## ÉPICO 8: Telemetria e Observabilidade
 
-**Objetivo:** Instrumentar todos os agentes para capturar reasoning, decisões e métricas, implementar streaming de eventos em tempo real, e fornecer ferramentas para análise e otimização do sistema.
+**Objetivo:** Instrumentar todos os agentes para capturar reasoning, decisões e métricas, e implementar streaming de eventos em tempo real.
 
 **Status:** 🟡 Em Progresso
 
@@ -40,7 +40,7 @@
 
 ---
 
-### Progressão POC → Protótipo → MVP
+### Progressão POC → Protótipo
 
 #### ✅ POC (instrumentação básica)
 
@@ -64,42 +64,18 @@
 **8.2: Instrumentar Orquestrador e Metodologista**
 - Adicionar reasoning explícito no metadata para todos os agentes
 
-**8.3: SSE (Server-Sent Events)**
-- Ver spec técnica completa em `docs/interface/web.md`
-
-**8.4: Métricas consolidadas**
+**8.3: Métricas consolidadas**
 - Tokens e custo por agente
 - Tokens e custo total da sessão
 - Tempo de execução por agente
 - Exibição clara na interface web
-- Atualização em tempo real via SSE
+- Atualização em tempo real via polling (1s)
 
 **Critérios de aceite Protótipo:**
 - Todos os agentes emitem reasoning
-- Dashboard recebe eventos em tempo real via SSE (ver spec técnica em `docs/interface/web.md`)
-- Fallback para polling funciona
+- Dashboard recebe eventos via polling (1s)
 - Métricas consolidadas exibidas corretamente
-- Performance: SSE não adiciona latência perceptível (< 100ms)
-
----
-
-#### MVP (export e estatísticas)
-
-**8.5: Export de Reasoning e Estatísticas**
-- Export de histórico completo de reasoning (JSON, markdown)
-- Estatísticas agregadas por sessão:
-  - Agente mais usado
-  - Custo total por tipo de agente
-  - Distribuição de tokens (input vs output)
-  - Tempo médio por agente
-- Dados exportáveis para análise offline
-- Visualização básica de padrões (opcional: gráficos com Plotly)
-
-**Critérios de aceite MVP:**
-- Usuário pode exportar histórico completo de reasoning (botão no Dashboard)
-- Estatísticas básicas disponíveis e corretas
-- Formato de export utilizável (JSON válido, Markdown legível)
-- Dados permitem identificar oportunidades de otimização
+- Performance: Polling com intervalo de 1s (suficiente para experiência)
 
 ---
 
@@ -179,7 +155,7 @@
 - Sessões persistem entre visitas (SqliteSaver backend)
 - Sidebar gerencia múltiplas sessões
 - Uma sessão ativa por vez (alternar via sidebar)
-- Polling otimizado (1s de intervalo - SSE movido para Backlog)
+- Polling otimizado (1s de intervalo)
 - Métricas consolidadas visíveis
 - Todas as sessões compartilhadas (sem autenticação)
 
