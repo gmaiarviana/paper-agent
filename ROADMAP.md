@@ -10,13 +10,21 @@
 
 ## 📋 Status dos Épicos
 
-### ✅ Épicos Refinados (Prontos para Implementação)
-- ÉPICO 8: Telemetria e Observabilidade (POC concluída - 15/11/2025)
-- ÉPICO 9: Interface Web Conversacional (refinado)
+### ✅ Épicos Concluídos
+- **Épico 1-7**: Sistema multi-agente conversacional completo (ver [ARCHITECTURE.md](ARCHITECTURE.md))
+  - Orquestrador conversacional MVP
+  - Estruturador com refinamento colaborativo
+  - Metodologista com validação científica
+  - EventBus e Dashboard
+  - Configuração externa e MemoryManager
 
-### ⚠️ Épicos Não-Refinados (Requerem Discussão Antes da Implementação)
-- ÉPICO 10: Entidade Tópico e Persistência
-- ÉPICO 11+: Agentes Avançados (Pesquisador, Escritor, Crítico)
+### 🚀 Épicos Ativos
+- **ÉPICO 8**: Telemetria e Observabilidade (POC 8.1 concluída - 15/11/2025)
+
+### 📋 Épicos Planejados
+- **ÉPICO 9**: Interface Web Conversacional (refinado, pronto para implementação)
+- **ÉPICO 10**: Entidade Tópico e Persistência (não refinado)
+- **ÉPICO 11+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -28,27 +36,28 @@
 
 **Objetivo:** Instrumentar todos os agentes para capturar reasoning, decisões e métricas, implementar streaming de eventos em tempo real, e fornecer ferramentas para análise e otimização do sistema.
 
-**Status:** 🟡 Refinado
+**Status:** 🟡 Em Progresso (POC concluída)
 
 **Dependências:**
-- Épico 7 Protótipo concluído (Orquestrador Conversacional com transparência)
-- Épico 5.1 concluído (EventBus e Dashboard - infraestrutura base)
-- Épico 6.2 concluído (MemoryManager - rastreamento de tokens)
+- ✅ Épico 7 concluído (Orquestrador Conversacional)
+- ✅ Épico 5.1 concluído (EventBus e Dashboard)
+- ✅ Épico 6.2 concluído (MemoryManager)
 
 **Infraestrutura Existente:**
 - ✅ EventBus implementado (`utils/event_bus.py`) com campo `metadata` livre
 - ✅ Dashboard Streamlit com polling (auto-refresh 2s)
 - ✅ Rastreamento de tokens já funcional (Épico 6.2)
-- ✅ Orquestrador já publica eventos com metadata
-- 👉 **POC 8.1 é replicar padrão existente para Estruturador**
+- ✅ Wrapper `instrument_node()` instrumenta todos os agentes
 
 ---
 
 ### Progressão POC → Protótipo → MVP
 
-#### POC (instrumentação básica)
+#### ✅ POC (instrumentação básica) - CONCLUÍDA
 
 **8.1: Instrumentar Estruturador** ✅ **CONCLUÍDO (15/11/2025)**
+
+**Implementação:**
 - ✅ Publicação de eventos no `structurer_node` (via wrapper `instrument_node`)
 - ✅ Reasoning incluído via `metadata={"reasoning": "..."}`
 - ✅ Reasoning texto livre implementado:
@@ -56,33 +65,38 @@
   - Modo refinamento: "Refinando V{N} endereçando {X} gaps: [lista]"
 - ✅ Dashboard exibe reasoning em expander para todos os agentes
 - ✅ Função `_extract_reasoning()` implementada em `multi_agent_graph.py`
-- ✅ Script de validação unitária criado: `scripts/flows/validate_epic8_poc_unit.py`
+- ✅ Scripts de validação criados e passando
 
-**Critérios de aceite POC:** ✅ **TODOS ATENDIDOS**
+**Critérios de aceite:** ✅ **TODOS ATENDIDOS**
 - ✅ Estruturador publica `agent_started` e `agent_completed` com reasoning
-- ✅ Dashboard exibe reasoning do Estruturador (via expander)
-- ✅ Polling funciona (já implementado no Épico 5.1)
-- ✅ Formato consistente com eventos existentes (usa `metadata`)
-- ✅ Reasoning visível e compreensível para usuário
+- ✅ Dashboard exibe reasoning via expander
+- ✅ Polling funciona (Épico 5.1)
+- ✅ Formato consistente com EventBus
+- ✅ Reasoning visível e compreensível
 
 **Arquivos modificados:**
 - `agents/multi_agent_graph.py`: função `_extract_reasoning()` + metadata em eventos
 - `app/dashboard.py`: expander para reasoning em `agent_completed`
 - `scripts/flows/validate_epic8_poc_unit.py`: validação unitária (novo)
-- `scripts/flows/validate_epic8_poc.py`: validação end-to-end com API (novo)
+- `scripts/flows/validate_epic8_poc.py`: validação end-to-end (novo)
+
+**Validação:**
+```bash
+# Validação unitária (sem API)
+python scripts/flows/validate_epic8_poc_unit.py
+
+# Validação end-to-end (com API)
+python scripts/flows/validate_epic8_poc.py
+```
 
 ---
 
-#### Protótipo (streaming e métricas)
+#### Protótipo (streaming e métricas) - PRÓXIMO
 
 **8.2: Instrumentar Orquestrador e Metodologista**
-- Orquestrador: adicionar reasoning explícito no metadata (já publica eventos)
-- Metodologista: adicionar publicação de eventos + reasoning no metadata
-- Reasoning detalha processo de cada agente:
-  - Orquestrador: análise contextual e decisões
-  - Metodologista: processo de validação (complementa justification)
-- Dashboard replica expander para todos os agentes
-- **Nota técnica:** Orquestrador parcialmente instrumentado, Metodologista precisa adicionar publicação
+- Orquestrador: ✅ Reasoning já implementado (usa `orchestrator_analysis`)
+- Metodologista: Adicionar reasoning explícito no metadata
+- Dashboard: ✅ Expander já funciona para todos os agentes
 
 **8.3: SSE (Server-Sent Events)**
 - Implementar endpoint SSE: `/events/<session_id>` (FastAPI/Starlette)
@@ -90,20 +104,18 @@
 - Substituir polling por SSE (melhora experiência)
 - Fallback automático para polling se SSE falhar
 - Reconnect automático em caso de desconexão
-- **Nota técnica:** Única parte complexa do Épico 8 (requer FastAPI)
 
 **8.4: Métricas consolidadas**
 - Tokens e custo por agente (ex: "Orquestrador: 500 tokens, $0.003")
 - Tokens e custo total da sessão
 - Tempo de execução por agente
-- Exibição clara na interface web (sidebar ou painel dedicado)
+- Exibição clara na interface web
 - Atualização em tempo real via SSE
-- **Nota técnica:** CostTracker já calcula custos, apenas agregar e exibir
 
 **Critérios de aceite Protótipo:**
-- Todos os agentes (Orquestrador, Estruturador, Metodologista) emitem reasoning
+- Todos os agentes emitem reasoning
 - Dashboard recebe eventos em tempo real via SSE
-- Fallback para polling funciona se SSE falhar
+- Fallback para polling funciona
 - Métricas consolidadas exibidas corretamente
 - Performance: SSE não adiciona latência perceptível (< 100ms)
 
@@ -114,21 +126,18 @@
 **8.5: Export de Reasoning e Estatísticas**
 - Export de histórico completo de reasoning (JSON, markdown)
 - Estatísticas agregadas por sessão:
-  - Agente mais usado na sessão
+  - Agente mais usado
   - Custo total por tipo de agente
   - Distribuição de tokens (input vs output)
   - Tempo médio por agente
 - Dados exportáveis para análise offline
-- Visualização básica de padrões (opcional: gráficos simples com Plotly)
-- **Nota técnica:** EventBus já persiste eventos em JSON, export é leitura + formatação
+- Visualização básica de padrões (opcional: gráficos com Plotly)
 
 **Critérios de aceite MVP:**
 - Usuário pode exportar histórico completo de reasoning (botão no Dashboard)
 - Estatísticas básicas disponíveis e corretas
-- Formato de export utilizável:
-  - JSON: válido e bem estruturado
-  - Markdown: legível e formatado
-- Dados permitem identificar oportunidades de otimização (ex: agente mais caro)
+- Formato de export utilizável (JSON válido, Markdown legível)
+- Dados permitem identificar oportunidades de otimização
 
 ---
 
@@ -136,11 +145,11 @@
 
 **Objetivo:** Criar interface web como experiência principal do sistema, com chat fluido, visualização de reasoning dos agentes ("bastidores"), e métricas de custo inline.
 
-**Status:** 🟡 Refinado
+**Status:** 📋 Refinado (pronto para implementação)
 
 **Dependências:**
-- Épico 8 POC concluído (reasoning instrumentado)
-- Épico 7 concluído (Orquestrador Conversacional)
+- ✅ Épico 8 POC concluído (reasoning instrumentado)
+- ✅ Épico 7 concluído (Orquestrador Conversacional)
 
 **Consulte:** `docs/interface/web.md` para especificação técnica completa
 
@@ -192,7 +201,6 @@
 - Mostra agente ativo (Orquestrador, Estruturador, Metodologista)
 - Reasoning resumido (~280 chars)
 - Tempo, tokens, custo do agente
-- *Nota: Implementa funcionalidade 7.12 do Épico 7 (Reasoning Explícito das Decisões)*
 
 **9.8: Timeline de agentes (histórico)**
 - Lista de agentes executados (colapsado)
@@ -203,7 +211,6 @@
 - Botão "📄 Ver raciocínio completo" ao lado do resumo
 - Modal/dialog com JSON estruturado
 - Mostra todos os campos do agente
-- *Nota: Implementa funcionalidade 7.12 do Épico 7 (Reasoning Explícito das Decisões)*
 
 **Critérios de aceite Protótipo:**
 - Bastidores exibem reasoning via polling (1s)
@@ -243,88 +250,33 @@
 
 **Objetivo:** Permitir pausar/retomar conversas com contexto completo preservado, suportando múltiplos tópicos em evolução e persistência entre sessões.
 
-**Status:** ⚠️ Não refinado
+**Status:** ⚠️ Não refinado (requer discussão)
 
 **Dependências:**
 - Épico 9 concluído (Interface Web)
 
 **Consulte:** `docs/architecture/state_evolution.md` para detalhes de evolução de estado.
 
-### Progressão POC → Protótipo → MVP
+### Funcionalidades Planejadas (não refinadas)
 
-#### POC (persistência básica)
+- **10.1**: Persistência básica de sessões (localStorage ou SqliteSaver)
+- **10.2**: Argumento Focal Persistente
+- **10.3**: Pausar e retomar sessão
+- **10.4-10.7**: Múltiplas sessões, busca, versionamento de artefatos
+- **10.8-10.10**: Export, arquivamento, tags customizáveis
 
-**10.1: Persistência básica de sessões (movido do Épico 9.10)**
-- Sessões sobrevivem reload da página
-- Implementação inicial: localStorage (navegador) OU SqliteSaver (backend)
-- Thread_id vinculado à sessão
-- Sidebar recupera lista de sessões ao recarregar
+---
 
-**10.2: Argumento Focal Persistente (movido do Épico 7.14)**
-- Campo `focal_argument` salvo junto com sessão
-- Recuperado ao retomar conversa
-- Permite sistema entender contexto mesmo após dias
+## ÉPICO 11+: Agentes Avançados
 
-**10.3: Pausar e retomar sessão**
-- Usuário pode fechar navegador e voltar depois
-- Histórico completo preservado (mensagens + bastidores)
-- State do LangGraph recuperado via thread_id
+**Status:** ⚠️ Não refinado (requer discussão)
 
-**Critérios de aceite POC:**
-- Usuário pode fechar navegador e retomar sessão depois
-- Histórico de mensagens preservado
-- Argumento focal recuperado corretamente
-- Sistema continua conversa de onde parou
+**Agentes Planejados:**
+- **Pesquisador**: Busca e análise de literatura científica
+- **Escritor**: Redação de seções do artigo
+- **Crítico**: Revisão e feedback construtivo
 
-#### Protótipo (múltiplas sessões)
-
-**10.4: Múltiplas sessões persistidas**
-- Sidebar exibe lista de todas as sessões salvas
-- Usuário pode criar nova sessão a qualquer momento
-- Alternar entre sessões (não simultâneo)
-
-**10.5: Busca de sessões**
-- Buscar por título da conversa
-- Buscar por data (últimos 7 dias, último mês)
-- Filtrar por estágio (se argumento focal incluir estágio)
-
-**10.6: Artefatos versionados**
-- Sistema salva versões de hipóteses (V1, V2, V3)
-- Timeline mostra evolução de artefatos
-- Usuário pode ver "como era antes" de cada refinamento
-
-**10.7: Histórico de decisões do usuário (movido do Épico 7.13)**
-- Sistema rastreia decisões: aceitou/refutou sugestões de agentes
-- Identifica padrões de preferência (ex: usuário sempre prefere refinar antes de pesquisar)
-- Adapta sugestões futuras baseado em histórico
-
-**Critérios de aceite Protótipo:**
-- Usuário gerencia múltiplas sessões
-- Busca funciona corretamente
-- Versões de hipóteses rastreadas
-- Preferências do usuário influenciam sugestões
-
-#### MVP (gestão completa)
-
-**10.8: Export de conversas**
-- Exportar conversa completa em markdown
-- Incluir: mensagens + reasoning dos agentes + métricas
-- Formato: `conversa_YYYYMMDD.md`
-
-**10.9: Arquivar sessões concluídas**
-- Marcar sessão como "concluída"
-- Sessões concluídas movem para seção "Arquivadas"
-- Não aparecem na lista principal (reduz poluição visual)
-
-**10.10: Tags/labels customizáveis**
-- Usuário pode adicionar tags (ex: "urgente", "revisão", "tese")
-- Filtrar sessões por tags
-- Busca inclui tags
-
-**Critérios de aceite MVP:**
-- Export funciona (markdown legível)
-- Arquivamento organiza sessões
-- Tags facilitam organização
+**Consulte:** `docs/agents/overview.md` para mapa completo de agentes planejados.
 
 ---
 
@@ -333,3 +285,4 @@
 - Cada épico pode ser desenvolvido **isoladamente**
 - Entrega **valor incremental**
 - Pode ser **testado** antes do próximo
+- Épicos não refinados requerem discussão antes da implementação
