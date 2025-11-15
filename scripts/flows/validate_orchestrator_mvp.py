@@ -30,6 +30,7 @@ setup_project_path()
 
 from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.orchestrator.nodes import orchestrator_node
+from langchain_core.messages import HumanMessage, AIMessage
 
 # Configurar logging para ver os detalhes
 logging.basicConfig(
@@ -103,7 +104,7 @@ def test_focal_argument_extraction():
     # Simular estado com histórico
     state['user_input'] = user_input_2
     state['focal_argument'] = focal_1
-    state['messages'].append({"role": "user", "content": user_input_2})
+    state['messages'].append(HumanMessage(content=user_input_2))
 
     result_2 = orchestrator_node(state)
 
@@ -129,7 +130,7 @@ def test_focal_argument_extraction():
 
     state['user_input'] = user_input_3
     state['focal_argument'] = focal_2
-    state['messages'].append({"role": "user", "content": user_input_3})
+    state['messages'].append(HumanMessage(content=user_input_3))
 
     result_3 = orchestrator_node(state)
 
@@ -268,7 +269,7 @@ def test_direction_change_detection():
 
     state['user_input'] = user_input_2
     state['focal_argument'] = focal_1
-    state['messages'].append({"role": "user", "content": user_input_2})
+    state['messages'].append(HumanMessage(content=user_input_2))
 
     result_2 = orchestrator_node(state)
 
