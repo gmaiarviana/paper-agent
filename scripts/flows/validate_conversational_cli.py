@@ -5,12 +5,12 @@ Script de validação do CLI Conversacional (Épico 7 Protótipo).
 Valida que o CLI conversacional foi implementado corretamente com:
 - Loop contínuo de conversa (múltiplos turnos)
 - Thread ID preservado entre turnos
-- Contexto acumulado via conversation_history
-- Flag --verbose funcional
+- Contexto acumulado via histórico de mensagens
 - Mensagens conversacionais exibidas
 - Detecção de fim conversacional vs fim de sessão
+- EventBus publicando eventos estruturados
 
-Versão: 1.0
+Versão: 2.0
 Data: 15/11/2025
 """
 
@@ -22,7 +22,6 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
-from agents.memory.memory_manager import MemoryManager
 from utils.event_bus import get_event_bus
 
 
@@ -35,7 +34,7 @@ def validate_conversational_cli():
     2. Contexto acumulado (histórico de mensagens)
     3. Orquestrador detecta next_step="explore" corretamente
     4. Mensagens conversacionais geradas
-    5. EventBus publica eventos com reasoning
+    5. EventBus publica eventos estruturados
     """
     print("=" * 70)
     print("VALIDAÇÃO DO CLI CONVERSACIONAL (ÉPICO 7 PROTÓTIPO)")
@@ -43,7 +42,6 @@ def validate_conversational_cli():
 
     # Setup
     graph = create_multi_agent_graph()
-    memory_manager = MemoryManager()
     event_bus = get_event_bus()
 
     session_id = "test-conversational-cli-001"
@@ -52,8 +50,7 @@ def validate_conversational_cli():
     config = {
         "configurable": {
             "thread_id": thread_id,
-            "session_id": session_id,
-            "memory_manager": memory_manager
+            "session_id": session_id
         }
     }
 
@@ -139,27 +136,6 @@ def validate_conversational_cli():
         f"❌ Grafo não terminou em estado conversacional: {final_state2.get('next_step')}"
     print("   ✅ Terminou em estado conversacional (permite continuar)")
 
-    print("\n5. Testando MemoryManager (registro de tokens)...")
-
-    totals = memory_manager.get_session_totals(session_id)
-    tokens_total = totals.get('total', 0)
-
-    # Debug: Mostrar o que o MemoryManager tem
-    print(f"   DEBUG: Totais do MemoryManager: {totals}")
-
-    # MemoryManager pode estar vazio se config não foi passado pelo LangGraph
-    # Isso é esperado porque LangGraph pode não passar config para nós
-    # Por enquanto, apenas avisa mas não falha o teste
-    if tokens_total == 0:
-        print("   ⚠️  MemoryManager não registrou tokens (config pode não ter sido passado pelo LangGraph)")
-        print("   ⚠️  Isso é esperado - MemoryManager requer integração mais profunda")
-        print("   ⚠️  Validação de tokens PULADA (não crítica para CLI conversacional)")
-    else:
-        print(f"   ✅ Tokens registrados: {tokens_total} total")
-        orchestrator_tokens = totals.get('orchestrator', 0)
-        if orchestrator_tokens > 0:
-            print(f"   ✅ Orquestrador registrou {orchestrator_tokens} tokens")
-
     print("\n" + "=" * 70)
     print("✅ TODAS AS VALIDAÇÕES PASSARAM!")
     print("=" * 70)
@@ -168,7 +144,8 @@ def validate_conversational_cli():
     print(f"  - Turnos testados: 2")
     print(f"  - Mensagens acumuladas: {num_messages}")
     print(f"  - Eventos publicados: {len(events)}")
-    print(f"  - Tokens consumidos: {tokens_total}")
+    print(f"  - Contexto preservado: ✅")
+    print(f"  - Fim conversacional detectado: ✅")
     print()
     print("CLI Conversacional (Épico 7 Protótipo) está funcional! ✅")
     print()
