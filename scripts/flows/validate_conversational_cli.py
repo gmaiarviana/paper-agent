@@ -114,15 +114,18 @@ def validate_conversational_cli():
     print(f"   ✅ {len(events)} evento(s) publicado(s)")
 
     # Verificar se algum evento contém reasoning
-    orchestrator_events = [e for e in events if e.get('agent') == 'orchestrator']
+    orchestrator_events = [e for e in events if e.get('agent_name') == 'orchestrator']
     assert len(orchestrator_events) > 0, "❌ Nenhum evento do orquestrador encontrado"
+    print(f"   ✅ {len(orchestrator_events)} evento(s) do orquestrador encontrado(s)")
 
     # Verificar estrutura do evento
     event_sample = orchestrator_events[0]
     assert 'session_id' in event_sample, "❌ Evento não contém session_id"
     assert 'timestamp' in event_sample, "❌ Evento não contém timestamp"
+    assert 'agent_name' in event_sample, "❌ Evento não contém agent_name"
+    assert 'event_type' in event_sample, "❌ Evento não contém event_type"
     print("   ✅ Eventos estruturados corretamente")
-    print(f"   ✅ Amostra de evento: {list(event_sample.keys())}")
+    print(f"   ✅ Campos do evento: {list(event_sample.keys())}")
 
     print("\n4. Testando detecção de fim conversacional...")
 
