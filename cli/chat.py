@@ -196,15 +196,19 @@ def run_cli(verbose=False):
 
                 # CASO 1: Fim conversacional (Orquestrador quer continuar conversa)
                 if next_step in ['explore', 'clarify']:
-                    # Exibir raciocínio (se verbose)
+                    # Exibir raciocínio completo (se verbose)
                     if verbose and final_state.get('orchestrator_analysis'):
                         reasoning = final_state['orchestrator_analysis']
-                        print(f"\n🧠 Raciocínio: {reasoning[:300]}...")
+                        print(f"\n{'=' * 70}")
+                        print("🧠 RACIOCÍNIO DO ORQUESTRADOR")
+                        print(f"{'=' * 70}")
+                        print(f"{reasoning}")
+                        print(f"{'=' * 70}\n")
 
                     # Exibir mensagem conversacional
                     if final_state.get('messages'):
                         last_message = final_state['messages'][-1].content
-                        print(f"\nSistema: {last_message}")
+                        print(f"Sistema: {last_message}")
 
                     # Continuar loop (próximo turno)
                     continue
@@ -215,15 +219,19 @@ def run_cli(verbose=False):
                     suggested_agent = agent_suggestion.get('agent', 'N/A')
                     justification = agent_suggestion.get('justification', 'N/A')
 
-                    # Exibir raciocínio (se verbose)
+                    # Exibir raciocínio completo (se verbose)
                     if verbose and final_state.get('orchestrator_analysis'):
                         reasoning = final_state['orchestrator_analysis']
-                        print(f"\n🧠 Raciocínio: {reasoning[:300]}...")
+                        print(f"\n{'=' * 70}")
+                        print("🧠 RACIOCÍNIO DO ORQUESTRADOR")
+                        print(f"{'=' * 70}")
+                        print(f"{reasoning}")
+                        print(f"{'=' * 70}\n")
 
                     # Exibir sugestão
                     if final_state.get('messages'):
                         last_message = final_state['messages'][-1].content
-                        print(f"\nSistema: {last_message}")
+                        print(f"Sistema: {last_message}")
 
                     print(f"\n📌 Agente sugerido: {suggested_agent}")
                     print(f"📝 Justificativa: {justification}")
