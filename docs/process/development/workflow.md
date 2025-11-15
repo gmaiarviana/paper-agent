@@ -9,7 +9,7 @@ Quando dev solicitar funcionalidade:
    - README.md (execução e escopo da POC)
    - ARCHITECTURE.md (estrutura técnica)
    - docs/agents/overview.md (se envolver novos agentes)
-   - docs/process/planning_guidelines.md (para entender dependências/ordem)
+   - planning_guidelines.md (para entender dependências/ordem)
    - Código relacionado (para entender dependências)
 
 2. **Quebrar em tarefas:**

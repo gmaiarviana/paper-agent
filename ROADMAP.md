@@ -2,7 +2,7 @@
 
 > **📖 Status Atual:** Para entender o estado atual do sistema (épicos concluídos, funcionalidades implementadas), consulte [README.md](README.md) e [ARCHITECTURE.md](ARCHITECTURE.md).
 
-> **📖 Melhorias Técnicas:** Para funcionalidades planejadas não vinculadas a épicos, consulte [BACKLOG.md](BACKLOG.md).
+> **📖 Melhorias Técnicas:** Para funcionalidades planejadas não vinculadas a épicos, consulte [docs/backlog.md](docs/backlog.md).
 
 > **📖 Visão de Produto:** Para entender tipos de artigo, fluxos adaptativos e jornada do usuário, consulte `docs/product/vision.md`.
 
@@ -12,23 +12,18 @@
 
 ### ✅ Épicos Concluídos
 - **Épico 1-7**: Sistema multi-agente conversacional completo (ver [ARCHITECTURE.md](ARCHITECTURE.md))
-  - Orquestrador conversacional MVP
-  - Estruturador com refinamento colaborativo
-  - Metodologista com validação científica
-  - EventBus e Dashboard
-  - Configuração externa e MemoryManager
 
-### 🚀 Épicos Ativos
-- **ÉPICO 8**: Telemetria e Observabilidade (POC 8.1 concluída - 15/11/2025)
+### 🟡 Épicos Em Andamento
+- **ÉPICO 8**: Telemetria e Observabilidade
 
-### 📋 Épicos Planejados
+### ⏳ Épicos Planejados
 - **ÉPICO 9**: Interface Web Conversacional (refinado, pronto para implementação)
 - **ÉPICO 10**: Entidade Tópico e Persistência (não refinado)
 - **ÉPICO 11+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
-> Para fluxo completo de planejamento, consulte `docs/process/planning_guidelines.md`.
+> Para fluxo completo de planejamento, consulte `planning_guidelines.md`.
 
 ---
 
@@ -36,77 +31,48 @@
 
 **Objetivo:** Instrumentar todos os agentes para capturar reasoning, decisões e métricas, implementar streaming de eventos em tempo real, e fornecer ferramentas para análise e otimização do sistema.
 
-**Status:** 🟡 Em Progresso (POC concluída)
+**Status:** 🟡 Em Progresso
 
 **Dependências:**
 - ✅ Épico 7 concluído (Orquestrador Conversacional)
 - ✅ Épico 5.1 concluído (EventBus e Dashboard)
 - ✅ Épico 6.2 concluído (MemoryManager)
 
-**Infraestrutura Existente:**
-- ✅ EventBus implementado (`utils/event_bus.py`) com campo `metadata` livre
-- ✅ Dashboard Streamlit com polling (auto-refresh 2s)
-- ✅ Rastreamento de tokens já funcional (Épico 6.2)
-- ✅ Wrapper `instrument_node()` instrumenta todos os agentes
-
 ---
 
 ### Progressão POC → Protótipo → MVP
 
-#### ✅ POC (instrumentação básica) - CONCLUÍDA
+#### ✅ POC (instrumentação básica)
 
-**8.1: Instrumentar Estruturador** ✅ **CONCLUÍDO (15/11/2025)**
+**8.1: Instrumentar Estruturador** ✅ **CONCLUÍDO**
 
-**Implementação:**
-- ✅ Publicação de eventos no `structurer_node` (via wrapper `instrument_node`)
-- ✅ Reasoning incluído via `metadata={"reasoning": "..."}`
-- ✅ Reasoning texto livre implementado:
-  - Modo inicial: "Estruturando V1 com base em: contexto, problema, contribuição"
-  - Modo refinamento: "Refinando V{N} endereçando {X} gaps: [lista]"
-- ✅ Dashboard exibe reasoning em expander para todos os agentes
-- ✅ Função `_extract_reasoning()` implementada em `multi_agent_graph.py`
-- ✅ Scripts de validação criados e passando
+**Funcionalidades:**
+- Publicação de eventos com reasoning no `structurer_node`
+- Reasoning texto livre (modo inicial e refinamento)
+- Dashboard exibe reasoning via expander
 
-**Critérios de aceite:** ✅ **TODOS ATENDIDOS**
+**Critérios de aceite:**
 - ✅ Estruturador publica `agent_started` e `agent_completed` com reasoning
 - ✅ Dashboard exibe reasoning via expander
-- ✅ Polling funciona (Épico 5.1)
 - ✅ Formato consistente com EventBus
 - ✅ Reasoning visível e compreensível
 
-**Arquivos modificados:**
-- `agents/multi_agent_graph.py`: função `_extract_reasoning()` + metadata em eventos
-- `app/dashboard.py`: expander para reasoning em `agent_completed`
-- `scripts/flows/validate_epic8_poc_unit.py`: validação unitária (novo)
-- `scripts/flows/validate_epic8_poc.py`: validação end-to-end (novo)
-
-**Validação:**
-```bash
-# Validação unitária (sem API)
-python scripts/flows/validate_epic8_poc_unit.py
-
-# Validação end-to-end (com API)
-python scripts/flows/validate_epic8_poc.py
-```
-
 ---
 
-#### Protótipo (streaming e métricas) - PRÓXIMO
+#### Protótipo (streaming e métricas)
 
 **8.2: Instrumentar Orquestrador e Metodologista**
-- Orquestrador: ✅ Reasoning já implementado (usa `orchestrator_analysis`)
-- Metodologista: Adicionar reasoning explícito no metadata
-- Dashboard: ✅ Expander já funciona para todos os agentes
+- Adicionar reasoning explícito no metadata para todos os agentes
 
 **8.3: SSE (Server-Sent Events)**
-- Implementar endpoint SSE: `/events/<session_id>` (FastAPI/Starlette)
+- Implementar endpoint SSE: `/events/<session_id>`
 - Interface web consome eventos via `EventSource` API
-- Substituir polling por SSE (melhora experiência)
+- Substituir polling por SSE
 - Fallback automático para polling se SSE falhar
 - Reconnect automático em caso de desconexão
 
 **8.4: Métricas consolidadas**
-- Tokens e custo por agente (ex: "Orquestrador: 500 tokens, $0.003")
+- Tokens e custo por agente
 - Tokens e custo total da sessão
 - Tempo de execução por agente
 - Exibição clara na interface web
@@ -145,13 +111,15 @@ python scripts/flows/validate_epic8_poc.py
 
 **Objetivo:** Criar interface web como experiência principal do sistema, com chat fluido, visualização de reasoning dos agentes ("bastidores"), e métricas de custo inline.
 
-**Status:** 📋 Refinado (pronto para implementação)
+**Status:** ⏳ Planejado (refinado, pronto para implementação)
 
 **Dependências:**
 - ✅ Épico 8 POC concluído (reasoning instrumentado)
 - ✅ Épico 7 concluído (Orquestrador Conversacional)
 
 **Consulte:** `docs/interface/web.md` para especificação técnica completa
+
+---
 
 ### Progressão POC → Protótipo → MVP
 
@@ -181,7 +149,6 @@ python scripts/flows/validate_epic8_poc.py
 - EventBus publica eventos em arquivos JSON (infraestrutura existente)
 - Interface faz polling a cada 1 segundo para buscar novos eventos
 - Atualiza bastidores e timeline quando eventos chegam
-- Simples e funcional para POC
 
 **Critérios de aceite POC:**
 - Usuário pode conversar via web (input → output)
@@ -189,6 +156,8 @@ python scripts/flows/validate_epic8_poc.py
 - Métricas visíveis mas discretas
 - Backend compartilhado com CLI (LangGraph + EventBus)
 - Bastidores atualizam via polling (delay de ~1s aceitável)
+
+---
 
 #### Protótipo (bastidores e transparência)
 
@@ -218,6 +187,8 @@ python scripts/flows/validate_epic8_poc.py
 - Usuário pode expandir para ver detalhes
 - Experiência fluida apesar do delay do polling
 
+---
+
 #### MVP (experiência completa)
 
 **9.10: SSE (Server-Sent Events) para streaming**
@@ -225,7 +196,6 @@ python scripts/flows/validate_epic8_poc.py
 - Interface consome eventos em tempo real (não polling)
 - Fallback para polling se SSE falhar
 - Reconnect automático em caso de falha
-- Melhora experiência (sem delay de 1s do polling)
 
 **9.11: Sidebar com lista de sessões**
 - Lista de conversas anteriores (título, data)
@@ -250,26 +220,20 @@ python scripts/flows/validate_epic8_poc.py
 
 **Objetivo:** Permitir pausar/retomar conversas com contexto completo preservado, suportando múltiplos tópicos em evolução e persistência entre sessões.
 
-**Status:** ⚠️ Não refinado (requer discussão)
+**Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
 - Épico 9 concluído (Interface Web)
 
 **Consulte:** `docs/architecture/state_evolution.md` para detalhes de evolução de estado.
 
-### Funcionalidades Planejadas (não refinadas)
-
-- **10.1**: Persistência básica de sessões (localStorage ou SqliteSaver)
-- **10.2**: Argumento Focal Persistente
-- **10.3**: Pausar e retomar sessão
-- **10.4-10.7**: Múltiplas sessões, busca, versionamento de artefatos
-- **10.8-10.10**: Export, arquivamento, tags customizáveis
-
 ---
 
 ## ÉPICO 11+: Agentes Avançados
 
-**Status:** ⚠️ Não refinado (requer discussão)
+**Objetivo:** Expandir sistema com agentes especializados para pesquisa, redação e revisão de artigos científicos.
+
+**Status:** ⏳ Planejado (não refinado)
 
 **Agentes Planejados:**
 - **Pesquisador**: Busca e análise de literatura científica
