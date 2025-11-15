@@ -54,49 +54,46 @@
 
 ---
 
-#### Protótipo (segunda entrega - ⚠️ REFINADO)
+#### Protótipo (segunda entrega - ✅ IMPLEMENTADO)
 
-**Status:** Aguarda refinamento após POC validado
+**Status:** ✅ Implementado (15/11/2025)
 
-⚠️ **Foco: Experiência conversacional real na CLI**
+✅ **Foco: Experiência conversacional real na CLI**
 
-**Funcionalidades planejadas:**
+**Funcionalidades implementadas:**
 
-#### 7.5: CLI Conversacional Contínua
+#### 7.5: CLI Conversacional Contínua ✅
 - **Descrição:** Transformar CLI de loop único em chat contínuo com múltiplos turnos
-- **Critérios de Aceite:**
-  - CLI mantém conversa sem voltar para "Digite sua hipótese" após cada resposta
-  - Thread ID preservado ao longo da sessão
-  - Contexto acumulado (histórico completo) usado pelo Orquestrador
-  - Loop conversacional: Você → Sistema → Você → Sistema (N turnos)
-  - Sistema só para quando usuário decide chamar agente ou digita 'exit'
+- **Implementação:**
+  - ✅ CLI mantém conversa sem voltar para "Digite sua hipótese" após cada resposta
+  - ✅ Thread ID preservado ao longo da sessão
+  - ✅ Contexto acumulado (histórico completo) usado pelo Orquestrador
+  - ✅ Loop conversacional: Você → Sistema → Você → Sistema (N turnos)
+  - ✅ Sistema para quando usuário decide chamar agente ou digita 'exit'
 
-#### 7.6: Detecção Inteligente de Momento Certo
+#### 7.6: Detecção Inteligente de Momento Certo ✅
 - **Descrição:** Orquestrador detecta quando tem informação suficiente para sugerir chamar agente (não determinístico)
-- **Critérios de Aceite:**
-  - Usa LLM para julgar "momento certo" (não regras fixas)
-  - Considera quantidade e qualidade de informação acumulada
-  - Sugere agente quando chamar agregaria valor (não apenas "protocolo")
-  - next_step: "explore" → continua perguntando
-  - next_step: "suggest_agent" → sugere chamar agente específico
+- **Implementação:**
+  - ✅ Usa LLM para julgar "momento certo" (não regras fixas)
+  - ✅ Considera quantidade e qualidade de informação acumulada
+  - ✅ Sugere agente quando chamar agregaria valor (não apenas "protocolo")
+  - ✅ next_step: "explore" → continua perguntando
+  - ✅ next_step: "suggest_agent" → sugere chamar agente específico
 
-#### 7.7: Transparência do Raciocínio
+#### 7.7: Transparência do Raciocínio ✅
 - **Descrição:** Expor reasoning do Orquestrador de forma acessível sem poluir CLI
-- **Critérios de Aceite:**
-  - CLI exibe apenas mensagem limpa por padrão
-  - Flag `--verbose` opcional exibe reasoning inline
-  - EventBus emite eventos com reasoning completo
-  - Dashboard Streamlit consome e exibe reasoning em tempo real
-  - Usa infraestrutura existente do Épico 5 (eventos)
+- **Implementação:**
+  - ✅ CLI exibe apenas mensagem limpa por padrão
+  - ✅ Flag `--verbose` opcional exibe reasoning inline
+  - ✅ EventBus emite eventos com reasoning completo
+  - ⚠️ Dashboard Streamlit consome e exibe reasoning em tempo real (validar manualmente)
+  - ✅ Usa infraestrutura existente do Épico 5 (eventos)
 
-#### 7.8: Handling de Contexto Longo
+#### 7.8: Handling de Contexto Longo ⚠️
 - **Descrição:** Truncamento inteligente quando histórico excede limite de contexto
-- **Critérios de Aceite:**
-  - Prioriza mensagens mais recentes
-  - Mantém mensagens iniciais (hipótese original) quando possível
-  - Resumo comprimido de trechos intermediários
-  - Aviso ao usuário quando truncamento ocorre
-  - *Nota: Baixa prioridade, implementar se sobrar tempo*
+- **Status:** Não implementado (complexidade média-alta, baixa prioridade)
+- **Razão:** Sistema funciona sem isso no Protótipo. Conversas curtas não atingem limite.
+- **Planejamento:** Implementar depois de validar Protótipo em uso real
 
 ---
 

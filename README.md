@@ -108,40 +108,70 @@ python -m pytest tests/unit/ --cov=utils --cov=agents --cov=orchestrator
 
 ---
 
-### CLI Interativo
+### CLI Conversacional (Épico 7 Protótipo)
 
-Interface de linha de comando para testar o agente Metodologista:
+Interface de linha de comando com chat contínuo e múltiplos turnos:
 
 ```bash
+# Modo padrão (CLI limpa)
 python cli/chat.py
+
+# Modo verbose (exibe raciocínio do orquestrador)
+python cli/chat.py --verbose
+python cli/chat.py -v
 ```
 
 **Uso:**
-1. Digite sua hipótese quando solicitado
-2. Responda perguntas do agente para clarificar aspectos metodológicos
-3. Receba a avaliação final (aprovada/rejeitada) com justificativa
-4. Cada análise começa com contexto limpo automaticamente (Épico 6)
-5. Digite `exit` a qualquer momento para sair
+1. Sistema inicia conversa perguntando sobre sua ideia
+2. Converse naturalmente - sistema faz perguntas para entender contexto
+3. Sistema sugere quando chamar agentes especializados
+4. Você decide aceitar ou continuar conversando
+5. Digite `exit` ou `sair` a qualquer momento para encerrar
 
-**Exemplo de sessão:**
+**Exemplo de sessão conversacional:**
 ```
-📝 Digite sua hipótese: Café aumenta produtividade
-🔬 Analisando hipótese...
+Sistema: Olá! Me conte sobre sua ideia ou observação.
 
-❓ Agente pergunta: Qual é a população-alvo do estudo?
-💬 Sua resposta: Adultos de 18-40 anos
+Você: tdd reduz bugs
 
-❓ Agente pergunta: Como a produtividade será medida?
-💬 Sua resposta: Número de tarefas completadas por hora
+Sistema: Interessante observação sobre TDD! Poderia me contar um pouco mais?
+         Em que contexto você notou que TDD reduz bugs?
 
-📊 RESULTADO DA ANÁLISE
-✅ Status: APROVADA
-📝 Justificativa: A hipótese atende aos critérios de testabilidade...
+Você: na minha equipe Python
+
+Sistema: Entendi! E como você mediu essa redução de bugs? Tem dados
+         ou é uma impressão geral?
+
+Você: impressão geral, mas bugs caíram bastante
+
+Sistema: Perfeito! Baseado no que você me contou, posso chamar o
+         Estruturador para transformar isso em uma questão de
+         pesquisa estruturada?
+
+📌 Agente sugerido: structurer
+📝 Justificativa: Usuário tem observação com contexto, mas precisa
+   estruturar em questão de pesquisa formal
+
+Você quer que eu chame este agente? (sim/não): sim
+
+🤖 Chamando structurer...
+[Sistema processa...]
 ```
 
-**Validação do CLI (sem interação):**
+**Modo Verbose (transparência):**
 ```bash
-python scripts/flows/validate_cli.py
+python cli/chat.py --verbose
+
+# Exibe raciocínio inline:
+🧠 Raciocínio: Input vago sobre TDD. Preciso contexto: onde observou,
+   como mediu, qual população. Não tenho informação suficiente...
+
+Sistema: Interessante observação sobre TDD! Poderia me contar...
+```
+
+**Validação do CLI Conversacional:**
+```bash
+python scripts/flows/validate_conversational_cli.py
 ```
 
 ---

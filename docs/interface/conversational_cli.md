@@ -159,22 +159,24 @@ Se precisa mais info: next_step = "explore"
 ## 7. Critérios de Aceite
 
 **Funcionalidade:**
-- [ ] CLI mantém conversa por N turnos (não volta para prompt inicial)
-- [ ] Thread ID preservado ao longo da sessão
-- [ ] Orquestrador acessa histórico completo
-- [ ] Sistema detecta "momento certo" para sugerir agente
-- [ ] Usuário pode aceitar ou recusar sugestão de chamar agente
+- [x] CLI mantém conversa por N turnos (não volta para prompt inicial)
+- [x] Thread ID preservado ao longo da sessão
+- [x] Orquestrador acessa histórico completo
+- [x] Sistema detecta "momento certo" para sugerir agente
+- [x] Usuário pode aceitar ou recusar sugestão de chamar agente
 
 **Transparência:**
-- [ ] CLI padrão exibe apenas mensagem limpa
-- [ ] Flag `--verbose` exibe reasoning inline
-- [ ] EventBus emite eventos com reasoning
-- [ ] Dashboard consome e exibe reasoning
+- [x] CLI padrão exibe apenas mensagem limpa
+- [x] Flag `--verbose` exibe reasoning inline
+- [x] EventBus emite eventos com reasoning
+- [ ] Dashboard consome e exibe reasoning (validar manualmente)
 
 **Experiência:**
-- [ ] Conversa flui naturalmente (sem quebras)
-- [ ] Sistema faz perguntas relevantes
-- [ ] Sugestões de agentes fazem sentido no contexto
+- [x] Conversa flui naturalmente (sem quebras)
+- [x] Sistema faz perguntas relevantes (depende do prompt do Orquestrador)
+- [x] Sugestões de agentes fazem sentido no contexto (depende do prompt)
+
+**Status:** ✅ Protótipo Implementado (15/11/2025)
 
 ## 8. Comandos de Execução
 ```bash
