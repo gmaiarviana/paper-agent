@@ -99,8 +99,19 @@ def _process_user_message(user_input: str, session_id: str) -> None:
             result = _invoke_langgraph(user_input, session_id)
 
             # Extrair resposta do orquestrador
-            orchestrator_output = result.get("orchestrator_output", {})
-            assistant_message = orchestrator_output.get("message", "")
+            # A mensagem está em messages[-1].content (último AIMessage)
+            messages = result.get("messages", [])
+            if messages and len(messages) > 0:
+                # Pegar última mensagem (AIMessage do orquestrador)
+                last_message = messages[-1]
+                assistant_message = last_message.content if hasattr(last_message, 'content') else str(last_message)
+            else:
+                # Fallback se não houver mensagens
+                logger.warning(f"Nenhuma mensagem encontrada no resultado. Usando fallback.")
+                assistant_message = "Sistema processou mas não retornou mensagem. Verifique os logs."
+
+            # Debug logging
+            logger.info(f"Mensagem extraída do orquestrador: {assistant_message[:100]}...")
 
             # Buscar métricas consolidadas do EventBus
             metrics = _get_latest_metrics(session_id)

@@ -1,0 +1,21 @@
+# Streamlit Configuration for Paper Agent
+# Configuração customizada para interface web conversacional
+
+[client]
+# Remove botão "Deploy" do canto superior direito
+toolbarMode = "minimal"
+
+# Mostra detalhes de erros (útil para desenvolvimento)
+showErrorDetails = true
+
+[server]
+# Porta padrão (pode ser sobrescrita via linha de comando)
+port = 8501
+
+# Habilita websocket para auto-reload
+enableWebsocketCompression = true
+
+[theme]
+# Tema padrão (claro)
+# Pode ser sobrescrito pelo usuário via Settings
+base = "light"
