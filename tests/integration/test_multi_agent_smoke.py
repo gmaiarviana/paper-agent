@@ -14,25 +14,32 @@ Versão: 1.0 (Épico 3, Funcionalidade 3.3)
 Data: 11/11/2025
 """
 
-import pytest
+import os
 import sys
 from pathlib import Path
+
+import pytest
+from dotenv import load_dotenv
 
 # Adicionar o diretório raiz ao PYTHONPATH
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 # Carregar variáveis de ambiente do .env
-from dotenv import load_dotenv
 load_dotenv()
 
 from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
 
 
-@pytest.fixture
-def multi_agent_graph():
-    """Fixture que cria o super-grafo multi-agente."""
-    return create_multi_agent_graph()
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
+requires_anthropic = pytest.mark.skipif(
+    not ANTHROPIC_API_KEY,
+    reason="Integration test skipped: ANTHROPIC_API_KEY not set (requires real API)",
+)
+
+# Todos os testes deste módulo são de integração que usam API real
+pytestmark = [pytest.mark.integration, requires_anthropic]
 
 
 def test_vague_idea_full_flow(multi_agent_graph):
@@ -256,8 +263,3 @@ def test_state_fields_structure(multi_agent_graph):
             "methodologist_output deve ter campo 'justification'"
         assert 'clarifications' in result['methodologist_output'], \
             "methodologist_output deve ter campo 'clarifications'"
-
-
-if __name__ == "__main__":
-    # Permitir execução direta do arquivo para debugging
-    pytest.main([__file__, "-v", "-s"])

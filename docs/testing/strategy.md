@@ -105,6 +105,34 @@ python scripts/health_checks/validate_api.py
 
 ---
 
+## Markers e Política de Execução
+
+### Markers
+
+- `@pytest.mark.unit` (opcional): testes rápidos, sem API real (padrão em `tests/unit/`).
+- `@pytest.mark.integration`: testes que usam API real ou fluxo que depende de `ANTHROPIC_API_KEY`.
+- `@pytest.mark.slow` (opcional): testes de integração mais pesados, que podem ser selecionados à parte.
+
+### Falta de ANTHROPIC_API_KEY
+
+- Se `ANTHROPIC_API_KEY` **não estiver definida**:
+  - Ao rodar **`pytest` normal**:
+    - Testes `@pytest.mark.integration` podem ser marcados como **skipped** com mensagem clara:
+      - "Integration test skipped: ANTHROPIC_API_KEY not set (requires real API)".
+  - Ao rodar **`pytest -m integration`**:
+    - É aceitável **falhar explicitamente** (não apenas skip), pois o dev pediu integração.
+
+### Comandos recomendados
+
+- Unit tests (rápidos, sempre rodam):
+  - `pytest tests/unit/`
+- Integração (local, com chave configurada):
+  - `pytest tests/integration/ -m integration`
+- CI:
+  - Sempre roda `@pytest.mark.integration` com `ANTHROPIC_API_KEY` de teste configurada via secrets.
+
+---
+
 ## Cost Tracking em Testes
 
 ### Unit Tests
