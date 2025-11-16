@@ -315,8 +315,16 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         stage_suggestion = None
 
     # Extrair tokens e custo da resposta (Épico 8.3)
-    metrics = extract_tokens_and_cost(response, model_name)
-    logger.debug(f"Métricas extraídas: {metrics['tokens_total']} tokens, ${metrics['cost']:.6f}")
+    try:
+        logger.debug(f"[TOKEN EXTRACTION] Tentando extrair tokens de response (tipo: {type(response)})")
+        metrics = extract_tokens_and_cost(response, model_name)
+        logger.debug(f"[TOKEN EXTRACTION] ✅ Métricas extraídas: {metrics['tokens_total']} tokens, ${metrics['cost']:.6f}")
+    except Exception as e:
+        logger.error(f"[TOKEN EXTRACTION] ❌ Erro ao extrair tokens: {e}")
+        import traceback
+        traceback.print_exc()
+        # Fallback: métricas zeradas
+        metrics = {"tokens_input": 0, "tokens_output": 0, "tokens_total": 0, "cost": 0.0}
 
     logger.info("=== NÓ ORCHESTRATOR MVP: Finalizado ===\n")
 

@@ -214,8 +214,16 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
     }
 
     # Extrair tokens e custo da resposta (Épico 8.3)
-    metrics = extract_tokens_and_cost(response, model_name)
-    logger.debug(f"Métricas extraídas: {metrics['tokens_total']} tokens, ${metrics['cost']:.6f}")
+    try:
+        logger.debug(f"[TOKEN EXTRACTION] Tentando extrair tokens de response (tipo: {type(response)})")
+        metrics = extract_tokens_and_cost(response, model_name)
+        logger.debug(f"[TOKEN EXTRACTION] ✅ Métricas extraídas: {metrics['tokens_total']} tokens, ${metrics['cost']:.6f}")
+    except Exception as e:
+        logger.error(f"[TOKEN EXTRACTION] ❌ Erro ao extrair tokens: {e}")
+        import traceback
+        traceback.print_exc()
+        # Fallback: métricas zeradas
+        metrics = {"tokens_input": 0, "tokens_output": 0, "tokens_total": 0, "cost": 0.0}
 
     logger.info(f"Questão estruturada: {structured_question}")
     logger.info(f"Próximo estágio: validating (vai para Metodologista)")
@@ -353,8 +361,16 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
     }
 
     # Extrair tokens e custo da resposta (Épico 8.3)
-    metrics = extract_tokens_and_cost(response, model_name)
-    logger.debug(f"Métricas extraídas: {metrics['tokens_total']} tokens, ${metrics['cost']:.6f}")
+    try:
+        logger.debug(f"[TOKEN EXTRACTION] Tentando extrair tokens de response (tipo: {type(response)})")
+        metrics = extract_tokens_and_cost(response, model_name)
+        logger.debug(f"[TOKEN EXTRACTION] ✅ Métricas extraídas: {metrics['tokens_total']} tokens, ${metrics['cost']:.6f}")
+    except Exception as e:
+        logger.error(f"[TOKEN EXTRACTION] ❌ Erro ao extrair tokens: {e}")
+        import traceback
+        traceback.print_exc()
+        # Fallback: métricas zeradas
+        metrics = {"tokens_input": 0, "tokens_output": 0, "tokens_total": 0, "cost": 0.0}
 
     logger.info(f"Questão refinada V{current_version}: {structured_question}")
     logger.info(f"Gaps endereçados: {addressed_gaps}")
