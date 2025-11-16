@@ -1,6 +1,7 @@
 # Core dependencies for Paper Agent
 # LangGraph and LangChain for agent orchestration
 langgraph>=0.2.0
+langgraph-checkpoint-sqlite>=1.0.0  # Persistência de sessões (Épico 9 MVP)
 langchain-anthropic>=0.1.0
 langchain-core>=0.2.0
 
