@@ -25,7 +25,7 @@ import logging
 import time
 from typing import Callable, Any
 from langgraph.graph import StateGraph, END
-from langgraph_checkpoint_sqlite import SqliteSaver
+from langgraph.checkpoint.sqlite import SqliteSaver
 
 from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
 from agents.orchestrator.nodes import orchestrator_node
