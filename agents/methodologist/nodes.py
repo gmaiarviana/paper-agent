@@ -26,10 +26,11 @@ from .state import MethodologistState
 from .tools import ask_user
 from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
-from utils.config import get_anthropic_model
+from utils.config import get_anthropic_model, invoke_with_retry
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
+from agents.orchestrator.state import MethodologistOutputModel
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +94,7 @@ Se a hipótese é claramente boa ou ruim com o contexto atual, marque true."""
     # Chamar LLM
     llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     messages = [HumanMessage(content=analysis_prompt)]
-    response = llm.invoke(messages)
+    response = invoke_with_retry(llm=llm, messages=messages, agent_name="methodologist-analyze")
 
     logger.info(f"Resposta do LLM: {response.content}")
 
@@ -179,7 +180,11 @@ RESPONDA APENAS COM A PERGUNTA (sem preâmbulo ou explicação)."""
 
     # Chamar LLM para gerar pergunta
     llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
-    response = llm.invoke([HumanMessage(content=question_prompt)])
+    response = invoke_with_retry(
+        llm=llm,
+        messages=[HumanMessage(content=question_prompt)],
+        agent_name="methodologist-ask_clarification",
+    )
     question = response.content.strip()
 
     logger.info(f"Pergunta formulada: {question}")
@@ -269,7 +274,11 @@ RESPONDA EM JSON:
 
     # Chamar LLM para decisão
     llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
-    response = llm.invoke([HumanMessage(content=decision_prompt)])
+    response = invoke_with_retry(
+        llm=llm,
+        messages=[HumanMessage(content=decision_prompt)],
+        agent_name="methodologist-decide",
+    )
 
     logger.info(f"Resposta do LLM: {response.content}")
 
@@ -392,7 +401,11 @@ Avalie esta questão e retorne APENAS o JSON com status, justification e improve
 
     # Chamar LLM usando modelo do config
     llm = ChatAnthropic(model=model_name, temperature=0)
-    response = llm.invoke([HumanMessage(content=full_prompt)])
+    response = invoke_with_retry(
+        llm=llm,
+        messages=[HumanMessage(content=full_prompt)],
+        agent_name="methodologist-decide_collaborative",
+    )
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
 
@@ -442,12 +455,21 @@ Avalie esta questão e retorne APENAS o JSON com status, justification e improve
         justification = "Erro ao processar decisão do LLM."
         improvements = []
 
-    # Montar output do Metodologista
-    methodologist_output = {
-        "status": status,
-        "justification": justification,
-        "improvements": improvements
-    }
+    # Montar output do Metodologista com validação Pydantic
+    try:
+        output_model = MethodologistOutputModel(
+            status=status,
+            justification=justification,
+            improvements=improvements,
+        )
+        methodologist_output = output_model.model_dump()
+    except Exception as e:
+        logger.error(f"Falha ao validar output do Metodologista via Pydantic: {e}")
+        methodologist_output = {
+            "status": status,
+            "justification": justification,
+            "improvements": improvements,
+        }
 
     # Calcular versão (V1, V2, V3)
     current_version = len(state.get('hypothesis_versions', [])) + 1
