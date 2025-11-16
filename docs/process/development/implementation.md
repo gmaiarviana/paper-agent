@@ -53,7 +53,7 @@ Criar scripts de validação é uma **excelente prática** porque:
 - Estados complexos (como TypedDicts, Pydantic models)
 - Qualquer código onde "ver funcionando" ajuda a entender
 
-**Estrutura recomendada:**
+**Estrutura recomendada (padrão de script de validação):**
 ```python
 """
 Script de validação manual para [nome do módulo].
@@ -102,6 +102,10 @@ if __name__ == "__main__":
 ```
 
 **Localização:** `scripts/<categoria>/validate_*.py` (ex: `scripts/state_introspection/validate_ask_user.py`)
+
+**Idioma e convenções:**
+- Nomes de funções, variáveis e arquivos em inglês (`validate_module`, `project_root`), conforme [`language_guidelines.md`](language_guidelines.md)
+- Docstrings, prints e mensagens de erro em PT-BR (explicando o que está sendo validado)
 
 ### D) Commit (Opcional e Estratégico)
 

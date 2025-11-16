@@ -56,6 +56,7 @@ Princípios não-negociáveis para trabalhar com este projeto.
 
 **Deve:**
 - ✅ Seguir docs/process/development/ (guidelines)
+- ✅ Seguir `docs/testing/strategy.md` para pirâmide de testes, markers (`integration`, `slow`) e política de uso da API real
 - ✅ Ler ROADMAP.md + specs técnicas
 - ✅ TDD onde aplicável
 - ✅ Validar incrementalmente

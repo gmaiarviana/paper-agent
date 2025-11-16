@@ -93,20 +93,26 @@ logging.error("❌ Falha ao conectar com API")  # ✅ PT-BR
 raise ValueError("Hipótese não pode ser vazia")  # ✅ PT-BR
 ```
 
-### Código
+### Código e Testes
 
-**Variáveis e Funções:**
+**Variáveis, funções e testes:**
 ```python
-# ✅ Correto
+# ✅ Correto (inclui nomes de testes)
 hypothesis = "..."
 thread_id = f"session-{uuid.uuid4()}"
 def analyze_hypothesis(state):
     ...
 
-# ❌ Evitar
+def test_orchestrator_classifies_vague_idea():
+    ...
+
+# ❌ Evitar (variáveis e nomes de testes em PT)
 hipotese = "..."
 id_thread = f"sessao-{uuid.uuid4()}"
 def analisar_hipotese(estado):
+    ...
+
+def test_classificacao_vaga():
     ...
 ```
 

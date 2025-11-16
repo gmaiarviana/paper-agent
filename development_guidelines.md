@@ -37,6 +37,9 @@ Este documento é o índice principal das diretrizes de desenvolvimento. Cada se
 - Scripts de validação (`scripts/validate_*.py`) - estrutura e boas práticas
 - Commits estratégicos (opcionais)
 
+**Relacionado:**
+- Estratégia de testes, pirâmide, markers (`integration`, `slow`) e política de uso da API real: ver [`docs/testing/strategy.md`](docs/testing/strategy.md)
+
 **Quando ler:** Durante a implementação de cada tarefa.
 
 ---

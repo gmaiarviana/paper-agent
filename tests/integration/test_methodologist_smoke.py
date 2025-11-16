@@ -12,16 +12,17 @@ Versão: 1.0
 Data: 10/11/2025
 """
 
-import pytest
 import os
 import uuid
 from pathlib import Path
-from langgraph.types import Command
+
+import pytest
 from dotenv import load_dotenv
+from langgraph.types import Command
 
 from agents.methodologist import (
     create_methodologist_graph,
-    create_initial_state
+    create_initial_state,
 )
 
 # Carregar variáveis de ambiente do .env
@@ -30,8 +31,16 @@ project_root = Path(__file__).parent.parent.parent
 env_path = project_root / ".env"
 load_dotenv(dotenv_path=env_path)
 
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
+requires_anthropic = pytest.mark.skipif(
+    not ANTHROPIC_API_KEY,
+    reason="Integration test skipped: ANTHROPIC_API_KEY not set (requires real API)",
+)
+
 
 @pytest.mark.integration
+@requires_anthropic
 def test_methodologist_complete_flow_with_clarifications():
     """
     Teste de fumaça que simula o fluxo completo do agente Metodologista.
@@ -47,11 +56,6 @@ def test_methodologist_complete_flow_with_clarifications():
     - justification deve estar preenchida
     - Pelo menos 1 clarificação deve ter sido coletada
     """
-    # Validar que API key está configurada
-    assert os.getenv("ANTHROPIC_API_KEY"), (
-        "ANTHROPIC_API_KEY não encontrada. Configure no .env para rodar testes de integração."
-    )
-
     # 1. Criar grafo e estado inicial com hipótese vaga
     graph = create_methodologist_graph()
     hypothesis = "Café aumenta produtividade"
@@ -157,6 +161,7 @@ def test_methodologist_complete_flow_with_clarifications():
 
 
 @pytest.mark.integration
+@requires_anthropic
 def test_methodologist_respects_max_iterations():
     """
     Testa que o agente respeita o limite de max_iterations.
@@ -164,11 +169,6 @@ def test_methodologist_respects_max_iterations():
     Mesmo com hipótese vaga, após atingir max_iterations,
     o agente deve decidir com as informações disponíveis.
     """
-    # Validar que API key está configurada
-    assert os.getenv("ANTHROPIC_API_KEY"), (
-        "ANTHROPIC_API_KEY não encontrada. Configure no .env para rodar testes de integração."
-    )
-
     # Criar grafo com max_iterations baixo
     graph = create_methodologist_graph()
     hypothesis = "Plantas crescem mais rápido"  # Hipótese muito vaga
@@ -225,27 +225,3 @@ def test_methodologist_respects_max_iterations():
     )
 
     print("✅ Limite de iterações respeitado!")
-
-
-if __name__ == "__main__":
-    # Permitir rodar o teste diretamente para debug
-    import sys
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-
-    from dotenv import load_dotenv
-    load_dotenv()
-
-    print("=" * 70)
-    print("RODANDO TESTES DE INTEGRAÇÃO - SMOKE TEST")
-    print("=" * 70)
-
-    print("\n🧪 Teste 1: Fluxo completo com clarificações")
-    test_methodologist_complete_flow_with_clarifications()
-
-    print("\n" + "=" * 70)
-    print("\n🧪 Teste 2: Respeitar max_iterations")
-    test_methodologist_respects_max_iterations()
-
-    print("\n" + "=" * 70)
-    print("✅ TODOS OS TESTES PASSARAM!")
-    print("=" * 70)

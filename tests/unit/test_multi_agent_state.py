@@ -9,6 +9,7 @@ Data: 14/11/2025
 """
 
 import pytest
+
 from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
 
 
@@ -253,7 +254,3 @@ class TestMultiAgentStateTyping:
 
         # Verificar que é Literal com valores esperados
         assert "Literal" in str(current_stage_annotation)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])

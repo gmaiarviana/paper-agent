@@ -17,7 +17,7 @@ from langchain_anthropic import ChatAnthropic
 
 from .state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
-from utils.config import get_anthropic_model
+from utils.config import get_anthropic_model, invoke_with_retry
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
@@ -212,7 +212,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
 
     llm = ChatAnthropic(model=model_name, temperature=0)
     messages = [HumanMessage(content=conversational_prompt)]
-    response = llm.invoke(messages)
+    response = invoke_with_retry(llm=llm, messages=messages, agent_name="orchestrator")
 
     logger.info(f"Resposta do LLM (primeiros 200 chars): {response.content[:200]}...")
 
