@@ -25,7 +25,8 @@ class TestStructurerNode:
         """Testa estruturação de observação vaga básica."""
         # Arrange
         state = create_initial_multi_agent_state(
-            user_input="Observei que desenvolver com Claude Code é mais rápido"
+            user_input="Observei que desenvolver com Claude Code é mais rápido",
+            session_id="test-session-1",
         )
 
         # Mock da resposta do LLM
@@ -70,7 +71,8 @@ class TestStructurerNode:
         """Testa que todos os elementos são extraídos corretamente."""
         # Arrange
         state = create_initial_multi_agent_state(
-            user_input="Notei que alunos se engajam mais em aulas interativas"
+            user_input="Notei que alunos se engajam mais em aulas interativas",
+            session_id="test-session-1",
         )
 
         # Mock com todos os campos preenchidos
@@ -101,7 +103,8 @@ class TestStructurerNode:
         """Testa que nó lida graciosamente com JSON malformado."""
         # Arrange
         state = create_initial_multi_agent_state(
-            user_input="Teste de observação"
+            user_input="Teste de observação",
+            session_id="test-session-1",
         )
 
         # Mock com JSON inválido
@@ -131,7 +134,8 @@ class TestStructurerNode:
         """Testa que nó lida com JSON parcial (alguns campos faltando)."""
         # Arrange
         state = create_initial_multi_agent_state(
-            user_input="Observação parcial"
+            user_input="Observação parcial",
+            session_id="test-session-1",
         )
 
         # Mock com JSON parcial (faltando alguns campos)
@@ -161,7 +165,10 @@ class TestStructurerNode:
     def test_updates_state_correctly(self):
         """Testa que nó atualiza o estado corretamente."""
         # Arrange
-        state = create_initial_multi_agent_state(user_input="Teste")
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
 
         # Mock
         mock_response = Mock()
@@ -189,7 +196,10 @@ class TestStructurerNode:
     def test_adds_message_to_state(self):
         """Testa que o nó adiciona mensagem ao histórico."""
         # Arrange
-        state = create_initial_multi_agent_state(user_input="Teste")
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
 
         # Mock
         mock_response = Mock()
@@ -224,7 +234,8 @@ class TestStructurerNode:
         """Testa que o nó é colaborativo e não rejeita ideias."""
         # Arrange - Input muito vago
         state = create_initial_multi_agent_state(
-            user_input="Coisas são interessantes"
+            user_input="Coisas são interessantes",
+            session_id="test-session-1",
         )
 
         # Mock - LLM deve tentar estruturar mesmo input vago
@@ -259,7 +270,8 @@ class TestStructurerNode:
         """Testa que a questão estruturada tem formato apropriado."""
         # Arrange
         state = create_initial_multi_agent_state(
-            user_input="Método X funciona melhor"
+            user_input="Método X funciona melhor",
+            session_id="test-session-1",
         )
 
         # Mock

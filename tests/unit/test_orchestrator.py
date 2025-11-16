@@ -21,18 +21,26 @@ from agents.orchestrator.router import route_from_orchestrator
 
 
 class TestOrchestratorNode:
-    """Testes para o nó orchestrator_node."""
+    """Testes para o nó orchestrator_node (versão conversacional MVP)."""
 
     def test_classifies_vague_input(self):
-        """Testa classificação de input vago (ideia não estruturada)."""
+        """Testa que input vago leva a next_step = explore com análise preenchida."""
         # Arrange
         state = create_initial_multi_agent_state(
-            user_input="Observei que desenvolver com Claude Code é mais rápido"
+            user_input="Observei que desenvolver com Claude Code é mais rápido",
+            session_id="test-session-1",
         )
 
-        # Mock da resposta do LLM
+        # Mock da resposta do LLM (next_step = "explore")
         mock_response = Mock()
-        mock_response.content = '{"classification": "vague", "reasoning": "Falta estruturação da ideia"}'
+        mock_response.content = """
+{
+  "reasoning": "Falta estruturação da ideia",
+  "next_step": "explore",
+  "message": "Interessante observação! Me conta um pouco mais sobre o contexto.",
+  "agent_suggestion": null
+}
+"""
 
         # Act
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
@@ -43,22 +51,32 @@ class TestOrchestratorNode:
             result = orchestrator_node(state)
 
         # Assert
-        assert result['orchestrator_classification'] == "vague"
-        assert result['orchestrator_reasoning'] == "Falta estruturação da ideia"
-        assert result['current_stage'] == "structuring"
+        assert result["next_step"] == "explore"
+        assert result["orchestrator_analysis"].startswith("Falta estruturação da ideia")
         assert len(result['messages']) == 1
         assert isinstance(result['messages'][0], AIMessage)
 
     def test_classifies_semi_formed_input(self):
-        """Testa classificação de hipótese parcial (semi_formed)."""
+        """Testa que hipótese semi-formada leva a sugestão de agente structurer."""
         # Arrange
         state = create_initial_multi_agent_state(
-            user_input="Método incremental melhora desenvolvimento multi-agente"
+            user_input="Método incremental melhora desenvolvimento multi-agente",
+            session_id="test-session-1",
         )
 
-        # Mock da resposta do LLM
+        # Mock da resposta do LLM (next_step = "suggest_agent" → structurer)
         mock_response = Mock()
-        mock_response.content = '{"classification": "semi_formed", "reasoning": "Tem ideia central mas falta especificidade"}'
+        mock_response.content = """
+{
+  "reasoning": "Tem ideia central mas falta especificidade",
+  "next_step": "suggest_agent",
+  "message": "Posso chamar o Estruturador para transformar sua observação em questão de pesquisa?",
+  "agent_suggestion": {
+    "agent": "structurer",
+    "justification": "Ideia concreta porém não estruturada como questão"
+  }
+}
+"""
 
         # Act
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
@@ -69,23 +87,35 @@ class TestOrchestratorNode:
             result = orchestrator_node(state)
 
         # Assert
-        assert result['orchestrator_classification'] == "semi_formed"
-        assert result['orchestrator_reasoning'] == "Tem ideia central mas falta especificidade"
-        assert result['current_stage'] == "validating"
+        assert result["next_step"] == "suggest_agent"
+        assert result["agent_suggestion"] is not None
+        assert result["agent_suggestion"]["agent"] == "structurer"
+        assert result["orchestrator_analysis"].startswith("Tem ideia central")
 
     def test_classifies_complete_hypothesis(self):
-        """Testa classificação de hipótese completa."""
+        """Testa que hipótese completa leva a sugestão de agente methodologist."""
         # Arrange
         state = create_initial_multi_agent_state(
             user_input=(
                 "Método incremental reduz tempo de implementação de sistemas "
                 "multi-agente em 30%, medido por sprints, em equipes de 2-5 devs"
-            )
+            ),
+            session_id="test-session-1",
         )
 
-        # Mock da resposta do LLM
+        # Mock da resposta do LLM (next_step = "suggest_agent" → methodologist)
         mock_response = Mock()
-        mock_response.content = '{"classification": "complete", "reasoning": "Hipótese bem especificada com métricas"}'
+        mock_response.content = """
+{
+  "reasoning": "Hipótese bem especificada com métricas",
+  "next_step": "suggest_agent",
+  "message": "Sua hipótese já está bem formada. Posso chamar o Metodologista para validar?",
+  "agent_suggestion": {
+    "agent": "methodologist",
+    "justification": "Hipótese completa, pronta para validação metodológica"
+  }
+}
+"""
 
         # Act
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
@@ -96,13 +126,18 @@ class TestOrchestratorNode:
             result = orchestrator_node(state)
 
         # Assert
-        assert result['orchestrator_classification'] == "complete"
-        assert result['current_stage'] == "validating"
+        assert result["next_step"] == "suggest_agent"
+        assert result["agent_suggestion"] is not None
+        assert result["agent_suggestion"]["agent"] == "methodologist"
+        assert result["orchestrator_analysis"].startswith("Hipótese bem especificada")
 
     def test_handles_malformed_json_gracefully(self):
-        """Testa que nó lida graciosamente com JSON malformado do LLM."""
+        """Testa que nó lida graciosamente com JSON malformado do LLM (fallback)."""
         # Arrange
-        state = create_initial_multi_agent_state(user_input="Teste")
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
 
         # Mock com JSON inválido
         mock_response = Mock()
@@ -116,18 +151,29 @@ class TestOrchestratorNode:
 
             result = orchestrator_node(state)
 
-        # Assert - Deve ter valor padrão em caso de erro
-        assert result['orchestrator_classification'] in ["vague", "semi_formed", "complete"]
-        assert result['orchestrator_reasoning'] is not None
+        # Assert - Deve fazer fallback seguro em caso de erro
+        assert result["next_step"] == "explore"
+        assert result["orchestrator_analysis"] is not None
+        assert "Erro ao processar resposta do orquestrador" in result["orchestrator_analysis"]
 
     def test_adds_message_to_state(self):
         """Testa que o nó adiciona mensagem ao histórico."""
         # Arrange
-        state = create_initial_multi_agent_state(user_input="Teste")
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
 
-        # Mock
+        # Mock (formato mínimo aceitável)
         mock_response = Mock()
-        mock_response.content = '{"classification": "vague", "reasoning": "Teste"}'
+        mock_response.content = """
+{
+  "reasoning": "Teste",
+  "next_step": "explore",
+  "message": "Mensagem de teste para o usuário",
+  "agent_suggestion": null
+}
+"""
 
         # Act
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
@@ -147,10 +193,17 @@ class TestRouteFromOrchestrator:
     """Testes para a função de roteamento route_from_orchestrator."""
 
     def test_routes_vague_to_structurer(self):
-        """Testa roteamento de input vago para Estruturador."""
+        """Testa roteamento quando agente sugerido é structurer."""
         # Arrange
-        state = create_initial_multi_agent_state(user_input="Teste")
-        state['orchestrator_classification'] = "vague"
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
+        state["next_step"] = "suggest_agent"
+        state["agent_suggestion"] = {
+            "agent": "structurer",
+            "justification": "Observação não estruturada"
+        }
 
         # Act
         next_node = route_from_orchestrator(state)
@@ -159,10 +212,17 @@ class TestRouteFromOrchestrator:
         assert next_node == "structurer"
 
     def test_routes_semi_formed_to_methodologist(self):
-        """Testa roteamento de hipótese semi_formed para Metodologista."""
+        """Testa roteamento quando agente sugerido é methodologist (semi_formed)."""
         # Arrange
-        state = create_initial_multi_agent_state(user_input="Teste")
-        state['orchestrator_classification'] = "semi_formed"
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
+        state["next_step"] = "suggest_agent"
+        state["agent_suggestion"] = {
+            "agent": "methodologist",
+            "justification": "Hipótese semi-formada pronta para validação"
+        }
 
         # Act
         next_node = route_from_orchestrator(state)
@@ -171,10 +231,17 @@ class TestRouteFromOrchestrator:
         assert next_node == "methodologist"
 
     def test_routes_complete_to_methodologist(self):
-        """Testa roteamento de hipótese complete para Metodologista."""
+        """Testa roteamento quando agente sugerido é methodologist (hipótese completa)."""
         # Arrange
-        state = create_initial_multi_agent_state(user_input="Teste")
-        state['orchestrator_classification'] = "complete"
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
+        state["next_step"] = "suggest_agent"
+        state["agent_suggestion"] = {
+            "agent": "methodologist",
+            "justification": "Hipótese completa pronta para validação"
+        }
 
         # Act
         next_node = route_from_orchestrator(state)
@@ -182,21 +249,27 @@ class TestRouteFromOrchestrator:
         # Assert
         assert next_node == "methodologist"
 
-    def test_handles_none_classification(self):
-        """Testa que router lida com classificação None (erro no orchestrator)."""
+    def test_handles_none_next_step(self):
+        """Testa que router lida com next_step None (erro no orchestrator)."""
         # Arrange
-        state = create_initial_multi_agent_state(user_input="Teste")
-        state['orchestrator_classification'] = None
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
+        state["next_step"] = None
 
-        # Act & Assert - Deve ter valor padrão ou lançar exceção clara
+        # Act & Assert - Deve lançar exceção clara
         with pytest.raises(ValueError):
             route_from_orchestrator(state)
 
-    def test_handles_invalid_classification(self):
-        """Testa que router lida com classificação inválida."""
+    def test_handles_invalid_next_step(self):
+        """Testa que router lida com next_step inválido."""
         # Arrange
-        state = create_initial_multi_agent_state(user_input="Teste")
-        state['orchestrator_classification'] = "invalid_value"
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
+        state["next_step"] = "invalid_value"
 
         # Act & Assert - Deve lançar exceção clara
         with pytest.raises(ValueError):
@@ -209,16 +282,25 @@ class TestMultiAgentState:
     def test_create_initial_state_has_required_fields(self):
         """Testa que estado inicial possui todos os campos obrigatórios."""
         # Arrange & Act
-        state = create_initial_multi_agent_state(user_input="Teste de input")
+        state = create_initial_multi_agent_state(
+            user_input="Teste de input",
+            session_id="test-session-1",
+        )
 
         # Assert - Campos compartilhados
         assert state['user_input'] == "Teste de input"
+        assert state['session_id'] == "test-session-1"
         assert state['conversation_history'] == ["Usuário: Teste de input"]
         assert state['current_stage'] == "classifying"
+        assert state['hypothesis_versions'] == []
 
         # Assert - Campos específicos (devem começar None)
-        assert state['orchestrator_classification'] is None
-        assert state['orchestrator_reasoning'] is None
+        assert state['orchestrator_analysis'] is None
+        assert state['next_step'] is None
+        assert state['agent_suggestion'] is None
+        assert state['focal_argument'] is None
+        assert state['reflection_prompt'] is None
+        assert state['stage_suggestion'] is None
         assert state['structurer_output'] is None
         assert state['methodologist_output'] is None
 
@@ -228,14 +310,17 @@ class TestMultiAgentState:
     def test_state_is_mutable(self):
         """Testa que campos do estado podem ser atualizados."""
         # Arrange
-        state = create_initial_multi_agent_state(user_input="Teste")
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
 
         # Act
-        state['orchestrator_classification'] = "vague"
+        state['next_step'] = "explore"
         state['current_stage'] = "structuring"
 
         # Assert
-        assert state['orchestrator_classification'] == "vague"
+        assert state['next_step'] == "explore"
         assert state['current_stage'] == "structuring"
 
 

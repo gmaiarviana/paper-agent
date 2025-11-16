@@ -69,7 +69,11 @@ class TestExecutionTracker:
         assert execution.metadata["cost_usd"] == 0.00042
 
         # Verificar que CostTracker foi chamado corretamente
-        mock_cost.assert_called_once_with(model_name, 150, 75)
+        mock_cost.assert_called_once_with(
+            model=model_name,
+            input_tokens=150,
+            output_tokens=75,
+        )
 
         # Verificar que foi registrado no MemoryManager
         history = memory_manager.get_agent_history(session_id, agent_name)

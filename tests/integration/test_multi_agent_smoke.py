@@ -47,15 +47,17 @@ def test_vague_idea_full_flow(multi_agent_graph):
     Testa fluxo completo: Ideia vaga → Estruturador → Metodologista.
 
     Valida:
-    - Orquestrador classifica corretamente como "vague"
+    - Orquestrador entra em modo de exploração (next_step / agent_suggestion)
     - Estruturador é executado e gera questão estruturada
     - Metodologista recebe questão estruturada
-    - Fluxo completa com stage = "done"
-    - Todos os outputs estão presentes no estado final
+    - Todos os outputs principais estão presentes no estado final
     """
     # Arrange
     user_input = "Observei que desenvolver com IA é mais rápido"
-    state = create_initial_multi_agent_state(user_input)
+    state = create_initial_multi_agent_state(
+        user_input=user_input,
+        session_id="test-vague-1",
+    )
 
     # Act
     result = multi_agent_graph.invoke(
@@ -63,51 +65,49 @@ def test_vague_idea_full_flow(multi_agent_graph):
         config={"configurable": {"thread_id": "test-vague-1"}}
     )
 
-    # Assert
-    assert result['orchestrator_classification'] == 'vague', \
-        "Orquestrador deveria classificar como 'vague'"
+    # Assert - Orquestrador conversacional deve fornecer análise e próximo passo
+    assert result["orchestrator_analysis"] is not None, \
+        "Orquestrador deveria fornecer analysis (reasoning)"
+    assert result["next_step"] in ["explore", "suggest_agent", "clarify"], \
+        "next_step do Orquestrador deveria ser válido"
 
-    assert result['orchestrator_reasoning'] is not None, \
-        "Orquestrador deveria fornecer reasoning"
+    # Estruturador pode ou não ter sido chamado nesta invocação única
+    if result['structurer_output'] is not None:
+        assert 'structured_question' in result['structurer_output'], \
+            "Estruturador deveria gerar questão estruturada"
+        assert 'elements' in result['structurer_output'], \
+            "Estruturador deveria extrair elementos (context, problem, contribution)"
 
-    assert result['structurer_output'] is not None, \
-        "Estruturador deveria ter gerado output"
+    # Metodologista também pode não ter sido chamado ainda (fluxo conversacional)
+    if result['methodologist_output'] is not None:
+        # Status pode ser 'pending' se Metodologista pediu clarificações
+        assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
+            "Metodologista deveria ter status válido (approved, rejected ou pending)"
 
-    assert 'structured_question' in result['structurer_output'], \
-        "Estruturador deveria gerar questão estruturada"
+        # Se não estiver pending, deve ter justificativa
+        if result['methodologist_output']['status'] != 'pending':
+            assert result['methodologist_output']['justification'], \
+                "Metodologista deveria fornecer justificativa quando decide"
 
-    assert 'elements' in result['structurer_output'], \
-        "Estruturador deveria extrair elementos (context, problem, contribution)"
-
-    assert result['methodologist_output'] is not None, \
-        "Metodologista deveria ter gerado output"
-
-    # Status pode ser 'pending' se Metodologista pediu clarificações
-    assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
-        "Metodologista deveria ter status válido (approved, rejected ou pending)"
-
-    # Se não estiver pending, deve ter justificativa
-    if result['methodologist_output']['status'] != 'pending':
-        assert result['methodologist_output']['justification'], \
-            "Metodologista deveria fornecer justificativa quando decide"
-
-    assert result['current_stage'] == 'done', \
-        "Estágio final deveria ser 'done'"
+    # current_stage pode variar no fluxo conversacional; validamos apenas que existe
+    assert result["current_stage"] in ["classifying", "structuring", "validating", "done"]
 
 
 def test_semi_formed_direct_flow(multi_agent_graph):
     """
     Testa fluxo direto: Hipótese semi-formada → Metodologista.
 
-    Valida:
-    - Orquestrador classifica corretamente como "semi_formed"
-    - Estruturador NÃO é executado (fluxo direto)
-    - Metodologista recebe input direto do usuário
-    - Fluxo completa com stage = "done"
+    Valida (fluxo direto ou quase direto):
+    - Orquestrador sugere chamar agente adequado (structurer ou methodologist)
+    - Estruturador pode ou não ser executado (dependendo do modelo)
+    - Metodologista gera output válido
     """
     # Arrange
     user_input = "Método incremental melhora desenvolvimento de sistemas multi-agente"
-    state = create_initial_multi_agent_state(user_input)
+    state = create_initial_multi_agent_state(
+        user_input=user_input,
+        session_id="test-semi-1",
+    )
 
     # Act
     result = multi_agent_graph.invoke(
@@ -115,40 +115,35 @@ def test_semi_formed_direct_flow(multi_agent_graph):
         config={"configurable": {"thread_id": "test-semi-1"}}
     )
 
-    # Assert
-    assert result['orchestrator_classification'] == 'semi_formed', \
-        "Orquestrador deveria classificar como 'semi_formed'"
+    # Assert - Orquestrador deve sugerir algum próximo passo
+    assert result["orchestrator_analysis"] is not None
+    assert result["next_step"] in ["explore", "suggest_agent", "clarify"]
 
-    assert result['structurer_output'] is None, \
-        "Estruturador NÃO deveria ter sido executado no fluxo direto"
+    if result['methodologist_output'] is not None:
+        # Status pode ser 'pending' se Metodologista pediu clarificações
+        assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
+            "Metodologista deveria ter status válido (approved, rejected ou pending)"
 
-    assert result['methodologist_output'] is not None, \
-        "Metodologista deveria ter gerado output"
-
-    # Status pode ser 'pending' se Metodologista pediu clarificações
-    assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
-        "Metodologista deveria ter status válido (approved, rejected ou pending)"
-
-    assert result['current_stage'] == 'done', \
-        "Estágio final deveria ser 'done'"
+    assert result["current_stage"] in ["classifying", "structuring", "validating", "done"]
 
 
 def test_complete_hypothesis_flow(multi_agent_graph):
     """
     Testa fluxo direto: Hipótese completa → Metodologista.
 
-    Valida:
-    - Orquestrador classifica corretamente como "complete"
-    - Estruturador NÃO é executado (fluxo direto)
-    - Metodologista avalia hipótese completa
-    - Fluxo completa com stage = "done"
+    Valida (hipótese completa):
+    - Orquestrador reconhece contexto suficiente e sugere validação
+    - Metodologista avalia hipótese (status válido)
     """
     # Arrange
     user_input = (
         "Método incremental reduz tempo de implementação em 30%, "
         "medido em sprints de 2 semanas, em equipes de 2-5 desenvolvedores"
     )
-    state = create_initial_multi_agent_state(user_input)
+    state = create_initial_multi_agent_state(
+        user_input=user_input,
+        session_id="test-complete-1",
+    )
 
     # Act
     result = multi_agent_graph.invoke(
@@ -156,22 +151,16 @@ def test_complete_hypothesis_flow(multi_agent_graph):
         config={"configurable": {"thread_id": "test-complete-1"}}
     )
 
-    # Assert
-    assert result['orchestrator_classification'] == 'complete', \
-        "Orquestrador deveria classificar como 'complete'"
+    # Assert - Orquestrador deve ter análise e próximo passo
+    assert result["orchestrator_analysis"] is not None
+    assert result["next_step"] in ["explore", "suggest_agent", "clarify"]
 
-    assert result['structurer_output'] is None, \
-        "Estruturador NÃO deveria ter sido executado no fluxo direto"
+    if result['methodologist_output'] is not None:
+        # Status pode ser 'pending' se Metodologista pediu clarificações
+        assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
+            "Metodologista deveria ter status válido (approved, rejected ou pending)"
 
-    assert result['methodologist_output'] is not None, \
-        "Metodologista deveria ter gerado output"
-
-    # Status pode ser 'pending' se Metodologista pediu clarificações
-    assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
-        "Metodologista deveria ter status válido (approved, rejected ou pending)"
-
-    assert result['current_stage'] == 'done', \
-        "Estágio final deveria ser 'done'"
+    assert result["current_stage"] in ["classifying", "structuring", "validating", "done"]
 
 
 def test_context_preservation(multi_agent_graph):
@@ -186,7 +175,10 @@ def test_context_preservation(multi_agent_graph):
     """
     # Arrange
     user_input = "Observei que X é mais rápido que Y"
-    state = create_initial_multi_agent_state(user_input)
+    state = create_initial_multi_agent_state(
+        user_input=user_input,
+        session_id="test-context-1",
+    )
 
     # Act
     result = multi_agent_graph.invoke(
@@ -235,7 +227,10 @@ def test_state_fields_structure(multi_agent_graph):
     """
     # Arrange
     user_input = "Teste de estrutura de estado"
-    state = create_initial_multi_agent_state(user_input)
+    state = create_initial_multi_agent_state(
+        user_input=user_input,
+        session_id="test-state-1",
+    )
 
     # Act
     result = multi_agent_graph.invoke(
@@ -244,16 +239,24 @@ def test_state_fields_structure(multi_agent_graph):
     )
 
     # Assert - Campos compartilhados
-    assert 'user_input' in result, "Campo 'user_input' obrigatório"
-    assert 'conversation_history' in result, "Campo 'conversation_history' obrigatório"
-    assert 'current_stage' in result, "Campo 'current_stage' obrigatório"
-    assert 'messages' in result, "Campo 'messages' obrigatório"
+    assert "user_input" in result, "Campo 'user_input' obrigatório"
+    assert "session_id" in result, "Campo 'session_id' obrigatório"
+    assert "conversation_history" in result, "Campo 'conversation_history' obrigatório"
+    assert "current_stage" in result, "Campo 'current_stage' obrigatório"
+    assert "hypothesis_versions" in result, "Campo 'hypothesis_versions' obrigatório"
+    assert "messages" in result, "Campo 'messages' obrigatório"
 
-    # Assert - Campos específicos por agente
-    assert 'orchestrator_classification' in result, "Campo 'orchestrator_classification' obrigatório"
-    assert 'orchestrator_reasoning' in result, "Campo 'orchestrator_reasoning' obrigatório"
-    assert 'structurer_output' in result, "Campo 'structurer_output' esperado"
-    assert 'methodologist_output' in result, "Campo 'methodologist_output' esperado"
+    # Assert - Campos específicos por agente (Orquestrador conversacional)
+    assert "orchestrator_analysis" in result, "Campo 'orchestrator_analysis' obrigatório"
+    assert "next_step" in result, "Campo 'next_step' obrigatório"
+    assert "agent_suggestion" in result, "Campo 'agent_suggestion' obrigatório"
+    assert "focal_argument" in result, "Campo 'focal_argument' obrigatório"
+    assert "reflection_prompt" in result, "Campo 'reflection_prompt' obrigatório"
+    assert "stage_suggestion" in result, "Campo 'stage_suggestion' obrigatório"
+
+    # Assert - Campos específicos de Estruturador / Metodologista
+    assert "structurer_output" in result, "Campo 'structurer_output' esperado"
+    assert "methodologist_output" in result, "Campo 'methodologist_output' esperado"
 
     # Assert - Estrutura do methodologist_output
     if result['methodologist_output']:
