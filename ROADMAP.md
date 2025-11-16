@@ -87,134 +87,30 @@
 
 **Objetivo:** Criar interface web como experiência principal do sistema, com chat fluido, visualização de reasoning dos agentes ("bastidores"), e métricas de custo inline.
 
-**Status:** ✅ **MVP COMPLETO** (9.1-9.11 implementados - 16/11/2025)
+**Status:** ✅ **COMPLETO** (16/11/2025)
 
 **Dependências:**
-- ✅ Épico 8 Protótipo concluído (reasoning, tokens, custo, tempo instrumentados)
+- ✅ Épico 8 concluído (Telemetria e Observabilidade)
 - ✅ Épico 7 concluído (Orquestrador Conversacional)
 
-**Ver spec técnica completa em `docs/interface/web.md`**
-
-**Progresso Atual (16/11/2025):**
-- ✅ **POC (9.1-9.5) COMPLETO:** Chat funcional + backend integrado + métricas + polling
-- ✅ **Protótipo (9.6-9.9) COMPLETO:** Modal com abas + localStorage (removido no MVP)
-- ✅ **MVP (9.10-9.11) COMPLETO:** Sidebar + SqliteSaver + persistência em banco
-- ✅ **Épico 8 completo:** Backend pronto com reasoning, tokens, custo e tempo instrumentados
+**Funcionalidades entregues:**
+- ✅ Chat conversacional com histórico persistente (SqliteSaver)
+- ✅ Sidebar com lista de sessões (últimas 10) e navegação fluida
+- ✅ Painel "Bastidores" com reasoning detalhado dos agentes (modal com 3 abas)
+- ✅ Métricas inline discretas (tokens, custo, tempo) extraídas do EventBus
+- ✅ Persistência em banco de dados SQLite (sobrevive a reinicializações)
+- ✅ Backend compartilhado com CLI (LangGraph + EventBus)
 
 **Arquivos implementados:**
-- `app/chat.py` - ✅ Layout 2 colunas funcional (chat + bastidores)
-- `app/components/chat_input.py` - ✅ **COMPLETO:** Input + LangGraph + métricas (localStorage removido)
-- `app/components/chat_history.py` - ✅ **COMPLETO:** Histórico + métricas (localStorage removido)
-- `app/components/backstage.py` - ✅ **COMPLETO:** Reasoning + modal com abas + timeline
-- `app/components/sidebar.py` - ✅ **COMPLETO:** Lista de sessões + alternância + SqliteSaver
-- `app/components/session_helpers.py` - ✅ **COMPLETO:** Helpers para gerenciar sessões do banco
-- `agents/multi_agent_graph.py` - ✅ **ATUALIZADO:** SqliteSaver como checkpointer persistente
+- `app/chat.py` - Interface principal
+- `app/components/chat_input.py` - Input + integração LangGraph
+- `app/components/chat_history.py` - Histórico de mensagens
+- `app/components/backstage.py` - Reasoning modal com abas
+- `app/components/sidebar.py` - Gerenciamento de sessões
+- `app/components/session_helpers.py` - Helpers SQLite
+- `agents/multi_agent_graph.py` - Checkpointer persistente
 
----
-
-### Progressão POC → Protótipo → MVP
-
-#### ✅ POC (chat básico funcionando) - CONCLUÍDA
-
-**9.1: Input de chat na interface** ✅ **CONCLUÍDO**
-- Campo de texto com form (permite Enter para enviar)
-- Botão "Enviar" integrado
-- Spinner durante processamento
-
-**9.2: Backend conversacional integrado** ✅ **CONCLUÍDO**
-- Integração completa com LangGraph via `create_multi_agent_graph()`
-- Estado criado com `create_initial_multi_agent_state()`
-- Config com thread_id para persistência de contexto entre turnos
-- Extração de resposta do orquestrador (`orchestrator_output.message`)
-
-**9.3: Histórico de conversa visível** ✅ **CONCLUÍDO**
-- Mensagens armazenadas em `st.session_state.messages`
-- Renderização via `st.chat_message()` com avatars
-- Formatação diferenciada para usuário vs sistema
-
-**9.4: Métricas inline discretas** ✅ **CONCLUÍDO**
-- Tokens (input, output, total) exibidos como caption
-- Custo em USD (formato: $0.0012)
-- Tempo de execução em segundos
-- Layout: `💰 $0.0012 · 215 tokens · 1.2s`
-
-**9.5: Polling de eventos** ✅ **CONCLUÍDO**
-- Bastidores consomem EventBus via `get_session_events()`
-- Reasoning extraído de `metadata.reasoning`
-- Timeline de agentes anteriores com expander
-- Auto-refresh quando bastidores abertos
-- **Persistência:** `st.session_state` (temporário - recarregar = perde tudo)
-
-**Critérios de aceite POC:** ✅ **TODOS ATENDIDOS**
-- ✅ Usuário pode conversar via web (input → output)
-- ✅ Histórico preservado durante sessão
-- ✅ Métricas visíveis mas discretas
-- ✅ Backend compartilhado com CLI (LangGraph + EventBus)
-- ✅ Bastidores exibem reasoning dos agentes
-
----
-
-#### ✅ Protótipo (bastidores e transparência) - CONCLUÍDO
-
-**9.6: Painel "Bastidores" (collapsible)** ✅ **CONCLUÍDO**
-- Toggle "🔍 Ver raciocínio" (fechado por padrão)
-- Painel collapsible na coluna direita
-
-**9.7: Reasoning resumido dos agentes** ✅ **CONCLUÍDO**
-- Mostra agente ativo (Orquestrador, Estruturador, Metodologista)
-- Reasoning resumido (~280 chars)
-- **Modal real com abas** (em vez de expander):
-  * Aba 1: Reasoning formatado (markdown)
-  * Aba 2: Métricas detalhadas (tempo, tokens, custo, custo/1K)
-  * Aba 3: JSON completo (evento completo)
-- Botões para copiar reasoning e JSON
-- Tempo, tokens, custo do agente exibidos
-
-**9.8: Timeline de agentes (histórico)** ✅ **CONCLUÍDO**
-- Expander colapsado com histórico de agentes anteriores
-- Mostra summary, métricas e timestamp de cada evento
-
-**9.9: Persistência básica (localStorage)** ✅ **CONCLUÍDO**
-- Sessões sobrevivem reload da página
-- Armazenamento via `storage.py` (usa `st.components.v1.html`)
-- Recupera histórico ao recarregar página automaticamente
-- Auto-geração de título da sessão (primeiros 50 chars do input)
-- Metadados salvos: título, created_at, last_activity, message_count
-- **Limitação:** Sessões por device (não compartilhadas entre navegadores)
-
-**Critérios de aceite Protótipo:** ✅ **TODOS ATENDIDOS**
-- ✅ Bastidores exibem reasoning via polling
-- ✅ Timeline preserva histórico de raciocínio
-- ✅ Usuário pode expandir para ver detalhes (modal com abas)
-- ✅ Experiência fluida com modal profissional
-- ✅ Persistência funciona (reload mantém histórico)
-
----
-
-#### ✅ MVP (experiência completa) - CONCLUÍDO
-
-**9.10: Sidebar com lista de sessões** ✅ **CONCLUÍDO**
-- ✅ Migração de `localStorage` para `SqliteSaver` (backend persistente)
-- ✅ Lista das últimas 10 sessões do banco de dados SQLite
-- ✅ Usuário pode alternar entre sessões (uma ativa por vez)
-- ✅ Botão "+ Nova conversa" totalmente funcional
-- ✅ Sessões carregadas do SqliteSaver via helper functions
-- ✅ Navegação fluida entre sessões com reload de histórico
-- ✅ **Limitação:** Sem autenticação - todas as sessões compartilhadas entre usuários
-
-**9.11: Persistência automática** ✅ **CONCLUÍDO**
-- ✅ SqliteSaver configurado como checkpointer do LangGraph
-- ✅ Sessões salvas automaticamente a cada interação
-- ✅ Banco de dados em `data/checkpoints.db` (gitignored)
-- ✅ Histórico completo preservado entre reinicializações do servidor
-
-**Critérios de aceite MVP:** ✅ **TODOS ATENDIDOS**
-- ✅ Sessões persistem entre visitas (SqliteSaver backend)
-- ✅ Sidebar gerencia múltiplas sessões com lista funcional
-- ✅ Uma sessão ativa por vez (alternar via sidebar)
-- ✅ Polling otimizado (1s de intervalo para bastidores)
-- ✅ Métricas consolidadas visíveis (já implementadas em 9.4)
-- ✅ Todas as sessões compartilhadas (sem autenticação)
+**Ver spec técnica:** `docs/interface/web.md`
 
 ---
 
