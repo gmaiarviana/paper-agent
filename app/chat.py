@@ -19,12 +19,12 @@ Layout (Desktop):
 
 Progressão:
 - ✅ POC (9.1-9.5): Chat básico + polling + métricas + backend integrado
-- ⏳ Protótipo (9.6-9.9): localStorage
-- ⏳ MVP (9.10-9.11): Sidebar + SqliteSaver
+- ✅ Protótipo (9.6-9.9): localStorage (removido no MVP)
+- ✅ MVP (9.10-9.11): Sidebar + SqliteSaver + persistência em banco
 
-Versão: 2.0
+Versão: 3.0
 Data: 16/11/2025
-Status: POC Completa (Épico 9.1-9.5 implementado)
+Status: MVP COMPLETO (Épico 9.1-9.11 implementado)
 """
 
 import sys
@@ -133,9 +133,9 @@ def main():
     # Footer
     st.markdown("---")
     st.caption(
-        "✅ **POC Completa (Épico 9.1-9.5)** | "
-        f"Sessão: `{session_id[:8]}...` | "
-        "Chat integrado com LangGraph + EventBus"
+        "✅ **MVP COMPLETO (Épico 9.1-9.11)** | "
+        f"Sessão: `{session_id[:20]}...` | "
+        "Chat + SqliteSaver + Sidebar integrados"
     )
 
 

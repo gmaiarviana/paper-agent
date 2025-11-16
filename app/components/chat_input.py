@@ -22,13 +22,6 @@ from agents.multi_agent_graph import create_multi_agent_graph
 from agents.orchestrator.state import create_initial_multi_agent_state
 from utils.event_bus import get_event_bus
 
-# Import localStorage (Épico 9.9 - Protótipo)
-from app.components.storage import (
-    save_session_messages,
-    save_session_metadata,
-    add_session_to_list
-)
-
 logger = logging.getLogger(__name__)
 
 
@@ -134,9 +127,6 @@ def _process_user_message(user_input: str, session_id: str) -> None:
             })
 
             logger.info(f"Mensagem processada com sucesso (sessão: {session_id[:8]}...)")
-
-            # Salvar no localStorage (Épico 9.9 - Protótipo)
-            _save_to_localstorage(session_id, user_input)
 
         except Exception as e:
             logger.error(f"Erro ao processar mensagem: {e}", exc_info=True)
@@ -256,83 +246,3 @@ def _get_latest_metrics(session_id: str) -> dict:
     except Exception as e:
         logger.warning(f"Erro ao buscar métricas do EventBus: {e}")
         return {"tokens": None, "cost": None, "duration": None}
-
-
-def _save_to_localstorage(session_id: str, user_input: str) -> None:
-    """
-    Salva histórico e metadados no localStorage (Épico 9.9 - Protótipo).
-
-    Args:
-        session_id: ID da sessão ativa
-        user_input: Primeiro input do usuário (para gerar título)
-
-    Comportamento:
-        - Salva st.session_state.messages no localStorage
-        - Atualiza metadados da sessão (título, última atividade)
-        - Adiciona sessão à lista de sessões
-    """
-    try:
-        # Salvar mensagens
-        messages = st.session_state.get("messages", [])
-        save_session_messages(session_id, messages)
-
-        # Gerar/atualizar metadados
-        message_count = len(messages)
-
-        # Auto-gerar título baseado no primeiro input do usuário
-        title = _generate_session_title(messages, user_input)
-
-        metadata = {
-            "title": title,
-            "created_at": messages[0]["timestamp"] if messages else datetime.now().isoformat(),
-            "last_activity": datetime.now().isoformat(),
-            "message_count": message_count
-        }
-
-        save_session_metadata(session_id, metadata)
-
-        # Adicionar à lista de sessões (evita duplicatas automaticamente)
-        add_session_to_list(session_id)
-
-        logger.debug(f"Sessão salva no localStorage: {session_id[:8]}... ({message_count} mensagens)")
-
-    except Exception as e:
-        logger.warning(f"Erro ao salvar no localStorage: {e}")
-        # Não interromper fluxo se localStorage falhar
-
-
-def _generate_session_title(messages: list, user_input: str) -> str:
-    """
-    Gera título automático para a sessão baseado no primeiro input.
-
-    Args:
-        messages: Lista de mensagens da sessão
-        user_input: Input atual do usuário
-
-    Returns:
-        str: Título da sessão (max 50 chars)
-
-    Estratégia:
-        - Se é primeira mensagem: usar user_input truncado
-        - Se já existe título nos metadados: manter
-        - Fallback: "Conversa {data}"
-    """
-    # Se é primeira mensagem do usuário (índice 0 ou 1), usar como título
-    user_messages = [m for m in messages if m.get("role") == "user"]
-
-    if len(user_messages) <= 1 and user_input:
-        # Primeira interação - usar input como título
-        title = user_input[:50]
-        if len(user_input) > 50:
-            title += "..."
-        return title
-    elif user_messages:
-        # Usar primeira mensagem como título (já salvo antes)
-        first_user_msg = user_messages[0]["content"]
-        title = first_user_msg[:50]
-        if len(first_user_msg) > 50:
-            title += "..."
-        return title
-    else:
-        # Fallback
-        return f"Conversa {datetime.now().strftime('%d/%m/%Y %H:%M')}"

@@ -66,3 +66,6 @@ logs/
 # Streamlit
 .streamlit/secrets.toml
 
+# Data files (session checkpoints, etc)
+data/
+

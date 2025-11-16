@@ -13,14 +13,12 @@
 ### ✅ Épicos Concluídos
 - **Épico 1-7**: Sistema multi-agente conversacional completo (ver [ARCHITECTURE.md](ARCHITECTURE.md))
 - **ÉPICO 8**: Telemetria e Observabilidade (POC + Protótipo concluídos)
-- **ÉPICO 9 POC**: Interface Web Conversacional (9.1-9.5 concluídos - 16/11/2025)
-- **ÉPICO 9 Protótipo**: Bastidores avançados + localStorage (9.6-9.9 concluídos - 16/11/2025)
+- **ÉPICO 9**: Interface Web Conversacional **COMPLETO** (POC + Protótipo + MVP - 16/11/2025)
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 9 MVP**: Sidebar + SqliteSaver (9.10-9.11)
 - **ÉPICO 10**: Entidade Tópico e Persistência (não refinado)
 - **ÉPICO 11+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
 
@@ -89,7 +87,7 @@
 
 **Objetivo:** Criar interface web como experiência principal do sistema, com chat fluido, visualização de reasoning dos agentes ("bastidores"), e métricas de custo inline.
 
-**Status:** ✅ Protótipo Concluído (9.1-9.9 implementados - 16/11/2025)
+**Status:** ✅ **MVP COMPLETO** (9.1-9.11 implementados - 16/11/2025)
 
 **Dependências:**
 - ✅ Épico 8 Protótipo concluído (reasoning, tokens, custo, tempo instrumentados)
@@ -99,17 +97,18 @@
 
 **Progresso Atual (16/11/2025):**
 - ✅ **POC (9.1-9.5) COMPLETO:** Chat funcional + backend integrado + métricas + polling
-- ✅ **Protótipo (9.6-9.9) COMPLETO:** Modal com abas + localStorage + persistência
+- ✅ **Protótipo (9.6-9.9) COMPLETO:** Modal com abas + localStorage (removido no MVP)
+- ✅ **MVP (9.10-9.11) COMPLETO:** Sidebar + SqliteSaver + persistência em banco
 - ✅ **Épico 8 completo:** Backend pronto com reasoning, tokens, custo e tempo instrumentados
-- ⏳ **MVP (9.10-9.11):** Sidebar + SqliteSaver (próxima etapa)
 
 **Arquivos implementados:**
-- `app/chat.py` - ✅ Layout 3 colunas funcional
-- `app/components/chat_input.py` - ✅ **COMPLETO:** Input + LangGraph + métricas + localStorage
-- `app/components/chat_history.py` - ✅ **COMPLETO:** Histórico + métricas + load localStorage
+- `app/chat.py` - ✅ Layout 2 colunas funcional (chat + bastidores)
+- `app/components/chat_input.py` - ✅ **COMPLETO:** Input + LangGraph + métricas (localStorage removido)
+- `app/components/chat_history.py` - ✅ **COMPLETO:** Histórico + métricas (localStorage removido)
 - `app/components/backstage.py` - ✅ **COMPLETO:** Reasoning + modal com abas + timeline
-- `app/components/sidebar.py` - ⏳ Esqueleto para lista de sessões (MVP)
-- `app/components/storage.py` - ✅ **COMPLETO:** Persistência localStorage
+- `app/components/sidebar.py` - ✅ **COMPLETO:** Lista de sessões + alternância + SqliteSaver
+- `app/components/session_helpers.py` - ✅ **COMPLETO:** Helpers para gerenciar sessões do banco
+- `agents/multi_agent_graph.py` - ✅ **ATUALIZADO:** SqliteSaver como checkpointer persistente
 
 ---
 
@@ -192,23 +191,30 @@
 
 ---
 
-#### MVP (experiência completa)
+#### ✅ MVP (experiência completa) - CONCLUÍDO
 
-**9.10: Sidebar com lista de sessões**
-- Migração de `localStorage` para `SqliteSaver` (backend)
-- Lista das últimas 10 sessões do banco
-- Usuário pode alternar entre sessões (uma ativa por vez)
-- Botão "+ Nova conversa"
-- **Limitação:** Sem autenticação - todas as sessões compartilhadas entre usuários
-**9.11: Métricas consolidadas**
+**9.10: Sidebar com lista de sessões** ✅ **CONCLUÍDO**
+- ✅ Migração de `localStorage` para `SqliteSaver` (backend persistente)
+- ✅ Lista das últimas 10 sessões do banco de dados SQLite
+- ✅ Usuário pode alternar entre sessões (uma ativa por vez)
+- ✅ Botão "+ Nova conversa" totalmente funcional
+- ✅ Sessões carregadas do SqliteSaver via helper functions
+- ✅ Navegação fluida entre sessões com reload de histórico
+- ✅ **Limitação:** Sem autenticação - todas as sessões compartilhadas entre usuários
 
-**Critérios de aceite MVP:**
-- Sessões persistem entre visitas (SqliteSaver backend)
-- Sidebar gerencia múltiplas sessões
-- Uma sessão ativa por vez (alternar via sidebar)
-- Polling otimizado (1s de intervalo)
-- Métricas consolidadas visíveis
-- Todas as sessões compartilhadas (sem autenticação)
+**9.11: Persistência automática** ✅ **CONCLUÍDO**
+- ✅ SqliteSaver configurado como checkpointer do LangGraph
+- ✅ Sessões salvas automaticamente a cada interação
+- ✅ Banco de dados em `data/checkpoints.db` (gitignored)
+- ✅ Histórico completo preservado entre reinicializações do servidor
+
+**Critérios de aceite MVP:** ✅ **TODOS ATENDIDOS**
+- ✅ Sessões persistem entre visitas (SqliteSaver backend)
+- ✅ Sidebar gerencia múltiplas sessões com lista funcional
+- ✅ Uma sessão ativa por vez (alternar via sidebar)
+- ✅ Polling otimizado (1s de intervalo para bastidores)
+- ✅ Métricas consolidadas visíveis (já implementadas em 9.4)
+- ✅ Todas as sessões compartilhadas (sem autenticação)
 
 ---
 

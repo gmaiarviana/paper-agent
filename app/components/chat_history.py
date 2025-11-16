@@ -16,9 +16,6 @@ import streamlit as st
 from typing import List, Dict, Any
 import logging
 
-# Import localStorage (Épico 9.9 - Protótipo)
-from app.components.storage import load_session_messages
-
 logger = logging.getLogger(__name__)
 
 
@@ -51,25 +48,17 @@ def render_chat_history(session_id: str) -> None:
     """
     # Inicializar histórico se não existir
     if "messages" not in st.session_state:
-        # Tentar carregar do localStorage primeiro (Épico 9.9 - Protótipo)
-        loaded_messages = load_session_messages(session_id)
-
-        if loaded_messages and len(loaded_messages) > 0:
-            # Histórico encontrado no localStorage
-            st.session_state.messages = loaded_messages
-            logger.info(f"Histórico carregado do localStorage: {len(loaded_messages)} mensagens")
-        else:
-            # Nenhum histórico salvo - iniciar nova sessão
-            st.session_state.messages = []
-            # Mensagem de boas-vindas
-            st.session_state.messages.append({
-                "role": "assistant",
-                "content": "Olá! Me conte sobre sua ideia ou observação.",
-                "tokens": None,
-                "cost": None,
-                "duration": None,
-                "timestamp": None
-            })
+        # Iniciar nova sessão (histórico será carregado do SqliteSaver via LangGraph)
+        st.session_state.messages = []
+        # Mensagem de boas-vindas
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": "Olá! Me conte sobre sua ideia ou observação.",
+            "tokens": None,
+            "cost": None,
+            "duration": None,
+            "timestamp": None
+        })
 
     # Renderizar mensagens
     for message in st.session_state.messages:
