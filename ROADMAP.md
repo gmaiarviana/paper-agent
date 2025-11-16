@@ -83,13 +83,27 @@
 
 **Objetivo:** Criar interface web como experiência principal do sistema, com chat fluido, visualização de reasoning dos agentes ("bastidores"), e métricas de custo inline.
 
-**Status:** ⏳ Planejado (refinado, pronto para implementação)
+**Status:** 🟡 Em Progresso Parcial (scaffold criado, aguardando Épico 8.2/8.3)
 
 **Dependências:**
 - ✅ Épico 8 POC concluído (reasoning instrumentado)
+- ⏳ Épico 8.2/8.3 em andamento (necessário para integração completa)
 - ✅ Épico 7 concluído (Orquestrador Conversacional)
 
 **Ver spec técnica completa em `docs/interface/web.md`**
+
+**Progresso Atual (16/11/2025):**
+- ✅ **Scaffold completo:** `app/chat.py` + componentes base criados
+- ✅ **9.9 completo:** `storage.py` com localStorage funcional (Protótipo)
+- ⏳ **9.1-9.8:** Aguardando conclusão de 8.2/8.3 para integração
+
+**Arquivos criados:**
+- `app/chat.py` - Layout 3 colunas + integração de componentes
+- `app/components/chat_input.py` - Esqueleto para input de mensagens
+- `app/components/chat_history.py` - Esqueleto para histórico
+- `app/components/backstage.py` - Esqueleto para painel de reasoning
+- `app/components/sidebar.py` - Esqueleto para lista de sessões
+- `app/components/storage.py` - **Funcional:** Persistência localStorage
 
 ---
 
