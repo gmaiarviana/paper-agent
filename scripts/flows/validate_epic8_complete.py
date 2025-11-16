@@ -238,12 +238,11 @@ def validate_epic8_complete():
     # VALIDAÇÃO 8: MemoryManager capturou métricas
     print("11. Validando MemoryManager...")
 
-    session_summary = memory_manager.get_session_summary(session_id)
-    if session_summary:
+    session_summary = memory_manager.export_session_as_dict(session_id)
+    if session_summary and session_summary.get('agents'):
         print(f"   ✅ MemoryManager tem resumo da sessão:")
         print(f"      - Agentes executados: {len(session_summary.get('agents', {}))}")
-        print(f"      - Tokens totais: {session_summary.get('total_tokens', 0)}")
-        print(f"      - Custo total: ${session_summary.get('total_cost', 0.0):.6f}")
+        print(f"      - Tokens totais: {session_summary.get('totals', {}).get('total', 0)}")
     else:
         print("   ⚠️  MemoryManager não tem resumo (pode ser esperado)")
     print()
