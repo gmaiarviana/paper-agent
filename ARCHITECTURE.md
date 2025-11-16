@@ -8,7 +8,12 @@ Plataforma colaborativa com agentes de IA para apoiar produção de artigos cien
 
 O sistema trabalha com a entidade **Tópico**, que representa uma ideia em evolução até se tornar artigo.
 
-**Modelo conceitual (detalhes em `docs/product/vision.md` - Seção 4):**
+**Ver modelo conceitual completo e relação com Argumento Focal em:**
+- `docs/product/cognitive_model.md` - Como pensamento evolui ao longo da conversa
+- `docs/architecture/topic_argument_model.md` - Estrutura de dados e progressão POC → MVP
+- `docs/product/vision.md` (Seção 4) - Visão de produto da entidade Tópico
+
+**Modelo conceitual resumido:**
 ```python
 Topic:
   id: str              # UUID único
@@ -100,6 +105,23 @@ Facilitador conversacional que mantém diálogo fluido, detecta necessidades, of
 MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento focal) e específicos por agente (estruturação, validação). Suporta versionamento de hipóteses (V1 → V2 → V3) e rastreamento de iterações de refinamento.
 
 **Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
+
+## Modelo Cognitivo
+
+Sistema captura evolução do pensamento do usuário através de modelo cognitivo explícito com campos: `claim`, `premises`, `assumptions`, `open_questions`, `contradictions`, `solid_grounds`, `context`.
+
+**Detalhes completos:** Ver `docs/product/cognitive_model.md`
+
+**Responsabilidades:**
+- Orquestrador: detecta suposições, extrai claim, atualiza contexto
+- Estruturador: organiza premises, torna explícito o implícito
+- Metodologista: valida lógica, aponta contradições
+- Pesquisador (futuro): transforma dúvidas em evidências
+
+**Progressão:**
+- **POC (Épico 10):** CognitiveModel em memória (MultiAgentState)
+- **Protótipo (Épico 11):** Persistido no checkpoint LangGraph
+- **MVP (Épico 12):** Gestão de múltiplos tópicos
 
 ## Stack Técnico
 
@@ -332,6 +354,8 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 - `README.md`: visão geral e execução
 - `ROADMAP.md`: status de épicos e funcionalidades
 - `docs/product/vision.md`: visão de produto, tipos de artigo, jornada do usuário
+- `docs/product/cognitive_model.md`: modelo cognitivo e evolução do pensamento
+- `docs/architecture/topic_argument_model.md`: modelo de dados Tópico ↔ Argumento Focal
 - `docs/agents/overview.md`: mapa completo de agentes planejados
 - `docs/agents/methodologist.md`: especificação do Metodologista
 - `docs/orchestration/conversational_orchestrator.md`: especificação do Orquestrador Conversacional

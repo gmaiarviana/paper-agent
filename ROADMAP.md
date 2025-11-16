@@ -19,67 +19,14 @@
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 10**: Entidade Tópico e Persistência (não refinado)
-- **ÉPICO 11+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
+- **ÉPICO 10**: Modelagem Cognitiva (não refinado)
+- **ÉPICO 11**: Persistência de Tópicos (não refinado)
+- **ÉPICO 12**: Gestão de Múltiplos Tópicos (não refinado)
+- **ÉPICO 13+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
 > Para fluxo completo de planejamento, consulte `planning_guidelines.md`.
-
----
-
-## ÉPICO 8: Telemetria e Observabilidade
-
-**Objetivo:** Instrumentar todos os agentes para capturar reasoning, decisões e métricas, e implementar streaming de eventos em tempo real.
-
-**Status:** ✅ Concluído
-
-**Dependências:**
-- ✅ Épico 7 concluído (Orquestrador Conversacional)
-- ✅ Épico 5.1 concluído (EventBus e Dashboard)
-- ✅ Épico 6.2 concluído (MemoryManager)
-
----
-
-### Progressão POC → Protótipo
-
-#### ✅ POC (instrumentação básica)
-
-**8.1: Instrumentar Estruturador** ✅ **CONCLUÍDO**
-
-**Funcionalidades:**
-- Publicação de eventos com reasoning no `structurer_node`
-- Reasoning texto livre (modo inicial e refinamento)
-- Dashboard exibe reasoning via expander
-
-**Critérios de aceite:**
-- ✅ Estruturador publica `agent_started` e `agent_completed` com reasoning
-- ✅ Dashboard exibe reasoning via expander
-- ✅ Formato consistente com EventBus
-- ✅ Reasoning visível e compreensível
-
----
-
-#### ✅ Protótipo (streaming e métricas) **CONCLUÍDO**
-
-**8.2: Instrumentar Orquestrador e Metodologista** ✅ **CONCLUÍDO**
-- ✅ Reasoning explícito no metadata para todos os agentes
-- ✅ Orquestrador: extrai reasoning de `orchestrator_analysis`
-- ✅ Metodologista: extrai reasoning de `justification`
-
-**8.3: Métricas consolidadas** ✅ **CONCLUÍDO**
-- ✅ Tokens reais capturados do MemoryManager (input, output, total)
-- ✅ Custo calculado via CostTracker por agente
-- ✅ Tempo de execução capturado (start → end)
-- ✅ Tokens e custo total da sessão
-- ✅ Exibição clara na interface web (painel consolidado)
-- ✅ Atualização em tempo real via polling (1s)
-
-**Critérios de aceite Protótipo:**
-- ✅ Todos os agentes emitem reasoning
-- ✅ Dashboard recebe eventos via polling (1s)
-- ✅ Métricas consolidadas exibidas corretamente
-- ✅ Performance: Polling com intervalo de 1s (suficiente para experiência)
 
 ---
 
@@ -114,23 +61,52 @@
 
 ---
 
-## ÉPICO 10: Entidade Tópico e Persistência
+## ÉPICO 10: Modelagem Cognitiva
 
-**Objetivo:** Permitir pausar/retomar conversas com contexto completo preservado, suportando múltiplos tópicos em evolução e persistência entre sessões.
+**Objetivo:** Implementar modelo cognitivo explícito que captura evolução do pensamento do usuário ao longo da conversa, permitindo rastreamento de premissas, suposições, dúvidas e contradições.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 9 concluído (Interface Web)
+- ✅ Épico 9 concluído (Interface Web Conversacional)
+- ✅ Épico 7 concluído (Orquestrador Conversacional)
 
 **Consulte:** 
-- `docs/product/vision.md` (Seção 4) - Modelo conceitual da entidade Tópico e estágios de maturidade
-- `docs/orchestration/multi_agent_architecture.md` - Schema completo do MultiAgentState e gerenciamento de estado
-- `ARCHITECTURE.md` - Visão geral da entidade Tópico e evolução fluida
+- `docs/product/cognitive_model.md` - Modelo conceitual completo
+- `docs/architecture/topic_argument_model.md` - Relação Tópico ↔ Argumento
 
 ---
 
-## ÉPICO 11+: Agentes Avançados
+## ÉPICO 11: Persistência de Tópicos
+
+**Objetivo:** Permitir pausar/retomar conversas com contexto completo preservado, salvando modelo cognitivo no checkpoint do LangGraph.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- Épico 10 concluído (Modelagem Cognitiva)
+
+**Consulte:** 
+- `docs/architecture/topic_argument_model.md` - Estrutura de dados e progressão POC → MVP
+- `docs/product/vision.md` (Seção 4) - Entidade Tópico
+
+---
+
+## ÉPICO 12: Gestão de Múltiplos Tópicos
+
+**Objetivo:** Permitir usuário gerenciar múltiplos tópicos em progresso, alternando entre eles via sidebar e buscando por título/stage.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- Épico 11 concluído (Persistência de Tópicos)
+
+**Consulte:** 
+- `docs/architecture/topic_argument_model.md` - Casos de uso e estrutura de dados
+
+---
+
+## ÉPICO 13+: Agentes Avançados
 
 **Objetivo:** Expandir sistema com agentes especializados para pesquisa, redação e revisão de artigos científicos.
 
