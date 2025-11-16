@@ -23,9 +23,11 @@ Data: 14/11/2025
 
 import logging
 import time
+import sqlite3
+from pathlib import Path
 from typing import Callable, Any
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite import SqliteSaver
 
 from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
 from agents.orchestrator.nodes import orchestrator_node
@@ -300,10 +302,22 @@ def _extract_reasoning(agent_name: str, state: MultiAgentState) -> str:
         return f"Processamento do agente {agent_name}"
 
 
-# MemorySaver: Checkpointer padrão do LangGraph para persistência de sessão em memória.
-# Permite que o estado do grafo seja salvo e recuperado durante a execução,
-# essencial para rastreabilidade e continuação entre chamadas.
-checkpointer = MemorySaver()
+# SqliteSaver: Checkpointer persistente do LangGraph usando SQLite.
+# Salva estado do grafo em banco de dados, permitindo:
+# - Persistência entre reinicializações do servidor
+# - Navegação entre sessões passadas
+# - Recuperação de histórico completo de conversas
+# MVP Épico 9.10-9.11
+
+# Garantir que diretório data/ existe
+db_path = Path("data/checkpoints.db")
+db_path.parent.mkdir(parents=True, exist_ok=True)
+
+# Criar conexão SQLite (check_same_thread=False permite uso em threads múltiplas)
+db_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+
+# Instanciar SqliteSaver com conexão
+checkpointer = SqliteSaver(db_conn)
 
 
 def route_after_methodologist(state: MultiAgentState) -> str:
@@ -470,7 +484,7 @@ def create_multi_agent_graph():
 
     # Compilar o grafo com checkpointer
     compiled_graph = graph.compile(checkpointer=checkpointer)
-    logger.info("Super-grafo compilado com MemorySaver checkpointer")
+    logger.info("Super-grafo compilado com SqliteSaver checkpointer (persistente)")
 
     logger.info("=== SUPER-GRAFO COM LOOP DE REFINAMENTO CRIADO COM SUCESSO ===")
     logger.info("")

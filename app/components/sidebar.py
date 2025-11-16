@@ -1,48 +1,45 @@
 """
-Componente sidebar para gerenciamento de sessões (Épico 9.10).
+Componente sidebar para gerenciamento de sessões (Épico 9.10-9.11 MVP).
 
 Responsável por:
 - Listar sessões recentes (últimas 10)
 - Destacar sessão ativa
 - Botão "+ Nova conversa"
 - Alternar entre sessões
-- Integração com SqliteSaver (MVP) ou localStorage (Protótipo)
+- Integração com SqliteSaver (persistência em banco)
 
-Versão: 1.0
+Versão: 2.0
 Data: 16/11/2025
-Status: Esqueleto (MVP - aguardando 9.1-9.9)
+Status: MVP completo (SqliteSaver integrado)
 """
 
 import streamlit as st
 from typing import List, Dict, Any, Optional
 from datetime import datetime
+import logging
+
+from app.components.session_helpers import (
+    list_sessions,
+    get_current_session_id,
+    session_exists
+)
+
+logger = logging.getLogger(__name__)
 
 
 def render_sidebar() -> str:
     """
-    Renderiza sidebar com lista de sessões.
+    Renderiza sidebar com lista de sessões (MVP completo - Épico 9.10-9.11).
 
     Returns:
         str: ID da sessão ativa selecionada
 
-    Comportamento POC (9.1-9.5):
-        - Apenas sessão atual (sem lista)
-        - st.session_state para gerenciar sessão ativa
-
-    Comportamento Protótipo (9.9):
-        - Lista de sessões do localStorage
-        - Alternar entre sessões preserva histórico
-
-    Comportamento MVP (9.10):
+    Comportamento MVP:
         - Lista de sessões do SqliteSaver (backend)
         - Últimas 10 sessões ordenadas por data
         - Botão "+ Nova conversa"
         - Sessão ativa destacada
-
-    TODO (MVP - após 9.1-9.9):
-        - Integrar com SqliteSaver
-        - Carregar lista de sessões do banco
-        - Implementar alternância entre sessões
+        - Alternância entre sessões preserva histórico completo (do banco)
     """
     with st.sidebar:
         st.title("📂 Sessões")
@@ -53,67 +50,52 @@ def render_sidebar() -> str:
 
         st.markdown("---")
 
-        # TODO: Implementar lista de sessões após 9.9/9.10
-        # sessions = _get_recent_sessions(limit=10)
+        # Buscar sessões do banco
+        sessions = _get_recent_sessions(limit=10)
 
-        # Placeholder para desenvolvimento
-        st.info("🚧 Lista de sessões será implementada no MVP (9.10)")
-
-        # Exemplo de estrutura (para referência futura)
-        _render_sessions_placeholder()
+        if sessions and len(sessions) > 0:
+            # Renderizar lista de sessões
+            _render_session_list(sessions)
+        else:
+            # Nenhuma sessão no banco ainda
+            st.caption("Nenhuma sessão encontrada.")
+            st.caption("Clique em '➕ Nova conversa' para começar!")
 
     # Retornar sessão ativa
     return _get_active_session_id()
 
 
-def _render_sessions_placeholder() -> None:
-    """
-    Placeholder visual para lista de sessões.
-    Remove após implementação real (9.10).
-    """
-    st.caption("**Sessão atual:**")
-    session_id = _get_active_session_id()
-    st.write(f"🟢 Conversa atual")
-    st.caption(f"ID: {session_id[:8]}...")
-    st.caption(datetime.now().strftime("%d/%m/%Y %H:%M"))
-
-
 def _get_active_session_id() -> str:
     """
-    Retorna ID da sessão ativa.
-
-    POC: Sessão única gerada automaticamente
-    MVP: Sessão selecionada na sidebar ou nova
+    Retorna ID da sessão ativa (MVP - Épico 9.10-9.11).
 
     Returns:
-        str: ID da sessão ativa (UUID ou thread_id)
+        str: ID da sessão ativa (formato: session-YYYYMMDD-HHMMSS-{millis})
+
+    Comportamento:
+        - Se já existe sessão ativa em st.session_state, retorna
+        - Senão, gera nova sessão com get_current_session_id()
     """
     if "active_session_id" not in st.session_state:
-        # Gerar novo ID de sessão
-        import uuid
-        st.session_state.active_session_id = str(uuid.uuid4())
+        # Gerar novo ID de sessão (formato legível com timestamp)
+        st.session_state.active_session_id = get_current_session_id()
+        logger.debug(f"Nova sessão ativa criada: {st.session_state.active_session_id}")
 
     return st.session_state.active_session_id
 
 
 def _create_new_session() -> None:
     """
-    Cria nova sessão e define como ativa.
+    Cria nova sessão e define como ativa (MVP completo).
 
     Comportamento:
-        - Gera novo UUID
+        - Gera novo ID com timestamp
         - Limpa histórico de mensagens
         - Define como sessão ativa
-        - Limpa bastidores/timeline
-
-    TODO (MVP - 9.10):
-        - Criar registro no SqliteSaver
-        - Adicionar à lista de sessões na sidebar
+        - SqliteSaver criará checkpoint automaticamente na próxima interação
     """
-    import uuid
-
     # Gerar novo ID
-    new_session_id = str(uuid.uuid4())
+    new_session_id = get_current_session_id()
 
     # Definir como ativa
     st.session_state.active_session_id = new_session_id
@@ -122,15 +104,14 @@ def _create_new_session() -> None:
     if "messages" in st.session_state:
         st.session_state.messages = []
 
+    logger.info(f"Nova conversa criada: {new_session_id}")
     st.success(f"✅ Nova conversa criada")
     st.rerun()
 
 
 def _get_recent_sessions(limit: int = 10) -> List[Dict[str, Any]]:
     """
-    Busca sessões recentes do storage (localStorage ou SqliteSaver).
-
-    TODO: Implementar na fase MVP (9.10)
+    Busca sessões recentes do SqliteSaver (MVP completo - Épico 9.10-9.11).
 
     Args:
         limit: Número máximo de sessões a retornar
@@ -139,47 +120,82 @@ def _get_recent_sessions(limit: int = 10) -> List[Dict[str, Any]]:
         Lista de sessões ordenadas por data (mais recente primeiro)
         [
             {
-                "session_id": str,
+                "thread_id": str,
                 "title": str,
-                "created_at": str (ISO),
-                "last_activity": str (ISO),
-                "message_count": int
+                "last_activity": str (ISO)
             }
         ]
     """
-    raise NotImplementedError("Aguardando implementação MVP (9.10)")
+    try:
+        sessions = list_sessions(limit=limit)
+        logger.debug(f"Sessões carregadas do banco: {len(sessions)}")
+        return sessions
+    except Exception as e:
+        logger.error(f"Erro ao carregar sessões: {e}", exc_info=True)
+        return []
 
 
 def _load_session(session_id: str) -> None:
     """
-    Carrega sessão específica como ativa.
-
-    TODO: Implementar na fase MVP (9.10)
+    Carrega sessão específica como ativa (MVP completo - Épico 9.10-9.11).
 
     Args:
-        session_id: ID da sessão a carregar
+        session_id: ID da sessão a carregar (thread_id do SqliteSaver)
 
     Comportamento:
         - Define session_id como ativa
-        - Carrega histórico de mensagens do storage
-        - Carrega timeline de agentes (se disponível)
+        - Limpa histórico de mensagens atual
+        - SqliteSaver carregará checkpoint automaticamente na próxima renderização
         - Força re-render da interface
     """
-    raise NotImplementedError("Aguardando implementação MVP (9.10)")
+    # Definir como ativa
+    st.session_state.active_session_id = session_id
+
+    # Limpar histórico (será recarregado do SqliteSaver)
+    if "messages" in st.session_state:
+        st.session_state.messages = []
+
+    logger.info(f"Sessão carregada: {session_id}")
+    st.rerun()
 
 
 def _render_session_list(sessions: List[Dict[str, Any]]) -> None:
     """
-    Renderiza lista de sessões na sidebar.
-
-    TODO: Implementar na fase MVP (9.10)
+    Renderiza lista de sessões na sidebar (MVP completo - Épico 9.10-9.11).
 
     Args:
-        sessions: Lista de sessões a exibir
+        sessions: Lista de sessões do SqliteSaver
 
-    Layout esperado:
-        🟢 Título da conversa · DD/MM/YYYY
-        ⚪ Título da conversa · DD/MM/YYYY
+    Layout:
+        🟢 Título da conversa
+        ⚪ Título da conversa
         ...
+
+    Comportamento:
+        - Sessão ativa marcada com 🟢
+        - Outras sessões com ⚪
+        - Clique em sessão carrega via _load_session()
     """
-    raise NotImplementedError("Aguardando implementação MVP (9.10)")
+    active_session_id = _get_active_session_id()
+
+    st.caption("**Sessões recentes:**")
+
+    for session in sessions:
+        thread_id = session["thread_id"]
+        title = session["title"]
+        is_active = (thread_id == active_session_id)
+
+        # Ícone baseado em sessão ativa
+        icon = "🟢" if is_active else "⚪"
+
+        # Botão para selecionar sessão
+        button_label = f"{icon} {title}"
+
+        # Usar container para cada sessão
+        if st.button(
+            button_label,
+            key=f"session_{thread_id}",
+            use_container_width=True,
+            disabled=is_active  # Desabilitar se já está ativa
+        ):
+            _load_session(thread_id)

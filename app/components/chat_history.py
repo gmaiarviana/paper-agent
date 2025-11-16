@@ -7,13 +7,16 @@ Responsável por:
 - Scroll automático para última mensagem
 - Formatação diferenciada para usuário vs sistema
 
-Versão: 1.0
+Versão: 2.0
 Data: 16/11/2025
-Status: Esqueleto (aguardando Épico 8.2/8.3 para métricas)
+Status: Protótipo completo (com localStorage - Épico 9.9)
 """
 
 import streamlit as st
 from typing import List, Dict, Any
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def render_chat_history(session_id: str) -> None:
@@ -45,6 +48,7 @@ def render_chat_history(session_id: str) -> None:
     """
     # Inicializar histórico se não existir
     if "messages" not in st.session_state:
+        # Iniciar nova sessão (histórico será carregado do SqliteSaver via LangGraph)
         st.session_state.messages = []
         # Mensagem de boas-vindas
         st.session_state.messages.append({

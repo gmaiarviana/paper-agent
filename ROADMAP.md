@@ -11,13 +11,14 @@
 ## 📋 Status dos Épicos
 
 ### ✅ Épicos Concluídos
-- **Épico 1-8**: Sistema multi-agente conversacional completo (ver [ARCHITECTURE.md](ARCHITECTURE.md))
+- **Épico 1-7**: Sistema multi-agente conversacional completo (ver [ARCHITECTURE.md](ARCHITECTURE.md))
+- **ÉPICO 8**: Telemetria e Observabilidade (POC + Protótipo concluídos)
+- **ÉPICO 9**: Interface Web Conversacional **COMPLETO** (POC + Protótipo + MVP - 16/11/2025)
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 9**: Interface Web Conversacional (refinado, pronto para implementação)
 - **ÉPICO 10**: Modelagem Cognitiva (não refinado)
 - **ÉPICO 11**: Persistência de Tópicos (não refinado)
 - **ÉPICO 12**: Gestão de Múltiplos Tópicos (não refinado)
@@ -33,93 +34,30 @@
 
 **Objetivo:** Criar interface web como experiência principal do sistema, com chat fluido, visualização de reasoning dos agentes ("bastidores"), e métricas de custo inline.
 
-**Status:** 🟡 Em Progresso Parcial (scaffold criado, pronto para integração)
+**Status:** ✅ **COMPLETO** (16/11/2025)
 
 **Dependências:**
+- ✅ Épico 8 concluído (Telemetria e Observabilidade)
 - ✅ Épico 7 concluído (Orquestrador Conversacional)
 
-**Ver spec técnica completa em `docs/interface/web.md`**
+**Funcionalidades entregues:**
+- ✅ Chat conversacional com histórico persistente (SqliteSaver)
+- ✅ Sidebar com lista de sessões (últimas 10) e navegação fluida
+- ✅ Painel "Bastidores" com reasoning detalhado dos agentes (modal com 3 abas)
+- ✅ Métricas inline discretas (tokens, custo, tempo) extraídas do EventBus
+- ✅ Persistência em banco de dados SQLite (sobrevive a reinicializações)
+- ✅ Backend compartilhado com CLI (LangGraph + EventBus)
 
-**Progresso Atual (16/11/2025):**
-- ✅ **Scaffold completo:** `app/chat.py` + componentes base criados
-- ✅ **9.9 completo:** `storage.py` com localStorage funcional (Protótipo)
-- ⏳ **9.1-9.8:** Pronto para implementação com backend instrumentado
+**Arquivos implementados:**
+- `app/chat.py` - Interface principal
+- `app/components/chat_input.py` - Input + integração LangGraph
+- `app/components/chat_history.py` - Histórico de mensagens
+- `app/components/backstage.py` - Reasoning modal com abas
+- `app/components/sidebar.py` - Gerenciamento de sessões
+- `app/components/session_helpers.py` - Helpers SQLite
+- `agents/multi_agent_graph.py` - Checkpointer persistente
 
-**Arquivos criados:**
-- `app/chat.py` - Layout 3 colunas + integração de componentes
-- `app/components/chat_input.py` - Esqueleto para input de mensagens
-- `app/components/chat_history.py` - Esqueleto para histórico
-- `app/components/backstage.py` - Esqueleto para painel de reasoning
-- `app/components/sidebar.py` - Esqueleto para lista de sessões
-- `app/components/storage.py` - **Funcional:** Persistência localStorage
-
----
-
-### Progressão POC → Protótipo → MVP
-
-#### POC (chat básico funcionando)
-
-**9.1: Input de chat na interface**
-**9.2: Backend conversacional integrado**
-**9.3: Histórico de conversa visível**
-**9.4: Métricas inline discretas**
-**9.5: Polling de eventos (1s)**
-- Interface faz polling no EventBus a cada 1 segundo
-- Atualiza bastidores quando eventos chegam
-- Delay aceitável (~1s) para POC
-- **Persistência:** Apenas `st.session_state` (temporário - recarregar = perde tudo)
-
-**Critérios de aceite POC:**
-- Usuário pode conversar via web (input → output)
-- Histórico preservado durante sessão
-- Métricas visíveis mas discretas
-- Backend compartilhado com CLI (LangGraph + EventBus)
-- Bastidores atualizam via polling (delay de ~1s aceitável)
-
----
-
-#### Protótipo (bastidores e transparência)
-
-**9.6: Painel "Bastidores" (collapsible)**
-**9.7: Reasoning resumido dos agentes**
-- Mostra agente ativo (Orquestrador, Estruturador, Metodologista)
-- Reasoning resumido (~280 chars)
-- **Botão "📄 Ver raciocínio completo"** abre modal com JSON estruturado
-- Tempo, tokens, custo do agente
-
-**9.8: Timeline de agentes (histórico)**
-**9.9: Persistência básica (localStorage)**
-- Sessões sobrevivem reload da página
-- Armazenamento no navegador via `localStorage`
-- Recupera histórico ao recarregar página
-- **Limitação:** Sessões por device (não compartilhadas entre navegadores)
-- Implementação: ~20 linhas JavaScript via `st.components.v1.html`
-
-**Critérios de aceite Protótipo:**
-- Bastidores exibem reasoning via polling (1s)
-- Timeline preserva histórico de raciocínio
-- Usuário pode expandir para ver detalhes
-- Experiência fluida apesar do delay do polling
-
----
-
-#### MVP (experiência completa)
-
-**9.10: Sidebar com lista de sessões**
-- Migração de `localStorage` para `SqliteSaver` (backend)
-- Lista das últimas 10 sessões do banco
-- Usuário pode alternar entre sessões (uma ativa por vez)
-- Botão "+ Nova conversa"
-- **Limitação:** Sem autenticação - todas as sessões compartilhadas entre usuários
-**9.11: Métricas consolidadas**
-
-**Critérios de aceite MVP:**
-- Sessões persistem entre visitas (SqliteSaver backend)
-- Sidebar gerencia múltiplas sessões
-- Uma sessão ativa por vez (alternar via sidebar)
-- Polling otimizado (1s de intervalo)
-- Métricas consolidadas visíveis
-- Todas as sessões compartilhadas (sem autenticação)
+**Ver spec técnica:** `docs/interface/web.md`
 
 ---
 

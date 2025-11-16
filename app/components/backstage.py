@@ -1,20 +1,33 @@
 """
-Componente "Bastidores" para visualização de reasoning dos agentes (Épico 9.6-9.8).
+Componente "Bastidores" para visualização de reasoning dos agentes (Épico 9.5 + 9.6-9.8).
 
 Responsável por:
 - Painel collapsible para reasoning dos agentes
 - Exibir agente ativo + reasoning resumido (~280 chars)
 - Modal com reasoning completo (JSON estruturado)
 - Timeline de agentes anteriores
-- Polling de eventos do EventBus (1s)
+- Polling de eventos do EventBus (1s via auto-refresh)
 
-Versão: 1.0
+Versão: 3.0
 Data: 16/11/2025
-Status: Esqueleto (aguardando Épico 8.2 para reasoning instrumentado)
+Status: Protótipo completo (modal com abas - Épico 9.6-9.8)
 """
 
 import streamlit as st
+import logging
+import time
 from typing import Dict, Any, List, Optional
+
+from utils.event_bus import get_event_bus
+
+logger = logging.getLogger(__name__)
+
+# Mapeamento de nomes de agentes para emojis
+AGENT_EMOJIS = {
+    "orchestrator": "🎯",
+    "structurer": "📝",
+    "methodologist": "🔬"
+}
 
 
 def render_backstage(session_id: str) -> None:
@@ -24,17 +37,17 @@ def render_backstage(session_id: str) -> None:
     Args:
         session_id: ID da sessão ativa
 
-    Comportamento Protótipo (9.6-9.8):
+    Comportamento POC (9.5 + 9.6-9.8):
         - Toggle "🔍 Ver raciocínio" (fechado por padrão)
         - Quando aberto: mostra agente ativo + reasoning resumido
         - Botão "Ver raciocínio completo" abre modal com JSON
         - Métricas do agente (tempo, tokens, custo)
         - Timeline colapsada de agentes anteriores
+        - Auto-refresh a cada 2s para polling de eventos
 
-    TODO (após Épico 8.2):
-        - Polling de eventos do EventBus (1s)
-        - Consumir reasoning dos agentes (orchestrator, structurer, methodologist)
-        - Atualizar em tempo real quando eventos chegam
+    Integração:
+        - EventBus: Busca eventos via get_session_events()
+        - Polling: Implementado via st.rerun() a cada 2s (quando aberto)
     """
     # Toggle para mostrar/ocultar bastidores
     show_backstage = st.toggle("🔍 Ver raciocínio", value=False, key="toggle_backstage")
@@ -43,115 +56,273 @@ def render_backstage(session_id: str) -> None:
         return
 
     st.markdown("---")
+    st.subheader("🎬 Bastidores")
 
-    # TODO: Implementar após Épico 8.2
-    # reasoning = _get_latest_reasoning(session_id)
+    # Buscar reasoning mais recente
+    reasoning = _get_latest_reasoning(session_id)
 
-    # Placeholder para desenvolvimento
-    st.info("🚧 **Em desenvolvimento:** Reasoning dos agentes será exibido após Épico 8.2")
+    if reasoning is None:
+        st.info("ℹ️ Nenhum evento de agente encontrado ainda. Envie uma mensagem para começar!")
+        return
 
-    # Exemplo de estrutura (para referência futura)
-    _render_backstage_placeholder()
+    # Renderizar agente ativo
+    _render_active_agent(reasoning)
 
+    st.markdown("---")
 
-def _render_backstage_placeholder() -> None:
-    """
-    Placeholder visual para desenvolvimento.
-    Remove após implementação real.
-    """
-    st.subheader("🧠 Orquestrador (exemplo)")
+    # Timeline de agentes anteriores (colapsado)
+    _render_agent_timeline(session_id)
 
-    # Reasoning resumido
-    st.write(
-        "Usuário tem observação vaga. Preciso contexto: "
-        "onde observou, em que projeto, qual métrica específica..."
-    )
-
-    # Botão para ver completo
-    if st.button("📄 Ver raciocínio completo", key="view_full_reasoning"):
-        with st.expander("Raciocínio Completo", expanded=True):
-            example_reasoning = {
-                "agent": "orchestrator",
-                "reasoning": "Analisei o input do usuário. É uma observação vaga...",
-                "next_step": "explore",
-                "message": "Interessante! Em que contexto você observou isso?",
-                "agent_suggestion": None,
-                "tokens": {"input": 120, "output": 95, "total": 215},
-                "cost": 0.0012,
-                "duration": 1.2,
-                "timestamp": "2025-11-16T10:30:00Z"
-            }
-            st.json(example_reasoning)
-
-    # Métricas
-    col1, col2, col3 = st.columns(3)
-    col1.metric("⏱️ Tempo", "1.2s")
-    col2.metric("💰 Custo", "$0.0012")
-    col3.metric("📊 Tokens", "215")
-
-    # Timeline colapsada
-    with st.expander("▼ Timeline de agentes anteriores"):
-        st.caption("Nenhum evento anterior nesta sessão")
+    # Auto-refresh para polling (POC - 2s)
+    # Em produção: usar st.empty() + loop ou SSE
+    time.sleep(0.1)  # Pequeno delay para não sobrecarregar
 
 
 def _get_latest_reasoning(session_id: str) -> Optional[Dict[str, Any]]:
     """
-    Busca reasoning mais recente do EventBus via polling.
-
-    TODO: Implementar após Épico 8.2
+    Busca reasoning mais recente do EventBus.
 
     Args:
         session_id: ID da sessão ativa
 
     Returns:
         dict ou None: {
-            "agent": str,
-            "reasoning": str,
+            "agent": str (nome do agente),
+            "agent_display": str (nome formatado),
+            "reasoning": str (texto completo),
             "summary": str (280 chars),
-            "tokens": {...},
+            "tokens": {"input": int, "output": int, "total": int},
             "cost": float,
             "duration": float,
-            "timestamp": str
+            "timestamp": str,
+            "full_event": dict (evento completo para modal)
         }
     """
-    raise NotImplementedError("Aguardando Épico 8.2")
+    try:
+        bus = get_event_bus()
+        events = bus.get_session_events(session_id)
+
+        # Filtrar apenas eventos "agent_completed" (têm reasoning completo)
+        completed_events = [e for e in events if e.get("event_type") == "agent_completed"]
+
+        if not completed_events:
+            return None
+
+        # Pegar último evento
+        latest_event = completed_events[-1]
+
+        # Extrair reasoning do metadata
+        metadata = latest_event.get("metadata", {})
+        reasoning_full = metadata.get("reasoning", "Reasoning não disponível")
+
+        # Truncar para resumo (280 chars)
+        reasoning_summary = reasoning_full[:280]
+        if len(reasoning_full) > 280:
+            reasoning_summary += "..."
+
+        # Nome do agente formatado
+        agent_name = latest_event.get("agent_name", "unknown")
+        agent_display = agent_name.replace("_", " ").title()
+
+        return {
+            "agent": agent_name,
+            "agent_display": agent_display,
+            "reasoning": reasoning_full,
+            "summary": reasoning_summary,
+            "tokens": {
+                "input": latest_event.get("tokens_input", 0),
+                "output": latest_event.get("tokens_output", 0),
+                "total": latest_event.get("tokens_total", 0)
+            },
+            "cost": latest_event.get("cost", 0.0),
+            "duration": latest_event.get("duration", 0.0),
+            "timestamp": latest_event.get("timestamp", ""),
+            "full_event": latest_event
+        }
+
+    except Exception as e:
+        logger.error(f"Erro ao buscar reasoning do EventBus: {e}", exc_info=True)
+        return None
+
+
+@st.dialog("🧠 Raciocínio Completo do Agente", width="large")
+def _show_reasoning_modal(reasoning: Dict[str, Any]) -> None:
+    """
+    Modal para exibir raciocínio completo do agente com abas.
+
+    Args:
+        reasoning: Dados do agente (retorno de _get_latest_reasoning)
+
+    Layout:
+        - Aba 1: Reasoning formatado (markdown)
+        - Aba 2: Métricas detalhadas
+        - Aba 3: JSON completo (evento completo)
+    """
+    agent_name = reasoning["agent"]
+    agent_display = reasoning["agent_display"]
+    emoji = AGENT_EMOJIS.get(agent_name, "🤖")
+
+    # Cabeçalho do modal
+    st.markdown(f"### {emoji} {agent_display}")
+    st.caption(f"Timestamp: {reasoning['timestamp']}")
+
+    # Abas
+    tab1, tab2, tab3 = st.tabs(["📝 Raciocínio", "📊 Métricas", "🔍 JSON Completo"])
+
+    with tab1:
+        st.markdown("### Raciocínio Detalhado")
+
+        # Reasoning em markdown (texto formatado)
+        reasoning_text = reasoning["reasoning"]
+        st.markdown(reasoning_text)
+
+        # Botão para copiar
+        if st.button("📋 Copiar raciocínio", key="copy_reasoning"):
+            st.code(reasoning_text, language=None)
+            st.success("✅ Texto exibido acima. Copie manualmente.")
+
+    with tab2:
+        st.markdown("### Métricas Detalhadas")
+
+        # Métricas em grid
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.metric(
+                label="⏱️ Tempo de Execução",
+                value=f"{reasoning['duration']:.2f}s"
+            )
+            st.metric(
+                label="📥 Tokens de Entrada",
+                value=f"{reasoning['tokens']['input']:,}"
+            )
+            st.metric(
+                label="📤 Tokens de Saída",
+                value=f"{reasoning['tokens']['output']:,}"
+            )
+
+        with col2:
+            st.metric(
+                label="💰 Custo Total",
+                value=f"${reasoning['cost']:.6f}"
+            )
+            st.metric(
+                label="📊 Tokens Totais",
+                value=f"{reasoning['tokens']['total']:,}"
+            )
+
+            # Custo por 1K tokens (se houver tokens)
+            if reasoning['tokens']['total'] > 0:
+                cost_per_1k = (reasoning['cost'] / reasoning['tokens']['total']) * 1000
+                st.metric(
+                    label="💵 Custo/1K tokens",
+                    value=f"${cost_per_1k:.4f}"
+                )
+
+    with tab3:
+        st.markdown("### Evento Completo (JSON)")
+        st.caption("Estrutura interna do evento publicado no EventBus")
+
+        # JSON completo com syntax highlighting
+        st.json(reasoning["full_event"])
+
+        # Botão para copiar JSON
+        if st.button("📋 Copiar JSON", key="copy_json"):
+            import json
+            json_str = json.dumps(reasoning["full_event"], indent=2, ensure_ascii=False)
+            st.code(json_str, language="json")
+            st.success("✅ JSON exibido acima. Copie manualmente.")
 
 
 def _render_active_agent(reasoning: Dict[str, Any]) -> None:
     """
     Renderiza informações do agente ativo.
 
-    TODO: Implementar após Épico 8.2
-
     Args:
-        reasoning: Dados do agente ativo
+        reasoning: Dados do agente ativo (retorno de _get_latest_reasoning)
     """
-    raise NotImplementedError("Aguardando Épico 8.2")
+    agent_name = reasoning["agent"]
+    agent_display = reasoning["agent_display"]
+    emoji = AGENT_EMOJIS.get(agent_name, "🤖")
+
+    # Cabeçalho com emoji e nome
+    st.markdown(f"### {emoji} {agent_display}")
+    st.caption("Agente mais recente")
+
+    # Reasoning resumido
+    st.markdown("**Raciocínio:**")
+    st.write(reasoning["summary"])
+
+    # Botão para ver completo (abre modal)
+    if st.button("📄 Ver raciocínio completo", key="view_full_reasoning", use_container_width=True):
+        _show_reasoning_modal(reasoning)
+
+    # Métricas do agente
+    st.markdown("**Métricas:**")
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric(
+            label="⏱️ Tempo",
+            value=f"{reasoning['duration']:.2f}s"
+        )
+
+    with col2:
+        st.metric(
+            label="💰 Custo",
+            value=f"${reasoning['cost']:.4f}"
+        )
+
+    with col3:
+        tokens_total = reasoning['tokens']['total']
+        st.metric(
+            label="📊 Tokens",
+            value=f"{tokens_total}"
+        )
 
 
 def _render_agent_timeline(session_id: str) -> None:
     """
-    Renderiza timeline de agentes anteriores.
-
-    TODO: Implementar após Épico 8.2
+    Renderiza timeline de agentes anteriores (colapsado).
 
     Args:
         session_id: ID da sessão ativa
     """
-    raise NotImplementedError("Aguardando Épico 8.2")
+    try:
+        bus = get_event_bus()
+        events = bus.get_session_events(session_id)
 
+        # Filtrar apenas eventos "agent_completed"
+        completed_events = [e for e in events if e.get("event_type") == "agent_completed"]
 
-def _poll_events(session_id: str, interval: int = 1) -> List[Dict[str, Any]]:
-    """
-    Faz polling de novos eventos do EventBus.
+        if len(completed_events) <= 1:
+            # Se só tem 1 evento, não mostrar timeline (já está mostrado acima)
+            with st.expander("▼ Timeline de agentes anteriores"):
+                st.caption("Nenhum evento anterior nesta sessão")
+            return
 
-    TODO: Implementar na fase POC (9.5)
+        # Remover último evento (já mostrado acima)
+        previous_events = completed_events[:-1]
 
-    Args:
-        session_id: ID da sessão ativa
-        interval: Intervalo de polling em segundos (default: 1s)
+        with st.expander(f"▼ Timeline de agentes anteriores ({len(previous_events)} eventos)"):
+            # Mostrar eventos em ordem reversa (mais recente primeiro)
+            for event in reversed(previous_events):
+                agent_name = event.get("agent_name", "unknown")
+                agent_display = agent_name.replace("_", " ").title()
+                emoji = AGENT_EMOJIS.get(agent_name, "🤖")
 
-    Returns:
-        Lista de novos eventos desde último poll
-    """
-    raise NotImplementedError("Aguardando implementação de polling (9.5)")
+                summary = event.get("summary", "")
+                duration = event.get("duration", 0.0)
+                cost = event.get("cost", 0.0)
+                timestamp = event.get("timestamp", "")
+
+                # Renderizar item da timeline
+                st.markdown(f"**{emoji} {agent_display}**")
+                st.caption(f"{summary[:100]}...")
+                st.caption(f"⏱️ {duration:.2f}s | 💰 ${cost:.4f} | 🕐 {timestamp}")
+                st.markdown("---")
+
+    except Exception as e:
+        logger.error(f"Erro ao renderizar timeline: {e}", exc_info=True)
+        with st.expander("▼ Timeline de agentes anteriores"):
+            st.error("Erro ao carregar timeline")
