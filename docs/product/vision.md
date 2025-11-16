@@ -6,6 +6,30 @@
 - **Problema resolvido**: Reduz a distância entre uma ideia inicial e um manuscrito publicável, guiando definição de problema, metodologia, estrutura e redação.
 - **Diferencial**: Orquestra agentes inteligentes e adaptáveis que ajustam o fluxo conforme tipo de artigo e maturidade da pesquisa; não segue scripts rígidos nem respostas determinísticas.
 
+### 1.1 Posicionamento e Diferencial
+
+Paper Agent não compete com LLMs generalistas. É um sistema especializado para **organização de pensamentos** e **construção de argumentos sólidos**.
+
+**O que fazemos:**
+- Lapidar UMA ideia por conversa (não responder curiosidades gerais)
+- Fortalecer argumentos identificando premissas e suposições ocultas
+- Provocar reflexão sobre aspectos não contemplados no primeiro momento
+- Conectar dúvidas com pesquisas direcionadas (quando Pesquisador estiver implementado)
+- Colocar à prova o que usuário acha que sabe
+
+**O que NÃO fazemos:**
+- Responder curiosidades sobre conhecimento geral da internet
+- Fornecer informação enciclopédica
+- Ser assistente genérico para tarefas diversas
+
+**Como funciona (dialética):**
+Sistema atua como mestre socrático: faz perguntas que expõem suposições não examinadas, oferece contra-exemplos, provoca refinamento. Usuário articula melhor à medida que sistema estrutura e valida.
+
+**Resultado esperado:**
+"Flecha penetrante" / "Ideia irresistível" - argumento sólido com respaldo bibliográfico, sem premissas frágeis, sem dúvidas não examinadas. Às vezes o usuário nem sabe onde quer chegar, mas ao elaborar, a clareza aparece.
+
+**Ver detalhes sobre evolução cognitiva em:** `docs/product/cognitive_model.md`
+
 ## 2. Tipos de Artigo Acadêmico
 ### 2.1 Empírico/Experimental
 - **Características distintivas**: Testa hipóteses com dados coletados; foca em delineamentos experimentais ou quasi-experimentais (ex.: RCT, coorte, A/B tests).
@@ -142,6 +166,30 @@ Orquestrador: "Argumento estruturado! Quer que eu chame o Escritor para
 Usuário: "Sim"
 ↓
 Escritor: redige artigo teórico
+```
+
+### Cenário D: Exploração Gradual (Claim Evolui)
+```
+Usuário começa vago, sistema provoca, claim cristaliza:
+Usuário: "É possível fazer levantamento de obra com tecnologia?"
+↓
+Sistema: "Interessante! 'Tecnologia' é amplo. Você está pensando em:
+         - IA para análise de plantas/documentos?
+         - Drones para medição física?
+         - Software de gestão de projetos?
+         Qual aspecto te intriga mais?"
+↓
+Usuário: "Drones para medir volumes"
+↓
+Sistema (detecta suposições): "Você assumiu que precisão de drones é suficiente 
+         para levantamento oficial. Já considerou margem de erro?"
+↓
+Usuário: "Boa pergunta. Qual margem é aceitável?"
+↓
+Sistema: "Levantamento oficial exige < 2%. Quer que eu pesquise se drones conseguem?"
+↓
+[Claim evoluiu: "Tecnologia ajuda obras" → "Drones com visão computacional 
+ podem medir volumes com precisão suficiente para levantamento oficial"]
 ```
 
 ## 4. Entidade Central: Tópico/Ideia
