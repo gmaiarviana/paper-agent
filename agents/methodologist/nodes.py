@@ -29,7 +29,6 @@ from utils.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
 from utils.config import get_anthropic_model, invoke_with_retry
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
-from utils.token_extractor import extract_tokens_and_cost
 from agents.orchestrator.state import MethodologistOutputModel
 
 logger = logging.getLogger(__name__)

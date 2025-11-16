@@ -2,11 +2,11 @@
 Configurações centralizadas do sistema e helpers de integração com Anthropic.
 """
 
-import logging
 import os
 import time
-from typing import Optional, Sequence, TypeVar, Callable
-
+import json
+import logging
+from typing import Optional, Sequence, TypeVar, Callable, Dict, Any
 from dotenv import load_dotenv
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import BaseMessage
@@ -141,10 +141,11 @@ def invoke_with_retry(
     - Em cada falha, incrementa contador; em sucesso, reseta.
     """
     if _anthropic_circuit_breaker.is_open:
-        logger.error(
-            "🚫 Chamada bloqueada pelo circuit breaker Anthropic (agent=%s).",
-            agent_name,
-        )
+        log_payload: Dict[str, Any] = {
+            "event": "anthropic_circuit_breaker_open",
+            "agent": agent_name,
+        }
+        logger.error(json.dumps(log_payload, ensure_ascii=False))
         raise CircuitBreakerOpenError(
             "Circuit breaker da API Anthropic está aberto após falhas consecutivas."
         )
@@ -156,13 +157,28 @@ def invoke_with_retry(
         attempt += 1
         try:
             logger.debug(
-                "Chamando Anthropic (agent=%s, attempt=%s/%s)",
-                agent_name,
-                attempt,
-                max_attempts,
+                json.dumps(
+                    {
+                        "event": "anthropic_call_start",
+                        "agent": agent_name,
+                        "attempt": attempt,
+                        "max_attempts": max_attempts,
+                    },
+                    ensure_ascii=False,
+                )
             )
             response = llm.invoke(list(messages))
             _anthropic_circuit_breaker.register_success()
+            logger.debug(
+                json.dumps(
+                    {
+                        "event": "anthropic_call_success",
+                        "agent": agent_name,
+                        "attempt": attempt,
+                    },
+                    ensure_ascii=False,
+                )
+            )
             return response
         except Exception as e:  # noqa: BLE001 - queremos capturar qualquer erro de API
             last_error = e
@@ -170,21 +186,33 @@ def invoke_with_retry(
 
             if attempt >= max_attempts:
                 logger.error(
-                    "❌ Falha definitiva na chamada Anthropic (agent=%s, attempts=%s). Erro: %s",
-                    agent_name,
-                    attempt,
-                    repr(e),
+                    json.dumps(
+                        {
+                            "event": "anthropic_call_failed_permanently",
+                            "agent": agent_name,
+                            "attempts": attempt,
+                            "error_type": e.__class__.__name__,
+                            "error_message": str(e),
+                        },
+                        ensure_ascii=False,
+                    )
                 )
                 break
 
             backoff = base_backoff_seconds * (2 ** (attempt - 1))
             logger.warning(
-                "🔁 Retry Anthropic agendado (agent=%s, attempt=%s/%s, backoff=%.1fs, error=%s)",
-                agent_name,
-                attempt,
-                max_attempts,
-                backoff,
-                e.__class__.__name__,  # tipo do erro
+                json.dumps(
+                    {
+                        "event": "anthropic_retry_scheduled",
+                        "agent": agent_name,
+                        "attempt": attempt,
+                        "max_attempts": max_attempts,
+                        "backoff_seconds": round(backoff, 1),
+                        "error_type": e.__class__.__name__,
+                        "error_message": str(e),
+                    },
+                    ensure_ascii=False,
+                )
             )
             sleep_fn(backoff)
 
