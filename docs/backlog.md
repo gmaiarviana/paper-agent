@@ -1,8 +1,31 @@
 # BACKLOG - Paper Agent
 
-## 🔜 PRÓXIMOS PASSOS
+## 📍 MÉDIO PRAZO
 
-Funcionalidades essenciais para alcançar a visão de produto.
+Melhorias importantes que expandem capacidades essenciais do sistema.
+
+---
+
+### Pesquisador
+Agente para busca e síntese de literatura acadêmica (essencial para revisões e contextualização).
+
+- Busca bibliográfica automática (Google Scholar, Semantic Scholar)
+- Síntese de papers acadêmicos relevantes
+- Identificação de gaps na literatura
+- Comparação de abordagens metodológicas
+- RAG para armazenar papers encontrados
+- Tool `search_papers(query)` e `find_similar_papers(paper_id)`
+
+---
+
+### Estruturador como Sub-Grafo
+Transformar Estruturador de função simples para agente complexo com reasoning loop.
+
+- Sub-grafo com 3 nós: `analyze_input` → `ask_context` → `structure_question`
+- Tool `ask_user` para clarificações (similar ao Metodologista)
+- Reasoning loop (pergunta até ter contexto suficiente)
+- Estado próprio: `StructurerState` (TypedDict)
+- Limite de iterações (max 3 perguntas)
 
 ---
 
@@ -17,6 +40,12 @@ Sistema robusto que não quebra com erros de API ou parsing.
 
 ---
 
+## 🔜 PRÓXIMOS PASSOS
+
+Funcionalidades técnicas que melhoram qualidade e manutenibilidade.
+
+---
+
 ### RAG Infrastructure - Metodologista Knowledge Base
 Metodologista consulta knowledge base via RAG ao invés de arquivo `.md` estático.
 
@@ -26,17 +55,6 @@ Metodologista consulta knowledge base via RAG ao invés de arquivo `.md` estáti
 - Integrar tool no grafo do Metodologista
 - Embeddings: sentence-transformers (all-MiniLM-L6-v2)
 - CLI para gerenciar KB: `python cli/kb_manager.py add/search/stats`
-
----
-
-### Estruturador como Sub-Grafo
-Transformar Estruturador de função simples para agente complexo com reasoning loop.
-
-- Sub-grafo com 3 nós: `analyze_input` → `ask_context` → `structure_question`
-- Tool `ask_user` para clarificações (similar ao Metodologista)
-- Reasoning loop (pergunta até ter contexto suficiente)
-- Estado próprio: `StructurerState` (TypedDict)
-- Limite de iterações (max 3 perguntas)
 
 ---
 
@@ -76,18 +94,6 @@ Documentação, templates e patterns para criar novos agentes.
 
 ---
 
-### Pesquisador
-Agente para busca e síntese de literatura acadêmica (essencial para revisões e contextualização).
-
-- Busca bibliográfica automática (Google Scholar, Semantic Scholar)
-- Síntese de papers acadêmicos relevantes
-- Identificação de gaps na literatura
-- Comparação de abordagens metodológicas
-- RAG para armazenar papers encontrados
-- Tool `search_papers(query)` e `find_similar_papers(paper_id)`
-
----
-
 ### Escritor
 Agente para compilação do artigo final (essencial para entregar artigo completo).
 
@@ -119,7 +125,7 @@ Ferramentas para gerenciar múltiplos tópicos em progresso (essencial para flux
 
 ---
 
-## 🌙 FUTURO DISTANTE
+## 🌙 LONGO PRAZO (FUTURO DISTANTE)
 
 Funcionalidades desejáveis mas não essenciais para MVP.
 

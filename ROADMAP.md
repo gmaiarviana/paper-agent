@@ -19,8 +19,10 @@
 
 ### ⏳ Épicos Planejados
 - **ÉPICO 9**: Interface Web Conversacional (refinado, pronto para implementação)
-- **ÉPICO 10**: Entidade Tópico e Persistência (não refinado)
-- **ÉPICO 11+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
+- **ÉPICO 10**: Modelagem Cognitiva (não refinado)
+- **ÉPICO 11**: Persistência de Tópicos (não refinado)
+- **ÉPICO 12**: Gestão de Múltiplos Tópicos (não refinado)
+- **ÉPICO 13+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -179,23 +181,52 @@
 
 ---
 
-## ÉPICO 10: Entidade Tópico e Persistência
+## ÉPICO 10: Modelagem Cognitiva
 
-**Objetivo:** Permitir pausar/retomar conversas com contexto completo preservado, suportando múltiplos tópicos em evolução e persistência entre sessões.
+**Objetivo:** Implementar modelo cognitivo explícito que captura evolução do pensamento do usuário ao longo da conversa, permitindo rastreamento de premissas, suposições, dúvidas e contradições.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 9 concluído (Interface Web)
+- ✅ Épico 9 concluído (Interface Web Conversacional)
+- ✅ Épico 7 concluído (Orquestrador Conversacional)
 
 **Consulte:** 
-- `docs/product/vision.md` (Seção 4) - Modelo conceitual da entidade Tópico e estágios de maturidade
-- `docs/orchestration/multi_agent_architecture.md` - Schema completo do MultiAgentState e gerenciamento de estado
-- `ARCHITECTURE.md` - Visão geral da entidade Tópico e evolução fluida
+- `docs/product/cognitive_model.md` - Modelo conceitual completo
+- `docs/architecture/topic_argument_model.md` - Relação Tópico ↔ Argumento
 
 ---
 
-## ÉPICO 11+: Agentes Avançados
+## ÉPICO 11: Persistência de Tópicos
+
+**Objetivo:** Permitir pausar/retomar conversas com contexto completo preservado, salvando modelo cognitivo no checkpoint do LangGraph.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- Épico 10 concluído (Modelagem Cognitiva)
+
+**Consulte:** 
+- `docs/architecture/topic_argument_model.md` - Estrutura de dados e progressão POC → MVP
+- `docs/product/vision.md` (Seção 4) - Entidade Tópico
+
+---
+
+## ÉPICO 12: Gestão de Múltiplos Tópicos
+
+**Objetivo:** Permitir usuário gerenciar múltiplos tópicos em progresso, alternando entre eles via sidebar e buscando por título/stage.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- Épico 11 concluído (Persistência de Tópicos)
+
+**Consulte:** 
+- `docs/architecture/topic_argument_model.md` - Casos de uso e estrutura de dados
+
+---
+
+## ÉPICO 13+: Agentes Avançados
 
 **Objetivo:** Expandir sistema com agentes especializados para pesquisa, redação e revisão de artigos científicos.
 
