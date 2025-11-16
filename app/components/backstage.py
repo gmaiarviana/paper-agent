@@ -8,9 +8,9 @@ Responsável por:
 - Timeline de agentes anteriores
 - Polling de eventos do EventBus (1s via auto-refresh)
 
-Versão: 2.0
+Versão: 3.0
 Data: 16/11/2025
-Status: POC completa (com polling e reasoning)
+Status: Protótipo completo (modal com abas - Épico 9.6-9.8)
 """
 
 import streamlit as st
@@ -145,6 +145,95 @@ def _get_latest_reasoning(session_id: str) -> Optional[Dict[str, Any]]:
         return None
 
 
+@st.dialog("🧠 Raciocínio Completo do Agente", width="large")
+def _show_reasoning_modal(reasoning: Dict[str, Any]) -> None:
+    """
+    Modal para exibir raciocínio completo do agente com abas.
+
+    Args:
+        reasoning: Dados do agente (retorno de _get_latest_reasoning)
+
+    Layout:
+        - Aba 1: Reasoning formatado (markdown)
+        - Aba 2: Métricas detalhadas
+        - Aba 3: JSON completo (evento completo)
+    """
+    agent_name = reasoning["agent"]
+    agent_display = reasoning["agent_display"]
+    emoji = AGENT_EMOJIS.get(agent_name, "🤖")
+
+    # Cabeçalho do modal
+    st.markdown(f"### {emoji} {agent_display}")
+    st.caption(f"Timestamp: {reasoning['timestamp']}")
+
+    # Abas
+    tab1, tab2, tab3 = st.tabs(["📝 Raciocínio", "📊 Métricas", "🔍 JSON Completo"])
+
+    with tab1:
+        st.markdown("### Raciocínio Detalhado")
+
+        # Reasoning em markdown (texto formatado)
+        reasoning_text = reasoning["reasoning"]
+        st.markdown(reasoning_text)
+
+        # Botão para copiar
+        if st.button("📋 Copiar raciocínio", key="copy_reasoning"):
+            st.code(reasoning_text, language=None)
+            st.success("✅ Texto exibido acima. Copie manualmente.")
+
+    with tab2:
+        st.markdown("### Métricas Detalhadas")
+
+        # Métricas em grid
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.metric(
+                label="⏱️ Tempo de Execução",
+                value=f"{reasoning['duration']:.2f}s"
+            )
+            st.metric(
+                label="📥 Tokens de Entrada",
+                value=f"{reasoning['tokens']['input']:,}"
+            )
+            st.metric(
+                label="📤 Tokens de Saída",
+                value=f"{reasoning['tokens']['output']:,}"
+            )
+
+        with col2:
+            st.metric(
+                label="💰 Custo Total",
+                value=f"${reasoning['cost']:.6f}"
+            )
+            st.metric(
+                label="📊 Tokens Totais",
+                value=f"{reasoning['tokens']['total']:,}"
+            )
+
+            # Custo por 1K tokens (se houver tokens)
+            if reasoning['tokens']['total'] > 0:
+                cost_per_1k = (reasoning['cost'] / reasoning['tokens']['total']) * 1000
+                st.metric(
+                    label="💵 Custo/1K tokens",
+                    value=f"${cost_per_1k:.4f}"
+                )
+
+    with tab3:
+        st.markdown("### Evento Completo (JSON)")
+        st.caption("Estrutura interna do evento publicado no EventBus")
+
+        # JSON completo com syntax highlighting
+        st.json(reasoning["full_event"])
+
+        # Botão para copiar JSON
+        if st.button("📋 Copiar JSON", key="copy_json"):
+            import json
+            json_str = json.dumps(reasoning["full_event"], indent=2, ensure_ascii=False)
+            st.code(json_str, language="json")
+            st.success("✅ JSON exibido acima. Copie manualmente.")
+
+
 def _render_active_agent(reasoning: Dict[str, Any]) -> None:
     """
     Renderiza informações do agente ativo.
@@ -164,11 +253,9 @@ def _render_active_agent(reasoning: Dict[str, Any]) -> None:
     st.markdown("**Raciocínio:**")
     st.write(reasoning["summary"])
 
-    # Botão para ver completo
+    # Botão para ver completo (abre modal)
     if st.button("📄 Ver raciocínio completo", key="view_full_reasoning", use_container_width=True):
-        # Usar expander para mostrar JSON completo
-        with st.expander("📋 Raciocínio Completo (JSON)", expanded=True):
-            st.json(reasoning["full_event"])
+        _show_reasoning_modal(reasoning)
 
     # Métricas do agente
     st.markdown("**Métricas:**")

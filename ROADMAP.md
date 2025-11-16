@@ -14,9 +14,10 @@
 - **Épico 1-7**: Sistema multi-agente conversacional completo (ver [ARCHITECTURE.md](ARCHITECTURE.md))
 - **ÉPICO 8**: Telemetria e Observabilidade (POC + Protótipo concluídos)
 - **ÉPICO 9 POC**: Interface Web Conversacional (9.1-9.5 concluídos - 16/11/2025)
+- **ÉPICO 9 Protótipo**: Bastidores avançados + localStorage (9.6-9.9 concluídos - 16/11/2025)
 
 ### 🟡 Épicos Em Andamento
-- **ÉPICO 9 Protótipo**: Bastidores avançados + localStorage (9.6-9.9)
+- _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
 - **ÉPICO 9 MVP**: Sidebar + SqliteSaver (9.10-9.11)
@@ -88,7 +89,7 @@
 
 **Objetivo:** Criar interface web como experiência principal do sistema, com chat fluido, visualização de reasoning dos agentes ("bastidores"), e métricas de custo inline.
 
-**Status:** ✅ POC Concluída (9.1-9.5 implementados - 16/11/2025)
+**Status:** ✅ Protótipo Concluído (9.1-9.9 implementados - 16/11/2025)
 
 **Dependências:**
 - ✅ Épico 8 Protótipo concluído (reasoning, tokens, custo, tempo instrumentados)
@@ -97,17 +98,16 @@
 **Ver spec técnica completa em `docs/interface/web.md`**
 
 **Progresso Atual (16/11/2025):**
-- ✅ **POC (9.1-9.5) COMPLETA:** Chat funcional + backend integrado + métricas + polling
+- ✅ **POC (9.1-9.5) COMPLETO:** Chat funcional + backend integrado + métricas + polling
+- ✅ **Protótipo (9.6-9.9) COMPLETO:** Modal com abas + localStorage + persistência
 - ✅ **Épico 8 completo:** Backend pronto com reasoning, tokens, custo e tempo instrumentados
-- ✅ **9.9 completo:** `storage.py` com localStorage funcional (Protótipo)
-- ✅ **9.6-9.8 básico:** Bastidores com reasoning funcional (pode melhorar UX no Protótipo)
-- ⏳ **9.10-9.11:** Sidebar + SqliteSaver (MVP - aguardando)
+- ⏳ **MVP (9.10-9.11):** Sidebar + SqliteSaver (próxima etapa)
 
 **Arquivos implementados:**
 - `app/chat.py` - ✅ Layout 3 colunas funcional
-- `app/components/chat_input.py` - ✅ **COMPLETO:** Input + integração LangGraph + métricas
-- `app/components/chat_history.py` - ✅ **COMPLETO:** Histórico + métricas inline discretas
-- `app/components/backstage.py` - ✅ **COMPLETO:** Reasoning + polling + timeline
+- `app/components/chat_input.py` - ✅ **COMPLETO:** Input + LangGraph + métricas + localStorage
+- `app/components/chat_history.py` - ✅ **COMPLETO:** Histórico + métricas + load localStorage
+- `app/components/backstage.py` - ✅ **COMPLETO:** Reasoning + modal com abas + timeline
 - `app/components/sidebar.py` - ⏳ Esqueleto para lista de sessões (MVP)
 - `app/components/storage.py` - ✅ **COMPLETO:** Persistência localStorage
 
@@ -155,28 +155,40 @@
 
 ---
 
-#### Protótipo (bastidores e transparência)
+#### ✅ Protótipo (bastidores e transparência) - CONCLUÍDO
 
-**9.6: Painel "Bastidores" (collapsible)**
-**9.7: Reasoning resumido dos agentes**
+**9.6: Painel "Bastidores" (collapsible)** ✅ **CONCLUÍDO**
+- Toggle "🔍 Ver raciocínio" (fechado por padrão)
+- Painel collapsible na coluna direita
+
+**9.7: Reasoning resumido dos agentes** ✅ **CONCLUÍDO**
 - Mostra agente ativo (Orquestrador, Estruturador, Metodologista)
 - Reasoning resumido (~280 chars)
-- **Botão "📄 Ver raciocínio completo"** abre modal com JSON estruturado
-- Tempo, tokens, custo do agente
+- **Modal real com abas** (em vez de expander):
+  * Aba 1: Reasoning formatado (markdown)
+  * Aba 2: Métricas detalhadas (tempo, tokens, custo, custo/1K)
+  * Aba 3: JSON completo (evento completo)
+- Botões para copiar reasoning e JSON
+- Tempo, tokens, custo do agente exibidos
 
-**9.8: Timeline de agentes (histórico)**
-**9.9: Persistência básica (localStorage)**
+**9.8: Timeline de agentes (histórico)** ✅ **CONCLUÍDO**
+- Expander colapsado com histórico de agentes anteriores
+- Mostra summary, métricas e timestamp de cada evento
+
+**9.9: Persistência básica (localStorage)** ✅ **CONCLUÍDO**
 - Sessões sobrevivem reload da página
-- Armazenamento no navegador via `localStorage`
-- Recupera histórico ao recarregar página
+- Armazenamento via `storage.py` (usa `st.components.v1.html`)
+- Recupera histórico ao recarregar página automaticamente
+- Auto-geração de título da sessão (primeiros 50 chars do input)
+- Metadados salvos: título, created_at, last_activity, message_count
 - **Limitação:** Sessões por device (não compartilhadas entre navegadores)
-- Implementação: ~20 linhas JavaScript via `st.components.v1.html`
 
-**Critérios de aceite Protótipo:**
-- Bastidores exibem reasoning via polling (1s)
-- Timeline preserva histórico de raciocínio
-- Usuário pode expandir para ver detalhes
-- Experiência fluida apesar do delay do polling
+**Critérios de aceite Protótipo:** ✅ **TODOS ATENDIDOS**
+- ✅ Bastidores exibem reasoning via polling
+- ✅ Timeline preserva histórico de raciocínio
+- ✅ Usuário pode expandir para ver detalhes (modal com abas)
+- ✅ Experiência fluida com modal profissional
+- ✅ Persistência funciona (reload mantém histórico)
 
 ---
 
