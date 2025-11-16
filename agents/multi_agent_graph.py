@@ -22,6 +22,7 @@ Data: 14/11/2025
 """
 
 import logging
+import time
 from typing import Callable, Any
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
@@ -32,6 +33,7 @@ from agents.orchestrator.router import route_from_orchestrator
 from agents.structurer.nodes import structurer_node
 from agents.methodologist.nodes import decide_collaborative
 from agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
+from utils.cost_tracker import calculate_cost
 
 # Import EventBus para emitir eventos (Épico 5.1)
 try:
@@ -99,6 +101,9 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
         session_id = state.get("session_id", "unknown-session")
         logger.debug(f"Wrapper {agent_name}: session_id do state = {session_id}")
 
+        # Capturar tempo de início (Épico 8.3)
+        start_time = time.time()
+
         # Emitir evento de início
         if EVENT_BUS_AVAILABLE:
             try:
@@ -119,6 +124,10 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
         try:
             result = node_func(state, config)
 
+            # Capturar tempo de fim e calcular duração (Épico 8.3)
+            end_time = time.time()
+            duration = end_time - start_time
+
             # Emitir evento de conclusão
             if EVENT_BUS_AVAILABLE:
                 try:
@@ -130,23 +139,51 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                     # Extrair reasoning para metadata (Épico 8.1)
                     reasoning = _extract_reasoning(agent_name, result)
 
+                    # Extrair tokens e custo do MemoryManager (Épico 8.3)
+                    tokens_input = 0
+                    tokens_output = 0
+                    tokens_total = 0
+                    cost = 0.0
+
+                    if config:
+                        memory_manager = config.get("configurable", {}).get("memory_manager")
+                        if memory_manager:
+                            # Obter última execução do agente
+                            thread_id = config.get("configurable", {}).get("thread_id", session_id)
+                            agent_history = memory_manager.get_agent_history(thread_id, agent_name)
+
+                            if agent_history:
+                                last_execution = agent_history[-1]
+                                tokens_input = last_execution.get("tokens_input", 0)
+                                tokens_output = last_execution.get("tokens_output", 0)
+                                tokens_total = last_execution.get("tokens_total", 0)
+                                cost = last_execution.get("cost", 0.0)
+                                logger.debug(f"   Tokens extraídos do MemoryManager: input={tokens_input}, output={tokens_output}, total={tokens_total}, cost=${cost:.4f}")
+
                     bus.publish_agent_completed(
                         session_id=session_id,
                         agent_name=agent_name,
                         summary=summary,
-                        tokens_input=0,  # TODO: Capturar tokens reais se disponível
-                        tokens_output=0,
-                        tokens_total=0,
+                        tokens_input=tokens_input,
+                        tokens_output=tokens_output,
+                        tokens_total=tokens_total,
+                        cost=cost,
+                        duration=duration,
                         metadata={"reasoning": reasoning}  # Épico 8.1: reasoning em metadata
                     )
                     logger.info(f"✅ Evento agent_completed publicado para {agent_name} (session: {session_id})")
                     logger.debug(f"   Reasoning: {reasoning[:100]}...")
+                    logger.debug(f"   Métricas: {tokens_total} tokens, ${cost:.4f}, {duration:.2f}s")
                 except Exception as e:
                     logger.warning(f"Falha ao publicar agent_completed para {agent_name}: {e}")
 
             return result
 
         except Exception as error:
+            # Capturar duração mesmo em caso de erro
+            end_time = time.time()
+            duration = end_time - start_time
+
             # Emitir evento de erro
             if EVENT_BUS_AVAILABLE:
                 try:
@@ -155,7 +192,8 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                         session_id=session_id,
                         agent_name=agent_name,
                         error_message=str(error),
-                        error_type=type(error).__name__
+                        error_type=type(error).__name__,
+                        metadata={"duration": duration}
                     )
                 except Exception as e:
                     logger.warning(f"Falha ao publicar agent_error para {agent_name}: {e}")

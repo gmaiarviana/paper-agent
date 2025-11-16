@@ -193,6 +193,8 @@ class EventBus:
         tokens_input: int = 0,
         tokens_output: int = 0,
         tokens_total: int = 0,
+        cost: float = 0.0,
+        duration: float = 0.0,
         metadata: Optional[Dict[str, Any]] = None
     ) -> None:
         """
@@ -205,6 +207,8 @@ class EventBus:
             tokens_input (int): Tokens de entrada
             tokens_output (int): Tokens de saída
             tokens_total (int): Total de tokens
+            cost (float): Custo da execução em USD
+            duration (float): Duração da execução em segundos
             metadata (dict, optional): Metadados adicionais
 
         Example:
@@ -212,7 +216,8 @@ class EventBus:
             >>> bus.publish_agent_completed(
             ...     "session-1", "orchestrator",
             ...     summary="Classificou como vague",
-            ...     tokens_input=100, tokens_output=50, tokens_total=150
+            ...     tokens_input=100, tokens_output=50, tokens_total=150,
+            ...     cost=0.0012, duration=1.2
             ... )
         """
         event = AgentCompletedEvent(
@@ -222,6 +227,8 @@ class EventBus:
             tokens_input=tokens_input,
             tokens_output=tokens_output,
             tokens_total=tokens_total,
+            cost=cost,
+            duration=duration,
             metadata=metadata or {}
         )
         self.publish_event(event)
