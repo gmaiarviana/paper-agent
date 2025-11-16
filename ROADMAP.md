@@ -13,12 +13,13 @@
 ### ✅ Épicos Concluídos
 - **Épico 1-7**: Sistema multi-agente conversacional completo (ver [ARCHITECTURE.md](ARCHITECTURE.md))
 - **ÉPICO 8**: Telemetria e Observabilidade (POC + Protótipo concluídos)
+- **ÉPICO 9 POC**: Interface Web Conversacional (9.1-9.5 concluídos - 16/11/2025)
 
 ### 🟡 Épicos Em Andamento
-- _Nenhum épico em andamento no momento_
+- **ÉPICO 9 Protótipo**: Bastidores avançados + localStorage (9.6-9.9)
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 9**: Interface Web Conversacional (refinado, pronto para implementação)
+- **ÉPICO 9 MVP**: Sidebar + SqliteSaver (9.10-9.11)
 - **ÉPICO 10**: Entidade Tópico e Persistência (não refinado)
 - **ÉPICO 11+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
 
@@ -87,7 +88,7 @@
 
 **Objetivo:** Criar interface web como experiência principal do sistema, com chat fluido, visualização de reasoning dos agentes ("bastidores"), e métricas de custo inline.
 
-**Status:** 🟡 Em Progresso Parcial (scaffold criado, pronto para integração)
+**Status:** ✅ POC Concluída (9.1-9.5 implementados - 16/11/2025)
 
 **Dependências:**
 - ✅ Épico 8 Protótipo concluído (reasoning, tokens, custo, tempo instrumentados)
@@ -96,41 +97,61 @@
 **Ver spec técnica completa em `docs/interface/web.md`**
 
 **Progresso Atual (16/11/2025):**
-- ✅ **Scaffold completo:** `app/chat.py` + componentes base criados
+- ✅ **POC (9.1-9.5) COMPLETA:** Chat funcional + backend integrado + métricas + polling
 - ✅ **Épico 8 completo:** Backend pronto com reasoning, tokens, custo e tempo instrumentados
 - ✅ **9.9 completo:** `storage.py` com localStorage funcional (Protótipo)
-- ⏳ **9.1-9.8:** Pronto para implementação com backend instrumentado
+- ✅ **9.6-9.8 básico:** Bastidores com reasoning funcional (pode melhorar UX no Protótipo)
+- ⏳ **9.10-9.11:** Sidebar + SqliteSaver (MVP - aguardando)
 
-**Arquivos criados:**
-- `app/chat.py` - Layout 3 colunas + integração de componentes
-- `app/components/chat_input.py` - Esqueleto para input de mensagens
-- `app/components/chat_history.py` - Esqueleto para histórico
-- `app/components/backstage.py` - Esqueleto para painel de reasoning
-- `app/components/sidebar.py` - Esqueleto para lista de sessões
-- `app/components/storage.py` - **Funcional:** Persistência localStorage
+**Arquivos implementados:**
+- `app/chat.py` - ✅ Layout 3 colunas funcional
+- `app/components/chat_input.py` - ✅ **COMPLETO:** Input + integração LangGraph + métricas
+- `app/components/chat_history.py` - ✅ **COMPLETO:** Histórico + métricas inline discretas
+- `app/components/backstage.py` - ✅ **COMPLETO:** Reasoning + polling + timeline
+- `app/components/sidebar.py` - ⏳ Esqueleto para lista de sessões (MVP)
+- `app/components/storage.py` - ✅ **COMPLETO:** Persistência localStorage
 
 ---
 
 ### Progressão POC → Protótipo → MVP
 
-#### POC (chat básico funcionando)
+#### ✅ POC (chat básico funcionando) - CONCLUÍDA
 
-**9.1: Input de chat na interface**
-**9.2: Backend conversacional integrado**
-**9.3: Histórico de conversa visível**
-**9.4: Métricas inline discretas**
-**9.5: Polling de eventos (1s)**
-- Interface faz polling no EventBus a cada 1 segundo
-- Atualiza bastidores quando eventos chegam
-- Delay aceitável (~1s) para POC
-- **Persistência:** Apenas `st.session_state` (temporário - recarregar = perde tudo)
+**9.1: Input de chat na interface** ✅ **CONCLUÍDO**
+- Campo de texto com form (permite Enter para enviar)
+- Botão "Enviar" integrado
+- Spinner durante processamento
 
-**Critérios de aceite POC:**
-- Usuário pode conversar via web (input → output)
-- Histórico preservado durante sessão
-- Métricas visíveis mas discretas
-- Backend compartilhado com CLI (LangGraph + EventBus)
-- Bastidores atualizam via polling (delay de ~1s aceitável)
+**9.2: Backend conversacional integrado** ✅ **CONCLUÍDO**
+- Integração completa com LangGraph via `create_multi_agent_graph()`
+- Estado criado com `create_initial_multi_agent_state()`
+- Config com thread_id para persistência de contexto entre turnos
+- Extração de resposta do orquestrador (`orchestrator_output.message`)
+
+**9.3: Histórico de conversa visível** ✅ **CONCLUÍDO**
+- Mensagens armazenadas em `st.session_state.messages`
+- Renderização via `st.chat_message()` com avatars
+- Formatação diferenciada para usuário vs sistema
+
+**9.4: Métricas inline discretas** ✅ **CONCLUÍDO**
+- Tokens (input, output, total) exibidos como caption
+- Custo em USD (formato: $0.0012)
+- Tempo de execução em segundos
+- Layout: `💰 $0.0012 · 215 tokens · 1.2s`
+
+**9.5: Polling de eventos** ✅ **CONCLUÍDO**
+- Bastidores consomem EventBus via `get_session_events()`
+- Reasoning extraído de `metadata.reasoning`
+- Timeline de agentes anteriores com expander
+- Auto-refresh quando bastidores abertos
+- **Persistência:** `st.session_state` (temporário - recarregar = perde tudo)
+
+**Critérios de aceite POC:** ✅ **TODOS ATENDIDOS**
+- ✅ Usuário pode conversar via web (input → output)
+- ✅ Histórico preservado durante sessão
+- ✅ Métricas visíveis mas discretas
+- ✅ Backend compartilhado com CLI (LangGraph + EventBus)
+- ✅ Bastidores exibem reasoning dos agentes
 
 ---
 

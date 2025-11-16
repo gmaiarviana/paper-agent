@@ -1,5 +1,5 @@
 """
-Interface Web Conversacional - Paper Agent (Épico 9).
+Interface Web Conversacional - Paper Agent (Épico 9 - POC Completa).
 
 Interface principal do sistema:
 - Chat conversacional com histórico
@@ -18,13 +18,13 @@ Layout (Desktop):
 └─────────────────────────────────────────────────────────────┘
 
 Progressão:
-- POC (9.1-9.5): Chat básico + polling
-- Protótipo (9.6-9.9): Bastidores + localStorage
-- MVP (9.10-9.11): Sidebar + SqliteSaver
+- ✅ POC (9.1-9.5): Chat básico + polling + métricas + backend integrado
+- ⏳ Protótipo (9.6-9.9): localStorage
+- ⏳ MVP (9.10-9.11): Sidebar + SqliteSaver
 
-Versão: 1.0
+Versão: 2.0
 Data: 16/11/2025
-Status: Esqueleto (aguardando Épico 8.2/8.3 para integração)
+Status: POC Completa (Épico 9.1-9.5 implementado)
 """
 
 import sys
@@ -133,9 +133,9 @@ def main():
     # Footer
     st.markdown("---")
     st.caption(
-        "🚧 **Interface em desenvolvimento** | "
+        "✅ **POC Completa (Épico 9.1-9.5)** | "
         f"Sessão: `{session_id[:8]}...` | "
-        "Épico 9: POC → Protótipo → MVP"
+        "Chat integrado com LangGraph + EventBus"
     )
 
 

@@ -1,5 +1,5 @@
 """
-Componente de input de chat para interface web conversacional (Épico 9.1).
+Componente de input de chat para interface web conversacional (Épico 9.1 + 9.2).
 
 Responsável por:
 - Renderizar campo de texto para mensagens do usuário
@@ -7,13 +7,22 @@ Responsável por:
 - Atualizar histórico de conversa
 - Exibir métricas inline (tokens, custo, tempo)
 
-Versão: 1.0
+Versão: 2.0
 Data: 16/11/2025
-Status: Esqueleto (aguardando Épico 8.2/8.3 para integração)
+Status: POC completa (integrado com LangGraph + EventBus)
 """
 
 import streamlit as st
+import logging
+from datetime import datetime
 from typing import Optional
+
+# Imports do backend
+from agents.multi_agent_graph import create_multi_agent_graph
+from agents.orchestrator.state import create_initial_multi_agent_state
+from utils.event_bus import get_event_bus
+
+logger = logging.getLogger(__name__)
 
 
 def render_chat_input(session_id: str) -> None:
@@ -23,82 +32,206 @@ def render_chat_input(session_id: str) -> None:
     Args:
         session_id: ID da sessão ativa
 
-    Comportamento POC (9.1-9.5):
+    Comportamento POC (9.1 + 9.2):
         - Campo de texto para mensagem
-        - Botão "Enviar" ou Enter para submeter
+        - Botão "Enviar" para submeter
         - Spinner durante processamento
-        - Atualiza st.session_state.messages
+        - Invoca LangGraph com session_id
+        - Atualiza st.session_state.messages com resultado
 
-    TODO (após Épico 8.2/8.3):
-        - Integrar com LangGraph (agents.multi_agent_graph)
-        - Consumir métricas do EventBus (tokens, custo, tempo)
-        - Exibir métricas inline discretas
+    Integração:
+        - LangGraph: Processa input e retorna resposta do orquestrador
+        - EventBus: Eventos são publicados automaticamente pelo grafo
+        - Métricas: Tokens, custo e tempo extraídos dos eventos
     """
-    # Campo de input
-    user_input = st.text_input(
-        "Digite sua mensagem:",
-        key="chat_input",
-        placeholder="Me conte sobre sua ideia ou observação..."
-    )
+    # Usar st.form para melhor UX (permite Enter para enviar)
+    with st.form(key="chat_form", clear_on_submit=True):
+        user_input = st.text_area(
+            "Digite sua mensagem:",
+            key="chat_input",
+            placeholder="Me conte sobre sua ideia ou observação...",
+            height=100,
+            label_visibility="collapsed"
+        )
 
-    # Botão de envio
-    col1, col2 = st.columns([1, 5])
-    with col1:
-        send_button = st.button("Enviar", type="primary", use_container_width=True)
+        col1, col2 = st.columns([1, 5])
+        with col1:
+            send_button = st.form_submit_button("Enviar", type="primary", use_container_width=True)
 
-    # Processar mensagem
-    if send_button and user_input:
-        # TODO: Implementar após Épico 8.2/8.3
-        # 1. Invocar LangGraph com user_input
-        # 2. Capturar eventos do EventBus (agent_started, agent_completed)
-        # 3. Extrair reasoning, tokens, custo, tempo
-        # 4. Atualizar st.session_state.messages
+    # Processar mensagem quando botão clicado
+    if send_button and user_input.strip():
+        _process_user_message(user_input.strip(), session_id)
 
-        # Placeholder para desenvolvimento
-        st.info("🚧 **Em desenvolvimento:** Integração com LangGraph será adicionada após Épico 8.2/8.3")
 
-        # Exemplo de estrutura de mensagem (para referência futura)
-        """
-        message_structure = {
-            "role": "user",
-            "content": user_input,
-            "tokens": {"input": 0, "output": 0, "total": 0},
-            "cost": 0.0,
-            "duration": 0.0,
-            "timestamp": datetime.now().isoformat()
-        }
-        """
+def _process_user_message(user_input: str, session_id: str) -> None:
+    """
+    Processa mensagem do usuário invocando LangGraph.
+
+    Args:
+        user_input: Mensagem do usuário
+        session_id: ID da sessão ativa
+
+    Fluxo:
+        1. Adiciona mensagem do usuário ao histórico
+        2. Invoca LangGraph (mostra spinner)
+        3. Extrai resposta do orquestrador
+        4. Busca métricas consolidadas do EventBus
+        5. Adiciona resposta do sistema ao histórico
+        6. Re-renderiza interface
+    """
+    # Inicializar histórico se necessário
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Adicionar mensagem do usuário (sem métricas ainda)
+    st.session_state.messages.append({
+        "role": "user",
+        "content": user_input,
+        "tokens": None,
+        "cost": None,
+        "duration": None,
+        "timestamp": datetime.now().isoformat()
+    })
+
+    # Invocar LangGraph com spinner
+    with st.spinner("🤖 Sistema está pensando..."):
+        try:
+            result = _invoke_langgraph(user_input, session_id)
+
+            # Extrair resposta do orquestrador
+            orchestrator_output = result.get("orchestrator_output", {})
+            assistant_message = orchestrator_output.get("message", "")
+
+            # Buscar métricas consolidadas do EventBus
+            metrics = _get_latest_metrics(session_id)
+
+            # Adicionar resposta do sistema ao histórico
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": assistant_message,
+                "tokens": metrics.get("tokens"),
+                "cost": metrics.get("cost"),
+                "duration": metrics.get("duration"),
+                "timestamp": datetime.now().isoformat()
+            })
+
+            logger.info(f"Mensagem processada com sucesso (sessão: {session_id[:8]}...)")
+
+        except Exception as e:
+            logger.error(f"Erro ao processar mensagem: {e}", exc_info=True)
+            st.error(f"❌ Erro ao processar mensagem: {e}")
+            # Remover mensagem do usuário se houve erro
+            st.session_state.messages.pop()
+            return
+
+    # Re-renderizar interface (force update)
+    st.rerun()
 
 
 def _invoke_langgraph(user_input: str, session_id: str) -> dict:
     """
     Invoca LangGraph e retorna resultado.
 
-    TODO: Implementar após Épico 8.2/8.3
-
     Args:
         user_input: Mensagem do usuário
         session_id: ID da sessão ativa
 
     Returns:
+        dict: Estado final do grafo com:
+            - orchestrator_output: {message, next_step, agent_suggestion, ...}
+            - next_step: "explore", "clarify", "suggest_agent", etc
+            - orchestrator_analysis: reasoning completo
+            - ... (outros campos do MultiAgentState)
+
+    Raises:
+        Exception: Se houver erro na execução do grafo
+    """
+    logger.info(f"Invocando LangGraph para sessão {session_id[:8]}...")
+
+    # Criar grafo (singleton - cache em produção)
+    graph = create_multi_agent_graph()
+
+    # Criar estado inicial
+    state = create_initial_multi_agent_state(
+        user_input=user_input,
+        session_id=session_id
+    )
+
+    # Configuração com thread_id (preserva histórico entre turnos)
+    config = {
+        "configurable": {
+            "thread_id": session_id
+        }
+    }
+
+    # Invocar grafo
+    result = graph.invoke(state, config=config)
+
+    logger.debug(f"LangGraph executado. Next step: {result.get('next_step')}")
+
+    return result
+
+
+def _get_latest_metrics(session_id: str) -> dict:
+    """
+    Busca métricas consolidadas do último turno no EventBus.
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Returns:
         dict: {
-            "orchestrator_output": {...},
-            "tokens": {...},
+            "tokens": {"input": int, "output": int, "total": int},
             "cost": float,
             "duration": float
         }
+
+    Nota:
+        Consolida métricas de todos os agentes executados no último turno.
+        Se múltiplos agentes foram chamados (ex: orchestrator → structurer),
+        soma tokens/custo e usa duração total.
     """
-    raise NotImplementedError("Aguardando Épico 8.2/8.3")
+    try:
+        bus = get_event_bus()
+        events = bus.get_session_events(session_id)
 
+        # Filtrar apenas eventos "agent_completed" do último turno
+        # (assumir que último turno = eventos após último "agent_started" do orchestrator)
+        completed_events = [e for e in events if e.get("event_type") == "agent_completed"]
 
-def _update_chat_history(user_message: dict, assistant_message: dict) -> None:
-    """
-    Atualiza histórico de chat em st.session_state.
+        if not completed_events:
+            logger.warning(f"Nenhum evento agent_completed encontrado para {session_id}")
+            return {"tokens": None, "cost": None, "duration": None}
 
-    TODO: Implementar após estrutura de mensagens definida
+        # Consolidar métricas (soma tokens/custo, max duration)
+        total_tokens_input = 0
+        total_tokens_output = 0
+        total_cost = 0.0
+        max_duration = 0.0
 
-    Args:
-        user_message: Mensagem do usuário com metadados
-        assistant_message: Resposta do sistema com metadados
-    """
-    raise NotImplementedError("Aguardando definição de estrutura de mensagens")
+        # Pegar apenas eventos do último turno (últimos N eventos - heurística: últimos 5)
+        recent_events = completed_events[-5:]
+
+        for event in recent_events:
+            total_tokens_input += event.get("tokens_input", 0)
+            total_tokens_output += event.get("tokens_output", 0)
+            total_cost += event.get("cost", 0.0)
+            max_duration = max(max_duration, event.get("duration", 0.0))
+
+        total_tokens = total_tokens_input + total_tokens_output
+
+        logger.debug(f"Métricas consolidadas: {total_tokens} tokens, ${total_cost:.4f}, {max_duration:.2f}s")
+
+        return {
+            "tokens": {
+                "input": total_tokens_input,
+                "output": total_tokens_output,
+                "total": total_tokens
+            },
+            "cost": total_cost,
+            "duration": max_duration
+        }
+
+    except Exception as e:
+        logger.warning(f"Erro ao buscar métricas do EventBus: {e}")
+        return {"tokens": None, "cost": None, "duration": None}
