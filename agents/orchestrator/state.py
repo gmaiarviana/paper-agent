@@ -7,12 +7,13 @@ do sistema (Orquestrador, Estruturador, Metodologista).
 O estado é híbrido: possui campos compartilhados (todos os agentes leem/escrevem)
 e campos específicos por agente (apenas o agente responsável escreve).
 
-Versão: 3.0 (Épico 7 MVP - Argumento Focal Explícito + Provocação + Detecção de Estágio)
-Data: 15/11/2025
+Versão: 3.1 (Épico 7 MVP + Validação Pydantic dos outputs de agentes)
+Data: 16/11/2025
 """
 
-from typing import TypedDict, Optional, Annotated, Literal
+from typing import TypedDict, Optional, Annotated, Literal, List
 from langgraph.graph.message import add_messages
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class MultiAgentState(TypedDict):
@@ -198,13 +199,14 @@ class MultiAgentState(TypedDict):
     messages: Annotated[list, add_messages]
 
 
-def create_initial_multi_agent_state(user_input: str, session_id: str) -> MultiAgentState:
+def create_initial_multi_agent_state(user_input: str, session_id: Optional[str] = None) -> MultiAgentState:
     """
     Cria o estado inicial do sistema multi-agente com valores padrão.
 
     Args:
         user_input (str): Input do usuário (ideia, observação ou hipótese).
-        session_id (str): ID único da sessão (para EventBus - Épico 5.1).
+        session_id (str | None): ID único da sessão (para EventBus - Épico 5.1).
+            Se None, será usado um ID padrão genérico (apenas para testes).
 
     Returns:
         MultiAgentState: Estado inicial pronto para ser usado pelo super-grafo.
@@ -221,6 +223,11 @@ def create_initial_multi_agent_state(user_input: str, session_id: str) -> MultiA
         >>> state['hypothesis_versions']
         []
     """
+    if session_id is None:
+        # ID genérico usado em contextos de teste ou quando o chamador não precisa
+        # de integração com EventBus/Dashboard.
+        session_id = "test-session-default"
+
     return MultiAgentState(
         # Compartilhado
         user_input=user_input,
@@ -248,3 +255,57 @@ def create_initial_multi_agent_state(user_input: str, session_id: str) -> MultiA
         # Mensagens LangGraph
         messages=[]
     )
+
+
+# ============================================================================
+# MODELOS Pydantic PARA OUTPUTS DOS AGENTES
+# ============================================================================
+
+
+class StructurerElementsModel(BaseModel):
+    """Elementos estruturados retornados pelo Estruturador."""
+
+    context: str = Field(..., description="Contexto da observação")
+    problem: str = Field(..., description="Problema ou gap identificado")
+    contribution: str = Field(..., description="Possível contribuição acadêmica ou prática")
+
+
+class StructurerOutputModel(BaseModel):
+    """
+    Output estruturado do agente Estruturador.
+
+    Este modelo reflete a estrutura esperada em MultiAgentState.structurer_output.
+    """
+
+    structured_question: str = Field(..., description="Questão de pesquisa estruturada")
+    elements: StructurerElementsModel
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class MethodologistImprovementModel(BaseModel):
+    """Gap identificado pelo Metodologista em modo colaborativo."""
+
+    aspect: str = Field(..., description="Aspecto a ser melhorado (ex: população, métricas)")
+    gap: str = Field(..., description="Descrição do gap identificado")
+
+
+class MethodologistOutputModel(BaseModel):
+    """
+    Output estruturado do Metodologista em MultiAgentState.methodologist_output.
+    """
+
+    status: Literal["approved", "needs_refinement", "rejected"] = Field(
+        ...,
+        description="Status final da avaliação",
+    )
+    justification: str = Field(
+        ...,
+        description="Justificativa detalhada da decisão",
+    )
+    improvements: List[MethodologistImprovementModel] = Field(
+        default_factory=list,
+        description="Lista de gaps e sugestões quando status=needs_refinement",
+    )
+
+    model_config = ConfigDict(extra="ignore")

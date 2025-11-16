@@ -16,10 +16,9 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_anthropic import ChatAnthropic
 
-from agents.orchestrator.state import MultiAgentState
+from agents.orchestrator.state import MultiAgentState, StructurerOutputModel
 from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import STRUCTURER_REFINEMENT_PROMPT_V1
-from utils.config import get_anthropic_model
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 
@@ -202,15 +201,27 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
         contribution = "Contribuição não identificada devido a erro de parsing"
         structured_question = f"Como investigar: {state['user_input']}?"
 
-    # Montar output estruturado
-    structurer_output = {
-        "structured_question": structured_question,
-        "elements": {
-            "context": context,
-            "problem": problem,
-            "contribution": contribution
+    # Montar output estruturado com validação Pydantic
+    try:
+        output_model = StructurerOutputModel(
+            structured_question=structured_question,
+            elements={
+                "context": context,
+                "problem": problem,
+                "contribution": contribution,
+            },
+        )
+        structurer_output = output_model.model_dump()
+    except Exception as e:  # Falha de validação é improvável, mas fazemos fallback seguro
+        logger.error(f"Falha ao validar output do Estruturador via Pydantic: {e}")
+        structurer_output = {
+            "structured_question": structured_question,
+            "elements": {
+                "context": context,
+                "problem": problem,
+                "contribution": contribution,
+            },
         }
-    }
 
     logger.info(f"Questão estruturada: {structured_question}")
     logger.info(f"Próximo estágio: validating (vai para Metodologista)")
