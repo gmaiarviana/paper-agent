@@ -146,10 +146,13 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
 
                     if config:
                         memory_manager = config.get("configurable", {}).get("memory_manager")
+                        thread_id = config.get("configurable", {}).get("thread_id", session_id)
+                        logger.debug(f"   Config disponível: memory_manager={memory_manager is not None}, thread_id={thread_id}")
+
                         if memory_manager:
                             # Obter última execução do agente
-                            thread_id = config.get("configurable", {}).get("thread_id", session_id)
                             agent_history = memory_manager.get_agent_history(thread_id, agent_name)
+                            logger.debug(f"   Agent history para {agent_name}: {len(agent_history) if agent_history else 0} execuções")
 
                             if agent_history:
                                 last_execution = agent_history[-1]
@@ -158,6 +161,12 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                                 tokens_total = last_execution.get("tokens_total", 0)
                                 cost = last_execution.get("cost", 0.0)
                                 logger.debug(f"   Tokens extraídos do MemoryManager: input={tokens_input}, output={tokens_output}, total={tokens_total}, cost=${cost:.4f}")
+                            else:
+                                logger.warning(f"   MemoryManager não tem histórico para {agent_name} em thread {thread_id}")
+                        else:
+                            logger.warning(f"   MemoryManager não disponível no config")
+                    else:
+                        logger.warning(f"   Config não disponível para {agent_name}")
 
                     bus.publish_agent_completed(
                         session_id=session_id,
