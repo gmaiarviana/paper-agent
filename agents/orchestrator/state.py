@@ -157,6 +157,23 @@ class MultiAgentState(TypedDict):
         - "needs_refinement": Tem potencial mas faltam elementos (volta para Estruturador)
         - "rejected": Sem potencial científico (finaliza)
 
+    === SEÇÃO 2.5: MÉTRICAS DO ÚLTIMO AGENTE (Épico 8.3) ===
+
+    last_agent_tokens_input (Optional[int]):
+        Tokens de entrada consumidos pelo último agente que executou.
+        Usado por instrument_node para publicar métricas no EventBus.
+        Extraído de response.usage_metadata pelo próprio agente.
+
+    last_agent_tokens_output (Optional[int]):
+        Tokens de saída gerados pelo último agente que executou.
+        Usado por instrument_node para publicar métricas no EventBus.
+        Extraído de response.usage_metadata pelo próprio agente.
+
+    last_agent_cost (Optional[float]):
+        Custo em USD da execução do último agente.
+        Calculado via CostTracker baseado nos tokens.
+        Usado por instrument_node para publicar métricas no EventBus.
+
     === SEÇÃO 3: MENSAGENS (LangGraph) ===
 
     messages (Annotated[list, add_messages]):
@@ -193,6 +210,11 @@ class MultiAgentState(TypedDict):
 
     # === ESPECÍFICO: METODOLOGISTA ===
     methodologist_output: Optional[dict]
+
+    # === MÉTRICAS DO ÚLTIMO AGENTE (Épico 8.3) ===
+    last_agent_tokens_input: Optional[int]
+    last_agent_tokens_output: Optional[int]
+    last_agent_cost: Optional[float]
 
     # === MENSAGENS (LangGraph) ===
     messages: Annotated[list, add_messages]
@@ -244,6 +266,11 @@ def create_initial_multi_agent_state(user_input: str, session_id: str) -> MultiA
 
         # Específico: Metodologista
         methodologist_output=None,
+
+        # Métricas do último agente (Épico 8.3)
+        last_agent_tokens_input=None,
+        last_agent_tokens_output=None,
+        last_agent_cost=None,
 
         # Mensagens LangGraph
         messages=[]

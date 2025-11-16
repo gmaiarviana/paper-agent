@@ -40,6 +40,11 @@ class TestMultiAgentStateStructure:
         assert "methodologist_output" in state
         assert "messages" in state
 
+        # Campos de métricas (Épico 8.3)
+        assert "last_agent_tokens_input" in state
+        assert "last_agent_tokens_output" in state
+        assert "last_agent_cost" in state
+
     def test_orchestrator_classification_removed(self):
         """Valida que orchestrator_classification foi removido (obsoleto no POC)."""
         state = create_initial_multi_agent_state(
@@ -75,6 +80,11 @@ class TestMultiAgentStateStructure:
         assert state["structurer_output"] is None
         assert state["methodologist_output"] is None
         assert state["messages"] == []
+
+        # Métricas (Épico 8.3) - devem começar como None
+        assert state["last_agent_tokens_input"] is None
+        assert state["last_agent_tokens_output"] is None
+        assert state["last_agent_cost"] is None
 
     def test_orchestrator_analysis_can_be_set(self):
         """Valida que orchestrator_analysis pode ser atualizado."""
@@ -155,6 +165,53 @@ class TestMultiAgentStateStructure:
         assert state["conversation_history"][1] == "Orquestrador: Explorando contexto"
 
 
+class TestMultiAgentStateMetrics:
+    """Testes dos campos de métricas (Épico 8.3)."""
+
+    def test_metrics_fields_can_be_set(self):
+        """Valida que campos de métricas podem ser atualizados."""
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-123"
+        )
+
+        # Atualizar métricas
+        state["last_agent_tokens_input"] = 100
+        state["last_agent_tokens_output"] = 50
+        state["last_agent_cost"] = 0.0025
+
+        assert state["last_agent_tokens_input"] == 100
+        assert state["last_agent_tokens_output"] == 50
+        assert state["last_agent_cost"] == 0.0025
+
+    def test_metrics_fields_start_as_none(self):
+        """Valida que métricas começam como None."""
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-123"
+        )
+
+        assert state["last_agent_tokens_input"] is None
+        assert state["last_agent_tokens_output"] is None
+        assert state["last_agent_cost"] is None
+
+    def test_metrics_can_be_zero(self):
+        """Valida que métricas podem ser zero (agente sem LLM call)."""
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-123"
+        )
+
+        # Simular agente que não chamou LLM
+        state["last_agent_tokens_input"] = 0
+        state["last_agent_tokens_output"] = 0
+        state["last_agent_cost"] = 0.0
+
+        assert state["last_agent_tokens_input"] == 0
+        assert state["last_agent_tokens_output"] == 0
+        assert state["last_agent_cost"] == 0.0
+
+
 class TestMultiAgentStateTyping:
     """Testes de typing e anotações do MultiAgentState."""
 
@@ -172,6 +229,11 @@ class TestMultiAgentStateTyping:
         assert "session_id" in annotations
         assert "conversation_history" in annotations
         assert "current_stage" in annotations
+
+        # Campos de métricas (Épico 8.3)
+        assert "last_agent_tokens_input" in annotations
+        assert "last_agent_tokens_output" in annotations
+        assert "last_agent_cost" in annotations
 
     def test_next_step_literal_type(self):
         """Valida que next_step usa Literal com valores corretos."""

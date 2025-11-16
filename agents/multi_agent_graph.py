@@ -138,35 +138,15 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                     # Extrair reasoning para metadata (Épico 8.1)
                     reasoning = _extract_reasoning(agent_name, result)
 
-                    # Extrair tokens e custo do MemoryManager (Épico 8.3)
-                    tokens_input = 0
-                    tokens_output = 0
-                    tokens_total = 0
-                    cost = 0.0
+                    # Extrair tokens e custo do state retornado pelo nó (Épico 8.3)
+                    # IMPORTANTE: Config não é passado aos wrappers pelo LangGraph (ver linha 99)
+                    # Solução: Cada nó extrai seus tokens via token_extractor e retorna no state
+                    tokens_input = result.get("last_agent_tokens_input", 0)
+                    tokens_output = result.get("last_agent_tokens_output", 0)
+                    tokens_total = tokens_input + tokens_output
+                    cost = result.get("last_agent_cost", 0.0)
 
-                    if config:
-                        memory_manager = config.get("configurable", {}).get("memory_manager")
-                        thread_id = config.get("configurable", {}).get("thread_id", session_id)
-                        logger.debug(f"   Config disponível: memory_manager={memory_manager is not None}, thread_id={thread_id}")
-
-                        if memory_manager:
-                            # Obter última execução do agente
-                            agent_history = memory_manager.get_agent_history(thread_id, agent_name)
-                            logger.debug(f"   Agent history para {agent_name}: {len(agent_history) if agent_history else 0} execuções")
-
-                            if agent_history:
-                                last_execution = agent_history[-1]
-                                tokens_input = last_execution.get("tokens_input", 0)
-                                tokens_output = last_execution.get("tokens_output", 0)
-                                tokens_total = last_execution.get("tokens_total", 0)
-                                cost = last_execution.get("cost", 0.0)
-                                logger.debug(f"   Tokens extraídos do MemoryManager: input={tokens_input}, output={tokens_output}, total={tokens_total}, cost=${cost:.4f}")
-                            else:
-                                logger.warning(f"   MemoryManager não tem histórico para {agent_name} em thread {thread_id}")
-                        else:
-                            logger.warning(f"   MemoryManager não disponível no config")
-                    else:
-                        logger.warning(f"   Config não disponível para {agent_name}")
+                    logger.debug(f"   Tokens extraídos do state: input={tokens_input}, output={tokens_output}, total={tokens_total}, cost=${cost:.4f}")
 
                     bus.publish_agent_completed(
                         session_id=session_id,

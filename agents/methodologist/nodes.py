@@ -29,6 +29,7 @@ from utils.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
 from utils.config import get_anthropic_model
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
+from utils.token_extractor import extract_tokens_and_cost
 
 logger = logging.getLogger(__name__)
 
@@ -466,6 +467,10 @@ Avalie esta questão e retorne APENAS o JSON com status, justification e improve
     new_versions = state.get('hypothesis_versions', []).copy() if state.get('hypothesis_versions') else []
     new_versions.append(version_entry)
 
+    # Extrair tokens e custo da resposta (Épico 8.3)
+    metrics = extract_tokens_and_cost(response, model_name)
+    logger.debug(f"Métricas extraídas: {metrics['tokens_total']} tokens, ${metrics['cost']:.6f}")
+
     logger.info(f"Decisão: {status}")
     logger.info(f"Versão registrada: V{current_version}")
     if status == "needs_refinement":
@@ -477,5 +482,8 @@ Avalie esta questão e retorne APENAS o JSON com status, justification e improve
     return {
         "methodologist_output": methodologist_output,
         "hypothesis_versions": new_versions,
+        "last_agent_tokens_input": metrics["tokens_input"],
+        "last_agent_tokens_output": metrics["tokens_output"],
+        "last_agent_cost": metrics["cost"],
         "messages": [response]
     }
