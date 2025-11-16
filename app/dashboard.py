@@ -27,8 +27,8 @@ from utils.event_bus import get_event_bus
 
 # === CONFIGURAÇÃO ===
 
-# Intervalo de auto-refresh em segundos (default: 2s)
-AUTO_REFRESH_INTERVAL = 2
+# Intervalo de auto-refresh em segundos (default: 1s - Épico 8.3)
+AUTO_REFRESH_INTERVAL = 1
 
 
 # === CONFIGURAÇÃO DO STREAMLIT ===
@@ -361,6 +361,75 @@ def render_event_stats(events: List[Dict[str, Any]]):
         st.metric("🔢 Total de tokens", total_tokens)
 
 
+def render_consolidated_metrics(events: List[Dict[str, Any]]):
+    """
+    Renderiza métricas consolidadas por agente e totais da sessão (Épico 8.3).
+
+    Args:
+        events (List[Dict]): Lista de eventos
+    """
+    st.subheader("💰 Métricas Consolidadas")
+
+    # Coletar métricas por agente
+    agent_metrics = {}
+    total_tokens = 0
+    total_cost = 0.0
+    total_duration = 0.0
+
+    for event in events:
+        if event.get("event_type") == "agent_completed":
+            agent_name = event.get("agent_name", "unknown")
+            tokens = event.get("tokens_total", 0)
+            cost = event.get("cost", 0.0)
+            duration = event.get("duration", 0.0)
+
+            if agent_name not in agent_metrics:
+                agent_metrics[agent_name] = {
+                    "tokens": 0,
+                    "cost": 0.0,
+                    "duration": 0.0,
+                    "count": 0
+                }
+
+            agent_metrics[agent_name]["tokens"] += tokens
+            agent_metrics[agent_name]["cost"] += cost
+            agent_metrics[agent_name]["duration"] += duration
+            agent_metrics[agent_name]["count"] += 1
+
+            total_tokens += tokens
+            total_cost += cost
+            total_duration += duration
+
+    if not agent_metrics:
+        st.info("Nenhuma métrica disponível ainda.")
+        return
+
+    # Métricas por agente
+    st.markdown("**Por Agente:**")
+    for agent_name, metrics in agent_metrics.items():
+        color = get_agent_color(agent_name)
+        with st.expander(f"🤖 {agent_name.title()} ({metrics['count']}x)", expanded=False):
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Tokens", f"{metrics['tokens']:,}")
+            with col2:
+                st.metric("Custo", f"${metrics['cost']:.4f}")
+            with col3:
+                st.metric("Tempo", f"{metrics['duration']:.2f}s")
+
+    st.divider()
+
+    # Totais da sessão
+    st.markdown("**Totais da Sessão:**")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("🔢 Total Tokens", f"{total_tokens:,}")
+    with col2:
+        st.metric("💰 Total Custo", f"${total_cost:.4f}")
+    with col3:
+        st.metric("⏱️ Total Tempo", f"{total_duration:.2f}s")
+
+
 # === MAIN ===
 
 def main():
@@ -426,6 +495,10 @@ def main():
         with col2:
             # Estatísticas
             render_event_stats(events)
+
+            # Métricas consolidadas (Épico 8.3)
+            st.divider()
+            render_consolidated_metrics(events)
 
             # Botões de ação
             st.divider()

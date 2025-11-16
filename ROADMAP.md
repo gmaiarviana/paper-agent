@@ -12,9 +12,10 @@
 
 ### ✅ Épicos Concluídos
 - **Épico 1-7**: Sistema multi-agente conversacional completo (ver [ARCHITECTURE.md](ARCHITECTURE.md))
+- **ÉPICO 8**: Telemetria e Observabilidade (POC + Protótipo concluídos)
 
 ### 🟡 Épicos Em Andamento
-- **ÉPICO 8**: Telemetria e Observabilidade
+- _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
 - **ÉPICO 9**: Interface Web Conversacional (refinado, pronto para implementação)
@@ -31,7 +32,7 @@
 
 **Objetivo:** Instrumentar todos os agentes para capturar reasoning, decisões e métricas, e implementar streaming de eventos em tempo real.
 
-**Status:** 🟡 Em Progresso
+**Status:** ✅ Concluído
 
 **Dependências:**
 - ✅ Épico 7 concluído (Orquestrador Conversacional)
@@ -59,23 +60,26 @@
 
 ---
 
-#### Protótipo (streaming e métricas)
+#### ✅ Protótipo (streaming e métricas) **CONCLUÍDO**
 
-**8.2: Instrumentar Orquestrador e Metodologista**
-- Adicionar reasoning explícito no metadata para todos os agentes
+**8.2: Instrumentar Orquestrador e Metodologista** ✅ **CONCLUÍDO**
+- ✅ Reasoning explícito no metadata para todos os agentes
+- ✅ Orquestrador: extrai reasoning de `orchestrator_analysis`
+- ✅ Metodologista: extrai reasoning de `justification`
 
-**8.3: Métricas consolidadas**
-- Tokens e custo por agente
-- Tokens e custo total da sessão
-- Tempo de execução por agente
-- Exibição clara na interface web
-- Atualização em tempo real via polling (1s)
+**8.3: Métricas consolidadas** ✅ **CONCLUÍDO**
+- ✅ Tokens reais capturados do MemoryManager (input, output, total)
+- ✅ Custo calculado via CostTracker por agente
+- ✅ Tempo de execução capturado (start → end)
+- ✅ Tokens e custo total da sessão
+- ✅ Exibição clara na interface web (painel consolidado)
+- ✅ Atualização em tempo real via polling (1s)
 
 **Critérios de aceite Protótipo:**
-- Todos os agentes emitem reasoning
-- Dashboard recebe eventos via polling (1s)
-- Métricas consolidadas exibidas corretamente
-- Performance: Polling com intervalo de 1s (suficiente para experiência)
+- ✅ Todos os agentes emitem reasoning
+- ✅ Dashboard recebe eventos via polling (1s)
+- ✅ Métricas consolidadas exibidas corretamente
+- ✅ Performance: Polling com intervalo de 1s (suficiente para experiência)
 
 ---
 
@@ -83,19 +87,19 @@
 
 **Objetivo:** Criar interface web como experiência principal do sistema, com chat fluido, visualização de reasoning dos agentes ("bastidores"), e métricas de custo inline.
 
-**Status:** 🟡 Em Progresso Parcial (scaffold criado, aguardando Épico 8.2/8.3)
+**Status:** 🟡 Em Progresso Parcial (scaffold criado, pronto para integração)
 
 **Dependências:**
-- ✅ Épico 8 POC concluído (reasoning instrumentado)
-- ⏳ Épico 8.2/8.3 em andamento (necessário para integração completa)
+- ✅ Épico 8 Protótipo concluído (reasoning, tokens, custo, tempo instrumentados)
 - ✅ Épico 7 concluído (Orquestrador Conversacional)
 
 **Ver spec técnica completa em `docs/interface/web.md`**
 
 **Progresso Atual (16/11/2025):**
 - ✅ **Scaffold completo:** `app/chat.py` + componentes base criados
+- ✅ **Épico 8 completo:** Backend pronto com reasoning, tokens, custo e tempo instrumentados
 - ✅ **9.9 completo:** `storage.py` com localStorage funcional (Protótipo)
-- ⏳ **9.1-9.8:** Aguardando conclusão de 8.2/8.3 para integração
+- ⏳ **9.1-9.8:** Pronto para implementação com backend instrumentado
 
 **Arquivos criados:**
 - `app/chat.py` - Layout 3 colunas + integração de componentes

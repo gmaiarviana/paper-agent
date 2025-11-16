@@ -20,6 +20,7 @@ from utils.json_parser import extract_json_from_llm_response
 from utils.config import get_anthropic_model, invoke_with_retry
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
+from utils.token_extractor import extract_tokens_and_cost
 
 logger = logging.getLogger(__name__)
 
@@ -313,6 +314,18 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         reflection_prompt = None
         stage_suggestion = None
 
+    # Extrair tokens e custo da resposta (Épico 8.3)
+    try:
+        logger.debug(f"[TOKEN EXTRACTION] Tentando extrair tokens de response (tipo: {type(response)})")
+        metrics = extract_tokens_and_cost(response, model_name)
+        logger.debug(f"[TOKEN EXTRACTION] ✅ Métricas extraídas: {metrics['tokens_total']} tokens, ${metrics['cost']:.6f}")
+    except Exception as e:
+        logger.error(f"[TOKEN EXTRACTION] ❌ Erro ao extrair tokens: {e}")
+        import traceback
+        traceback.print_exc()
+        # Fallback: métricas zeradas
+        metrics = {"tokens_input": 0, "tokens_output": 0, "tokens_total": 0, "cost": 0.0}
+
     logger.info("=== NÓ ORCHESTRATOR MVP: Finalizado ===\n")
 
     # Criar AIMessage com a mensagem conversacional para histórico
@@ -325,5 +338,8 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         "agent_suggestion": agent_suggestion,
         "reflection_prompt": reflection_prompt,
         "stage_suggestion": stage_suggestion,
+        "last_agent_tokens_input": metrics["tokens_input"],
+        "last_agent_tokens_output": metrics["tokens_output"],
+        "last_agent_cost": metrics["cost"],
         "messages": [ai_message]
     }

@@ -89,7 +89,9 @@ class TestAgentCompletedEvent:
             summary="Aprovou hipótese",
             tokens_input=100,
             tokens_output=50,
-            tokens_total=150
+            tokens_total=150,
+            cost=0.0012,
+            duration=1.5
         )
 
         assert event.session_id == "test-session"
@@ -98,6 +100,8 @@ class TestAgentCompletedEvent:
         assert event.tokens_input == 100
         assert event.tokens_output == 50
         assert event.tokens_total == 150
+        assert event.cost == 0.0012
+        assert event.duration == 1.5
         assert event.event_type == "agent_completed"
 
     def test_tokens_default_to_zero(self):
@@ -112,6 +116,37 @@ class TestAgentCompletedEvent:
         assert event.tokens_output == 0
         assert event.tokens_total == 0
 
+    def test_cost_and_duration_default_to_zero(self):
+        """Testa que cost e duration defaultam para 0.0 (Épico 8.3)."""
+        event = AgentCompletedEvent(
+            session_id="test-session",
+            agent_name="structurer",
+            summary="Estruturou questão"
+        )
+
+        assert event.cost == 0.0
+        assert event.duration == 0.0
+
+    def test_cost_non_negative(self):
+        """Testa que cost não pode ser negativo (Épico 8.3)."""
+        with pytest.raises(Exception):  # Pydantic ValidationError
+            AgentCompletedEvent(
+                session_id="test-session",
+                agent_name="orchestrator",
+                summary="Test",
+                cost=-0.01
+            )
+
+    def test_duration_non_negative(self):
+        """Testa que duration não pode ser negativo (Épico 8.3)."""
+        with pytest.raises(Exception):  # Pydantic ValidationError
+            AgentCompletedEvent(
+                session_id="test-session",
+                agent_name="orchestrator",
+                summary="Test",
+                duration=-1.0
+            )
+
     def test_tokens_non_negative(self):
         """Testa que tokens não podem ser negativos."""
         with pytest.raises(Exception):  # Pydantic ValidationError
@@ -123,7 +158,7 @@ class TestAgentCompletedEvent:
             )
 
     def test_json_serialization_with_all_fields(self):
-        """Testa serialização completa."""
+        """Testa serialização completa (Épico 8.3)."""
         event = AgentCompletedEvent(
             session_id="test-session",
             agent_name="orchestrator",
@@ -131,6 +166,8 @@ class TestAgentCompletedEvent:
             tokens_input=200,
             tokens_output=100,
             tokens_total=300,
+            cost=0.0024,
+            duration=2.5,
             metadata={"classification": "vague"}
         )
 
@@ -138,6 +175,8 @@ class TestAgentCompletedEvent:
 
         assert json_data["summary"] == "Classificou como vague"
         assert json_data["tokens_total"] == 300
+        assert json_data["cost"] == 0.0024
+        assert json_data["duration"] == 2.5
         assert json_data["metadata"]["classification"] == "vague"
 
 

@@ -21,6 +21,7 @@ from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import STRUCTURER_REFINEMENT_PROMPT_V1
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
+from utils.token_extractor import extract_tokens_and_cost
 
 logger = logging.getLogger(__name__)
 
@@ -223,6 +224,18 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
             },
         }
 
+    # Extrair tokens e custo da resposta (Épico 8.3)
+    try:
+        logger.debug(f"[TOKEN EXTRACTION] Tentando extrair tokens de response (tipo: {type(response)})")
+        metrics = extract_tokens_and_cost(response, model_name)
+        logger.debug(f"[TOKEN EXTRACTION] ✅ Métricas extraídas: {metrics['tokens_total']} tokens, ${metrics['cost']:.6f}")
+    except Exception as e:
+        logger.error(f"[TOKEN EXTRACTION] ❌ Erro ao extrair tokens: {e}")
+        import traceback
+        traceback.print_exc()
+        # Fallback: métricas zeradas
+        metrics = {"tokens_input": 0, "tokens_output": 0, "tokens_total": 0, "cost": 0.0}
+
     logger.info(f"Questão estruturada: {structured_question}")
     logger.info(f"Próximo estágio: validating (vai para Metodologista)")
     logger.info("=== NÓ STRUCTURER: Finalizado ===\n")
@@ -238,6 +251,9 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
     return {
         "structurer_output": structurer_output,
         "current_stage": "validating",  # Próximo: Metodologista
+        "last_agent_tokens_input": metrics["tokens_input"],
+        "last_agent_tokens_output": metrics["tokens_output"],
+        "last_agent_cost": metrics["cost"],
         "messages": [ai_message]
     }
 
@@ -355,6 +371,18 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
         "addressed_gaps": addressed_gaps
     }
 
+    # Extrair tokens e custo da resposta (Épico 8.3)
+    try:
+        logger.debug(f"[TOKEN EXTRACTION] Tentando extrair tokens de response (tipo: {type(response)})")
+        metrics = extract_tokens_and_cost(response, model_name)
+        logger.debug(f"[TOKEN EXTRACTION] ✅ Métricas extraídas: {metrics['tokens_total']} tokens, ${metrics['cost']:.6f}")
+    except Exception as e:
+        logger.error(f"[TOKEN EXTRACTION] ❌ Erro ao extrair tokens: {e}")
+        import traceback
+        traceback.print_exc()
+        # Fallback: métricas zeradas
+        metrics = {"tokens_input": 0, "tokens_output": 0, "tokens_total": 0, "cost": 0.0}
+
     logger.info(f"Questão refinada V{current_version}: {structured_question}")
     logger.info(f"Gaps endereçados: {addressed_gaps}")
     logger.info("=== NÓ STRUCTURER (Refinamento): Finalizado ===\n")
@@ -371,5 +399,8 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
     return {
         "structurer_output": structurer_output,
         "current_stage": "validating",  # Volta para Metodologista
+        "last_agent_tokens_input": metrics["tokens_input"],
+        "last_agent_tokens_output": metrics["tokens_output"],
+        "last_agent_cost": metrics["cost"],
         "messages": [ai_message]
     }

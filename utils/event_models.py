@@ -79,6 +79,8 @@ class AgentCompletedEvent(BaseEvent):
         tokens_input (int): Tokens de entrada consumidos
         tokens_output (int): Tokens de saída gerados
         tokens_total (int): Total de tokens
+        cost (float): Custo da execução em USD
+        duration (float): Duração da execução em segundos
         metadata (dict): Metadados adicionais opcionais
     """
     event_type: Literal["agent_completed"] = "agent_completed"
@@ -87,6 +89,8 @@ class AgentCompletedEvent(BaseEvent):
     tokens_input: int = Field(0, ge=0, description="Tokens de entrada")
     tokens_output: int = Field(0, ge=0, description="Tokens de saída")
     tokens_total: int = Field(0, ge=0, description="Total de tokens")
+    cost: float = Field(0.0, ge=0.0, description="Custo da execução em USD")
+    duration: float = Field(0.0, ge=0.0, description="Duração da execução em segundos")
     metadata: Dict[str, Any] = Field(
         default_factory=dict,
         description="Metadados adicionais opcionais"
@@ -103,6 +107,8 @@ class AgentCompletedEvent(BaseEvent):
                 "tokens_input": 100,
                 "tokens_output": 50,
                 "tokens_total": 150,
+                "cost": 0.0012,
+                "duration": 1.2,
                 "metadata": {"classification": "vague"}
             }
         }
