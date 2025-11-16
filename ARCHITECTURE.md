@@ -213,16 +213,15 @@ paper-agent/
 │
 ├── app/                   # Interface Web Conversacional
 │   ├── __init__.py
-│   ├── dashboard.py       # Dashboard de visualização de eventos
-│   ├── chat.py            # Chat conversacional principal (planejado - Épico 9)
-│   ├── components/        # Componentes reutilizáveis
-│   │   ├── __init__.py
-│   │   ├── chat_input.py     # Input de mensagens
-│   │   ├── chat_history.py   # Histórico de conversa
-│   │   ├── backstage.py      # Painel "Bastidores"
-│   │   ├── timeline.py       # Timeline de agentes
-│   │   └── sidebar.py        # Lista de sessões
-│   └── sse.py             # Server-Sent Events endpoint
+│   ├── dashboard.py       # Dashboard de visualização de eventos (Épico 5.1)
+│   ├── chat.py            # Chat conversacional principal (Épico 9 - scaffold criado)
+│   └── components/        # Componentes reutilizáveis (Épico 9)
+│       ├── __init__.py
+│       ├── chat_input.py     # Input de mensagens (esqueleto)
+│       ├── chat_history.py   # Histórico de conversa (esqueleto)
+│       ├── backstage.py      # Painel "Bastidores" (esqueleto)
+│       ├── sidebar.py        # Lista de sessões (esqueleto)
+│       └── storage.py        # Persistência localStorage (funcional - 9.9)
 │
 ├── tests/                 # Testes automatizados (pytest)
 │   ├── __init__.py
