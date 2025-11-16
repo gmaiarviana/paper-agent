@@ -16,11 +16,18 @@ Data: 16/11/2025
 """
 
 import sys
+import logging
 from pathlib import Path
 
 # Adicionar o diretório raiz ao PYTHONPATH
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
+
+# Configurar logging para DEBUG (capturar todos os logs)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(levelname)s - %(name)s - %(message)s'
+)
 
 from agents.multi_agent_graph import create_multi_agent_graph
 from agents.orchestrator.state import create_initial_multi_agent_state
