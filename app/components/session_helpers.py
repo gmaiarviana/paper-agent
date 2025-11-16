@@ -13,6 +13,7 @@ Status: MVP completo
 
 import sqlite3
 import logging
+from pathlib import Path
 from typing import List, Dict, Optional
 from datetime import datetime
 
@@ -46,8 +47,20 @@ def list_sessions(limit: int = 10) -> List[Dict[str, str]]:
         - Se não houver mensagens, usa "Conversa {data}"
     """
     try:
+        # Garantir que diretório existe
+        db_path = Path(DB_PATH)
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
+
+        # Verificar se tabela checkpoints existe
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='checkpoints'")
+        if not cursor.fetchone():
+            # Tabela ainda não existe (banco novo) - retornar lista vazia
+            conn.close()
+            logger.debug("Banco de dados novo - nenhuma sessão encontrada ainda")
+            return []
 
         # Query para pegar todos os thread_ids únicos com última atividade
         # Tabela: checkpoints (criada automaticamente pelo SqliteSaver)
@@ -149,8 +162,19 @@ def session_exists(thread_id: str) -> bool:
         bool: True se existe, False caso contrário
     """
     try:
+        # Garantir que diretório existe
+        db_path = Path(DB_PATH)
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
+
+        # Verificar se tabela checkpoints existe
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='checkpoints'")
+        if not cursor.fetchone():
+            # Tabela ainda não existe - sessão não pode existir
+            conn.close()
+            return False
 
         query = "SELECT COUNT(*) FROM checkpoints WHERE thread_id = ?"
         cursor.execute(query, (thread_id,))

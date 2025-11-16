@@ -23,6 +23,8 @@ Data: 14/11/2025
 
 import logging
 import time
+import sqlite3
+from pathlib import Path
 from typing import Callable, Any
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -306,7 +308,16 @@ def _extract_reasoning(agent_name: str, state: MultiAgentState) -> str:
 # - Navegação entre sessões passadas
 # - Recuperação de histórico completo de conversas
 # MVP Épico 9.10-9.11
-checkpointer = SqliteSaver.from_conn_string("data/checkpoints.db")
+
+# Garantir que diretório data/ existe
+db_path = Path("data/checkpoints.db")
+db_path.parent.mkdir(parents=True, exist_ok=True)
+
+# Criar conexão SQLite (check_same_thread=False permite uso em threads múltiplas)
+db_conn = sqlite3.connect(str(db_path), check_same_thread=False)
+
+# Instanciar SqliteSaver com conexão
+checkpointer = SqliteSaver(db_conn)
 
 
 def route_after_methodologist(state: MultiAgentState) -> str:
