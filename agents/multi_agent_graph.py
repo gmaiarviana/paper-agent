@@ -33,7 +33,6 @@ from agents.orchestrator.router import route_from_orchestrator
 from agents.structurer.nodes import structurer_node
 from agents.methodologist.nodes import decide_collaborative
 from agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
-from utils.cost_tracker import calculate_cost
 
 # Import EventBus para emitir eventos (Épico 5.1)
 try:
