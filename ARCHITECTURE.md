@@ -164,6 +164,20 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - **Embeddings:** sentence-transformers (local, gratuito)
 - **Interface Web:** Streamlit
 
+### Persistência
+
+**Atual (POC/Protótipo):**
+- **SqliteSaver (LangGraph):** Checkpoints de conversa (arquivo `checkpoints.db`)
+- **SQLite customizado:** Entidades (ideas, arguments) em `data.db`
+- **Localização:** Arquivos locais em `./data/`
+
+**Futuro (MVP/Produção):**
+- **PostgreSQL:** Migração quando escalar
+- **Schema compatível:** Mesmas queries funcionam em ambos
+- **Estratégia documentada:** Ver `docs/architecture/persistence_foundation.md`
+
+**Decisão:** Começar simples (SQLite) e migrar quando necessário. Evitar over-engineering prematuro.
+
 ## Configuração Externa de Agentes (Épico 6.1)
 
 Sistema de configuração dinâmica que permite definir prompts, modelos LLM e limites de contexto via arquivos YAML externos.

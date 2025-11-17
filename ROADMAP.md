@@ -10,11 +10,15 @@
 
 ## 📋 Status dos Épicos
 
+### ✅ Concluídos
+- **ÉPICO 9**: Interface Web Conversacional - Interface web com chat conversacional, painel Bastidores em tempo real e integração com LangGraph SqliteSaver.
+- **ÉPICO 10**: Orquestrador Socrático - Orquestrador que usa diálogo socrático para explorar e estruturar ideias, gerenciando transições entre agentes.
+
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 11**: Modelagem Cognitiva (não refinado)
+- **ÉPICO 11**: Modelagem Cognitiva (refinado)
 - **ÉPICO 12**: Entidade Idea (não refinado)
 - **ÉPICO 13**: Entidade Concept (não refinado)
 - **ÉPICO 14**: Gestão de Múltiplas Ideias (não refinado)
@@ -32,7 +36,7 @@
 
 **Objetivo:** Implementar modelo cognitivo explícito (Argument como entidade) com persistência, versionamento e indicadores de maturidade visíveis na interface.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ✅ Refinado
 
 **Dependências:**
 - ✅ Épico 10 concluído (Orquestrador Socrático)
@@ -53,14 +57,15 @@
   - Deve substituir `cognitive_model: dict` por `cognitive_model: Argument` no MultiAgentState
   - SqliteSaver deve continuar salvando no checkpoint (Pydantic serializa automaticamente)
 
-#### 11.2 Persistência em SQLite
+#### 11.2 Setup de Persistência e Schema SQLite
 
-- **Descrição:** Criar tabela `arguments` no SQLite para persistir snapshots de argumentos maduros (além do checkpoint LangGraph).
+- **Descrição:** Configurar SqliteSaver do LangGraph para checkpoints de conversa + criar schema SQLite completo com tabelas ideas e arguments.
 - **Critérios de Aceite:**
-  - Deve criar tabela `arguments` com campos: id, idea_id (FK), claim, premises JSON, assumptions JSON, open_questions JSON, contradictions JSON, solid_grounds JSON, context JSON, created_at, updated_at
+  - Deve configurar SqliteSaver do LangGraph (arquivo checkpoints.db)
+  - Deve criar tabela ideas: id (UUID PK), title, status, current_argument_id (FK NULLABLE), created_at, updated_at
+  - Deve criar tabela arguments: id (UUID PK), idea_id (FK), claim, premises (JSON), assumptions (JSON), open_questions (JSON), contradictions (JSON), solid_grounds (JSON), context (JSON), version (INT), created_at, updated_at
+  - Deve criar constraint: FOREIGN KEY (current_argument_id) REFERENCES arguments(id)
   - Deve salvar snapshot quando usuário pausa sessão manualmente
-  - Deve carregar último argumento ao retomar sessão (via idea_id)
-  - Não deve quebrar checkpoint existente (ambos coexistem)
 
 #### 11.3 Versionamento de Argumentos
 
@@ -73,11 +78,12 @@
 
 #### 11.4 Argumento Focal
 
-- **Descrição:** Adicionar campo `current_argument_id` na tabela ideas para referenciar argumento sendo trabalhado no momento.
+- **Descrição:** Gerenciar argumento focal como FK na tabela ideas (já criado na funcionalidade 11.2).
 - **Critérios de Aceite:**
-  - Deve adicionar campo `current_argument_id` na tabela ideas (FK NULLABLE para arguments)
+  - Campo current_argument_id já existe na tabela ideas (criado na 11.2)
   - Deve UPDATE ideas SET current_argument_id ao criar nova versão de argumento
-  - Deve carregar argumento focal via FK simples: `SELECT * FROM arguments WHERE id = idea.current_argument_id`
+  - Deve carregar argumento focal via FK simples: SELECT * FROM arguments WHERE id = idea.current_argument_id
+  - Deve permitir NULL (idea sem argumento ainda)
 
 #### 11.5 Indicadores de Maturidade
 
