@@ -30,6 +30,25 @@ Sistema atua como mestre socrático: faz perguntas que expõem suposições não
 
 **Ver detalhes sobre evolução cognitiva em:** `docs/product/cognitive_model.md`
 
+### 1.2 Super-Sistema: Core Universal
+
+> **Nota:** Para arquitetura completa do super-sistema, consulte `docs/architecture/super_system_vision.md`.
+
+Paper Agent não é apenas um produto isolado. É a **primeira aplicação** de um super-sistema com core universal que serve múltiplos produtos.
+
+**Produtos planejados:**
+- **Paper-agent:** Auxílio em produção científica (atual)
+- **Fichamento:** Catálogo de livros com ideias extraídas (futuro próximo)
+- **Rede Social:** Conexão por cosmovisões compartilhadas (futuro distante)
+
+**Core compartilhado:**
+- Ontologia (Conceito, Ideia, Argumento)
+- Modelo cognitivo (claim → premises → assumptions)
+- Agentes (Orquestrador, Estruturador, Metodologista, Pesquisador)
+- Infraestrutura (LangGraph, ChromaDB, embeddings)
+
+Produtos são **serviços desacoplados** que consomem core via APIs.
+
 ## 2. Tipos de Artigo Acadêmico
 ### 2.1 Empírico/Experimental
 - **Características distintivas**: Testa hipóteses com dados coletados; foca em delineamentos experimentais ou quasi-experimentais (ex.: RCT, coorte, A/B tests).
@@ -192,24 +211,32 @@ Sistema: "Levantamento oficial exige < 2%. Quer que eu pesquise se drones conseg
  podem medir volumes com precisão suficiente para levantamento oficial"]
 ```
 
-## 4. Entidade Central: Tópico/Ideia
-- Representa a unidade de trabalho que atravessa todo o fluxo de pesquisa e escrita.
-- Serve como contêiner de contexto para agentes e para persistência de sessão.
-- Pode ser criado pelo usuário ou inferido pelo sistema a partir da primeira interação.
+## 4. Entidade Central: Ideia
 
-```
-Tópico:
+> **Nota:** Para estrutura de dados completa, consulte `docs/architecture/idea_model.md`.
+> Para ontologia (O que é Ideia?), consulte `docs/architecture/ontology.md`.
+
+A unidade de trabalho que atravessa todo o fluxo é a **Ideia** (anteriormente chamada "Tópico").
+
+```python
+Ideia:
   - id: UUID
-  - title: "Impacto de LLMs em produtividade"
-  - article_type: "empirical" | "review" | "theoretical" | "case_study" | "meta_analysis" | "methodological"
-  - stage: "ideation" | "hypothesis" | "methodology" | "research" | "writing" | "review" | "done"
-  - created_at: timestamp
-  - updated_at: timestamp
-  - artifacts: [outline, papers, drafts, decisions]
-  - thread_id: LangGraph thread (para recuperar sessão)
+  - title: "Cooperação humana via mitos"
+  - concepts: [concept_ids]        # Conceitos que usa
+  - arguments: [argument_ids]      # Argumentos que possui
+  - context: {source_type, source, ...}
+  - status: "exploring" | "structured" | "validated"
 ```
 
-- **Evolução fluida**: o usuário pode retroceder etapas; o tipo pode ser inferido ou ajustado; estágio é detectado pelo Orquestrador com base em artefatos e interações.
+**Evolução fluida:**
+- Usuário pode retroceder/avançar etapas
+- Status evolui organicamente (não imposto)
+- Ideia pode ter múltiplos argumentos (diferentes lentes)
+
+**Para paper-agent:**
+- Artigo agrega múltiplas ideias
+- Cada ideia tem seus próprios argumentos
+- Dashboard mostra evolução em tempo real
 
 ## 5. Interação com Usuário
 - **Interface web conversacional** como experiência principal (Streamlit)
@@ -218,8 +245,8 @@ Tópico:
 - Sistema **não detecta tipo de artigo automaticamente** no início; tipo emerge da conversa.
 - Perguntas dinâmicas e abertas para co-construir entendimento do que usuário precisa.
 - Transparência: interface exibe agentes acionados e suas justificativas (video reasoning ou logs resumidos).
-- Sessões vinculadas a um único tópico; o usuário pode pausar e retomar posteriormente.
-- Suporte a múltiplos tópicos ativos, processados um por vez para preservar contexto.
+- Sessões vinculadas a uma única ideia; o usuário pode pausar e retomar posteriormente.
+- Suporte a múltiplas ideias ativas, processadas uma por vez para preservar contexto.
 - Usuário mantém voto de minerva: pode aceitar, ajustar ou rejeitar recomendações; preferências alimentam o Orquestrador.
 
 ### 5.1 Princípios de Conversação
@@ -332,4 +359,11 @@ Tópico:
 - **Transparente**: reasoning dos agentes exposto, integrando explicações curtas ou links para aprofundamento.
 - **Incremental**: começa com entregáveis mínimos e expande funcionalidades à medida que aprende com o uso.
 - **Escalável**: arquitetura previsa integração de novos tipos de artigo, agentes e extensões (ver `ARCHITECTURE.md` para detalhes técnicos).
+
+## Referências Adicionais
+
+- `docs/architecture/super_system_vision.md` - Arquitetura do super-sistema
+- `docs/architecture/ontology.md` - O que é Conceito, Ideia, Argumento
+- `docs/product/cognitive_model.md` - Como pensamento evolui
+- `docs/products/paper_agent.md` - Produto específico paper-agent
 

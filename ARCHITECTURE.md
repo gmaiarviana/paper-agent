@@ -4,33 +4,53 @@
 
 Plataforma colaborativa com agentes de IA para apoiar produção de artigos científicos ponta a ponta. Arquitetura atual: sistema multi-agente conversacional sobre LangGraph com Orquestrador facilitador, Estruturador organizador e Metodologista validador. Sistema mantém diálogo fluido onde usuário e agentes negociam caminho juntos. Interface web conversacional (Streamlit) como principal; CLI mantido para desenvolvimento e automação.
 
-## Entidade Central: Tópico/Ideia
+## Entidade Central: Ideia
 
-O sistema trabalha com a entidade **Tópico**, que representa uma ideia em evolução até se tornar artigo.
+> **Nota:** Para estrutura de dados completa e ontologia, consulte:
+> - `docs/architecture/ontology.md` - O que é Conceito, Ideia, Argumento
+> - `docs/architecture/idea_model.md` - Schema técnico de Ideia
+> - `docs/architecture/concept_model.md` - Schema técnico de Conceito
+> - `docs/architecture/argument_model.md` - Schema técnico de Argumento
 
-**Ver modelo conceitual completo e relação com Argumento Focal em:**
-- `docs/product/cognitive_model.md` - Como pensamento evolui ao longo da conversa
-- `docs/architecture/topic_argument_model.md` - Estrutura de dados e progressão POC → MVP
-- `docs/product/vision.md` (Seção 4) - Visão de produto da entidade Tópico
+O sistema trabalha com a entidade **Ideia**, que representa pensamento articulado que evolui até se tornar argumento sólido.
 
-**Modelo conceitual resumido:**
+**Estrutura básica:**
 ```python
-Topic:
-  id: str              # UUID único
-  title: str           # "Impacto de LLMs em produtividade"
-  article_type: str    # Ver tipos abaixo
-  stage: str           # Ver estágios abaixo
-  created_at: datetime
-  updated_at: datetime
-  artifacts: List[Artifact]  # outline, papers, drafts, decisions
-  thread_id: str       # LangGraph thread (para recuperar sessão)
+Idea:
+  id: UUID
+  title: "Cooperação humana via mitos"
+  concepts: [concept_ids]      # Conceitos que usa
+  arguments: [argument_ids]    # Múltiplos argumentos (lentes)
+  context: {source_type, source, ...}
+  status: "exploring" | "structured" | "validated"
 ```
 
-**Tipos de artigo suportados:** `empirical`, `review`, `theoretical`, `case_study`, `meta_analysis`, `methodological`
+**Ontologia:**
+- **Conceito:** Abstração reutilizável (vetor semântico)
+- **Ideia:** Território (pensamento articulado)
+- **Argumento:** Lente (claim + premises + assumptions)
 
-**Estágios de maturidade:** `ideation` → `hypothesis` → `methodology` → `research` → `writing` → `review` → `done`
+**Evolução fluida:** Sistema detecta status automaticamente; usuário pode voltar etapas; múltiplos argumentos por ideia.
 
-**Evolução fluida:** Sistema detecta `stage` automaticamente; usuário pode voltar etapas; tipo pode ser inferido ou mudar ao longo da conversa.
+## Super-Sistema: Core → Produtos
+
+> **Nota:** Para arquitetura completa, consulte `docs/architecture/super_system_vision.md`.
+
+Paper-agent é primeira aplicação de um **super-sistema** com core universal:
+```
+Core Universal (compartilhado):
+  ├─ Ontologia (Conceito, Ideia, Argumento)
+  ├─ Modelo Cognitivo (claim → premises)
+  ├─ Agentes (Orquestrador, Estruturador, ...)
+  └─ Infraestrutura (LangGraph, ChromaDB, SQLite)
+            ↓
+  ┌─────────┴──────────┬──────────────┐
+  ↓                    ↓              ↓
+Paper-Agent     Fichamento      Rede Social
+(atual)         (futuro)        (futuro)
+```
+
+Produtos são **serviços desacoplados** que consomem core via APIs.
 
 ## Escopo Atual
 
@@ -129,17 +149,20 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 **Progressão:**
 - **POC (Épico 10):** CognitiveModel em memória (MultiAgentState)
 - **Protótipo (Épico 11):** Persistido no checkpoint LangGraph
-- **MVP (Épico 12):** Gestão de múltiplos tópicos
+- **MVP (Épico 12):** Gestão de múltiplas ideias
 
 ## Stack Técnico
 
+> **Nota:** Para detalhes completos, consulte `docs/architecture/tech_stack.md`.
+
+**Resumo:**
 - **Runtime:** Python 3.11+
 - **Orquestração:** LangGraph, LangChain Anthropic
-- **LLM:** Claude 3.5 Haiku (custo-benefício) / Sonnet (tarefas complexas)
-- **Validação:** Pydantic, PyYAML para configs
-- **Interface Web:** Streamlit (ver spec técnica completa em `docs/interface/web.md`)
-- **CLI:** Ferramenta de desenvolvimento (backend compartilhado com web)
-- **Utilitários:** `colorama` para logging colorido, `python-dotenv` para variáveis
+- **LLM:** Claude 3.5 Haiku/Sonnet
+- **Dados estruturados:** SQLite (local) → PostgreSQL (cloud futuro)
+- **Vetores semânticos:** ChromaDB (local) → Qdrant (cloud futuro)
+- **Embeddings:** sentence-transformers (local, gratuito)
+- **Interface Web:** Streamlit
 
 ## Configuração Externa de Agentes (Épico 6.1)
 
@@ -350,6 +373,21 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 - **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários
 - **Modo colaborativo:** Prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar)
 
+## Estratégia de Migração
+
+> **Nota:** Para fases detalhadas, consulte `docs/architecture/migration_strategy.md`.
+
+Sistema está migrando de entidade `Topic` para ontologia completa (`Idea`, `Concept`, `Argument`):
+
+**Fases planejadas:**
+1. **Épico 11:** Abstrair fundação (Topic → Idea)
+2. **Épico 12:** Criar Concept (vetores semânticos)
+3. **Épico 13:** Argument explícito (múltiplos por ideia)
+4. **Épico 14:** Fichamento (novo produto)
+5. **Épico 15:** Grafo de conhecimento
+
+**Status:** Épico 10 em implementação (Orquestrador Socrático). Migração afeta Épico 11+.
+
 ## Padrões Essenciais
 
 - **Contratos em JSON** entre orquestrador e agentes (status, justificativa, sugestões)
@@ -359,17 +397,23 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 
 ## Referências
 
-- `README.md`: visão geral e execução
-- `ROADMAP.md`: status de épicos e funcionalidades
-- `docs/product/vision.md`: visão de produto, tipos de artigo, jornada do usuário
-- `docs/product/cognitive_model.md`: modelo cognitivo e evolução do pensamento
-- `docs/architecture/topic_argument_model.md`: modelo de dados Tópico ↔ Argumento Focal
-- `docs/agents/overview.md`: mapa completo de agentes planejados
-- `docs/agents/methodologist.md`: especificação do Metodologista
-- `docs/orchestration/conversational_orchestrator.md`: especificação do Orquestrador Conversacional
-- `docs/orchestration/multi_agent_architecture.md`: arquitetura multi-agente e estado compartilhado
-- `docs/orchestration/refinement_loop.md`: especificação técnica do loop de refinamento colaborativo
-- `docs/interface/web.md`: especificação da interface web conversacional
-- `docs/interface/cli.md`: especificação da CLI
-- `docs/interface/conversational_cli.md`: especificação da CLI conversacional
-- `planning_guidelines.md`: governança de roadmap e práticas de planejamento
+**Arquitetura:**
+- `docs/architecture/ontology.md` - Ontologia (Conceito/Ideia/Argumento)
+- `docs/architecture/super_system_vision.md` - Super-sistema: Core → Produtos
+- `docs/architecture/idea_model.md` - Estrutura de dados Ideia
+- `docs/architecture/concept_model.md` - Estrutura de dados Conceito
+- `docs/architecture/argument_model.md` - Estrutura de dados Argumento
+- `docs/architecture/tech_stack.md` - ChromaDB, SQLite, embeddings
+- `docs/architecture/migration_strategy.md` - Fases de migração
+
+**Visão de Produto:**
+- `docs/product/vision.md` - Visão de produto, tipos de artigo
+- `docs/product/cognitive_model.md` - Modelo cognitivo e evolução
+
+**Orquestração:**
+- `docs/orchestration/multi_agent_architecture.md` - Arquitetura multi-agente
+- `docs/orchestration/conversational_orchestrator.md` - Orquestrador conversacional
+
+**Produtos:**
+- `docs/products/paper_agent.md` - Paper-agent (produto atual)
+- `docs/products/fichamento.md` - Fichamento (produto futuro)

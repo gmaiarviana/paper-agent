@@ -4,7 +4,16 @@
 
 Este documento complementa `vision.md`, focando em **COMO** o pensamento do usuário evolui ao longo da conversa. Enquanto `vision.md` descreve o que o sistema faz e para quem, este documento explora a evolução dos artefatos cognitivos que representam o entendimento progressivo do argumento científico.
 
+> **Nota:** Este documento descreve como pensamento **evolui** durante conversa.
+> Para estrutura de dados técnica de Argumento, consulte `docs/architecture/argument_model.md`.
+> Para ontologia completa (Conceito/Ideia/Argumento), consulte `docs/architecture/ontology.md`.
+
 **Foco**: Evolução cognitiva durante conversa, não apenas funcionalidades ou fluxos.
+
+**Relacionamento:**
+- **cognitive_model.md (este doc):** Processo cognitivo (como pensamento evolui)
+- **argument_model.md:** Estrutura técnica (como Argumento é persistido)
+- **ontology.md:** Definições filosóficas (o que é Argumento)
 
 **Relacionamento com vision.md**:
 - `vision.md`: O que é, para quem, jornada do usuário, tipos de artigo
@@ -283,6 +292,39 @@ assumptions: []  # Removido de assumptions
 - Preenche `solid_grounds` após busca bibliográfica
 - Pode validar `assumptions` transformando-as em `premises`
 - Pode identificar novas `open_questions` baseadas em lacunas da literatura
+
+## Conexão com Argumento (Entidade Técnica)
+
+> **Nota:** Para schema completo de Argument, consulte `docs/architecture/argument_model.md`.
+
+O modelo cognitivo descrito aqui é materializado tecnicamente como entidade `Argument`:
+```python
+# Durante conversa (em memória)
+cognitive_model = {
+  "claim": "...",
+  "premises": [...],
+  "assumptions": [...],
+  "open_questions": [...],
+  "contradictions": [...],
+  "solid_grounds": [...]
+}
+
+# Ao persistir (banco de dados)
+argument = Argument(
+  id=UUID,
+  idea_id=UUID,
+  claim=cognitive_model["claim"],
+  premises=cognitive_model["premises"],
+  assumptions=cognitive_model["assumptions"],
+  evidence=cognitive_model["solid_grounds"]
+)
+```
+
+**Diferença:**
+- **cognitive_model:** Estado volátil durante conversa
+- **Argument:** Entidade persistida no banco
+
+Uma **Ideia** pode ter múltiplos **Argumentos** (diferentes lentes do mesmo território).
 
 ## Dialética: Provocação + Estruturação
 
@@ -601,7 +643,8 @@ context: {
 
 ## Referências
 
-- `vision.md`: Visão de produto, jornada do usuário, tipos de artigo
-- `topic_argument_model.md`: Modelo de dados do argumento (será criado)
-- `conversation_patterns.md`: Padrões de conversação e argumento focal
+- `docs/architecture/ontology.md` - Ontologia: Conceito, Ideia, Argumento
+- `docs/architecture/argument_model.md` - Estrutura técnica de Argument
+- `docs/architecture/idea_model.md` - Como Ideia possui Argumentos
+- `docs/product/vision.md` (Seção 4) - Entidade Ideia
 
