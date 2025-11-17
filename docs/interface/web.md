@@ -88,12 +88,12 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 ┌─────────────────────────────────────────────────────────────────┐
 │  [Sidebar - 20%]      [Chat - 50%]       [Bastidores - 30%]    │
 │                                                                 │
-│  📂 Sessões            💬 Chat Principal   🔍 Ver raciocínio    │
+│  📂 Ideias             💬 Chat Principal   🔍 Ver raciocínio    │
 │                                                                 │
-│  • Conversa 1          Você: "..."        [Fechado por padrão] │
-│  • Conversa 2          💰 $0.0012                              │
-│  • Nova conversa                          [Quando aberto:]     │
-│                        Sistema: "..."      🧠 Orquestrador     │
+│  • Ideia 1 🔍          Você: "..."        [Fechado por padrão] │
+│  • Ideia 2 📝 (ativa)  💰 $0.0012                              │
+│  • Ideia 3 ✅                             [Quando aberto:]     │
+│  [+ Nova Ideia]        Sistema: "..."      🧠 Orquestrador     │
 │                        [digitando...]      "Reasoning..."      │
 │                                            [Ver completo]      │
 │                                            ⏱️ 1.2s | 💰 $0.0012│
@@ -104,12 +104,84 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 
 ### 3.2 Componentes Detalhados
 
-**A) Sidebar (Lista de Sessões)**
-- Lista de conversas anteriores
-- Formato: "Título da conversa · DD/MM/YYYY"
-- Botão "+ Nova conversa"
-- Sessão ativa destacada
-- Scroll se muitas sessões
+**A) Sidebar (Gestão de Ideias) - Épico 12**
+
+**Lista de Ideias (12.2):**
+- Últimas 10 ideias ordenadas por updated_at DESC
+- Formato: "Título da ideia · Badge de status"
+- Badges: 🔍 Explorando | 📝 Estruturada | ✅ Validada
+- Ideia ativa destacada (bold, background diferente)
+- Collapsible (toggle on/off para economizar espaço)
+
+**Visual:**
+```
+📂 Ideias                    [⌄ toggle]
+
+🔍 LLMs em produtividade     ← explorando
+   • Arg V1, V2 (2 versões)
+
+📝 Semana de 4 dias          ← estruturada (ativa)
+   • Arg V1, V2, V3 (3 versões)
+   [Ver detalhes]
+
+✅ Drones em obras           ← validada
+   • Arg V1 (1 versão)
+
+[+ Nova Ideia]
+```
+
+**Criar Nova Ideia (12.4):**
+- Botão "[+ Nova Ideia]" no rodapé da sidebar
+- Ao clicar:
+  - Cria registro em ideas (título = "Nova Ideia {timestamp}")
+  - Gera novo thread_id (LangGraph)
+  - Redireciona para chat limpo
+  - Nova ideia aparece na sidebar como ativa
+
+**Alternar Entre Ideias (12.3):**
+- Clicar em ideia → carrega contexto completo
+- Restaura thread_id (SqliteSaver)
+- Restaura argumento focal (current_argument_id)
+- Exibe histórico de mensagens da ideia selecionada
+- Atualiza Bastidores com contexto da ideia
+
+**Explorador de Argumentos (12.5):**
+- Expandir ideia → mostrar argumentos versionados (V1, V2, V3)
+- Listar versões com timestamps
+- Destacar argumento focal com badge [focal]
+- Botão "Ver detalhes" → modal com:
+  - Claim
+  - Premises
+  - Assumptions
+  - Open questions
+
+**Visual (ideia expandida):**
+```
+📝 Semana de 4 dias          [⌄]
+   • Arg V3 (focal) [Ver detalhes]
+     "Reduz turnover em 20%"
+   • Arg V2
+     "Aumenta produtividade"
+   • Arg V1
+     "Melhora satisfação"
+```
+
+**Busca de Ideias (12.6):**
+- Campo de busca no topo da sidebar
+- Buscar por título (LIKE query, case-insensitive)
+- Filtros: status (exploring, structured, validated)
+- Filtros combinados (título + status)
+
+**Visual (com busca):**
+```
+📂 Ideias
+
+[🔍 Buscar ideias...]
+Filtros: [Todas ▾] [Status ▾]
+
+🔍 LLMs em produtividade
+📝 Semana de 4 dias (ativa)
+```
 
 **B) Chat Principal (50-60% largura)**
 ```
@@ -186,7 +258,49 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 
 ---
 
-## 3.3 Layout: Checklist de Progresso
+### 3.3 Mostrar Status da Ideia (Épico 12.1)
+
+**Localização:** Bastidores (painel direito), topo
+
+**Visual:**
+```
+┌────────────────────────────────────┐
+│ 💡 Ideia Atual                     │
+│                                    │
+│ 📝 Semana de 4 dias                │ ← título
+│ [Estruturada]                      │ ← badge
+│                                    │
+│ 3 argumentos (V3 focal)             │ ← metadados
+│ Última atualização: 10min atrás    │
+│                                    │
+│ ─────────────────────────          │
+│                                    │
+│ 🧠 Orquestrador (agora)            │
+│ [reasoning...]                     │
+└────────────────────────────────────┘
+```
+
+**Funcionalidades:**
+- Badge de status inferido do modelo cognitivo (não manual)
+- Status atualiza em tempo real conforme conversa evolui
+- Badges visuais:
+  - 🔍 Explorando (amarelo)
+  - 📝 Estruturada (azul)
+  - ✅ Validada (verde)
+- Metadados: # argumentos, argumento focal, timestamp
+
+**Critérios de inferência de status:**
+- **Explorando:** claim vago, premises vazias, open_questions muitas
+- **Estruturada:** claim específico, premises preenchidas, open_questions < 3
+- **Validada:** Metodologista aprovou, contradictions vazias, assumptions baixas
+
+---
+
+## 3.4 Layout: Checklist de Progresso
+
+📌 **NOTA:** Checklist de Progresso foi movido do Épico 11 (backend) para Épico 14 (frontend/UX).  
+Backend (indicadores de maturidade) implementado no Épico 11.5.  
+Frontend (checklist visual) implementado no Épico 14.6.
 
 **Localização:** Header do chat (discreto, expansível ao clicar)
 
@@ -398,6 +512,99 @@ def render_backstage(session_id: str):
                 st.caption(event['summary'][:100])
 ```
 
+**Arquivo: `app/components/sidebar.py` (Épico 12)**
+```python
+import streamlit as st
+from datetime import datetime
+from agents.multi_agent_graph import get_ideas, create_idea
+
+def render_sidebar():
+    """
+    Sidebar com gestão de ideias.
+    Funcionalidades: listar, alternar, criar nova, buscar.
+    """
+    st.sidebar.header("📂 Ideias")
+    
+    # Busca (12.6)
+    search_query = st.sidebar.text_input("🔍 Buscar ideias...")
+    status_filter = st.sidebar.selectbox("Filtrar por status", 
+                                         ["Todas", "Explorando", "Estruturada", "Validada"])
+    
+    # Listar ideias (12.2)
+    ideas = get_ideas(search=search_query, status=status_filter, limit=10)
+    active_idea_id = st.session_state.get("active_idea_id")
+    
+    for idea in ideas:
+        # Destacar ativa
+        is_active = (idea.id == active_idea_id)
+        style = "font-weight: bold; background-color: #f0f0f0;" if is_active else ""
+        
+        # Exibir ideia
+        with st.sidebar.container():
+            col1, col2 = st.columns([0.8, 0.2])
+            
+            with col1:
+                # Título + badge
+                badge = {"exploring": "🔍", "structured": "📝", "validated": "✅"}
+                st.markdown(f"<div style='{style}'>{badge[idea.status]} {idea.title}</div>", 
+                           unsafe_allow_html=True)
+            
+            with col2:
+                # Botão alternar
+                if st.button("→", key=f"switch_{idea.id}"):
+                    switch_idea(idea.id)  # 12.3
+            
+            # Explorador de argumentos (12.5 - expandível)
+            if st.sidebar.checkbox(f"Ver argumentos ({len(idea.arguments)})", 
+                                  key=f"expand_{idea.id}"):
+                for arg in idea.arguments:
+                    focal_badge = "[focal]" if arg.id == idea.current_argument_id else ""
+                    st.caption(f"• V{arg.version} {focal_badge}: {arg.claim[:50]}...")
+                    if st.button("Ver detalhes", key=f"details_{arg.id}"):
+                        show_argument_modal(arg)  # Modal com claim, premises, etc
+    
+    # Botão criar nova (12.4)
+    if st.sidebar.button("+ Nova Ideia"):
+        new_idea = create_idea(title=f"Nova Ideia {datetime.now()}")
+        st.session_state["active_idea_id"] = new_idea.id
+        st.rerun()
+    
+    return st.session_state.get("active_idea_id")
+
+
+def switch_idea(idea_id: str):
+    """Alternar para outra ideia (12.3)"""
+    # Carregar thread_id
+    idea = get_idea(idea_id)
+    st.session_state["active_idea_id"] = idea.id
+    st.session_state["thread_id"] = idea.thread_id
+    
+    # Restaurar argumento focal
+    if idea.current_argument_id:
+        st.session_state["current_argument"] = get_argument(idea.current_argument_id)
+    
+    st.rerun()
+
+
+def show_argument_modal(argument):
+    """Modal com detalhes do argumento (12.5)"""
+    with st.expander(f"Argumento V{argument.version} - Detalhes"):
+        st.subheader("Claim")
+        st.write(argument.claim)
+        
+        st.subheader("Premises")
+        for premise in argument.premises:
+            st.write(f"• {premise}")
+        
+        st.subheader("Assumptions")
+        for assumption in argument.assumptions:
+            st.write(f"⚠️ {assumption}")
+        
+        st.subheader("Open Questions")
+        for question in argument.open_questions:
+            st.write(f"❓ {question}")
+```
+
 ### 5.2 Polling de Eventos (POC)
 
 **Arquivo:** `app/components/backstage.py`
@@ -558,10 +765,11 @@ def load_session(thread_id):
     return graph.get_state(config)
 ```
 
-**Evolução Futura (Épico 10):**
-- Entidade `Topic` com metadados (título, tipo artigo, estágio)
-- Autenticação (Google OAuth) para filtrar sessões por usuário
-- Persistência cross-device real (não apenas compartilhada)
+**Evolução Atual (Épico 12):**
+- ✅ Entidade Idea com metadados (título, status)
+- ✅ Gestão de múltiplas ideias (listar, alternar, buscar)
+- ✅ Argumento focal (current_argument_id)
+- ⏳ Autenticação (Google OAuth) para filtrar ideias por usuário (futuro)
 
 ---
 
