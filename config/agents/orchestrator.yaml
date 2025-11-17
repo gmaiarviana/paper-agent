@@ -1,54 +1,43 @@
-# Configuração do Agente Orquestrador (Épico 6)
-# Este arquivo define o comportamento e limites do Orquestrador
+# Configuração do Agente Orquestrador (Épico 10)
+# Este arquivo define o comportamento socrático do Orquestrador
 
-# System prompt do agente
+# System prompt do agente (referência para documentação)
+# O prompt real está em utils/prompts.py: ORCHESTRATOR_SOCRATIC_PROMPT_V1
 prompt: |
-  Você é o Orquestrador do sistema multi-agente Paper Agent.
-
-  SEU PAPEL:
-  Classificar a maturidade do input do usuário e rotear para o agente apropriado.
-
-  CLASSIFICAÇÕES POSSÍVEIS:
-  1. "vague": Ideia não estruturada, observação casual → encaminhar para Estruturador
-  2. "semi_formed": Hipótese parcial com alguma estrutura → encaminhar para Metodologista
-  3. "complete": Hipótese bem formulada e testável → encaminhar para Metodologista
-
-  CRITÉRIOS DE CLASSIFICAÇÃO:
-  - "vague": Apenas observação, sem questão clara, termos vagos
-  - "semi_formed": Questão de pesquisa presente mas falta especificidade (população, métricas)
-  - "complete": Questão clara, população definida, métricas especificadas, testável
-
-  OUTPUT OBRIGATÓRIO (SEMPRE JSON):
-  {
-    "classification": "vague" | "semi_formed" | "complete",
-    "reasoning": "Justificativa específica da classificação"
-  }
-
-  INSTRUÇÕES:
-  - Analise apenas MATURIDADE do input, não rigor científico
-  - Seja objetivo: classifique baseado em estrutura presente
-  - Não faça análise científica profunda (isso é do Metodologista)
-  - SEMPRE retorne JSON válido
+  Orquestrador Socrático - facilitador conversacional que expõe suposições
+  implícitas através de contra-perguntas provocativas.
+  
+  Comportamento: Detecta 5 categorias de assumptions (métrica vaga, população vaga,
+  baseline ausente, causalidade assumida, generalização excessiva) e provoca reflexão
+  através de contra-perguntas ao estilo socrático.
+  
+  Prompt completo: utils/prompts.py::ORCHESTRATOR_SOCRATIC_PROMPT_V1
 
 # Tags para categorização
 tags:
   - orchestrator
-  - router
-  - classifier
+  - socratic
+  - provocative
   - multi-agent
 
 # Limites de contexto (tokens)
 context_limits:
   max_input_tokens: 4000      # Máximo de tokens de entrada
-  max_output_tokens: 1000     # Máximo de tokens de saída
-  max_total_tokens: 5000      # Máximo total por chamada
+  max_output_tokens: 1500     # Máximo de tokens de saída (aumentado para provocações)
+  max_total_tokens: 5500      # Máximo total por chamada
 
 # Modelo LLM
-model: claude-3-5-haiku-20241022
+# Modelo é lido do .env via utils/config.py (get_agent_model)
+# Se não especificado no YAML, usa ANTHROPIC_MODEL do .env
+# Valor padrão do .env: claude-3-5-haiku-20241022
+model: null
 
 # Metadados
 metadata:
-  version: "1.0"
-  epic: "6"
-  created_at: "2025-11-12"
-  description: "Orquestrador que classifica maturidade de inputs e roteia para agentes especializados"
+  version: "2.0"
+  epic: "10"
+  created_at: "2025-11-16"
+  description: "Orquestrador socrático que expõe assumptions implícitas através de contra-perguntas provocativas"
+  deprecated_behaviors:
+    - "Classificação vague/semi_formed/complete (removida no Épico 10)"
+    - "Interrogatório burocrático de coleta de dados (substituído por provocação)"

@@ -100,6 +100,14 @@ Facilitador conversacional que mantém diálogo fluido, detecta necessidades, of
 
 **Detalhes:** Ver `docs/orchestration/conversational_orchestrator.md`
 
+## Orquestrador Socrático (Épico 10)
+
+Evolução do Orquestrador Conversacional que adiciona capacidade de exposição de suposições implícitas através de contra-perguntas socráticas. Detecta 5 categorias de assumptions (métrica vaga, população vaga, baseline ausente, causalidade assumida, generalização excessiva), escala profundidade de provocação em 3 níveis conforme resistência do usuário, e determina timing apropriado de provocação (quando provocar vs quando apenas explorar).
+
+**Detalhes:** Ver `docs/orchestration/socratic_orchestrator.md`
+
+**Relacionamento:** Socrático é extensão do Conversacional (Épico 7). Conversacional provê base de análise contextual e argumento focal; Socrático adiciona provocação estruturada sobre assumptions.
+
 ## Estado Compartilhado
 
 MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento focal) e específicos por agente (estruturação, validação). Suporta versionamento de hipóteses (V1 → V2 → V3) e rastreamento de iterações de refinamento.

@@ -19,10 +19,11 @@
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 10**: Modelagem Cognitiva (não refinado)
-- **ÉPICO 11**: Persistência de Tópicos (não refinado)
-- **ÉPICO 12**: Gestão de Múltiplos Tópicos (não refinado)
-- **ÉPICO 13+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
+- **ÉPICO 10**: Orquestrador Socrático (refinado, pronto para implementação)
+- **ÉPICO 11**: Modelagem Cognitiva (não refinado)
+- **ÉPICO 12**: Persistência de Tópicos (não refinado)
+- **ÉPICO 13**: Gestão de Múltiplos Tópicos (não refinado)
+- **ÉPICO 14+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -61,7 +62,57 @@
 
 ---
 
-## ÉPICO 10: Modelagem Cognitiva
+## ÉPICO 10: Orquestrador Socrático
+
+**Objetivo:** Transformar conversa de "interrogatório burocrático" para "diálogo provocativo" onde sistema expõe suposições implícitas e provoca reflexão através de contra-perguntas socráticas.
+
+**Status:** ⏳ Planejado (refinado, pronto para implementação)
+
+**Dependências:**
+- ✅ Épico 7 concluído (Orquestrador Conversacional MVP)
+
+**Ver spec técnica completa em `docs/orchestration/socratic_orchestrator.md`**
+
+---
+
+### Progressão POC → Protótipo → MVP
+
+#### POC (prompt socrático funciona)
+
+**10.1: Reescrever prompt do Orquestrador**
+**10.2: Atualizar config YAML**
+**10.3: Validação com cenário real**
+
+**Critérios de aceite POC:**
+- Sistema faz pelo menos 1 contra-pergunta provocativa em 3 turnos iniciais
+- YAML sincronizado com comportamento socrático
+- Conversa deixa de ser "chata" - provoca reflexão ao invés de coletar dados
+
+---
+
+#### Protótipo (detecção estruturada de assumptions)
+
+**10.4: 5 categorias de assumptions detectáveis**
+**10.5: Exemplos de contra-perguntas por categoria**
+
+**Critérios de aceite Protótipo:**
+- Prompt tem instruções explícitas para detectar 5 categorias de assumptions
+- Sistema escolhe contra-pergunta apropriada ao contexto
+
+---
+
+#### MVP (provocação adaptativa)
+
+**10.6: Timing de provocação**
+**10.7: Profundidade da provocação**
+
+**Critérios de aceite MVP:**
+- Provocação acontece no momento certo (não prematura, não tardia)
+- Sistema escala profundidade conforme resistência do usuário
+
+---
+
+## ÉPICO 11: Modelagem Cognitiva
 
 **Objetivo:** Implementar modelo cognitivo explícito que captura evolução do pensamento do usuário ao longo da conversa, permitindo rastreamento de premissas, suposições, dúvidas e contradições.
 
@@ -77,14 +128,14 @@
 
 ---
 
-## ÉPICO 11: Persistência de Tópicos
+## ÉPICO 12: Persistência de Tópicos
 
 **Objetivo:** Permitir pausar/retomar conversas com contexto completo preservado, salvando modelo cognitivo no checkpoint do LangGraph.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 10 concluído (Modelagem Cognitiva)
+- Épico 11 concluído (Modelagem Cognitiva)
 
 **Consulte:** 
 - `docs/architecture/topic_argument_model.md` - Estrutura de dados e progressão POC → MVP
@@ -92,21 +143,21 @@
 
 ---
 
-## ÉPICO 12: Gestão de Múltiplos Tópicos
+## ÉPICO 13: Gestão de Múltiplos Tópicos
 
 **Objetivo:** Permitir usuário gerenciar múltiplos tópicos em progresso, alternando entre eles via sidebar e buscando por título/stage.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 11 concluído (Persistência de Tópicos)
+- Épico 12 concluído (Persistência de Tópicos)
 
 **Consulte:** 
 - `docs/architecture/topic_argument_model.md` - Casos de uso e estrutura de dados
 
 ---
 
-## ÉPICO 13+: Agentes Avançados
+## ÉPICO 14+: Agentes Avançados
 
 **Objetivo:** Expandir sistema com agentes especializados para pesquisa, redação e revisão de artigos científicos.
 

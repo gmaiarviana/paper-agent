@@ -115,7 +115,7 @@ def _build_context(state: MultiAgentState) -> str:
 
 def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> dict:
     """
-    Nó conversacional MVP que facilita diálogo adaptativo com argumento focal explícito.
+    Nó socrático que facilita diálogo provocativo com exposição de assumptions implícitas.
 
     Este nó é o facilitador inteligente do sistema multi-agente (Épico 7 MVP). Ele:
     1. Analisa input + histórico completo da conversa
@@ -162,7 +162,7 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
         >>> result['next_step']
         'explore'
     """
-    logger.info("=== NÓ ORCHESTRATOR MVP: Iniciando análise contextual (7.8-7.10) ===")
+    logger.info("=== NÓ ORCHESTRATOR SOCRÁTICO: Iniciando análise contextual (Épico 10) ===")
     logger.info(f"Input do usuário: {state['user_input']}")
 
     # Verificar se já existe argumento focal anterior (para detectar mudança de direção)
@@ -170,8 +170,8 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
     if previous_focal:
         logger.info(f"Argumento focal anterior: intent={previous_focal.get('intent')}, subject={previous_focal.get('subject')}")
 
-    # Usar prompt MVP do Épico 7 MVP
-    from utils.prompts import ORCHESTRATOR_MVP_PROMPT_V1
+    # Usar prompt socrático do Épico 10
+    from utils.prompts import ORCHESTRATOR_SOCRATIC_PROMPT_V1
 
     # Construir contexto completo (histórico + input atual)
     full_context = _build_context(state)
@@ -189,7 +189,7 @@ ARGUMENTO FOCAL ANTERIOR:
 """
 
     # Construir prompt completo
-    conversational_prompt = f"""{ORCHESTRATOR_MVP_PROMPT_V1}
+    conversational_prompt = f"""{ORCHESTRATOR_SOCRATIC_PROMPT_V1}
 
 CONTEXTO DA CONVERSA:
 {full_context}
@@ -326,7 +326,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         # Fallback: métricas zeradas
         metrics = {"tokens_input": 0, "tokens_output": 0, "tokens_total": 0, "cost": 0.0}
 
-    logger.info("=== NÓ ORCHESTRATOR MVP: Finalizado ===\n")
+    logger.info("=== NÓ ORCHESTRATOR SOCRÁTICO: Finalizado ===\n")
 
     # Criar AIMessage com a mensagem conversacional para histórico
     ai_message = AIMessage(content=message)
