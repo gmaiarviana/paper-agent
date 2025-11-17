@@ -14,12 +14,12 @@
 - **Épico 1-7**: Sistema multi-agente conversacional completo (ver [ARCHITECTURE.md](ARCHITECTURE.md))
 - **ÉPICO 8**: Telemetria e Observabilidade (POC + Protótipo concluídos)
 - **ÉPICO 9**: Interface Web Conversacional **COMPLETO** (POC + Protótipo + MVP - 16/11/2025)
+- **ÉPICO 10**: Orquestrador Socrático **COMPLETO** (POC + Protótipo + MVP - 17/11/2025)
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 10**: Orquestrador Socrático (refinado, pronto para implementação)
 - **ÉPICO 11**: Modelagem Cognitiva (não refinado)
 - **ÉPICO 12**: Persistência de Tópicos (não refinado)
 - **ÉPICO 13**: Gestão de Múltiplos Tópicos (não refinado)
@@ -66,49 +66,27 @@
 
 **Objetivo:** Transformar conversa de "interrogatório burocrático" para "diálogo provocativo" onde sistema expõe suposições implícitas e provoca reflexão através de contra-perguntas socráticas.
 
-**Status:** ⏳ Planejado (refinado, pronto para implementação)
+**Status:** ✅ **COMPLETO** (17/11/2025)
 
 **Dependências:**
 - ✅ Épico 7 concluído (Orquestrador Conversacional MVP)
 
-**Ver spec técnica completa em `docs/orchestration/socratic_orchestrator.md`**
+**Funcionalidades entregues:**
+- ✅ Prompt socrático com 5 categorias de assumptions detectáveis (métrica vaga, população vaga, baseline ausente, causalidade assumida, generalização excessiva)
+- ✅ Contra-perguntas provocativas contextualizadas (não coleta burocrática)
+- ✅ Timing adaptativo emergente (LLM infere do histórico quando provocar)
+- ✅ Escalada natural de profundidade (intensifica quando usuário resiste)
+- ✅ Parada inteligente (não insiste infinitamente)
+- ✅ Scripts de validação para POC (3 turnos) e MVP (8-10 turnos)
 
----
+**Arquivos implementados:**
+- `utils/prompts.py` - ORCHESTRATOR_SOCRATIC_PROMPT_V1 (linhas 650-871)
+- `config/agents/orchestrator.yaml` - Config atualizada (model: haiku, tags socrático)
+- `scripts/flows/validate_socratic_orchestrator.py` - Validação POC (5 testes)
+- `scripts/flows/validate_adaptive_provocation.py` - Validação MVP (4 testes adaptativos)
+- `docs/orchestration/socratic_orchestrator.md` - Spec técnica completa
 
-### Progressão POC → Protótipo → MVP
-
-#### POC (prompt socrático funciona)
-
-**10.1: Reescrever prompt do Orquestrador**
-**10.2: Atualizar config YAML**
-**10.3: Validação com cenário real**
-
-**Critérios de aceite POC:**
-- Sistema faz pelo menos 1 contra-pergunta provocativa em 3 turnos iniciais
-- YAML sincronizado com comportamento socrático
-- Conversa deixa de ser "chata" - provoca reflexão ao invés de coletar dados
-
----
-
-#### Protótipo (detecção estruturada de assumptions)
-
-**10.4: 5 categorias de assumptions detectáveis**
-**10.5: Exemplos de contra-perguntas por categoria**
-
-**Critérios de aceite Protótipo:**
-- Prompt tem instruções explícitas para detectar 5 categorias de assumptions
-- Sistema escolhe contra-pergunta apropriada ao contexto
-
----
-
-#### MVP (provocação adaptativa)
-
-**10.6: Timing de provocação**
-**10.7: Profundidade da provocação**
-
-**Critérios de aceite MVP:**
-- Provocação acontece no momento certo (não prematura, não tardia)
-- Sistema escala profundidade conforme resistência do usuário
+**Ver spec técnica:** `docs/orchestration/socratic_orchestrator.md`
 
 ---
 

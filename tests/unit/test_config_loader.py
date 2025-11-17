@@ -170,11 +170,15 @@ class TestMetadata:
             assert len(metadata["version"]) > 0
 
     def test_epic_6_metadata(self):
-        """Todos os agentes devem estar marcados como Épico 6."""
+        """Structurer e Methodologist devem estar no Épico 6, Orchestrator no Épico 10."""
         configs = load_all_agent_configs()
 
-        for agent_name, config in configs.items():
-            assert config["metadata"]["epic"] == "6"
+        # Orchestrator foi atualizado para Épico 10 (Orquestrador Socrático)
+        assert configs["orchestrator"]["metadata"]["epic"] == "10"
+
+        # Outros agentes permanecem no Épico 6
+        for agent_name in ["structurer", "methodologist"]:
+            assert configs[agent_name]["metadata"]["epic"] == "6"
 
 
 class TestModels:
@@ -200,12 +204,13 @@ class TestTags:
     """Testes para tags de configurações."""
 
     def test_orchestrator_tags(self):
-        """Orchestrator deve ter tags apropriadas."""
+        """Orchestrator deve ter tags apropriadas (Épico 10: Socrático)."""
         config = load_agent_config("orchestrator")
         tags = config["tags"]
 
         assert "orchestrator" in tags
-        assert "router" in tags or "classifier" in tags
+        # Épico 10: Orquestrador Socrático (não mais classificador)
+        assert "socratic" in tags or "provocative" in tags
 
     def test_structurer_tags(self):
         """Structurer deve ter tags apropriadas."""

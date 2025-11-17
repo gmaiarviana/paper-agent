@@ -27,10 +27,9 @@ context_limits:
   max_total_tokens: 5500      # Máximo total por chamada
 
 # Modelo LLM
-# Modelo é lido do .env via utils/config.py (get_agent_model)
-# Se não especificado no YAML, usa ANTHROPIC_MODEL do .env
-# Valor padrão do .env: claude-3-5-haiku-20241022
-model: null
+# Haiku é suficiente para provocações socráticas (custo-benefício)
+# Sonnet seria usado apenas se raciocínio mais complexo for necessário
+model: claude-3-5-haiku-20241022
 
 # Metadados
 metadata:
