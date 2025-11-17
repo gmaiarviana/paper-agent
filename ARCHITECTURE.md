@@ -138,7 +138,7 @@ MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento fo
 
 Sistema captura evolução do pensamento do usuário através de modelo cognitivo explícito com campos: `claim`, `premises`, `assumptions`, `open_questions`, `contradictions`, `solid_grounds`, `context`.
 
-**Detalhes completos:** Ver `docs/product/cognitive_model.md`
+**Detalhes completos:** Ver `docs/vision/cognitive_model.md`
 
 **Responsabilidades:**
 - Orquestrador: detecta suposições, extrai claim, atualiza contexto
@@ -320,19 +320,16 @@ paper-agent/
 │
 └── docs/                  # Documentação detalhada por domínio
     ├── agents/            # Especificações de agentes
-    │   ├── overview.md
-    │   └── methodologist.md
+    ├── architecture/      # Decisões técnicas, modelos de dados
     ├── interface/         # Especificações de interface
-    │   ├── cli.md
-    │   ├── conversational_cli.md
-    │   └── web.md
     ├── orchestration/     # Orquestração e estado
-    │   ├── conversational_orchestrator.md
-    │   ├── multi_agent_architecture.md
-    │   ├── orchestrator.md
-    │   └── refinement_loop.md
-    └── product/           # Visão de produto
-        └── vision.md
+    ├── vision/            # Visão de produto
+    │   ├── vision.md
+    │   ├── cognitive_model.md
+    │   ├── conversation_patterns.md
+    │   └── agent_personas.md  (Épico 16+)
+    ├── products/          # Produtos específicos (paper-agent, fichamento)
+    └── process/           # Desenvolvimento, testes
 ```
 
 ## Componentes Principais
@@ -407,8 +404,8 @@ Sistema está migrando de entidade `Topic` para ontologia completa (`Idea`, `Con
 - `docs/architecture/migration_strategy.md` - Fases de migração
 
 **Visão de Produto:**
-- `docs/product/vision.md` - Visão de produto, tipos de artigo
-- `docs/product/cognitive_model.md` - Modelo cognitivo e evolução
+- `docs/vision/vision.md` - Visão de produto, tipos de artigo
+- `docs/vision/cognitive_model.md` - Modelo cognitivo e evolução
 
 **Orquestração:**
 - `docs/orchestration/multi_agent_architecture.md` - Arquitetura multi-agente

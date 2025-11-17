@@ -25,6 +25,22 @@ Paper Agent não compete com LLMs generalistas. É um sistema especializado para
 **Como funciona (dialética):**
 Sistema atua como mestre socrático: faz perguntas que expõem suposições não examinadas, oferece contra-exemplos, provoca refinamento. Usuário articula melhor à medida que sistema estrutura e valida.
 
+### Equipe de Especialistas Visível
+
+Diferente de LLMs generalistas (caixa preta), Paper Agent expõe 
+sua "equipe interna" de especialistas:
+
+- **Orquestrador:** Provoca reflexão, expõe suposições implícitas
+- **Estruturador:** Organiza ideias, cristaliza argumentos
+- **Metodologista:** Valida rigor científico
+
+Cada agente tem papel claro. Usuário vê QUEM está trabalhando 
+e POR QUÊ, não apenas o resultado final.
+
+**Visão futura (Épico 16+):** Agentes customizáveis como "personas" 
+(Sócrates, Aristóteles, Popper) com estilos de argumentação 
+personalizados. Ver: docs/vision/agent_personas.md
+
 **Resultado esperado:**
 "Flecha penetrante" / "Ideia irresistível" - argumento sólido com respaldo bibliográfico, sem premissas frágeis, sem dúvidas não examinadas. Às vezes o usuário nem sabe onde quer chegar, mas ao elaborar, a clareza aparece.
 
@@ -318,6 +334,18 @@ Ideia:
 - **Tempo real**: Eventos via SSE (Server-Sent Events)
 - **3 níveis**: Inline (discreto) → Resumido (280 chars) → Completo (modal)
 - **Timeline**: Histórico de raciocínio colapsado (expansível)
+
+**Agentes Visíveis:**
+- Sistema mostra qual agente está ativo (🎯 Orquestrador, 📝 Estruturador, 🔬 Metodologista)
+- Raciocínio resumido (1 frase) por agente
+- Diferencial: usuário entende QUE tipo de análise está sendo feita
+- Futuro: customizar personas de agentes (Épico 16+)
+
+**Checklist de Progresso:**
+- Localização: Header do chat (discreto, expansível ao clicar)
+- Bolinhas de status: ⚪ pendente 🟡 em progresso 🟢 completo
+- Adaptativo: muda conforme tipo de artigo detectado
+- Sincroniza com modelo cognitivo (claim, premises, open_questions)
 
 **Bastidores fechados por padrão:**
 - Interface limpa ao iniciar

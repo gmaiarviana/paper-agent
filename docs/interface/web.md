@@ -127,6 +127,20 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 
 **C) Bastidores (30-40% largura, collapsible)**
 
+**Agentes Visíveis:**
+- Sistema mostra qual agente está ativo:
+  - 🎯 Orquestrador (provocador socrático)
+  - 📝 Estruturador (organizador lógico)
+  - 🔬 Metodologista (validador de rigor)
+- Raciocínio resumido (1 frase, ~280 chars)
+- Link "Ver raciocínio completo" → modal com detalhes
+- Diferencial: usuário entende QUE tipo de análise está sendo feita
+
+**Futuro (Épico 16):**
+- Agentes customizáveis como personas (Sócrates, Aristóteles, Popper)
+- Botão "Customizar persona" ao lado de cada agente
+- Ver: `docs/vision/agent_personas.md`
+
 **Fechado (padrão):**
 ```
 ┌──────────────────────┐
@@ -169,6 +183,55 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 │ [Fechar]                                     │
 └──────────────────────────────────────────────┘
 ```
+
+---
+
+## 3.3 Layout: Checklist de Progresso
+
+**Localização:** Header do chat (discreto, expansível ao clicar)
+
+**Visual (minimizado):**
+```
+Chat                           [⚪⚪🟡⚪⚪] ← clica expande
+```
+
+**Visual (expandido):**
+```
+Progresso do Argumento:
+⚪ 1. Definir escopo
+⚪ 2. Identificar população  
+🟡 3. Definir métricas ← em progresso
+⚪ 4. Estruturar argumento
+⚪ 5. Validar rigor científico
+```
+
+**Funcionalidades:**
+- Checklist adaptativo (muda conforme tipo de artigo detectado)
+- Bolinhas de status: ⚪ (pendente) 🟡 (em progresso) 🟢 (completo)
+- Sempre minimizado por padrão (menos poluição visual)
+- Expansível ao clicar (mostrar detalhes)
+- Sincroniza com modelo cognitivo (claim, premises, open_questions, ...)
+
+**Exemplos de checklists adaptativos:**
+
+**Artigo Empírico:**
+⚪ Definir hipótese
+⚪ Identificar população
+⚪ Definir métricas
+⚪ Desenho experimental
+⚪ Validar rigor
+
+**Artigo de Revisão:**
+⚪ Definir questão PICO
+⚪ Estratégia de busca
+⚪ Critérios inclusão/exclusão
+⚪ Protocolo de extração
+⚪ Síntese de evidências
+
+**Implementação:**
+- POC: Checklist fixo (mesmos passos para todos)
+- Protótipo: Sistema detecta tipo de artigo, ajusta checklist
+- MVP: Checklist adaptativo + status sincronizado com modelo cognitivo
 
 ---
 
