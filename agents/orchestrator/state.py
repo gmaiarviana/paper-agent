@@ -7,8 +7,8 @@ do sistema (Orquestrador, Estruturador, Metodologista).
 O estado é híbrido: possui campos compartilhados (todos os agentes leem/escrevem)
 e campos específicos por agente (apenas o agente responsável escreve).
 
-Versão: 3.1 (Épico 7 MVP + Validação Pydantic dos outputs de agentes)
-Data: 16/11/2025
+Versão: 4.0 (Épico 11 - Modelagem Cognitiva)
+Data: 17/11/2025
 """
 
 from typing import TypedDict, Optional, Annotated, Literal, List
@@ -110,6 +110,28 @@ class MultiAgentState(TypedDict):
             "article_type": "empirical"
         }
 
+    cognitive_model (Optional[dict]):
+        Modelo cognitivo explícito que representa evolução do argumento (Épico 11.1).
+        Estrutura lógica completa do argumento em construção durante conversa.
+        Volátil (em memória) - atualizado pelo Orquestrador a cada turno.
+        Ao ser persistido, vira entidade Argument no banco de dados.
+        Estrutura:
+        {
+            "claim": str,                      # Afirmação central
+            "premises": list[str],             # Fundamentos assumidos verdadeiros
+            "assumptions": list[str],          # Hipóteses não verificadas
+            "open_questions": list[str],       # Lacunas identificadas
+            "contradictions": list[dict],      # Tensões internas (confiança > 80%)
+            "solid_grounds": list[dict],       # Evidências bibliográficas
+            "context": dict                    # Metadados (domínio, tecnologia, etc)
+        }
+        Responsabilidades:
+        - Orquestrador: claim, assumptions, open_questions, context
+        - Estruturador: premises
+        - Metodologista: contradictions
+        - Pesquisador (futuro): solid_grounds
+        Ver agents/models/cognitive_model.py para schema Pydantic completo.
+
     reflection_prompt (Optional[str]):
         Provocação de reflexão gerada pelo Orquestrador (Épico 7.9).
         Pergunta que ajuda usuário a pensar sobre aspectos não explorados.
@@ -203,6 +225,7 @@ class MultiAgentState(TypedDict):
     next_step: Optional[Literal["explore", "suggest_agent", "clarify"]]
     agent_suggestion: Optional[dict]
     focal_argument: Optional[dict]  # Épico 7.8: Argumento focal explícito
+    cognitive_model: Optional[dict]  # Épico 11.1: Modelo cognitivo explícito
     reflection_prompt: Optional[str]  # Épico 7.9: Provocação de reflexão
     stage_suggestion: Optional[dict]  # Épico 7.10: Detecção emergente de estágio
 
@@ -265,6 +288,7 @@ def create_initial_multi_agent_state(user_input: str, session_id: Optional[str] 
         next_step=None,
         agent_suggestion=None,
         focal_argument=None,  # Épico 7.8
+        cognitive_model=None,  # Épico 11.1
         reflection_prompt=None,  # Épico 7.9
         stage_suggestion=None,  # Épico 7.10
 
