@@ -10,12 +10,6 @@
 
 ## 📋 Status dos Épicos
 
-### ✅ Épicos Concluídos
-- **Épico 1-7**: Sistema multi-agente conversacional completo (ver [ARCHITECTURE.md](ARCHITECTURE.md))
-- **ÉPICO 8**: Telemetria e Observabilidade (POC + Protótipo concluídos)
-- **ÉPICO 9**: Interface Web Conversacional **COMPLETO** (POC + Protótipo + MVP - 16/11/2025)
-- **ÉPICO 10**: Orquestrador Socrático **COMPLETO** (POC + Protótipo + MVP - 17/11/2025)
-
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
 
@@ -28,65 +22,6 @@
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
 > Para fluxo completo de planejamento, consulte `planning_guidelines.md`.
-
----
-
-## ÉPICO 9: Interface Web Conversacional
-
-**Objetivo:** Criar interface web como experiência principal do sistema, com chat fluido, visualização de reasoning dos agentes ("bastidores"), e métricas de custo inline.
-
-**Status:** ✅ **COMPLETO** (16/11/2025)
-
-**Dependências:**
-- ✅ Épico 8 concluído (Telemetria e Observabilidade)
-- ✅ Épico 7 concluído (Orquestrador Conversacional)
-
-**Funcionalidades entregues:**
-- ✅ Chat conversacional com histórico persistente (SqliteSaver)
-- ✅ Sidebar com lista de sessões (últimas 10) e navegação fluida
-- ✅ Painel "Bastidores" com reasoning detalhado dos agentes (modal com 3 abas)
-- ✅ Métricas inline discretas (tokens, custo, tempo) extraídas do EventBus
-- ✅ Persistência em banco de dados SQLite (sobrevive a reinicializações)
-- ✅ Backend compartilhado com CLI (LangGraph + EventBus)
-
-**Arquivos implementados:**
-- `app/chat.py` - Interface principal
-- `app/components/chat_input.py` - Input + integração LangGraph
-- `app/components/chat_history.py` - Histórico de mensagens
-- `app/components/backstage.py` - Reasoning modal com abas
-- `app/components/sidebar.py` - Gerenciamento de sessões
-- `app/components/session_helpers.py` - Helpers SQLite
-- `agents/multi_agent_graph.py` - Checkpointer persistente
-
-**Ver spec técnica:** `docs/interface/web.md`
-
----
-
-## ÉPICO 10: Orquestrador Socrático
-
-**Objetivo:** Transformar conversa de "interrogatório burocrático" para "diálogo provocativo" onde sistema expõe suposições implícitas e provoca reflexão através de contra-perguntas socráticas.
-
-**Status:** ✅ **COMPLETO** (17/11/2025)
-
-**Dependências:**
-- ✅ Épico 7 concluído (Orquestrador Conversacional MVP)
-
-**Funcionalidades entregues:**
-- ✅ Prompt socrático com 5 categorias de assumptions detectáveis (métrica vaga, população vaga, baseline ausente, causalidade assumida, generalização excessiva)
-- ✅ Contra-perguntas provocativas contextualizadas (não coleta burocrática)
-- ✅ Timing adaptativo emergente (LLM infere do histórico quando provocar)
-- ✅ Escalada natural de profundidade (intensifica quando usuário resiste)
-- ✅ Parada inteligente (não insiste infinitamente)
-- ✅ Scripts de validação para POC (3 turnos) e MVP (8-10 turnos)
-
-**Arquivos implementados:**
-- `utils/prompts.py` - ORCHESTRATOR_SOCRATIC_PROMPT_V1 (linhas 650-871)
-- `config/agents/orchestrator.yaml` - Config atualizada (model: haiku, tags socrático)
-- `scripts/flows/validate_socratic_orchestrator.py` - Validação POC (5 testes)
-- `scripts/flows/validate_adaptive_provocation.py` - Validação MVP (4 testes adaptativos)
-- `docs/orchestration/socratic_orchestrator.md` - Spec técnica completa
-
-**Ver spec técnica:** `docs/orchestration/socratic_orchestrator.md`
 
 ---
 
