@@ -32,85 +32,27 @@
 
 ---
 
-## ÉPICO 11: Modelagem Cognitiva
+## ÉPICO 11: Modelagem Cognitiva ✅
 
-**Objetivo:** Implementar modelo cognitivo explícito (Argument como entidade) com persistência, versionamento e indicadores de maturidade visíveis na interface.
+**Objetivo:** Implementar modelo cognitivo explícito (Argument como entidade) com persistência, versionamento e indicadores de maturidade.
 
-**Status:** ✅ Concluído (2025-11-17)
+**Status:** Concluído (2025-11-17)
 
-**Dependências:**
-- ✅ Épico 10 concluído (Orquestrador Socrático)
-- ✅ Épico 9 concluído (Interface Web + SqliteSaver)
+**Implementado:**
+- ✅ **Schema Pydantic**: CognitiveModel com validação automática (claim, premises, assumptions, open_questions, contradictions, solid_grounds, context)
+- ✅ **Persistência SQLite**: Tabelas `ideas` e `arguments` em `data/data.db` separado de checkpoints.db
+- ✅ **Versionamento**: Auto-incremento de versões (V1, V2, V3...) por idea_id
+- ✅ **Argumento Focal**: FK `current_argument_id` em ideas para referenciar argumento ativo
+- ✅ **Detecção de Maturidade**: SnapshotManager com avaliação via LLM + fallback heurístico
+- ✅ **Checklist Adaptativo**: ProgressTracker com checklists por tipo de artigo (backend apenas)
 
-**Consulte:**
-- `docs/architecture/argument_model.md` - Schema técnico de Argument
-- `docs/vision/cognitive_model.md` - Modelo cognitivo completo
+**Arquivos principais:**
+- `agents/models/cognitive_model.py` - Schema Pydantic
+- `agents/database/schema.py`, `agents/database/manager.py` - Persistência SQLite
+- `agents/persistence/snapshot_manager.py` - Detecção maturidade e snapshots
+- `agents/checklist/progress_tracker.py` - Checklist backend
 
-### Funcionalidades:
-
-#### 11.1 Schema Explícito de Argument ✅
-
-- **Descrição:** Criar dataclass/Pydantic `CognitiveModel` substituindo dict livre no `MultiAgentState`, com validação automática de campos.
-- **Implementado:**
-  - ✅ Criada classe `CognitiveModel` Pydantic com campos: claim, premises, assumptions, open_questions, contradictions, solid_grounds, context
-  - ✅ Validação automática via Pydantic (type hints + field validators)
-  - ✅ Adicionado `cognitive_model: Optional[dict]` no MultiAgentState
-  - ✅ SqliteSaver continua salvando no checkpoint (Pydantic serializa automaticamente)
-- **Arquivos:** `agents/models/cognitive_model.py`, `agents/orchestrator/state.py`
-
-#### 11.2 Setup de Persistência e Schema SQLite ✅
-
-- **Descrição:** Configurar SqliteSaver do LangGraph para checkpoints de conversa + criar schema SQLite completo com tabelas ideas e arguments.
-- **Implementado:**
-  - ✅ SqliteSaver já configurado (Épico 9 - arquivo `data/checkpoints.db`)
-  - ✅ Criada tabela ideas: id, title, status, current_argument_id (FK NULLABLE), created_at, updated_at
-  - ✅ Criada tabela arguments: id, idea_id (FK), claim, premises (JSON), assumptions (JSON), open_questions (JSON), contradictions (JSON), solid_grounds (JSON), context (JSON), version (INT), created_at, updated_at
-  - ✅ Constraints criadas: FOREIGN KEY (current_argument_id) REFERENCES arguments(id), FOREIGN KEY (idea_id) REFERENCES ideas(id)
-  - ✅ Triggers para atualização automática de timestamps
-  - ✅ Views helper para consultas otimizadas
-- **Arquivos:** `agents/database/schema.py`, `agents/database/manager.py`
-
-#### 11.3 Versionamento de Argumentos ✅
-
-- **Descrição:** Detectar mudanças significativas de claim e criar nova versão de argumento (V1, V2, V3) automaticamente.
-- **Implementado:**
-  - ✅ Campo `version` na tabela arguments (INT, auto-incrementa por idea_id)
-  - ✅ Auto-incremento via `_get_next_argument_version(idea_id)` no DatabaseManager
-  - ✅ Constraint UNIQUE (idea_id, version) garante versionamento correto
-  - ✅ Métodos para listar histórico: `get_arguments_by_idea(idea_id)`, `get_latest_argument_version(idea_id)`
-- **Arquivos:** `agents/database/manager.py`
-
-#### 11.4 Argumento Focal ✅
-
-- **Descrição:** Gerenciar argumento focal como FK na tabela ideas (já criado na funcionalidade 11.2).
-- **Implementado:**
-  - ✅ Campo current_argument_id na tabela ideas (FK NULLABLE)
-  - ✅ Método `update_idea_current_argument(idea_id, argument_id)` para atualizar FK
-  - ✅ View `ideas_with_current_argument` para carregar idea + argumento focal via JOIN
-  - ✅ Permite NULL (idea sem argumento focal)
-- **Arquivos:** `agents/database/schema.py`, `agents/database/manager.py`
-
-#### 11.5 Indicadores de Maturidade ✅
-
-- **Descrição:** Sistema detecta maturidade do argumento (não determinístico) e cria snapshot automaticamente.
-- **Implementado:**
-  - ✅ Classe `SnapshotManager` para gerenciar detecção de maturidade e criação de snapshots
-  - ✅ Método `assess_maturity()` avalia via LLM usando critérios: claim estável, premises sólidas (>2), assumptions baixas (<2), open_questions vazias
-  - ✅ Fallback para heurística se LLM falhar
-  - ✅ Método `create_snapshot_if_mature()` cria snapshot automaticamente quando confiança >= 0.8
-  - ✅ Modelo Pydantic `MaturityAssessment` para validação de resposta LLM
-- **Arquivos:** `agents/persistence/snapshot_manager.py`, `agents/models/cognitive_model.py`
-
-#### 11.6 Checklist de Progresso na Interface ⚠️
-
-- **Descrição:** Exibir checklist de progresso no header do chat (discreto, expansível) sincronizado com modelo cognitivo.
-- **Implementado (Backend):**
-  - ✅ Classe `ProgressTracker` para avaliar progresso baseado em CognitiveModel
-  - ✅ Checklists adaptativos por tipo de artigo (empírico, revisão, teórico, genérico)
-  - ✅ Modelos Pydantic `ChecklistItem` e `ChecklistStatus`
-  - ✅ Função `evaluate_progress()` sincroniza com cognitive_model (claim → escopo, premises → população, etc)
-  - ⏳ Frontend (UI) não implementado - apenas backend pronto
-- **Arquivos:** `agents/checklist/progress_tracker.py`
+**Validação:** `python scripts/validate_cognitive_model.py`
 
 ---
 
