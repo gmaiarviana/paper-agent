@@ -147,29 +147,41 @@ class SnapshotManager:
 
         try:
             # Invocar LLM
+            logger.debug(f"[MATURITY] Invocando LLM para avaliar maturidade (claim: '{cognitive_model.claim[:50]}...')")
+            logger.debug(f"[MATURITY] LLM instance: {type(self.llm).__name__}")
             message = HumanMessage(content=prompt)
             response = self.llm.invoke([message])
 
             # Parsear JSON da resposta
             response_text = response.content.strip()
+            logger.debug(f"[MATURITY] Resposta recebida ({len(response_text)} chars)")
+            logger.debug(f"[MATURITY] Primeiros 200 chars: {response_text[:200]}")
 
             # Remover markdown code blocks se presentes
             if response_text.startswith("```"):
+                logger.debug("[MATURITY] Removendo markdown code block")
                 lines = response_text.split("\n")
                 response_text = "\n".join(lines[1:-1])  # Remove primeira e última linha
 
             # Tentar parsear JSON
             # LLM pode adicionar texto explicativo após o JSON, então extraímos apenas o JSON
             try:
+                logger.debug("[MATURITY] Tentando parsear JSON...")
                 assessment_dict = json.loads(response_text)
+                logger.debug(f"[MATURITY] JSON parseado com sucesso: is_mature={assessment_dict.get('is_mature')}")
             except json.JSONDecodeError as e:
+                logger.debug(f"[MATURITY] Erro JSON: {e}, tentando extrair apenas JSON válido")
                 # Se erro for "Extra data", extrair apenas o JSON válido
                 if "Extra data" in str(e):
                     # Encontrar posição onde termina o JSON válido
                     json_end = e.pos
                     response_text = response_text[:json_end].strip()
+                    logger.debug(f"[MATURITY] Extraindo JSON até posição {json_end}")
                     assessment_dict = json.loads(response_text)
+                    logger.debug(f"[MATURITY] JSON extraído com sucesso")
                 else:
+                    logger.error(f"[MATURITY] Erro JSON não recuperável: {e}")
+                    logger.error(f"[MATURITY] Resposta completa: {repr(response_text)}")
                     raise
 
             # Validar com Pydantic
