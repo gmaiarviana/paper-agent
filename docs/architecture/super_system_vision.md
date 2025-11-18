@@ -123,14 +123,14 @@ ideas = response.ideas
 > **Nota:** Para fases detalhadas, consulte `docs/architecture/migration_strategy.md`.
 
 **Fases:**
-1. **Abstrair fundação:** Topic → Idea (generalizar entidade)
+1. **Abstrair fundação:** Topic → Idea (generalizar entidade) - Planejado no Épico 11
 2. **Criar Concept:** Entidade de primeira classe
 3. **Tornar Argument explícito:** Separar de Ideia
 4. **Fichamento:** Novo produto consumindo core
 5. **Grafo de conhecimento:** Ideias se conectam
 
 **Status atual (Épico 10 em implementação):**
-- Paper-agent funcional (entidade Topic)
+- Paper-agent funcional (migração Topic → Idea planejada no Épico 11)
 - Migração afeta Épico 11+ (ver ROADMAP.md)
 
 ## APIs do Core (Futuro)

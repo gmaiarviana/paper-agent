@@ -210,16 +210,14 @@ def _extract_summary(agent_name: str, state: MultiAgentState) -> str:
         next_step = state.get("next_step")
         if next_step:
             return f"Próximo passo: {next_step}"
-        # Fallback: Épico 3 (campos antigos - para compatibilidade)
-        classification = state.get("orchestrator_classification", "unknown")
-        return f"Classificou input como '{classification}'"
+        return "Orquestrador processou"
 
     elif agent_name == "structurer":
         output = state.get("structurer_output", {})
         version = output.get("version", "unknown")
         return f"Estruturou questão de pesquisa (V{version})"
 
-    elif agent_name in ["methodologist", "force_decision"]:
+    elif agent_name == "methodologist":
         output = state.get("methodologist_output", {})
         status = output.get("status", "unknown")
         return f"Decisão metodológica: {status}"
@@ -287,7 +285,7 @@ def _extract_reasoning(agent_name: str, state: MultiAgentState) -> str:
                 f"contribuição potencial ({contribution}...)."
             )
 
-    elif agent_name in ["methodologist", "force_decision"]:
+    elif agent_name == "methodologist":
         # Épico 8: Metodologista reasoning
         output = state.get("methodologist_output", {})
         status = output.get("status", "unknown")
@@ -322,9 +320,9 @@ checkpointer = SqliteSaver(db_conn)
 
 def route_after_methodologist(state: MultiAgentState) -> str:
     """
-    Router que decide o fluxo após o Metodologista processar a hipótese (Épico 4).
+    Router que decide o fluxo após o Metodologista processar a hipótese.
 
-    NOVO COMPORTAMENTO (Refinamento Sob Demanda):
+    Comportamento (Refinamento Sob Demanda):
     - Sempre retorna para o Orquestrador após o Metodologista
     - Orquestrador apresenta feedback e opções ao usuário
     - Usuário decide se quer refinar, pesquisar, ou mudar de direção
@@ -336,17 +334,12 @@ def route_after_methodologist(state: MultiAgentState) -> str:
         str: Sempre "orchestrator" (para negociação com usuário)
     """
     methodologist_output = state.get('methodologist_output')
-
-    if not methodologist_output:
+    if methodologist_output:
+        status = methodologist_output.get('status')
+        logger.info(f"Metodologista → Orquestrador (status: {status})")
+    else:
         logger.warning("methodologist_output não encontrado. Retornando para Orquestrador.")
-        return "orchestrator"
-
-    status = methodologist_output.get('status')
-    logger.info(f"=== ROUTER APÓS METODOLOGISTA ===")
-    logger.info(f"Status: {status}")
-    logger.info("Retornando para Orquestrador (negociação com usuário)")
-
-    # Sempre retorna para Orquestrador (que negocia com usuário)
+    
     return "orchestrator"
 
 

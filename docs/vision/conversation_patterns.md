@@ -435,9 +435,9 @@ Argumento focal: "Usuário quer fazer revisão de literatura sobre LLMs e produt
 
 ### Conexão com Épico 8
 
-No Épico 8, argumento focal se tornará explícito:
+No Épico 11, argumento focal se tornará explícito na entidade `Idea` (anteriormente "Topic"):
 ```python
-Topic:
+Idea:
   id: UUID
   title: "Impacto de LLMs em produtividade"
   focal_argument: {
@@ -470,7 +470,7 @@ Topic:
 - Mais eficiente e rastreável
 
 **MVP (persistente):**
-- Argumento focal salvo na entidade `Topic`
+- Argumento focal salvo na entidade `Idea` (Épico 11)
 - Permite pausar/retomar com contexto preservado
 - Histórico de argumentos focais (rollback possível)
 
