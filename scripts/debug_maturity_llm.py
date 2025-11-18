@@ -7,7 +7,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 import json
 from agents.models.cognitive_model import CognitiveModel
-from agents.persistence.snapshot_manager import MATURITY_DETECTION_PROMPT
+from agents.persistence import detect_argument_maturity  # Usar mesma função que validação
+from agents.persistence.snapshot_manager import MATURITY_DETECTION_PROMPT, SnapshotManager
 from utils.config import create_anthropic_client
 from langchain_core.messages import HumanMessage
 
@@ -101,6 +102,50 @@ def test_maturity_detection():
     print("=" * 70)
     return True
 
+def test_via_helper():
+    """Testa usando a mesma função helper que o validate_cognitive_model.py usa."""
+    print("\n" + "=" * 70)
+    print(" TESTE 2: Usando função helper detect_argument_maturity()")
+    print("=" * 70)
+
+    # Criar modelo cognitivo de teste (imaturo)
+    model_v1 = CognitiveModel(
+        claim="LLMs aumentam produtividade",
+        premises=["Reduzem tempo de tarefas repetitivas"],
+        assumptions=["Usuários sabem usar LLMs"],
+        open_questions=["Quanto aumenta exatamente?"],
+    )
+
+    print("\n📊 Modelo Cognitivo V1 (imaturo):")
+    print(f"   Claim: {model_v1.claim}")
+    print(f"   Premises: {len(model_v1.premises)}")
+
+    print("\n📞 Chamando detect_argument_maturity()...")
+    try:
+        assessment = detect_argument_maturity(model_v1)
+        print(f"✅ Avaliação recebida:")
+        print(f"   Maduro: {assessment.is_mature}")
+        print(f"   Confiança: {assessment.confidence:.2f}")
+        print(f"   Justificativa: {assessment.justification[:100]}...")
+        if assessment.missing_elements:
+            print(f"   Elementos faltando: {', '.join(assessment.missing_elements)}")
+
+        print("\n" + "=" * 70)
+        print("✅ TESTE PASSOU! LLM funcionando via helper")
+        print("=" * 70)
+        return True
+    except Exception as e:
+        print(f"\n❌ Erro ao chamar helper: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
 if __name__ == "__main__":
-    success = test_maturity_detection()
-    sys.exit(0 if success else 1)
+    print("EXECUTANDO DOIS TESTES:\n")
+    print("1. Teste direto com LLM (para ver resposta completa)")
+    print("2. Teste via helper detect_argument_maturity() (mesmo que validação usa)")
+
+    success1 = test_maturity_detection()
+    success2 = test_via_helper()
+
+    sys.exit(0 if (success1 and success2) else 1)
