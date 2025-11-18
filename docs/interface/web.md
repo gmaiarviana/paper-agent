@@ -516,7 +516,8 @@ def render_backstage(session_id: str):
 ```python
 import streamlit as st
 from datetime import datetime
-from agents.multi_agent_graph import get_ideas, create_idea
+from agents.multi_agent_graph import get_ideas, create_idea, get_idea
+from agents.database.manager import get_argument
 
 def render_sidebar():
     """
