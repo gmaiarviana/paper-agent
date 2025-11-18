@@ -14,12 +14,12 @@
 - **ÉPICO 9**: Interface Web Conversacional - Interface web com chat conversacional, painel Bastidores em tempo real e integração com LangGraph SqliteSaver.
 - **ÉPICO 10**: Orquestrador Socrático - Orquestrador que usa diálogo socrático para explorar e estruturar ideias, gerenciando transições entre agentes.
 - **ÉPICO 11**: Modelagem Cognitiva - Modelo cognitivo explícito com persistência SQLite, versionamento de argumentos e detecção de maturidade via LLM.
+- **ÉPICO 12**: Gestão de Ideias - Sistema completo de gestão de ideias com listagem, alternância, busca, criação, explorador de argumentos e inferência automática de status.
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 12**: Gestão de Ideias - 🟡 Refinado - Pronto para Implementação
 - **ÉPICO 13**: Entidade Concept (não refinado)
 - **ÉPICO 14**: Melhorias de UX (não refinado)
 - **ÉPICO 16+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
@@ -28,97 +28,6 @@
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
 > Para fluxo completo de planejamento, consulte `planning_guidelines.md`.
-
----
-
-## ÉPICO 11: Modelagem Cognitiva ✅
-
-**Objetivo:** Implementar modelo cognitivo explícito (Argument como entidade) com persistência, versionamento e indicadores de maturidade.
-
-**Status:** Concluído (2025-11-17)
-
-**Implementado:**
-- ✅ **Schema Pydantic**: CognitiveModel com validação automática (claim, premises, assumptions, open_questions, contradictions, solid_grounds, context)
-- ✅ **Persistência SQLite**: Tabelas `ideas` e `arguments` em `data/data.db` separado de checkpoints.db
-- ✅ **Versionamento**: Auto-incremento de versões (V1, V2, V3...) por idea_id
-- ✅ **Argumento Focal**: FK `current_argument_id` em ideas para referenciar argumento ativo
-- ✅ **Detecção de Maturidade**: SnapshotManager com avaliação via LLM + fallback heurístico
-
-**Arquivos principais:**
-- `agents/models/cognitive_model.py` - Schema Pydantic
-- `agents/database/schema.py`, `agents/database/manager.py` - Persistência SQLite
-- `agents/persistence/snapshot_manager.py` - Detecção maturidade e snapshots
-
-**Validação:** `python scripts/validate_cognitive_model.py`
-
----
-
-## ÉPICO 12: Gestão de Ideias
-
-**Objetivo:** Permitir usuário gerenciar ideias criadas pelo sistema (listar, alternar, buscar, criar nova).
-
-**Status:** 🟡 Refinado - Pronto para Implementação
-
-**Dependências:**
-- ✅ Épico 11 concluído (Argument existe como entidade)
-
-**Consulte:**
-- `docs/interface/web.md` - Especificação de interface completa
-
-### Funcionalidades:
-
-#### 12.1 Mostrar Status da Ideia na Interface
-
-- **Descrição:** Exibir ideia ativa no painel Bastidores com badge visual.
-- **Critérios de Aceite:**
-  - Deve mostrar: "💡 Ideia Atual: {title}"
-  - Deve exibir badge de status: 🔍 Explorando | 📝 Estruturada | ✅ Validada
-  - Deve inferir status do modelo cognitivo (não manual)
-  - Deve atualizar status em tempo real conforme conversa evolui
-
-#### 12.2 Listar Ideias na Sidebar
-
-- **Descrição:** Sidebar com últimas 10 ideias ordenadas por updated_at DESC.
-- **Critérios de Aceite:**
-  - Deve listar últimas 10 ideias (ORDER BY updated_at DESC)
-  - Deve exibir: título, status badge, # argumentos
-  - Deve destacar ideia ativa (bold, background diferente)
-  - Deve ser colapsável (toggle on/off)
-
-#### 12.3 Alternar Entre Ideias
-
-- **Descrição:** Clicar em Idea na sidebar carrega contexto completo (thread_id + argumento focal).
-- **Critérios de Aceite:**
-  - Deve carregar thread_id do LangGraph (SqliteSaver)
-  - Deve restaurar argumento focal (current_argument_id)
-  - Deve exibir histórico de mensagens da ideia selecionada
-  - Deve atualizar Bastidores com contexto da ideia
-
-#### 12.4 Criar Nova Ideia
-
-- **Descrição:** Botão "[+ Nova Ideia]" cria registro vazio e inicia conversa nova.
-- **Critérios de Aceite:**
-  - Deve criar registro vazio em ideas (título = "Nova Ideia {timestamp}")
-  - Deve gerar novo thread_id (LangGraph)
-  - Deve redirecionar para chat da nova ideia
-  - Deve limpar histórico de mensagens (conversa limpa)
-
-#### 12.5 Explorador de Argumentos (Preview)
-
-- **Descrição:** Ao clicar em Idea na sidebar, expandir e mostrar argumentos versionados (V1, V2, V3).
-- **Critérios de Aceite:**
-  - Deve expandir argumentos ao clicar em idea
-  - Deve listar V1, V2, V3 (versionamento histórico)
-  - Deve destacar argumento focal com badge [focal]
-  - Deve ter botão "Ver detalhes" → modal com claim, premises, assumptions
-
-#### 12.6 Busca de Ideias
-
-- **Descrição:** Implementar busca de ideias por título ou status.
-- **Critérios de Aceite:**
-  - Deve buscar por título (LIKE query, case-insensitive)
-  - Deve buscar por status (exploring, structured, validated)
-  - Deve permitir filtros combinados (título + status)
 
 ---
 
