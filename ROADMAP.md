@@ -13,17 +13,18 @@
 ### ✅ Concluídos
 - **ÉPICO 9**: Interface Web Conversacional - Interface web com chat conversacional, painel Bastidores em tempo real e integração com LangGraph SqliteSaver.
 - **ÉPICO 10**: Orquestrador Socrático - Orquestrador que usa diálogo socrático para explorar e estruturar ideias, gerenciando transições entre agentes.
+- **ÉPICO 11**: Modelagem Cognitiva - Modelo cognitivo explícito com persistência SQLite, versionamento de argumentos, detecção de maturidade via LLM e backend de checklist.
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 11**: Modelagem Cognitiva (refinado)
-- **ÉPICO 12**: Gestão de Ideias (não refinado)
+- **ÉPICO 12**: Entidade Idea (não refinado)
 - **ÉPICO 13**: Entidade Concept (não refinado)
-- **ÉPICO 14**: Melhorias de UX (não refinado)
-- **ÉPICO 15**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
-- **ÉPICO 16**: Personas de Agentes (não refinado)
+- **ÉPICO 14**: Gestão de Múltiplas Ideias (não refinado)
+- **ÉPICO 15**: Melhorias de UX (não refinado)
+- **ÉPICO 16+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
+- **ÉPICO 17**: Personas de Agentes (não refinado)
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -31,73 +32,33 @@
 
 ---
 
-## ÉPICO 11: Modelagem Cognitiva
+## ÉPICO 11: Modelagem Cognitiva ✅
 
-**Objetivo:** Implementar modelo cognitivo explícito (Argument como entidade) com persistência, versionamento e indicadores de maturidade (backend).
+**Objetivo:** Implementar modelo cognitivo explícito (Argument como entidade) com persistência, versionamento e indicadores de maturidade.
 
-**Status:** ✅ Refinado
+**Status:** Concluído (2025-11-17)
 
-**Dependências:**
-- ✅ Épico 10 concluído (Orquestrador Socrático)
-- ✅ Épico 9 concluído (Interface Web + SqliteSaver)
+**Implementado:**
+- ✅ **Schema Pydantic**: CognitiveModel com validação automática (claim, premises, assumptions, open_questions, contradictions, solid_grounds, context)
+- ✅ **Persistência SQLite**: Tabelas `ideas` e `arguments` em `data/data.db` separado de checkpoints.db
+- ✅ **Versionamento**: Auto-incremento de versões (V1, V2, V3...) por idea_id
+- ✅ **Argumento Focal**: FK `current_argument_id` em ideas para referenciar argumento ativo
+- ✅ **Detecção de Maturidade**: SnapshotManager com avaliação via LLM + fallback heurístico
+- ✅ **Checklist Adaptativo**: ProgressTracker com checklists por tipo de artigo (backend apenas)
 
-**Consulte:**
-- `docs/architecture/argument_model.md` - Schema técnico de Argument
-- `docs/vision/cognitive_model.md` - Modelo cognitivo completo
+**Arquivos principais:**
+- `agents/models/cognitive_model.py` - Schema Pydantic
+- `agents/database/schema.py`, `agents/database/manager.py` - Persistência SQLite
+- `agents/persistence/snapshot_manager.py` - Detecção maturidade e snapshots
+- `agents/checklist/progress_tracker.py` - Checklist backend
 
-### Funcionalidades:
-
-#### 11.1 Schema Explícito de Argument
-
-- **Descrição:** Criar dataclass/Pydantic `Argument` substituindo dict livre no `MultiAgentState`, com validação automática de campos.
-- **Critérios de Aceite:**
-  - Deve criar dataclass `Argument` com campos: claim, premises, assumptions, open_questions, contradictions, solid_grounds, context
-  - Deve validar campos via Pydantic (type hints + validação)
-  - Deve substituir `cognitive_model: dict` por `cognitive_model: Argument` no MultiAgentState
-  - SqliteSaver deve continuar salvando no checkpoint (Pydantic serializa automaticamente)
-
-#### 11.2 Setup de Persistência e Schema SQLite
-
-- **Descrição:** Configurar SqliteSaver do LangGraph para checkpoints de conversa + criar schema SQLite completo com tabelas ideas e arguments.
-- **Critérios de Aceite:**
-  - Deve configurar SqliteSaver do LangGraph (arquivo checkpoints.db)
-  - Deve criar tabela ideas: id (UUID PK), title, status, current_argument_id (FK NULLABLE), created_at, updated_at
-  - Deve criar tabela arguments: id (UUID PK), idea_id (FK), claim, premises (JSON), assumptions (JSON), open_questions (JSON), contradictions (JSON), solid_grounds (JSON), context (JSON), version (INT), created_at, updated_at
-  - Deve criar constraint: FOREIGN KEY (current_argument_id) REFERENCES arguments(id)
-  - Deve salvar snapshot quando usuário pausa sessão manualmente
-
-#### 11.3 Versionamento de Argumentos
-
-- **Descrição:** Detectar mudanças significativas de claim e criar nova versão de argumento (V1, V2, V3) automaticamente.
-- **Critérios de Aceite:**
-  - Deve adicionar campo `version` na tabela arguments (INT, auto-incrementa por idea_id)
-  - Deve detectar mudança significativa via LLM (confiança > 80%)
-  - Deve criar novo registro ao detectar mudança (não sobrescrever V1)
-  - Deve listar histórico de versões: `SELECT * FROM arguments WHERE idea_id = ? ORDER BY version`
-
-#### 11.4 Argumento Focal
-
-- **Descrição:** Gerenciar argumento focal como FK na tabela ideas (já criado na funcionalidade 11.2).
-- **Critérios de Aceite:**
-  - Campo current_argument_id já existe na tabela ideas (criado na 11.2)
-  - Deve UPDATE ideas SET current_argument_id ao criar nova versão de argumento
-  - Deve carregar argumento focal via FK simples: SELECT * FROM arguments WHERE id = idea.current_argument_id
-  - Deve permitir NULL (idea sem argumento ainda)
-
-#### 11.5 Indicadores de Maturidade
-
-- **Descrição:** Sistema detecta maturidade do argumento (não determinístico) e cria snapshot automaticamente.
-- **Critérios de Aceite:**
-  - Deve avaliar maturidade a cada turno via LLM
-  - Deve usar critérios: claim estável (3+ turnos), premises sólidas (>2), assumptions baixas (<2), open_questions vazias
-  - Deve criar snapshot automaticamente ao detectar maturidade (além de pausar manual)
-  - Deve notificar usuário: "Argumento amadureceu! Criando V{n}..."
+**Validação:** `python scripts/validate_cognitive_model.py`
 
 ---
 
-## ÉPICO 12: Gestão de Ideias
+## ÉPICO 12: Entidade Idea
 
-**Objetivo:** Permitir usuário gerenciar ideias criadas pelo sistema (listar, alternar, buscar, criar nova).
+**Objetivo:** Migrar entidade central de Topic → Idea, generalizando campos para suportar múltiplos produtos (paper-agent, fichamento).
 
 **Status:** ⏳ Planejado (não refinado)
 
@@ -105,62 +66,65 @@
 - ✅ Épico 11 concluído (Argument existe como entidade)
 
 **Consulte:**
-- `docs/interface/web.md` - Especificação de interface completa
+- `docs/architecture/idea_model.md` - Schema técnico de Idea
+- `docs/architecture/migration_strategy.md` - Fases de migração
 
 ### Funcionalidades:
 
-#### 12.1: Mostrar Status da Ideia na Interface
+#### 12.1 Migração SQL: topics → ideas
 
-- **Descrição:** Exibir ideia ativa no painel Bastidores com badge visual.
+- **Descrição:** Renomear tabela `topics` para `ideas` preservando dados existentes (zero downtime).
+- **Critérios de Aceite:**
+  - Deve executar: `ALTER TABLE topics RENAME TO ideas`
+  - Deve preservar todos os dados existentes (zero perda)
+  - Deve validar integridade referencial após migração
+  - Deve criar script de migração testável (rollback se falhar)
+
+#### 12.2 Generalização de Campos
+
+- **Descrição:** Transformar campo `article_type` específico em `context` JSON genérico para suportar múltiplos produtos.
+- **Critérios de Aceite:**
+  - Deve adicionar campo `context` JSON na tabela ideas
+  - Deve migrar dados: article_type → context.article_type
+  - Deve transformar `stage` → `status` (exploring | structured | validated)
+  - Deve manter backward compatibility durante transição
+
+#### 12.3 FK para Argument
+
+- **Descrição:** Adicionar campo `current_argument_id` na tabela ideas para referenciar argumento focal.
+- **Critérios de Aceite:**
+  - Deve adicionar campo `current_argument_id` (FK NULLABLE para arguments)
+  - Deve criar constraint: `FOREIGN KEY (current_argument_id) REFERENCES arguments(id)`
+  - Deve UPDATE ideas SET current_argument_id ao criar primeiro argumento
+  - Deve permitir NULL (idea sem argumento ainda)
+
+#### 12.4 Renomear Código: Topic → Idea
+
+- **Descrição:** Find/replace estruturado no código Python (Topic → Idea) mantendo funcionalidade.
+- **Critérios de Aceite:**
+  - Deve renomear classes: `Topic` → `Idea`
+  - Deve renomear variáveis: `topic` → `idea`, `topic_id` → `idea_id`
+  - Deve atualizar imports em todos os arquivos
+  - Deve criar alias temporário se necessário (backward compatibility)
+  - Não deve quebrar testes existentes
+
+#### 12.5 Mostrar Status da Idea na Interface
+
+- **Descrição:** Exibir status da ideia atual no painel Bastidores com badge visual.
 - **Critérios de Aceite:**
   - Deve mostrar: "💡 Ideia Atual: {title}"
   - Deve exibir badge de status: 🔍 Explorando | 📝 Estruturada | ✅ Validada
   - Deve inferir status do modelo cognitivo (não manual)
   - Deve atualizar status em tempo real conforme conversa evolui
 
-#### 12.2: Listar Ideias na Sidebar
+#### 12.6 Testes de Migração
 
-- **Descrição:** Sidebar com últimas 10 ideias ordenadas por updated_at DESC.
+- **Descrição:** Validar que migração SQL e código funcionam com dados reais.
 - **Critérios de Aceite:**
-  - Deve listar últimas 10 ideias (ORDER BY updated_at DESC)
-  - Deve exibir: título, status badge, # argumentos
-  - Deve destacar ideia ativa (bold, background diferente)
-  - Deve ser colapsável (toggle on/off)
-
-#### 12.3: Alternar Entre Ideias
-
-- **Descrição:** Clicar em Idea na sidebar carrega contexto completo (thread_id + argumento focal).
-- **Critérios de Aceite:**
-  - Deve carregar thread_id do LangGraph (SqliteSaver)
-  - Deve restaurar argumento focal (current_argument_id)
-  - Deve exibir histórico de mensagens da ideia selecionada
-  - Deve atualizar Bastidores com contexto da ideia
-
-#### 12.4: Criar Nova Ideia
-
-- **Descrição:** Botão "[+ Nova Ideia]" cria registro vazio e inicia conversa nova.
-- **Critérios de Aceite:**
-  - Deve criar registro vazio em ideas (título = "Nova Ideia {timestamp}")
-  - Deve gerar novo thread_id (LangGraph)
-  - Deve redirecionar para chat da nova ideia
-  - Deve limpar histórico de mensagens (conversa limpa)
-
-#### 12.5: Explorador de Argumentos (Preview)
-
-- **Descrição:** Ao clicar em Idea na sidebar, expandir e mostrar argumentos versionados (V1, V2, V3).
-- **Critérios de Aceite:**
-  - Deve expandir argumentos ao clicar em idea
-  - Deve listar V1, V2, V3 (versionamento histórico)
-  - Deve destacar argumento focal com badge [focal]
-  - Deve ter botão "Ver detalhes" → modal com claim, premises, assumptions
-
-#### 12.6: Busca de Ideias
-
-- **Descrição:** Implementar busca de ideias por título ou status.
-- **Critérios de Aceite:**
-  - Deve buscar por título (LIKE query, case-insensitive)
-  - Deve buscar por status (exploring, structured, validated)
-  - Deve permitir filtros combinados (título + status)
+  - Deve testar migração com backup de banco real
+  - Deve validar que sessões antigas carregam corretamente
+  - Deve validar que novo código funciona com schema migrado
+  - Deve executar suite de testes completa (unit + integration)
 
 ---
 
@@ -171,7 +135,7 @@
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- ✅ Épico 12 concluído (Gestão de Ideias)
+- ✅ Épico 12 concluído (Idea existe como entidade)
 
 **Consulte:**
 - `docs/architecture/concept_model.md` - Schema técnico de Concept
@@ -235,7 +199,86 @@
 
 ---
 
-## ÉPICO 14: Melhorias de UX
+## ÉPICO 14: Gestão de Múltiplas Ideias
+
+**Objetivo:** Permitir usuário gerenciar múltiplas ideias em progresso (sidebar, busca, alternância) com explorador de entidades.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- ✅ Épicos 11-13 concluídos (Idea + Argument + Concept existem)
+
+**Consulte:**
+- `docs/interface/web.md` - Especificação de interface completa
+
+### Funcionalidades:
+
+#### 14.1 Sidebar: Lista de Ideias
+
+- **Descrição:** Exibir lista das últimas 10 ideias na sidebar com título, status e # de argumentos.
+- **Critérios de Aceite:**
+  - Deve listar últimas 10 ideias (ORDER BY updated_at DESC)
+  - Deve exibir: título, status badge, # argumentos
+  - Deve destacar ideia ativa (bold, background diferente)
+  - Deve ser colapsável (toggle on/off)
+
+#### 14.2 Explorador de Argumentos
+
+- **Descrição:** Ao clicar em Idea na sidebar, expandir e mostrar argumentos versionados (V1, V2, V3).
+- **Critérios de Aceite:**
+  - Deve expandir argumentos ao clicar em idea
+  - Deve listar V1, V2, V3 (versionamento histórico)
+  - Deve destacar argumento focal com badge [focal]
+  - Deve ter botão "Ver detalhes" → modal com claim, premises, assumptions
+
+#### 14.3 Busca de Ideias
+
+- **Descrição:** Implementar busca de ideias por título, conceito ou status.
+- **Critérios de Aceite:**
+  - Deve buscar por título (LIKE query, case-insensitive)
+  - Deve buscar por conceito (JOIN com idea_concepts)
+  - Deve buscar por status (exploring, structured, validated)
+  - Deve permitir filtros combinados (título + status)
+
+#### 14.4 Criar Nova Ideia
+
+- **Descrição:** Botão "[+ Nova Ideia]" cria registro vazio e inicia conversa nova.
+- **Critérios de Aceite:**
+  - Deve criar registro vazio em ideas (título = "Nova Ideia {timestamp}")
+  - Deve gerar novo thread_id (LangGraph)
+  - Deve redirecionar para chat da nova ideia
+  - Deve limpar histórico de mensagens (conversa limpa)
+
+#### 14.5 Alternar Entre Ideias
+
+- **Descrição:** Clicar em Idea na sidebar carrega contexto completo (thread_id + argumento focal).
+- **Critérios de Aceite:**
+  - Deve carregar thread_id do LangGraph (SqliteSaver)
+  - Deve restaurar argumento focal (current_argument_id)
+  - Deve exibir histórico de mensagens da ideia selecionada
+  - Deve atualizar Bastidores com contexto da ideia
+
+#### 14.6 Resumo do Raciocínio
+
+- **Descrição:** Bastidores mostra resumo do raciocínio atual (1 frase, 280 chars) com link para detalhes.
+- **Critérios de Aceite:**
+  - Deve mostrar: "🧠 Sistema está pensando: {resumo}"
+  - Resumo deve ter max 280 chars (1 frase)
+  - Deve ter link "Ver raciocínio completo" → modal
+  - Resumo deve vir do agente ativo (Orquestrador, Estruturador, ...)
+
+#### 14.7 Métricas Acumuladas da Sessão
+
+- **Descrição:** Bastidores mostra métricas totais da sessão (tempo, custo R$, tokens).
+- **Critérios de Aceite:**
+  - Deve mostrar seção: "📊 Sessão"
+  - Deve exibir totais: tempo (segundos), custo (R$), tokens
+  - Deve quebrar por agente: Orquestrador (X tokens, R$ Y), Estruturador (...), etc
+  - Deve atualizar em tempo real a cada turno
+
+---
+
+## ÉPICO 15: Melhorias de UX
 
 **Objetivo:** Polimento de interface web baseado em feedbacks do usuário (Enter envia, custo em R$, métricas discretas).
 
@@ -249,7 +292,7 @@
 
 ### Funcionalidades:
 
-#### 14.1 Enter Envia, Ctrl+Enter Pula Linha
+#### 15.1 Enter Envia, Ctrl+Enter Pula Linha
 
 - **Descrição:** Textarea com comportamento padrão (Enter envia, Ctrl+Enter pula linha).
 - **Critérios de Aceite:**
@@ -258,7 +301,7 @@
   - Deve seguir padrão Claude.ai/ChatGPT
   - Deve funcionar cross-browser (Chrome, Firefox, Safari)
 
-#### 14.2 Custo em R$
+#### 15.2 Custo em R$
 
 - **Descrição:** Exibir custos em reais (BRL) ao invés de dólares (USD).
 - **Critérios de Aceite:**
@@ -267,7 +310,7 @@
   - Deve adicionar config em `.env`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.2`
   - Deve permitir fallback para USD se conversão falhar
 
-#### 14.3 Métricas Inline Mais Discretas
+#### 15.3 Métricas Inline Mais Discretas
 
 - **Descrição:** Tornar métricas inline (tokens, custo, tempo) mais discretas visualmente.
 - **Critérios de Aceite:**
@@ -276,7 +319,7 @@
   - Deve posicionar no canto inferior direito da mensagem
   - Deve manter formato: "💰 R$0.02 · 215 tokens · 1.2s"
 
-#### 14.4 Timeline Colapsada por Padrão
+#### 15.4 Timeline Colapsada por Padrão
 
 - **Descrição:** Bastidores com timeline de agentes anteriores colapsada inicialmente.
 - **Critérios de Aceite:**
@@ -285,7 +328,7 @@
   - Deve expandir ao clicar (mostrar histórico de agentes)
   - Deve persistir estado (colapsado/expandido) durante sessão
 
-#### 14.5 Botão "Copiar Raciocínio"
+#### 15.5 Botão "Copiar Raciocínio"
 
 - **Descrição:** Modal de raciocínio completo com botão para copiar texto.
 - **Critérios de Aceite:**
@@ -294,19 +337,9 @@
   - Deve mostrar feedback visual: "✓ Copiado!" (2s)
   - Deve funcionar cross-browser (clipboard API)
 
-#### 14.6 Checklist de Progresso no Header
-
-- **Descrição:** Exibir checklist visual no header do chat sincronizado com modelo cognitivo.
-- **Critérios de Aceite:**
-  - Deve mostrar bolinhas no header: [⚪⚪🟡⚪⚪] (clicável para expandir)
-  - Deve usar status: ⚪ pendente 🟡 em progresso 🟢 completo
-  - Deve adaptar checklist conforme tipo de artigo (empírico vs revisão vs teórico)
-  - Deve sincronizar com modelo cognitivo (claim → escopo ✓, premises → população ✓, etc)
-  - Deve mostrar minimizado por padrão (expandir ao clicar)
-
 ---
 
-## ÉPICO 15: Agentes Avançados
+## ÉPICO 16: Agentes Avançados
 
 **Objetivo:** Expandir sistema com agentes especializados para pesquisa, redação e revisão de artigos científicos.
 
@@ -321,7 +354,7 @@
 
 ---
 
-## ÉPICO 16: Personas de Agentes
+## ÉPICO 17: Personas de Agentes
 
 **Objetivo:** Permitir customização de agentes como "personas" (Sócrates, Aristóteles, Popper) com estilos de argumentação personalizados, transformando agentes em "mentores" que usuário pode escolher e treinar.
 
@@ -329,7 +362,7 @@
 
 **Dependências:**
 - ✅ Épico 9 concluído (Interface Web Conversacional)
-- ⏳ Épicos 11-14 concluídos (modelo de dados + gestão de ideias + UX)
+- ⏳ Épicos 11-15 concluídos (modelo de dados + gestão de ideias + UX)
 - Agentes visíveis na interface (implementado no Épico 11+)
 
 **Consulte:** 
