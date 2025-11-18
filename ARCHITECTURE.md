@@ -134,7 +134,7 @@ MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento fo
 
 **Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
 
-## Modelo Cognitivo
+## Modelo Cognitivo (Épico 11 - Concluído)
 
 Sistema captura evolução do pensamento do usuário através de modelo cognitivo explícito com campos: `claim`, `premises`, `assumptions`, `open_questions`, `contradictions`, `solid_grounds`, `context`.
 
@@ -146,10 +146,13 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - Metodologista: valida lógica, aponta contradições
 - Pesquisador (futuro): transforma dúvidas em evidências
 
-**Progressão:**
-- **POC (Épico 10):** CognitiveModel em memória (MultiAgentState)
-- **Protótipo (Épico 11):** Persistido no checkpoint LangGraph
-- **MVP (Épico 12):** Gestão de múltiplas ideias
+**Implementação (Épico 11):**
+- **Schema Pydantic:** `agents/models/cognitive_model.py` - CognitiveModel, Contradiction, SolidGround
+- **Persistência SQLite:** `agents/database/` - DatabaseManager com tabelas ideas e arguments
+- **Versionamento:** Auto-incremento de versões (V1, V2, V3...) por idea
+- **Maturidade:** `agents/persistence/snapshot_manager.py` - Detecção via LLM e snapshots automáticos
+- **Checklist:** `agents/checklist/progress_tracker.py` - Rastreamento adaptativo por tipo de artigo
+- **Banco de dados:** `data/data.db` - Separado de checkpoints.db (LangGraph)
 
 ## Stack Técnico
 
@@ -166,9 +169,15 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 
 ### Persistência
 
-**Atual (POC/Protótipo):**
+**Atual (Épico 11 - Concluído):**
 - **SqliteSaver (LangGraph):** Checkpoints de conversa (arquivo `checkpoints.db`)
-- **SQLite customizado:** Entidades (ideas, arguments) em `data.db`
+- **SQLite customizado (Épico 11):** Entidades de domínio em `data/data.db`:
+  - Tabela `ideas`: id, title, status, current_argument_id (FK)
+  - Tabela `arguments`: id, idea_id (FK), claim, premises, assumptions, open_questions, contradictions, solid_grounds, context, version
+  - Versionamento automático (V1, V2, V3...) via UNIQUE constraint (idea_id, version)
+  - Triggers para updated_at automático
+  - Views otimizadas para JOIN idea + argumento focal
+- **DatabaseManager singleton:** `agents/database/manager.py` - CRUD operations
 - **Localização:** Arquivos locais em `./data/`
 
 **Futuro (MVP/Produção):**
@@ -259,6 +268,19 @@ paper-agent/
 │   ├── structurer/        # Agente Estruturador
 │   │   ├── __init__.py
 │   │   └── nodes.py       # structurer_node
+│   ├── models/            # Modelos de domínio (Épico 11)
+│   │   ├── __init__.py
+│   │   └── cognitive_model.py    # CognitiveModel, Contradiction, SolidGround
+│   ├── database/          # Persistência SQLite (Épico 11)
+│   │   ├── __init__.py
+│   │   ├── schema.py       # Schema SQL (tabelas, índices, triggers, views)
+│   │   └── manager.py      # DatabaseManager (singleton CRUD)
+│   ├── persistence/       # Snapshots e maturidade (Épico 11)
+│   │   ├── __init__.py
+│   │   └── snapshot_manager.py   # SnapshotManager (detecção LLM + snapshot automático)
+│   ├── checklist/         # Rastreamento de progresso (Épico 11)
+│   │   ├── __init__.py
+│   │   └── progress_tracker.py   # ProgressTracker (checklist adaptativo)
 │   ├── memory/            # Sistema de memória e configuração
 │   │   ├── __init__.py
 │   │   ├── config_loader.py      # Carregamento de configs YAML
@@ -309,6 +331,7 @@ paper-agent/
 │
 ├── scripts/               # Scripts de validação manual
 │   ├── __init__.py
+│   ├── validate_cognitive_model.py   # Validação Epic 11 (completo)
 │   ├── health_checks/            # Sanidade de ambiente e configs
 │   │   ├── validate_api.py
 │   │   ├── validate_agent_config.py
@@ -391,13 +414,13 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 Sistema está migrando de entidade `Topic` para ontologia completa (`Idea`, `Concept`, `Argument`):
 
 **Fases planejadas:**
-1. **Épico 11:** Abstrair fundação (Topic → Idea)
+1. **Épico 11:** ✅ **Concluído** - Abstrair fundação (CognitiveModel + persistência SQLite)
 2. **Épico 12:** Criar Concept (vetores semânticos)
 3. **Épico 13:** Argument explícito (múltiplos por ideia)
 4. **Épico 14:** Fichamento (novo produto)
 5. **Épico 15:** Grafo de conhecimento
 
-**Status:** Épico 10 em implementação (Orquestrador Socrático). Migração afeta Épico 11+.
+**Status:** Épico 11 concluído (2025-11-17). Próximo: Épico 12.
 
 ## Padrões Essenciais
 
