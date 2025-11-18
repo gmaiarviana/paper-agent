@@ -163,26 +163,54 @@ class SnapshotManager:
                 lines = response_text.split("\n")
                 response_text = "\n".join(lines[1:-1])  # Remove primeira e última linha
 
-            # Tentar parsear JSON
-            # LLM pode adicionar texto explicativo após o JSON, então extraímos apenas o JSON
+            # Extrair JSON da resposta
+            # LLM pode adicionar texto antes e/ou depois do JSON
+            logger.debug("[MATURITY] Tentando extrair JSON da resposta...")
+
+            # Tentar parsear diretamente primeiro
             try:
-                logger.debug("[MATURITY] Tentando parsear JSON...")
                 assessment_dict = json.loads(response_text)
-                logger.debug(f"[MATURITY] JSON parseado com sucesso: is_mature={assessment_dict.get('is_mature')}")
+                logger.debug(f"[MATURITY] JSON parseado diretamente: is_mature={assessment_dict.get('is_mature')}")
             except json.JSONDecodeError as e:
-                logger.debug(f"[MATURITY] Erro JSON: {e}, tentando extrair apenas JSON válido")
+                logger.debug(f"[MATURITY] Erro ao parsear diretamente: {e}")
+
                 # Se erro for "Extra data", extrair apenas o JSON válido
                 if "Extra data" in str(e):
-                    # Encontrar posição onde termina o JSON válido
                     json_end = e.pos
                     response_text = response_text[:json_end].strip()
                     logger.debug(f"[MATURITY] Extraindo JSON até posição {json_end}")
                     assessment_dict = json.loads(response_text)
                     logger.debug(f"[MATURITY] JSON extraído com sucesso")
                 else:
-                    logger.error(f"[MATURITY] Erro JSON não recuperável: {e}")
-                    logger.error(f"[MATURITY] Resposta completa: {repr(response_text)}")
-                    raise
+                    # Tentar encontrar JSON no meio do texto
+                    logger.debug("[MATURITY] Tentando extrair JSON do meio da resposta...")
+
+                    # Procurar início do JSON (primeiro '{')
+                    json_start = response_text.find('{')
+                    if json_start == -1:
+                        logger.error("[MATURITY] Nenhum JSON encontrado na resposta")
+                        raise ValueError("Resposta não contém JSON")
+
+                    # Extrair do início do JSON até o final
+                    json_text = response_text[json_start:]
+                    logger.debug(f"[MATURITY] JSON extraído a partir da posição {json_start}")
+
+                    # Tentar parsear
+                    try:
+                        assessment_dict = json.loads(json_text)
+                        logger.debug(f"[MATURITY] JSON extraído com sucesso: is_mature={assessment_dict.get('is_mature')}")
+                    except json.JSONDecodeError as e2:
+                        # Se ainda tiver "Extra data", cortar no final do JSON válido
+                        if "Extra data" in str(e2):
+                            json_end = e2.pos
+                            json_text = json_text[:json_end].strip()
+                            logger.debug(f"[MATURITY] Cortando texto extra após posição {json_end}")
+                            assessment_dict = json.loads(json_text)
+                            logger.debug(f"[MATURITY] JSON final extraído com sucesso")
+                        else:
+                            logger.error(f"[MATURITY] Erro JSON não recuperável: {e2}")
+                            logger.error(f"[MATURITY] JSON extraído: {repr(json_text[:500])}")
+                            raise
 
             # Validar com Pydantic
             assessment = MaturityAssessment(**assessment_dict)
