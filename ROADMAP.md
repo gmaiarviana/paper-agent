@@ -60,7 +60,7 @@
 
 **Objetivo:** Migrar entidade central de Topic → Idea, generalizando campos para suportar múltiplos produtos (paper-agent, fichamento).
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** 🟡 Refinado - Pronto para Implementação
 
 **Dependências:**
 - ✅ Épico 11 concluído (Argument existe como entidade)
