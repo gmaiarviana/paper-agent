@@ -134,8 +134,8 @@ ajudar a estruturar uma hipótese sobre qualidade?"
 **Definição:**
 O sistema está construindo um **"argumento focal"** sobre o que o usuário quer fazer. Esse argumento evolui ao longo da conversa e serve como âncora para detectar contexto e mudanças de direção.
 
-**Conexão com Épico 8:**
-No Épico 8, o argumento focal se tornará campo explícito na entidade `Topic`, permitindo persistência e rastreamento formal. No POC, ele é implícito (reconstruído a cada turno via histórico).
+**Conexão com Épico 11:**
+No Épico 11, o argumento focal se tornará campo explícito na entidade `Idea` (anteriormente "Topic"), permitindo persistência e rastreamento formal. No POC, ele é implícito (reconstruído a cada turno via histórico).
 
 **No POC:**
 - Detecção simples via comparação LLM (novo input vs histórico)

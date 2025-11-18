@@ -4,7 +4,7 @@
 
 Plataforma colaborativa com agentes de IA para apoiar produção de artigos científicos ponta a ponta. Arquitetura atual: sistema multi-agente conversacional sobre LangGraph com Orquestrador facilitador, Estruturador organizador e Metodologista validador. Sistema mantém diálogo fluido onde usuário e agentes negociam caminho juntos. Interface web conversacional (Streamlit) como principal; CLI mantido para desenvolvimento e automação.
 
-## Entidade Central: Ideia
+## Modelo Conceitual: Ontologia (Planejado)
 
 > **Nota:** Para estrutura de dados completa e ontologia, consulte:
 > - `docs/architecture/ontology.md` - O que é Conceito, Ideia, Argumento
@@ -12,25 +12,23 @@ Plataforma colaborativa com agentes de IA para apoiar produção de artigos cien
 > - `docs/architecture/concept_model.md` - Schema técnico de Conceito
 > - `docs/architecture/argument_model.md` - Schema técnico de Argumento
 
-O sistema trabalha com a entidade **Ideia**, que representa pensamento articulado que evolui até se tornar argumento sólido.
+O sistema está sendo projetado para trabalhar com a entidade **Ideia**, que representa pensamento articulado que evolui até se tornar argumento sólido. **Status atual:** Modelo cognitivo capturado em memória durante conversa. Persistência e gestão de ideias planejadas para Épicos 11-12 (ver `ROADMAP.md`).
 
-**Estrutura básica:**
+**Estrutura planejada:**
 ```python
 Idea:
   id: UUID
   title: "Cooperação humana via mitos"
-  concepts: [concept_ids]      # Conceitos que usa
-  arguments: [argument_ids]    # Múltiplos argumentos (lentes)
+  concepts: [concept_ids]      # Conceitos que usa (Épico 13)
+  arguments: [argument_ids]    # Múltiplos argumentos (Épico 11)
   context: {source_type, source, ...}
   status: "exploring" | "structured" | "validated"
 ```
 
-**Ontologia:**
-- **Conceito:** Abstração reutilizável (vetor semântico)
-- **Ideia:** Território (pensamento articulado)
-- **Argumento:** Lente (claim + premises + assumptions)
-
-**Evolução fluida:** Sistema detecta status automaticamente; usuário pode voltar etapas; múltiplos argumentos por ideia.
+**Ontologia conceitual:**
+- **Conceito:** Abstração reutilizável (vetor semântico) - Épico 13
+- **Ideia:** Território (pensamento articulado) - Épico 12
+- **Argumento:** Lente (claim + premises + assumptions) - Épico 11
 
 ## Super-Sistema: Core → Produtos
 
@@ -58,14 +56,13 @@ Produtos são **serviços desacoplados** que consomem core via APIs.
 - **Orquestrador:** Facilitador conversacional que mantém diálogo, detecta necessidades e sugere agentes
 - **Estruturador:** Organiza ideias vagas e refina questões baseado em feedback estruturado
 - **Metodologista:** Valida rigor científico em modo colaborativo (approved/needs_refinement/rejected)
-- **Interface conversacional:** Web app Streamlit (Épico 9)
+- **Interface conversacional:** Web app Streamlit (ver `ROADMAP.md` - Épico 9)
 - **Interface CLI:** Ferramenta de desenvolvimento (congelada, backend compartilhado)
 
 **Estado compartilhado:**
 - MultiAgentState híbrido (campos compartilhados + específicos por agente)
-- Versionamento de hipóteses (V1 → V2 → V3)
 - Rastreamento de iterações de refinamento
-- Argumento focal explícito (intent, subject, population, metrics, article_type)
+- Argumento focal implícito (reconstruído a cada turno via histórico)
 
 **Infraestrutura:**
 - Python 3.11+, Anthropic API, LangGraph
@@ -84,8 +81,7 @@ O sistema oferece **duas interfaces web** com propósitos distintos:
 ### Chat Web (`app/chat.py`) - Experiência Principal
 - Interface conversacional para usuários finais
 - Chat fluido + bastidores opcionais (reasoning inline)
-- Sidebar com últimas 10 sessões (SqliteSaver backend)
-- Persistência entre visitas (sem autenticação - sessões compartilhadas)
+- Persistência de sessão via SqliteSaver (checkpoints LangGraph)
 - **Porta:** :8501
 
 ### Dashboard (`app/dashboard.py`) - Debug/Monitoring
@@ -116,21 +112,19 @@ O sistema oferece **duas interfaces web** com propósitos distintos:
 
 ## Orquestrador Conversacional
 
-Facilitador conversacional que mantém diálogo fluido, detecta necessidades, oferece opções ao usuário e adapta-se a mudanças de direção. Extrai e atualiza argumento focal a cada turno, provoca reflexão sobre lacunas e detecta emergência de novo estágio.
+Facilitador conversacional que mantém diálogo fluido, detecta necessidades, oferece opções ao usuário e adapta-se a mudanças de direção. Reconstrói argumento focal a cada turno analisando histórico da conversa.
 
 **Detalhes:** Ver `docs/orchestration/conversational_orchestrator.md`
 
-## Orquestrador Socrático (Épico 10)
+## Orquestrador Socrático
 
-Evolução do Orquestrador Conversacional que adiciona capacidade de exposição de suposições implícitas através de contra-perguntas socráticas. Detecta 5 categorias de assumptions (métrica vaga, população vaga, baseline ausente, causalidade assumida, generalização excessiva), escala profundidade de provocação em 3 níveis conforme resistência do usuário, e determina timing apropriado de provocação (quando provocar vs quando apenas explorar).
+Evolução do Orquestrador Conversacional que adiciona capacidade de exposição de suposições implícitas através de contra-perguntas socráticas.
 
-**Detalhes:** Ver `docs/orchestration/socratic_orchestrator.md`
-
-**Relacionamento:** Socrático é extensão do Conversacional (Épico 7). Conversacional provê base de análise contextual e argumento focal; Socrático adiciona provocação estruturada sobre assumptions.
+**Detalhes:** Ver `ROADMAP.md` (Épico 10) e `docs/orchestration/socratic_orchestrator.md`
 
 ## Estado Compartilhado
 
-MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento focal) e específicos por agente (estruturação, validação). Suporta versionamento de hipóteses (V1 → V2 → V3) e rastreamento de iterações de refinamento.
+MultiAgentState híbrido gerencia campos compartilhados (mensagens, histórico conversacional) e específicos por agente (estruturação, validação). Rastreia iterações de refinamento durante sessão ativa.
 
 **Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
 
@@ -146,10 +140,7 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - Metodologista: valida lógica, aponta contradições
 - Pesquisador (futuro): transforma dúvidas em evidências
 
-**Progressão:**
-- **POC (Épico 10):** CognitiveModel em memória (MultiAgentState)
-- **Protótipo (Épico 11):** Persistido no checkpoint LangGraph
-- **MVP (Épico 12):** Gestão de múltiplas ideias
+**Status atual:** Modelo cognitivo capturado em memória (MultiAgentState) durante conversa. Para evolução planejada (persistência, gestão de ideias), ver `ROADMAP.md` (Épicos 11-12).
 
 ## Stack Técnico
 
@@ -166,9 +157,8 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 
 ### Persistência
 
-**Atual (POC/Protótipo):**
+**Atual:**
 - **SqliteSaver (LangGraph):** Checkpoints de conversa (arquivo `checkpoints.db`)
-- **SQLite customizado:** Entidades (ideas, arguments) em `data.db`
 - **Localização:** Arquivos locais em `./data/`
 
 **Futuro (MVP/Produção):**
@@ -178,52 +168,28 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 
 **Decisão:** Começar simples (SQLite) e migrar quando necessário. Evitar over-engineering prematuro.
 
-## Configuração Externa de Agentes (Épico 6.1)
+## Configuração Externa de Agentes
 
 Sistema de configuração dinâmica que permite definir prompts, modelos LLM e limites de contexto via arquivos YAML externos.
 
+**Detalhes:** Ver `ROADMAP.md` (Épico 6) para funcionalidades completas.
+
 **Arquitetura:**
-- **Arquivos YAML**: `config/agents/{agent_name}.yaml` - um por agente (orchestrator, structurer, methodologist)
+- **Arquivos YAML**: `config/agents/{agent_name}.yaml` - um por agente
 - **Loader**: `agents/memory/config_loader.py` - carrega e valida configs em runtime
-- **Validator**: `agents/memory/config_validator.py` - valida schema dos YAMLs
-- **Bootstrap**: Validação automática no `create_multi_agent_graph()`
+- **Integração**: Nós carregam configs YAML ao executar, com fallback para prompts hard-coded
 
-**Funcionalidades:**
-- Prompts carregados do YAML substituem prompts hard-coded em `utils/prompts.py`
-- Modelos LLM configuráveis por agente (Haiku para performance, Sonnet para precisão)
-- Limites de contexto (`max_input_tokens`, `max_output_tokens`, `max_total_tokens`) por agente
-- **Fallback automático**: Se YAML falhar, nós usam prompts hard-coded para não quebrar sistema
-- **Mensagens em PT-BR**: Todos os erros reportados em português
-
-**Integração runtime:**
-- `orchestrator_node`: Carrega `config/agents/orchestrator.yaml` ao executar
-- `structurer_node`: Carrega `config/agents/structurer.yaml` ao executar (ambos modos: inicial e refinamento)
-- `decide_collaborative` e `force_decision_collaborative`: Carregam `config/agents/methodologist.yaml` ao executar
-- `create_multi_agent_graph`: Valida que todos YAMLs obrigatórios existem no bootstrap
-
-## Registro de Memória e Metadados (Épico 6.2)
+## Registro de Memória e Metadados
 
 Sistema de captura e agregação de tokens, custos e metadados de execução por agente.
 
+**Detalhes:** Ver `ROADMAP.md` (Épico 6) para funcionalidades completas.
+
 **Arquitetura:**
-- **ExecutionTracker**: `agents/memory/execution_tracker.py` - helper para capturar tokens de AIMessage e registrar no MemoryManager
-- **MemoryManager**: `agents/memory/memory_manager.py` - armazena histórico de execuções por sessão e agente
-- **CostTracker**: `utils/cost_tracker.py` - calcula custos baseado em tokens e modelo LLM
-- **Integração**: Nós do LangGraph recebem config com `memory_manager` e registram após cada invocação LLM
-
-**Funcionalidades:**
-- Captura automática de tokens de respostas LLM (LangChain AIMessage)
-- Cálculo de custos integrado (suporta Haiku, Sonnet, Opus)
-- Registro de metadados personalizados por agente (classificação, modo, versão, etc)
-- Agregação de totais por agente e por sessão
-- Export JSON serializável para integração com dashboard
-- Passagem opcional via config - não quebra nós existentes
-
-**Nós instrumentados:**
-- `orchestrator_node` (v2.1): Registra classificação de maturidade + tokens
-- `structurer_node` (v3.1): Registra estruturação inicial (V1) e refinamentos (V2/V3) + tokens
-- `decide_collaborative` (v3.1): Registra decisões colaborativas (approved/needs_refinement/rejected) + tokens
-- `force_decision_collaborative` (v3.1): Registra decisões forçadas após limite + tokens
+- **ExecutionTracker**: Captura tokens de AIMessage e registra no MemoryManager
+- **MemoryManager**: Armazena histórico de execuções por sessão e agente
+- **CostTracker**: Calcula custos baseado em tokens e modelo LLM
+- **Integração**: Nós do LangGraph registram métricas após cada invocação LLM
 
 ## Estrutura do Projeto
 
@@ -384,20 +350,18 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 - **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários
 - **Modo colaborativo:** Prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar)
 
-## Estratégia de Migração
+## Visão Futura
 
-> **Nota:** Para fases detalhadas, consulte `docs/architecture/migration_strategy.md`.
+> **Nota:** Para fases detalhadas de migração, consulte `docs/architecture/migration_strategy.md` e `ROADMAP.md`.
 
-Sistema está migrando de entidade `Topic` para ontologia completa (`Idea`, `Concept`, `Argument`):
+Sistema atual trabalha com modelo cognitivo em memória. Planejado para Épicos 11+:
+- **Épico 11:** Modelagem Cognitiva (Argument como entidade persistida)
+- **Épico 12:** Gestão de Ideias (múltiplas ideias, sidebar, alternância)
+- **Épico 13:** Entidade Concept (vetores semânticos, ChromaDB)
+- **Épico 14:** Melhorias de UX (polimento de interface)
+- **Épico 15:** Agentes Avançados (Pesquisador, Escritor, Crítico)
 
-**Fases planejadas:**
-1. **Épico 11:** Abstrair fundação (Topic → Idea)
-2. **Épico 12:** Criar Concept (vetores semânticos)
-3. **Épico 13:** Argument explícito (múltiplos por ideia)
-4. **Épico 14:** Fichamento (novo produto)
-5. **Épico 15:** Grafo de conhecimento
-
-**Status:** Épico 10 em implementação (Orquestrador Socrático). Migração afeta Épico 11+.
+**Status:** Épicos 9-10 concluídos. Épicos 11+ planejados (ver `ROADMAP.md` para detalhes).
 
 ## Padrões Essenciais
 

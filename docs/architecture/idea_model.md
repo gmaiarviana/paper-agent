@@ -1,6 +1,8 @@
 # Idea Model - Estrutura de Dados
 
 > **Nota:** Para entender o que é Ideia filosoficamente, consulte `docs/architecture/ontology.md`.
+> 
+> **⚠️ Migração:** Este documento substitui o antigo `topic_argument_model.md` (obsoleto). A migração de "Topic" para "Idea" está planejada no Épico 11.
 
 ## Visão Geral
 
