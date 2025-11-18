@@ -87,22 +87,61 @@ def render_backstage(session_id: str) -> None:
     time.sleep(0.1)  # Pequeno delay para não sobrecarregar
 
 
+def _infer_status_from_argument(argument: Dict[str, Any]) -> str:
+    """
+    Infere status da ideia baseado no argumento focal (Épico 12.1 - melhorias).
+
+    Args:
+        argument: Dict do argumento (claim, premises, assumptions, open_questions, etc.)
+
+    Returns:
+        str: Status inferido ("exploring" | "structured" | "validated")
+
+    Lógica de inferência:
+        - Explorando: claim vago (<30 chars), premises vazias, open_questions > 3
+        - Estruturada: claim específico, premises preenchidas, open_questions < 3
+        - Validada: contradictions vazias, assumptions baixas, solid_grounds presente
+    """
+    claim = argument.get("claim", "")
+    premises = argument.get("premises", [])
+    assumptions = argument.get("assumptions", [])
+    open_questions = argument.get("open_questions", [])
+    contradictions = argument.get("contradictions", [])
+    solid_grounds = argument.get("solid_grounds", [])
+
+    # Critérios de validação (mais rigoroso)
+    if (len(contradictions) == 0 and
+        len(assumptions) <= 2 and
+        len(solid_grounds) > 0):
+        return "validated"
+
+    # Critérios de estruturação (intermediário)
+    if (len(claim) >= 30 and
+        len(premises) >= 2 and
+        len(open_questions) <= 2):
+        return "structured"
+
+    # Padrão: explorando (inicial)
+    return "exploring"
+
+
 def _render_idea_status(session_id: str) -> None:
     """
-    Renderiza status da ideia ativa no painel Bastidores (Épico 12.1).
+    Renderiza status da ideia ativa no painel Bastidores (Épico 12.1 + melhorias).
 
     Args:
         session_id: ID da sessão ativa
 
     Comportamento:
         - Exibe título da ideia ativa
-        - Badge de status inferido (🔍 Explorando | 📝 Estruturada | ✅ Validada)
+        - Badge de status INFERIDO do modelo cognitivo (🔍 Explorando | 📝 Estruturada | ✅ Validada)
         - Metadados: # argumentos, argumento focal, última atualização
         - Se nenhuma ideia ativa, exibe mensagem informativa
 
     Integração:
         - Busca ideia ativa de st.session_state["active_idea_id"]
         - Consulta database via get_database_manager()
+        - Infere status do argumento focal
     """
     # Buscar ideia ativa do session_state
     active_idea_id = st.session_state.get("active_idea_id")
@@ -122,13 +161,25 @@ def _render_idea_status(session_id: str) -> None:
         # Exibir título e status
         st.markdown("### 💡 Ideia Atual")
 
-        # Badge de status
+        # Buscar argumento focal
+        focal_arg_id = idea.get("current_argument_id")
+        focal_arg = None
+        if focal_arg_id:
+            focal_arg = db.get_argument(focal_arg_id)
+
+        # Inferir status do argumento focal (ao invés de ler estático do banco)
+        if focal_arg:
+            inferred_status = _infer_status_from_argument(focal_arg)
+        else:
+            inferred_status = "exploring"  # Sem argumento = explorando
+
+        # Badge de status INFERIDO
         status_badges = {
             "exploring": "🔍 Explorando",
             "structured": "📝 Estruturada",
             "validated": "✅ Validada"
         }
-        status_badge = status_badges.get(idea["status"], "❓ Desconhecido")
+        status_badge = status_badges.get(inferred_status, "❓ Desconhecido")
 
         # Título com badge
         st.markdown(f"**{idea['title']}**")
@@ -138,11 +189,9 @@ def _render_idea_status(session_id: str) -> None:
         arguments = db.get_arguments_by_idea(active_idea_id)
         num_arguments = len(arguments)
 
-        # Argumento focal
-        focal_arg_id = idea.get("current_argument_id")
-        if focal_arg_id:
-            focal_arg = db.get_argument(focal_arg_id)
-            focal_version = f"V{focal_arg['version']}" if focal_arg else "?"
+        # Argumento focal versão
+        if focal_arg:
+            focal_version = f"V{focal_arg['version']}"
         else:
             focal_version = "Nenhum"
 

@@ -99,12 +99,12 @@ def _get_active_session_id() -> str:
 
 def _create_new_idea() -> None:
     """
-    Cria nova ideia e define como ativa (Épico 12.4).
+    Cria nova ideia e define como ativa (Épico 12.4 + melhorias).
 
     Comportamento:
         - Gera título com timestamp
-        - Cria registro no database (status="exploring")
         - Gera novo thread_id (LangGraph)
+        - Cria registro no database (status="exploring", thread_id persistido)
         - Limpa histórico de mensagens
         - Define como ideia ativa
     """
@@ -113,12 +113,12 @@ def _create_new_idea() -> None:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         title = f"Nova Ideia {timestamp}"
 
-        # Criar registro no database
-        db = get_database_manager()
-        idea_id = db.create_idea(title=title, status="exploring")
-
         # Gerar novo thread_id para LangGraph
         new_session_id = get_current_session_id()
+
+        # Criar registro no database COM thread_id
+        db = get_database_manager()
+        idea_id = db.create_idea(title=title, status="exploring", thread_id=new_session_id)
 
         # Definir como ativa
         st.session_state.active_idea_id = idea_id
@@ -128,7 +128,7 @@ def _create_new_idea() -> None:
         if "messages" in st.session_state:
             st.session_state.messages = []
 
-        logger.info(f"Nova ideia criada: {idea_id} - '{title}'")
+        logger.info(f"Nova ideia criada: {idea_id} - '{title}' - thread_id: {new_session_id}")
         st.success(f"✅ Nova ideia criada: {title}")
         st.rerun()
 
@@ -195,20 +195,17 @@ def _get_recent_ideas(
 
 def _switch_idea(idea_id: str) -> None:
     """
-    Alterna para outra ideia (Épico 12.3).
+    Alterna para outra ideia (Épico 12.3 + melhorias).
 
     Args:
         idea_id: UUID da ideia a carregar
 
     Comportamento:
         - Define idea_id como ativa
-        - Gera novo thread_id (LangGraph) para essa ideia
+        - Carrega thread_id persistido (restaura histórico de conversas!)
         - Restaura argumento focal (current_argument_id)
-        - Limpa histórico de mensagens
+        - Limpa histórico de mensagens do session_state (será recarregado do SqliteSaver)
         - Força re-render da interface
-
-    TODO: Persistir thread_id por ideia (armazenar no database)
-    Por ora, cada alternância gera novo thread_id (conversa limpa)
     """
     try:
         db = get_database_manager()
@@ -221,10 +218,16 @@ def _switch_idea(idea_id: str) -> None:
         # Definir como ativa
         st.session_state.active_idea_id = idea_id
 
-        # Gerar novo thread_id (por ora)
-        # TODO: Armazenar thread_id por ideia no database
-        new_session_id = get_current_session_id()
-        st.session_state.active_session_id = new_session_id
+        # Carregar thread_id persistido (RESTAURA HISTÓRICO!)
+        loaded_thread_id = idea.get("thread_id")
+        if loaded_thread_id:
+            st.session_state.active_session_id = loaded_thread_id
+            logger.info(f"Thread ID restaurado: {loaded_thread_id}")
+        else:
+            # Fallback: gerar novo se ideia antiga não tem thread_id
+            new_session_id = get_current_session_id()
+            st.session_state.active_session_id = new_session_id
+            logger.warning(f"Ideia sem thread_id. Gerando novo: {new_session_id}")
 
         # Restaurar argumento focal
         if idea.get("current_argument_id"):
@@ -233,11 +236,11 @@ def _switch_idea(idea_id: str) -> None:
         else:
             st.session_state.current_argument = None
 
-        # Limpar histórico
+        # Limpar histórico (será recarregado do SqliteSaver automaticamente)
         if "messages" in st.session_state:
             st.session_state.messages = []
 
-        logger.info(f"Ideia alternada: {idea_id} - '{idea['title']}'")
+        logger.info(f"Ideia alternada: {idea_id} - '{idea['title']}' - thread_id: {loaded_thread_id}")
         st.rerun()
 
     except Exception as e:

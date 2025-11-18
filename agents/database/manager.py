@@ -106,7 +106,8 @@ class DatabaseManager:
         self,
         title: str,
         status: str = "exploring",
-        idea_id: Optional[str] = None
+        idea_id: Optional[str] = None,
+        thread_id: Optional[str] = None
     ) -> str:
         """
         Cria uma nova ideia no banco de dados.
@@ -116,6 +117,7 @@ class DatabaseManager:
             status: Status inicial (padrão: "exploring")
                 Valores válidos: "exploring" | "structured" | "validated"
             idea_id: UUID customizado (opcional). Se None, gera automaticamente.
+            thread_id: Thread ID do LangGraph (opcional). Para preservar histórico de conversas.
 
         Returns:
             str: UUID da ideia criada
@@ -126,7 +128,7 @@ class DatabaseManager:
 
         Example:
             >>> db = get_database_manager()
-            >>> idea_id = db.create_idea("LLMs e produtividade", "exploring")
+            >>> idea_id = db.create_idea("LLMs e produtividade", "exploring", thread_id="session-123")
         """
         if status not in ("exploring", "structured", "validated"):
             raise ValueError(f"Status inválido: {status}. Use: exploring, structured, validated")
@@ -135,14 +137,14 @@ class DatabaseManager:
             idea_id = str(uuid4())
 
         query = """
-        INSERT INTO ideas (id, title, status, current_argument_id)
-        VALUES (?, ?, ?, NULL)
+        INSERT INTO ideas (id, title, status, current_argument_id, thread_id)
+        VALUES (?, ?, ?, NULL, ?)
         """
 
         try:
-            self.conn.execute(query, (idea_id, title, status))
+            self.conn.execute(query, (idea_id, title, status, thread_id))
             self.conn.commit()
-            logger.info(f"Idea criada: {idea_id} - '{title}' ({status})")
+            logger.info(f"Idea criada: {idea_id} - '{title}' ({status}) - thread_id: {thread_id}")
             return idea_id
 
         except sqlite3.Error as e:
@@ -164,9 +166,10 @@ class DatabaseManager:
             >>> idea = db.get_idea(idea_id)
             >>> if idea:
             ...     print(idea["title"])
+            ...     print(idea["thread_id"])  # Thread ID do LangGraph
         """
         query = """
-        SELECT id, title, status, current_argument_id, created_at, updated_at
+        SELECT id, title, status, current_argument_id, thread_id, created_at, updated_at
         FROM ideas
         WHERE id = ?
         """
@@ -271,10 +274,11 @@ class DatabaseManager:
             >>> ideas = db.list_ideas(status="exploring", limit=5)
             >>> for idea in ideas:
             ...     print(idea["title"])
+            ...     print(idea["thread_id"])  # Thread ID do LangGraph
         """
         if status:
             query = """
-            SELECT id, title, status, current_argument_id, created_at, updated_at
+            SELECT id, title, status, current_argument_id, thread_id, created_at, updated_at
             FROM ideas
             WHERE status = ?
             ORDER BY updated_at DESC
@@ -283,7 +287,7 @@ class DatabaseManager:
             params = (status, limit)
         else:
             query = """
-            SELECT id, title, status, current_argument_id, created_at, updated_at
+            SELECT id, title, status, current_argument_id, thread_id, created_at, updated_at
             FROM ideas
             ORDER BY updated_at DESC
             LIMIT ?
