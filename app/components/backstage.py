@@ -17,8 +17,10 @@ import streamlit as st
 import logging
 import time
 from typing import Dict, Any, List, Optional
+from datetime import datetime
 
 from utils.event_bus import get_event_bus
+from agents.database.manager import get_database_manager
 
 logger = logging.getLogger(__name__)
 
@@ -32,12 +34,13 @@ AGENT_EMOJIS = {
 
 def render_backstage(session_id: str) -> None:
     """
-    Renderiza painel "Bastidores" com reasoning dos agentes.
+    Renderiza painel "Bastidores" com reasoning dos agentes e status da ideia.
 
     Args:
         session_id: ID da sessão ativa
 
-    Comportamento POC (9.5 + 9.6-9.8):
+    Comportamento (Épico 9 + Épico 12.1):
+        - Mostra status da ideia ativa (título, badge, metadados)
         - Toggle "🔍 Ver raciocínio" (fechado por padrão)
         - Quando aberto: mostra agente ativo + reasoning resumido
         - Botão "Ver raciocínio completo" abre modal com JSON
@@ -47,16 +50,22 @@ def render_backstage(session_id: str) -> None:
 
     Integração:
         - EventBus: Busca eventos via get_session_events()
+        - Database: Busca ideia ativa via get_database_manager()
         - Polling: Implementado via st.rerun() a cada 2s (quando aberto)
     """
-    # Toggle para mostrar/ocultar bastidores
+    st.markdown("---")
+    st.subheader("🎬 Bastidores")
+
+    # 12.1: Mostrar status da ideia ativa
+    _render_idea_status(session_id)
+
+    st.markdown("---")
+
+    # Toggle para mostrar/ocultar reasoning
     show_backstage = st.toggle("🔍 Ver raciocínio", value=False, key="toggle_backstage")
 
     if not show_backstage:
         return
-
-    st.markdown("---")
-    st.subheader("🎬 Bastidores")
 
     # Buscar reasoning mais recente
     reasoning = _get_latest_reasoning(session_id)
@@ -76,6 +85,140 @@ def render_backstage(session_id: str) -> None:
     # Auto-refresh para polling (POC - 2s)
     # Em produção: usar st.empty() + loop ou SSE
     time.sleep(0.1)  # Pequeno delay para não sobrecarregar
+
+
+def _infer_status_from_argument(argument: Dict[str, Any]) -> str:
+    """
+    Infere status da ideia baseado no argumento focal (Épico 12.1 - melhorias).
+
+    Args:
+        argument: Dict do argumento (claim, premises, assumptions, open_questions, etc.)
+
+    Returns:
+        str: Status inferido ("exploring" | "structured" | "validated")
+
+    Lógica de inferência:
+        - Explorando: claim vago (<30 chars), premises vazias, open_questions > 3
+        - Estruturada: claim específico, premises preenchidas, open_questions < 3
+        - Validada: contradictions vazias, assumptions baixas, solid_grounds presente
+    """
+    claim = argument.get("claim", "")
+    premises = argument.get("premises", [])
+    assumptions = argument.get("assumptions", [])
+    open_questions = argument.get("open_questions", [])
+    contradictions = argument.get("contradictions", [])
+    solid_grounds = argument.get("solid_grounds", [])
+
+    # Critérios de validação (mais rigoroso)
+    if (len(contradictions) == 0 and
+        len(assumptions) <= 2 and
+        len(solid_grounds) > 0):
+        return "validated"
+
+    # Critérios de estruturação (intermediário)
+    if (len(claim) >= 30 and
+        len(premises) >= 2 and
+        len(open_questions) <= 2):
+        return "structured"
+
+    # Padrão: explorando (inicial)
+    return "exploring"
+
+
+def _render_idea_status(session_id: str) -> None:
+    """
+    Renderiza status da ideia ativa no painel Bastidores (Épico 12.1 + melhorias).
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Comportamento:
+        - Exibe título da ideia ativa
+        - Badge de status INFERIDO do modelo cognitivo (🔍 Explorando | 📝 Estruturada | ✅ Validada)
+        - Metadados: # argumentos, argumento focal, última atualização
+        - Se nenhuma ideia ativa, exibe mensagem informativa
+
+    Integração:
+        - Busca ideia ativa de st.session_state["active_idea_id"]
+        - Consulta database via get_database_manager()
+        - Infere status do argumento focal
+    """
+    # Buscar ideia ativa do session_state
+    active_idea_id = st.session_state.get("active_idea_id")
+
+    if not active_idea_id:
+        st.info("ℹ️ Nenhuma ideia ativa. Crie ou selecione uma ideia na sidebar.")
+        return
+
+    try:
+        db = get_database_manager()
+        idea = db.get_idea(active_idea_id)
+
+        if not idea:
+            st.warning("⚠️ Ideia ativa não encontrada no banco de dados.")
+            return
+
+        # Exibir título e status
+        st.markdown("### 💡 Ideia Atual")
+
+        # Buscar argumento focal
+        focal_arg_id = idea.get("current_argument_id")
+        focal_arg = None
+        if focal_arg_id:
+            focal_arg = db.get_argument(focal_arg_id)
+
+        # Inferir status do argumento focal (ao invés de ler estático do banco)
+        if focal_arg:
+            inferred_status = _infer_status_from_argument(focal_arg)
+        else:
+            inferred_status = "exploring"  # Sem argumento = explorando
+
+        # Badge de status INFERIDO
+        status_badges = {
+            "exploring": "🔍 Explorando",
+            "structured": "📝 Estruturada",
+            "validated": "✅ Validada"
+        }
+        status_badge = status_badges.get(inferred_status, "❓ Desconhecido")
+
+        # Título com badge
+        st.markdown(f"**{idea['title']}**")
+        st.caption(status_badge)
+
+        # Metadados
+        arguments = db.get_arguments_by_idea(active_idea_id)
+        num_arguments = len(arguments)
+
+        # Argumento focal versão
+        if focal_arg:
+            focal_version = f"V{focal_arg['version']}"
+        else:
+            focal_version = "Nenhum"
+
+        # Última atualização
+        updated_at = idea.get("updated_at", "")
+        if updated_at:
+            # Converter para formato mais legível (se possível)
+            try:
+                dt = datetime.fromisoformat(updated_at.replace("Z", "+00:00"))
+                updated_str = dt.strftime("%d/%m/%Y %H:%M")
+            except:
+                updated_str = updated_at
+        else:
+            updated_str = "Desconhecida"
+
+        # Exibir metadados
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(label="Argumentos", value=num_arguments)
+        with col2:
+            st.metric(label="Argumento Focal", value=focal_version)
+
+        st.caption(f"📅 Última atualização: {updated_str}")
+
+    except Exception as e:
+        logger.error(f"Erro ao renderizar status da ideia: {e}", exc_info=True)
+        st.error(f"❌ Erro ao carregar status da ideia: {e}")
 
 
 def _get_latest_reasoning(session_id: str) -> Optional[Dict[str, Any]]:

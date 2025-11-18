@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS ideas (
     status TEXT NOT NULL                    -- Status: "exploring" | "structured" | "validated"
         CHECK (status IN ('exploring', 'structured', 'validated')),
     current_argument_id TEXT,               -- FK NULLABLE para argument focal atual
+    thread_id TEXT,                         -- Thread ID do LangGraph (SqliteSaver) para preservar histórico
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
