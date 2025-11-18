@@ -158,7 +158,19 @@ class SnapshotManager:
                 lines = response_text.split("\n")
                 response_text = "\n".join(lines[1:-1])  # Remove primeira e última linha
 
-            assessment_dict = json.loads(response_text)
+            # Tentar parsear JSON
+            # LLM pode adicionar texto explicativo após o JSON, então extraímos apenas o JSON
+            try:
+                assessment_dict = json.loads(response_text)
+            except json.JSONDecodeError as e:
+                # Se erro for "Extra data", extrair apenas o JSON válido
+                if "Extra data" in str(e):
+                    # Encontrar posição onde termina o JSON válido
+                    json_end = e.pos
+                    response_text = response_text[:json_end].strip()
+                    assessment_dict = json.loads(response_text)
+                else:
+                    raise
 
             # Validar com Pydantic
             assessment = MaturityAssessment(**assessment_dict)
