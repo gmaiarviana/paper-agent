@@ -161,7 +161,7 @@ idea_3 --[contradicts]--> idea_4
 idea_5 --[is_example_of]--> idea_6
 ```
 
-> **Nota:** Grafo de relações será implementado na Fase 5 (ver `docs/architecture/migration_strategy.md`).
+> **Nota:** Grafo de relações é feature futura planejada.
 
 ## Evolução de Ideia (Conversas Dinâmicas)
 

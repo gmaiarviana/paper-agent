@@ -431,11 +431,6 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 - **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários
 - **Modo colaborativo:** Prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar)
 
-## Estratégia de Migração
-
-> **Nota:** Para fases detalhadas, consulte `docs/architecture/migration_strategy.md`.
-
-
 ## Padrões Essenciais
 
 - **Contratos em JSON** entre orquestrador e agentes (status, justificativa, sugestões)
@@ -452,7 +447,6 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 - `docs/architecture/concept_model.md` - Estrutura de dados Conceito
 - `docs/architecture/argument_model.md` - Estrutura de dados Argumento
 - `docs/architecture/tech_stack.md` - ChromaDB, SQLite, embeddings
-- `docs/architecture/migration_strategy.md` - Fases de migração
 
 **Visão de Produto:**
 - `docs/vision/vision.md` - Visão de produto, tipos de artigo
