@@ -89,7 +89,9 @@ Navegador abre em `http://localhost:8501`.
 - 🔍 **Bastidores (opcional)**: Reasoning dos agentes em tempo real
 - 📊 **Timeline**: Histórico de decisões dos agentes (colapsado)
 - 💰 **Métricas discretas**: Custo e tokens por mensagem
-- 📂 **Sessões**: Sidebar com últimas 10 conversas (backend SqliteSaver)
+- 💬 **Conversas**: Sidebar com últimas 5 conversas (backend SqliteSaver)
+- 📖 **Meus Pensamentos**: Página dedicada com grid de ideias cristalizadas
+- 🏷️ **Catálogo**: Biblioteca de conceitos (disponível após Épico 13)
 - 💾 **Persistência**: Sessões sobrevivem entre visitas (sem autenticação)
 
 **Uso:**

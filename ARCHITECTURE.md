@@ -32,13 +32,13 @@ Idea:
 
 **Evolução fluida:** Sistema detecta status automaticamente; usuário pode voltar etapas; múltiplos argumentos por ideia.
 
-## Gestão de Ideias (Épico 12 - Concluído)
+## Gestão de Ideias (Épicos 12 + 14 - Concluídos)
 
-Sistema gerencia ideias cristalizadas durante conversas com navegação em três espaços distintos:
+Sistema gerencia ideias cristalizadas durante conversas com navegação em três espaços distintos (Épico 14):
 
 **Conversas (Sidebar):**
 - Últimas 5 conversas recentes com timestamp relativo
-- Alternar entre conversas (carrega thread_id do SqliteSaver)
+- Alternar entre conversas (restaura contexto completo via SqliteSaver)
 - Botões para páginas dedicadas: "Meus Pensamentos" e "Catálogo"
 
 **Meus Pensamentos (Página `/pensamentos`):**
@@ -108,7 +108,8 @@ O sistema oferece **duas interfaces web** com propósitos distintos:
 ### Chat Web (`app/chat.py`) - Experiência Principal
 - Interface conversacional para usuários finais
 - Chat fluido + bastidores opcionais (reasoning inline)
-- Sidebar com últimas 10 sessões (SqliteSaver backend)
+- Sidebar com últimas 5 conversas (SqliteSaver backend)
+- Navegação em três espaços: Conversas, Meus Pensamentos, Catálogo (Épico 14)
 - Persistência entre visitas (sem autenticação - sessões compartilhadas)
 - **Porta:** :8501
 
@@ -439,12 +440,12 @@ Sistema está migrando de entidade `Topic` para ontologia completa (`Idea`, `Con
 
 **Fases planejadas:**
 1. **Épico 11:** ✅ **Concluído** - Abstrair fundação (CognitiveModel + persistência SQLite)
-2. **Épico 12:** ✅ **Concluído** - Gestão de ideias (navegação: conversas, pensamentos, catálogo)
-3. **Épico 13:** Criar Concept (vetores semânticos) + Catálogo
-4. **Épico 14:** Fichamento (novo produto)
-5. **Épico 15:** Grafo de conhecimento
+2. **Épico 12:** ✅ **Concluído** - Gestão de ideias (listagem, alternância, busca, criação, explorador de argumentos)
+3. **Épico 14:** ✅ **Concluído** - Navegação em Três Espaços (conversas, pensamentos, catálogo) + restauração de contexto
+4. **Épico 13:** Criar Concept (vetores semânticos) + busca semântica
+5. **Épico 15:** Polimentos de UX (Enter envia, custo em R$, métricas discretas)
 
-**Status:** Épico 12 concluído. Próximo: Épico 13.
+**Status:** Épico 14 concluído. Próximo: Épico 13.
 
 ## Padrões Essenciais
 

@@ -15,13 +15,13 @@
 - **ÉPICO 10**: Orquestrador Socrático - Diálogo socrático para explorar e estruturar ideias, gerenciamento de transições entre agentes
 - **ÉPICO 11**: Modelagem Cognitiva - Modelo cognitivo explícito (Argument), persistência SQLite, versionamento automático, detecção de maturidade via LLM
 - **ÉPICO 12**: Gestão de Ideias - Sistema completo de gestão de ideias com listagem, alternância, busca, criação, explorador de argumentos e inferência automática de status
+- **ÉPICO 14**: Navegação em Três Espaços - Separação de conversas/pensamentos/catálogo, páginas dedicadas, restauração de contexto, feedback visual forte
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
 - **ÉPICO 13**: Entidade Concept (não refinado)
-- **ÉPICO 14**: Navegação em Três Espaços (refinado)
 - **ÉPICO 15**: Polimentos de UX (não refinado)
 - **ÉPICO 16**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
 - **ÉPICO 17**: Personas de Agentes (não refinado)
@@ -107,7 +107,7 @@
 
 **Objetivo:** Separar navegação em três espaços distintos (Conversas, Meus Pensamentos, Catálogo) com feedback visual forte durante processamento.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído
 
 **Dependências:**
 - ✅ Épico 12 concluído (entidades Idea + Argument existem)
