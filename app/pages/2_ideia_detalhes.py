@@ -205,7 +205,7 @@ def main():
                 st.session_state.messages = []
 
                 st.success(f"✅ Nova conversa iniciada! Redirecionando...")
-                st.switch_page("app/chat.py")
+                st.switch_page("chat.py")
 
         with col2:
             # Editar título (inline)

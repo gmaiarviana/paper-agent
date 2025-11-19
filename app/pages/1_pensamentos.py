@@ -129,7 +129,7 @@ def main():
 
     # Botão voltar para chat
     if st.button("← Voltar para Chat", key="back_to_chat"):
-        st.switch_page("app/chat.py")
+        st.switch_page("chat.py")
 
     st.markdown("---")
 
