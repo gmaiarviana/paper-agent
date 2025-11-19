@@ -20,7 +20,7 @@
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 13**: Entidade Concept (não refinado)
+- **ÉPICO 13**: Entidade Concept (refinado)
 - **ÉPICO 14**: Navegação em Três Espaços (refinado)
 - **ÉPICO 15**: Polimentos de UX (não refinado)
 - **ÉPICO 16**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
@@ -36,7 +36,9 @@
 
 **Objetivo:** Criar entidade Concept com vetores semânticos para busca por similaridade ("produtividade" encontra "eficiência").
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ⏳ Planejado (refinado)
+
+> **📖 Filosofia:** Conceitos são essências globais (biblioteca única). Ideias referenciam conceitos, não os possuem. Ver `docs/architecture/ontology.md`.
 
 **Dependências:**
 - ✅ Épico 12 concluído (Idea existe como entidade)
@@ -44,10 +46,11 @@
 **Consulte:**
 - `docs/architecture/concept_model.md` - Schema técnico de Concept
 - `docs/architecture/tech_stack.md` - ChromaDB, embeddings, sentence-transformers
+- `docs/architecture/ontology.md` - Filosofia: Conceitos como essências globais
 
 ### Funcionalidades:
 
-#### 13.1 Setup ChromaDB Local
+#### 13.1 Setup ChromaDB Local [POC]
 
 - **Descrição:** Configurar ChromaDB para armazenar vetores semânticos de conceitos (gratuito, local).
 - **Critérios de Aceite:**
@@ -56,7 +59,7 @@
   - Deve criar collection: `concepts` (metadata: label, essence, variations)
   - Deve usar modelo: `all-MiniLM-L6-v2` (384 dim, 80MB download)
 
-#### 13.2 Schema SQLite de Concept
+#### 13.2 Schema SQLite de Concept [POC]
 
 - **Descrição:** Criar tabelas `concepts` e `idea_concepts` para metadados estruturados e relacionamento N:N.
 - **Critérios de Aceite:**
@@ -64,17 +67,20 @@
   - Deve criar tabela `idea_concepts`: idea_id, concept_id (N:N, PK composta)
   - Campo `chroma_id` deve referenciar registro no ChromaDB
   - Deve criar índices: ON label, ON idea_id, ON concept_id
+  - Conceitos são globais (biblioteca única), ideias referenciam via `idea_concepts`
 
-#### 13.3 Pipeline de Detecção de Conceitos
+#### 13.3 Pipeline de Detecção de Conceitos [POC]
 
-- **Descrição:** LLM extrai conceitos-chave mencionados na conversa e salva em ChromaDB + SQLite.
+- **Descrição:** LLM extrai conceitos-chave quando argumento amadurece (ao criar snapshot de Idea) e salva em ChromaDB + SQLite.
 - **Critérios de Aceite:**
-  - Deve detectar conceitos via LLM (prompt: "Extrair conceitos-chave desta conversa")
+  - Deve disparar detecção ao criar snapshot de Idea (quando argumento amadurece)
+  - Deve detectar conceitos via LLM (prompt: "Extrair conceitos-chave desta ideia/argumento")
   - Deve gerar embedding via sentence-transformers
   - Deve salvar no ChromaDB (vetor) + SQLite (metadata)
-  - Deve criar registro em idea_concepts (linking)
+  - Deve criar registro em `idea_concepts` (linking N:N)
+  - **Não** deve executar detecção a cada mensagem (apenas no snapshot)
 
-#### 13.4 Busca Semântica
+#### 13.4 Busca Semântica [POC]
 
 - **Descrição:** Buscar conceitos similares via embeddings (threshold > 0.80 = mesmo conceito).
 - **Critérios de Aceite:**
@@ -83,23 +89,29 @@
   - Deve usar threshold 0.80 para deduplicação ("produtividade" = "eficiência")
   - Deve retornar lista ordenada por similaridade
 
-#### 13.5 Variations Automáticas
+#### 13.5 Variations Automáticas [Protótipo]
 
-- **Descrição:** Sistema detecta variações linguísticas e adiciona ao Concept existente (colaboração = cooperação).
+- **Descrição:** Sistema detecta variações linguísticas e adiciona ao Concept existente (colaboração = cooperação) com thresholds diferenciados.
 - **Critérios de Aceite:**
-  - Deve detectar variações via busca semântica (similaridade > 0.80)
-  - Deve perguntar ao usuário: "São o mesmo conceito?"
+  - Deve detectar variações via busca semântica durante detecção de conceitos
+  - **Threshold > 0.90:** adicionar variation automaticamente ao Concept existente
+  - **Threshold 0.80-0.90:** perguntar ao usuário: "São o mesmo conceito?" (colaboração = cooperação?)
   - Deve adicionar variation ao Concept existente se confirmado
-  - Deve criar novo Concept se usuário rejeitar
+  - Deve criar novo Concept se usuário rejeitar ou similaridade < 0.80
 
-#### 13.6 Mostrar Conceitos na Interface
+#### 13.6 Mostrar Conceitos na Interface [Protótipo]
 
-- **Descrição:** Exibir conceitos detectados no painel Bastidores com busca interativa.
+- **Descrição:** Exibir conceitos detectados em dois níveis: preview discreto na página da ideia + exploração completa no Catálogo.
 - **Critérios de Aceite:**
-  - Deve mostrar seção: "🏷️ Conceitos" (lista de concepts detectados)
-  - Deve permitir clicar em conceito → ver ideias que usam
-  - Deve implementar busca: digitar conceito → sugerir similares
-  - Deve exibir variations como tags secundárias
+  - **Preview na página da ideia** (`/pensamentos/{idea_id}`):
+    - Deve mostrar texto discreto: "Usa 3 conceitos: [Cooperação] [Ficção] [Linguagem]"
+    - Tags clicáveis → redireciona para `/catalogo?concept={concept_id}`
+  - **Exploração completa no Catálogo** (`/catalogo`):
+    - Deve implementar busca por nome de conceito (LIKE query)
+    - Deve implementar filtros: por ideias relacionadas, por variations
+    - Deve mostrar lista de ideias que usam o conceito
+    - Deve exibir variations como tags secundárias
+    - Deve permitir navegação: conceito → ideias relacionadas → detalhes da ideia
 
 ---
 

@@ -17,10 +17,22 @@ Outros documentos de arquitetura referenciam este documento como base para enten
 - Reutilizável entre diferentes ideias
 - Tem variações linguísticas (produtividade, eficiência, performance = mesma essência)
 
-**Exemplos:**
-- Conceito: "Cooperação" 
-  - Essência: Ação coordenada de múltiplos agentes
-  - Variações: cooperação, colaboração, teamwork, coopération (francês)
+#### Biblioteca Global de Conceitos
+
+**Natureza independente:**
+- Conceitos existem independentemente de ideias
+- Sistema mantém vocabulário compartilhado (dicionário universal)
+- Múltiplas ideias referenciam o mesmo conceito da biblioteca global
+- Conceito existe uma vez na biblioteca, usado por N ideias
+
+**Exemplos de globalidade:**
+
+Conceito "Cooperação" (global, único na biblioteca):
+- Essência: Ação coordenada de múltiplos agentes
+- Variações linguísticas: cooperação, colaboração, teamwork, coopération (francês)
+- Referenciado por Ideia 1: "Cooperação via mitos" (Sapiens)
+- Referenciado por Ideia 2: "Cooperação tribal" (Clastres)
+- Referenciado por Ideia 3: "Cooperação cívica" (Putnam)
 
 ### Ideia (Território, Contextual)
 
@@ -54,9 +66,11 @@ Outros documentos de arquitetura referenciam este documento como base para enten
 ## Relações Entre Entidades
 
 ### Ideia ↔ Conceito (N:N)
-- Ideia usa múltiplos conceitos
-- Mesmo conceito aparece em múltiplas ideias
+- **Relacionamento é referência, não posse**: Ideia referencia múltiplos conceitos da biblioteca global
+- Ideia não possui conceitos, apenas referencia entidades globais existentes
+- Mesmo conceito da biblioteca aparece em múltiplas ideias (reutilização)
 - Sistema detecta conceitos compartilhados via vetor semântico
+- Conceito existe independentemente: mesmo que todas as ideias que o referenciam sejam removidas, o conceito permanece na biblioteca global
 
 ### Ideia ↔ Argumento (1:N)
 - Ideia pode ter múltiplos argumentos (diferentes lentes)

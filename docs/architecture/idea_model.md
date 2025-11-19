@@ -33,7 +33,7 @@ Idea:
 ### Campos Detalhados
 
 **concepts:**
-Lista de conceitos que a ideia usa:
+Lista de IDs de conceitos que a ideia referencia (da biblioteca global):
 
 ```python
 concepts: [
@@ -107,11 +107,28 @@ children: []
 
 ### Idea ↔ Concept (N:N)
 
+**Relacionamento é referência, não posse:**
+- Ideia referencia múltiplos conceitos da biblioteca global
+- Conceitos são globais (biblioteca única)
+- Relacionamento N:N via tabela `idea_concepts`
+
 ```python
+# Biblioteca global de conceitos
+concept_cooperacao = {
+    "id": "concept-001",
+    "label": "Cooperação",
+    "variations": ["colaboração", "teamwork"]
+}
+
+# Múltiplas ideias referenciam mesmo conceito
+idea_1.concepts = ["concept-001"]  # Sapiens
+idea_2.concepts = ["concept-001"]  # Clastres
+idea_3.concepts = ["concept-001"]  # Putnam
+
 # Ideia referencia múltiplos conceitos
 idea.concepts = [concept_id_1, concept_id_2]
 
-# Conceito usado em múltiplas ideias
+# Conceito usado em múltiplas ideias (via referências)
 concept.used_in_ideas = [idea_id_1, idea_id_2]
 ```
 
@@ -199,8 +216,9 @@ CREATE TABLE ideas (
 
 CREATE TABLE idea_concepts (
     idea_id TEXT,
-    concept_id TEXT,
-    PRIMARY KEY (idea_id, concept_id)
+    concept_id TEXT,  -- FK para tabela concepts (biblioteca global)
+    PRIMARY KEY (idea_id, concept_id),
+    FOREIGN KEY (concept_id) REFERENCES concepts(id)
 );
 
 CREATE TABLE idea_arguments (
