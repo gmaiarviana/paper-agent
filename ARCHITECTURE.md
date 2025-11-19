@@ -32,6 +32,30 @@ Idea:
 
 **Evolução fluida:** Sistema detecta status automaticamente; usuário pode voltar etapas; múltiplos argumentos por ideia.
 
+## Gestão de Ideias (Épico 12 - Concluído)
+
+Sistema gerencia ideias cristalizadas durante conversas com navegação em três espaços distintos:
+
+**Conversas (Sidebar):**
+- Últimas 5 conversas recentes com timestamp relativo
+- Alternar entre conversas (carrega thread_id do SqliteSaver)
+- Botões para páginas dedicadas: "Meus Pensamentos" e "Catálogo"
+
+**Meus Pensamentos (Página `/pensamentos`):**
+- Grid de cards mostrando ideias cristalizadas
+- Preview: título, status, # argumentos, # conceitos
+- Busca + filtros (status, conceitos)
+- Página dedicada da ideia (`/pensamentos/{idea_id}`): argumentos versionados, conceitos usados, conversas relacionadas
+
+**Catálogo (Página `/catalogo` - Épico 13):**
+- Biblioteca de conceitos técnicos reutilizáveis
+- Busca semântica via embeddings
+- Mostra ideias que usam cada conceito
+
+**Filosofia:** Conversas = processo (volátil), Ideias = cristalização (permanente), Conceitos = abstração (biblioteca).
+
+Ver: `docs/interface/navigation_philosophy.md` para filosofia completa.
+
 ## Super-Sistema: Core → Produtos
 
 > **Nota:** Para arquitetura completa, consulte `docs/architecture/super_system_vision.md`.
@@ -415,12 +439,12 @@ Sistema está migrando de entidade `Topic` para ontologia completa (`Idea`, `Con
 
 **Fases planejadas:**
 1. **Épico 11:** ✅ **Concluído** - Abstrair fundação (CognitiveModel + persistência SQLite)
-2. **Épico 12:** Criar Concept (vetores semânticos)
-3. **Épico 13:** Argument explícito (múltiplos por ideia)
+2. **Épico 12:** ✅ **Concluído** - Gestão de ideias (navegação: conversas, pensamentos, catálogo)
+3. **Épico 13:** Criar Concept (vetores semânticos) + Catálogo
 4. **Épico 14:** Fichamento (novo produto)
 5. **Épico 15:** Grafo de conhecimento
 
-**Status:** Épico 11 concluído (2025-11-17). Próximo: Épico 12.
+**Status:** Épico 12 concluído. Próximo: Épico 13.
 
 ## Padrões Essenciais
 

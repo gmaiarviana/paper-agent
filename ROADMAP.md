@@ -21,9 +21,10 @@
 
 ### ⏳ Épicos Planejados
 - **ÉPICO 13**: Entidade Concept (não refinado)
-- **ÉPICO 14**: Melhorias de UX (não refinado)
-- **ÉPICO 15**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
-- **ÉPICO 16**: Personas de Agentes (não refinado)
+- **ÉPICO 14**: Navegação em Três Espaços (refinado)
+- **ÉPICO 15**: Polimentos de UX (não refinado)
+- **ÉPICO 16**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
+- **ÉPICO 17**: Personas de Agentes (não refinado)
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -102,7 +103,84 @@
 
 ---
 
-## ÉPICO 14: Melhorias de UX
+## ÉPICO 14: Navegação em Três Espaços
+
+**Objetivo:** Separar navegação em três espaços distintos (Conversas, Meus Pensamentos, Catálogo) com feedback visual forte durante processamento.
+
+**Status:** ⏳ Planejado (refinado)
+
+**Dependências:**
+- ✅ Épico 12 concluído (entidades Idea + Argument existem)
+
+**Consulte:**
+- `docs/interface/navigation_philosophy.md` - Filosofia de navegação
+- `docs/interface/web.md` - Especificação técnica completa
+
+### Funcionalidades:
+
+#### 14.1 Sidebar: Conversas Recentes (Ajuste)
+- **Descrição:** Ajustar sidebar para mostrar apenas conversas (não ideias). Adicionar botões de navegação para páginas dedicadas.
+- **Critérios de Aceite:**
+  - Remover listagem de ideias da sidebar
+  - Mostrar apenas últimas 5 conversas (reduzir de 10 para 5)
+  - Formato: "Título da conversa · Timestamp relativo" ("5min atrás", "2h atrás")
+  - Conversa ativa destacada (bold, background diferente)
+  - Adicionar botão [📖 Meus Pensamentos] que redireciona para `/pensamentos`
+  - Adicionar botão [🏷️ Catálogo] que redireciona para `/catalogo` (desabilitado até Épico 13)
+  - Botão [+ Nova Conversa] mantido
+
+#### 14.2 Página: Meus Pensamentos
+- **Descrição:** Criar página dedicada (`/pensamentos`) com grid de cards mostrando ideias cristalizadas durante conversas.
+- **Critérios de Aceite:**
+  - URL: `/pensamentos`
+  - Grid de cards (2 colunas, responsivo) com preview de cada ideia
+  - Card mostra: título, badge de status, # argumentos, # conceitos, timestamp relativo
+  - Badges de status: 🔍 Explorando (amarelo), 📝 Estruturada (azul), ✅ Validada (verde)
+  - Busca por título (LIKE query, case-insensitive)
+  - Filtros: status (exploring, structured, validated)
+  - Card clicável → redireciona para `/pensamentos/{idea_id}`
+
+#### 14.3 Página: Detalhes da Ideia
+- **Descrição:** Criar página dedicada (`/pensamentos/{idea_id}`) mostrando detalhes completos de uma ideia com argumentos, conceitos e conversas relacionadas.
+- **Critérios de Aceite:**
+  - URL única: `/pensamentos/{idea_id}`
+  - Mostra: título da ideia, badge de status, timestamp de última atualização
+  - Seção "Argumentos": lista versões (V1, V2, V3) com argumento focal destacado
+  - Cada argumento mostra: claim (preview 100 chars), # premises, # assumptions
+  - Link "Ver detalhes de V{n}" → expande argumento completo (claim, premises, assumptions)
+  - Seção "Conceitos": lista conceitos usados (texto simples - navegação será adicionada no Épico 13)
+  - Seção "Conversas relacionadas": lista threads com timestamp ("18/11, 14:56")
+  - Botão [🔄 Continuar explorando] → cria novo thread_id e redireciona pro chat
+  - Botão [📝 Editar título] → permite editar título inline (save on blur)
+
+#### 14.4 Feedback Visual Forte
+- **Descrição:** Input desabilitado + barra inline "Sistema pensando..." com texto dinâmico durante processamento.
+- **Critérios de Aceite:**
+  - Ao enviar mensagem: input desabilita imediatamente (opacidade 50%, cursor not-allowed)
+  - Barra inline aparece abaixo da última mensagem: "🤖 Sistema pensando..." com animação suave
+  - Texto dinâmico muda conforme agente ativo:
+    - "⚡ Analisando sua mensagem..."
+    - "🎯 Orquestrador pensando..."
+    - "📝 Estruturador organizando..."
+    - "🔬 Metodologista validando..."
+  - Ao receber resposta: barra some com fade-out + input habilita
+  - Implementação: `st.spinner()` customizado ou CSS + st.session_state["processing"]
+
+#### 14.5 Bugfix: Restaurar Contexto ao Alternar Conversa (CRÍTICO)
+- **Descrição:** Corrigir bug onde clicar em conversa na sidebar não restaura histórico de mensagens (chat fica branco).
+- **Critérios de Aceite:**
+  - Função `switch_idea()` ou equivalente deve carregar `thread_id` correto
+  - Deve usar `SqliteSaver` para restaurar checkpoints da conversa selecionada
+  - Deve restaurar histórico de mensagens completo (`st.session_state["messages"]`)
+  - Deve restaurar argumento focal (`current_argument_id`) se existir
+  - Chat deve exibir histórico completo após clicar em conversa
+  - Bastidores deve atualizar com contexto da conversa (status, argumento focal)
+  - Adicionar logs DEBUG para rastrear: `thread_id` carregado, # checkpoints encontrados, # mensagens restauradas
+  - Validação: clicar em conversa → chat mostra histórico, não branco
+
+---
+
+## ÉPICO 15: Polimentos de UX
 
 **Objetivo:** Polimento de interface web baseado em feedbacks do usuário (Enter envia, custo em R$, métricas discretas).
 
@@ -110,13 +188,14 @@
 
 **Dependências:**
 - ✅ Épico 9 concluído (Interface Web Conversacional)
+- ✅ Épico 14 concluído (Navegação em Três Espaços)
 
 **Consulte:**
 - `docs/interface/web.md` - Especificação de interface completa
 
 ### Funcionalidades:
 
-#### 14.1 Enter Envia, Ctrl+Enter Pula Linha
+#### 15.1 Enter Envia, Ctrl+Enter Pula Linha
 
 - **Descrição:** Textarea com comportamento padrão (Enter envia, Ctrl+Enter pula linha).
 - **Critérios de Aceite:**
@@ -125,7 +204,7 @@
   - Deve seguir padrão Claude.ai/ChatGPT
   - Deve funcionar cross-browser (Chrome, Firefox, Safari)
 
-#### 14.2 Custo em R$
+#### 15.2 Custo em R$
 
 - **Descrição:** Exibir custos em reais (BRL) ao invés de dólares (USD).
 - **Critérios de Aceite:**
@@ -134,7 +213,7 @@
   - Deve adicionar config em `.env`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.2`
   - Deve permitir fallback para USD se conversão falhar
 
-#### 14.3 Métricas Inline Mais Discretas
+#### 15.3 Métricas Inline Mais Discretas
 
 - **Descrição:** Tornar métricas inline (tokens, custo, tempo) mais discretas visualmente.
 - **Critérios de Aceite:**
@@ -143,7 +222,7 @@
   - Deve posicionar no canto inferior direito da mensagem
   - Deve manter formato: "💰 R$0.02 · 215 tokens · 1.2s"
 
-#### 14.4 Timeline Colapsada por Padrão
+#### 15.4 Timeline Colapsada por Padrão
 
 - **Descrição:** Bastidores com timeline de agentes anteriores colapsada inicialmente.
 - **Critérios de Aceite:**
@@ -152,7 +231,7 @@
   - Deve expandir ao clicar (mostrar histórico de agentes)
   - Deve persistir estado (colapsado/expandido) durante sessão
 
-#### 14.5 Botão "Copiar Raciocínio"
+#### 15.5 Botão "Copiar Raciocínio"
 
 - **Descrição:** Modal de raciocínio completo com botão para copiar texto.
 - **Critérios de Aceite:**
@@ -161,7 +240,7 @@
   - Deve mostrar feedback visual: "✓ Copiado!" (2s)
   - Deve funcionar cross-browser (clipboard API)
 
-#### 14.6 Checklist de Progresso no Header
+#### 15.6 Checklist de Progresso no Header
 
 - **Descrição:** Exibir checklist visual no header do chat sincronizado com modelo cognitivo.
 - **Critérios de Aceite:**
@@ -173,7 +252,7 @@
 
 ---
 
-## ÉPICO 15: Agentes Avançados
+## ÉPICO 16: Agentes Avançados
 
 **Objetivo:** Expandir sistema com agentes especializados para pesquisa, redação e revisão de artigos científicos.
 
@@ -188,7 +267,7 @@
 
 ---
 
-## ÉPICO 16: Personas de Agentes
+## ÉPICO 17: Personas de Agentes
 
 **Objetivo:** Permitir customização de agentes como "personas" (Sócrates, Aristóteles, Popper) com estilos de argumentação personalizados, transformando agentes em "mentores" que usuário pode escolher e treinar.
 
@@ -196,7 +275,7 @@
 
 **Dependências:**
 - ✅ Épico 9 concluído (Interface Web Conversacional)
-- ⏳ Épicos 11-14 concluídos (modelo de dados + gestão de ideias + UX)
+- ⏳ Épicos 11-15 concluídos (modelo de dados + gestão de ideias + navegação + UX)
 
 **Consulte:** 
 - `docs/vision/agent_personas.md` - Visão completa de customização

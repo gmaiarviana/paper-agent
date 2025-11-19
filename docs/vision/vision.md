@@ -303,59 +303,68 @@ Ideia:
 
 **Experiência principal:**
 - Interface web (Streamlit) como ponto de entrada do sistema
-- Chat limpo e focado (similar ao Claude, mas especializado em organizar pensamentos)
+- Chat limpo e focado (similar ao Claude)
 - Painel "Bastidores" opcional para ver reasoning dos agentes
 
-**Layout:**
+**Navegação: Três Espaços Distintos**
+
+> **Nota:** Para filosofia completa de navegação, consulte `docs/interface/navigation_philosophy.md`.
+
+**1. Conversas (Sidebar - Processo):**
+- Últimas 5 conversas recentes
+- Timestamp relativo ("5min atrás", "2h atrás")
+- [+ Nova Conversa]
+- [📖 Meus Pensamentos] → redireciona pra página dedicada
+- [🏷️ Catálogo] → redireciona pra biblioteca de conceitos
+
+**2. Meus Pensamentos (Página Dedicada - Cristalização):**
+- URL: `/pensamentos`
+- Grid de cards com preview (título, status, # argumentos, # conceitos)
+- Busca + filtros (status, conceitos)
+- Card clicável → página dedicada da ideia (`/pensamentos/{idea_id}`)
+- Página da ideia mostra: argumentos versionados, conceitos usados, conversas relacionadas
+- Botão "Continuar explorando" → volta pro chat com novo thread_id
+
+**3. Catálogo (Página Dedicada - Biblioteca):**
+- URL: `/catalogo`
+- Biblioteca de conceitos técnicos reutilizáveis (Épico 13)
+- Busca semântica via embeddings
+- Conceito clicável → mostra ideias que usam
+
+**Feedback Visual Forte:**
+- Input desabilitado durante processamento (opacidade 50%)
+- Barra inline: "🤖 Sistema pensando..."
+- Texto dinâmico conforme agente ativo:
+  - "⚡ Analisando sua mensagem..."
+  - "🎯 Orquestrador pensando..."
+  - "📝 Estruturador organizando..."
+  - "🔬 Metodologista validando..."
+- Animação suave ao habilitar/desabilitar input
+
+**Layout consolidado:**
 ```
 ┌─────────────────────────────────────────────────┐
-│  [Chat Principal - 60% largura]                 │
+│  [Sidebar]           [Chat Principal]           │
 │                                                 │
-│  Você: "Observei que LLMs aumentam produtividade"│
-│  💰 $0.0012 · 215 tokens · 1.2s                 │ ← inline, discreto
-│                                                 │
-│  Sistema: "Interessante! Me conta mais..."     │
-│  [digitando...]                                 │
-└─────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────┐
-│  [🔍 Bastidores - 40% - Collapsible]            │
-│                                                 │
-│  🧠 Orquestrador (agora):                       │
-│  "Usuário tem observação vaga. Preciso contexto"│ ← resumido
-│  [📄 Ver raciocínio completo]                   │ ← expande modal
-│                                                 │
-│  ⏱️ Tempo: 1.2s | Tokens: 215 | Custo: $0.0012  │
+│  💬 Conversas         Você: "..."               │
+│  • Conv 1 (ativa)     💰 $0.0012                │
+│  • Conv 2 (2h atrás)                            │
+│                       Sistema: "..."            │
+│  [+ Nova Conversa]    [digitando...]            │
+│  [📖 Pensamentos]                               │
+│  [🏷️ Catálogo]       [🔍 Bastidores →]         │
 └─────────────────────────────────────────────────┘
 ```
 
 **Transparência diferencial:**
-- **Ver agentes pensando**: Reasoning de Orquestrador, Estruturador, Metodologista
-- **Tempo real**: Eventos via SSE (Server-Sent Events)
-- **3 níveis**: Inline (discreto) → Resumido (280 chars) → Completo (modal)
-- **Timeline**: Histórico de raciocínio colapsado (expansível)
+- Ver agentes pensando: Reasoning inline ou modal
+- Tempo real: Eventos via polling (1s)
+- 3 níveis: Inline (discreto) → Resumido (280 chars) → Completo (modal)
 
 **Agentes Visíveis:**
-- Sistema mostra qual agente está ativo (🎯 Orquestrador, 📝 Estruturador, 🔬 Metodologista)
-- Raciocínio resumido (1 frase) por agente
+- Sistema mostra qual agente está ativo
+- Raciocínio resumido por agente
 - Diferencial: usuário entende QUE tipo de análise está sendo feita
-- Futuro: customizar personas de agentes (Épico 16+)
-
-**Checklist de Progresso:**
-- Localização: Header do chat (discreto, expansível ao clicar)
-- Bolinhas de status: ⚪ pendente 🟡 em progresso 🟢 completo
-- Adaptativo: muda conforme tipo de artigo detectado
-- Sincroniza com modelo cognitivo (claim, premises, open_questions)
-
-**Bastidores fechados por padrão:**
-- Interface limpa ao iniciar
-- Usuário descobre/ativa se quiser transparência total
-- Reduz sobrecarga cognitiva para iniciantes
-
-**Métricas inline:**
-- Custo e tokens por mensagem (pequeno, após resposta)
-- Acumulado da sessão visível mas não intrusivo
-- Formato: "💰 $0.0012 · 215 tokens · 1.2s"
 
 ### 5.3 CLI: Ferramenta de Desenvolvimento
 

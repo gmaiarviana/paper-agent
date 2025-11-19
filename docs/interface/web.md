@@ -104,86 +104,119 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 
 ### 3.2 Componentes Detalhados
 
-**A) Sidebar (Gestão de Ideias) - Épico 12**
+**A) Sidebar (Conversas Recentes)**
 
-**Lista de Ideias (12.2):**
-- Últimas 10 ideias ordenadas por updated_at DESC
-- Formato: "Título da ideia · Badge de status"
-- Badges: 🔍 Explorando | 📝 Estruturada | ✅ Validada
-- Ideia ativa destacada (bold, background diferente)
-- Collapsible (toggle on/off para economizar espaço)
+**Conversas (últimas 5):**
+- Formato: "Título da conversa · Timestamp relativo"
+- Timestamp: "5min atrás", "2h atrás", "ontem", "3 dias atrás"
+- Conversa ativa destacada (bold, background diferente)
+- Collapsible (toggle on/off)
 
 **Visual:**
 ```
-📂 Ideias                    [⌄ toggle]
+💬 Conversas                [⌄ toggle]
 
-🔍 LLMs em produtividade     ← explorando
-   • Arg V1, V2 (2 versões)
+- LLMs em produtividade (ativa)
+  5min atrás
 
-📝 Semana de 4 dias          ← estruturada (ativa)
-   • Arg V1, V2, V3 (3 versões)
-   [Ver detalhes]
+- Semana de 4 dias
+  2h atrás
 
-✅ Drones em obras           ← validada
-   • Arg V1 (1 versão)
+- Drones em obras
+  ontem
 
-[+ Nova Ideia]
+[+ Nova Conversa]
+[📖 Meus Pensamentos]  ← botão redireciona
+[🏷️ Catálogo]         ← botão redireciona
 ```
 
-**Criar Nova Ideia (12.4):**
-- Botão "[+ Nova Ideia]" no rodapé da sidebar
-- Ao clicar:
-  - Cria registro em ideas (título = "Nova Ideia {timestamp}")
-  - Gera novo thread_id (LangGraph)
-  - Redireciona para chat limpo
-  - Nova ideia aparece na sidebar como ativa
+**Alternar Entre Conversas:**
+- Clicar em conversa → carrega thread_id (SqliteSaver)
+- Restaura histórico de mensagens
+- Atualiza contexto no chat
 
-**Alternar Entre Ideias (12.3):**
-- Clicar em ideia → carrega contexto completo
-- Restaura thread_id (SqliteSaver)
-- Restaura argumento focal (current_argument_id)
-- Exibe histórico de mensagens da ideia selecionada
-- Atualiza Bastidores com contexto da ideia
+**Criar Nova Conversa:**
+- Botão "[+ Nova Conversa]"
+- Cria novo thread_id
+- Chat limpo
+- Nova conversa aparece como ativa
 
-**Explorador de Argumentos (12.5):**
-- Expandir ideia → mostrar argumentos versionados (V1, V2, V3)
-- Listar versões com timestamps
-- Destacar argumento focal com badge [focal]
-- Botão "Ver detalhes" → modal com:
-  - Claim
-  - Premises
-  - Assumptions
-  - Open questions
+**B) Página: Meus Pensamentos (Nova)**
 
-**Visual (ideia expandida):**
+**Localização:** `/pensamentos`
+
+**Layout:**
 ```
-📝 Semana de 4 dias          [⌄]
-   • Arg V3 (focal) [Ver detalhes]
-     "Reduz turnover em 20%"
-   • Arg V2
-     "Aumenta produtividade"
-   • Arg V1
-     "Melhora satisfação"
+┌─────────────────────────────────────────────────┐
+│ 📖 Meus Pensamentos                              │
+│                                                 │
+│ [🔍 Buscar ideias...]                           │
+│ [Status ▼] [Conceitos ▼]                        │
+│                                                 │
+│ ┌─────────────────────┐ ┌─────────────────────┐│
+│ │💡 LLMs em produtiv. │ │💡 Semana 4 dias     ││
+│ │                     │ │                     ││
+│ │ 📝 Estruturada      │ │ ✅ Validada         │
+│ │ 3 argumentos        │ │ 2 argumentos        │
+│ │ 5 conceitos         │ │ 4 conceitos         │
+│ │                     │ │                     ││
+│ │ 2h atrás            │ │ 1 dia atrás         │
+│ │ [Ver detalhes →]    │ │ [Ver detalhes →]    │
+│ └─────────────────────┘ └─────────────────────┘│
+└─────────────────────────────────────────────────┘
 ```
 
-**Busca de Ideias (12.6):**
-- Campo de busca no topo da sidebar
-- Buscar por título (LIKE query, case-insensitive)
+**Funcionalidades:**
+- Grid de cards (2 colunas, responsivo)
+- Busca por título (LIKE query, case-insensitive)
 - Filtros: status (exploring, structured, validated)
-- Filtros combinados (título + status)
+- Card clicável → redireciona pra `/pensamentos/{idea_id}`
 
-**Visual (com busca):**
+**Badges de Status:**
+- 🔍 Explorando (amarelo)
+- 📝 Estruturada (azul)
+- ✅ Validada (verde)
+
+**C) Página: Detalhes da Ideia (Nova)**
+
+**Localização:** `/pensamentos/{idea_id}`
+
+**Layout:**
 ```
-📂 Ideias
-
-[🔍 Buscar ideias...]
-Filtros: [Todas ▾] [Status ▾]
-
-🔍 LLMs em produtividade
-📝 Semana de 4 dias (ativa)
+┌─────────────────────────────────────────────────┐
+│ [← Voltar] 💡 LLMs em produtividade             │
+│                                                 │
+│ Status: 📝 Estruturada                          │
+│ Atualizado: 2h atrás                            │
+│                                                 │
+│ ─────────────────────────────────────────────   │
+│                                                 │
+│ 📊 Argumentos (3):                              │
+│   • V3 (focal): "Claude Code reduz tempo..."    │
+│   • V2: "LLMs aumentam produtividade..."        │
+│   • V1: "Observação inicial"                    │
+│   [Ver detalhes de V3 →]                        │
+│                                                 │
+│ 🏷️ Conceitos (5):                               │
+│   • Produtividade  • LLMs  • Desenvolvimento    │
+│                                                 │
+│ 💬 Conversas relacionadas:                      │
+│   • Conversa 1 (18/11, 14:56)                   │
+│                                                 │
+│ ─────────────────────────────────────────────   │
+│                                                 │
+│ [🔄 Continuar explorando]  ← abre chat         │
+│ [📝 Editar título]                              │
+└─────────────────────────────────────────────────┘
 ```
 
-**B) Chat Principal (50-60% largura)**
+**Funcionalidades:**
+- Mostra claim, premises, assumptions do argumento focal
+- Lista versões de argumentos (V1, V2, V3)
+- Conceitos clicáveis → redireciona pro Catálogo
+- Botão "Continuar explorando" → cria novo thread_id e volta pro chat
+
+**D) Chat Principal (50-60% largura)**
 ```
 ┌──────────────────────────────────────┐
 │  Você: "Observei que TDD reduz bugs" │
@@ -197,7 +230,7 @@ Filtros: [Todas ▾] [Status ▾]
 └──────────────────────────────────────┘
 ```
 
-**C) Bastidores (30-40% largura, collapsible)**
+**E) Bastidores (30-40% largura, collapsible)**
 
 **Agentes Visíveis:**
 - Sistema mostra qual agente está ativo:
@@ -359,13 +392,16 @@ Progresso do Argumento:
    ↓
 3. Usuário digita mensagem no chat
    ↓
-4. Sistema mostra "digitando..."
+4. Sistema mostra feedback visual forte:
+   - Input desabilita imediatamente (opacidade 50%)
+   - Barra inline aparece: "🤖 Sistema pensando..."
+   - Texto dinâmico: "Analisando..." → "Orquestrador pensando..." → "Estruturando..."
    ↓
 5. Backend processa via LangGraph
    ↓
-6. EventBus publica eventos em arquivo JSON (agent_started, agent_completed)
+6. EventBus publica eventos
    ↓
-7. Interface faz polling (1s) para buscar novos eventos
+7. Interface atualiza (barra some, input habilita)
    ↓
 8. Chat atualiza com resposta + métricas inline
    ↓
@@ -405,6 +441,37 @@ Progresso do Argumento:
    ↓
 6. Histórico de cada sessão preservado
 ```
+
+### 4.4 Feedback Visual Durante Processamento
+
+**Visual proposto:**
+```
+┌─────────────────────────────────────────────────┐
+│  Você: "Observei que LLMs aumentam..."          │
+│                                                 │
+│  ┌─────────────────────────────────────────┐   │
+│  │ 🤖 Sistema pensando...                  │   │ ← barra inline
+│  │ ⚡ Analisando sua mensagem               │   │ ← texto dinâmico
+│  └─────────────────────────────────────────┘   │
+│                                                 │
+│  [Input desabilitado - opacidade 50%]           │
+└─────────────────────────────────────────────────┘
+```
+
+**Comportamento:**
+1. Usuário envia mensagem → input desabilita
+2. Barra inline aparece com animação suave
+3. Texto muda dinamicamente:
+   - "🤖 Analisando sua mensagem..."
+   - "🎯 Orquestrador pensando..."
+   - "📝 Estruturador organizando..."
+   - "🔬 Metodologista validando..."
+4. Resposta chega → barra some + input habilita
+
+**Implementação (Streamlit):**
+- `st.spinner()` customizado
+- Disable input: `disabled=st.session_state.get("processing", False)`
+- CSS customizado para opacidade
 
 ---
 
