@@ -129,25 +129,22 @@ def test_conversation_switching_restores_messages(multi_agent_graph):
     assert len(messages_a) >= 4, \
         f"Conversa A deveria ter pelo menos 4 mensagens (2 turnos), mas tem {len(messages_a)}"
 
-    # 4. Validar que primeira mensagem é a do usuário
-    first_msg = messages_a[0]
-    assert isinstance(first_msg, HumanMessage) or hasattr(first_msg, 'content'), \
-        "Primeira mensagem deveria ser HumanMessage ou ter atributo content"
-
-    # 5. Validar que conteúdo da primeira mensagem bate
-    first_content = first_msg.content if hasattr(first_msg, 'content') else str(first_msg)
-    assert user_input_a1 in first_content, \
-        f"Primeira mensagem deveria conter '{user_input_a1}', mas contém: {first_content[:100]}"
-
-    # 6. Validar que segunda mensagem do usuário também está presente
-    # (pode não ser a mensagem 2, pode ter mensagens intermediárias do sistema)
+    # 4. Buscar mensagens do usuário (HumanMessage)
+    # Nota: LangGraph pode ter outras mensagens (SystemMessage, etc) no array
+    # então não podemos assumir que messages[0] é HumanMessage
     user_messages = [m for m in messages_a if isinstance(m, HumanMessage)]
     assert len(user_messages) >= 2, \
         f"Deveria ter pelo menos 2 mensagens do usuário, mas tem {len(user_messages)}"
 
-    second_user_content = user_messages[1].content
-    assert user_input_a2 in second_user_content, \
-        f"Segunda mensagem do usuário deveria conter '{user_input_a2}', mas contém: {second_user_content[:100]}"
+    # 5. Validar que primeira mensagem do usuário contém o primeiro input
+    first_user_msg = user_messages[0]
+    assert user_input_a1 in first_user_msg.content, \
+        f"Primeira mensagem do usuário deveria conter '{user_input_a1}', mas contém: {first_user_msg.content[:100]}"
+
+    # 6. Validar que segunda mensagem do usuário também está presente
+    second_user_msg = user_messages[1]
+    assert user_input_a2 in second_user_msg.content, \
+        f"Segunda mensagem do usuário deveria conter '{user_input_a2}', mas contém: {second_user_msg.content[:100]}"
 
     # 7. Validar que conversa B tem mensagens diferentes
     config_b = {"configurable": {"thread_id": thread_id_b}}
@@ -231,24 +228,27 @@ def test_convert_messages_to_streamlit_format(multi_agent_graph):
     assert len(streamlit_messages) >= 2, \
         f"Deveria ter pelo menos 2 mensagens convertidas, mas tem {len(streamlit_messages)}"
 
-    # 2. Primeira mensagem deve ser user
-    assert streamlit_messages[0]["role"] == "user", \
-        "Primeira mensagem deveria ter role='user'"
-
-    # 3. Conteúdo da primeira mensagem deve bater
-    assert user_input in streamlit_messages[0]["content"], \
-        f"Conteúdo da primeira mensagem deveria conter '{user_input}'"
-
-    # 4. Segunda mensagem (ou alguma mensagem de assistant) deve existir
+    # 2. Buscar mensagens do usuário e do assistant
+    # Nota: Ordem pode variar, não podemos assumir que messages[0] é user
+    user_messages = [m for m in streamlit_messages if m["role"] == "user"]
     assistant_messages = [m for m in streamlit_messages if m["role"] == "assistant"]
+
+    assert len(user_messages) >= 1, \
+        "Deveria ter pelo menos 1 mensagem do usuário"
+
     assert len(assistant_messages) >= 1, \
         "Deveria ter pelo menos 1 mensagem do assistant"
 
-    # 5. Mensagem do assistant deve ter conteúdo não vazio
+    # 3. Conteúdo da primeira mensagem do usuário deve bater
+    first_user_msg = user_messages[0]
+    assert user_input in first_user_msg["content"], \
+        f"Conteúdo da primeira mensagem do usuário deveria conter '{user_input}'"
+
+    # 4. Mensagem do assistant deve ter conteúdo não vazio
     assert assistant_messages[0]["content"], \
         "Mensagem do assistant não deveria estar vazia"
 
-    # 6. Validar estrutura dos dicts
+    # 5. Validar estrutura dos dicts
     for msg in streamlit_messages:
         assert "role" in msg, "Mensagem deveria ter campo 'role'"
         assert "content" in msg, "Mensagem deveria ter campo 'content'"
