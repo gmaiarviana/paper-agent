@@ -11,10 +11,10 @@
 ## 📋 Status dos Épicos
 
 ### ✅ Concluídos
-- **ÉPICO 9**: Interface Web Conversacional - Interface web com chat conversacional, painel Bastidores em tempo real e integração com LangGraph SqliteSaver.
-- **ÉPICO 10**: Orquestrador Socrático - Orquestrador que usa diálogo socrático para explorar e estruturar ideias, gerenciando transições entre agentes.
-- **ÉPICO 11**: Modelagem Cognitiva - Modelo cognitivo explícito com persistência SQLite, versionamento de argumentos e detecção de maturidade via LLM.
-- **ÉPICO 12**: Gestão de Ideias - Sistema completo de gestão de ideias com listagem, alternância, busca, criação, explorador de argumentos e inferência automática de status.
+- **ÉPICO 9**: Interface Web Conversacional - Chat conversacional, painel Bastidores em tempo real, integração LangGraph SqliteSaver
+- **ÉPICO 10**: Orquestrador Socrático - Diálogo socrático para explorar e estruturar ideias, gerenciamento de transições entre agentes
+- **ÉPICO 11**: Modelagem Cognitiva - Modelo cognitivo explícito (Argument), persistência SQLite, versionamento automático, detecção de maturidade via LLM
+- **ÉPICO 12**: Gestão de Ideias - Sistema completo de gestão de ideias com listagem, alternância, busca, criação, explorador de argumentos e inferência automática de status
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
@@ -22,8 +22,8 @@
 ### ⏳ Épicos Planejados
 - **ÉPICO 13**: Entidade Concept (não refinado)
 - **ÉPICO 14**: Melhorias de UX (não refinado)
-- **ÉPICO 16+**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
-- **ÉPICO 17**: Personas de Agentes (não refinado)
+- **ÉPICO 15**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
+- **ÉPICO 16**: Personas de Agentes (não refinado)
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -173,7 +173,7 @@
 
 ---
 
-## ÉPICO 16: Agentes Avançados
+## ÉPICO 15: Agentes Avançados
 
 **Objetivo:** Expandir sistema com agentes especializados para pesquisa, redação e revisão de artigos científicos.
 
@@ -188,7 +188,7 @@
 
 ---
 
-## ÉPICO 17: Personas de Agentes
+## ÉPICO 16: Personas de Agentes
 
 **Objetivo:** Permitir customização de agentes como "personas" (Sócrates, Aristóteles, Popper) com estilos de argumentação personalizados, transformando agentes em "mentores" que usuário pode escolher e treinar.
 
@@ -197,7 +197,6 @@
 **Dependências:**
 - ✅ Épico 9 concluído (Interface Web Conversacional)
 - ⏳ Épicos 11-14 concluídos (modelo de dados + gestão de ideias + UX)
-- Agentes visíveis na interface (implementado no Épico 11+)
 
 **Consulte:** 
 - `docs/vision/agent_personas.md` - Visão completa de customização
