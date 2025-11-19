@@ -120,18 +120,7 @@ ideas = response.ideas
 
 ## Migração: Sistema Atual → Super-Sistema
 
-> **Nota:** Para fases detalhadas, consulte `docs/architecture/migration_strategy.md`.
-
-**Fases:**
-1. **Abstrair fundação:** Topic → Idea (generalizar entidade) - Planejado no Épico 11
-2. **Criar Concept:** Entidade de primeira classe
-3. **Tornar Argument explícito:** Separar de Ideia
-4. **Fichamento:** Novo produto consumindo core
-5. **Grafo de conhecimento:** Ideias se conectam
-
-**Status atual (Épico 10 em implementação):**
-- Paper-agent funcional (migração Topic → Idea planejada no Épico 11)
-- Migração afeta Épico 11+ (ver ROADMAP.md)
+Sistema migrou de entidade `Topic` para ontologia completa (`Idea`, `Concept`, `Argument`). Fundação técnica já implementada (Idea e Argument como entidades separadas). Próximos passos: Concept (Épico 13) e produtos futuros (Fichamento, Grafo de Conhecimento).
 
 ## APIs do Core (Futuro)
 
@@ -169,7 +158,6 @@ GET    /conversations/:id/ideas     # Ideias geradas na conversa
 ## Referências
 
 - `docs/architecture/ontology.md` - Ontologia base (Core)
-- `docs/architecture/migration_strategy.md` - Fases de migração
 - `docs/products/paper_agent.md` - Produto específico
 - `docs/products/fichamento.md` - Produto específico
 - `ROADMAP.md` - Épicos 11+ (migração)

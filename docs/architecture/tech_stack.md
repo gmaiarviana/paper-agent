@@ -306,7 +306,6 @@ python scripts/test_stack.py
 ## Referências
 
 - `docs/architecture/concept_model.md` - Como conceitos usam ChromaDB
-- `docs/architecture/migration_strategy.md` - Fases de migração
 - ChromaDB docs: https://docs.trychroma.com
 - Sentence-transformers: https://www.sbert.net
 

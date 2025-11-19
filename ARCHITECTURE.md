@@ -32,7 +32,7 @@ Idea:
 
 **Evolução fluida:** Sistema detecta status automaticamente; usuário pode voltar etapas; múltiplos argumentos por ideia.
 
-## Gestão de Ideias (Épicos 12 + 14 - Concluídos)
+## Gestão de Ideias
 
 Sistema gerencia ideias cristalizadas durante conversas com navegação em três espaços distintos (Épico 14):
 
@@ -47,7 +47,7 @@ Sistema gerencia ideias cristalizadas durante conversas com navegação em três
 - Busca + filtros (status, conceitos)
 - Página dedicada da ideia (`/pensamentos/{idea_id}`): argumentos versionados, conceitos usados, conversas relacionadas
 
-**Catálogo (Página `/catalogo` - Épico 13):**
+**Catálogo (Página `/catalogo`):**
 - Biblioteca de conceitos técnicos reutilizáveis
 - Busca semântica via embeddings
 - Mostra ideias que usam cada conceito
@@ -82,7 +82,7 @@ Produtos são **serviços desacoplados** que consomem core via APIs.
 - **Orquestrador:** Facilitador conversacional que mantém diálogo, detecta necessidades e sugere agentes
 - **Estruturador:** Organiza ideias vagas e refina questões baseado em feedback estruturado
 - **Metodologista:** Valida rigor científico em modo colaborativo (approved/needs_refinement/rejected)
-- **Interface conversacional:** Web app Streamlit (Épico 9)
+- **Interface conversacional:** Web app Streamlit
 - **Interface CLI:** Ferramenta de desenvolvimento (congelada, backend compartilhado)
 
 **Estado compartilhado:**
@@ -145,13 +145,13 @@ Facilitador conversacional que mantém diálogo fluido, detecta necessidades, of
 
 **Detalhes:** Ver `docs/orchestration/conversational_orchestrator.md`
 
-## Orquestrador Socrático (Épico 10)
+## Orquestrador Socrático
 
 Evolução do Orquestrador Conversacional que adiciona capacidade de exposição de suposições implícitas através de contra-perguntas socráticas. Detecta 5 categorias de assumptions (métrica vaga, população vaga, baseline ausente, causalidade assumida, generalização excessiva), escala profundidade de provocação em 3 níveis conforme resistência do usuário, e determina timing apropriado de provocação (quando provocar vs quando apenas explorar).
 
 **Detalhes:** Ver `docs/orchestration/socratic_orchestrator.md`
 
-**Relacionamento:** Socrático é extensão do Conversacional (Épico 7). Conversacional provê base de análise contextual e argumento focal; Socrático adiciona provocação estruturada sobre assumptions.
+**Relacionamento:** Socrático é extensão do Conversacional. Conversacional provê base de análise contextual e argumento focal; Socrático adiciona provocação estruturada sobre assumptions.
 
 ## Estado Compartilhado
 
@@ -159,7 +159,7 @@ MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento fo
 
 **Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
 
-## Modelo Cognitivo (Épico 11 - Concluído)
+## Modelo Cognitivo
 
 Sistema captura evolução do pensamento do usuário através de modelo cognitivo explícito com campos: `claim`, `premises`, `assumptions`, `open_questions`, `contradictions`, `solid_grounds`, `context`.
 
@@ -171,7 +171,7 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - Metodologista: valida lógica, aponta contradições
 - Pesquisador (futuro): transforma dúvidas em evidências
 
-**Implementação (Épico 11):**
+**Implementação:**
 - **Schema Pydantic:** `agents/models/cognitive_model.py` - CognitiveModel, Contradiction, SolidGround
 - **Persistência SQLite:** `agents/database/` - DatabaseManager com tabelas ideas e arguments
 - **Versionamento:** Auto-incremento de versões (V1, V2, V3...) por idea
@@ -194,9 +194,9 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 
 ### Persistência
 
-**Atual (Épico 11 - Concluído):**
+**Atual:**
 - **SqliteSaver (LangGraph):** Checkpoints de conversa (arquivo `checkpoints.db`)
-- **SQLite customizado (Épico 11):** Entidades de domínio em `data/data.db`:
+- **SQLite customizado:** Entidades de domínio em `data/data.db`:
   - Tabela `ideas`: id, title, status, current_argument_id (FK)
   - Tabela `arguments`: id, idea_id (FK), claim, premises, assumptions, open_questions, contradictions, solid_grounds, context, version
   - Versionamento automático (V1, V2, V3...) via UNIQUE constraint (idea_id, version)
@@ -212,7 +212,7 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 
 **Decisão:** Começar simples (SQLite) e migrar quando necessário. Evitar over-engineering prematuro.
 
-## Configuração Externa de Agentes (Épico 6.1)
+## Configuração Externa de Agentes
 
 Sistema de configuração dinâmica que permite definir prompts, modelos LLM e limites de contexto via arquivos YAML externos.
 
@@ -235,7 +235,7 @@ Sistema de configuração dinâmica que permite definir prompts, modelos LLM e l
 - `decide_collaborative` e `force_decision_collaborative`: Carregam `config/agents/methodologist.yaml` ao executar
 - `create_multi_agent_graph`: Valida que todos YAMLs obrigatórios existem no bootstrap
 
-## Registro de Memória e Metadados (Épico 6.2)
+## Registro de Memória e Metadados
 
 Sistema de captura e agregação de tokens, custos e metadados de execução por agente.
 
@@ -270,7 +270,7 @@ paper-agent/
 ├── ARCHITECTURE.md        # Visão arquitetural (este arquivo)
 ├── development_guidelines.md  # Regras para desenvolvimento com agentes
 │
-├── config/                # Configurações externas (Épico 6)
+├── config/                # Configurações externas
 │   └── agents/            # Configs YAML por agente
 │       ├── orchestrator.yaml    # Prompt, modelo, limites do Orquestrador
 │       ├── structurer.yaml      # Prompt, modelo, limites do Estruturador
@@ -293,17 +293,17 @@ paper-agent/
 │   ├── structurer/        # Agente Estruturador
 │   │   ├── __init__.py
 │   │   └── nodes.py       # structurer_node
-│   ├── models/            # Modelos de domínio (Épico 11)
+│   ├── models/            # Modelos de domínio
 │   │   ├── __init__.py
 │   │   └── cognitive_model.py    # CognitiveModel, Contradiction, SolidGround
-│   ├── database/          # Persistência SQLite (Épico 11)
+│   ├── database/          # Persistência SQLite
 │   │   ├── __init__.py
 │   │   ├── schema.py       # Schema SQL (tabelas, índices, triggers, views)
 │   │   └── manager.py      # DatabaseManager (singleton CRUD)
-│   ├── persistence/       # Snapshots e maturidade (Épico 11)
+│   ├── persistence/       # Snapshots e maturidade
 │   │   ├── __init__.py
 │   │   └── snapshot_manager.py   # SnapshotManager (detecção LLM + snapshot automático)
-│   ├── checklist/         # Rastreamento de progresso (Épico 11)
+│   ├── checklist/         # Rastreamento de progresso
 │   │   ├── __init__.py
 │   │   └── progress_tracker.py   # ProgressTracker (checklist adaptativo)
 │   ├── memory/            # Sistema de memória e configuração
@@ -327,15 +327,15 @@ paper-agent/
 │
 ├── app/                   # Interface Web Conversacional
 │   ├── __init__.py
-│   ├── dashboard.py       # Dashboard de visualização de eventos (Épico 5.1)
-│   ├── chat.py            # Chat conversacional principal (Épico 9 - scaffold criado)
-│   └── components/        # Componentes reutilizáveis (Épico 9)
+│   ├── dashboard.py       # Dashboard de visualização de eventos
+│   ├── chat.py            # Chat conversacional principal
+│   └── components/        # Componentes reutilizáveis
 │       ├── __init__.py
 │       ├── chat_input.py     # Input de mensagens (esqueleto)
 │       ├── chat_history.py   # Histórico de conversa (esqueleto)
 │       ├── backstage.py      # Painel "Bastidores" (esqueleto)
 │       ├── sidebar.py        # Lista de sessões (esqueleto)
-│       └── storage.py        # Persistência localStorage (funcional - 9.9)
+│       └── storage.py        # Persistência localStorage
 │
 ├── tests/                 # Testes automatizados (pytest)
 │   ├── __init__.py
@@ -356,7 +356,7 @@ paper-agent/
 │
 ├── scripts/               # Scripts de validação manual
 │   ├── __init__.py
-│   ├── validate_cognitive_model.py   # Validação Epic 11 (completo)
+│   ├── validate_cognitive_model.py   # Validação do modelo cognitivo
 │   ├── health_checks/            # Sanidade de ambiente e configs
 │   │   ├── validate_api.py
 │   │   ├── validate_agent_config.py
@@ -389,7 +389,7 @@ paper-agent/
     │   ├── vision.md
     │   ├── cognitive_model.md
     │   ├── conversation_patterns.md
-    │   └── agent_personas.md  (Épico 16+)
+    │   └── agent_personas.md
     ├── products/          # Produtos específicos (paper-agent, fichamento)
     └── process/           # Desenvolvimento, testes
 ```
@@ -432,21 +432,6 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 - **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários
 - **Modo colaborativo:** Prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar)
 
-## Estratégia de Migração
-
-> **Nota:** Para fases detalhadas, consulte `docs/architecture/migration_strategy.md`.
-
-Sistema está migrando de entidade `Topic` para ontologia completa (`Idea`, `Concept`, `Argument`):
-
-**Fases planejadas:**
-1. **Épico 11:** ✅ **Concluído** - Abstrair fundação (CognitiveModel + persistência SQLite)
-2. **Épico 12:** ✅ **Concluído** - Gestão de ideias (listagem, alternância, busca, criação, explorador de argumentos)
-3. **Épico 14:** ✅ **Concluído** - Navegação em Três Espaços (conversas, pensamentos, catálogo) + restauração de contexto
-4. **Épico 13:** Criar Concept (vetores semânticos) + busca semântica
-5. **Épico 15:** Polimentos de UX (Enter envia, custo em R$, métricas discretas)
-
-**Status:** Épico 14 concluído. Próximo: Épico 13.
-
 ## Padrões Essenciais
 
 - **Contratos em JSON** entre orquestrador e agentes (status, justificativa, sugestões)
@@ -463,7 +448,6 @@ Sistema está migrando de entidade `Topic` para ontologia completa (`Idea`, `Con
 - `docs/architecture/concept_model.md` - Estrutura de dados Conceito
 - `docs/architecture/argument_model.md` - Estrutura de dados Argumento
 - `docs/architecture/tech_stack.md` - ChromaDB, SQLite, embeddings
-- `docs/architecture/migration_strategy.md` - Fases de migração
 
 **Visão de Produto:**
 - `docs/vision/vision.md` - Visão de produto, tipos de artigo
