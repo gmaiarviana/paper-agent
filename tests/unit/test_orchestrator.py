@@ -304,8 +304,11 @@ class TestMultiAgentState:
         assert state['structurer_output'] is None
         assert state['methodologist_output'] is None
 
-        # Assert - Mensagens
-        assert state['messages'] == []
+        # Assert - Mensagens (fix Épico 14.5: deve ter 1 HumanMessage inicial)
+        assert len(state['messages']) == 1
+        from langchain_core.messages import HumanMessage
+        assert isinstance(state['messages'][0], HumanMessage)
+        assert state['messages'][0].content == "Teste de input"
 
     def test_state_is_mutable(self):
         """Testa que campos do estado podem ser atualizados."""
@@ -333,7 +336,11 @@ class TestBuildContext:
     """
 
     def test_build_context_with_only_initial_input(self):
-        """Testa construção de contexto com apenas input inicial (sem histórico)."""
+        """Testa construção de contexto com apenas input inicial.
+
+        Após fix Épico 14.5, o estado inicial sempre tem 1 HumanMessage,
+        então sempre haverá histórico (com a mensagem inicial).
+        """
         # Arrange
         state = create_initial_multi_agent_state(
             user_input="Observei que LLMs aumentam produtividade",
@@ -346,7 +353,9 @@ class TestBuildContext:
         # Assert
         assert "INPUT INICIAL DO USUÁRIO:" in context
         assert "Observei que LLMs aumentam produtividade" in context
-        assert "HISTÓRICO DA CONVERSA:" not in context  # Sem mensagens, não inclui histórico
+        # Após fix Épico 14.5: histórico sempre existe (com mensagem inicial)
+        assert "HISTÓRICO DA CONVERSA:" in context
+        assert "[Usuário]: Observei que LLMs aumentam produtividade" in context
 
     def test_build_context_with_human_messages(self):
         """Testa construção de contexto com mensagens do usuário."""
