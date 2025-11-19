@@ -1,18 +1,18 @@
 """
-Componente sidebar para gerenciamento de ideias (Épico 12).
+Componente sidebar para navegação de conversas (Épico 14.1).
 
 Responsável por:
-- Listar ideias recentes (últimas 10)
-- Destacar ideia ativa
-- Botão "+ Nova Ideia"
-- Alternar entre ideias
-- Busca de ideias por título e status
-- Explorador de argumentos versionados
-- Integração com DatabaseManager (persistência em data.db)
+- Listar conversas recentes (últimas 5 - reduzido de 10)
+- Destacar conversa ativa
+- Botão "+ Nova Conversa"
+- Alternar entre conversas (restaura contexto completo - Épico 14.5)
+- Botões de navegação para páginas dedicadas:
+  - [📖 Meus Pensamentos] → /pensamentos
+  - [🏷️ Catálogo] → /catalogo (desabilitado até Épico 13)
 
-Versão: 3.0
-Data: 18/11/2025
-Status: Épico 12 - Gestão de Ideias
+Versão: 4.0
+Data: 19/11/2025
+Status: Épico 14.1 - Navegação em Três Espaços
 """
 
 import streamlit as st
@@ -23,6 +23,11 @@ import logging
 from app.components.session_helpers import (
     get_current_session_id
 )
+from app.components.conversation_helpers import (
+    restore_conversation_context,
+    list_recent_conversations,
+    get_relative_timestamp
+)
 from agents.database.manager import get_database_manager
 
 logger = logging.getLogger(__name__)
@@ -30,49 +35,59 @@ logger = logging.getLogger(__name__)
 
 def render_sidebar() -> str:
     """
-    Renderiza sidebar com lista de ideias (Épico 12).
+    Renderiza sidebar com lista de conversas recentes (Épico 14.1).
 
     Returns:
         str: ID da sessão ativa (thread_id do LangGraph)
 
-    Comportamento (Épico 12):
-        - Lista de ideias do DatabaseManager (data.db)
-        - Últimas 10 ideias ordenadas por updated_at DESC
-        - Botão "+ Nova Ideia"
-        - Ideia ativa destacada
-        - Busca por título e filtro por status
-        - Explorador de argumentos versionados (expansível)
-        - Alternância entre ideias restaura contexto completo
+    Comportamento (Épico 14.1):
+        - Lista de conversas do SqliteSaver (checkpoints.db)
+        - Últimas 5 conversas ordenadas por timestamp DESC
+        - Botão "+ Nova Conversa"
+        - Conversa ativa destacada (bold, background diferente)
+        - Formato: "Título da conversa · Timestamp relativo" ("5min atrás", "2h atrás")
+        - Botão [📖 Meus Pensamentos] → redireciona para /pensamentos
+        - Botão [🏷️ Catálogo] → desabilitado até Épico 13
+        - Alternância entre conversas restaura contexto completo (Épico 14.5)
     """
     with st.sidebar:
-        st.title("📂 Ideias")
+        st.title("💬 Conversas")
 
-        # Botão para nova ideia (12.4)
-        if st.button("➕ Nova Ideia", use_container_width=True, type="primary"):
-            _create_new_idea()
-
-        st.markdown("---")
-
-        # Busca e filtros (12.6)
-        search_query = st.text_input("🔍 Buscar ideias...", key="search_ideas")
-        status_filter = st.selectbox(
-            "Filtrar por status",
-            ["Todas", "Explorando", "Estruturada", "Validada"],
-            key="filter_status"
-        )
+        # Botão para nova conversa (14.1)
+        if st.button("➕ Nova Conversa", use_container_width=True, type="primary"):
+            _create_new_conversation()
 
         st.markdown("---")
 
-        # Buscar ideias do banco (12.2)
-        ideas = _get_recent_ideas(search_query=search_query, status_filter=status_filter, limit=10)
+        # Buscar conversas recentes do SqliteSaver (14.1)
+        conversations = list_recent_conversations(limit=5)
 
-        if ideas and len(ideas) > 0:
-            # Renderizar lista de ideias (12.2)
-            _render_idea_list(ideas)
+        if conversations and len(conversations) > 0:
+            st.caption("**Conversas recentes:**")
+            _render_conversation_list(conversations)
         else:
-            # Nenhuma ideia no banco ainda
-            st.caption("Nenhuma ideia encontrada.")
-            st.caption("Clique em '➕ Nova Ideia' para começar!")
+            # Nenhuma conversa no banco ainda
+            st.caption("Nenhuma conversa encontrada.")
+            st.caption("Clique em '➕ Nova Conversa' para começar!")
+
+        st.markdown("---")
+
+        # Botões de navegação para páginas dedicadas (14.1)
+        st.subheader("📖 Navegação")
+
+        # Botão: Meus Pensamentos
+        if st.button("📖 Meus Pensamentos", use_container_width=True):
+            # Redirecionar para página /pensamentos
+            # Nota: Streamlit não tem redirect nativo; usar query_params ou link
+            st.switch_page("pages/1_pensamentos.py")
+
+        # Botão: Catálogo (desabilitado até Épico 13)
+        st.button(
+            "🏷️ Catálogo",
+            use_container_width=True,
+            disabled=True,
+            help="Disponível no Épico 13"
+        )
 
     # Retornar sessão ativa (thread_id para compatibilidade)
     return _get_active_session_id()
@@ -97,9 +112,52 @@ def _get_active_session_id() -> str:
     return st.session_state.active_session_id
 
 
+def _create_new_conversation() -> None:
+    """
+    Cria nova conversa e define como ativa (Épico 14.1).
+
+    Comportamento:
+        - Gera novo thread_id (LangGraph)
+        - Limpa histórico de mensagens
+        - Define como conversa ativa
+        - Força re-render da interface
+
+    Nota:
+        Não cria registro em data.db (diferente de _create_new_idea).
+        Conversa só existe no SqliteSaver (checkpoints.db).
+        Ideia será cristalizada depois pelo sistema durante conversa.
+    """
+    try:
+        # Gerar novo thread_id para LangGraph
+        new_session_id = get_current_session_id()
+
+        # Definir como ativa
+        st.session_state.active_session_id = new_session_id
+
+        # Limpar histórico
+        if "messages" in st.session_state:
+            st.session_state.messages = []
+
+        # Limpar ideia ativa (nova conversa não está vinculada a ideia ainda)
+        if "active_idea_id" in st.session_state:
+            del st.session_state.active_idea_id
+
+        logger.info(f"Nova conversa criada: thread_id={new_session_id}")
+        st.success(f"✅ Nova conversa iniciada!")
+        st.rerun()
+
+    except Exception as e:
+        logger.error(f"Erro ao criar nova conversa: {e}", exc_info=True)
+        st.error(f"❌ Erro ao criar nova conversa: {e}")
+
+
 def _create_new_idea() -> None:
     """
     Cria nova ideia e define como ativa (Épico 12.4 + melhorias).
+
+    NOTA: Esta função mantida para compatibilidade com sistema anterior.
+    A partir do Épico 14, conversas são criadas primeiro (_create_new_conversation),
+    e ideias são cristaliz adas pelo sistema durante conversa.
 
     Comportamento:
         - Gera título com timestamp
@@ -193,6 +251,96 @@ def _get_recent_ideas(
         return []
 
 
+def _render_conversation_list(conversations: List[Dict[str, Any]]) -> None:
+    """
+    Renderiza lista de conversas recentes na sidebar (Épico 14.1).
+
+    Args:
+        conversations: Lista de conversas do SqliteSaver
+
+    Layout:
+        Título da conversa  (ativa)
+        5min atrás
+
+        Título da conversa
+        2h atrás
+
+        ...
+
+    Comportamento:
+        - Conversa ativa marcada visualmente (bold, background)
+        - Formato: "Título da conversa · Timestamp relativo"
+        - Clique em conversa alterna via restore_conversation_context()
+    """
+    active_session_id = st.session_state.get("active_session_id")
+
+    for conv in conversations:
+        thread_id = conv["thread_id"]
+        title = conv["title"]
+        last_updated = conv["last_updated"]
+        is_active = (thread_id == active_session_id)
+
+        # Timestamp relativo
+        relative_time = get_relative_timestamp(last_updated)
+
+        # Botão para selecionar conversa
+        button_label = f"{title}"
+        button_help = f"Última atualização: {relative_time}"
+
+        # Destacar ativa
+        button_type = "primary" if is_active else "secondary"
+
+        if st.button(
+            button_label,
+            key=f"conv_{thread_id}",
+            use_container_width=True,
+            disabled=is_active,  # Desabilitar se já está ativa
+            type=button_type,
+            help=button_help
+        ):
+            _switch_conversation(thread_id)
+
+        # Mostrar timestamp relativo abaixo do botão
+        if not is_active:
+            st.caption(f"  {relative_time}")
+
+
+def _switch_conversation(thread_id: str) -> None:
+    """
+    Alterna para outra conversa (Épico 14.1 + 14.5).
+
+    Args:
+        thread_id: ID da conversa a carregar
+
+    Comportamento:
+        - Restaura histórico de mensagens do SqliteSaver (Épico 14.5)
+        - Define thread_id como ativo
+        - Força re-render da interface
+
+    Nota:
+        Usa restore_conversation_context() do Épico 14.5 para garantir
+        que histórico de mensagens é restaurado corretamente.
+    """
+    try:
+        logger.info(f"Alternando para conversa: {thread_id}")
+
+        # Restaurar contexto completo (Épico 14.5)
+        success = restore_conversation_context(thread_id)
+
+        if not success:
+            # Fallback: se restauração falhar, pelo menos limpar estado
+            logger.warning(f"Falha ao restaurar contexto de {thread_id}. Limpando mensagens.")
+            st.session_state.active_session_id = thread_id
+            st.session_state.messages = []
+
+        st.success(f"✅ Conversa restaurada!")
+        st.rerun()
+
+    except Exception as e:
+        logger.error(f"Erro ao alternar conversa: {e}", exc_info=True)
+        st.error(f"❌ Erro ao alternar conversa: {e}")
+
+
 def _switch_idea(idea_id: str) -> None:
     """
     Alterna para outra ideia (Épico 12.3 + melhorias).
@@ -218,16 +366,24 @@ def _switch_idea(idea_id: str) -> None:
         # Definir como ativa
         st.session_state.active_idea_id = idea_id
 
-        # Carregar thread_id persistido (RESTAURA HISTÓRICO!)
+        # Carregar thread_id persistido
         loaded_thread_id = idea.get("thread_id")
-        if loaded_thread_id:
-            st.session_state.active_session_id = loaded_thread_id
-            logger.info(f"Thread ID restaurado: {loaded_thread_id}")
-        else:
+        if not loaded_thread_id:
             # Fallback: gerar novo se ideia antiga não tem thread_id
             new_session_id = get_current_session_id()
             st.session_state.active_session_id = new_session_id
+            st.session_state.messages = []
             logger.warning(f"Ideia sem thread_id. Gerando novo: {new_session_id}")
+        else:
+            # BUGFIX Épico 14.5: Restaurar histórico de mensagens do SqliteSaver
+            logger.info(f"Restaurando contexto da conversa: {loaded_thread_id}")
+            success = restore_conversation_context(loaded_thread_id)
+
+            if not success:
+                # Fallback: se restauração falhar, limpar mensagens
+                logger.warning(f"Falha ao restaurar contexto de {loaded_thread_id}. Limpando mensagens.")
+                st.session_state.active_session_id = loaded_thread_id
+                st.session_state.messages = []
 
         # Restaurar argumento focal
         if idea.get("current_argument_id"):
@@ -235,10 +391,6 @@ def _switch_idea(idea_id: str) -> None:
             st.session_state.current_argument = current_arg
         else:
             st.session_state.current_argument = None
-
-        # Limpar histórico (será recarregado do SqliteSaver automaticamente)
-        if "messages" in st.session_state:
-            st.session_state.messages = []
 
         logger.info(f"Ideia alternada: {idea_id} - '{idea['title']}' - thread_id: {loaded_thread_id}")
         st.rerun()

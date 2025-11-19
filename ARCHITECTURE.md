@@ -34,11 +34,11 @@ Idea:
 
 ## Gestão de Ideias
 
-Sistema gerencia ideias cristalizadas durante conversas com navegação em três espaços distintos:
+Sistema gerencia ideias cristalizadas durante conversas com navegação em três espaços distintos (Épico 14):
 
 **Conversas (Sidebar):**
 - Últimas 5 conversas recentes com timestamp relativo
-- Alternar entre conversas (carrega thread_id do SqliteSaver)
+- Alternar entre conversas (restaura contexto completo via SqliteSaver)
 - Botões para páginas dedicadas: "Meus Pensamentos" e "Catálogo"
 
 **Meus Pensamentos (Página `/pensamentos`):**
@@ -108,7 +108,8 @@ O sistema oferece **duas interfaces web** com propósitos distintos:
 ### Chat Web (`app/chat.py`) - Experiência Principal
 - Interface conversacional para usuários finais
 - Chat fluido + bastidores opcionais (reasoning inline)
-- Sidebar com últimas 10 sessões (SqliteSaver backend)
+- Sidebar com últimas 5 conversas (SqliteSaver backend)
+- Navegação em três espaços: Conversas, Meus Pensamentos, Catálogo (Épico 14)
 - Persistência entre visitas (sem autenticação - sessões compartilhadas)
 - **Porta:** :8501
 

@@ -13,6 +13,7 @@ Data: 17/11/2025
 
 from typing import TypedDict, Optional, Annotated, Literal, List
 from langgraph.graph.message import add_messages
+from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -303,8 +304,8 @@ def create_initial_multi_agent_state(user_input: str, session_id: Optional[str] 
         last_agent_tokens_output=None,
         last_agent_cost=None,
 
-        # Mensagens LangGraph
-        messages=[]
+        # Mensagens LangGraph (BUGFIX: adicionar HumanMessage para persistência)
+        messages=[HumanMessage(content=user_input)]
     )
 
 

@@ -25,7 +25,11 @@ class TestBuildContext:
     """Testes para a função _build_context (Task 7.1.3)."""
 
     def test_build_context_with_empty_history(self):
-        """Testa construção de contexto com histórico vazio."""
+        """Testa construção de contexto com apenas input inicial.
+
+        Após fix Épico 14.5, o estado inicial sempre tem 1 HumanMessage,
+        então sempre haverá histórico (com a mensagem inicial).
+        """
         # Arrange
         state = create_initial_multi_agent_state(
             user_input="Observei que LLMs aumentam produtividade",
@@ -38,7 +42,9 @@ class TestBuildContext:
         # Assert
         assert "INPUT INICIAL DO USUÁRIO:" in context
         assert "Observei que LLMs aumentam produtividade" in context
-        assert "HISTÓRICO DA CONVERSA:" not in context  # Sem histórico
+        # Após fix Épico 14.5: histórico sempre existe (com mensagem inicial)
+        assert "HISTÓRICO DA CONVERSA:" in context
+        assert "[Usuário]: Observei que LLMs aumentam produtividade" in context
 
     def test_build_context_with_conversation_history(self):
         """Testa construção de contexto com histórico de mensagens."""

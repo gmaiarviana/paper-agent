@@ -80,7 +80,12 @@ class TestMultiAgentStateStructure:
         # Outros agentes - devem começar como None
         assert state["structurer_output"] is None
         assert state["methodologist_output"] is None
-        assert state["messages"] == []
+
+        # Messages deve ter 1 HumanMessage inicial (fix Épico 14.5)
+        assert len(state["messages"]) == 1
+        from langchain_core.messages import HumanMessage
+        assert isinstance(state["messages"][0], HumanMessage)
+        assert state["messages"][0].content == user_input
 
         # Métricas (Épico 8.3) - devem começar como None
         assert state["last_agent_tokens_input"] is None
