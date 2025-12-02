@@ -25,11 +25,14 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 import streamlit as st
+import logging
 from datetime import datetime
 
 from agents.database.manager import get_database_manager
 from app.components.session_helpers import get_current_session_id
 from app.components.conversation_helpers import get_relative_timestamp
+
+logger = logging.getLogger(__name__)
 
 
 # === CONFIGURAÇÃO ===
@@ -114,19 +117,118 @@ def render_concepts_section():
     st.info("ℹ️ A busca semântica de conceitos será implementada no próximo épico.")
 
 
+def format_thread_timestamp(thread_id: str) -> str:
+    """
+    Formata timestamp do thread_id para formato legível ("18/11, 14:56").
+    
+    Args:
+        thread_id: ID da conversa (formato: session-YYYYMMDD-HHMMSS-{millis})
+    
+    Returns:
+        str: Timestamp formatado ("DD/MM, HH:MM") ou fallback
+    """
+    try:
+        # Extrair timestamp do thread_id (formato: session-YYYYMMDD-HHMMSS-...)
+        parts = thread_id.split("-")
+        if len(parts) >= 3:
+            date_part = parts[1]  # YYYYMMDD
+            time_part = parts[2]  # HHMMSS
+            
+            day = date_part[6:8]
+            month = date_part[4:6]
+            hour = time_part[0:2]
+            minute = time_part[2:4]
+            
+            return f"{day}/{month}, {hour}:{minute}"
+    except Exception as e:
+        logger.warning(f"Erro ao formatar timestamp de {thread_id}: {e}")
+    
+    return "data desconhecida"
+
+
+def get_thread_timestamp_from_checkpoint(thread_id: str) -> str:
+    """
+    Busca timestamp do último checkpoint da conversa no SqliteSaver.
+    
+    Args:
+        thread_id: ID da conversa
+    
+    Returns:
+        str: Timestamp ISO ou None se não encontrado
+    """
+    try:
+        import sqlite3
+        from pathlib import Path
+        
+        # Caminho do banco SqliteSaver (mesmo padrão usado em conversation_helpers.py)
+        db_path = Path(__file__).parent.parent.parent / "checkpoints.db"
+        
+        if not db_path.exists():
+            return None
+        
+        # Conectar ao banco
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+        
+        # Buscar último checkpoint desta conversa
+        query = """
+        SELECT MAX(checkpoint_ns) as last_checkpoint_ns
+        FROM checkpoints
+        WHERE thread_id = ?
+        """
+        
+        cursor.execute(query, (thread_id,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row and row[0]:
+            # Converter checkpoint_ns (nanoseconds) para datetime
+            checkpoint_ns = row[0]
+            timestamp_sec = checkpoint_ns / 1_000_000_000
+            dt = datetime.fromtimestamp(timestamp_sec)
+            return dt.isoformat()
+        
+        return None
+    except Exception as e:
+        logger.warning(f"Erro ao buscar timestamp do checkpoint: {e}")
+        return None
+
+
 def render_conversations_section(idea: dict):
     """
-    Renderiza seção de conversas relacionadas.
-
+    Renderiza seção de conversas relacionadas (Épico 14.3).
+    
     Args:
         idea: Dict com dados da ideia
+    
+    Comportamento:
+        - Lista threads relacionados à ideia com timestamp formatado ("18/11, 14:56")
+        - Por enquanto, mostra apenas o thread_id atual (arquitetura atual não suporta múltiplos threads por ideia)
+        - Formato: "Thread ID · 18/11, 14:56"
     """
     st.subheader("💬 Conversas relacionadas")
-
+    
     thread_id = idea.get("thread_id")
-
+    
     if thread_id:
-        st.caption(f"Thread ID: `{thread_id}`")
+        # Buscar timestamp do checkpoint (mais preciso)
+        checkpoint_timestamp = get_thread_timestamp_from_checkpoint(thread_id)
+        
+        if checkpoint_timestamp:
+            # Converter ISO para formato "DD/MM, HH:MM"
+            try:
+                dt = datetime.fromisoformat(checkpoint_timestamp.replace("Z", "+00:00"))
+                formatted_timestamp = dt.strftime("%d/%m, %H:%M")
+            except:
+                # Fallback: extrair do thread_id
+                formatted_timestamp = format_thread_timestamp(thread_id)
+        else:
+            # Fallback: extrair do thread_id
+            formatted_timestamp = format_thread_timestamp(thread_id)
+        
+        # Mostrar lista de conversas (por enquanto apenas uma)
+        st.markdown(f"**Conversa:** `{thread_id[:20]}...`")
+        st.caption(f"📅 {formatted_timestamp}")
         st.caption("_Esta ideia foi cristalizada durante a conversa acima_")
     else:
         st.caption("_Nenhuma conversa vinculada_")

@@ -22,7 +22,6 @@
 
 ### ⏳ Épicos Planejados
 - **ÉPICO 13**: Entidade Concept (refinado)
-- **ÉPICO 14**: Navegação em Três Espaços (refinado)
 - **ÉPICO 15**: Polimentos de UX (não refinado)
 - **ÉPICO 16**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
 - **ÉPICO 17**: Personas de Agentes (não refinado)
