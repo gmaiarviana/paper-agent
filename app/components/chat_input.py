@@ -52,9 +52,21 @@ def render_chat_input(session_id: str) -> None:
     # Inicializar estado de processamento
     if "processing" not in st.session_state:
         st.session_state.processing = False
+    if "pending_message" not in st.session_state:
+        st.session_state.pending_message = None
+    if "pending_session_id" not in st.session_state:
+        st.session_state.pending_session_id = None
 
     # Estado de processamento
     processing = st.session_state.processing
+
+    # Se há mensagem pendente e estamos processando, processar agora
+    if processing and st.session_state.pending_message:
+        _process_user_message(
+            st.session_state.pending_message,
+            st.session_state.pending_session_id
+        )
+        return
 
     # CSS customizado para opacidade do input desabilitado (Épico 14.4)
     _apply_processing_styles()
@@ -85,7 +97,11 @@ def render_chat_input(session_id: str) -> None:
 
     # Processar mensagem quando botão clicado
     if send_button and user_input.strip() and not processing:
-        _process_user_message(user_input.strip(), session_id)
+        # Primeiro rerun: mostrar feedback de processamento
+        st.session_state.processing = True
+        st.session_state.pending_message = user_input.strip()
+        st.session_state.pending_session_id = session_id
+        st.rerun()
 
 
 def _apply_processing_styles() -> None:
@@ -210,22 +226,21 @@ def _process_user_message(user_input: str, session_id: str) -> None:
         user_input: Mensagem do usuário
         session_id: ID da sessão ativa
 
-    Fluxo:
-        1. Marca estado como "processing" (Épico 14.4)
-        2. Adiciona mensagem do usuário ao histórico
-        3. Invoca LangGraph
-        4. Extrai resposta do orquestrador
-        5. Busca métricas consolidadas do EventBus
-        6. Adiciona resposta do sistema ao histórico
-        7. Desmarca estado "processing" (Épico 14.4)
-        8. Re-renderiza interface
+    Fluxo (Bugfix Épico 14.4):
+        1. Adiciona mensagem do usuário ao histórico
+        2. Invoca LangGraph (processamento síncrono)
+        3. Extrai resposta do orquestrador
+        4. Busca métricas consolidadas do EventBus
+        5. Adiciona resposta do sistema ao histórico
+        6. Desmarca estado "processing" e limpa mensagem pendente
+        7. Re-renderiza interface
+
+    Nota: Esta função é chamada no segundo rerun, após o feedback visual
+    já estar visível para o usuário.
     """
     # Inicializar histórico se necessário
     if "messages" not in st.session_state:
         st.session_state.messages = []
-
-    # Marcar como processando (Épico 14.4)
-    st.session_state.processing = True
 
     # Adicionar mensagem do usuário (sem métricas ainda)
     st.session_state.messages.append({
@@ -277,8 +292,10 @@ def _process_user_message(user_input: str, session_id: str) -> None:
         # Remover mensagem do usuário se houve erro
         st.session_state.messages.pop()
     finally:
-        # Desmarcar processamento (Épico 14.4)
+        # Desmarcar processamento e limpar estado pendente (Épico 14.4)
         st.session_state.processing = False
+        st.session_state.pending_message = None
+        st.session_state.pending_session_id = None
 
     # Re-renderizar interface (force update)
     st.rerun()

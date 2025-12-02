@@ -25,9 +25,10 @@ import logging
 import time
 import sqlite3
 from pathlib import Path
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
+from langchain_core.runnables import RunnableConfig
 
 from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
 from agents.orchestrator.nodes import orchestrator_node
@@ -95,7 +96,7 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
     Example:
         >>> instrumented_node = instrument_node(orchestrator_node, "orchestrator")
     """
-    def wrapper(state: MultiAgentState, config: Any = None) -> MultiAgentState:
+    def wrapper(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> MultiAgentState:
         """Wrapper instrumentado que emite eventos."""
         # Extrair session_id do state (método confiável - Épico 5.1)
         # Config não é passado aos nodes pelo LangGraph, então usamos state

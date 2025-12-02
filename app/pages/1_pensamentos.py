@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 # Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import streamlit as st
@@ -112,10 +112,10 @@ def render_idea_card(idea: dict, db):
 
         # Botão para ver detalhes (redireciona para página dedicada)
         if st.button(f"Ver detalhes →", key=f"btn_{idea_id}", use_container_width=True):
+            # Passar idea_id via query params ANTES do switch_page
+            st.query_params["id"] = idea_id
             # Redirecionar para página de detalhes
             st.switch_page("pages/2_ideia_detalhes.py")
-            # Passar idea_id via query params
-            st.query_params["id"] = idea_id
 
 
 # === APLICAÇÃO PRINCIPAL ===

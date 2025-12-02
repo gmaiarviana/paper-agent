@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 # Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import streamlit as st
@@ -160,33 +160,47 @@ def get_thread_timestamp_from_checkpoint(thread_id: str) -> str:
         import sqlite3
         from pathlib import Path
         
-        # Caminho do banco SqliteSaver (mesmo padrão usado em conversation_helpers.py)
-        db_path = Path(__file__).parent.parent.parent / "checkpoints.db"
+        # Caminho do banco SqliteSaver (mesmo usado no LangGraph)
+        db_path = Path(__file__).parent.parent.parent / "data" / "checkpoints.db"
         
         if not db_path.exists():
             return None
         
-        # Conectar ao banco
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
-        
-        # Buscar último checkpoint desta conversa
-        query = """
-        SELECT MAX(checkpoint_ns) as last_checkpoint_ns
-        FROM checkpoints
-        WHERE thread_id = ?
-        """
-        
-        cursor.execute(query, (thread_id,))
-        row = cursor.fetchone()
-        conn.close()
+        # Conectar ao banco (usar context manager para garantir fechamento)
+        with sqlite3.connect(str(db_path)) as conn:
+            cursor = conn.cursor()
+            
+            # Buscar último checkpoint desta conversa
+            query = """
+            SELECT MAX(checkpoint_ns) as last_checkpoint_ns
+            FROM checkpoints
+            WHERE thread_id = ?
+            """
+            
+            cursor.execute(query, (thread_id,))
+            row = cursor.fetchone()
         
         if row and row[0]:
             # Converter checkpoint_ns (nanoseconds) para datetime
             checkpoint_ns = row[0]
-            timestamp_sec = checkpoint_ns / 1_000_000_000
-            dt = datetime.fromtimestamp(timestamp_sec)
-            return dt.isoformat()
+            try:
+                # Converter para int se necessário (SQLite pode retornar como string)
+                if isinstance(checkpoint_ns, str):
+                    checkpoint_ns = checkpoint_ns.strip()
+                    if not checkpoint_ns:
+                        return None
+                    checkpoint_ns = int(checkpoint_ns)
+                
+                # Verificar se é um número válido
+                if not isinstance(checkpoint_ns, (int, float)) or checkpoint_ns <= 0:
+                    return None
+                
+                timestamp_sec = checkpoint_ns / 1_000_000_000
+                dt = datetime.fromtimestamp(timestamp_sec)
+                return dt.isoformat()
+            except (ValueError, TypeError):
+                logger.debug(f"Erro ao converter checkpoint_ns {checkpoint_ns}")
+                return None
         
         return None
     except Exception as e:

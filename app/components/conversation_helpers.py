@@ -197,52 +197,50 @@ def list_recent_conversations(limit: int = 10) -> List[Dict[str, Any]]:
         import sqlite3
         from pathlib import Path
 
-        # Caminho do banco SqliteSaver
-        db_path = Path(__file__).parent.parent.parent / "checkpoints.db"
+        # Caminho do banco SqliteSaver (mesmo usado no LangGraph)
+        db_path = Path(__file__).parent.parent.parent / "data" / "checkpoints.db"
 
         if not db_path.exists():
             logger.warning(f"Banco checkpoints.db não encontrado em {db_path}")
             return []
 
-        # Conectar ao banco
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
+        # Conectar ao banco (usar context manager para garantir fechamento)
+        with sqlite3.connect(str(db_path)) as conn:
+            cursor = conn.cursor()
 
-        # Query para listar thread_ids com último checkpoint
-        # Nota: checkpoint_ns é um número (nanoseconds), maior = mais recente
-        query = """
-        SELECT
-            thread_id,
-            MAX(checkpoint_ns) as last_checkpoint_ns
-        FROM checkpoints
-        GROUP BY thread_id
-        ORDER BY last_checkpoint_ns DESC
-        LIMIT ?
-        """
+            # Query para listar thread_ids com último checkpoint
+            # Nota: checkpoint_ns é um número (nanoseconds), maior = mais recente
+            query = """
+            SELECT
+                thread_id,
+                MAX(checkpoint_ns) as last_checkpoint_ns
+            FROM checkpoints
+            GROUP BY thread_id
+            ORDER BY last_checkpoint_ns DESC
+            LIMIT ?
+            """
 
-        cursor.execute(query, (limit,))
-        rows = cursor.fetchall()
+            cursor.execute(query, (limit,))
+            rows = cursor.fetchall()
 
-        conversations = []
-        for row in rows:
-            thread_id = row[0]
-            last_checkpoint_ns = row[1]
+            conversations = []
+            for row in rows:
+                thread_id = row[0]
+                last_checkpoint_ns = row[1]
 
-            # Inferir título e preview da conversa
-            # (requer carregar estado completo - pode ser custoso)
-            # Por enquanto, usar fallback simples
-            title = _infer_conversation_title(thread_id)
-            last_updated = _checkpoint_ns_to_iso(last_checkpoint_ns)
+                # Inferir título e preview da conversa
+                # (requer carregar estado completo - pode ser custoso)
+                # Por enquanto, usar fallback simples
+                title = _infer_conversation_title(thread_id)
+                last_updated = _checkpoint_ns_to_iso(last_checkpoint_ns)
 
-            conversations.append({
-                "thread_id": thread_id,
-                "title": title,
-                "last_updated": last_updated,
-                "message_count": None,  # Requer carregar estado completo
-                "preview": None  # Requer carregar estado completo
-            })
-
-        conn.close()
+                conversations.append({
+                    "thread_id": thread_id,
+                    "title": title,
+                    "last_updated": last_updated,
+                    "message_count": None,  # Requer carregar estado completo
+                    "preview": None  # Requer carregar estado completo
+                })
 
         logger.debug(f"Encontradas {len(conversations)} conversas recentes")
         return conversations
@@ -324,23 +322,41 @@ def _fallback_title_from_thread_id(thread_id: str) -> str:
     return f"Conversa ({thread_id[:8]}...)"
 
 
-def _checkpoint_ns_to_iso(checkpoint_ns: int) -> str:
+def _checkpoint_ns_to_iso(checkpoint_ns) -> str:
     """
     Converte checkpoint_ns (nanoseconds) para timestamp ISO.
 
     Args:
-        checkpoint_ns: Checkpoint em nanoseconds
+        checkpoint_ns: Checkpoint em nanoseconds (int ou str)
 
     Returns:
         str: Timestamp ISO (YYYY-MM-DDTHH:MM:SSZ)
     """
     try:
+        # Validar e converter para int
+        if checkpoint_ns is None:
+            return datetime.now().isoformat()
+        
+        # Se for string, verificar se não está vazia
+        if isinstance(checkpoint_ns, str):
+            checkpoint_ns = checkpoint_ns.strip()
+            if not checkpoint_ns:
+                return datetime.now().isoformat()
+            checkpoint_ns = int(checkpoint_ns)
+        
+        # Verificar se é um número válido
+        if not isinstance(checkpoint_ns, (int, float)) or checkpoint_ns <= 0:
+            return datetime.now().isoformat()
+        
         # Converter nanoseconds para seconds
         timestamp_sec = checkpoint_ns / 1_000_000_000
         dt = datetime.fromtimestamp(timestamp_sec)
         return dt.isoformat()
+    except (ValueError, TypeError) as e:
+        logger.debug(f"Erro ao converter checkpoint_ns {checkpoint_ns}: {e}")
+        return datetime.now().isoformat()
     except Exception as e:
-        logger.warning(f"Erro ao converter checkpoint_ns {checkpoint_ns}: {e}")
+        logger.warning(f"Erro inesperado ao converter checkpoint_ns {checkpoint_ns}: {e}")
         return datetime.now().isoformat()
 
 
