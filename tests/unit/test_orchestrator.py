@@ -1,14 +1,13 @@
 """
 Testes unitários para o agente Orquestrador.
 
-Testa os componentes do Épico 3, Funcionalidade 3.1:
-- orchestrator_node: Nó que classifica maturidade do input
-- route_from_orchestrator: Router que decide próximo agente
+Cobre:
+- orchestrator_node: Nó conversacional (exploração, sugestão, clarificação)
+- route_from_orchestrator: Router baseado em next_step e agent_suggestion
+- _build_context: Construção de contexto com histórico
+- MultiAgentState: Estado compartilhado
 
 Estes testes usam MOCKS para a API da Anthropic (rápidos, sem custo).
-
-Versão: 1.0
-Data: 11/11/2025
 """
 
 import pytest
@@ -20,18 +19,20 @@ from agents.orchestrator.nodes import orchestrator_node, _build_context
 from agents.orchestrator.router import route_from_orchestrator
 
 
-class TestOrchestratorNode:
-    """Testes para o nó orchestrator_node (versão conversacional MVP)."""
+# =============================================================================
+# TESTES DO NÓ ORCHESTRATOR_NODE
+# =============================================================================
 
-    def test_classifies_vague_input(self):
-        """Testa que input vago leva a next_step = explore com análise preenchida."""
-        # Arrange
+class TestOrchestratorNode:
+    """Testes para orchestrator_node - classificação e análise de input."""
+
+    def test_vague_input_returns_explore(self):
+        """Input vago → next_step = explore, sem sugestão de agente."""
         state = create_initial_multi_agent_state(
             user_input="Observei que desenvolver com Claude Code é mais rápido",
             session_id="test-session-1",
         )
 
-        # Mock da resposta do LLM (next_step = "explore")
         mock_response = Mock()
         mock_response.content = """
 {
@@ -41,8 +42,8 @@ class TestOrchestratorNode:
   "agent_suggestion": null
 }
 """
+        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
 
-        # Act
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
             mock_llm.invoke.return_value = mock_response
@@ -50,21 +51,19 @@ class TestOrchestratorNode:
 
             result = orchestrator_node(state)
 
-        # Assert
         assert result["next_step"] == "explore"
         assert result["orchestrator_analysis"].startswith("Falta estruturação da ideia")
+        assert result["agent_suggestion"] is None
         assert len(result['messages']) == 1
         assert isinstance(result['messages'][0], AIMessage)
 
-    def test_classifies_semi_formed_input(self):
-        """Testa que hipótese semi-formada leva a sugestão de agente structurer."""
-        # Arrange
+    def test_semi_formed_input_suggests_structurer(self):
+        """Hipótese semi-formada → sugere structurer."""
         state = create_initial_multi_agent_state(
             user_input="Método incremental melhora desenvolvimento multi-agente",
             session_id="test-session-1",
         )
 
-        # Mock da resposta do LLM (next_step = "suggest_agent" → structurer)
         mock_response = Mock()
         mock_response.content = """
 {
@@ -77,8 +76,8 @@ class TestOrchestratorNode:
   }
 }
 """
+        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
 
-        # Act
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
             mock_llm.invoke.return_value = mock_response
@@ -86,15 +85,12 @@ class TestOrchestratorNode:
 
             result = orchestrator_node(state)
 
-        # Assert
         assert result["next_step"] == "suggest_agent"
-        assert result["agent_suggestion"] is not None
         assert result["agent_suggestion"]["agent"] == "structurer"
         assert result["orchestrator_analysis"].startswith("Tem ideia central")
 
-    def test_classifies_complete_hypothesis(self):
-        """Testa que hipótese completa leva a sugestão de agente methodologist."""
-        # Arrange
+    def test_complete_hypothesis_suggests_methodologist(self):
+        """Hipótese completa → sugere methodologist."""
         state = create_initial_multi_agent_state(
             user_input=(
                 "Método incremental reduz tempo de implementação de sistemas "
@@ -103,7 +99,6 @@ class TestOrchestratorNode:
             session_id="test-session-1",
         )
 
-        # Mock da resposta do LLM (next_step = "suggest_agent" → methodologist)
         mock_response = Mock()
         mock_response.content = """
 {
@@ -116,8 +111,8 @@ class TestOrchestratorNode:
   }
 }
 """
+        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
 
-        # Act
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
             mock_llm.invoke.return_value = mock_response
@@ -125,25 +120,28 @@ class TestOrchestratorNode:
 
             result = orchestrator_node(state)
 
-        # Assert
         assert result["next_step"] == "suggest_agent"
-        assert result["agent_suggestion"] is not None
         assert result["agent_suggestion"]["agent"] == "methodologist"
         assert result["orchestrator_analysis"].startswith("Hipótese bem especificada")
 
-    def test_handles_malformed_json_gracefully(self):
-        """Testa que nó lida graciosamente com JSON malformado do LLM (fallback)."""
-        # Arrange
+    def test_ambiguous_input_returns_clarify(self):
+        """Input ambíguo → next_step = clarify."""
         state = create_initial_multi_agent_state(
-            user_input="Teste",
+            user_input="Quero estudar LLMs",
             session_id="test-session-1",
         )
 
-        # Mock com JSON inválido
         mock_response = Mock()
-        mock_response.content = "Resposta sem JSON válido"
+        mock_response.content = """
+{
+  "reasoning": "Input muito vago. Pode significar revisar literatura, testar hipótese ou desenvolver método.",
+  "next_step": "clarify",
+  "message": "Entender o que já existe (literatura)? Testar uma observação? Ou desenvolver algo novo?",
+  "agent_suggestion": null
+}
+"""
+        mock_response.usage_metadata = {"input_tokens": 80, "output_tokens": 40}
 
-        # Act
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
             mock_llm.invoke.return_value = mock_response
@@ -151,20 +149,38 @@ class TestOrchestratorNode:
 
             result = orchestrator_node(state)
 
-        # Assert - Deve fazer fallback seguro em caso de erro
-        assert result["next_step"] == "explore"
-        assert result["orchestrator_analysis"] is not None
-        assert "Erro ao processar resposta do orquestrador" in result["orchestrator_analysis"]
+        assert result["next_step"] == "clarify"
+        assert result["agent_suggestion"] is None
+        assert "Entender o que já existe" in result['messages'][0].content
 
-    def test_adds_message_to_state(self):
-        """Testa que o nó adiciona mensagem ao histórico."""
-        # Arrange
+    def test_malformed_json_returns_fallback(self):
+        """JSON malformado → fallback seguro (explore)."""
         state = create_initial_multi_agent_state(
             user_input="Teste",
             session_id="test-session-1",
         )
 
-        # Mock (formato mínimo aceitável)
+        mock_response = Mock()
+        mock_response.content = "Resposta sem JSON válido"
+        mock_response.usage_metadata = {"input_tokens": 50, "output_tokens": 10}
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+
+            result = orchestrator_node(state)
+
+        assert result["next_step"] == "explore"
+        assert "dificuldade em processar" in result['messages'][0].content
+
+    def test_adds_ai_message_to_history(self):
+        """Nó adiciona AIMessage ao histórico de mensagens."""
+        state = create_initial_multi_agent_state(
+            user_input="Teste",
+            session_id="test-session-1",
+        )
+
         mock_response = Mock()
         mock_response.content = """
 {
@@ -174,8 +190,8 @@ class TestOrchestratorNode:
   "agent_suggestion": null
 }
 """
+        mock_response.usage_metadata = {"input_tokens": 50, "output_tokens": 20}
 
-        # Act
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
             mock_llm.invoke.return_value = mock_response
@@ -183,118 +199,150 @@ class TestOrchestratorNode:
 
             result = orchestrator_node(state)
 
-        # Assert
-        assert 'messages' in result
         assert len(result['messages']) == 1
         assert isinstance(result['messages'][0], AIMessage)
 
+    def test_with_conversation_history(self):
+        """Nó funciona com histórico de conversa existente."""
+        state = create_initial_multi_agent_state(
+            user_input="Observei que LLMs aumentam produtividade",
+            session_id="test-session-1"
+        )
+        state["messages"] = [
+            HumanMessage(content="Na minha equipe, usando Claude Code, tarefas de 2h agora levam 30min"),
+            AIMessage(content="Você quer validar ou entender literatura?"),
+            HumanMessage(content="Quero validar como hipótese")
+        ]
+
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Usuário escolheu validar. Tem observação concreta mas não estruturada.",
+  "next_step": "suggest_agent",
+  "message": "Posso chamar o Estruturador para transformar sua observação em questão de pesquisa?",
+  "agent_suggestion": {
+    "agent": "structurer",
+    "justification": "Observação concreta existe mas não está estruturada como questão PICO/SPIDER"
+  }
+}
+"""
+        mock_response.usage_metadata = {"input_tokens": 200, "output_tokens": 80}
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+
+            result = orchestrator_node(state)
+
+        assert result['next_step'] == "suggest_agent"
+        assert result['agent_suggestion']['agent'] == "structurer"
+        assert "PICO/SPIDER" in result['agent_suggestion']['justification']
+
+
+# =============================================================================
+# TESTES DO ROUTER
+# =============================================================================
 
 class TestRouteFromOrchestrator:
-    """Testes para a função de roteamento route_from_orchestrator."""
+    """Testes para route_from_orchestrator - decisão de próximo nó."""
 
-    def test_routes_vague_to_structurer(self):
-        """Testa roteamento quando agente sugerido é structurer."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Teste",
-            session_id="test-session-1",
-        )
+    def test_explore_routes_to_user(self):
+        """next_step = explore → retorna para usuário."""
+        state = create_initial_multi_agent_state(user_input="Teste", session_id="test")
+        state['next_step'] = "explore"
+        state['agent_suggestion'] = None
+
+        assert route_from_orchestrator(state) == "user"
+
+    def test_clarify_routes_to_user(self):
+        """next_step = clarify → retorna para usuário."""
+        state = create_initial_multi_agent_state(user_input="Teste", session_id="test")
+        state['next_step'] = "clarify"
+        state['agent_suggestion'] = None
+
+        assert route_from_orchestrator(state) == "user"
+
+    def test_suggest_structurer_routes_to_structurer(self):
+        """Agente sugerido = structurer → roteia para structurer."""
+        state = create_initial_multi_agent_state(user_input="Teste", session_id="test")
         state["next_step"] = "suggest_agent"
         state["agent_suggestion"] = {
             "agent": "structurer",
             "justification": "Observação não estruturada"
         }
 
-        # Act
-        next_node = route_from_orchestrator(state)
+        assert route_from_orchestrator(state) == "structurer"
 
-        # Assert
-        assert next_node == "structurer"
-
-    def test_routes_semi_formed_to_methodologist(self):
-        """Testa roteamento quando agente sugerido é methodologist (semi_formed)."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Teste",
-            session_id="test-session-1",
-        )
+    def test_suggest_methodologist_routes_to_methodologist(self):
+        """Agente sugerido = methodologist → roteia para methodologist."""
+        state = create_initial_multi_agent_state(user_input="Teste", session_id="test")
         state["next_step"] = "suggest_agent"
         state["agent_suggestion"] = {
             "agent": "methodologist",
-            "justification": "Hipótese semi-formada pronta para validação"
+            "justification": "Hipótese pronta para validação"
         }
 
-        # Act
-        next_node = route_from_orchestrator(state)
+        assert route_from_orchestrator(state) == "methodologist"
 
-        # Assert
-        assert next_node == "methodologist"
-
-    def test_routes_complete_to_methodologist(self):
-        """Testa roteamento quando agente sugerido é methodologist (hipótese completa)."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Teste",
-            session_id="test-session-1",
-        )
-        state["next_step"] = "suggest_agent"
-        state["agent_suggestion"] = {
-            "agent": "methodologist",
-            "justification": "Hipótese completa pronta para validação"
+    def test_invalid_agent_routes_to_user(self):
+        """Agente inválido → fallback para user."""
+        state = create_initial_multi_agent_state(user_input="Teste", session_id="test")
+        state['next_step'] = "suggest_agent"
+        state['agent_suggestion'] = {
+            "agent": "invalid_agent",
+            "justification": "Teste"
         }
 
-        # Act
-        next_node = route_from_orchestrator(state)
+        assert route_from_orchestrator(state) == "user"
 
-        # Assert
-        assert next_node == "methodologist"
+    def test_missing_suggestion_routes_to_user(self):
+        """next_step=suggest_agent mas suggestion=None → fallback para user."""
+        state = create_initial_multi_agent_state(user_input="Teste", session_id="test")
+        state['next_step'] = "suggest_agent"
+        state['agent_suggestion'] = None
 
-    def test_handles_none_next_step(self):
-        """Testa que router lida com next_step None (erro no orchestrator)."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Teste",
-            session_id="test-session-1",
-        )
+        assert route_from_orchestrator(state) == "user"
+
+    def test_none_next_step_raises_error(self):
+        """next_step = None → lança ValueError."""
+        state = create_initial_multi_agent_state(user_input="Teste", session_id="test")
         state["next_step"] = None
 
-        # Act & Assert - Deve lançar exceção clara
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="next_step do Orquestrador está None"):
             route_from_orchestrator(state)
 
-    def test_handles_invalid_next_step(self):
-        """Testa que router lida com next_step inválido."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Teste",
-            session_id="test-session-1",
-        )
+    def test_invalid_next_step_raises_error(self):
+        """next_step inválido → lança ValueError."""
+        state = create_initial_multi_agent_state(user_input="Teste", session_id="test")
         state["next_step"] = "invalid_value"
 
-        # Act & Assert - Deve lançar exceção clara
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="next_step inválido"):
             route_from_orchestrator(state)
 
 
-class TestMultiAgentState:
-    """Testes para o estado MultiAgentState e função de criação."""
+# =============================================================================
+# TESTES DO ESTADO
+# =============================================================================
 
-    def test_create_initial_state_has_required_fields(self):
-        """Testa que estado inicial possui todos os campos obrigatórios."""
-        # Arrange & Act
+class TestMultiAgentState:
+    """Testes para MultiAgentState e create_initial_multi_agent_state."""
+
+    def test_initial_state_has_required_fields(self):
+        """Estado inicial possui todos os campos obrigatórios."""
         state = create_initial_multi_agent_state(
             user_input="Teste de input",
             session_id="test-session-1",
         )
 
-        # Assert - Campos compartilhados
+        # Campos compartilhados
         assert state['user_input'] == "Teste de input"
         assert state['session_id'] == "test-session-1"
         assert state['conversation_history'] == ["Usuário: Teste de input"]
         assert state['current_stage'] == "classifying"
         assert state['hypothesis_versions'] == []
 
-        # Assert - Campos específicos (devem começar None)
+        # Campos específicos (devem começar None)
         assert state['orchestrator_analysis'] is None
         assert state['next_step'] is None
         assert state['agent_suggestion'] is None
@@ -304,133 +352,63 @@ class TestMultiAgentState:
         assert state['structurer_output'] is None
         assert state['methodologist_output'] is None
 
-        # Assert - Mensagens (fix Épico 14.5: deve ter 1 HumanMessage inicial)
+        # Mensagens (1 HumanMessage inicial)
         assert len(state['messages']) == 1
-        from langchain_core.messages import HumanMessage
         assert isinstance(state['messages'][0], HumanMessage)
         assert state['messages'][0].content == "Teste de input"
 
     def test_state_is_mutable(self):
-        """Testa que campos do estado podem ser atualizados."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Teste",
-            session_id="test-session-1",
-        )
+        """Campos do estado podem ser atualizados."""
+        state = create_initial_multi_agent_state(user_input="Teste", session_id="test")
 
-        # Act
         state['next_step'] = "explore"
         state['current_stage'] = "structuring"
 
-        # Assert
         assert state['next_step'] == "explore"
         assert state['current_stage'] == "structuring"
 
 
+# =============================================================================
+# TESTES DO BUILD_CONTEXT
+# =============================================================================
+
 class TestBuildContext:
-    """
-    Testes para a função _build_context().
+    """Testes para _build_context - construção de contexto para LLM."""
 
-    Esta função helper reconstrói o "argumento focal" implícito da conversa
-    analisando todo o histórico de mensagens (Épico 7, Tarefa 7.1.3).
-    """
-
-    def test_build_context_with_only_initial_input(self):
-        """Testa construção de contexto com apenas input inicial.
-
-        Após fix Épico 14.5, o estado inicial sempre tem 1 HumanMessage,
-        então sempre haverá histórico (com a mensagem inicial).
-        """
-        # Arrange
+    def test_with_initial_input_only(self):
+        """Contexto com apenas input inicial."""
         state = create_initial_multi_agent_state(
             user_input="Observei que LLMs aumentam produtividade",
             session_id="session-123"
         )
 
-        # Act
         context = _build_context(state)
 
-        # Assert
-        assert "INPUT INICIAL DO USUÁRIO:" in context
-        assert "Observei que LLMs aumentam produtividade" in context
-        # Após fix Épico 14.5: histórico sempre existe (com mensagem inicial)
-        assert "HISTÓRICO DA CONVERSA:" in context
-        assert "[Usuário]: Observei que LLMs aumentam produtividade" in context
-
-    def test_build_context_with_human_messages(self):
-        """Testa construção de contexto com mensagens do usuário."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Observei que LLMs aumentam produtividade",
-            session_id="session-123"
-        )
-        state['messages'] = [
-            HumanMessage(content="Na minha equipe, usando Claude Code"),
-            HumanMessage(content="Tarefas que levavam 2h agora levam 30min")
-        ]
-
-        # Act
-        context = _build_context(state)
-
-        # Assert
         assert "INPUT INICIAL DO USUÁRIO:" in context
         assert "Observei que LLMs aumentam produtividade" in context
         assert "HISTÓRICO DA CONVERSA:" in context
-        assert "[Usuário]: Na minha equipe, usando Claude Code" in context
-        assert "[Usuário]: Tarefas que levavam 2h agora levam 30min" in context
 
-    def test_build_context_with_ai_messages(self):
-        """Testa construção de contexto com mensagens do assistente."""
-        # Arrange
+    def test_with_conversation_history(self):
+        """Contexto com histórico de conversa."""
         state = create_initial_multi_agent_state(
             user_input="Observei que LLMs aumentam produtividade",
             session_id="session-123"
         )
         state['messages'] = [
-            AIMessage(content="Interessante! Me conta mais sobre isso."),
-            AIMessage(content="Você mediu isso de alguma forma?")
+            HumanMessage(content="Quero validar essa observação"),
+            AIMessage(content="Entendi. Posso chamar o Estruturador?"),
+            HumanMessage(content="Sim, pode chamar")
         ]
 
-        # Act
         context = _build_context(state)
 
-        # Assert
-        assert "HISTÓRICO DA CONVERSA:" in context
-        assert "[Assistente]: Interessante! Me conta mais sobre isso." in context
-        assert "[Assistente]: Você mediu isso de alguma forma?" in context
+        assert "[Usuário]: Quero validar essa observação" in context
+        assert "[Assistente]: Entendi. Posso chamar o Estruturador?" in context
+        assert "[Usuário]: Sim, pode chamar" in context
 
-    def test_build_context_with_mixed_messages(self):
-        """Testa construção de contexto com mix de mensagens (usuário + assistente)."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Observei que LLMs aumentam produtividade",
-            session_id="session-123"
-        )
-        state['messages'] = [
-            AIMessage(content="Interessante! Me conta mais."),
-            HumanMessage(content="Vi na minha equipe, usando Claude Code"),
-            AIMessage(content="Você mediu isso?"),
-            HumanMessage(content="Tarefas que levavam 2h agora levam 30min")
-        ]
-
-        # Act
-        context = _build_context(state)
-
-        # Assert
-        assert "INPUT INICIAL DO USUÁRIO:" in context
-        assert "HISTÓRICO DA CONVERSA:" in context
-        assert "[Assistente]: Interessante! Me conta mais." in context
-        assert "[Usuário]: Vi na minha equipe, usando Claude Code" in context
-        assert "[Assistente]: Você mediu isso?" in context
-        assert "[Usuário]: Tarefas que levavam 2h agora levam 30min" in context
-
-    def test_build_context_preserves_chronological_order(self):
-        """Testa que contexto preserva ordem cronológica das mensagens."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Input inicial",
-            session_id="session-123"
-        )
+    def test_preserves_chronological_order(self):
+        """Contexto preserva ordem cronológica."""
+        state = create_initial_multi_agent_state(user_input="Input", session_id="test")
         state['messages'] = [
             HumanMessage(content="Mensagem 1"),
             AIMessage(content="Resposta 1"),
@@ -438,11 +416,9 @@ class TestBuildContext:
             AIMessage(content="Resposta 2")
         ]
 
-        # Act
         context = _build_context(state)
         lines = context.split("\n")
 
-        # Assert - Ordem deve ser mantida
         msg1_idx = next(i for i, line in enumerate(lines) if "Mensagem 1" in line)
         resp1_idx = next(i for i, line in enumerate(lines) if "Resposta 1" in line)
         msg2_idx = next(i for i, line in enumerate(lines) if "Mensagem 2" in line)
@@ -450,65 +426,42 @@ class TestBuildContext:
 
         assert msg1_idx < resp1_idx < msg2_idx < resp2_idx
 
-    def test_build_context_format_is_llm_friendly(self):
-        """Testa que formato do contexto é adequado para análise pelo LLM."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Observei X",
-            session_id="session-123"
-        )
+    def test_empty_messages_omits_history_section(self):
+        """Lista vazia de mensagens omite seção de histórico."""
+        state = create_initial_multi_agent_state(user_input="Input", session_id="test")
+        state['messages'] = []
+
+        context = _build_context(state)
+
+        assert "INPUT INICIAL DO USUÁRIO:" in context
+        assert "HISTÓRICO DA CONVERSA:" not in context
+
+    def test_format_is_llm_friendly(self):
+        """Formato é adequado para LLM (estrutura clara)."""
+        state = create_initial_multi_agent_state(user_input="Observei X", session_id="test")
         state['messages'] = [
-            AIMessage(content="Pergunta aberta"),
-            HumanMessage(content="Resposta do usuário")
+            AIMessage(content="Pergunta"),
+            HumanMessage(content="Resposta")
         ]
 
-        # Act
         context = _build_context(state)
 
-        # Assert - Formato deve ter estrutura clara
         assert context.startswith("INPUT INICIAL DO USUÁRIO:")
-        assert "\n\n" in context  # Linhas em branco para separação visual
-        assert "[Usuário]:" in context  # Prefixos claros
+        assert "[Usuário]:" in context
         assert "[Assistente]:" in context
 
-    def test_build_context_with_empty_messages_list(self):
-        """Testa construção de contexto quando messages está vazio."""
-        # Arrange
-        state = create_initial_multi_agent_state(
-            user_input="Input teste",
-            session_id="session-123"
-        )
-        state['messages'] = []  # Lista vazia explícita
-
-        # Act
-        context = _build_context(state)
-
-        # Assert
-        assert "INPUT INICIAL DO USUÁRIO:" in context
-        assert "Input teste" in context
-        assert "HISTÓRICO DA CONVERSA:" not in context  # Não deve incluir seção vazia
-
-    def test_build_context_detects_change_in_direction(self):
-        """
-        Testa que contexto construído permite detecção de mudança de direção.
-
-        Este teste valida que o histórico completo é preservado,
-        permitindo ao LLM detectar contradições ou mudanças de foco.
-        """
-        # Arrange
+    def test_preserves_direction_change_context(self):
+        """Contexto preserva mudanças de direção para detecção pelo LLM."""
         state = create_initial_multi_agent_state(
             user_input="Quero estudar impacto de LLMs em produtividade",
-            session_id="session-123"
+            session_id="test"
         )
         state['messages'] = [
             AIMessage(content="Vamos explorar produtividade então"),
             HumanMessage(content="Na verdade, quero focar em qualidade de código")
         ]
 
-        # Act
         context = _build_context(state)
 
-        # Assert - Ambas direções devem estar presentes no contexto
         assert "produtividade" in context
         assert "qualidade de código" in context
-        # LLM pode detectar mudança comparando "produtividade" vs "qualidade"

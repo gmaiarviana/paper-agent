@@ -1,6 +1,7 @@
 # Testing Guidelines - Índice
 
 ## 📚 Documentação
+- [**Inventory**](inventory.md) - 🆕 **CONSULTE PRIMEIRO** - O que já está testado
 - [Strategy](strategy.md) - Pirâmide de testes, quando usar cada tipo
 - [Structure](structure.md) - Estrutura de pastas e fixtures
 - [Commands](commands.md) - Comandos pytest
