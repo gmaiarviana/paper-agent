@@ -641,6 +641,119 @@ context: {
 **Ação do sistema**: Sugestão de maturidade
 - "Hipótese validada! Temos todos os elementos. Quer que eu chame o Estruturador para organizar isso em uma questão de pesquisa estruturada, ou prefere começar a definir o desenho experimental?"
 
+## Persistência Silenciosa (Snapshots)
+
+O sistema mantém uma estratégia de **persistência silenciosa** que captura o progresso do pensamento do usuário sem interromper o fluxo conversacional. A cada mensagem, o sistema avalia se o `CognitiveModel` contribuiu com algo novo e, caso positivo, cria ou atualiza um snapshot automaticamente.
+
+### O que é um Snapshot
+
+Um **snapshot** é a persistência do `CognitiveModel` quando ele contribui com algo novo ao argumento em construção. Representa um ponto de salvamento do progresso cognitivo, permitindo que o usuário retome a conversa de onde parou sem perder evolução significativa.
+
+**Características**:
+- **Persistência automática**: Sistema avalia e decide criar snapshot sem intervenção do usuário
+- **Versionamento automático**: Cada snapshot recebe versão incremental (V1, V2, V3...)
+- **Silencioso**: Usuário não vê notificação ou interrupção no fluxo conversacional
+- **Materialização**: Snapshot vira entidade `Argument` no banco de dados
+
+### Avaliação Contínua
+
+A cada mensagem do usuário, o sistema avalia se deve criar ou atualizar snapshot:
+
+```python
+# Fluxo de avaliação (a cada turno)
+1. Usuário envia mensagem
+2. Sistema atualiza CognitiveModel (claim, premises, assumptions, etc.)
+3. Sistema avalia maturidade do modelo:
+   - CognitiveModel contribuiu com algo novo?
+   - Argumento atingiu maturidade suficiente?
+   - Há critérios que impedem snapshot?
+4. Se avaliação positiva → cria/atualiza snapshot silenciosamente
+```
+
+### Critérios para NÃO Atualizar Snapshot
+
+O sistema **não cria ou atualiza** snapshot quando detecta:
+
+1. **Usuário fugiu do assunto**:
+   - Mudança radical de tópico não relacionada ao argumento atual
+   - Claim muda para área completamente diferente
+   - Contexto não relacionado ao progresso cognitivo anterior
+
+2. **Repetiu sem novidade**:
+   - Mesma informação já capturada em snapshot anterior
+   - Reafirmação sem novos detalhes ou refinamentos
+   - `claim` idêntico ao snapshot mais recente
+
+3. **Pergunta sem contribuição**:
+   - Perguntas que não agregam ao argumento em construção
+   - Dúvidas que não levam a evolução do pensamento
+   - Exploração que não resulta em novos `premises` ou refinamento de `claim`
+
+**Exemplo de avaliação**:
+```python
+# Turno anterior: Snapshot V2 criado
+cognitive_model.claim = "LLMs aumentam produtividade em equipes Python"
+
+# Turno atual: Usuário pergunta sem agregar
+user_input = "Como funciona Python?"
+# Sistema avalia: não há novidade ao argumento → não cria snapshot
+
+# Turno seguinte: Usuário refina claim
+user_input = "Especificamente, Claude Code reduz tempo de sprint em 30%"
+cognitive_model.claim = "Claude Code reduz tempo de sprint em 30% em equipes Python"
+# Sistema avalia: contribuição nova → cria Snapshot V3
+```
+
+### Silêncio no Fluxo Conversacional
+
+Snapshots são **completamente silenciosos** do ponto de vista do usuário:
+
+- **Sem notificações**: Usuário não é informado quando snapshot é criado
+- **Sem interrupções**: Fluxo conversacional continua normalmente
+- **Sem confirmações**: Sistema não pede permissão para persistir
+- **Transparente**: Persistência acontece em background
+
+O objetivo é capturar progresso sem quebrar o ritmo do pensamento do usuário. Ele continua explorando e refinando ideias enquanto o sistema salva automaticamente pontos de maturidade.
+
+### Versionamento Automático
+
+Cada snapshot recebe uma versão automática e incremental:
+
+- **V1**: Primeiro snapshot criado quando argumento atinge maturidade inicial
+- **V2**: Snapshot subsequente quando argumento evolui significativamente
+- **V3, V4, V5...**: Versões seguintes conforme argumento amadurece
+
+O versionamento permite:
+- **Rastreabilidade**: Ver evolução do argumento ao longo do tempo
+- **Comparação**: Comparar diferentes versões do mesmo argumento
+- **Recuperação**: Retomar conversa de qualquer versão anterior
+
+```python
+# Exemplo de versionamento
+idea_id = "uuid-idea-123"
+snapshot_v1 = create_snapshot(idea_id, cognitive_model_v1)  # version=1
+snapshot_v2 = create_snapshot(idea_id, cognitive_model_v2)  # version=2
+snapshot_v3 = create_snapshot(idea_id, cognitive_model_v3)  # version=3
+```
+
+### Trigger para Épico 13: Detecção de Conceitos
+
+Quando um snapshot é criado, o sistema automaticamente dispara o **pipeline de detecção de conceitos** (Épico 13):
+
+```python
+# Fluxo completo
+1. Snapshot é criado (CognitiveModel → Argument persistido)
+2. Pipeline de detecção é acionado automaticamente
+3. LLM extrai conceitos-chave do snapshot
+4. Sistema gera embeddings e busca conceitos similares
+5. Cria novos conceitos ou vincula a conceitos existentes
+6. Links Idea ↔ Concept são criados
+```
+
+Esta integração permite que conceitos sejam detectados e organizados automaticamente sempre que um argumento atinge maturidade, construindo progressivamente a biblioteca global de conceitos do sistema.
+
+> **Nota técnica**: Para detalhes sobre implementação técnica de snapshots, critérios de maturidade e integração com detecção de conceitos, consulte `docs/architecture/snapshot_strategy.md`.
+
 ## Referências
 
 - `docs/architecture/ontology.md` - Ontologia: Conceito, Ideia, Argumento

@@ -48,9 +48,6 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - Entender MultiAgentState
 - Implementar novo agente
 
-**Gaps identificados:**
-- ✅ Roteamento está documentado em `multi_agent_architecture.md`
-
 ---
 
 ### TEMA: Agentes Específicos
@@ -71,10 +68,6 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - Implementar novo agente
 - Entender responsabilidades de um agente
 
-**Gaps identificados:**
-- ✅ Estruturador está documentado em `refinement_loop.md`
-- ✅ Schema Pydantic está documentado em `cognitive_model.md` e `argument_model.md`
-
 ---
 
 ### TEMA: Dados e Persistência
@@ -91,6 +84,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `docs/architecture/concept_model.md` - Schema técnico de Conceito
 - `docs/architecture/argument_model.md` - Schema técnico de Argumento
 - `docs/architecture/persistence_foundation.md` - Estratégia de persistência
+- `docs/architecture/snapshot_strategy.md` - Estratégia de snapshots
 - `docs/architecture/tech_stack.md` - Stack técnico (SQLite, ChromaDB)
 - `docs/architecture/super_system_vision.md` - Super-sistema
 
@@ -99,10 +93,6 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - Entender ontologia do sistema
 - Implementar persistência
 - Discutir stack técnico
-
-**Gaps identificados:**
-- ⚠️ `agents/persistence/snapshot_manager.py` - **GAP REAL**: Mencionado em `cognitive_model.md` (indicadores de maturidade) e `concept_model.md` (trigger), mas **sem doc técnica detalhada** do SnapshotManager em si
-- ⚠️ `agents/checklist/progress_tracker.py` - **GAP REAL**: Mencionado em `web.md` (checklist adaptativo) mas **sem doc técnica detalhada** do ProgressTracker
 
 ---
 
@@ -116,6 +106,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 **Documentação:**
 - `docs/interface/web.md` - Especificação completa da interface web
+  - Seção 3.4: Painel Progress (Checklist) - documenta `progress_tracker.py`
 - `docs/interface/navigation_philosophy.md` - Filosofia de navegação (3 espaços)
 
 **Solicitar quando:**
@@ -124,9 +115,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - Entender fluxo de navegação
 
 **Gaps identificados:**
-- ⚠️ `app/components/conversation_helpers.py` - **GAP REAL**: Mencionado em `web.md` (restauração de contexto) mas **sem doc técnica detalhada** dos helpers
 - ⚠️ `app/components/session_helpers.py` - **GAP REAL**: Não encontrei menção específica na documentação
-- ✅ `app/pages/` - Páginas dedicadas estão documentadas em `web.md` e `navigation_philosophy.md`
 
 ---
 
@@ -142,9 +131,6 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 **Solicitar quando:**
 - Entender CLI
 - Modificar automação
-
-**Gaps identificados:**
-- ✅ Cobertura completa
 
 ---
 
@@ -168,7 +154,6 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - Debugging de comunicação
 
 **Gaps identificados:**
-- ⚠️ `utils/event_bus.py` - **GAP REAL**: Mencionado em vários lugares (`web.md`, `tech_stack.md`, `multi_agent_architecture.md`) mas **sem doc técnica detalhada** do EventBus em si
 - ⚠️ `utils/config.py` - **GAP REAL**: Circuit breaker não encontrado na documentação
 - ⚠️ `utils/json_parser.py` - **GAP REAL**: Parser JSON não encontrado na documentação
 
@@ -212,9 +197,6 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - Entender processo de desenvolvimento
 - Validar qualidade
 
-**Gaps identificados:**
-- ✅ Cobertura completa (processo)
-
 ---
 
 ### TEMA: Testes
@@ -253,9 +235,6 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - Refinar funcionalidades específicas de produto
 - Entender diferenças entre produtos
 
-**Gaps identificados:**
-- ✅ Cobertura completa
-
 ---
 
 ### TEMA: Exemplos
@@ -267,31 +246,28 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - Entender casos de uso práticos
 - Ver exemplos de interação
 
-**Gaps identificados:**
-- ✅ Cobertura completa
-
 ---
 
 ## 🔍 RESUMO DE GAPS (Código Sem Documentação Técnica Detalhada)
 
 ### Críticos (Funcionalidades Importantes)
-1. ⚠️ `agents/persistence/snapshot_manager.py` - **GAP CONFIRMADO**: SnapshotManager (detecção de maturidade via LLM, criação automática de snapshots). Mencionado em `cognitive_model.md` e `concept_model.md` mas sem doc técnica detalhada.
-2. ⚠️ `agents/checklist/progress_tracker.py` - **GAP CONFIRMADO**: ProgressTracker (checklist adaptativo por tipo de artigo). Mencionado em `web.md` mas sem doc técnica detalhada.
-3. ⚠️ `utils/event_bus.py` - **GAP CONFIRMADO**: EventBus (comunicação CLI ↔ Dashboard via arquivos JSON). Mencionado em vários lugares mas sem doc técnica detalhada.
-4. ⚠️ `app/components/conversation_helpers.py` - **GAP CONFIRMADO**: Helpers de restauração de contexto (SqliteSaver → Streamlit). Mencionado em `web.md` mas sem doc técnica detalhada.
-5. ⚠️ `app/components/session_helpers.py` - **GAP CONFIRMADO**: Helpers de sessão. Não encontrei menção específica na documentação.
+1. ⚠️ `app/components/session_helpers.py` - **GAP CONFIRMADO**: Helpers de sessão. Não encontrei menção específica na documentação.
 
 ### Menores (Utils e Infraestrutura)
-6. ⚠️ `utils/config.py` - **GAP CONFIRMADO**: Circuit breaker da API Anthropic. Não encontrado na documentação.
-7. ⚠️ `utils/json_parser.py` - **GAP CONFIRMADO**: Parser de JSON de respostas LLM. Não encontrado na documentação.
-8. ⚠️ `agents/memory/` - **GAP CONFIRMADO**: Sistema de memória completo (`memory_manager.py`, `execution_tracker.py`, `config_loader.py`, `config_validator.py`). Mencionado em `ARCHITECTURE.md` mas sem doc técnica detalhada.
-9. ⚠️ `scripts/flows/` - **GAP CONFIRMADO**: Scripts de validação manual. Listados em `testing/inventory.md` mas sem doc de propósito/uso.
-10. ⚠️ `scripts/health_checks/` - **GAP CONFIRMADO**: Health checks do sistema. Não encontrado na documentação.
+2. ⚠️ `utils/config.py` - **GAP CONFIRMADO**: Circuit breaker da API Anthropic. Não encontrado na documentação.
+3. ⚠️ `utils/json_parser.py` - **GAP CONFIRMADO**: Parser de JSON de respostas LLM. Não encontrado na documentação.
+4. ⚠️ `agents/memory/` - **GAP CONFIRMADO**: Sistema de memória completo (`memory_manager.py`, `execution_tracker.py`, `config_loader.py`, `config_validator.py`). Mencionado em `ARCHITECTURE.md` mas sem doc técnica detalhada.
+5. ⚠️ `scripts/flows/` - **GAP CONFIRMADO**: Scripts de validação manual. Listados em `testing/inventory.md` mas sem doc de propósito/uso.
+6. ⚠️ `scripts/health_checks/` - **GAP CONFIRMADO**: Health checks do sistema. Não encontrado na documentação.
 
 ### ✅ NÃO SÃO GAPS (Documentados)
 - ✅ `agents/structurer/` - Documentado em `refinement_loop.md`
 - ✅ `agents/models/cognitive_model.py` - Documentado em `cognitive_model.md` e `argument_model.md`
+- ✅ `agents/persistence/snapshot_manager.py` - Documentado em `snapshot_strategy.md`
+- ✅ `agents/checklist/progress_tracker.py` - Documentado em `web.md` (seção 3.4)
 - ✅ `app/pages/` - Documentado em `web.md` e `navigation_philosophy.md`
+- ✅ `app/components/conversation_helpers.py` - Docstrings detalhadas no código
+- ✅ `utils/event_bus.py` - Docstrings detalhadas no código
 
 ---
 

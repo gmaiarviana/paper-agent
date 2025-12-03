@@ -22,9 +22,10 @@
 
 ### ⏳ Épicos Planejados
 - **ÉPICO 13**: Entidade Concept (refinado)
-- **ÉPICO 15**: Polimentos de UX (não refinado)
-- **ÉPICO 16**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
-- **ÉPICO 17**: Personas de Agentes (não refinado)
+- **ÉPICO 15**: Integração Backend↔Frontend (não refinado)
+- **ÉPICO 16**: Polimentos de UX (não refinado)
+- **ÉPICO 17**: Agentes Avançados - Pesquisador, Escritor, Crítico (não refinado)
+- **ÉPICO 18**: Personas de Agentes (não refinado)
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -137,7 +138,37 @@
 
 ---
 
-## ÉPICO 15: Polimentos de UX
+## ÉPICO 15: Integração Backend↔Frontend
+
+**Objetivo:** Integrar componentes de backend já implementados (SnapshotManager, ProgressTracker) com interface web para completar ciclo de persistência silenciosa e feedback visual de progresso.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- ✅ Épico 11 concluído (SnapshotManager implementado)
+- ✅ Épico 14 concluído (Interface web existe)
+
+**Consulte:**
+- `docs/architecture/snapshot_strategy.md` - Estratégia de snapshots
+- `docs/interface/web.md` (seção 3.4) - Painel Progress
+
+### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
+
+#### 15.1 Integrar SnapshotManager no Orquestrador
+
+- **Descrição:** Integrar SnapshotManager no fluxo conversacional para criar snapshots automáticos quando argumento amadurece.
+
+#### 15.2 Exibir ProgressTracker como painel flutuante
+
+- **Descrição:** Exibir ProgressTracker como painel flutuante/fixo na borda direita do chat, mostrando checklist de progresso sincronizado com modelo cognitivo.
+
+#### 15.3 Sincronizar checklist com modelo cognitivo em tempo real
+
+- **Descrição:** Sincronizar checklist do ProgressTracker com modelo cognitivo em tempo real, atualizando status conforme argumento evolui.
+
+---
+
+## ÉPICO 16: Polimentos de UX
 
 **Objetivo:** Polimento de interface web baseado em feedbacks do usuário (Enter envia, custo em R$, métricas discretas).
 
@@ -152,7 +183,7 @@
 
 ### Funcionalidades:
 
-#### 15.1 Enter Envia, Ctrl+Enter Pula Linha
+#### 16.1 Enter Envia, Ctrl+Enter Pula Linha
 
 - **Descrição:** Textarea com comportamento padrão (Enter envia, Ctrl+Enter pula linha).
 - **Critérios de Aceite:**
@@ -161,7 +192,7 @@
   - Deve seguir padrão Claude.ai/ChatGPT
   - Deve funcionar cross-browser (Chrome, Firefox, Safari)
 
-#### 15.2 Custo em R$
+#### 16.2 Custo em R$
 
 - **Descrição:** Exibir custos em reais (BRL) ao invés de dólares (USD).
 - **Critérios de Aceite:**
@@ -179,7 +210,7 @@
   - Deve posicionar no canto inferior direito da mensagem
   - Deve manter formato: "💰 R$0.02 · 215 tokens · 1.2s"
 
-#### 15.4 Timeline Colapsada por Padrão
+#### 16.4 Timeline Colapsada por Padrão
 
 - **Descrição:** Bastidores com timeline de agentes anteriores colapsada inicialmente.
 - **Critérios de Aceite:**
@@ -188,7 +219,7 @@
   - Deve expandir ao clicar (mostrar histórico de agentes)
   - Deve persistir estado (colapsado/expandido) durante sessão
 
-#### 15.5 Botão "Copiar Raciocínio"
+#### 16.5 Botão "Copiar Raciocínio"
 
 - **Descrição:** Modal de raciocínio completo com botão para copiar texto.
 - **Critérios de Aceite:**
@@ -197,7 +228,7 @@
   - Deve mostrar feedback visual: "✓ Copiado!" (2s)
   - Deve funcionar cross-browser (clipboard API)
 
-#### 15.6 Checklist de Progresso no Header
+#### 16.6 Checklist de Progresso no Header
 
 - **Descrição:** Exibir checklist visual no header do chat sincronizado com modelo cognitivo.
 - **Critérios de Aceite:**
@@ -209,7 +240,7 @@
 
 ---
 
-## ÉPICO 16: Agentes Avançados
+## ÉPICO 17: Agentes Avançados
 
 **Objetivo:** Expandir sistema com agentes especializados para pesquisa, redação e revisão de artigos científicos.
 
@@ -224,7 +255,7 @@
 
 ---
 
-## ÉPICO 17: Personas de Agentes
+## ÉPICO 18: Personas de Agentes
 
 **Objetivo:** Permitir customização de agentes como "personas" (Sócrates, Aristóteles, Popper) com estilos de argumentação personalizados, transformando agentes em "mentores" que usuário pode escolher e treinar.
 
@@ -232,7 +263,7 @@
 
 **Dependências:**
 - ✅ Épico 9 concluído (Interface Web Conversacional)
-- ⏳ Épicos 11-15 concluídos (modelo de dados + gestão de ideias + navegação + UX)
+- ⏳ Épicos 11-16 concluídos (modelo de dados + gestão de ideias + navegação + UX + integração)
 
 **Consulte:** 
 - `docs/vision/agent_personas.md` - Visão completa de customização

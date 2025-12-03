@@ -37,7 +37,7 @@ sua "equipe interna" de especialistas:
 Cada agente tem papel claro. Usuário vê QUEM está trabalhando 
 e POR QUÊ, não apenas o resultado final.
 
-**Visão futura (Épico 16+):** Agentes customizáveis como "personas" 
+**Visão futura (Épico 18+):** Agentes customizáveis como "personas" 
 (Sócrates, Aristóteles, Popper) com estilos de argumentação 
 personalizados. Ver: docs/vision/agent_personas.md
 

@@ -1,7 +1,7 @@
 # Agent Personas - Visão Futura
 
-> **Status:** Épico 16 (Planejado - Não Refinado)
-> **Dependências:** Épicos 11-14 concluídos, agentes visíveis na interface
+> **Status:** Épico 18 (Planejado - Não Refinado)
+> **Dependências:** Épicos 11-16 concluídos, agentes visíveis na interface
 
 ## Conceito
 
@@ -53,7 +53,7 @@ pode conhecer, confiar e eventualmente customizar.
 **Estilo:** Acadêmico, estruturado
 **Aparência:** ✍️ Escritor
 
-## Customização de Personas (Épico 16)
+## Customização de Personas (Épico 18)
 
 ### Biblioteca de Personas Pré-Definidas
 
@@ -117,7 +117,7 @@ falas de qual aspecto? Há tantos caminhos possíveis..."
 │ [Ver raciocínio completo ↗]     │
 └─────────────────────────────────┘
 
-### Interface com Personas (Épico 16)
+### Interface com Personas (Épico 18)
 
 **Bastidores com persona customizada:**
 ┌─────────────────────────────────┐
@@ -146,7 +146,7 @@ Orquestrador:
   
   [Salvar] [Resetar para padrão]
 
-## Implementação Técnica (Épico 16)
+## Implementação Técnica (Épico 18)
 
 **Stack:**
 - ChromaDB para armazenar exemplos de argumentação

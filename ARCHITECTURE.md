@@ -54,6 +54,8 @@ Sistema gerencia ideias cristalizadas durante conversas com navegação em três
 
 **Filosofia:** Conversas = processo (volátil), Ideias = cristalização (permanente), Conceitos = abstração (biblioteca).
 
+**Persistência Silenciosa:** Sistema avalia a cada mensagem se deve criar/atualizar snapshot do argumento. Para estratégia detalhada, ver `docs/architecture/snapshot_strategy.md`.
+
 Ver: `docs/interface/navigation_philosophy.md` para filosofia completa.
 
 ## Super-Sistema: Core → Produtos
@@ -175,7 +177,7 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - **Schema Pydantic:** `agents/models/cognitive_model.py` - CognitiveModel, Contradiction, SolidGround
 - **Persistência SQLite:** `agents/database/` - DatabaseManager com tabelas ideas e arguments
 - **Versionamento:** Auto-incremento de versões (V1, V2, V3...) por idea
-- **Maturidade:** `agents/persistence/snapshot_manager.py` - Detecção via LLM e snapshots automáticos
+- **Maturidade:** `agents/persistence/snapshot_manager.py` - Detecção via LLM e snapshots automáticos (ver `docs/architecture/snapshot_strategy.md`)
 - **Checklist:** `agents/checklist/progress_tracker.py` - Rastreamento adaptativo por tipo de artigo
 - **Banco de dados:** `data/data.db` - Separado de checkpoints.db (LangGraph)
 
@@ -448,6 +450,7 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 - `docs/architecture/concept_model.md` - Estrutura de dados Conceito
 - `docs/architecture/argument_model.md` - Estrutura de dados Argumento
 - `docs/architecture/tech_stack.md` - ChromaDB, SQLite, embeddings
+- `docs/architecture/snapshot_strategy.md` - Estratégia de persistência de snapshots
 
 **Visão de Produto:**
 - `docs/vision/vision.md` - Visão de produto, tipos de artigo

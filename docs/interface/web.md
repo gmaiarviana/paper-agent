@@ -85,22 +85,25 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 
 ### 3.1 Estrutura Geral (Desktop)
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  [Sidebar - 20%]      [Chat - 50%]       [Bastidores - 30%]    │
-│                                                                 │
-│  📂 Ideias             💬 Chat Principal   🔍 Ver raciocínio    │
-│                                                                 │
-│  • Ideia 1 🔍          Você: "..."        [Fechado por padrão] │
-│  • Ideia 2 📝 (ativa)  💰 $0.0012                              │
-│  • Ideia 3 ✅                             [Quando aberto:]     │
-│  [+ Nova Ideia]        Sistema: "..."      🧠 Orquestrador     │
-│                        [digitando...]      "Reasoning..."      │
-│                                            [Ver completo]      │
-│                                            ⏱️ 1.2s | 💰 $0.0012│
-│                                                                 │
-│                                            [Timeline colapsada]│
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  [Sidebar - 20%]    [Chat - 50%]        [Progress]  [Bastidores - 30%]    │
+│                                                                             │
+│  📂 Ideias          💬 Chat Principal    │⚪ 1. Escopo    🔍 Ver raciocínio │
+│                                         │⚪ 2. População  [Fechado padrão] │
+│  • Ideia 1 🔍       Você: "..."         │🟡 3. Métricas  [Quando aberto:] │
+│  • Ideia 2 📝       💰 $0.0012          │⚪ 4. Metodologia🧠 Orquestrador  │
+│  • Ideia 3 ✅       Sistema: "..."       │⚪ 5. Baseline   "Reasoning..."   │
+│  [+ Nova Ideia]    [digitando...]      │                [Ver completo]    │
+│                                         │                ⏱️ 1.2s | 💰 $0.0012│
+│                                         │                [Timeline colapsada]│
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Layout com 4 elementos:**
+- **Sidebar (20%):** Gestão de ideias e conversas
+- **Chat (50%):** Conversação principal com Progress na borda direita
+- **Progress:** Painel flutuante/fixo na borda direita do chat (checklist de progresso)
+- **Bastidores (30%):** Reasoning dos agentes em tempo real (collapsible)
 
 ### 3.2 Componentes Detalhados
 
@@ -230,7 +233,10 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 └──────────────────────────────────────┘
 ```
 
-**E) Bastidores (30-40% largura, collapsible)**
+**E) Bastidores (30% largura, collapsible)**
+
+> **🔍 DIFERENÇA CHAVE:** Bastidores mostra o **sistema pensando** (reasoning em tempo real).  
+> Progress mostra **onde o usuário está na jornada** (estado atual do argumento).
 
 **Agentes Visíveis:**
 - Sistema mostra qual agente está ativo:
@@ -240,8 +246,9 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 - Raciocínio resumido (1 frase, ~280 chars)
 - Link "Ver raciocínio completo" → modal com detalhes
 - Diferencial: usuário entende QUE tipo de análise está sendo feita
+- **Propósito:** Transparência do processo de reasoning (como o sistema está pensando)
 
-**Futuro (Épico 16):**
+**Futuro (Épico 18):**
 - Agentes customizáveis como personas (Sócrates, Aristóteles, Popper)
 - Botão "Customizar persona" ao lado de cada agente
 - Ver: `docs/vision/agent_personas.md`
@@ -329,56 +336,74 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 
 ---
 
-## 3.4 Layout: Checklist de Progresso
+### 3.4 Painel Progress (Checklist)
 
-📌 **NOTA:** Checklist de Progresso foi movido do Épico 11 (backend) para Épico 14 (frontend/UX).  
-Backend (indicadores de maturidade) implementado no Épico 11.5.  
-Frontend (checklist visual) implementado no Épico 14.6.
+> **📌 Status atual:** Backend implementado, frontend NÃO integrado.  
+> **Integração:** Épico 15.  
+> **Referência:** `agents/checklist/progress_tracker.py`
 
-**Localização:** Header do chat (discreto, expansível ao clicar)
+> **🔍 DIFERENÇA CHAVE:** Progress mostra **onde o usuário está na jornada** (estado atual do argumento).  
+> Bastidores mostra o **sistema pensando** (reasoning em tempo real).
 
-**Visual (minimizado):**
+**Localização:** Borda direita do chat, flutuante/fixo
+
+**Visual:**
 ```
-Chat                           [⚪⚪🟡⚪⚪] ← clica expande
+┌──────────────────────┐
+│ 📊 Progresso         │
+│                      │
+│ ⚪ 1. Escopo definido │
+│ ⚪ 2. População       │
+│ 🟡 3. Métricas        │ ← em progresso
+│ ⚪ 4. Metodologia     │
+│ ⚪ 5. Baseline        │
+│                      │
+│ [🔄 Atualizar]       │
+└──────────────────────┘
 ```
 
-**Visual (expandido):**
-```
-Progresso do Argumento:
-⚪ 1. Definir escopo
-⚪ 2. Identificar população  
-🟡 3. Definir métricas ← em progresso
-⚪ 4. Estruturar argumento
-⚪ 5. Validar rigor científico
-```
+**Comportamento:**
+- Lista vertical de itens com status (⚪ pendente, 🟡 em progresso, 🟢 completo)
+- Acompanha scroll da conversa (fixo/flutuante na borda direita)
+- Adapta conforme tipo de artigo detectado (empírico, revisão, teórico)
+- Sincroniza com modelo cognitivo (`CognitiveModel`) em tempo real
+- Atualiza automaticamente conforme argumento evolui
 
-**Funcionalidades:**
-- Checklist adaptativo (muda conforme tipo de artigo detectado)
-- Bolinhas de status: ⚪ (pendente) 🟡 (em progresso) 🟢 (completo)
-- Sempre minimizado por padrão (menos poluição visual)
-- Expansível ao clicar (mostrar detalhes)
-- Sincroniza com modelo cognitivo (claim, premises, open_questions, ...)
-
-**Exemplos de checklists adaptativos:**
+**Checklists Adaptativos:**
 
 **Artigo Empírico:**
-⚪ Definir hipótese
-⚪ Identificar população
-⚪ Definir métricas
-⚪ Desenho experimental
-⚪ Validar rigor
+- ⚪ Escopo definido (claim específico)
+- ⚪ População identificada
+- ⚪ Métricas definidas
+- ⚪ Metodologia estruturada
+- ⚪ Baseline definido
 
 **Artigo de Revisão:**
-⚪ Definir questão PICO
-⚪ Estratégia de busca
-⚪ Critérios inclusão/exclusão
-⚪ Protocolo de extração
-⚪ Síntese de evidências
+- ⚪ Questão de pesquisa (PICO/SPIDER)
+- ⚪ Estratégia de busca
+- ⚪ Critérios de inclusão/exclusão
+- ⚪ Síntese de evidências
+- ⚪ Lacunas identificadas
 
-**Implementação:**
-- POC: Checklist fixo (mesmos passos para todos)
-- Protótipo: Sistema detecta tipo de artigo, ajusta checklist
-- MVP: Checklist adaptativo + status sincronizado com modelo cognitivo
+**Artigo Teórico:**
+- ⚪ Problema conceitual
+- ⚪ Framework proposto
+- ⚪ Consistência lógica
+- ⚪ Contribuições claras
+- ⚪ Implicações discutidas
+
+**Artigo Genérico (padrão):**
+- ⚪ Afirmação clara
+- ⚪ Contexto definido
+- ⚪ Fundamentos sólidos
+- ⚪ Suposições baixas
+- ⚪ Lacunas respondidas
+
+**Implementação Técnica:**
+- Backend: `ProgressTracker` avalia `CognitiveModel` e retorna `List[ChecklistItem]`
+- Status inferido de campos do modelo (claim, premises, assumptions, context, etc.)
+- Frontend: Componente Streamlit que consome checklist do backend
+- Atualização: Polling ou SSE (conforme implementação de eventos)
 
 ---
 
