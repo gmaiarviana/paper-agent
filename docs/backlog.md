@@ -145,6 +145,17 @@ Otimização de performance para streaming de eventos em tempo real na interface
 
 ---
 
+### Personas de Agentes
+Permitir customização de agentes como "personas" (Sócrates, Aristóteles, Popper) com estilos de argumentação personalizados.
+
+- Transformar agentes em "mentores" que usuário pode escolher
+- Estilos de argumentação personalizados por persona
+- Treinar personas com feedback do usuário
+
+**Contexto:** Funcionalidade planejada originalmente como Épico 18, movida para Backlog por não ser essencial para MVP. Ver `docs/vision/agent_personas.md`.
+
+---
+
 ### Alertas de Custo
 Avisos automáticos para evitar surpresas com gastos de API.
 
