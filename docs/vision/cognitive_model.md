@@ -14,6 +14,7 @@ Este documento complementa `vision.md`, focando em **COMO** o pensamento do usu�
 - **cognitive_model.md (este doc):** Processo cognitivo (como pensamento evolui)
 - **argument_model.md:** Estrutura técnica (como Argumento é persistido)
 - **ontology.md:** Definições filosóficas (o que é Argumento)
+- **epistemology.md:** Base filosófica (proposições, solidez, evidências)
 
 **Relacionamento com vision.md**:
 - `vision.md`: O que é, para quem, jornada do usuário, tipos de artigo
@@ -67,40 +68,41 @@ claim_history: [
 ]
 ```
 
-### `premises`
-**O que é**: O que assumimos como verdadeiro para o argumento fazer sentido.
+### `fundamentos`
+**O que é**: Proposições que sustentam o argumento, cada uma com sua solidez derivada de evidências.
 
 **Características**:
+- Lista de referências a Proposições (ProposiçãoRef)
 - Começa vazio, preenchido conforme conversa
 - Representa fundamentos do argumento
+- **Não há distinção entre "premise" e "assumption"**: Todas são proposições com solidez variável
+- **Solidez é derivada automaticamente**: Não é definida manualmente, mas calculada a partir das evidências que apoiam cada proposição
+- Proposições de baixa solidez (< 0.4) são equivalentes ao que antes eram "assumptions"
+- Proposições de alta solidez (> 0.7) são equivalentes ao que antes eram "premises"
 - Exemplos: "Equipes Python existem", "Tempo de sprint é mensurável", "Claude Code é usado em desenvolvimento"
 
 **Exemplo**:
 ```python
-premises: [
-  "Equipes de desenvolvimento Python usam ferramentas de IA",
-  "Tempo de sprint é uma métrica válida de produtividade",
-  "Redução de tempo não compromete qualidade (assumido)"
+fundamentos: [
+  ProposiçãoRef(
+    id="prop-1",
+    enunciado="Equipes de desenvolvimento Python usam ferramentas de IA",
+    solidez=0.75  # Derivado de evidências: estudos + exemplos
+  ),
+  ProposiçãoRef(
+    id="prop-2",
+    enunciado="Tempo de sprint é uma métrica válida de produtividade",
+    solidez=0.65  # Algumas evidências, mas debate metodológico
+  ),
+  ProposiçãoRef(
+    id="prop-3",
+    enunciado="Redução de tempo não compromete qualidade do código",
+    solidez=0.35  # Poucas evidências = proposição frágil (equivalente a "assumption")
+  )
 ]
 ```
 
-### `assumptions`
-**O que é**: Hipóteses não verificadas que sustentam o argumento.
-
-**Características**:
-- Diferente de `premises`: assumptions são hipóteses que precisam validação
-- Sistema detecta assumptions implícitas
-- Podem virar `premises` após validação (quando aplicável)
-- Exemplos: "Qualidade não é afetada", "Resultado é generalizável", "Causalidade é direta"
-
-**Exemplo**:
-```python
-assumptions: [
-  "Redução de tempo não compromete qualidade do código",
-  "Resultado é generalizável para outras linguagens",
-  "Causalidade: Claude Code → redução de tempo (não confundidores)"
-]
-```
+**Importante**: Solidez evolui dinamicamente. Conforme evidências são adicionadas, a solidez aumenta ou diminui automaticamente. Não há processo de "virar premissa após validação" - há "aumentar solidez com evidências".
 
 ### `open_questions`
 **O que é**: O que não sabemos ainda, mas é relevante para o argumento.
@@ -121,42 +123,65 @@ open_questions: [
 ```
 
 ### `contradictions`
-**O que é**: Tensões internas do argumento detectadas pelo sistema.
+**O que é**: Conflitos entre proposições detectados pelo sistema.
 
 **Características**:
 - Não determinístico: LLM julga confiança (confidence > 80% → menciona)
 - Sistema menciona de forma natural, não bloqueia
-- Exemplos: "Mencionou aumento de produtividade mas também aumento de bugs", "População é específica mas quer generalizar"
+- **Não há "isso está errado"**: Há "estas proposições parecem em tensão"
+- Sistema mapeia contextos que geram cada perspectiva
+- Exemplos: "Proposição sobre aumento de produtividade vs. proposição sobre aumento de bugs", "Proposição sobre população específica vs. proposição sobre generalização"
 
 **Exemplo**:
 ```python
 contradictions: [
   {
-    "description": "Usuário mencionou aumento de produtividade mas também aumento de bugs",
+    "description": "Proposição 'Claude Code aumenta produtividade' parece em tensão com proposição 'Claude Code aumenta bugs'",
+    "proposicoes_envolvidas": ["prop-1", "prop-4"],
     "confidence": 0.85,
-    "suggested_resolution": "Produtividade pode incluir qualidade? Ou são métricas separadas?"
+    "contextos": {
+      "prop-1": "Contexto: métricas de tempo de sprint",
+      "prop-4": "Contexto: métricas de qualidade de código"
+    },
+    "suggested_resolution": "Produtividade pode incluir qualidade? Ou são métricas separadas? Como mapear contextos onde cada proposição se aplica?"
   }
 ]
 ```
 
-### `solid_grounds`
-**O que é**: Argumentos com base estudada (evidência bibliográfica).
+### `evidências`
+**O que é**: Evidências que apoiam ou refutam as proposições dos fundamentos.
 
 **Características**:
-- Preenchido pelo Pesquisador (futuro) após busca
-- Representa evidência encontrada na literatura
+- Preenchido pelo Pesquisador após busca bibliográfica
+- Representa evidência encontrada na literatura ou fornecida pelo usuário
+- **Vinculadas a proposições**: Cada evidência apoia ou refuta proposições específicas
+- **Afetam solidez automaticamente**: Quando evidências são adicionadas, a solidez das proposições relacionadas é recalculada
 - Diferencia argumento de opinião vs. argumento fundamentado
-- Exemplos: "Estudo X mostra que...", "Meta-análise Y confirma que..."
+- Exemplos: "Estudo X mostra que...", "Meta-análise Y confirma que...", "Experiência pessoal indica que..."
 
 **Exemplo** (após pesquisa):
 ```python
-solid_grounds: [
+evidências: [
   {
-    "claim": "Ferramentas de IA aumentam produtividade em desenvolvimento",
-    "evidence": "Smith et al. (2023) encontraram redução de 25-40% em tempo de tarefa",
-    "source": "doi:10.1234/example"
+    "id": "evid-1",
+    "descricao": "Smith et al. (2023) encontraram redução de 25-40% em tempo de tarefa",
+    "fonte": "doi:10.1234/example",
+    "forca": "forte",
+    "tipo": "estudo",
+    "apoia": ["prop-1"],  # Apoia proposição sobre produtividade
+    "refuta": []
+  },
+  {
+    "id": "evid-2",
+    "descricao": "Experiência pessoal: aumento de bugs em 15% dos casos",
+    "fonte": "conversa com usuário",
+    "forca": "fraca",
+    "tipo": "experiência",
+    "apoia": [],
+    "refuta": ["prop-3"]  # Refuta proposição sobre qualidade não comprometida
   }
 ]
+# Após adicionar evidências, solidez de prop-1 aumenta, solidez de prop-3 diminui
 ```
 
 ### `context`
@@ -187,11 +212,10 @@ No início da conversa, a maioria dos campos está vazia ou com valores genéric
 ```python
 # Turno 1 (início)
 claim: "LLMs aumentam produtividade"  # vago
-premises: []
-assumptions: []
+fundamentos: []  # Ainda sem proposições identificadas
 open_questions: []
 contradictions: []
-solid_grounds: []
+evidências: []  # Ainda sem evidências
 context: {
   "domain": "unclear",
   "technology": "unclear",
@@ -206,9 +230,30 @@ Conforme a conversa evolui, campos são preenchidos:
 ```python
 # Turno 3
 claim: "Claude Code aumenta produtividade em equipes Python"
-premises: ["Equipes Python existem", "Claude Code é usado em desenvolvimento"]
-assumptions: ["Produtividade é mensurável", "Resultado é generalizável"]
+fundamentos: [
+  ProposiçãoRef(
+    id="prop-1",
+    enunciado="Equipes Python existem",
+    solidez=0.90  # Alta solidez: evidência direta da conversa
+  ),
+  ProposiçãoRef(
+    id="prop-2",
+    enunciado="Claude Code é usado em desenvolvimento",
+    solidez=0.85  # Alta solidez: evidência direta
+  ),
+  ProposiçãoRef(
+    id="prop-3",
+    enunciado="Produtividade é mensurável",
+    solidez=0.50  # Solidez média: algumas evidências, mas debate metodológico
+  ),
+  ProposiçãoRef(
+    id="prop-4",
+    enunciado="Resultado é generalizável",
+    solidez=0.30  # Baixa solidez: poucas evidências (equivalente a "assumption")
+  )
+]
 open_questions: ["Como medir produtividade?", "Qual é o baseline?"]
+evidências: []  # Ainda sem evidências bibliográficas
 context: {
   "domain": "software development",
   "technology": "Python, Claude Code",
@@ -224,9 +269,9 @@ Mudanças de direção são naturais e o sistema adapta:
 # Turno 5: Mudança de direção
 claim: "Quero fazer revisão de literatura sobre LLMs e produtividade"
 # Claim anterior abandonado, não mesclado
-premises: []  # Resetado para novo contexto
-assumptions: []
+fundamentos: []  # Resetado para novo contexto
 open_questions: ["Qual é o estado da arte?", "Quais são as lacunas na literatura?"]
+evidências: []  # Resetado para novo contexto
 context: {
   "domain": "software development",
   "technology": "LLMs, code assistants",
@@ -241,20 +286,45 @@ O sistema identifica lacunas e provoca reflexão:
 
 - **Lacuna detectada**: `open_questions` tem itens não respondidos
 - **Ação**: Sistema pergunta: "Você mencionou produtividade, mas e QUALIDADE do código? Isso importa para sua pesquisa?"
-- **Resultado**: Usuário responde → `assumptions` ou `premises` atualizados
+- **Resultado**: Usuário responde → novas proposições adicionadas a `fundamentos` (com solidez inicial baixa se não houver evidências)
 
-### Suposições Viram Premissas Após Validação
+### Solidez Aumenta com Evidências
 
-Quando aplicável, `assumptions` podem virar `premises`:
+Conforme evidências são adicionadas, a solidez das proposições aumenta dinamicamente:
 
 ```python
-# Antes da validação
-assumptions: ["Redução de tempo não compromete qualidade"]
+# Estado inicial: proposição com baixa solidez (poucas evidências)
+fundamentos: [
+  ProposiçãoRef(
+    id="prop-3",
+    enunciado="Redução de tempo não compromete qualidade",
+    solidez=0.25  # Baixa: apenas inferência do usuário
+  )
+]
 
-# Após usuário confirmar ou pesquisa validar
-premises: ["Redução de tempo não compromete qualidade (validado pelo usuário)"]
-assumptions: []  # Removido de assumptions
+# Após Pesquisador adicionar evidências bibliográficas
+evidências: [
+  {
+    "id": "evid-5",
+    "descricao": "Meta-análise de 15 estudos mostra correlação positiva entre uso de IA e qualidade",
+    "fonte": "doi:10.5678/example",
+    "forca": "forte",
+    "tipo": "estudo",
+    "apoia": ["prop-3"]
+  }
+]
+
+# Solidez recalculada automaticamente
+fundamentos: [
+  ProposiçãoRef(
+    id="prop-3",
+    enunciado="Redução de tempo não compromete qualidade",
+    solidez=0.70  # Aumentou: evidência forte adicionada
+  )
+]
 ```
+
+**Importante**: Não há processo de "virar premissa após validação". Há evolução contínua de solidez conforme evidências são acumuladas.
 
 ## Responsabilidades (Quem Atualiza Cada Campo)
 
@@ -262,11 +332,11 @@ assumptions: []  # Removido de assumptions
 |-------|-------------|-----------------|
 | `claim` | Orquestrador | Extrai a cada turno da conversa |
 | `claim_history` | Orquestrador | Quando claim muda significativamente (sistema maduro) |
-| `premises` | Estruturador | Organiza ideias e identifica fundamentos do argumento |
-| `assumptions` | Orquestrador | Detecta hipóteses implícitas não verificadas |
-| `open_questions` | Orquestrador + Metodologista | Identifica lacunas na conversa ou validação |
-| `contradictions` | Metodologista | Valida lógica e detecta tensões internas |
-| `solid_grounds` | Pesquisador | Após busca bibliográfica (futuro) |
+| `fundamentos` | Estruturador | Identifica proposições que sustentam o argumento |
+| `solidez` (de cada fundamento) | Sistema | Derivado automaticamente de evidências |
+| `evidências` | Pesquisador | Após busca bibliográfica ou fornecida pelo usuário |
+| `open_questions` | Orquestrador + Metodologista | Identifica lacunas |
+| `contradictions` | Metodologista | Detecta conflitos entre proposições |
 | `context` | Orquestrador | Infere domínio, tecnologia, população da conversa |
 
 ### Detalhamento das Responsabilidades
@@ -274,24 +344,28 @@ assumptions: []  # Removido de assumptions
 **Orquestrador**:
 - Extrai `claim` a cada turno analisando input + histórico
 - Atualiza `claim_history` quando detecta mudança significativa
-- Detecta `assumptions` implícitas através de análise conversacional
 - Identifica `open_questions` quando detecta lacunas
 - Infere `context` a partir de menções na conversa
 
 **Estruturador**:
-- Organiza `premises` quando estrutura argumento
-- Identifica fundamentos lógicos do argumento
+- Identifica proposições que sustentam o argumento e adiciona a `fundamentos`
+- Organiza fundamentos lógicos do argumento
 - Pode sugerir `open_questions` quando estrutura questão de pesquisa
 
 **Metodologista**:
-- Valida lógica e detecta `contradictions`
+- Detecta `contradictions` (conflitos entre proposições)
 - Pode identificar `open_questions` relacionadas a rigor científico
-- Sugere refinamentos que podem atualizar `premises` ou `assumptions`
+- Sugere refinamentos que podem resultar em novas proposições em `fundamentos`
 
-**Pesquisador** (futuro):
-- Preenche `solid_grounds` após busca bibliográfica
-- Pode validar `assumptions` transformando-as em `premises`
+**Pesquisador**:
+- Adiciona `evidências` após busca bibliográfica
+- Evidências são vinculadas a proposições específicas
+- **Não valida/refuta**: Fortalece ou enfraquece proposições através de evidências
 - Pode identificar novas `open_questions` baseadas em lacunas da literatura
+
+**Sistema** (automático):
+- Calcula `solidez` de cada proposição em `fundamentos` baseado nas evidências que a apoiam/refutam
+- Recalcula solidez dinamicamente quando novas evidências são adicionadas
 
 ## Conexão com Argumento (Entidade Técnica)
 
@@ -302,11 +376,10 @@ O modelo cognitivo descrito aqui é materializado tecnicamente como entidade `Ar
 # Durante conversa (em memória)
 cognitive_model = {
   "claim": "...",
-  "premises": [...],
-  "assumptions": [...],
+  "fundamentos": [...],  # Lista de ProposiçãoRef
   "open_questions": [...],
   "contradictions": [...],
-  "solid_grounds": [...]
+  "evidências": [...]  # Lista de Evidência
 }
 
 # Ao persistir (banco de dados)
@@ -314,9 +387,8 @@ argument = Argument(
   id=UUID,
   idea_id=UUID,
   claim=cognitive_model["claim"],
-  premises=cognitive_model["premises"],
-  assumptions=cognitive_model["assumptions"],
-  evidence=cognitive_model["solid_grounds"]
+  fundamentos=cognitive_model["fundamentos"],  # Referências a Proposições
+  evidencias=cognitive_model["evidências"]  # Referências a Evidências
 )
 ```
 
@@ -346,7 +418,15 @@ O sistema opera em um ciclo dialético: **provocação** (identificar lacunas) +
 Quando contexto está claro o suficiente, Estruturador pode ser proativo:
 - Sistema detecta: `claim` específico + `context` completo
 - Sugere: "Posso chamar o Estruturador para organizar essa ideia em uma questão de pesquisa estruturada?"
-- Usuário aprova → Estruturador organiza `premises` e estrutura argumento
+- Usuário aprova → Estruturador identifica proposições e adiciona a `fundamentos`
+
+### Fortalecimento/Enfraquecimento com Evidências
+
+**Sistema não valida proposições**: Em vez de validar/refutar, o sistema fortalece ou enfraquece proposições através de evidências:
+- Pesquisador adiciona evidências que apoiam ou refutam proposições
+- Solidez é recalculada automaticamente
+- Sistema alerta sobre fragilidades: "3 proposições têm solidez < 0.4"
+- Pesquisador abre conversa sobre evidências, não retorna veredicto binário
 
 ### Ações Baratas vs. Caras
 
@@ -366,38 +446,48 @@ Quando contexto está claro o suficiente, Estruturador pode ser proativo:
 ### Processo de Detecção
 
 1. **Metodologista analisa argumento**:
-   - Compara `claim` com `premises` e `assumptions`
-   - Identifica tensões lógicas
+   - Compara proposições em `fundamentos`
+   - Identifica conflitos entre proposições
+   - Mapeia contextos que geram cada perspectiva
    - Calcula confiança (0-1)
 
 2. **Se confidence > 80%**:
-   - Sistema menciona contradição de forma natural
+   - Sistema menciona conflito de forma natural
    - Não bloqueia ou impõe
    - Apenas provoca reflexão
+   - **Não diz "isso está errado"**: Diz "estas proposições parecem em tensão"
 
 3. **Formato da menção**:
    - Conversacional, não acusatório
-   - Exemplo: "Notei que você mencionou aumento de produtividade mas também aumento de bugs. Como você vê essa relação? São métricas separadas ou produtividade inclui qualidade?"
+   - Mapeia contextos: "A proposição X se aplica no contexto A, enquanto a proposição Y se aplica no contexto B"
+   - Exemplo: "Notei que a proposição sobre aumento de produtividade parece em tensão com a proposição sobre aumento de bugs. Como você vê essa relação? São métricas separadas ou produtividade inclui qualidade? Em que contextos cada proposição se aplica?"
 
 ### Exemplo de Contradição Detectada
 
 ```python
 # Estado atual
 claim: "Claude Code aumenta produtividade em 30%"
-premises: ["Produtividade é medida por tempo de sprint"]
-assumptions: ["Qualidade não é afetada"]
+fundamentos: [
+  ProposiçãoRef(id="prop-1", enunciado="Produtividade é medida por tempo de sprint", solidez=0.70),
+  ProposiçãoRef(id="prop-2", enunciado="Qualidade não é afetada", solidez=0.35)
+]
 
 # Metodologista detecta
 contradictions: [
   {
-    "description": "Usuário mencionou aumento de produtividade mas também aumento de bugs em turno anterior",
+    "description": "Proposição 'Claude Code aumenta produtividade' parece em tensão com proposição 'Claude Code aumenta bugs'",
+    "proposicoes_envolvidas": ["prop-1", "prop-3"],
     "confidence": 0.85,
-    "suggested_resolution": "Produtividade pode incluir qualidade? Ou são métricas separadas?"
+    "contextos": {
+      "prop-1": "Contexto: métricas de tempo de sprint",
+      "prop-3": "Contexto: métricas de qualidade de código (bugs)"
+    },
+    "suggested_resolution": "Produtividade pode incluir qualidade? Ou são métricas separadas? Como mapear contextos onde cada proposição se aplica?"
   }
 ]
 
 # Sistema menciona (não bloqueia)
-"Notei que você mencionou aumento de produtividade mas também aumento de bugs. Como você vê essa relação?"
+"Notei que a proposição sobre aumento de produtividade parece em tensão com a proposição sobre aumento de bugs. Como você vê essa relação? São métricas separadas ou produtividade inclui qualidade?"
 ```
 
 ## Objetivo Final: "Flecha Penetrante"
@@ -407,42 +497,65 @@ O objetivo do sistema é ajudar o usuário a construir um **argumento sólido co
 ### Características do Argumento Maduro
 
 - **`claim` estável e específico**: Não muda radicalmente a cada turno
-- **`premises` sólidas**: Fundamentos claros e verificáveis
-- **`assumptions` baixas**: Poucas hipóteses não verificadas
+- **`fundamentos` com solidez média-alta**: Proposições principais com solidez > 0.6
+- **Evidências suficientes**: Fundamentos principais têm evidências que os sustentam
 - **`open_questions` respondidas**: Lacunas foram exploradas
-- **`contradictions` resolvidas**: Tensões foram endereçadas
-- **`solid_grounds` presente**: Evidência bibliográfica encontrada
+- **`contradictions` resolvidas**: Tensões entre proposições foram endereçadas
+- **`evidências` presente**: Evidência bibliográfica encontrada e vinculada a proposições
 
 ### Exemplo de Argumento Maduro
 
 ```python
 claim: "Claude Code reduz tempo de sprint em 30% (de 2h para 1.4h) em equipes Python de 2-5 devs, sem comprometer qualidade do código (medida por bugs por sprint)"
 
-premises: [
-  "Equipes Python de 2-5 devs existem e são representativas",
-  "Tempo de sprint é métrica válida de produtividade",
-  "Bugs por sprint é métrica válida de qualidade",
-  "Redução de tempo não compromete qualidade (validado por dados do usuário)"
-]
-
-assumptions: [
-  "Resultado é generalizável para outras linguagens (hipótese a testar)"
+fundamentos: [
+  ProposiçãoRef(
+    id="prop-1",
+    enunciado="Equipes Python de 2-5 devs existem e são representativas",
+    solidez=0.85  # Alta: evidência direta da conversa
+  ),
+  ProposiçãoRef(
+    id="prop-2",
+    enunciado="Tempo de sprint é métrica válida de produtividade",
+    solidez=0.75  # Alta: evidências bibliográficas
+  ),
+  ProposiçãoRef(
+    id="prop-3",
+    enunciado="Bugs por sprint é métrica válida de qualidade",
+    solidez=0.70  # Alta: evidências bibliográficas
+  ),
+  ProposiçãoRef(
+    id="prop-4",
+    enunciado="Redução de tempo não compromete qualidade",
+    solidez=0.75  # Alta: evidências bibliográficas + dados do usuário
+  ),
+  ProposiçãoRef(
+    id="prop-5",
+    enunciado="Resultado é generalizável para outras linguagens",
+    solidez=0.40  # Média-baixa: poucas evidências (hipótese a testar)
+  )
 ]
 
 open_questions: []  # Todas respondidas
 
 contradictions: []  # Nenhuma detectada
 
-solid_grounds: [
+evidências: [
   {
-    "claim": "Ferramentas de IA aumentam produtividade em desenvolvimento",
-    "evidence": "Smith et al. (2023) encontraram redução de 25-40% em tempo de tarefa",
-    "source": "doi:10.1234/example"
+    "id": "evid-1",
+    "descricao": "Smith et al. (2023) encontraram redução de 25-40% em tempo de tarefa",
+    "fonte": "doi:10.1234/example",
+    "forca": "forte",
+    "tipo": "estudo",
+    "apoia": ["prop-2", "prop-4"]
   },
   {
-    "claim": "Qualidade não é comprometida quando ferramentas são usadas corretamente",
-    "evidence": "Meta-análise de 15 estudos mostra correlação positiva entre uso de IA e qualidade",
-    "source": "doi:10.5678/example"
+    "id": "evid-2",
+    "descricao": "Meta-análise de 15 estudos mostra correlação positiva entre uso de IA e qualidade",
+    "fonte": "doi:10.5678/example",
+    "forca": "forte",
+    "tipo": "estudo",
+    "apoia": ["prop-4"]
   }
 ]
 
@@ -462,11 +575,11 @@ Os indicadores de maturidade são **não determinísticos** e **não avisam o us
 ### Sinais de Maturidade
 
 1. **`claim` estável**: Não muda significativamente por 3+ turnos
-2. **`premises` sólidas**: Fundamentos claros e verificáveis
-3. **`assumptions` baixas**: Poucas hipóteses não verificadas (< 2)
+2. **Fundamentos com solidez média-alta**: Proposições principais com solidez > 0.6
+3. **Evidências suficientes**: Fundamentos principais têm evidências que os sustentam
 4. **`open_questions` respondidas**: Lista vazia ou apenas questões secundárias
-5. **`contradictions` resolvidas**: Nenhuma contradição detectada
-6. **`solid_grounds` presente**: Evidência bibliográfica encontrada (quando aplicável)
+5. **`contradictions` resolvidas**: Nenhum conflito entre proposições detectado
+6. **`evidências` presente**: Evidência bibliográfica encontrada e vinculada a proposições (quando aplicável)
 
 ### Como Sistema Usa Indicadores
 
@@ -477,8 +590,8 @@ Sistema sugere: "Quer validar rigor científico com o Metodologista?" ou "Temos 
 ```python
 # Sistema detecta maturidade
 claim_stable: True
-premises_solid: True
-assumptions_low: True
+fundamentos_solidos: True  # Proposições principais com solidez > 0.6
+evidencias_suficientes: True  # Fundamentos principais têm evidências
 open_questions_empty: True
 contradictions_resolved: True
 
@@ -495,11 +608,22 @@ contradictions_resolved: True
 **Estado cognitivo**:
 ```python
 claim: "Artigo sobre levantamento de obra com IA"
-premises: []
-assumptions: [
-  "Levantamento de obra é um problema relevante",
-  "IA pode ajudar em levantamento de obra",
-  "Há contribuição acadêmica possível"
+fundamentos: [
+  ProposiçãoRef(
+    id="prop-1",
+    enunciado="Levantamento de obra é um problema relevante",
+    solidez=0.30  # Baixa: apenas inferência inicial
+  ),
+  ProposiçãoRef(
+    id="prop-2",
+    enunciado="IA pode ajudar em levantamento de obra",
+    solidez=0.25  # Baixa: hipótese inicial
+  ),
+  ProposiçãoRef(
+    id="prop-3",
+    enunciado="Há contribuição acadêmica possível",
+    solidez=0.20  # Muito baixa: hipótese não explorada
+  )
 ]
 open_questions: [
   "O que é levantamento de obra?",
@@ -508,7 +632,7 @@ open_questions: [
   "Qual tipo de artigo? (empírico, revisão, teórico)"
 ]
 contradictions: []
-solid_grounds: []
+evidências: []
 context: {
   "domain": "construction",
   "technology": "AI (unclear which)",
@@ -520,22 +644,44 @@ context: {
 **Ação do sistema**: Orquestrador explora contexto
 - "Interessante! Me conta mais: o que é levantamento de obra para você? E como você imagina que IA pode ajudar?"
 
-### Turno 3: Claim Muda, Premises Adicionadas, Sistema Provoca
+### Turno 3: Claim Muda, Fundamentos Adicionados, Sistema Provoca
 
 **Input do usuário**: "Levantamento de obra é medir quantidades de materiais. Quero usar visão computacional para automatizar"
 
 **Estado cognitivo**:
 ```python
 claim: "Usar visão computacional para automatizar levantamento de quantidades de materiais em obras"
-premises: [
-  "Levantamento de obra envolve medir quantidades de materiais",
-  "Visão computacional pode identificar materiais em imagens",
-  "Automatização é desejável"
-]
-assumptions: [
-  "Visão computacional é precisa o suficiente para quantificar materiais",
-  "Automatização reduz tempo/custo sem comprometer precisão",
-  "Há contribuição acadêmica (não é apenas aplicação direta)"
+fundamentos: [
+  ProposiçãoRef(
+    id="prop-4",
+    enunciado="Levantamento de obra envolve medir quantidades de materiais",
+    solidez=0.70  # Média-alta: evidência direta da conversa
+  ),
+  ProposiçãoRef(
+    id="prop-5",
+    enunciado="Visão computacional pode identificar materiais em imagens",
+    solidez=0.60  # Média: conhecimento técnico geral
+  ),
+  ProposiçãoRef(
+    id="prop-6",
+    enunciado="Automatização é desejável",
+    solidez=0.50  # Média: inferência do contexto
+  ),
+  ProposiçãoRef(
+    id="prop-7",
+    enunciado="Visão computacional é precisa o suficiente para quantificar materiais",
+    solidez=0.35  # Baixa: hipótese não verificada
+  ),
+  ProposiçãoRef(
+    id="prop-8",
+    enunciado="Automatização reduz tempo/custo sem comprometer precisão",
+    solidez=0.30  # Baixa: hipótese não verificada
+  ),
+  ProposiçãoRef(
+    id="prop-9",
+    enunciado="Há contribuição acadêmica (não é apenas aplicação direta)",
+    solidez=0.25  # Baixa: hipótese não explorada
+  )
 ]
 open_questions: [
   "Qual é a precisão atual de métodos manuais?",
@@ -544,7 +690,7 @@ open_questions: [
   "Qual tipo de materiais? (tijolos, concreto, etc.)"
 ]
 contradictions: []
-solid_grounds: []
+evidências: []
 context: {
   "domain": "construction, quantity surveying",
   "technology": "computer vision, AI",
@@ -556,22 +702,49 @@ context: {
 **Ação do sistema**: Orquestrador provoca reflexão
 - "Você mencionou automatização, mas e a PRECISÃO? Como você validaria que a IA é tão precisa quanto métodos manuais?"
 
-### Turno 5: Pesquisador Busca, Solid_Grounds Adicionadas, Modelo Amadurece
+### Turno 5: Pesquisador Busca, Evidências Adicionadas, Modelo Amadurece
 
 **Input do usuário**: "Quero testar se visão computacional é mais rápida e precisa que métodos manuais"
 
 **Estado cognitivo** (após Pesquisador buscar literatura):
 ```python
 claim: "Visão computacional é mais rápida e precisa que métodos manuais para levantamento de quantidades de materiais em obras"
-premises: [
-  "Levantamento de obra envolve medir quantidades de materiais",
-  "Visão computacional pode identificar materiais em imagens",
-  "Métodos manuais existem e têm precisão conhecida",
-  "Comparação de métodos é válida academicamente"
-]
-assumptions: [
-  "Resultado é generalizável para diferentes tipos de obras",
-  "Precisão da IA é suficiente para uso prático"
+fundamentos: [
+  ProposiçãoRef(
+    id="prop-4",
+    enunciado="Levantamento de obra envolve medir quantidades de materiais",
+    solidez=0.70  # Mantida: evidência direta
+  ),
+  ProposiçãoRef(
+    id="prop-5",
+    enunciado="Visão computacional pode identificar materiais em imagens",
+    solidez=0.75  # Aumentou: evidência bibliográfica adicionada
+  ),
+  ProposiçãoRef(
+    id="prop-10",
+    enunciado="Métodos manuais existem e têm precisão conhecida",
+    solidez=0.80  # Alta: evidência bibliográfica forte
+  ),
+  ProposiçãoRef(
+    id="prop-11",
+    enunciado="Comparação de métodos é válida academicamente",
+    solidez=0.70  # Média-alta: padrão metodológico
+  ),
+  ProposiçãoRef(
+    id="prop-7",
+    enunciado="Visão computacional é precisa o suficiente para quantificar materiais",
+    solidez=0.65  # Aumentou: evidência bibliográfica (85% precisão)
+  ),
+  ProposiçãoRef(
+    id="prop-12",
+    enunciado="Resultado é generalizável para diferentes tipos de obras",
+    solidez=0.40  # Média-baixa: poucas evidências
+  ),
+  ProposiçãoRef(
+    id="prop-13",
+    enunciado="Precisão da IA é suficiente para uso prático",
+    solidez=0.60  # Média: evidência parcial (85% é alto, mas contexto específico)
+  )
 ]
 open_questions: [
   "Qual é o tamanho da amostra necessária?",
@@ -579,18 +752,26 @@ open_questions: [
   "Quais tipos de materiais testar? (tijolos, concreto, aço?)"
 ]
 contradictions: []
-solid_grounds: [
+evidências: [
   {
-    "claim": "Visão computacional tem sido usada em construção",
-    "evidence": "Zhang et al. (2022) aplicaram YOLO para detecção de materiais com 85% de precisão",
-    "source": "doi:10.1234/construction-ai"
+    "id": "evid-3",
+    "descricao": "Zhang et al. (2022) aplicaram YOLO para detecção de materiais com 85% de precisão",
+    "fonte": "doi:10.1234/construction-ai",
+    "forca": "forte",
+    "tipo": "estudo",
+    "apoia": ["prop-5", "prop-7", "prop-13"]
   },
   {
-    "claim": "Métodos manuais têm margem de erro de 5-10%",
-    "evidence": "Revisão sistemática de 20 estudos mostra erro médio de 7.5% em levantamentos manuais",
-    "source": "doi:10.5678/manual-survey"
+    "id": "evid-4",
+    "descricao": "Revisão sistemática de 20 estudos mostra erro médio de 7.5% em levantamentos manuais",
+    "fonte": "doi:10.5678/manual-survey",
+    "forca": "forte",
+    "tipo": "estudo",
+    "apoia": ["prop-10"]
   }
 ]
+# Solidez de prop-5, prop-7 e prop-13 aumentou após adicionar evid-3
+# Solidez de prop-10 aumentou após adicionar evid-4
 context: {
   "domain": "construction, quantity surveying",
   "technology": "computer vision, YOLO, deep learning",
@@ -609,23 +790,44 @@ context: {
 ```python
 claim: "Visão computacional (YOLO) é mais rápida (redução de 60% no tempo) e mais precisa (erro de 3% vs 7.5% manual) que métodos manuais para levantamento de quantidades de tijolos em obras residenciais"
 
-premises: [
-  "Levantamento de obra envolve medir quantidades de materiais",
-  "Visão computacional (YOLO) pode identificar tijolos em imagens",
-  "Métodos manuais têm erro médio de 7.5% (evidência bibliográfica)",
-  "Comparação experimental é válida academicamente",
-  "Obras residenciais são contexto representativo"
-]
-
-assumptions: [
-  "Resultado é generalizável para outros materiais (hipótese futura)"
+fundamentos: [
+  ProposiçãoRef(
+    id="prop-4",
+    enunciado="Levantamento de obra envolve medir quantidades de materiais",
+    solidez=0.70  # Mantida
+  ),
+  ProposiçãoRef(
+    id="prop-14",
+    enunciado="Visão computacional (YOLO) pode identificar tijolos em imagens",
+    solidez=0.80  # Alta: evidências + validação metodológica
+  ),
+  ProposiçãoRef(
+    id="prop-10",
+    enunciado="Métodos manuais têm erro médio de 7.5%",
+    solidez=0.80  # Alta: evidência bibliográfica forte
+  ),
+  ProposiçãoRef(
+    id="prop-11",
+    enunciado="Comparação experimental é válida academicamente",
+    solidez=0.75  # Alta: validação metodológica
+  ),
+  ProposiçãoRef(
+    id="prop-15",
+    enunciado="Obras residenciais são contexto representativo",
+    solidez=0.65  # Média-alta: justificativa metodológica
+  ),
+  ProposiçãoRef(
+    id="prop-16",
+    enunciado="Resultado é generalizável para outros materiais",
+    solidez=0.35  # Baixa: hipótese futura, poucas evidências
+  )
 ]
 
 open_questions: []  # Todas respondidas
 
 contradictions: []  # Nenhuma detectada
 
-solid_grounds: [
+evidências: [
   # ... (mesmo do turno 5, mais evidências adicionadas)
 ]
 
@@ -662,7 +864,7 @@ A cada mensagem do usuário, o sistema avalia se deve criar ou atualizar snapsho
 ```python
 # Fluxo de avaliação (a cada turno)
 1. Usuário envia mensagem
-2. Sistema atualiza CognitiveModel (claim, premises, assumptions, etc.)
+2. Sistema atualiza CognitiveModel (claim, fundamentos, etc.)
 3. Sistema avalia maturidade do modelo:
    - CognitiveModel contribuiu com algo novo?
    - Argumento atingiu maturidade suficiente?
@@ -687,7 +889,7 @@ O sistema **não cria ou atualiza** snapshot quando detecta:
 3. **Pergunta sem contribuição**:
    - Perguntas que não agregam ao argumento em construção
    - Dúvidas que não levam a evolução do pensamento
-   - Exploração que não resulta em novos `premises` ou refinamento de `claim`
+   - Exploração que não resulta em novos `fundamentos` ou refinamento de `claim`
 
 **Exemplo de avaliação**:
 ```python
@@ -756,7 +958,8 @@ Esta integração permite que conceitos sejam detectados e organizados automatic
 
 ## Referências
 
-- `docs/architecture/ontology.md` - Ontologia: Conceito, Ideia, Argumento
+- `docs/vision/epistemology.md` - Base filosófica (proposições, solidez, evidências)
+- `docs/architecture/ontology.md` - Ontologia: Conceito, Ideia, Argumento, Proposição, Evidência
 - `docs/architecture/argument_model.md` - Estrutura técnica de Argument
 - `docs/architecture/idea_model.md` - Como Ideia possui Argumentos
 - `docs/product/vision.md` (Seção 4) - Entidade Ideia

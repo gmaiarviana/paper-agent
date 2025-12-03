@@ -86,72 +86,77 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 ### 3.1 Estrutura Geral (Desktop)
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  [Sidebar - 20%]    [Chat - 50%]        [Progress]  [Bastidores - 30%]    │
+│  [☰ Menu]           [Chat Principal]                    [🔍 Bastidores]    │
 │                                                                             │
-│  📂 Ideias          💬 Chat Principal    │⚪ 1. Escopo    🔍 Ver raciocínio │
-│                                         │⚪ 2. População  [Fechado padrão] │
-│  • Ideia 1 🔍       Você: "..."         │🟡 3. Métricas  [Quando aberto:] │
-│  • Ideia 2 📝       💰 $0.0012          │⚪ 4. Metodologia🧠 Orquestrador  │
-│  • Ideia 3 ✅       Sistema: "..."       │⚪ 5. Baseline   "Reasoning..."   │
-│  [+ Nova Ideia]    [digitando...]      │                [Ver completo]    │
-│                                         │                ⏱️ 1.2s | 💰 $0.0012│
-│                                         │                [Timeline colapsada]│
+│  (colapsado         Você: "..."                         (colapsado         │
+│   por padrão)       💰 $0.0012                           por padrão)       │
+│                                                                             │
+│                     Sistema: "..."                                          │
+│                     [digitando...]                                          │
+│                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Layout com 4 elementos:**
-- **Sidebar (20%):** Gestão de ideias e conversas
-- **Chat (50%):** Conversação principal com Progress na borda direita
-- **Progress:** Painel flutuante/fixo na borda direita do chat (checklist de progresso)
+**Menu ☰ expandido:**
+```
+├── 💡 Minhas Ideias (principal)
+│   └── [lista de ideias com solidez]
+├── 🕐 Histórico
+│   └── [conversas recentes]
+├── 📚 Biblioteca
+│   └── [conceitos]
+└── ❓ Suposições (futuro)
+```
+
+**Layout com 3 elementos:**
+- **Menu (colapsável):** Navegação principal com ideias como centro (fechado por padrão)
+- **Chat (50-60%):** Conversação principal
 - **Bastidores (30%):** Reasoning dos agentes em tempo real (collapsible)
 
 ### 3.2 Componentes Detalhados
 
-**A) Sidebar (Conversas Recentes)**
+**A) Menu Principal (Colapsável)**
 
-**Conversas (últimas 5):**
-- Formato: "Título da conversa · Timestamp relativo"
-- Timestamp: "5min atrás", "2h atrás", "ontem", "3 dias atrás"
-- Conversa ativa destacada (bold, background diferente)
-- Collapsible (toggle on/off)
-
-**Visual:**
+**Fechado (padrão):**
 ```
-💬 Conversas                [⌄ toggle]
-
-- LLMs em produtividade (ativa)
-  5min atrás
-
-- Semana de 4 dias
-  2h atrás
-
-- Drones em obras
-  ontem
-
-[+ Nova Conversa]
-[📖 Meus Pensamentos]  ← botão redireciona
-[🏷️ Catálogo]         ← botão redireciona
+[☰]
 ```
 
-**Alternar Entre Conversas:**
-- Clicar em conversa → carrega thread_id (SqliteSaver)
-- Restaura histórico de mensagens
-- Atualiza contexto no chat
+**Aberto:**
+```
+┌─────────────────────────┐
+│ 💡 Minhas Ideias        │ ← principal
+│                         │
+│ • LLMs em produtividade │
+│   ██████░░ 65% sólida   │ ← indicador de solidez
+│ • Semana de 4 dias      │
+│   ████░░░░ 40% sólida   │
+│                         │
+│ [+ Nova Ideia]          │
+│                         │
+│ ─────────────────────── │
+│                         │
+│ 🕐 Histórico            │ ← secundário
+│ 📚 Biblioteca           │
+│ ❓ Suposições (futuro)  │
+└─────────────────────────┘
+```
 
-**Criar Nova Conversa:**
-- Botão "[+ Nova Conversa]"
-- Cria novo thread_id
-- Chat limpo
-- Nova conversa aparece como ativa
+**Funcionalidades:**
+- Menu fechado por padrão (minimalista)
+- Clicar em ideia → abre página de detalhes da ideia
+- Indicador de solidez visual (barra de progresso colorida)
+- Histórico mostra conversas recentes (secundário)
+- Biblioteca acessível via menu (conceitos)
 
-**B) Página: Meus Pensamentos (Nova)**
+**B) Página: Minhas Ideias**
 
-**Localização:** `/pensamentos`
+**Localização:** `/pensamentos` (URL mantida para compatibilidade, mas interface mostra "Minhas Ideias")
 
 **Layout:**
 ```
 ┌─────────────────────────────────────────────────┐
-│ 📖 Meus Pensamentos                              │
+│ 💡 Minhas Ideias                                 │
 │                                                 │
 │ [🔍 Buscar ideias...]                           │
 │ [Status ▼] [Conceitos ▼]                        │
@@ -180,7 +185,7 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 - 📝 Estruturada (azul)
 - ✅ Validada (verde)
 
-**C) Página: Detalhes da Ideia (Nova)**
+**C) Página: Detalhes da Ideia**
 
 **Localização:** `/pensamentos/{idea_id}`
 
@@ -189,35 +194,37 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 ┌─────────────────────────────────────────────────┐
 │ [← Voltar] 💡 LLMs em produtividade             │
 │                                                 │
-│ Status: 📝 Estruturada                          │
-│ Atualizado: 2h atrás                            │
+│ Solidez geral: ██████░░ 65%                     │
 │                                                 │
 │ ─────────────────────────────────────────────   │
 │                                                 │
-│ 📊 Argumentos (3):                              │
-│   • V3 (focal): "Claude Code reduz tempo..."    │
-│   • V2: "LLMs aumentam produtividade..."        │
-│   • V1: "Observação inicial"                    │
-│   [Ver detalhes de V3 →]                        │
+│ 📊 Fundamentos:                                 │
+│   • "LLMs reduzem tempo de código"              │
+│     Solidez: ████████ 80% (3 evidências)        │
+│   • "Qualidade não é afetada"                   │
+│     Solidez: ███░░░░░ 35% (1 evidência fraca)   │ ← alerta visual
+│     [🔍 Fortalecer com pesquisa]                │
 │                                                 │
-│ 🏷️ Conceitos (5):                               │
-│   • Produtividade  • LLMs  • Desenvolvimento    │
-│                                                 │
-│ 💬 Conversas relacionadas:                      │
+│ 💬 Conversas associadas:                        │
 │   • Conversa 1 (18/11, 14:56)                   │
+│   • Conversa 2 (19/11, 10:30)                   │
 │                                                 │
 │ ─────────────────────────────────────────────   │
 │                                                 │
-│ [🔄 Continuar explorando]  ← abre chat         │
-│ [📝 Editar título]                              │
+│ [💬 Continuar elaborando]  ← novo chat          │
+│ [📝 Criar conteúdo]        ← se madura          │
 └─────────────────────────────────────────────────┘
 ```
 
 **Funcionalidades:**
-- Mostra claim, premises, assumptions do argumento focal
-- Lista versões de argumentos (V1, V2, V3)
-- Conceitos clicáveis → redireciona pro Catálogo
-- Botão "Continuar explorando" → cria novo thread_id e volta pro chat
+- Mostra solidez geral da ideia (barra de progresso)
+- Lista fundamentos (proposições) com suas solidezes individuais
+- Alertas visuais para fundamentos frágeis (< 40%)
+- Botão "Fortalecer com pesquisa" para fundamentos frágeis
+- Contador: "2 fundamentos precisam fortalecimento"
+- Conversas associadas à ideia
+- Botão "Continuar elaborando" → cria novo thread_id e volta pro chat
+- Botão "Criar conteúdo" → disponível quando ideia tem solidez >= 60%
 
 **D) Chat Principal (50-60% largura)**
 ```
@@ -298,7 +305,92 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 
 ---
 
-### 3.3 Mostrar Status da Ideia (Épico 12.1)
+### 3.3 Fluxo "Criar Conteúdo"
+
+**Trigger:** Botão "Criar conteúdo" disponível quando ideia tem solidez >= 60%
+
+**Fluxo:**
+
+```
+Usuário clica "Criar conteúdo"
+↓
+Abre chat com prompt inicial:
+Sistema: "Vamos criar conteúdo a partir dessa ideia!
+Que formato você prefere?
+
+• Artigo acadêmico
+• Post de blog
+• Thread de Twitter
+• Outro"
+↓
+Conversa curta para definir:
+
+• Formato
+• Tom/estilo
+• Ênfase (qual fundamento destacar)
+• Público-alvo
+↓
+Orquestrador chama Escritor
+↓
+Conteúdo gerado baseado em:
+
+• Claim da ideia
+• Fundamentos (proposições)
+• Evidências
+• Preferências definidas na conversa
+```
+
+**Implementação:**
+- Botão "Criar conteúdo" aparece condicionalmente (solidez >= 60%)
+- Abre novo chat com contexto pré-carregado da ideia
+- Orquestrador detecta intenção de criar conteúdo e chama Escritor
+- Escritor gera conteúdo usando metadados já elaborados (claim, fundamentos, evidências)
+- Usuário pode revisar e ajustar antes de exportar
+
+---
+
+### 3.4 Indicadores Visuais
+
+**A) Solidez (novo)**
+
+- Barra de progresso colorida
+- Verde (>70%): sólido
+- Amarelo (40-70%): moderado
+- Vermelho (<40%): frágil
+
+**Visual:**
+```
+Solidez geral: ████████░░ 80%  ← verde
+Solidez: ██████░░ 65%            ← amarelo
+Solidez: ███░░░░░ 35%            ← vermelho
+```
+
+**B) Alertas de Fragilidade**
+
+- Fundamentos com solidez < 40% mostram alerta visual
+- Botão "Fortalecer com pesquisa" disponível
+- Contador: "2 fundamentos precisam fortalecimento"
+
+**Visual:**
+```
+📊 Fundamentos:
+  • "LLMs reduzem tempo de código"
+    Solidez: ████████ 80% (3 evidências)  ← verde
+    
+  ⚠️ • "Qualidade não é afetada"
+    Solidez: ███░░░░░ 35% (1 evidência fraca)  ← vermelho + alerta
+    [🔍 Fortalecer com pesquisa]
+    
+  ⚠️ • "Custo-benefício é positivo"
+    Solidez: ██░░░░░░ 25% (0 evidências)  ← vermelho + alerta
+    [🔍 Fortalecer com pesquisa]
+    
+[2 fundamentos precisam fortalecimento]
+```
+
+---
+
+### 3.5 Mostrar Status da Ideia (Épico 12.1)
 
 **Localização:** Bastidores (painel direito), topo
 
@@ -330,13 +422,13 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 - Metadados: # argumentos, argumento focal, timestamp
 
 **Critérios de inferência de status:**
-- **Explorando:** claim vago, premises vazias, open_questions muitas
-- **Estruturada:** claim específico, premises preenchidas, open_questions < 3
-- **Validada:** Metodologista aprovou, contradictions vazias, assumptions baixas
+- **Explorando:** claim vago, fundamentos vazios, open_questions muitas
+- **Estruturada:** claim específico, fundamentos preenchidos, open_questions < 3
+- **Validada:** Metodologista aprovou, contradictions vazias, poucos fundamentos com baixa solidez
 
 ---
 
-### 3.4 Painel Progress (Checklist)
+### 3.6 Painel Progress (Checklist)
 
 > **📌 Status atual:** Backend implementado, frontend NÃO integrado.  
 > **Integração:** Épico 15.  
@@ -401,7 +493,7 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 
 **Implementação Técnica:**
 - Backend: `ProgressTracker` avalia `CognitiveModel` e retorna `List[ChecklistItem]`
-- Status inferido de campos do modelo (claim, premises, assumptions, context, etc.)
+- Status inferido de campos do modelo (claim, fundamentos, context, etc.)
 - Frontend: Componente Streamlit que consome checklist do backend
 - Atualização: Polling ou SSE (conforme implementação de eventos)
 
@@ -685,13 +777,10 @@ def show_argument_modal(argument):
         st.subheader("Claim")
         st.write(argument.claim)
         
-        st.subheader("Premises")
-        for premise in argument.premises:
-            st.write(f"• {premise}")
-        
-        st.subheader("Assumptions")
-        for assumption in argument.assumptions:
-            st.write(f"⚠️ {assumption}")
+        st.subheader("Fundamentos")
+        for fundamento in argument.fundamentos:
+            solidez = fundamento.solidez if hasattr(fundamento, 'solidez') else 'N/A'
+            st.write(f"• {fundamento.enunciado} (Solidez: {solidez})")
         
         st.subheader("Open Questions")
         for question in argument.open_questions:
@@ -901,6 +990,13 @@ def load_session(thread_id):
 - Atalhos de teclado
 - Busca em conversas antigas
 - Favoritar mensagens importantes
+
+---
+
+## 9. Referências
+
+- `docs/vision/epistemology.md` - Por que mostramos solidez, não verdade/falsidade
+- `docs/interface/navigation_philosophy.md` - Filosofia de navegação
 
 ---
 

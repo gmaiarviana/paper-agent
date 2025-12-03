@@ -15,7 +15,7 @@
 
 ### Visão (Crítico - Onde Queremos Chegar)
 - `docs/vision/vision.md` - Visão de produto, jornada do usuário, tipos de artigo
-- `docs/vision/cognitive_model.md` - Como pensamento evolui (claim → premises)
+- `docs/vision/cognitive_model.md` - Como pensamento evolui (claim → fundamentos)
 - `docs/vision/conversation_patterns.md` - Padrões de conversação esperados
 
 **Total obrigatório:** ~2.000 linhas (~8.000 tokens)

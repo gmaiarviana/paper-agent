@@ -35,11 +35,10 @@ checkpointer = SqliteSaver.from_conn_string("checkpoints.db")
 - id (UUID, PK)
 - idea_id (UUID, FK → ideas.id)
 - claim (TEXT)
-- premises (JSON)
-- assumptions (JSON)
+- fundamentos (JSON: lista de ProposicaoRef)
 - open_questions (JSON)
 - contradictions (JSON)
-- solid_grounds (JSON)
+- evidencias (JSON: lista de Evidencia)
 - context (JSON)
 - version (INT) - auto-incrementa por idea_id
 - created_at (TIMESTAMP)
@@ -66,4 +65,5 @@ Quando escalar para produção:
 ## Referências
 - `docs/architecture/idea_model.md` - Schema de Idea
 - `docs/architecture/argument_model.md` - Schema de Argument
+- `docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
 

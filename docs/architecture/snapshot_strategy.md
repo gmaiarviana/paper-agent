@@ -5,7 +5,7 @@
 Snapshot é uma versão persistida do argumento quando ele atinge **maturidade**. Representa um ponto de cristalização do pensamento que permite ao usuário pausar a conversa sem perder progresso.
 
 **Por que existe:**
-- Argumento evolui durante conversa (claim muda, premises são refinadas)
+- Argumento evolui durante conversa (claim muda, fundamentos são refinados)
 - Nem toda evolução merece persistência (exploração inicial é volátil)
 - Snapshot marca momento em que argumento está **estável o suficiente** para ser salvo
 - Permite versionamento: V1 (vago) → V2 (refinado) → V3 (específico)
@@ -19,8 +19,8 @@ Snapshot é uma versão persistida do argumento quando ele atinge **maturidade**
 Snapshot é criado quando argumento atende **todos** os critérios abaixo:
 
 1. **Claim estável e específico**: Afirmação clara (>20 chars), não vaga
-2. **Premises sólidas**: Fundamentos claros e verificáveis (>= 2)
-3. **Assumptions baixas**: Poucas hipóteses não verificadas (<= 2)
+2. **Fundamentos sólidos**: Proposições com solidez > 0.6 (>= 2)
+3. **Fundamentos frágeis**: Proposições com solidez < 0.4 (<= 2)
 4. **Open_questions respondidas**: Lista vazia ou apenas questões secundárias (<= 1)
 5. **Contradictions resolvidas**: Nenhuma contradição detectada
 6. **Context completo**: Domínio, tecnologia, população definidos
@@ -31,11 +31,10 @@ Snapshot é criado quando argumento atende **todos** os critérios abaixo:
 ```python
 cognitive_model = {
     "claim": "Claude Code reduz tempo de sprint em 30% em equipes Python de 2-5 devs",
-    "premises": [
-        "Equipes Python usam ferramentas de IA",
-        "Tempo de sprint é métrica válida de produtividade"
+    "fundamentos": [
+        {"proposicao_id": "prop_1", "solidez": 0.8},
+        {"proposicao_id": "prop_2", "solidez": 0.7}
     ],
-    "assumptions": ["Qualidade não é comprometida"],
     "open_questions": [],
     "contradictions": [],
     "context": {
@@ -75,8 +74,7 @@ cognitive_model = {
 ```python
 cognitive_model = {
     "claim": "LLMs são úteis",  # < 20 chars, vago
-    "premises": [],
-    "assumptions": []
+    "fundamentos": []
 }
 # → Não cria snapshot (claim não específico)
 ```
@@ -85,7 +83,7 @@ cognitive_model = {
 ```python
 cognitive_model = {
     "claim": "LLMs aumentam produtividade",
-    "premises": [],
+    "fundamentos": [],
     "open_questions": [
         "Qual população?",
         "Qual métrica?",
@@ -209,9 +207,9 @@ argument_id_3 = create_snapshot(idea_id, cognitive_model_v3)
 ```
 
 **Evolução típica:**
-- **V1:** Claim vago, poucas premises, muitas assumptions
-- **V2:** Claim refinado, premises sólidas, assumptions reduzidas
-- **V3:** Claim específico, premises completas, assumptions mínimas
+- **V1:** Claim vago, poucos fundamentos, muitos com baixa solidez
+- **V2:** Claim refinado, fundamentos sólidos (solidez > 0.6), poucos frágeis
+- **V3:** Claim específico, fundamentos completos, solidez alta (> 0.8)
 
 **Schema SQLite:**
 ```sql
@@ -265,5 +263,6 @@ for concept in concepts:
 - `docs/vision/cognitive_model.md` - Modelo cognitivo (evolução do pensamento)
 - `docs/architecture/argument_model.md` - Schema técnico de Argument
 - `docs/architecture/idea_model.md` - Schema de Idea (possui Arguments)
+- `docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
 - `ROADMAP.md` - Épico 13 (Conceitos), Épico 15 (Integração de snapshots)
 

@@ -21,7 +21,7 @@
 - Apresentar conflitos para o usuário resolver
 - Determinar quando o artigo está completo
 - **Adaptar fluxo** conforme decisões do usuário
-- **Detectar suposições implícitas** (assumptions) no discurso do usuário
+- **Detectar proposições não examinadas** no discurso do usuário
 - **Extrair claim** do que o usuário está dizendo
 - **Atualizar context** (domínio, tecnologia, população) do modelo cognitivo
 - **Provocar reflexão** sobre aspectos não explorados: "Você assumiu X. Quer examinar?"
@@ -95,10 +95,10 @@
 - Identificar falhas metodológicas
 - Sugerir melhorias no método
 - Validar se as conclusões são suportadas pelos argumentos
-- **Validar se premises são sólidas** (têm base?)
-- **Identificar premises frágeis** (precisam pesquisar?)
+- **Validar se fundamentos têm solidez suficiente** (têm base?)
+- **Identificar fundamentos com baixa solidez** (precisam pesquisar?)
 - **Apontar contradictions** na lógica
-- **Sugerir evidências necessárias**: "Premissa X precisa de evidência" (adiciona open_question)
+- **Sugerir evidências necessárias**: "Fundamento X precisa de evidência" (adiciona open_question)
 
 ### PODE fazer
 - Rejeitar hipótese com justificativa
@@ -145,7 +145,7 @@
 - Planejar fluxo argumentativo
 - Determinar o que precisa ser pesquisado
 - Organizar lógica de apresentação
-- **Organizar premises de forma lógica**
+- **Organizar fundamentos de forma lógica**
 - **Tornar explícito o que era implícito**
 - **Dividir conceito em sub-conceitos**
 - **Proativo quando**: Contexto claro, múltiplos conceitos desconexos
@@ -191,8 +191,8 @@
 - **Sintetizar** achados (não apenas listar)
 - Validar se fontes são confiáveis
 - Identificar consensos e divergências na literatura
-- **Transformar open_questions em solid_grounds**
-- **Buscar evidências para premises frágeis**
+- **Transformar open_questions em evidências**
+- **Buscar evidências para fundamentos com baixa solidez**
 - **Adicionar referências bibliográficas**
 
 ### PODE fazer
@@ -342,7 +342,7 @@ O sistema multi-agente interage com um modelo cognitivo que representa o entendi
 
 O Orquestrador atua como observador integrado do modelo cognitivo, atualizando-o a cada turno da conversa:
 
-- **Detecta suposições implícitas (assumptions)**: Identifica o que o usuário assume mas não declara explicitamente
+- **Detecta proposições não examinadas**: Identifica o que o usuário assume mas não declara explicitamente
 - **Extrai claim do que usuário está dizendo**: Captura a afirmação central de cada input
 - **Atualiza context (domínio, tecnologia, população)**: Enriquece o contexto do modelo cognitivo com informações novas
 - **Provoca reflexão**: Quando detecta lacunas, pergunta "Você assumiu X. Quer examinar?"
@@ -355,7 +355,7 @@ O Orquestrador atua como observador integrado do modelo cognitivo, atualizando-o
 
 O Estruturador organiza o conhecimento do modelo cognitivo de forma lógica:
 
-- **Organiza premises de forma lógica**: Estrutura as premissas em ordem coerente
+- **Organiza fundamentos de forma lógica**: Estrutura os fundamentos em ordem coerente
 - **Torna explícito o que era implícito**: Revela suposições que estavam ocultas
 - **Divide conceito em sub-conceitos**: Quebra ideias complexas em componentes menores
 
@@ -365,19 +365,19 @@ O Estruturador organiza o conhecimento do modelo cognitivo de forma lógica:
 
 ### Metodologista
 
-O Metodologista valida a solidez das premises no modelo cognitivo:
+O Metodologista valida a solidez dos fundamentos no modelo cognitivo:
 
-- **Valida se premises são sólidas (têm base?)**: Verifica se cada premissa tem fundamento
-- **Identifica premises frágeis (precisam pesquisar?)**: Detecta premissas que carecem de evidência
-- **Aponta contradictions na lógica**: Encontra inconsistências entre premissas
-- **Sugere evidências necessárias**: "Premissa X precisa de evidência" (adiciona open_question ao modelo)
+- **Valida se fundamentos têm solidez suficiente (têm base?)**: Verifica se cada fundamento tem base sólida
+- **Identifica fundamentos com baixa solidez (precisam pesquisar?)**: Detecta fundamentos que carecem de evidência
+- **Aponta contradictions na lógica**: Encontra inconsistências entre fundamentos
+- **Sugere evidências necessárias**: "Fundamento X precisa de evidência" (adiciona open_question ao modelo)
 
 ### Pesquisador (Futuro - Épico 13)
 
 O Pesquisador transforma questões abertas em conhecimento sólido:
 
-- **Transforma open_questions em solid_grounds**: Responde questões pendentes com evidências
-- **Busca evidências para premises frágeis**: Fortalece premissas identificadas como frágeis pelo Metodologista
+- **Transforma open_questions em evidências**: Responde questões pendentes com evidências
+- **Busca evidências para fundamentos com baixa solidez**: Fortalece fundamentos identificados como frágeis pelo Metodologista
 - **Adiciona referências bibliográficas**: Incorpora fontes acadêmicas ao modelo cognitivo
 
 ### Transições
@@ -387,15 +387,15 @@ As transições entre agentes são projetadas para serem:
 - **Suaves e naturais**: O usuário não percebe a troca de agente
 - **Transparentes nos bastidores**: Quem está falando só é visível nos bastidores (para debugging)
 - **Sem interrupções**: Sem mensagens como "Chamando X..." → A conversa flui naturalmente
-- **Contextuais**: Cada agente continua a conversa de forma natural, como em "Hmm, essa premissa parece frágil..." (natural)
+- **Contextuais**: Cada agente continua a conversa de forma natural, como em "Hmm, esse fundamento parece frágil..." (natural)
 
 ### Ações Baratas vs Caras
 
 O sistema diferencia ações que podem ser proativas (baratas) daquelas que requerem permissão (caras):
 
 **Ações Baratas (proativas)**:
-- Estruturador organizar premises
-- Orquestrador detectar assumptions
+- Estruturador organizar fundamentos
+- Orquestrador detectar proposições não examinadas
 - Metodologista apontar lacuna
 
 **Ações Caras (pedir permissão)**:

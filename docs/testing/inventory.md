@@ -125,7 +125,7 @@ Este documento lista todos os comportamentos testados pelo sistema.
 Comportamentos da visão que ainda não têm testes:
 
 - [ ] Sistema pergunta "Posso chamar X?" antes de ações caras (negociação contínua)
-- [ ] Claim evolui para "flecha penetrante" (argumento maduro com solid_grounds)
+- [ ] Claim evolui para "flecha penetrante" (argumento maduro com evidências)
 - [ ] Sistema detecta tipo de artigo emergente (empírico, revisão, teórico)
 - [ ] Validação end-to-end com usuário real simulado
 - [ ] Métricas de qualidade socrática (score de provocação vs coleta)

@@ -40,7 +40,7 @@
 **Ideia emergindo?** Sim, começando a estruturar
 
 **Argumento nascente:**
-- Premise: "Linguagem permite transmitir ficções"
+- Fundamento: "Linguagem permite transmitir ficções"
 
 ---
 
@@ -54,7 +54,7 @@
 **Ideia emergindo?** Sim, ficando mais claro
 
 **Argumento evoluindo:**
-- Premise: "Humanos acreditam em ficções, animais não"
+- Fundamento: "Humanos acreditam em ficções, animais não"
 - Evidence: "Exemplo do macaco e bananas"
 
 ---
@@ -70,7 +70,7 @@
 **Ideia cristaliza:**
 - Título: "Cooperação humana via mitos compartilhados"
 - Claim: "Cooperação em massa depende de mitos compartilhados"
-- Frases anteriores eram premises/evidências
+- Frases anteriores eram fundamentos/evidências
 
 ---
 
@@ -120,16 +120,30 @@ Argument:
   
   claim: "Cooperação humana em massa depende de mitos compartilhados"
   
-  premises: [
-    "Linguagem humana permite transmitir ficções",
-    "Humanos acreditam em ficções, animais não",
-    "Culturas são estruturas elaboradas (70 mil anos)"
-  ]
-  
-  assumptions: [
-    "Mitos são necessários (não apenas facilitadores)",
-    "Cooperação em massa só existe em humanos",
-    "Causalidade: mitos → cooperação (sem confundidores)"
+  fundamentos: [
+    ProposicaoRef(
+      id="prop-1",
+      enunciado="Linguagem humana permite transmitir ficções",
+      solidez=0.85
+    ),
+    ProposicaoRef(
+      id="prop-2",
+      enunciado="Humanos acreditam em ficções, animais não",
+      solidez=0.80
+    ),
+    ProposicaoRef(
+      id="prop-3",
+      enunciado="Culturas são estruturas elaboradas (70 mil anos)",
+      solidez=0.75
+    ),
+    # Nota: Na nova ontologia, não há campo "assumptions".
+    # Proposições com baixa solidez (< 0.4) cumprem esse papel.
+    # Exemplo: "Causalidade é direta" teria solidez ~0.30
+    ProposicaoRef(
+      id="prop-4",
+      enunciado="Causalidade: mitos → cooperação (sem confundidores)",
+      solidez=0.35  # baixa solidez
+    )
   ]
   
   evidence: [
@@ -161,6 +175,29 @@ Argument:
     concept_cooperacao
   ]
 ```
+
+### Estrutura Atualizada (Nova Ontologia)
+
+```python
+# Estrutura atualizada com ProposicaoRef e solidez
+fundamentos: [
+  ProposicaoRef(
+    id="prop-1",
+    enunciado="Linguagem permite transmitir ficções",
+    solidez=0.85
+  ),
+  ProposicaoRef(
+    id="prop-2",
+    enunciado="Causalidade: mitos → cooperação",
+    solidez=0.35  # baixa solidez - cumpre papel de "assumption"
+  )
+]
+```
+
+**Nota:** Na nova ontologia:
+- `premises` → `fundamentos` (lista de `ProposicaoRef`)
+- `assumptions` → removido (proposições com baixa solidez `< 0.4` cumprem esse papel)
+- Cada `ProposicaoRef` inclui `id`, `enunciado` e `solidez` (0.0 a 1.0)
 
 ### Conceitos Detectados
 ```python

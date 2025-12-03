@@ -6,6 +6,13 @@
 - **Problema resolvido**: Reduz a distância entre uma ideia inicial e um manuscrito publicável, guiando definição de problema, metodologia, estrutura e redação.
 - **Diferencial**: Orquestra agentes inteligentes e adaptáveis que ajustam o fluxo conforme tipo de artigo e maturidade da pesquisa; não segue scripts rígidos nem respostas determinísticas.
 
+### Filosofia Epistemológica
+Paper Agent é guiado por uma epistemologia específica: não existe verdade absoluta, apenas narrativas com diferentes graus de sustentação. Isso significa:
+- Sistema não julga verdade, mapeia sustentação
+- Proposições têm solidez (não são "verdadeiras" ou "falsas")
+- Pesquisa fortalece/enfraquece, não valida/refuta
+- Ver detalhes em `docs/vision/epistemology.md`
+
 ### 1.1 Posicionamento e Diferencial
 
 Paper Agent não compete com LLMs generalistas. É um sistema especializado para **organização de pensamentos** e **construção de argumentos sólidos**.
@@ -59,7 +66,7 @@ Paper Agent não é apenas um produto isolado. É a **primeira aplicação** de 
 
 **Core compartilhado:**
 - Ontologia (Conceito, Ideia, Argumento)
-- Modelo cognitivo (claim → premises → assumptions)
+- Modelo cognitivo (claim → fundamentos (com solidez variável))
 - Agentes (Orquestrador, Estruturador, Metodologista, Pesquisador)
 - Infraestrutura (LangGraph, ChromaDB, embeddings)
 
@@ -254,6 +261,19 @@ Ideia:
 - Cada ideia tem seus próprios argumentos
 - Dashboard mostra evolução em tempo real
 
+### Ideia Madura → Conteúdo
+Quando uma ideia atinge maturidade (fundamentos sólidos, poucas questões abertas):
+1. Usuário acessa ideia e clica "Criar Conteúdo"
+2. Abre chat para definir expectativas (formato, tom, ênfase)
+3. Orquestrador chama Escritor
+4. Conteúdo gerado a partir de metadados já elaborados (claim, fundamentos, evidências)
+
+Formatos possíveis:
+- Artigo acadêmico
+- Post de blog/LinkedIn
+- Thread de Twitter
+- Apresentação
+
 ## 5. Interação com Usuário
 - **Interface web conversacional** como experiência principal (Streamlit)
 - Conversação em linguagem natural; sistema **negocia necessidades** sem impor classificações determinísticas
@@ -306,30 +326,34 @@ Ideia:
 - Chat limpo e focado (similar ao Claude)
 - Painel "Bastidores" opcional para ver reasoning dos agentes
 
-**Navegação: Três Espaços Distintos**
+**Navegação: Ideias como Centro**
 
 > **Nota:** Para filosofia completa de navegação, consulte `docs/interface/navigation_philosophy.md`.
 
-**1. Conversas (Sidebar - Processo):**
-- Últimas 5 conversas recentes
-- Timestamp relativo ("5min atrás", "2h atrás")
-- [+ Nova Conversa]
-- [📖 Meus Pensamentos] → redireciona pra página dedicada
-- [🏷️ Catálogo] → redireciona pra biblioteca de conceitos
+**Estrutura principal:**
+- **Minhas Ideias** = navegação principal (destaque)
+- **Histórico** = conversas passadas (secundário)
+- **Biblioteca** = conceitos (acessível via menu)
+- **Suposições** = proposições de baixa solidez (futuro)
 
-**2. Meus Pensamentos (Página Dedicada - Cristalização):**
-- URL: `/pensamentos`
-- Grid de cards com preview (título, status, # argumentos, # conceitos)
-- Busca + filtros (status, conceitos)
-- Card clicável → página dedicada da ideia (`/pensamentos/{idea_id}`)
-- Página da ideia mostra: argumentos versionados, conceitos usados, conversas relacionadas
-- Botão "Continuar explorando" → volta pro chat com novo thread_id
+**Menu minimalista (fechado por padrão):**
+```
+[Menu ☰]              [Chat Principal]
+```
 
-**3. Catálogo (Página Dedicada - Biblioteca):**
-- URL: `/catalogo`
-- Biblioteca de conceitos técnicos reutilizáveis (Épico 13)
-- Busca semântica via embeddings
-- Conceito clicável → mostra ideias que usam
+Menu expandido:
+```
+├── 💡 Minhas Ideias (principal)
+├── 🕐 Histórico de conversas
+├── 📚 Biblioteca de conceitos
+└── ❓ Suposições (futuro)
+```
+
+**Dentro de cada Ideia:**
+- Iniciar novo chat
+- Ver conversas passadas associadas
+- Criar conteúdo (se ideia madura)
+- Ver fundamentos e sua solidez
 
 **Feedback Visual Forte:**
 - Input desabilitado durante processamento (opacidade 50%)
@@ -396,6 +420,7 @@ Ideia:
 - **Transparente**: reasoning dos agentes exposto, integrando explicações curtas ou links para aprofundamento.
 - **Incremental**: começa com entregáveis mínimos e expande funcionalidades à medida que aprende com o uso.
 - **Escalável**: arquitetura previsa integração de novos tipos de artigo, agentes e extensões (ver `ARCHITECTURE.md` para detalhes técnicos).
+- **Epistemologicamente honesto**: não existe verdade absoluta; sistema mapeia graus de sustentação baseados em evidências, não julgamentos binários de verdade/falsidade.
 
 ## Referências Adicionais
 
@@ -403,4 +428,5 @@ Ideia:
 - `docs/architecture/ontology.md` - O que é Conceito, Ideia, Argumento
 - `docs/product/cognitive_model.md` - Como pensamento evolui
 - `docs/products/paper_agent.md` - Produto específico paper-agent
+- `docs/vision/epistemology.md` - Filosofia epistemológica do sistema
 

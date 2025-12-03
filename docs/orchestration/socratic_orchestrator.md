@@ -12,7 +12,7 @@
 O Orquestrador Socrático transforma conversa de "interrogatório burocrático" para "diálogo provocativo" onde sistema expõe suposições implícitas e provoca reflexão através de contra-perguntas socráticas.
 
 **Problema que resolve:**
-Sistema faz perguntas genéricas de coleta de dados ao invés de provocar reflexão sobre assumptions não examinadas.
+Sistema faz perguntas genéricas de coleta de dados ao invés de provocar reflexão sobre proposições não examinadas.
 
 **Exemplo do problema:**
 ```
@@ -27,7 +27,7 @@ Sistema faz perguntas genéricas de coleta de dados ao invés de provocar reflex
            O cliente quer saber se vai pagar. 
            São métricas diferentes, não?"
 ```
-→ Provocação que expõe assumption implícita
+→ Provocação que expõe proposição não examinada implícita
 
 ---
 
@@ -38,16 +38,16 @@ Sócrates não respondia perguntas - ele fazia contra-perguntas que expunham con
 **Características:**
 - Não é coleta de dados ("Que tipo?")
 - Não é validação ("Isso está correto?")
-- É exposição de assumptions ("Você assumiu X, mas e se Y?")
+- É exposição de proposições não examinadas ("Você assumiu X, mas e se Y?")
 
 **Estrutura típica:**
-1. **Apontar assumption**: "Você mencionou X..."
+1. **Apontar proposição não examinada**: "Você mencionou X..."
 2. **Contra-pergunta**: "...mas e Y? Isso importa?"
-3. **Consequência** (opcional): "Se não souber Y, como vai validar X?"
+3. **Consequência** (opcional): "Se não souber Y, como vai fortalecer X?"
 
 ---
 
-## 5 Categorias de Assumptions Detectáveis
+## 5 Categorias de Proposições Não Examinadas Detectáveis
 
 ### 1. Métrica Vaga
 **O que é:** Usuário menciona conceito mensurável mas não especifica COMO medir.
@@ -57,7 +57,7 @@ Sócrates não respondia perguntas - ele fazia contra-perguntas que expunham con
 - "Método X é mais eficiente"
 - "Ferramenta Y melhora qualidade"
 
-**Assumptions implícitas:**
+**Proposições não examinadas implícitas:**
 - Produtividade tem definição única e óbvia
 - Eficiência é mensurável de forma padrão
 - Qualidade tem critérios claros
@@ -75,7 +75,7 @@ Sócrates não respondia perguntas - ele fazia contra-perguntas que expunham con
 - "Desenvolvedores preferem X"
 - "Empresas adotam Y"
 
-**Assumptions implícitas:**
+**Proposições não examinadas implícitas:**
 - Todas as equipes são iguais
 - Desenvolvedores são grupo homogêneo
 - Tamanho/contexto da empresa não importa
@@ -93,7 +93,7 @@ Sócrates não respondia perguntas - ele fazia contra-perguntas que expunham con
 - "Ferramenta Y reduz tempo"
 - "Abordagem Z aumenta acurácia"
 
-**Assumptions implícitas:**
+**Proposições não examinadas implícitas:**
 - Baseline é óbvio
 - Comparação é justa
 - Contexto de medição é o mesmo
@@ -111,7 +111,7 @@ Sócrates não respondia perguntas - ele fazia contra-perguntas que expunham con
 - "Depois de usar X, Y melhorou"
 - "X → Y"
 
-**Assumptions implícitas:**
+**Proposições não examinadas implícitas:**
 - Relação é causal, não apenas correlação
 - Não há variáveis confundidoras
 - Direção da causalidade é óbvia
@@ -129,7 +129,7 @@ Sócrates não respondia perguntas - ele fazia contra-perguntas que expunham con
 - "Vi em 3 projetos, é padrão"
 - "Todo mundo usa, deve ser bom"
 
-**Assumptions implícitas:**
+**Proposições não examinadas implícitas:**
 - Contexto do usuário é representativo
 - Amostra pequena é suficiente
 - Popularidade = eficácia
@@ -145,7 +145,7 @@ Sócrates não respondia perguntas - ele fazia contra-perguntas que expunham con
 
 ### QUANDO PROVOCAR ✅
 
-**Turno 2-4:** Assumption ficou clara mas ainda não foi explorada
+**Turno 2-4:** Proposição não examinada ficou clara mas ainda não foi explorada
 - Usuário mencionou conceito vago pela primeira vez
 - Momento natural da conversa (não interrompe fluxo)
 - Uma provocação por vez (não sobrecarregar)
@@ -155,7 +155,7 @@ Sócrates não respondia perguntas - ele fazia contra-perguntas que expunham con
 - População vaga impede generalização
 - Baseline ausente invalida comparação
 
-**Usuário não resistiu:** Não repetiu assumption após provocação anterior
+**Usuário não resistiu:** Não repetiu proposição não examinada após provocação anterior
 - Se usuário ignorou provocação, não insista
 - Se usuário respondeu superficialmente, aprofunde
 
@@ -183,8 +183,8 @@ Sócrates não respondia perguntas - ele fazia contra-perguntas que expunham con
 
 Sistema escala profundidade conforme resistência do usuário.
 
-### Nível 1: Apontar Assumption
-**Quando usar:** Primeira vez que assumption aparece
+### Nível 1: Apontar Proposição Não Examinada
+**Quando usar:** Primeira vez que proposição não examinada aparece
 
 **Formato:**
 ```
@@ -199,7 +199,7 @@ Sistema: "Você mencionou 'mais rápido', mas percebi que assumiu que
 ```
 
 ### Nível 2: Contra-Pergunta
-**Quando usar:** Usuário confirmou assumption mas não explorou
+**Quando usar:** Usuário confirmou proposição não examinada mas não explorou
 
 **Formato:**
 ```
@@ -214,11 +214,11 @@ Sistema: "Método manual de QUEM? Desenvolvedor júnior vs senior
 ```
 
 ### Nível 3: Consequência
-**Quando usar:** Usuário resistiu a explorar assumption 2 vezes
+**Quando usar:** Usuário resistiu a explorar proposição não examinada 2 vezes
 
 **Formato:**
 ```
-"Se você não souber Y, como vai validar X?"
+"Se você não souber Y, como vai fortalecer X?"
 ```
 
 **Exemplo:**
@@ -239,8 +239,8 @@ Orquestrador Socrático atualiza `focal_argument` conforme provocações são re
 focal_argument: {
   "intent": "test_hypothesis",
   "subject": "incremental method impact on speed",
-  "population": "not specified",  # ← assumption detectada
-  "metrics": "not specified",     # ← assumption detectada
+  "population": "not specified",  # ← proposição não examinada detectada
+  "metrics": "not specified",     # ← proposição não examinada detectada
   "article_type": "empirical"
 }
 ```
@@ -276,14 +276,14 @@ Sistema: "Legal! E quando você diz 'aumentam produtividade', você tá
          medindo O QUÊ exatamente? Linhas de código? Features entregues? 
          Tempo por tarefa? São métricas bem diferentes."
 ```
-→ Provocação Nível 1 (apontar assumption de métrica vaga)
+→ Provocação Nível 1 (apontar proposição não examinada de métrica vaga)
 
 **Turno 3:**
 ```
 Usuário: "Tempo por tarefa"
 Sistema: "Perfeito! E você tem baseline? Quanto tempo levava ANTES?"
 ```
-→ Provocação Nível 1 (apontar assumption de baseline ausente)
+→ Provocação Nível 1 (apontar proposição não examinada de baseline ausente)
 
 ### Exemplo 2: População Vaga + Escalada de Profundidade
 
@@ -323,16 +323,16 @@ Sistema: "Interessante! Você mencionou '% de conclusão', mas % para QUEM?
          O auditor quer saber conformidade (% de qualidade). 
          São métricas MUITO diferentes. Qual te interessa?"
 ```
-→ Provocação Nível 2 (contra-pergunta expondo assumption)
+→ Provocação Nível 2 (contra-pergunta expondo proposição não examinada)
 
 **Turno 2:**
 ```
 Usuário: "% físico de conclusão"
-Sistema: "OK! E como você vai VALIDAR que a visão computacional está 
+Sistema: "OK! E como você vai FORTALECER a proposição de que a visão computacional está 
          medindo certo? Precisa de baseline - alguém medindo manualmente 
          pra comparar. Você tem isso ou vai precisar coletar?"
 ```
-→ Provocação Nível 1 (apontar assumption de baseline/validação)
+→ Provocação Nível 1 (apontar proposição não examinada de baseline/validação)
 
 ---
 
@@ -345,7 +345,7 @@ Sistema: "OK! E como você vai VALIDAR que a visão computacional está
 
 **Estrutura do prompt:**
 1. **Papel:** Facilitador socrático (não interrogador)
-2. **5 Categorias:** Instruções explícitas para detectar cada assumption
+2. **5 Categorias:** Instruções explícitas para detectar cada proposição não examinada
 3. **Timing:** Quando provocar e quando não provocar
 4. **Profundidade:** 3 níveis de provocação
 5. **Exemplos:** 3 exemplos completos (métrica vaga, população vaga, escalada)
@@ -368,7 +368,7 @@ Sistema: "OK! E como você vai VALIDAR que a visão computacional está
 - Sistema usa campos existentes
 
 **Mudanças futuras (Épico 11 - Modelagem Cognitiva):**
-- `assumptions` será campo explícito
+- `fundamentos` será campo explícito com solidez
 - `open_questions` rastreará lacunas
 - Orquestrador populará esses campos
 
@@ -377,13 +377,13 @@ Sistema: "OK! E como você vai VALIDAR que a visão computacional está
 ## Referências
 
 - `docs/product/vision.md` - Sistema como "mestre socrático"
-- `docs/product/cognitive_model.md` - Modelo de assumptions e premises
+- `docs/product/cognitive_model.md` - Modelo de fundamentos com solidez
 - `docs/orchestration/conversational_orchestrator.md` - Base conversacional (Épico 7)
 
 ---
 
 **Próximos Épicos:**
-- Épico 11: Modelagem Cognitiva (rastreamento explícito de assumptions)
+- Épico 11: Modelagem Cognitiva (rastreamento explícito de fundamentos com solidez)
 - Épico 12: Persistência (salvar modelo cognitivo)
 - Épico 13: Múltiplos Tópicos (gerenciar vários argumentos)
 

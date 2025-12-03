@@ -22,7 +22,7 @@ O sistema não é apenas "paper-agent". É um **super-sistema** com core univers
 │                                                  │
 │  ┌──────────────────────────────────────────┐  │
 │  │  Modelo Cognitivo                         │  │
-│  │  (claim, premises, assumptions, ...)      │  │
+│  │  (claim, fundamentos, ...)                │  │
 │  └──────────────────────────────────────────┘  │
 │                                                  │
 │  ┌──────────────────────────────────────────┐  │
@@ -64,7 +64,7 @@ O sistema não é apenas "paper-agent". É um **super-sistema** com core univers
 Tudo que é **independente de produto específico**:
 
 ✅ **Ontologia:** Conceito, Ideia, Argumento  
-✅ **Modelo Cognitivo:** claim → premises → assumptions  
+✅ **Modelo Cognitivo:** claim → fundamentos (com solidez variável)  
 ✅ **Agentes:** Orquestrador, Estruturador, Metodologista, Pesquisador  
 ✅ **Infraestrutura:** LangGraph (state), ChromaDB (vetores), SQLite (metadados)  
 ✅ **Conversação:** Diálogo socrático, provocação, refinamento  
@@ -160,5 +160,6 @@ GET    /conversations/:id/ideas     # Ideias geradas na conversa
 - `docs/architecture/ontology.md` - Ontologia base (Core)
 - `docs/products/paper_agent.md` - Produto específico
 - `docs/products/fichamento.md` - Produto específico
+- `docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
 - `ROADMAP.md` - Épicos 11+ (migração)
 
