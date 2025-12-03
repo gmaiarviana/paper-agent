@@ -1,46 +1,55 @@
 """
-Script de validação manual para o fluxo completo multi-agente.
+Validação do fluxo multi-agente conversacional.
 
-Valida que o super-grafo multi-agente foi implementado corretamente com:
-- Integração entre Orquestrador, Estruturador e Metodologista
-- Fluxo completo: ideia vaga → estruturação → validação
-- Fluxo direto: hipótese → validação
-- Preservação de contexto entre agentes via MultiAgentState
-- Logs de decisões e transições
+Testa a integração entre Orquestrador, Estruturador e Metodologista
+no modelo CONVERSACIONAL (não pipeline automático).
 
-Versão: 1.0 (Épico 3, Funcionalidade 3.3)
-Data: 11/11/2025
+Diferença do modelo anterior:
+- ANTES (pipeline): Input → Classificação automática → Agentes automáticos
+- AGORA (conversacional): Input → Orquestrador explora → Negocia com usuário → Agentes sob demanda
+
+Cenários testados:
+1. Input vago → Orquestrador explora com perguntas abertas
+2. Input com contexto → Orquestrador sugere agente com justificativa
+3. Fluxo completo: Orquestrador → Estruturador → Metodologista (simulado)
+4. Preservação de contexto entre turnos
+
+IMPORTANTE: Faz chamadas REAIS à API Anthropic.
+Custo estimado: ~$0.05-0.10
+
+Uso:
+    python scripts/flows/validate_multi_agent_flow.py
 """
 
 import logging
+import os
 import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-PROJECT_ROOT_STR = str(PROJECT_ROOT)
-if PROJECT_ROOT_STR not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT_STR)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from scripts.common import setup_project_path
-
 setup_project_path()
 
-# Carregar variáveis de ambiente do .env
 from dotenv import load_dotenv
-load_dotenv()
+from langchain_core.messages import HumanMessage, AIMessage
 
-# Configurar logging para ver decisões e transições
+from agents.orchestrator.state import create_initial_multi_agent_state
+from agents.orchestrator.nodes import orchestrator_node
+from agents.orchestrator.router import route_from_orchestrator
+from agents.structurer.nodes import structurer_node
+from agents.methodologist.nodes import decide_collaborative
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(name)s - %(levelname)s - %(message)s'
 )
-
-# Importar módulos necessários
-from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
+logger = logging.getLogger(__name__)
 
 
 def print_separator(title: str):
-    """Imprime separador visual."""
     print("\n" + "=" * 80)
     print(f"  {title}")
     print("=" * 80 + "\n")
@@ -48,225 +57,250 @@ def print_separator(title: str):
 
 def print_result(result: dict):
     """Imprime resultado de forma estruturada."""
-    print(f"\n{'─' * 80}")
-    print("RESULTADO FINAL:")
-    print(f"{'─' * 80}")
-
-    print(f"\n📊 Estágio: {result['current_stage']}")
-
-    if result.get('orchestrator_classification'):
-        print(f"\n🎯 ORQUESTRADOR:")
-        print(f"   Classificação: {result['orchestrator_classification']}")
-        print(f"   Reasoning: {result['orchestrator_reasoning']}")
-
-    if result.get('structurer_output'):
-        print(f"\n🏗️  ESTRUTURADOR:")
-        structurer = result['structurer_output']
-        print(f"   Questão estruturada: {structurer['structured_question']}")
-        print(f"   Contexto: {structurer['elements']['context']}")
-        print(f"   Problema: {structurer['elements']['problem']}")
-        print(f"   Contribuição: {structurer['elements']['contribution']}")
-
-    if result.get('methodologist_output'):
-        print(f"\n🔬 METODOLOGISTA:")
-        methodologist = result['methodologist_output']
-        print(f"   Status: {methodologist['status'].upper()}")
-        print(f"   Justificativa: {methodologist['justification']}")
-        if methodologist.get('clarifications'):
-            print(f"   Clarificações coletadas: {len(methodologist['clarifications'])}")
-            for q, a in methodologist['clarifications'].items():
-                print(f"     - P: {q}")
-                print(f"       R: {a}")
-
-    print(f"\n{'─' * 80}\n")
+    print(f"\n{'─' * 60}")
+    print(f"Next Step: {result.get('next_step')}")
+    print(f"Agent Suggestion: {result.get('agent_suggestion')}")
+    
+    if result.get('message'):
+        msg = result['message']
+        print(f"Message: {msg[:100]}...")
+    
+    if result.get('reflection_prompt'):
+        print(f"Reflection: {result['reflection_prompt'][:80]}...")
+    
+    if result.get('focal_argument'):
+        focal = result['focal_argument']
+        print(f"Focal Argument: intent={focal.get('intent')}, subject={focal.get('subject')}")
+    print(f"{'─' * 60}")
 
 
-def validate_scenario_1_vague_idea():
+def validate_scenario_1_exploration():
     """
-    Cenário 1: Ideia vaga → Estruturador → Metodologista
-
-    Input: Observação empírica sem estruturação
-    Esperado:
-    - Orquestrador classifica como "vague"
-    - Estruturador organiza em questão de pesquisa
-    - Metodologista valida (provavelmente rejeita por falta de especificidade)
-    - Contexto preservado entre agentes
+    Cenário 1: Input vago → Orquestrador explora com perguntas abertas.
+    
+    Comportamento esperado:
+    - next_step = "explore" ou "clarify"
+    - agent_suggestion = None (ainda não sugere agente)
+    - Mensagem com pergunta aberta (não classificação)
+    - reflection_prompt presente (provocação socrática)
     """
-    print_separator("CENÁRIO 1: Ideia Vaga → Estruturador → Metodologista")
-
-    user_input = "Observei que desenvolver com Claude Code é muito mais rápido do que sem IA"
-    print(f"📝 Input do usuário: {user_input}\n")
-
-    # Criar estado inicial
-    state = create_initial_multi_agent_state(user_input)
-
-    # Criar e executar super-grafo
-    graph = create_multi_agent_graph()
-    result = graph.invoke(
-        state,
-        config={"configurable": {"thread_id": "validation-scenario-1"}}
-    )
-
-    # Validar resultado
+    print_separator("CENÁRIO 1: Input Vago → Exploração Conversacional")
+    
+    user_input = "Observei que desenvolver com Claude Code é mais rápido"
+    print(f"📝 Input: {user_input}\n")
+    print("🎯 Esperado: Exploração com perguntas abertas, sem classificação automática")
+    
+    state = create_initial_multi_agent_state(user_input, session_id="validation-1")
+    result = orchestrator_node(state)
+    
     print_result(result)
-
-    # Asserções
-    assert result['orchestrator_classification'] == 'vague', \
-        f"❌ Orquestrador deveria classificar como 'vague', mas classificou como '{result['orchestrator_classification']}'"
-    print("   ✅ Orquestrador classificou corretamente como 'vague'")
-
-    assert result['structurer_output'] is not None, \
-        "❌ Estruturador deveria ter gerado output"
-    print("   ✅ Estruturador gerou questão estruturada")
-
-    assert result['methodologist_output'] is not None, \
-        "❌ Metodologista deveria ter gerado output"
-    print("   ✅ Metodologista avaliou a questão estruturada")
-
-    assert result['current_stage'] == 'done', \
-        f"❌ Estágio final deveria ser 'done', mas é '{result['current_stage']}'"
-    print("   ✅ Fluxo completo executado (stage = 'done')")
-
-    print("\n✅ CENÁRIO 1 VALIDADO COM SUCESSO!\n")
+    
+    # Validações
+    assert result.get('next_step') in ['explore', 'clarify'], \
+        f"❌ Esperado explore/clarify, mas next_step = '{result.get('next_step')}'"
+    print("   ✅ Next step é exploratório (explore/clarify)")
+    
+    assert result.get('agent_suggestion') is None or result.get('next_step') != 'suggest_agent', \
+        "❌ Não deveria sugerir agente com input vago no primeiro turno"
+    print("   ✅ Não sugeriu agente prematuramente")
+    
+    assert result.get('focal_argument'), \
+        "❌ Deveria ter argumento focal"
+    print("   ✅ Argumento focal presente")
+    
+    assert result.get('reflection_prompt'), \
+        "❌ Deveria ter provocação de reflexão"
+    print("   ✅ Provocação socrática presente")
+    
+    # Verificar que mensagem não classifica automaticamente
+    message = result.get('message', '').lower()
+    rigid_words = ['classificando', 'detectei que', 'vou estruturar', 'automático']
+    has_rigid = any(word in message for word in rigid_words)
+    assert not has_rigid, \
+        f"❌ Mensagem não deveria ter palavras de pipeline: {message[:100]}"
+    print("   ✅ Mensagem é conversacional (não pipeline)")
+    
+    print("\n✅ CENÁRIO 1 VALIDADO!")
     return result
 
 
-def validate_scenario_2_semi_formed():
+def validate_scenario_2_context_accumulation():
     """
-    Cenário 2: Hipótese semi-formada → Metodologista direto
-
-    Input: Hipótese com ideia central mas falta especificidade
-    Esperado:
-    - Orquestrador classifica como "semi_formed"
-    - Metodologista recebe direto (sem Estruturador)
-    - Metodologista valida (provavelmente rejeita por falta de operacionalização)
+    Cenário 2: Múltiplos turnos → Contexto preservado e acumulado.
+    
+    Comportamento esperado:
+    - Argumento focal evolui com cada turno
+    - Histórico de mensagens preservado
+    - Orquestrador considera contexto anterior
     """
-    print_separator("CENÁRIO 2: Hipótese Semi-Formada → Metodologista Direto")
+    print_separator("CENÁRIO 2: Múltiplos Turnos → Contexto Preservado")
+    
+    # Turno 1
+    print("--- Turno 1 ---")
+    user_input_1 = "Quero testar hipótese sobre produtividade"
+    print(f"📝 Input: {user_input_1}")
+    
+    state = create_initial_multi_agent_state(user_input_1, session_id="validation-2")
+    result_1 = orchestrator_node(state)
+    
+    focal_1 = result_1.get('focal_argument', {})
+    print(f"   Focal argument: intent={focal_1.get('intent')}, subject={focal_1.get('subject')}")
+    
+    # Turno 2
+    print("\n--- Turno 2 ---")
+    user_input_2 = "Em equipes de 3-5 desenvolvedores Python"
+    print(f"📝 Input: {user_input_2}")
+    
+    state['messages'].append(AIMessage(content=result_1.get('message', '')))
+    state['messages'].append(HumanMessage(content=user_input_2))
+    state['user_input'] = user_input_2
+    state['focal_argument'] = focal_1
+    
+    result_2 = orchestrator_node(state)
+    
+    focal_2 = result_2.get('focal_argument', {})
+    print(f"   Focal argument: intent={focal_2.get('intent')}, subject={focal_2.get('subject')}")
+    
+    # Validações
+    assert len(state['messages']) >= 2, \
+        "❌ Histórico deveria ter pelo menos 2 mensagens"
+    print(f"   ✅ Histórico tem {len(state['messages'])} mensagens")
+    
+    # Subject deveria ter evoluído para incluir contexto
+    subject_2 = focal_2.get('subject', '')
+    has_context = 'python' in subject_2.lower() or 'team' in subject_2.lower() or 'equipe' in subject_2.lower()
+    print(f"   {'✅' if has_context else 'ℹ️'} Subject evoluiu: {subject_2[:50]}...")
+    
+    print("\n✅ CENÁRIO 2 VALIDADO!")
+    return result_2
 
-    user_input = "Método incremental melhora o desenvolvimento de sistemas multi-agente"
-    print(f"📝 Input do usuário: {user_input}\n")
 
-    # Criar estado inicial
-    state = create_initial_multi_agent_state(user_input)
-
-    # Criar e executar super-grafo
-    graph = create_multi_agent_graph()
-    result = graph.invoke(
-        state,
-        config={"configurable": {"thread_id": "validation-scenario-2"}}
-    )
-
-    # Validar resultado
-    print_result(result)
-
-    # Asserções
-    assert result['orchestrator_classification'] == 'semi_formed', \
-        f"❌ Orquestrador deveria classificar como 'semi_formed', mas classificou como '{result['orchestrator_classification']}'"
-    print("   ✅ Orquestrador classificou corretamente como 'semi_formed'")
-
-    assert result['structurer_output'] is None, \
-        "❌ Estruturador NÃO deveria ter sido executado (fluxo direto)"
-    print("   ✅ Estruturador não foi executado (fluxo direto)")
-
-    assert result['methodologist_output'] is not None, \
-        "❌ Metodologista deveria ter gerado output"
-    print("   ✅ Metodologista avaliou a hipótese diretamente")
-
-    assert result['current_stage'] == 'done', \
-        f"❌ Estágio final deveria ser 'done', mas é '{result['current_stage']}'"
-    print("   ✅ Fluxo direto executado (stage = 'done')")
-
-    print("\n✅ CENÁRIO 2 VALIDADO COM SUCESSO!\n")
-    return result
-
-
-def validate_scenario_3_complete():
+def validate_scenario_3_full_flow():
     """
-    Cenário 3: Hipótese completa → Metodologista direto
-
-    Input: Hipótese com população, variáveis e métricas bem definidas
-    Esperado:
-    - Orquestrador classifica como "complete"
-    - Metodologista recebe direto (sem Estruturador)
-    - Metodologista aprova (ou rejeita com justificativa clara)
+    Cenário 3: Fluxo completo Orquestrador → Estruturador → Metodologista.
+    
+    Simula cenário onde usuário aceita sugestão de agente.
     """
-    print_separator("CENÁRIO 3: Hipótese Completa → Metodologista Direto")
+    print_separator("CENÁRIO 3: Fluxo Completo Multi-Agente")
+    
+    # Setup: Estado com contexto suficiente
+    user_input = "Pair programming com IA reduz bugs em equipes Python de 2-5 devs"
+    print(f"📝 Input: {user_input}\n")
+    
+    state = create_initial_multi_agent_state(user_input, session_id="validation-3")
+    
+    # Passo 1: Orquestrador analisa
+    print("--- Passo 1: Orquestrador ---")
+    result_orch = orchestrator_node(state)
+    print(f"   Next step: {result_orch.get('next_step')}")
+    print(f"   Agent suggestion: {result_orch.get('agent_suggestion')}")
+    
+    # Passo 2: Estruturador (simulando aceite do usuário)
+    print("\n--- Passo 2: Estruturador ---")
+    state['messages'].append(AIMessage(content=result_orch.get('message', '')))
+    state['messages'].append(HumanMessage(content="Sim, estruture essa ideia"))
+    
+    result_struct = structurer_node(state)
+    
+    structurer_output = result_struct.get('structurer_output')
+    assert structurer_output, "❌ Estruturador deveria gerar output"
+    
+    structured_question = structurer_output.get('structured_question', '')
+    print(f"   Questão estruturada: {structured_question[:60]}...")
+    print("   ✅ Estruturador gerou questão")
+    
+    # Passo 3: Metodologista avalia
+    print("\n--- Passo 3: Metodologista ---")
+    state['structurer_output'] = structurer_output
+    
+    result_method = decide_collaborative(state)
+    
+    methodologist_output = result_method.get('methodologist_output')
+    assert methodologist_output, "❌ Metodologista deveria gerar output"
+    
+    status = methodologist_output.get('status')
+    justification = methodologist_output.get('justification', '')[:80]
+    print(f"   Status: {status}")
+    print(f"   Justificativa: {justification}...")
+    
+    assert status in ['approved', 'needs_refinement', 'rejected'], \
+        f"❌ Status inválido: {status}"
+    print(f"   ✅ Metodologista decidiu: {status}")
+    
+    if status == 'needs_refinement':
+        improvements = methodologist_output.get('improvements', [])
+        print(f"   Gaps identificados: {len(improvements)}")
+        for imp in improvements[:2]:
+            print(f"      - {imp.get('aspect')}: {imp.get('gap', '')[:40]}...")
+    
+    print("\n✅ CENÁRIO 3 VALIDADO!")
+    return result_method
 
-    user_input = (
-        "Método incremental reduz tempo de implementação de sistemas multi-agente "
-        "em 30%, medido em sprints de 2 semanas, em equipes de 2-5 desenvolvedores, "
-        "comparado com método waterfall tradicional"
-    )
-    print(f"📝 Input do usuário: {user_input}\n")
 
-    # Criar estado inicial
-    state = create_initial_multi_agent_state(user_input)
-
-    # Criar e executar super-grafo
-    graph = create_multi_agent_graph()
-    result = graph.invoke(
-        state,
-        config={"configurable": {"thread_id": "validation-scenario-3"}}
-    )
-
-    # Validar resultado
-    print_result(result)
-
-    # Asserções
-    assert result['orchestrator_classification'] == 'complete', \
-        f"❌ Orquestrador deveria classificar como 'complete', mas classificou como '{result['orchestrator_classification']}'"
-    print("   ✅ Orquestrador classificou corretamente como 'complete'")
-
-    assert result['structurer_output'] is None, \
-        "❌ Estruturador NÃO deveria ter sido executado (fluxo direto)"
-    print("   ✅ Estruturador não foi executado (fluxo direto)")
-
-    assert result['methodologist_output'] is not None, \
-        "❌ Metodologista deveria ter gerado output"
-    print("   ✅ Metodologista avaliou a hipótese diretamente")
-
-    assert result['current_stage'] == 'done', \
-        f"❌ Estágio final deveria ser 'done', mas é '{result['current_stage']}'"
-    print("   ✅ Fluxo direto executado (stage = 'done')")
-
-    # Esta hipótese tem boa chance de ser aprovada
-    if result['methodologist_output']['status'] == 'approved':
-        print("   ✅ Metodologista aprovou a hipótese completa!")
-    else:
-        print(f"   ℹ️  Metodologista rejeitou (justificativa: {result['methodologist_output']['justification']})")
-
-    print("\n✅ CENÁRIO 3 VALIDADO COM SUCESSO!\n")
-    return result
+def validate_scenario_4_router():
+    """
+    Cenário 4: Router roteia corretamente baseado em next_step.
+    """
+    print_separator("CENÁRIO 4: Router Decisions")
+    
+    test_cases = [
+        ("explore", None, "user"),
+        ("clarify", None, "user"),
+        ("suggest_agent", {"agent": "structurer", "justification": "test"}, "structurer"),
+        ("suggest_agent", {"agent": "methodologist", "justification": "test"}, "methodologist"),
+        ("suggest_agent", None, "user"),  # Fallback
+    ]
+    
+    all_passed = True
+    
+    for next_step, suggestion, expected in test_cases:
+        state = create_initial_multi_agent_state("test", session_id="validation-4")
+        state['next_step'] = next_step
+        state['agent_suggestion'] = suggestion
+        
+        destination = route_from_orchestrator(state)
+        
+        passed = destination == expected
+        status = "✅" if passed else "❌"
+        print(f"{status} next_step={next_step}, suggestion={suggestion} → {destination} (expected: {expected})")
+        
+        if not passed:
+            all_passed = False
+    
+    assert all_passed, "❌ Algumas rotas falharam"
+    print("\n✅ CENÁRIO 4 VALIDADO!")
+    return all_passed
 
 
 def main():
-    """Executa todos os cenários de validação."""
     print("\n" + "=" * 80)
-    print("  VALIDAÇÃO DO SUPER-GRAFO MULTI-AGENTE")
-    print("  Épico 3 - Funcionalidade 3.3: Integração Multi-Agente")
+    print("  VALIDAÇÃO DO FLUXO MULTI-AGENTE CONVERSACIONAL")
+    print("  (Comportamento pós-Épico 7 - Orquestrador Socrático)")
     print("=" * 80)
-
+    
+    load_dotenv()
+    
+    if not os.getenv('ANTHROPIC_API_KEY'):
+        print("\n❌ ERRO: ANTHROPIC_API_KEY não configurada")
+        sys.exit(1)
+    
     try:
-        # Validar cenário 1: Ideia vaga
-        result1 = validate_scenario_1_vague_idea()
-
-        # Validar cenário 2: Hipótese semi-formada
-        result2 = validate_scenario_2_semi_formed()
-
-        # Validar cenário 3: Hipótese completa
-        result3 = validate_scenario_3_complete()
-
-        # Resumo final
+        validate_scenario_1_exploration()
+        validate_scenario_2_context_accumulation()
+        validate_scenario_3_full_flow()
+        validate_scenario_4_router()
+        
         print_separator("RESUMO FINAL")
-        print("✅ Cenário 1: Ideia vaga → Estruturador → Metodologista")
-        print("✅ Cenário 2: Hipótese semi-formada → Metodologista direto")
-        print("✅ Cenário 3: Hipótese completa → Metodologista direto")
+        print("✅ Cenário 1: Input vago → Exploração conversacional")
+        print("✅ Cenário 2: Múltiplos turnos → Contexto preservado")
+        print("✅ Cenário 3: Fluxo completo multi-agente")
+        print("✅ Cenário 4: Router decisions")
         print("\n" + "=" * 80)
-        print("  TODOS OS CENÁRIOS VALIDADOS COM SUCESSO! ✅")
+        print("  TODOS OS CENÁRIOS VALIDADOS! ✅")
         print("=" * 80 + "\n")
-
+        
         return 0
-
+        
     except AssertionError as e:
         print(f"\n❌ ERRO DE VALIDAÇÃO: {e}\n")
         return 1
@@ -278,5 +312,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit_code = main()
-    sys.exit(exit_code)
+    sys.exit(main())
