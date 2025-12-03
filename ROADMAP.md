@@ -128,67 +128,12 @@
 - `docs/interface/navigation_philosophy.md` - Filosofia de navegação
 - `docs/interface/web.md` - Especificação técnica completa
 
-### Funcionalidades:
-
-#### 14.1 Sidebar: Conversas Recentes (Ajuste)
-- **Descrição:** Ajustar sidebar para mostrar apenas conversas (não ideias). Adicionar botões de navegação para páginas dedicadas.
-- **Critérios de Aceite:**
-  - Remover listagem de ideias da sidebar
-  - Mostrar apenas últimas 5 conversas (reduzir de 10 para 5)
-  - Formato: "Título da conversa · Timestamp relativo" ("5min atrás", "2h atrás")
-  - Conversa ativa destacada (bold, background diferente)
-  - Adicionar botão [📖 Meus Pensamentos] que redireciona para `/pensamentos`
-  - Adicionar botão [🏷️ Catálogo] que redireciona para `/catalogo` (desabilitado até Épico 13)
-  - Botão [+ Nova Conversa] mantido
-
-#### 14.2 Página: Meus Pensamentos
-- **Descrição:** Criar página dedicada (`/pensamentos`) com grid de cards mostrando ideias cristalizadas durante conversas.
-- **Critérios de Aceite:**
-  - URL: `/pensamentos`
-  - Grid de cards (2 colunas, responsivo) com preview de cada ideia
-  - Card mostra: título, badge de status, # argumentos, # conceitos, timestamp relativo
-  - Badges de status: 🔍 Explorando (amarelo), 📝 Estruturada (azul), ✅ Validada (verde)
-  - Busca por título (LIKE query, case-insensitive)
-  - Filtros: status (exploring, structured, validated)
-  - Card clicável → redireciona para `/pensamentos/{idea_id}`
-
-#### 14.3 Página: Detalhes da Ideia
-- **Descrição:** Criar página dedicada (`/pensamentos/{idea_id}`) mostrando detalhes completos de uma ideia com argumentos, conceitos e conversas relacionadas.
-- **Critérios de Aceite:**
-  - URL única: `/pensamentos/{idea_id}`
-  - Mostra: título da ideia, badge de status, timestamp de última atualização
-  - Seção "Argumentos": lista versões (V1, V2, V3) com argumento focal destacado
-  - Cada argumento mostra: claim (preview 100 chars), # premises, # assumptions
-  - Link "Ver detalhes de V{n}" → expande argumento completo (claim, premises, assumptions)
-  - Seção "Conceitos": lista conceitos usados (texto simples - navegação será adicionada no Épico 13)
-  - Seção "Conversas relacionadas": lista threads com timestamp ("18/11, 14:56")
-  - Botão [🔄 Continuar explorando] → cria novo thread_id e redireciona pro chat
-  - Botão [📝 Editar título] → permite editar título inline (save on blur)
-
-#### 14.4 Feedback Visual Forte
-- **Descrição:** Input desabilitado + barra inline "Sistema pensando..." com texto dinâmico durante processamento.
-- **Critérios de Aceite:**
-  - Ao enviar mensagem: input desabilita imediatamente (opacidade 50%, cursor not-allowed)
-  - Barra inline aparece abaixo da última mensagem: "🤖 Sistema pensando..." com animação suave
-  - Texto dinâmico muda conforme agente ativo:
-    - "⚡ Analisando sua mensagem..."
-    - "🎯 Orquestrador pensando..."
-    - "📝 Estruturador organizando..."
-    - "🔬 Metodologista validando..."
-  - Ao receber resposta: barra some com fade-out + input habilita
-  - Implementação: `st.spinner()` customizado ou CSS + st.session_state["processing"]
-
-#### 14.5 Bugfix: Restaurar Contexto ao Alternar Conversa (CRÍTICO)
-- **Descrição:** Corrigir bug onde clicar em conversa na sidebar não restaura histórico de mensagens (chat fica branco).
-- **Critérios de Aceite:**
-  - Função `switch_idea()` ou equivalente deve carregar `thread_id` correto
-  - Deve usar `SqliteSaver` para restaurar checkpoints da conversa selecionada
-  - Deve restaurar histórico de mensagens completo (`st.session_state["messages"]`)
-  - Deve restaurar argumento focal (`current_argument_id`) se existir
-  - Chat deve exibir histórico completo após clicar em conversa
-  - Bastidores deve atualizar com contexto da conversa (status, argumento focal)
-  - Adicionar logs DEBUG para rastrear: `thread_id` carregado, # checkpoints encontrados, # mensagens restauradas
-  - Validação: clicar em conversa → chat mostra histórico, não branco
+**Funcionalidades Implementadas:**
+- ✅ Sidebar com conversas recentes (últimas 5) e botões de navegação
+- ✅ Página `/pensamentos` com grid de cards de ideias cristalizadas
+- ✅ Página `/pensamentos/{idea_id}` com detalhes completos (argumentos, conceitos, conversas)
+- ✅ Feedback visual forte durante processamento (input desabilitado + barra inline dinâmica)
+- ✅ Restauração de contexto ao alternar conversas (bugfix crítico)
 
 ---
 
