@@ -12,9 +12,10 @@
 
 ### ✅ Concluídos
 - Infraestrutura base completa
-- **ÉPICO 2**: Sidebar (navegação minimalista)
-- **ÉPICO 3**: Bastidores (3.1-3.3 ✅, 3.4 adiado)
-- **ÉPICO 4**: Contexto (seção colapsável + custo acumulado + modal detalhes) - *pendências: indicador solidez, chat de página ideia*
+- **ÉPICO 1**: Convergência Orgânica
+- **ÉPICO 2**: Sidebar
+- **ÉPICO 3**: Bastidores
+- **ÉPICO 4**: Contexto
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
@@ -22,7 +23,6 @@
 ### ⏳ Épicos Planejados
 
 #### Planejados (refinados)
-- **ÉPICO 1**: Convergência Orgânica (refinado)
 - **ÉPICO 5**: UX Polish (refinado)
 
 #### Planejados (não refinados)
@@ -34,9 +34,9 @@
 - **ÉPICO 11**: Escritor (não refinado)
 
 **Nota sobre Dependências:**
-- Épicos 1, 2, 3, 4 podem ser desenvolvidos em paralelo (independentes)
+- Épicos 1, 2, 3, 4 concluídos (independentes)
 - Épico 5 depende dos Épicos 3-4 (usa nova estrutura de Contexto/Bastidores)
-- Épico 6 depende do Épico 1 (valida comportamento de convergência)
+- Épico 6 depende do Épico 1 (valida comportamento de convergência) - Épico 1 já concluído
 - Épicos 7-11 seguem sequência: Integração → Conceitos → Ontologia → Pesquisador → Escritor
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
@@ -45,195 +45,9 @@
 
 ---
 
-## ÉPICO 1: Convergência Orgânica
-
-**Objetivo:** Sistema transiciona entre agentes de forma fluida, sem pedir permissão. Orquestrador atua como "mente observadora" que sintetiza trabalho dos agentes em resposta coesa.
-
-**Status:** ⏳ Planejado (refinado)
-
-**Problema atual:**
-- Orquestrador pergunta "Posso chamar X?" e aguarda confirmação
-- CLI bloqueia fluxo pedindo input do usuário
-- Usuário não vê valor do sistema multi-agente
-
-**Comportamento desejado:**
-- Agentes trabalham automaticamente quando contexto suficiente
-- Orquestrador faz curadoria da resposta final (tom único)
-- Transparência nos bastidores (quem trabalhou), não na conversa principal
-- Usuário confirma entendimento, não permissão
-
-**Dependências:**
-- Nenhuma
-
-**Consulte:**
-- `docs/vision/conversation_patterns.md` - Padrões de conversação
-- `docs/orchestration/conversational_orchestrator/` - Spec do Orquestrador
-- `docs/analysis/transicao_fluida_impacto.md` - Análise de impacto completa
-
-### Funcionalidades:
-
-#### 1.1 Ajustar Prompts do Orquestrador
-
-**Descrição:** Modificar `ORCHESTRATOR_MVP_PROMPT_V1` e `ORCHESTRATOR_SOCRATIC_PROMPT_V1` para chamar agentes automaticamente.
-
-**Critérios de Aceite:**
-- Deve remover instruções de "sugerir agente e aguardar confirmação"
-- Deve adicionar instrução: "Quando contexto suficiente, CHAME o agente automaticamente"
-- Deve adicionar instrução de curadoria: "Apresente resultado como se fosse você, em tom coeso"
-- Deve manter comportamento socrático (provocação, detecção de suposições)
-- Deve atualizar exemplos de output para mostrar transição fluida
-
-#### 1.2 Remover Confirmação Manual no CLI
-
-**Descrição:** Remover bloco de confirmação em `cli/chat.py` (linhas 288-298) que bloqueia transições automáticas.
-
-**Critérios de Aceite:**
-- Deve remover prompt "Você quer que eu chame este agente? (sim/não)"
-- Deve chamar agente automaticamente quando `next_step == "suggest_agent"`
-- Deve exibir transparência nos bastidores: "[Bastidores: Estruturador trabalhou]"
-- Deve exibir resposta curada do Orquestrador
-
-#### 1.3 Garantir Curadoria Funciona
-
-**Descrição:** Verificar que Orquestrador recebe resultado do agente e apresenta resposta sintetizada.
-
-**Critérios de Aceite:**
-- Após agente trabalhar, Orquestrador deve receber estado atualizado
-- Orquestrador deve apresentar resultado em tom único (não "O Estruturador disse X")
-- Deve confirmar entendimento: "Organizei sua ideia: [resultado]. Isso captura o que você quer?"
-- Fluxo: Orquestrador → Agente → Orquestrador (curadoria) → Usuário
-
-#### 1.4 Atualizar Testes
-
-**Descrição:** Atualizar testes para verificar transição automática.
-
-**Critérios de Aceite:**
-- Deve atualizar `tests/unit/test_orchestrator.py` (remover asserts de "Posso chamar")
-- Deve atualizar `scripts/flows/validate_conversation_flow.py`
-- Deve adicionar teste que verifica chamada automática quando contexto suficiente
-- Deve adicionar teste que verifica curadoria
-
----
-
-## ÉPICO 2: Sidebar ✅
-
-**Objetivo:** Simplificar sidebar para navegação limpa, apenas links para páginas.
-
-**Status:** ✅ Concluído
-
-**Dependências:** Nenhuma
-
-### Funcionalidades:
-
-#### 2.1 Links de navegação ✅
-
-- **Descrição:** Sidebar com links para páginas dedicadas e botão de nova conversa
-- **Critérios de Aceite:**
-  - ✅ Link "📖 Pensamentos" → `/pensamentos`
-  - ✅ Link "💬 Conversas" → `/historico` (página de histórico criada)
-  - ✅ Botão "+ Nova conversa" → inicia chat novo
-  - ✅ Links com ícones, sem header/logo
-  - ✅ Sidebar disponível em todas as páginas
-  - ⏸️ Link "🏷️ Catálogo" removido (será adicionado quando implementado)
-
----
-
-## ÉPICO 3: Bastidores
-
-**Objetivo:** Reorganizar bastidores com cards de pensamento e histórico.
-
-**Status:** ✅ Concluído (3.1-3.3), ⏸️ 3.4 adiado
-
-**Dependências:** Nenhuma
-
-### Funcionalidades:
-
-#### 3.1 Remover toggle "Ver raciocínio" ✅
-
-- **Descrição:** Bastidores sempre visíveis como seção colapsável, sem toggle separado
-- **Critérios de Aceite:**
-  - ✅ Removido toggle "🔍 Ver raciocínio"
-  - ✅ Bastidores visíveis como seção colapsável (header clicável)
-  - ✅ Usuário expande/colapsa clicando no header "📊 Bastidores"
-
-#### 3.2 Card de pensamento atual ✅
-
-- **Descrição:** Card mostrando output user-friendly do agente ativo
-- **Critérios de Aceite:**
-  - ✅ Mostra emoji + nome do agente (🎯 Orquestrador, 📝 Estruturador, 🔬 Metodologista)
-  - ✅ Mostra pensamento resumido (~280 chars)
-  - ✅ Link "Ver completo" → abre modal com raciocínio completo
-  - ✅ Estado vazio: 🤖 + "Aguardando..." centralizado
-
-#### 3.3 Card de histórico ✅
-
-- **Descrição:** Card mostrando histórico de contribuições dos agentes
-- **Critérios de Aceite:**
-  - ✅ Mostra últimos 2 agentes anteriores (atual no card de pensamento)
-  - ✅ Formato: lista simples com emoji + nome curto + horário
-  - ✅ Link "Ver histórico" → abre modal com lista completa
-  - ✅ MVP: lista simples (renomeado de "Timeline" para "Histórico")
-
-#### 3.4 Indicador de novidade ⏸️ ADIADO
-
-- **Descrição:** Indicador sutil quando há atualização nos bastidores
-- **Status:** Adiado - overhead sem valor no MVP (Streamlit não tem eventos em tempo real)
-- **Critérios de Aceite:**
-  - Mostrar indicador no header quando há novidade (🔴 ou "(+2)")
-  - Indicador some quando usuário expande bastidores
-  - Não expande automaticamente (não distrai usuário)
-- **Nota:** Retomar quando houver SSE/WebSocket para eventos em tempo real
-
----
-
-## ✅ ÉPICO 4: Contexto
-
-**Objetivo:** Nova seção acima dos bastidores mostrando ideia ativa e informações da conversa.
-
-**Status:** ✅ Concluído (com pendências documentadas abaixo)
-
-**Dependências:** Nenhuma
-
-### Funcionalidades:
-
-#### 4.1 Seção de contexto
-
-- **Descrição:** Seção colapsável acima dos bastidores no painel direito
-- **Critérios de Aceite:**
-  - Deve ter header "💡 Contexto" clicável para expandir/colapsar
-  - Posicionada acima dos Bastidores no painel direito
-
-#### 4.2 Ideia ativa
-
-- **Descrição:** Mostrar informações da ideia sendo trabalhada
-- **Critérios de Aceite:**
-  - ✅ Deve mostrar título da ideia
-  - ✅ Deve mostrar status (🔍 Explorando | 📝 Estruturada | ✅ Validada)
-  - ⏳ Deve mostrar indicador de solidez (quando disponível) - **PENDENTE: requer Épico 7**
-  - ✅ Estado vazio: seção em branco (não mostrar nada até ter ideia)
-  - ✅ Atualiza em tempo real quando ideia é associada/atualizada
-  - ⏳ Se chat iniciado a partir de página de ideia → já começa com ideia associada - **PENDENTE: verificar**
-
-#### 4.3 Custo acumulado
-
-- **Descrição:** Mostrar custo total da conversa na seção de contexto
-- **Critérios de Aceite:**
-  - Deve mostrar custo acumulado (ex: "💰 R$ 0,15 total")
-  - Clicável para ver detalhes (tokens, modelo usado)
-  - Atualiza a cada mensagem
-
-#### 4.4 Modal de detalhes
-
-- **Descrição:** Modal para ver detalhes expandidos do contexto
-- **Critérios de Aceite:**
-  - Abre ao clicar no custo ou botão "expandir"
-  - Deve mostrar: ideia completa, custo detalhado por mensagem, modelo usado, total de tokens
-
----
-
 ## ÉPICO 5: UX Polish
 
-**Objetivo:** Ajustes de experiência do usuário: input de chat, métricas discretas, custo em R$.
+**Objetivo:** Ajustes de experiência do usuário: métricas discretas, custo em R$.
 
 **Status:** ⏳ Planejado (refinado)
 
@@ -241,14 +55,7 @@
 
 ### Funcionalidades:
 
-#### 5.1 Enter envia mensagem
-
-- **Descrição:** Usar componente nativo do Streamlit para input de chat
-- **Critérios de Aceite:**
-  - Deve usar `st.chat_input` (componente nativo)
-  - Enter envia mensagem (comportamento padrão)
-
-#### 5.2 Métricas discretas
+#### 5.1 Métricas discretas
 
 - **Descrição:** Métricas por mensagem discretas, visíveis sob demanda
 - **Critérios de Aceite:**
@@ -257,7 +64,7 @@
   - Formato: "💰 R$0,02 · 215 tokens · 1.2s"
   - Não mostra métricas sempre visíveis (reduz ruído visual)
 
-#### 5.3 Custo em R$
+#### 5.2 Custo em R$
 
 - **Descrição:** Exibir custos em reais (BRL) ao invés de dólares
 - **Critérios de Aceite:**
@@ -360,6 +167,24 @@
 #### 7.3 Sincronizar checklist com modelo cognitivo em tempo real
 
 - **Descrição:** Sincronizar checklist do ProgressTracker com modelo cognitivo em tempo real, atualizando status conforme argumento evolui.
+
+#### 7.4 Indicador de solidez na seção de contexto
+
+- **Descrição:** Mostrar indicador de solidez da ideia na seção "💡 Contexto" do painel direito.
+- **Critérios de Aceite:**
+  - Deve calcular solidez baseado em modelo cognitivo (solid_grounds, evidências, etc)
+  - Deve exibir indicador visual (ex: barra de progresso ou badge)
+  - Deve atualizar em tempo real conforme argumento evolui
+  - Deve estar integrado com SnapshotManager (quando argumento amadurece)
+
+#### 7.5 Associação automática de ideia ao iniciar chat da página de ideia
+
+- **Descrição:** Quando usuário clica "🔄 Continuar explorando" na página de detalhes da ideia, o chat deve iniciar automaticamente com a ideia associada e exibida na seção "💡 Contexto".
+- **Critérios de Aceite:**
+  - Deve preservar `active_idea_id` entre navegação de páginas (usar query params ou session_state persistente)
+  - Deve exibir ideia na seção de contexto imediatamente ao carregar chat
+  - Deve funcionar mesmo após refresh da página (persistência)
+  - Deve limpar associação quando usuário cria nova conversa
 
 #### 7.x Checklist de Progresso na UI
 

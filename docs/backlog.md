@@ -137,6 +137,7 @@ Otimização de performance para streaming de eventos em tempo real na interface
 - Implementar endpoint SSE: `/events/<session_id>` (FastAPI separado)
 - Interface consome eventos via `EventSource` API (JavaScript)
 - Substituir polling por SSE (elimina delay de 1s)
+- **Indicador de novidade nos bastidores**: Mostrar indicador sutil (🔴 ou "(+2)") no header "📊 Bastidores" quando há atualização, desaparecendo quando usuário expande (requer SSE/WebSocket para eventos em tempo real)
 - Fallback automático para polling se SSE falhar
 - Reconnect automático em caso de desconexão
 - Deploy: 2 processos (Streamlit :8501 + FastAPI :8000)
