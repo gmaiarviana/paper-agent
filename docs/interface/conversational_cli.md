@@ -76,15 +76,10 @@ def run_conversational_cli():
         
         # Decidir próximo passo
         if next_step == "suggest_agent":
-            # Sugeriu chamar agente
-            confirmacao = input("\nVocê: ").strip().lower()
-            
-            if confirmacao in ['sim', 'yes', 's']:
-                # Chamar agente sugerido
-                call_agent(result, thread_id)
-            else:
-                # Usuário não quer chamar, continua conversa
-                continue
+            # Agente trabalhou nos bastidores, Orquestrador apresentou resultado curado
+            # Usuário pode confirmar entendimento ou pedir ajustes
+            # (Chamada automática já aconteceu no grafo)
+            continue
         
         # Se next_step == "explore", loop continua normalmente
 ```

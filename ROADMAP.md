@@ -17,12 +17,20 @@
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 1**: Integração Backend↔Frontend (não refinado)
-- **ÉPICO 2**: Conceitos (não refinado)
-- **ÉPICO 3**: UX Polish (não refinado)
-- **ÉPICO 4**: Alinhamento de Ontologia (não refinado)
-- **ÉPICO 5**: Pesquisador (não refinado)
-- **ÉPICO 6**: Escritor (não refinado)
+- **ÉPICO 1**: Convergência Orgânica (não refinado)
+- **ÉPICO 2**: Qualidade de Testes (LLM-as-Judge) (não refinado)
+- **ÉPICO 3**: Integração Backend↔Frontend (não refinado)
+- **ÉPICO 4**: UX Polish (não refinado)
+- **ÉPICO 5**: Conceitos (não refinado)
+- **ÉPICO 6**: Alinhamento de Ontologia (não refinado)
+- **ÉPICO 7**: Pesquisador (não refinado)
+- **ÉPICO 8**: Escritor (não refinado)
+
+**Nota sobre Dependências:**
+- Épicos 1, 2, 3 e 4 podem ser desenvolvidos em paralelo (independentes)
+- Épico 2 valida o comportamento do Épico 1 (recomendado desenvolver 1 antes de 2)
+- Épico 5 depende do Épico 3 (precisa da integração frontend para exibir conceitos)
+- Épicos 6-8 seguem sequência: Ontologia → Pesquisador → Escritor
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -30,14 +38,135 @@
 
 ---
 
-## ÉPICO 1: Integração Backend↔Frontend
+## ÉPICO 1: Convergência Orgânica
+
+**Objetivo:** Sistema transiciona entre agentes de forma fluida, sem pedir permissão.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Problema:**
+- Orquestrador fica em loop socrático indefinido
+- Transições requerem aceite manual ("Posso chamar X?")
+- Usuário não vê valor do sistema multi-agente
+
+**Modelo desejado:**
+- Agentes trabalham nos bastidores
+- Orquestrador faz curadoria da resposta final
+- Transparência nos bastidores (quem trabalhou)
+- Confirmação de entendimento, não permissão
+
+**Dependências:**
+- Nenhuma
+
+**Consulte:**
+- `docs/vision/conversation_patterns.md` - Padrões de conversação
+- `docs/vision/vision.md` - Visão de produto
+- `docs/agents/methodologist.md` - Documentação do Metodologista
+
+### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
+
+#### 1.1 Ajustar Prompts do Orquestrador
+
+- **Descrição:** Ajustar `ORCHESTRATOR_MVP_PROMPT_V1` e `ORCHESTRATOR_SOCRATIC_PROMPT_V1` para remover "sugerir e aguardar" e adicionar "chamar quando contexto suficiente" com instrução de curadoria.
+- **Critérios de Aceite:**
+  - Deve remover instruções de "sugerir e aguardar permissão"
+  - Deve adicionar instrução: "chamar agente quando contexto suficiente"
+  - Deve adicionar instrução de curadoria da resposta final
+  - Deve manter comportamento socrático (provocação, timing emergente)
+
+#### 1.2 Remover Confirmação Manual no CLI
+
+- **Descrição:** Remover confirmação manual em `cli/chat.py` (linhas 288-298) que bloqueia transições automáticas.
+- **Critérios de Aceite:**
+  - Deve remover prompt "Posso chamar X?" do CLI
+  - Deve permitir transições automáticas entre agentes
+  - Deve manter transparência (mostrar quem trabalhou nos bastidores)
+
+#### 1.3 Atualizar Documentação
+
+- **Descrição:** Atualizar documentação (conversation_patterns, vision, methodologist) para refletir modelo de convergência orgânica.
+- **Critérios de Aceite:**
+  - Deve atualizar `docs/vision/conversation_patterns.md`
+  - Deve atualizar `docs/vision/vision.md`
+  - Deve atualizar `docs/agents/methodologist.md`
+  - Deve remover referências a "pedir permissão"
+
+#### 1.4 Teste Funcional de Convergência
+
+- **Descrição:** Validar que agente é chamado automaticamente quando contexto suficiente.
+- **Critérios de Aceite:**
+  - Deve criar teste funcional que valida chamada automática
+  - Deve validar que não há prompt "Posso chamar X?"
+  - Deve validar que transição é fluida
+
+**Não inclui:**
+- LLM-as-judge (Épico 2)
+- Mudanças no frontend
+- Novos campos no state
+
+---
+
+## ÉPICO 2: Qualidade de Testes (LLM-as-Judge)
+
+**Objetivo:** Validar qualidade conversacional, não apenas estrutura.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Problema:**
+- Testes atuais verificam presença de campos, não qualidade
+- Comportamento socrático impossível de testar deterministicamente
+- Sem garantia de que transições são realmente "fluidas"
+
+**Dependências:**
+- Épico 1 (comportamento a ser testado precisa existir)
+
+**Consulte:**
+- `docs/testing/llm_judge_strategy_analysis.md` - Análise completa de estratégia
+- `docs/testing/strategy.md` - Estratégia de testes
+
+### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
+
+#### 2.1 Infraestrutura LLM-as-Judge
+
+- **Descrição:** Criar infraestrutura base para testes com LLM-as-judge.
+- **Critérios de Aceite:**
+  - Deve criar fixture `llm_judge` em `conftest.py`
+  - Deve criar prompts de avaliação em `utils/test_prompts.py`
+  - Deve adicionar marker `@pytest.mark.llm_judge` em `pytest.ini`
+  - Deve usar modelo Haiku para custo-benefício
+
+#### 2.2 Testes Prioritários (6 arquivos)
+
+- **Descrição:** Adicionar validação LLM-as-judge nos testes prioritários identificados na análise.
+- **Critérios de Aceite:**
+  - Deve adicionar validação em `validate_socratic_behavior.py`
+  - Deve adicionar validação em `validate_conversation_flow.py`
+  - Deve adicionar validação em `validate_multi_agent_flow.py`
+  - Deve adicionar validação em `validate_refinement_loop.py`
+  - Deve adicionar validação em `test_methodologist_smoke.py`
+  - Deve adicionar validação em `test_multi_agent_smoke.py`
+  - Cada teste deve validar qualidade conversacional (score >= 4)
+
+#### 2.3 Documentação de Estratégia
+
+- **Descrição:** Documentar estratégia de testes com LLM-as-judge.
+- **Critérios de Aceite:**
+  - Deve atualizar `docs/testing/strategy.md`
+  - Deve documentar custos estimados
+  - Deve documentar estratégia de execução (local, CI/CD, nightly)
+
+**Custo estimado:** ~$0.01-0.02 por execução completa
+
+---
+
+## ÉPICO 3: Integração Backend↔Frontend
 
 **Objetivo:** Integrar componentes de backend já implementados (SnapshotManager, ProgressTracker) com interface web para completar ciclo de persistência silenciosa e feedback visual de progresso.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Nenhuma
+- Nenhuma (pode ser desenvolvido em paralelo com Épicos 1 e 2)
 
 **Consulte:**
 - `docs/architecture/snapshot_strategy.md` - Estratégia de snapshots
@@ -45,19 +174,19 @@
 
 ### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
 
-#### 1.1 Integrar SnapshotManager no Orquestrador
+#### 3.1 Integrar SnapshotManager no Orquestrador
 
 - **Descrição:** Integrar SnapshotManager no fluxo conversacional para criar snapshots automáticos quando argumento amadurece.
 
-#### 1.2 Exibir ProgressTracker como painel flutuante
+#### 3.2 Exibir ProgressTracker como painel flutuante
 
 - **Descrição:** Exibir ProgressTracker como painel flutuante/fixo na borda direita do chat, mostrando checklist de progresso sincronizado com modelo cognitivo.
 
-#### 1.3 Sincronizar checklist com modelo cognitivo em tempo real
+#### 3.3 Sincronizar checklist com modelo cognitivo em tempo real
 
 - **Descrição:** Sincronizar checklist do ProgressTracker com modelo cognitivo em tempo real, atualizando status conforme argumento evolui.
 
-#### 1.x Checklist de Progresso na UI
+#### 3.x Checklist de Progresso na UI
 
 - **Descrição:** Exibir checklist visual no header do chat sincronizado com modelo cognitivo.
 - **Critérios de Aceite:**
@@ -69,7 +198,7 @@
 
 ---
 
-## ÉPICO 2: Conceitos
+## ÉPICO 5: Conceitos
 
 **Objetivo:** Criar entidade Concept com vetores semânticos para busca por similaridade ("produtividade" encontra "eficiência").
 
@@ -78,7 +207,7 @@
 > **📖 Filosofia:** Conceitos são essências globais (biblioteca única). Ideias referenciam conceitos, não os possuem. Ver `docs/architecture/ontology.md`.
 
 **Dependências:**
-- Épico 1
+- Épico 3
 
 **Consulte:**
 - `docs/architecture/concept_model.md` - Schema técnico de Concept
@@ -87,7 +216,7 @@
 
 ### Funcionalidades:
 
-#### 2.1 Setup ChromaDB Local [POC]
+#### 5.1 Setup ChromaDB Local [POC]
 
 - **Descrição:** Configurar ChromaDB para armazenar vetores semânticos de conceitos (gratuito, local).
 - **Critérios de Aceite:**
@@ -96,7 +225,7 @@
   - Deve criar collection: `concepts` (metadata: label, essence, variations)
   - Deve usar modelo: `all-MiniLM-L6-v2` (384 dim, 80MB download)
 
-#### 2.2 Schema SQLite de Concept [POC]
+#### 5.2 Schema SQLite de Concept [POC]
 
 - **Descrição:** Criar tabelas `concepts` e `idea_concepts` para metadados estruturados e relacionamento N:N.
 - **Critérios de Aceite:**
@@ -106,7 +235,7 @@
   - Deve criar índices: ON label, ON idea_id, ON concept_id
   - Conceitos são globais (biblioteca única), ideias referenciam via `idea_concepts`
 
-#### 2.3 Pipeline de Detecção de Conceitos [POC]
+#### 5.3 Pipeline de Detecção de Conceitos [POC]
 
 - **Descrição:** LLM extrai conceitos-chave quando argumento amadurece (ao criar snapshot de Idea) e salva em ChromaDB + SQLite.
 - **Critérios de Aceite:**
@@ -117,7 +246,7 @@
   - Deve criar registro em `idea_concepts` (linking N:N)
   - **Não** deve executar detecção a cada mensagem (apenas no snapshot)
 
-#### 2.4 Busca Semântica [POC]
+#### 5.4 Busca Semântica [POC]
 
 - **Descrição:** Buscar conceitos similares via embeddings (threshold > 0.80 = mesmo conceito).
 - **Critérios de Aceite:**
@@ -126,7 +255,7 @@
   - Deve usar threshold 0.80 para deduplicação ("produtividade" = "eficiência")
   - Deve retornar lista ordenada por similaridade
 
-#### 2.5 Variations Automáticas [Protótipo]
+#### 5.5 Variations Automáticas [Protótipo]
 
 - **Descrição:** Sistema detecta variações linguísticas e adiciona ao Concept existente (colaboração = cooperação) com thresholds diferenciados.
 - **Critérios de Aceite:**
@@ -136,7 +265,7 @@
   - Deve adicionar variation ao Concept existente se confirmado
   - Deve criar novo Concept se usuário rejeitar ou similaridade < 0.80
 
-#### 2.6 Mostrar Conceitos na Interface [Protótipo]
+#### 5.6 Mostrar Conceitos na Interface [Protótipo]
 
 - **Descrição:** Exibir conceitos detectados em dois níveis: preview discreto na página da ideia + exploração completa no Catálogo.
 - **Critérios de Aceite:**
@@ -152,21 +281,21 @@
 
 ---
 
-## ÉPICO 3: UX Polish
+## ÉPICO 4: UX Polish
 
 **Objetivo:** Polimento de interface web baseado em feedbacks do usuário (Enter envia, custo em R$, métricas discretas).
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Nenhuma
+- Nenhuma (pode ser desenvolvido em paralelo com outros épicos)
 
 **Consulte:**
 - `docs/interface/web.md` - Especificação de interface completa
 
 ### Funcionalidades:
 
-#### 3.1 Enter Envia, Ctrl+Enter Pula Linha
+#### 4.1 Enter Envia, Ctrl+Enter Pula Linha
 
 - **Descrição:** Textarea com comportamento padrão (Enter envia, Ctrl+Enter pula linha).
 - **Critérios de Aceite:**
@@ -175,7 +304,7 @@
   - Deve seguir padrão Claude.ai/ChatGPT
   - Deve funcionar cross-browser (Chrome, Firefox, Safari)
 
-#### 3.2 Custo em R$
+#### 4.2 Custo em R$
 
 - **Descrição:** Exibir custos em reais (BRL) ao invés de dólares (USD).
 - **Critérios de Aceite:**
@@ -184,7 +313,7 @@
   - Deve adicionar config em `.env`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.2`
   - Deve permitir fallback para USD se conversão falhar
 
-#### 3.3 Métricas Inline Mais Discretas
+#### 4.3 Métricas Inline Mais Discretas
 
 - **Descrição:** Tornar métricas inline (tokens, custo, tempo) mais discretas visualmente.
 - **Critérios de Aceite:**
@@ -193,7 +322,7 @@
   - Deve posicionar no canto inferior direito da mensagem
   - Deve manter formato: "💰 R$0.02 · 215 tokens · 1.2s"
 
-#### 3.4 Timeline Colapsada por Padrão
+#### 4.4 Timeline Colapsada por Padrão
 
 - **Descrição:** Bastidores com timeline de agentes anteriores colapsada inicialmente.
 - **Critérios de Aceite:**
@@ -202,7 +331,7 @@
   - Deve expandir ao clicar (mostrar histórico de agentes)
   - Deve persistir estado (colapsado/expandido) durante sessão
 
-#### 3.5 Botão "Copiar Raciocínio"
+#### 4.5 Botão "Copiar Raciocínio"
 
 - **Descrição:** Modal de raciocínio completo com botão para copiar texto.
 - **Critérios de Aceite:**
@@ -213,7 +342,7 @@
 
 ---
 
-## ÉPICO 4: Alinhamento de Ontologia
+## ÉPICO 6: Alinhamento de Ontologia
 
 **Objetivo:** Migrar código atual (premises/assumptions como strings separadas) para nova ontologia (Proposição unificada com solidez derivada de Evidências).
 
@@ -222,7 +351,7 @@
 **Abordagem:** Evolução gradual, não refatoração big-bang.
 
 **Dependências:**
-- Épicos 1-3 concluídos
+- Épicos 3-4 concluídos
 
 **Referências:**
 - `docs/architecture/ontology.md` - Nova ontologia
@@ -230,25 +359,25 @@
 
 ---
 
-## ÉPICO 5: Pesquisador
+## ÉPICO 7: Pesquisador
 
 **Objetivo:** Agente para busca e síntese de literatura científica. Introduz Evidência como entidade prática.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 4
+- Épico 6
 
 ---
 
-## ÉPICO 6: Escritor
+## ÉPICO 8: Escritor
 
 **Objetivo:** Agente para compilação de seções do artigo científico.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 5
+- Épico 7
 
 ---
 

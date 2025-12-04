@@ -120,28 +120,18 @@ Orquestrador: "Legal! Me conta mais sobre essa observação..."
 ↓
 [Conversa até ficar claro o contexto]
 ↓
-Orquestrador: "Posso chamar o Estruturador para ajudar a formular uma 
-               questão de pesquisa mais específica?"
+Orquestrador: "Organizei sua ideia em uma questão de pesquisa: 
+               'Como LLMs impactam produtividade?' Isso captura o que você quer explorar?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 ↓
-Usuário: "Sim"
+Usuário: "Sim, mas preciso ser mais específico"
 ↓
-Estruturador V1: "Como LLMs impactam produtividade?"
+Orquestrador: "Validei e refinei: 'Como LLMs (ex.: Claude Code) reduzem tempo 
+               de desenvolvimento em 30%, medido por sprints, em equipes de 2-5 devs?' 
+               Isso faz sentido?"
+[Bastidores: 🔬 Metodologista validou → 📝 Estruturador refinou → 🎯 Orquestrador curou]
 ↓
-Orquestrador: "O Metodologista pode validar essa questão. Quer que eu chame?"
-↓
-Usuário: "Sim"
-↓
-Metodologista: needs_refinement (falta população, métricas)
-↓
-Orquestrador: "Ele sugeriu refinamentos. Quer que eu peça ao Estruturador 
-               para refinar agora?"
-↓
-Usuário: "Sim"
-↓
-Estruturador V2: "Como LLMs (ex.: Claude Code) reduzem tempo de desenvolvimento 
-                  em 30%, medido por sprints, em equipes de 2-5 devs?"
-↓
-Metodologista: approved
+Usuário: "Perfeito!"
 ↓
 Orquestrador: "Ótimo! Podemos seguir com: 1) definir desenho experimental, 
                2) pesquisar literatura sobre métricas, ou 3) algo diferente?"
@@ -156,21 +146,22 @@ Orquestrador: "Interessante! Você quer fazer uma REVISÃO de literatura ou
 ↓
 Usuário: "Revisão de literatura"
 ↓
-Orquestrador: "Perfeito! Posso chamar o Estruturador para ajudar a definir 
-               uma questão de pesquisa estruturada (tipo PICO/SPIDER)?"
+Orquestrador: "Perfeito! Organizei uma questão de pesquisa estruturada 
+               (PICO/SPIDER): [resultado]. Isso direciona bem o que você quer buscar?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 ↓
 Usuário: "Sim"
 ↓
-Estruturador: define questão PICO/SPIDER
-↓
-Orquestrador: "Agora podemos buscar papers. Quer que eu chame o Pesquisador?"
+Orquestrador: "Para buscar papers, preciso fazer chamadas de API que podem ter 
+               custo. Quer que eu chame o Pesquisador agora?"
 ↓
 Usuário: "Sim"
 ↓
 Pesquisador: busca papers, realiza síntese
 ↓
-Orquestrador: "Temos uma boa base. Quer que eu chame o Escritor para compilar 
-               a revisão ou prefere revisar os papers primeiro?"
+Orquestrador: "Temos uma boa base de papers. Para compilar a revisão completa, 
+               preciso fazer chamadas de API que podem ter custo. Quer que eu 
+               chame o Escritor para compilar agora, ou prefere revisar os papers primeiro?"
 ↓
 Usuário: "Compilar"
 ↓
@@ -186,17 +177,15 @@ Orquestrador: "Fascinante! Você já tem o modelo estruturado ou está ainda
 ↓
 Usuário: "Tenho uma ideia inicial, mas preciso validar a lógica"
 ↓
-Orquestrador: "Posso chamar o Metodologista para validar a consistência 
-               lógica do framework, ou prefere primeiro estruturar melhor 
-               o argumento com o Estruturador?"
+Orquestrador: "Validei a consistência lógica do framework: [resultado da validação]. 
+               Faz sentido?"
+[Bastidores: 🔬 Metodologista validou → 🎯 Orquestrador curou]
 ↓
-Usuário: "Validar a lógica primeiro"
+Usuário: "Perfeito!"
 ↓
-Metodologista: valida consistência lógica
-↓
-Orquestrador: "Ele aprovou a lógica! Agora podemos: 1) estruturar o argumento 
-               completo, 2) pesquisar frameworks similares, ou 3) começar 
-               a escrever. O que prefere?"
+Orquestrador: "Ótimo! Agora podemos: 1) estruturar o argumento completo, 
+               2) pesquisar frameworks similares, ou 3) começar a escrever. 
+               O que prefere?"
 ↓
 Usuário: "Estruturar o argumento"
 ↓

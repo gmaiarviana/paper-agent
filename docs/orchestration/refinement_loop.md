@@ -128,8 +128,8 @@ Orquestrador: "Perfeito! Chamando Estruturador para refinar..."
          ↓
 Estruturador V2: [refina com base no feedback]
          ↓
-Orquestrador: "Versão refinada criada. Quer que eu chame o Metodologista 
-              para validar novamente?"
+Orquestrador: "Versão refinada criada: [resultado]. Validei novamente: [resultado da validação]. Isso faz sentido?"
+[Bastidores: 📝 Estruturador refinou → 🔬 Metodologista validou → 🎯 Orquestrador curou]
 ```
 
 **Código a manter (mecânica técnica):**
@@ -151,19 +151,13 @@ Orquestrador: "Versão refinada criada. Quer que eu chame o Metodologista
 1. User: "Método incremental é mais rápido"
 2. Orquestrador: "Interessante! Você quer testar uma hipótese ou verificar literatura?"
 3. User: "Testar hipótese"
-4. Orquestrador: "Posso chamar o Estruturador para ajudar a formular uma questão mais específica?"
-5. User: "Sim"
-6. Estruturador V1: "Como método incremental impacta velocidade?"
-7. Orquestrador: "O Metodologista pode validar essa questão. Quer que eu chame?"
-8. User: "Sim"
-9. Metodologista: "needs_refinement" (falta população, métricas)
-10. **Orquestrador: "Ele sugeriu refinamentos: falta população e métricas. O que você quer fazer? 1) Refinar agora, 2) Pesquisar mais, 3) Outra direção"**
-11. **User: "Refinar agora"**
-12. Estruturador V2: "Método incremental reduz tempo em 30%, medido por sprints, em equipes 2-5 devs"
-13. Orquestrador: "Versão refinada criada. Quer que eu chame o Metodologista para validar novamente?"
-14. User: "Sim"
-15. Metodologista: "approved"
-16. Orquestrador: "Ótimo! Podemos seguir com: 1) definir desenho experimental, 2) pesquisar literatura, ou 3) algo diferente?"
+4. Orquestrador: "Organizei sua ideia em uma questão de pesquisa: 'Como método incremental impacta velocidade?' Isso captura o que você quer explorar?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
+5. User: "Sim, mas preciso ser mais específico"
+6. Orquestrador: "Validei e refinei: 'Método incremental reduz tempo em 30%, medido por sprints, em equipes 2-5 devs'. Isso faz sentido?"
+[Bastidores: 🔬 Metodologista validou → 📝 Estruturador refinou → 🎯 Orquestrador curou]
+7. User: "Perfeito!"
+8. Orquestrador: "Ótimo! Podemos seguir com: 1) definir desenho experimental, 2) pesquisar literatura, ou 3) algo diferente?"
 
 ### Cenário 2: Usuário escolhe pesquisar antes de refinar
 

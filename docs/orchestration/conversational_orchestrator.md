@@ -119,8 +119,9 @@ Usuário: "Na verdade, quero focar em qualidade de código, não produtividade"
 ```
 Orquestrador detecta mudança de foco (produtividade → qualidade) e adapta:
 "Entendi! Você mudou o foco de produtividade para qualidade de código. 
-Isso muda a abordagem metodológica. Posso chamar o Metodologista para 
-ajudar a estruturar uma hipótese sobre qualidade?"
+Isso muda a abordagem metodológica. Estruturei uma hipótese sobre qualidade: 
+[resultado]. Isso direciona bem o que você quer testar?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 ```
 
 **Características:**
@@ -181,16 +182,17 @@ No Épico 11, o argumento focal se tornará campo explícito na entidade `Idea` 
 └─────────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 6. Orquestrador: "Posso chamar [Agente]?"                  │
-│    [explica por que faz sentido]                            │
-│    Ex: "Posso chamar o Metodologista? Ele vai ajudar a     │
-│        transformar sua observação em hipótese testável com  │
-│        população, variáveis e métricas claras."             │
+│ 6. Orquestrador: [Agente trabalha nos bastidores]          │
+│    → Apresenta resultado curado                             │
+│    Ex: "Organizei sua ideia em uma hipótese testável:      │
+│        [resultado com população, variáveis, métricas].      │
+│        Isso captura o que você quer explorar?"               │
+│    [Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou] │
 └─────────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 7. Usuário: decide                                          │
-│    Ex: "Sim, pode chamar"                                    │
+│ 7. Usuário: confirma entendimento                           │
+│    Ex: "Sim, perfeito!" ou "Ajuste X"                       │
 └─────────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────────┐
@@ -300,7 +302,9 @@ A estrutura básica se mantém, mas o raciocínio evolui incrementalmente:
 **Critérios de aceite:**
 - Sistema conversa antes de chamar agente
 - Usuário pode escolher entre opções (A, B ou C)
-- Agentes só executam após confirmação
+- Agentes trabalham automaticamente quando contexto suficiente (transição fluida)
+- Orquestrador faz curadoria da resposta final (tom unificado)
+- Transparência nos bastidores (usuário pode ver quem trabalhou)
 
 #### Protótipo (segunda entrega - inteligência básica)
 
@@ -438,21 +442,22 @@ Output:
 }
 ```
 
-**Exemplo 2: Sugestão de agente com justificativa**
+**Exemplo 2: Transição fluida para agente**
 ```
 Input histórico: [conversa sobre hipótese com população e métricas definidas]
 Input: "Sim, quero validar essa hipótese"
 
 Output:
 {
-  "reasoning": "Usuário definiu hipótese com população (equipes 2-5 devs) e métricas (tempo por sprint). Estrutura testável. Metodologista pode validar rigor científico.",
+  "reasoning": "Usuário definiu hipótese com população (equipes 2-5 devs) e métricas (tempo por sprint). Estrutura testável. Contexto suficiente para validar automaticamente.",
   "next_step": "suggest_agent",
-  "message": "Perfeito! Posso chamar o Metodologista para validar se essa hipótese atende critérios científicos? Ele vai verificar testabilidade, falseabilidade e operacionalização.",
+  "message": "Validei sua hipótese: ela atende critérios de testabilidade, falseabilidade e operacionalização. Faz sentido para você?",
   "agent_suggestion": {
     "agent": "methodologist",
     "justification": "Hipótese estruturada com população e métricas definidas, pronta para validação metodológica"
   }
 }
+[Bastidores: 🔬 Metodologista validou → 🎯 Orquestrador curou]
 ```
 
 **Exemplo 3: Detecção de mudança de direção**
@@ -464,12 +469,13 @@ Output:
 {
   "reasoning": "Detecto mudança de direção: de teste de hipótese para revisão de literatura. Usuário mudou de ideia. Adaptar sem questionar. Argumento focal anterior (testar hipótese X) → novo argumento focal (revisar literatura sobre X).",
   "next_step": "suggest_agent",
-  "message": "Sem problema! Vamos adaptar. Posso chamar o Estruturador para ajudar a definir uma questão de pesquisa estruturada (tipo PICO/SPIDER) para a revisão?",
+  "message": "Sem problema! Vamos adaptar. Organizei uma questão de pesquisa estruturada (PICO/SPIDER) para a revisão: [resultado]. Isso direciona bem o que você quer buscar?",
   "agent_suggestion": {
     "agent": "structurer",
     "justification": "Revisão de literatura precisa de questão estruturada. PICO/SPIDER são frameworks adequados."
   }
 }
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 ```
 
 ### Implementação

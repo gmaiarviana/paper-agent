@@ -584,7 +584,7 @@ Os indicadores de maturidade são **não determinísticos** e **não avisam o us
 ### Como Sistema Usa Indicadores
 
 Sistema não diz: "Seu argumento está maduro!"  
-Sistema sugere: "Quer validar rigor científico com o Metodologista?" ou "Temos uma boa base. Quer que eu chame o Escritor para compilar o artigo?"
+Sistema apresenta resultado: "Validei o rigor científico: [resultado]. Faz sentido?" ou "Temos uma boa base. Para compilar o artigo completo, preciso fazer chamadas de API que podem ter custo. Quer que eu chame o Escritor agora?"
 
 **Exemplo de sugestão baseada em maturidade**:
 ```python
@@ -781,8 +781,9 @@ context: {
 }
 ```
 
-**Ação do sistema**: Orquestrador sugere próximo passo
-- "Temos uma boa base! Encontrei estudos relevantes. Quer que eu chame o Metodologista para validar o desenho experimental dessa comparação?"
+**Ação do sistema**: Orquestrador apresenta resultado
+- "Temos uma boa base! Encontrei estudos relevantes. Validei o desenho experimental dessa comparação: [resultado]. Faz sentido?"
+[Bastidores: 🔬 Metodologista validou → 🎯 Orquestrador curou]
 
 ### Turno 7: Modelo Maduro, Pronto para Estruturação
 
@@ -840,8 +841,9 @@ context: {
 }
 ```
 
-**Ação do sistema**: Sugestão de maturidade
-- "Hipótese validada! Temos todos os elementos. Quer que eu chame o Estruturador para organizar isso em uma questão de pesquisa estruturada, ou prefere começar a definir o desenho experimental?"
+**Ação do sistema**: Apresentação de resultado
+- "Hipótese validada! Organizei em uma questão de pesquisa estruturada: [resultado]. Podemos seguir com: 1) definir desenho experimental, 2) pesquisar literatura, ou 3) algo diferente?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 
 ## Persistência Silenciosa (Snapshots)
 

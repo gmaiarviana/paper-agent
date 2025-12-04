@@ -86,22 +86,22 @@ Usuário: [sobrecarregado]
 
 ---
 
-## 3. Padrões de Negociação de Caminho
+## 3. Padrões de Transição Fluida entre Agentes
 
 ### Objetivo
-Apresentar opções e deixar usuário decidir, não impor fluxo.
+Agentes trabalham nos bastidores automaticamente quando contexto suficiente. Orquestrador apresenta resultado curado de forma coesa.
 
 ### Comportamento Esperado
 
 **✅ BOM:**
 ```
-Sistema: "O Metodologista sugeriu refinamentos: falta população 
-         e métricas. O que você quer fazer?
-         1) Refinar agora (chamar Estruturador)
-         2) Pesquisar mais sobre métricas primeiro
-         3) Seguir em outra direção"
-Usuário: "Refinar agora"
-Sistema: "Perfeito! Chamando Estruturador para refinar..."
+Sistema: "Validei sua hipótese. Está quase lá, mas falta definir 
+         população e métricas. Refinei para você:
+         
+         Claim: 'X reduz tempo em 30% em equipes de 2-5 devs'
+         
+         Isso captura melhor o que você quer testar?"
+[Bastidores: 🔬 Metodologista validou → 📝 Estruturador refinou → 🎯 Orquestrador curou]
 ```
 
 **❌ RUIM:**
@@ -113,33 +113,33 @@ Sistema: "Metodologista detectou needs_refinement. Refinando
 
 ### Princípios
 
-1. **Sempre apresentar opções** - Nunca decidir sozinho
-2. **Explicar contexto** - Usuário precisa entender por que opções existem
-3. **Respeitar decisão** - Executar o que usuário escolher
-4. **Permitir mudança de direção** - Usuário pode mudar de ideia
+1. **Transição automática** - Agentes trabalham quando contexto suficiente (sem pedir permissão)
+2. **Curadoria unificada** - Orquestrador apresenta resultado como se fosse ele (tom coeso)
+3. **Transparência nos bastidores** - Usuário pode ver quem trabalhou (opcional)
+4. **Confirmação de entendimento** - Apresentar resultado e confirmar se captura intenção
 
-### Exemplos de Negociação
+### Exemplos de Transição Fluida
 
 **Após feedback do Metodologista:**
 ```
-"Ele sugeriu X e Y. O que quer fazer?
- → Refinar agora
- → Pesquisar mais sobre Y
- → Vamos em outra direção"
+"Validei sua hipótese. Identifiquei que falta população e métricas. 
+Refinei para você: [resultado estruturado]. Isso faz sentido?"
+[Bastidores: 🔬 Metodologista validou → 📝 Estruturador refinou]
 ```
 
 **Após estrutura criada:**
 ```
-"Estrutura criada! Podemos seguir com:
- → Definir desenho experimental
- → Pesquisar literatura sobre métricas
- → Algo diferente?"
+"Organizei sua ideia em uma questão de pesquisa estruturada: [resultado]. 
+Podemos seguir com: 1) definir desenho experimental, 2) pesquisar literatura 
+sobre métricas, ou 3) algo diferente?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 ```
 
-**Após pesquisa realizada:**
+**Após pesquisa realizada (ação cara - ainda pede permissão):**
 ```
-"Temos uma boa base. Quer que eu chame o Escritor para compilar 
-a revisão ou prefere revisar os papers primeiro?"
+"Temos uma boa base de papers. Para compilar a revisão completa, preciso 
+fazer chamadas de API que podem ter custo. Quer que eu chame o Escritor 
+para compilar agora, ou prefere revisar os papers primeiro?"
 ```
 
 ---
@@ -190,8 +190,8 @@ Sistema: "Você já escolheu hipótese empírica. Não posso mudar agora."
 **Reação esperada:**
 1. Não classificar como "vago" automaticamente
 2. Explorar intenção: "Interessante! Você quer verificar literatura ou testar hipótese?"
-3. Se usuário escolher testar: "Posso chamar o Estruturador para ajudar a formular uma questão mais específica?"
-4. Negociar cada passo
+3. Se usuário escolher testar e contexto suficiente: Organizar automaticamente e apresentar resultado curado
+4. Confirmar entendimento: "Organizei sua ideia: [resultado]. Isso captura o que você quer explorar?"
 
 **Não fazer:**
 - ❌ "Detectei input vago. Estruturador automático."
@@ -203,8 +203,8 @@ Sistema: "Você já escolheu hipótese empírica. Não posso mudar agora."
 
 **Reação esperada:**
 1. Reconhecer que há estrutura mas falta especificidade
-2. Oferecer opções: "Posso chamar o Metodologista para validar, ou prefere estruturar melhor primeiro?"
-3. Se Metodologista sugerir refinamento: apresentar opções ao usuário
+2. Se contexto suficiente: Validar automaticamente e apresentar feedback curado
+3. Se precisar refinamento: Refinar automaticamente e apresentar resultado: "Refinei sua hipótese: [resultado]. Isso faz sentido?"
 
 **Não fazer:**
 - ❌ Forçar refinamento automático
@@ -216,7 +216,7 @@ Sistema: "Você já escolheu hipótese empírica. Não posso mudar agora."
 
 **Reação esperada:**
 1. Reconhecer estrutura completa
-2. Oferecer validação: "Posso chamar o Metodologista para validar essa hipótese?"
+2. Validar automaticamente: "Validei sua hipótese: [resultado da validação]. Faz sentido?"
 3. Se aprovado: "Ótimo! Podemos seguir com: 1) definir desenho experimental, 2) pesquisar literatura, ou 3) algo diferente?"
 
 **Não fazer:**
@@ -266,20 +266,15 @@ Usuário: "Testar uma hipótese"
 Sistema: "Legal! Me conta mais sobre essa observação: em que contexto 
          você observou isso?"
 Usuário: "Em equipes de desenvolvimento usando Claude Code"
-Sistema: "Perfeito! Posso chamar o Estruturador para ajudar a formular 
-         uma questão de pesquisa mais específica?"
-Usuário: "Sim"
-[Estruturador cria V1]
-Sistema: "O Metodologista pode validar essa questão. Quer que eu chame?"
-Usuário: "Sim"
-[Metodologista: needs_refinement - falta métricas]
-Sistema: "Ele sugeriu refinamentos: falta definir como medir produtividade. 
-         O que você quer fazer?
-         1) Refinar agora (chamar Estruturador)
-         2) Pesquisar mais sobre métricas primeiro
-         3) Seguir em outra direção"
-Usuário: "Refinar agora"
-[Estruturador cria V2]
+Sistema: "Perfeito! Organizei sua ideia em uma questão de pesquisa: 
+         'Como Claude Code impacta produtividade em equipes de desenvolvimento?' 
+         Isso captura o que você quer explorar?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
+Usuário: "Sim, mas preciso definir como medir produtividade"
+Sistema: "Validei e refinei: 'Como Claude Code reduz tempo de desenvolvimento 
+         (medido por sprints) em equipes de 2-5 devs?' Isso faz sentido?"
+[Bastidores: 🔬 Metodologista validou → 📝 Estruturador refinou → 🎯 Orquestrador curou]
+Usuário: "Perfeito!"
 Sistema: "Ótimo! Podemos seguir com: 1) definir desenho experimental, 
          2) pesquisar literatura sobre métricas, ou 3) algo diferente?"
 ```
@@ -322,12 +317,13 @@ Sistema: "Interessante! Você quer testar uma hipótese ou verificar
 Usuário: "Testar hipótese"
 [Fluxo de estruturação e validação]
 Usuário: "Na verdade, quero fazer revisão de literatura"
-Sistema: "Sem problema! Vamos adaptar. Posso chamar o Estruturador 
-         para ajudar a definir uma questão de pesquisa estruturada 
-         (tipo PICO/SPIDER)?"
+Sistema: "Sem problema! Vamos adaptar. Organizei uma questão de pesquisa 
+         estruturada (PICO/SPIDER) para revisão: [resultado]. Isso direciona 
+         bem o que você quer buscar?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 Usuário: "Sim"
-[Estruturador adapta para revisão]
-Sistema: "Agora podemos buscar papers. Quer que eu chame o Pesquisador?"
+Sistema: "Para buscar papers, preciso fazer chamadas de API que podem ter 
+         custo. Quer que eu chame o Pesquisador agora?"
 ```
 
 **Por que é boa:**

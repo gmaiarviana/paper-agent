@@ -249,48 +249,41 @@ Output: {
 └─────────────┘
 ```
 
-### Uso Sob Demanda no Fluxo Multi-Agente
+### Uso no Fluxo Multi-Agente (Transição Fluida)
 
-**⚠️ IMPORTANTE (13/11/2025):** O Metodologista não é chamado automaticamente. O Orquestrador negocia com o usuário.
+**⚠️ IMPORTANTE (16/11/2025):** O Metodologista trabalha nos bastidores quando o contexto é suficiente. O Orquestrador faz curadoria da resposta final.
 
 **Fluxo conversacional:**
 
-1. **Orquestrador pergunta:** "O Metodologista pode validar essa questão. Quer que eu chame?"
-2. **Usuário decide:** "Sim" ou "Não, prefiro X primeiro"
-3. **Se usuário aceitar:** Metodologista processa e retorna feedback
-4. **Orquestrador apresenta opções:** "Ele sugeriu refinamentos: X e Y. O que você quer fazer? 1) Refinar agora, 2) Pesquisar mais, 3) Outra direção"
-5. **Usuário escolhe:** Refinamento não é automático
+1. **Orquestrador detecta contexto suficiente:** Hipótese com população, variáveis, métricas definidas
+2. **Metodologista trabalha automaticamente:** Valida rigor científico nos bastidores
+3. **Orquestrador apresenta resultado curado:** "Validei sua hipótese: [resultado]. Faz sentido?"
+4. **Se precisa refinamento:** Estruturador refina automaticamente e Orquestrador apresenta: "Refinei: [resultado]. Isso captura melhor?"
+5. **Usuário confirma entendimento:** Pode aceitar, pedir ajustes, ou mudar direção
 
 **Exemplo completo:**
 
 ```
-Orquestrador: "Posso chamar o Metodologista para validar?"
-Usuário: "Sim"
+Orquestrador: "Validei sua hipótese. Está quase lá, mas falta definir 
+              população e métricas. Refinei para você:
+              
+              Claim: 'X reduz tempo em 30% em equipes de 2-5 devs'
+              
+              Isso captura melhor o que você quer testar?"
+[Bastidores: 🔬 Metodologista validou → 📝 Estruturador refinou → 🎯 Orquestrador curou]
 ↓
-Metodologista: {status: "needs_refinement", improvements: [...]}
+Usuário: "Perfeito!"
 ↓
-Orquestrador: "Ele sugeriu refinamentos: falta população e métricas. 
-              O que você quer fazer?
-              1) Refinar agora (chamar Estruturador)
-              2) Pesquisar mais sobre métricas primeiro
-              3) Seguir em outra direção"
-Usuário: "Refinar agora"
-↓
-[Estruturador refina]
-↓
-Orquestrador: "Versão refinada criada. Quer que eu chame o Metodologista 
-              para validar novamente?"
-Usuário: "Sim"
-↓
-[Metodologista valida V2]
+Orquestrador: "Ótimo! Podemos seguir com: 1) definir desenho experimental, 
+              2) pesquisar literatura, ou 3) algo diferente?"
 ```
 
 **Princípios:**
-- ✅ Metodologista é chamado **sob demanda** (não automático)
-- ✅ Refinamento é **negociado** (usuário decide)
-- ✅ Não há loop automático (sistema não decide sozinho)
-- ✅ Usuário pode escolher pesquisar antes de refinar
-- ✅ Usuário pode mudar de direção a qualquer momento
+- ✅ Metodologista trabalha **automaticamente** quando contexto suficiente
+- ✅ Refinamento é **automático** quando necessário
+- ✅ Orquestrador **cura resposta final** (tom unificado)
+- ✅ Transparência nos **bastidores** (usuário pode ver quem trabalhou)
+- ✅ Usuário pode **mudar de direção** a qualquer momento
 
 ### LLM Utilizado
 
