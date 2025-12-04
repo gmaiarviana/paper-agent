@@ -370,7 +370,6 @@ paper-agent/
 │
 ├── scripts/               # Scripts de validação manual
 │   ├── __init__.py
-│   ├── validate_cognitive_model.py   # Validação do modelo cognitivo
 │   ├── health_checks/            # Sanidade de ambiente e configs
 │   │   ├── validate_api.py
 │   │   ├── validate_agent_config.py

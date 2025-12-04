@@ -111,7 +111,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 **Documentação:**
 - `docs/interface/web/` - Especificação completa da interface web (overview.md, components.md, flows.md)
-  - Seção 3.4: Painel Progress (Checklist) - documenta `progress_tracker.py`
+  - Seção 3.6: Painel Progress (Checklist) - documenta `progress_tracker.py`
 - `docs/interface/navigation_philosophy.md` - Filosofia de navegação (3 espaços)
 
 **Solicitar quando:**

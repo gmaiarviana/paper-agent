@@ -67,11 +67,11 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 - Permite agente fazer perguntas ao usuário
 - Usa `interrupt()` do LangGraph para pausar execução
 - Logging estruturado de perguntas e respostas
-- **Localização:** `agents/methodologist.py:79`
+- **Localização:** `agents/methodologist/tools.py:18`
 
 ### Nós do Grafo
 
-#### 1. `analyze` (agents/methodologist.py:175)
+#### 1. `analyze` (agents/methodologist/nodes.py:38)
 **Responsabilidade:** Avaliar hipótese e decidir se precisa de clarificações
 
 **Processo:**
@@ -88,7 +88,7 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 }
 ```
 
-#### 2. `ask_clarification` (agents/methodologist.py:255)
+#### 2. `ask_clarification` (agents/methodologist/nodes.py:119)
 **Responsabilidade:** Solicitar clarificação ao usuário
 
 **Processo:**
@@ -107,7 +107,7 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 }
 ```
 
-#### 3. `decide` (agents/methodologist.py:346)
+#### 3. `decide` (agents/methodologist/nodes.py:215)
 **Responsabilidade:** Tomar decisão final sobre a hipótese
 
 **Processo:**
@@ -161,7 +161,7 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 
 ### Knowledge Base
 
-**Localização:** `agents/methodologist_knowledge.md`
+**Localização:** `docs/agents/methodologist_knowledge.md`
 
 **Conteúdo:**
 - Diferença entre lei, teoria e hipótese

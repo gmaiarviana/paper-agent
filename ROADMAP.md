@@ -280,7 +280,7 @@
 - Épico 1 (comportamento a ser testado precisa existir)
 
 **Consulte:**
-- `docs/testing/llm_judge_strategy_analysis.md` - Análise completa de estratégia
+- `docs/analysis/llm_judge_strategy.md` - Análise completa de estratégia
 - `docs/testing/strategy.md` - Estratégia de testes
 
 ### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
