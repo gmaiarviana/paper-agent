@@ -58,7 +58,7 @@ def create_new_conversation() -> None:
             del st.session_state.active_idea_id
 
         logger.info(f"Nova conversa criada: thread_id={new_session_id}")
-        st.rerun()
+        st.switch_page("chat.py")
 
     except Exception as e:
         logger.error(f"Erro ao criar nova conversa: {e}", exc_info=True)
