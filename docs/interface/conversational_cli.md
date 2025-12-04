@@ -32,9 +32,9 @@ Sistema: Interessante! Em que contexto você notou isso?
 Você: na minha equipe Python
 Sistema: E como mediu redução de bugs?
 Você: impressão geral, bugs caíram
-Sistema: Posso chamar Estruturador para transformar em questão de pesquisa?
-Você: sim
-[Sistema chama Estruturador...]
+Sistema: Vou organizar isso em uma questão de pesquisa estruturada.
+[Sistema chama Estruturador automaticamente...]
+Sistema: Organizei sua ideia assim: "TDD reduz densidade de bugs em equipes Python?" Isso captura o que você quer?
 
 ## 4. Implementação Técnica
 
