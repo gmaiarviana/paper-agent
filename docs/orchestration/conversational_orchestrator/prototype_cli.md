@@ -23,9 +23,9 @@ Sistema: Em que contexto?
 Você: equipe Python
 Sistema: Como mediu?
 Você: impressão geral
-Sistema: Posso chamar Estruturador?
-Você: sim
-[chama Estruturador...]
+Sistema: Vou organizar isso em uma questão de pesquisa.
+[chama Estruturador automaticamente...]
+Sistema: Organizei assim: "TDD reduz bugs?" Isso captura o que você quer?
 ```
 
 **Código:**

@@ -3,9 +3,10 @@ Nós do grafo do agente Orquestrador.
 
 Este módulo implementa o nó principal do Orquestrador:
 - orchestrator_node: Facilitador conversacional MVP com argumento focal explícito
+- _build_context: Constrói contexto incluindo outputs de agentes para curadoria
 
-Versão: 3.0 (Épico 7 MVP - Funcionalidades 7.8, 7.9, 7.10)
-Data: 15/11/2025
+Versão: 4.0 (Épico 1.1 - Transição Fluida + Curadoria)
+Data: 04/12/2025
 """
 
 import logging
@@ -27,24 +28,22 @@ logger = logging.getLogger(__name__)
 
 def _build_context(state: MultiAgentState) -> str:
     """
-    Constrói contexto completo a partir do histórico de mensagens.
+    Constrói contexto completo para o Orquestrador, incluindo outputs de agentes.
 
-    Esta função helper reconstrói o "argumento focal" implícito da conversa
-    analisando todo o histórico de mensagens (user_input + messages).
+    Esta função helper constrói o contexto que será enviado ao LLM, incluindo:
+    - Input inicial do usuário
+    - Histórico de mensagens da conversa
+    - Outputs de agentes (para curadoria - Épico 1.1)
 
-    O argumento focal é o entendimento atual do sistema sobre:
-    - O que o usuário quer fazer (intenção)
-    - Contexto compartilhado até agora
-    - Direção da conversa
-
-    No POC do Épico 7, o argumento focal é implícito (reconstruído via histórico).
-    No Protótipo/MVP, será campo explícito no state.
+    Quando structurer_output ou methodologist_output existem no state,
+    o Orquestrador está em MODO CURADORIA e deve apresentar o resultado
+    ao usuário de forma coesa.
 
     Args:
         state (MultiAgentState): Estado atual do sistema multi-agente.
 
     Returns:
-        str: Histórico formatado para análise contextual pelo LLM.
+        str: Contexto formatado para análise pelo LLM.
             Formato:
             ```
             INPUT INICIAL DO USUÁRIO:
@@ -53,32 +52,31 @@ def _build_context(state: MultiAgentState) -> str:
             HISTÓRICO DA CONVERSA:
             [Usuário]: {mensagem 1}
             [Assistente]: {resposta 1}
-            [Usuário]: {mensagem 2}
             ...
+
+            RESULTADO DO ESTRUTURADOR (você deve fazer curadoria):
+            {structurer_output em JSON}
+
+            RESULTADO DO METODOLOGISTA (você deve fazer curadoria):
+            {methodologist_output em JSON}
             ```
 
     Example:
-        >>> state = create_initial_multi_agent_state(
-        ...     "Observei que LLMs aumentam produtividade",
-        ...     "session-123"
-        ... )
+        >>> state = create_initial_multi_agent_state("Observei X", "session-123")
         >>> context = _build_context(state)
         >>> "INPUT INICIAL DO USUÁRIO" in context
         True
-        >>> "Observei que LLMs aumentam produtividade" in context
+
+        >>> # Com output de agente (modo curadoria)
+        >>> state['structurer_output'] = {"research_question": "Como X impacta Y?"}
+        >>> context = _build_context(state)
+        >>> "RESULTADO DO ESTRUTURADOR" in context
         True
 
     Notes:
         - Se não houver mensagens, retorna apenas o input inicial
+        - Se houver outputs de agentes, Orquestrador deve fazer curadoria
         - Formato é otimizado para análise contextual pelo LLM
-        - Usado pelo orchestrator_node conversacional (Épico 7)
-
-    Technical Details:
-        - Lê state['user_input'] como input inicial
-        - Lê state['messages'] (gerenciado por LangGraph com add_messages)
-        - HumanMessage → "[Usuário]"
-        - AIMessage → "[Assistente]"
-        - Mantém ordem cronológica (importante para detectar mudanças de direção)
     """
     # Input inicial do usuário
     context_parts = [
@@ -109,6 +107,20 @@ def _build_context(state: MultiAgentState) -> str:
                 context_parts.append(f"[{msg_type}]: {msg.content}")
 
         context_parts.append("")  # linha em branco final
+
+    # Output do Estruturador (se existir - Épico 1.1 Curadoria)
+    structurer_output = state.get("structurer_output")
+    if structurer_output:
+        context_parts.append("RESULTADO DO ESTRUTURADOR (você deve fazer curadoria):")
+        context_parts.append(json.dumps(structurer_output, indent=2, ensure_ascii=False))
+        context_parts.append("")
+
+    # Output do Metodologista (se existir - Épico 1.1 Curadoria)
+    methodologist_output = state.get("methodologist_output")
+    if methodologist_output:
+        context_parts.append("RESULTADO DO METODOLOGISTA (você deve fazer curadoria):")
+        context_parts.append(json.dumps(methodologist_output, indent=2, ensure_ascii=False))
+        context_parts.append("")
 
     return "\n".join(context_parts)
 

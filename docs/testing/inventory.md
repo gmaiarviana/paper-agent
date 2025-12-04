@@ -124,7 +124,7 @@ Este documento lista todos os comportamentos testados pelo sistema.
 
 Comportamentos da visão que ainda não têm testes:
 
-- [ ] Sistema pergunta "Posso chamar X?" antes de ações caras (negociação contínua)
+- [x] Sistema transiciona automaticamente para agentes sem pedir permissão (Épico 1.1 - transição fluida)
 - [ ] Claim evolui para "flecha penetrante" (argumento maduro com evidências)
 - [ ] Sistema detecta tipo de artigo emergente (empírico, revisão, teórico)
 - [ ] Validação end-to-end com usuário real simulado
