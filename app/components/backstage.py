@@ -179,8 +179,8 @@ def _render_idea_status(session_id: str) -> None:
     # Buscar ideia ativa do session_state
     active_idea_id = st.session_state.get("active_idea_id")
 
+    # 4.2: Estado vazio = seção em branco (não mostrar mensagem)
     if not active_idea_id:
-        st.info("ℹ️ Nenhuma ideia ativa. Crie ou selecione uma ideia na sidebar.")
         return
 
     try:
