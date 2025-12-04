@@ -1,17 +1,28 @@
 """
-Componente "Bastidores" para visualização de reasoning dos agentes.
+Componentes do Painel Direito: Contexto + Bastidores (Épico 3 + 4).
 
 Responsável por:
-- Seção colapsável "📊 Bastidores" (header clicável, sem toggle separado)
+- Seção "💡 Contexto" (Épico 4): ideia ativa, status, custo acumulado
+- Seção "📊 Bastidores" (Épico 3): reasoning dos agentes, histórico
 - Card de pensamento: emoji + nome + reasoning resumido (~280 chars) + link "Ver completo"
 - Estado vazio: 🤖 + "Aguardando..." centralizado
-- Histórico: últimos 2 agentes + link "Ver histórico"
 - Modal de raciocínio completo (JSON estruturado)
-- Modal de histórico completo (lista de todos os agentes)
+- Modal de detalhes da conversa (custos, métricas)
 
-Versão: 3.3.1
+Estrutura:
+┌──────────────────────┐
+│ 💡 Contexto [▼]      │  ← Expander (expandido por padrão)
+│ └─ Ideia ativa       │
+│ └─ Custo acumulado   │
+├──────────────────────┤
+│ 📊 Bastidores [▶]    │  ← Expander (colapsado por padrão)
+│ └─ Reasoning         │
+│ └─ Histórico         │
+└──────────────────────┘
+
+Versão: 4.1
 Data: 04/12/2025
-Status: Épico 3.3 - Ajustes (remover métricas, renomear Timeline → Histórico)
+Status: Épico 3 + 4 implementados
 """
 
 import streamlit as st
@@ -32,32 +43,61 @@ AGENT_EMOJIS = {
 }
 
 
-def render_backstage(session_id: str) -> None:
+def render_right_panel(session_id: str) -> None:
     """
-    Renderiza painel "Bastidores" com reasoning dos agentes e status da ideia.
+    Renderiza painel direito completo: Contexto + Bastidores (Épico 4.1).
 
     Args:
         session_id: ID da sessão ativa
 
-    Comportamento (Épico 3 + Épico 12.1):
-        - Mostra status da ideia ativa (título, badge, metadados) - fora do expander
-        - Seção colapsável "📊 Bastidores" (header clicável, colapsado por padrão)
+    Estrutura:
+        1. Seção "💡 Contexto" (expandida por padrão)
+           - Ideia ativa (título, status, metadados)
+           - Custo acumulado
+        2. Seção "📊 Bastidores" (colapsada por padrão)
+           - Reasoning dos agentes, histórico
+    """
+    # Seção 1: Contexto (acima)
+    render_context_section(session_id)
+
+    # Seção 2: Bastidores (abaixo)
+    render_backstage(session_id)
+
+
+def render_context_section(session_id: str) -> None:
+    """
+    Renderiza seção "💡 Contexto" colapsável (Épico 4.1 + 4.3).
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Comportamento:
+        - Expander "💡 Contexto" clicável para expandir/colapsar
+        - Expandido por padrão
+        - Contém: ideia ativa (título, status, metadados)
+        - Contém: custo acumulado da conversa (4.3)
+    """
+    with st.expander("💡 Contexto", expanded=True):
+        _render_idea_status(session_id)
+        _render_accumulated_cost(session_id)
+
+
+def render_backstage(session_id: str) -> None:
+    """
+    Renderiza seção "📊 Bastidores" colapsável com reasoning dos agentes (Épico 3).
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Comportamento:
+        - Expander "📊 Bastidores" clicável (colapsado por padrão)
         - Card de pensamento: emoji + nome + reasoning (~280 chars) + link "Ver completo"
-        - Histórico: últimos 2 agentes + link "Ver histórico"
         - Estado vazio: 🤖 + "Aguardando..." centralizado
+        - Histórico de agentes anteriores
 
     Integração:
         - EventBus: Busca eventos via get_session_events()
-        - Database: Busca ideia ativa via get_database_manager()
     """
-    st.markdown("---")
-
-    # 12.1: Mostrar status da ideia ativa (fora do expander - futuro: seção Contexto)
-    _render_idea_status(session_id)
-
-    st.markdown("---")
-
-    # Seção colapsável "Bastidores" (Épico 3.1 - sem toggle separado)
     with st.expander("📊 Bastidores", expanded=False):
         # Buscar reasoning mais recente
         reasoning = _get_latest_reasoning(session_id)
@@ -79,8 +119,218 @@ def render_backstage(session_id: str) -> None:
 
             st.markdown("---")
 
-            # Timeline de agentes anteriores (colapsado)
+            # Histórico de agentes anteriores
             _render_agent_timeline(session_id)
+
+
+def _get_session_accumulated_cost(session_id: str) -> Dict[str, Any]:
+    """
+    Calcula custo e tokens acumulados da sessão (Épico 4.3).
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Returns:
+        dict: {"cost": float, "tokens": int, "num_events": int}
+    """
+    try:
+        bus = get_event_bus()
+        events = bus.get_session_events(session_id)
+
+        # Filtrar eventos "agent_completed"
+        completed_events = [e for e in events if e.get("event_type") == "agent_completed"]
+
+        if not completed_events:
+            return {"cost": 0.0, "tokens": 0, "num_events": 0}
+
+        # Somar custos e tokens
+        total_cost = sum(e.get("cost", 0.0) for e in completed_events)
+        total_tokens = sum(e.get("tokens_total", 0) for e in completed_events)
+
+        return {
+            "cost": total_cost,
+            "tokens": total_tokens,
+            "num_events": len(completed_events)
+        }
+
+    except Exception as e:
+        logger.error(f"Erro ao calcular custo acumulado: {e}", exc_info=True)
+        return {"cost": 0.0, "tokens": 0, "num_events": 0}
+
+
+def _get_session_events_details(session_id: str) -> List[Dict[str, Any]]:
+    """
+    Busca detalhes de todos os eventos da sessão para o modal (Épico 4.4).
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Returns:
+        list: Lista de eventos com detalhes (agente, custo, tokens, timestamp)
+    """
+    try:
+        bus = get_event_bus()
+        events = bus.get_session_events(session_id)
+
+        # Filtrar eventos "agent_completed"
+        completed_events = [e for e in events if e.get("event_type") == "agent_completed"]
+
+        details = []
+        for event in completed_events:
+            agent_name = event.get("agent_name", "unknown")
+            details.append({
+                "agent": agent_name,
+                "agent_display": agent_name.replace("_", " ").title(),
+                "emoji": AGENT_EMOJIS.get(agent_name, "🤖"),
+                "cost": event.get("cost", 0.0),
+                "tokens_input": event.get("tokens_input", 0),
+                "tokens_output": event.get("tokens_output", 0),
+                "tokens_total": event.get("tokens_total", 0),
+                "duration": event.get("duration", 0.0),
+                "timestamp": event.get("timestamp", ""),
+                "model": event.get("model", "claude-3-5-sonnet")
+            })
+
+        return details
+
+    except Exception as e:
+        logger.error(f"Erro ao buscar detalhes de eventos: {e}", exc_info=True)
+        return []
+
+
+@st.dialog("📊 Detalhes da Conversa", width="large")
+def _show_context_details_modal(session_id: str, accumulated: Dict[str, Any]) -> None:
+    """
+    Modal com detalhes expandidos do contexto (Épico 4.4).
+
+    Args:
+        session_id: ID da sessão ativa
+        accumulated: Dict com custo/tokens acumulados
+
+    Conteúdo:
+        - Aba 1: Custos por agente
+        - Aba 2: Métricas detalhadas
+    """
+    # Buscar detalhes dos eventos
+    events_details = _get_session_events_details(session_id)
+
+    # Abas
+    tab1, tab2 = st.tabs(["💰 Custos", "📊 Métricas"])
+
+    with tab1:
+        st.markdown("### Custo por Chamada")
+
+        if not events_details:
+            st.info("Nenhuma chamada registrada ainda.")
+        else:
+            for i, event in enumerate(events_details, 1):
+                with st.container():
+                    col1, col2, col3 = st.columns([2, 1, 1])
+                    with col1:
+                        st.markdown(f"**{event['emoji']} {event['agent_display']}**")
+                        st.caption(f"🕐 {event['timestamp']}")
+                    with col2:
+                        st.metric("Custo", f"${event['cost']:.4f}")
+                    with col3:
+                        st.metric("Tokens", f"{event['tokens_total']:,}")
+                    st.markdown("---")
+
+            # Total
+            st.markdown("### Total")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("💰 Custo Total", f"${accumulated['cost']:.4f}")
+            with col2:
+                st.metric("📊 Tokens Totais", f"{accumulated['tokens']:,}")
+
+    with tab2:
+        st.markdown("### Métricas da Conversa")
+
+        # Resumo geral
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Chamadas", accumulated['num_events'])
+        with col2:
+            avg_cost = accumulated['cost'] / max(accumulated['num_events'], 1)
+            st.metric("Custo Médio", f"${avg_cost:.4f}")
+        with col3:
+            avg_tokens = accumulated['tokens'] // max(accumulated['num_events'], 1)
+            st.metric("Tokens Médio", f"{avg_tokens:,}")
+
+        # Detalhes por agente
+        if events_details:
+            st.markdown("### Por Agente")
+
+            # Agrupar por agente
+            agent_stats = {}
+            for event in events_details:
+                agent = event['agent_display']
+                if agent not in agent_stats:
+                    agent_stats[agent] = {
+                        "emoji": event['emoji'],
+                        "calls": 0,
+                        "cost": 0.0,
+                        "tokens": 0,
+                        "duration": 0.0
+                    }
+                agent_stats[agent]["calls"] += 1
+                agent_stats[agent]["cost"] += event['cost']
+                agent_stats[agent]["tokens"] += event['tokens_total']
+                agent_stats[agent]["duration"] += event['duration']
+
+            for agent, stats in agent_stats.items():
+                st.markdown(f"**{stats['emoji']} {agent}**")
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.caption(f"Chamadas: {stats['calls']}")
+                with col2:
+                    st.caption(f"Custo: ${stats['cost']:.4f}")
+                with col3:
+                    st.caption(f"Tokens: {stats['tokens']:,}")
+                with col4:
+                    st.caption(f"Tempo: {stats['duration']:.1f}s")
+
+            # Modelo usado
+            if events_details:
+                model = events_details[0].get("model", "desconhecido")
+                st.markdown("---")
+                st.caption(f"🤖 Modelo: {model}")
+
+
+def _render_accumulated_cost(session_id: str) -> None:
+    """
+    Renderiza custo acumulado da conversa (Épico 4.3 + 4.4).
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Comportamento:
+        - Exibe custo acumulado: "💰 $0.0045 total"
+        - Exibe tokens totais abaixo
+        - Só exibe se houver eventos (custo > 0)
+        - Botão para abrir modal de detalhes (4.4)
+
+    Critérios de Aceite (4.3 + 4.4):
+        - ✅ Mostrar custo acumulado
+        - ✅ Atualiza a cada mensagem
+        - ✅ Clicável para ver detalhes
+    """
+    accumulated = _get_session_accumulated_cost(session_id)
+
+    # Só exibe se houver custo
+    if accumulated["cost"] <= 0 and accumulated["tokens"] <= 0:
+        return
+
+    st.markdown("---")
+
+    # Layout: custo + botão de detalhes
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.caption(f"💰 ${accumulated['cost']:.4f} total")
+        st.caption(f"📊 {accumulated['tokens']:,} tokens")
+    with col2:
+        if st.button("📊", key="btn_details", help="Ver detalhes"):
+            _show_context_details_modal(session_id, accumulated)
 
 
 def _infer_status_from_argument(argument: Dict[str, Any]) -> str:
@@ -142,8 +392,8 @@ def _render_idea_status(session_id: str) -> None:
     # Buscar ideia ativa do session_state
     active_idea_id = st.session_state.get("active_idea_id")
 
+    # 4.2: Estado vazio = seção em branco (não mostrar mensagem)
     if not active_idea_id:
-        st.info("ℹ️ Nenhuma ideia ativa. Crie ou selecione uma ideia na sidebar.")
         return
 
     try:
@@ -154,8 +404,7 @@ def _render_idea_status(session_id: str) -> None:
             st.warning("⚠️ Ideia ativa não encontrada no banco de dados.")
             return
 
-        # Exibir título e status
-        st.markdown("### 💡 Ideia Atual")
+        # Exibir título da ideia (sem header, pois já está no expander)
 
         # Buscar argumento focal
         focal_arg_id = idea.get("current_argument_id")

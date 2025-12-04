@@ -1,18 +1,18 @@
 """
-Interface Web Conversacional - Paper Agent (Épico 9 - POC Completa).
+Interface Web Conversacional - Paper Agent (Épico 3 + 4 + 9).
 
 Interface principal do sistema:
 - Chat conversacional com histórico
-- Bastidores com reasoning dos agentes (seção colapsável)
+- Painel direito: Contexto + Bastidores (collapsible)
 - Sidebar com lista de sessões
 - Backend compartilhado com CLI (LangGraph + EventBus)
 
 Layout (Desktop):
 ┌─────────────────────────────────────────────────────────────┐
-│  [Sidebar - 20%]    [Chat - 50%]      [Bastidores - 30%]   │
+│  [Sidebar - 20%]    [Chat - 50%]       [Direito - 30%]     │
 │                                                             │
-│  📂 Sessões          💬 Chat           📊 Bastidores        │
-│  • Nova conversa     Histórico         [Colapsável]        │
+│  📂 Sessões          💬 Chat         💡 Contexto [▼]       │
+│  • Nova conversa     Histórico       📊 Bastidores [▶]     │
 │                      Input                                  │
 └─────────────────────────────────────────────────────────────┘
 
@@ -21,10 +21,11 @@ Progressão:
 - ✅ Protótipo (9.6-9.9): localStorage (removido no MVP)
 - ✅ MVP (9.10-9.11): Sidebar + SqliteSaver + persistência em banco
 - ✅ Épico 3: Bastidores reorganizados (seção colapsável, cards, histórico)
+- ✅ Épico 4: Seção de contexto colapsável acima dos bastidores
 
-Versão: 3.1
+Versão: 4.0
 Data: 04/12/2025
-Status: MVP + Épico 3 (Bastidores)
+Status: Épico 3 + 4 implementados
 """
 
 import sys
@@ -38,7 +39,7 @@ import streamlit as st
 from app.components import (
     render_chat_input,
     render_chat_history,
-    render_backstage,
+    render_right_panel,
     render_sidebar,
 )
 
@@ -128,7 +129,7 @@ def main():
         render_chat_input(session_id)
 
     with col_backstage:
-        render_backstage(session_id)
+        render_right_panel(session_id)
 
     # Footer
     st.markdown("---")
