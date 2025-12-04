@@ -31,6 +31,7 @@ from datetime import datetime
 from agents.database.manager import get_database_manager
 from app.components.session_helpers import get_current_session_id
 from app.components.conversation_helpers import get_relative_timestamp
+from app.components.sidebar import render_sidebar
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,7 @@ st.set_page_config(
     page_title="Detalhes da Ideia - Paper Agent",
     page_icon="💡",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 
@@ -253,13 +254,15 @@ def render_conversations_section(idea: dict):
 def main():
     """Função principal da página de detalhes."""
 
+    # Sidebar com navegação
+    render_sidebar()
+
     # Obter idea_id da query string
     idea_id = st.query_params.get("id")
 
     if not idea_id:
-        st.error("❌ ID da ideia não fornecido. Volte para 'Meus Pensamentos'.")
-        if st.button("← Voltar para Meus Pensamentos"):
-            st.switch_page("pages/1_pensamentos.py")
+        st.error("❌ ID da ideia não fornecido.")
+        st.info("Use o sidebar para navegar para 'Pensamentos'.")
         return
 
     # Carregar ideia do banco
@@ -269,17 +272,10 @@ def main():
 
         if not idea:
             st.error(f"❌ Ideia '{idea_id}' não encontrada.")
-            if st.button("← Voltar para Meus Pensamentos"):
-                st.switch_page("pages/1_pensamentos.py")
+            st.info("Use o sidebar para navegar para 'Pensamentos'.")
             return
 
         # === HEADER ===
-
-        # Botão voltar
-        if st.button("← Voltar para Meus Pensamentos", key="back_button"):
-            st.switch_page("pages/1_pensamentos.py")
-
-        st.markdown("---")
 
         # Título e status
         title = idea["title"]

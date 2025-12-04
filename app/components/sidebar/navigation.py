@@ -1,37 +1,27 @@
 """
-Módulo de navegação do sidebar (Épico 14.1).
+Módulo de navegação do sidebar (Épico 2.1).
 
 Responsável por:
-- Renderizar sidebar completo
-- Botões de navegação para páginas dedicadas
-- Coordenar renderização de conversas e ideias
+- Renderizar sidebar minimalista com links de navegação
+- Botão de nova conversa
+- Links para páginas dedicadas
 
-Versão: 1.0
-Data: 19/11/2025
-Status: Épico 14.1 - Navegação em Três Espaços
+Versão: 2.0
+Data: 04/12/2025
+Status: Épico 2.1 - Sidebar com Links de Navegação
 """
 
 import streamlit as st
-from typing import List, Dict, Any
 import logging
 
 from app.components.session_helpers import get_current_session_id
-from app.components.conversation_helpers import list_recent_conversations
-from app.components.sidebar.conversations import (
-    create_new_conversation,
-    render_conversation_list
-)
-from app.components.sidebar.ideas import (
-    get_recent_ideas,
-    render_idea_list
-)
 
 logger = logging.getLogger(__name__)
 
 
 def get_active_session_id() -> str:
     """
-    Retorna ID da sessão ativa (MVP - Épico 9.10-9.11).
+    Retorna ID da sessão ativa.
 
     Returns:
         str: ID da sessão ativa (formato: session-YYYYMMDD-HHMMSS-{millis})
@@ -41,69 +31,75 @@ def get_active_session_id() -> str:
         - Senão, gera nova sessão com get_current_session_id()
     """
     if "active_session_id" not in st.session_state:
-        # Gerar novo ID de sessão (formato legível com timestamp)
         st.session_state.active_session_id = get_current_session_id()
         logger.debug(f"Nova sessão ativa criada: {st.session_state.active_session_id}")
 
     return st.session_state.active_session_id
 
 
+def create_new_conversation() -> None:
+    """
+    Cria nova conversa e define como ativa.
+
+    Comportamento:
+        - Gera novo thread_id (LangGraph)
+        - Limpa histórico de mensagens
+        - Define como conversa ativa
+        - Força re-render da interface
+    """
+    try:
+        new_session_id = get_current_session_id()
+        st.session_state.active_session_id = new_session_id
+
+        if "messages" in st.session_state:
+            st.session_state.messages = []
+
+        if "active_idea_id" in st.session_state:
+            del st.session_state.active_idea_id
+
+        logger.info(f"Nova conversa criada: thread_id={new_session_id}")
+        st.switch_page("chat.py")
+
+    except Exception as e:
+        logger.error(f"Erro ao criar nova conversa: {e}", exc_info=True)
+        st.error(f"❌ Erro ao criar nova conversa: {e}")
+
+
 def render_sidebar() -> str:
     """
-    Renderiza sidebar com lista de conversas recentes (Épico 14.1).
+    Renderiza sidebar minimalista com links de navegação (Épico 2.1).
 
     Returns:
         str: ID da sessão ativa (thread_id do LangGraph)
 
-    Comportamento (Épico 14.1):
-        - Lista de conversas do SqliteSaver (checkpoints.db)
-        - Últimas 5 conversas ordenadas por timestamp DESC
-        - Botão "+ Nova Conversa"
-        - Conversa ativa destacada (bold, background diferente)
-        - Formato: "Título da conversa · Timestamp relativo" ("5min atrás", "2h atrás")
-        - Botão [📖 Meus Pensamentos] → redireciona para /pensamentos
-        - Botão [🏷️ Catálogo] → desabilitado até Épico 13
-        - Alternância entre conversas restaura contexto completo (Épico 14.5)
+    Layout:
+        ┌─────────────────────────┐
+        │ [+ Nova conversa]       │
+        │                         │
+        │ 📖 Pensamentos          │
+        │ 🏷️ Catálogo            │
+        │ 💬 Conversas            │
+        └─────────────────────────┘
+
+    Critérios de Aceite (2.1):
+        - Link "📖 Pensamentos" → /pensamentos
+        - Link "🏷️ Catálogo" → /catalogo (desabilitado)
+        - Link "💬 Conversas" → /historico
+        - Botão "+ Nova conversa" → inicia chat novo
+        - Links com ícones, sem header/logo
     """
     with st.sidebar:
-        st.title("💬 Conversas")
-
-        # Botão para nova conversa (14.1)
-        if st.button("➕ Nova Conversa", use_container_width=True, type="primary"):
+        # Botão para nova conversa (destaque primário)
+        if st.button("➕ Nova conversa", use_container_width=True, type="primary"):
             create_new_conversation()
 
         st.markdown("---")
 
-        # Buscar conversas recentes do SqliteSaver (14.1)
-        conversations = list_recent_conversations(limit=5)
-
-        if conversations and len(conversations) > 0:
-            st.caption("**Conversas recentes:**")
-            render_conversation_list(conversations)
-        else:
-            # Nenhuma conversa no banco ainda
-            st.caption("Nenhuma conversa encontrada.")
-            st.caption("Clique em '➕ Nova Conversa' para começar!")
-
-        st.markdown("---")
-
-        # Botões de navegação para páginas dedicadas (14.1)
-        st.subheader("📖 Navegação")
-
-        # Botão: Meus Pensamentos
-        if st.button("📖 Meus Pensamentos", use_container_width=True):
-            # Redirecionar para página /pensamentos
-            # Nota: Streamlit não tem redirect nativo; usar query_params ou link
+        # Links de navegação
+        if st.button("📖 Pensamentos", use_container_width=True):
             st.switch_page("pages/1_pensamentos.py")
 
-        # Botão: Catálogo (desabilitado até Épico 13)
-        st.button(
-            "🏷️ Catálogo",
-            use_container_width=True,
-            disabled=True,
-            help="Disponível no Épico 13"
-        )
+        if st.button("💬 Conversas", use_container_width=True):
+            st.switch_page("pages/3_historico.py")
 
-    # Retornar sessão ativa (thread_id para compatibilidade)
     return get_active_session_id()
-
