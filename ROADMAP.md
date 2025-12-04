@@ -13,6 +13,7 @@
 ### ✅ Concluídos
 - Infraestrutura base completa
 - **ÉPICO 2**: Sidebar (navegação minimalista)
+- **ÉPICO 3**: Bastidores (3.1-3.3 ✅, 3.4 adiado)
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
@@ -21,7 +22,6 @@
 
 #### Planejados (refinados)
 - **ÉPICO 1**: Convergência Orgânica (refinado)
-- **ÉPICO 3**: Bastidores (refinado)
 - **ÉPICO 4**: Contexto (refinado)
 - **ÉPICO 5**: UX Polish (refinado)
 
@@ -140,47 +140,49 @@
 
 ## ÉPICO 3: Bastidores
 
-**Objetivo:** Reorganizar bastidores com cards de pensamento e timeline, atualizando em tempo real.
+**Objetivo:** Reorganizar bastidores com cards de pensamento e histórico.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído (3.1-3.3), ⏸️ 3.4 adiado
 
 **Dependências:** Nenhuma
 
 ### Funcionalidades:
 
-#### 3.1 Remover toggle "Ver raciocínio"
+#### 3.1 Remover toggle "Ver raciocínio" ✅
 
 - **Descrição:** Bastidores sempre visíveis como seção colapsável, sem toggle separado
 - **Critérios de Aceite:**
-  - Deve remover toggle "🔍 Ver raciocínio"
-  - Bastidores visíveis como seção colapsável (header clicável)
-  - Usuário expande/colapsa clicando no header "📊 Bastidores"
+  - ✅ Removido toggle "🔍 Ver raciocínio"
+  - ✅ Bastidores visíveis como seção colapsável (header clicável)
+  - ✅ Usuário expande/colapsa clicando no header "📊 Bastidores"
 
-#### 3.2 Card de pensamento atual
+#### 3.2 Card de pensamento atual ✅
 
 - **Descrição:** Card mostrando output user-friendly do agente ativo
 - **Critérios de Aceite:**
-  - Deve mostrar emoji + nome do agente (🎯 Orquestrador, 📝 Estruturador, 🔬 Metodologista)
-  - Deve mostrar pensamento resumido (~280 chars)
-  - Deve ter link "Ver completo" → abre modal com raciocínio completo
-  - Estado vazio: mostrar 🤖 + "Aguardando..." centralizado
+  - ✅ Mostra emoji + nome do agente (🎯 Orquestrador, 📝 Estruturador, 🔬 Metodologista)
+  - ✅ Mostra pensamento resumido (~280 chars)
+  - ✅ Link "Ver completo" → abre modal com raciocínio completo
+  - ✅ Estado vazio: 🤖 + "Aguardando..." centralizado
 
-#### 3.3 Card de timeline
+#### 3.3 Card de histórico ✅
 
 - **Descrição:** Card mostrando histórico de contribuições dos agentes
 - **Critérios de Aceite:**
-  - Deve mostrar últimos 3 agentes (atual + 2 anteriores)
-  - Formato: lista simples com emoji + nome + resumo + horário
-  - Deve ter link "Ver histórico" → abre modal com lista completa
-  - MVP: lista simples. Timeline visual é evolução futura.
+  - ✅ Mostra últimos 2 agentes anteriores (atual no card de pensamento)
+  - ✅ Formato: lista simples com emoji + nome curto + horário
+  - ✅ Link "Ver histórico" → abre modal com lista completa
+  - ✅ MVP: lista simples (renomeado de "Timeline" para "Histórico")
 
-#### 3.4 Indicador de novidade
+#### 3.4 Indicador de novidade ⏸️ ADIADO
 
 - **Descrição:** Indicador sutil quando há atualização nos bastidores
+- **Status:** Adiado - overhead sem valor no MVP (Streamlit não tem eventos em tempo real)
 - **Critérios de Aceite:**
-  - Deve mostrar indicador no header quando há novidade (🔴 ou "(+2)")
+  - Mostrar indicador no header quando há novidade (🔴 ou "(+2)")
   - Indicador some quando usuário expande bastidores
   - Não expande automaticamente (não distrai usuário)
+- **Nota:** Retomar quando houver SSE/WebSocket para eventos em tempo real
 
 ---
 
