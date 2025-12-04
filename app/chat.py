@@ -3,17 +3,16 @@ Interface Web Conversacional - Paper Agent (Épico 9 - POC Completa).
 
 Interface principal do sistema:
 - Chat conversacional com histórico
-- Bastidores com reasoning dos agentes (collapsible)
+- Bastidores com reasoning dos agentes (seção colapsável)
 - Sidebar com lista de sessões
-- Métricas inline discretas
 - Backend compartilhado com CLI (LangGraph + EventBus)
 
 Layout (Desktop):
 ┌─────────────────────────────────────────────────────────────┐
 │  [Sidebar - 20%]    [Chat - 50%]      [Bastidores - 30%]   │
 │                                                             │
-│  📂 Sessões          💬 Chat           🔍 Ver raciocínio    │
-│  • Nova conversa     Histórico         [Fechado/Aberto]    │
+│  📂 Sessões          💬 Chat           📊 Bastidores        │
+│  • Nova conversa     Histórico         [Colapsável]        │
 │                      Input                                  │
 └─────────────────────────────────────────────────────────────┘
 
@@ -21,10 +20,11 @@ Progressão:
 - ✅ POC (9.1-9.5): Chat básico + polling + métricas + backend integrado
 - ✅ Protótipo (9.6-9.9): localStorage (removido no MVP)
 - ✅ MVP (9.10-9.11): Sidebar + SqliteSaver + persistência em banco
+- ✅ Épico 3: Bastidores reorganizados (seção colapsável, cards, histórico)
 
-Versão: 3.0
-Data: 16/11/2025
-Status: MVP COMPLETO (Épico 9.1-9.11 implementado)
+Versão: 3.1
+Data: 04/12/2025
+Status: MVP + Épico 3 (Bastidores)
 """
 
 import sys

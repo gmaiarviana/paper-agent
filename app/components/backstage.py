@@ -39,13 +39,12 @@ def render_backstage(session_id: str) -> None:
     Args:
         session_id: ID da sessão ativa
 
-    Comportamento (Épico 3.1 + Épico 12.1):
+    Comportamento (Épico 3 + Épico 12.1):
         - Mostra status da ideia ativa (título, badge, metadados) - fora do expander
         - Seção colapsável "📊 Bastidores" (header clicável, colapsado por padrão)
-        - Quando expandido: mostra agente ativo + reasoning resumido
-        - Botão "Ver raciocínio completo" abre modal com JSON
-        - Métricas do agente (tempo, tokens, custo)
-        - Timeline colapsada de agentes anteriores
+        - Card de pensamento: emoji + nome + reasoning (~280 chars) + link "Ver completo"
+        - Histórico: últimos 2 agentes + link "Ver histórico"
+        - Estado vazio: 🤖 + "Aguardando..." centralizado
 
     Integração:
         - EventBus: Busca eventos via get_session_events()
