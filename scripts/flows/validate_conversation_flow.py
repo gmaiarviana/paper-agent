@@ -179,23 +179,23 @@ def test_agent_suggestion_with_justification():
 def test_direction_change_detection():
     """
     BEHAVIOR: Detecção de mudança de direção
-    
+
     Quando usuário muda de direção, sistema deve:
     - Detectar mudança sem questionar
     - Adaptar sem bloquear
     - Atualizar sugestões baseado em nova direção
     """
     print_separator("BEHAVIOR: Detecção de Mudança de Direção")
-    
+
     # Estado com direção inicial
     user_input = "Na verdade, quero fazer revisão de literatura primeiro"
     state = create_initial_multi_agent_state(user_input, session_id="test-conv-4")
     state['messages'] = [
         HumanMessage(content="Quero testar minha hipótese sobre LLMs e produtividade"),
-        AIMessage(content="Posso chamar o Metodologista para validar?"),
+        AIMessage(content="Vou validar sua hipótese metodologicamente. Isso captura o que você quer?"),
         HumanMessage(content=user_input)  # Mudança de direção
     ]
-    
+
     print(f"Direção original: Testar hipótese")
     print(f"Nova direção: '{user_input}'\n")
     
