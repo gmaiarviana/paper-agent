@@ -142,7 +142,11 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Infraestrutura e Utils
 
 **Código:**
-- `utils/event_bus.py` - EventBus (comunicação CLI ↔ Dashboard)
+- `utils/event_bus/` - EventBus modularizado (comunicação CLI ↔ Dashboard)
+  - `core.py` - Classe base com persistência
+  - `publishers.py` - Métodos publish_*
+  - `readers.py` - Métodos get_* e list_*
+  - `singleton.py` - Classe EventBus completa e get_event_bus()
 - `utils/event_models.py` - Modelos Pydantic de eventos
 - `utils/cost_tracker.py` - Cálculo de custos
 - `utils/token_extractor.py` - Extração de tokens
@@ -272,7 +276,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - ✅ `agents/checklist/progress_tracker.py` - Documentado em `web/components.md` (seção 3.6)
 - ✅ `app/pages/` - Documentado em `web/components.md` e `navigation_philosophy.md`
 - ✅ `app/components/conversation_helpers.py` - Docstrings detalhadas no código
-- ✅ `utils/event_bus.py` - Docstrings detalhadas no código
+- ✅ `utils/event_bus/` - Docstrings detalhadas no código (estrutura modular)
 
 ---
 

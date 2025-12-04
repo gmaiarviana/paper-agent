@@ -329,7 +329,11 @@ paper-agent/
 │   │   └── structurer.py
 │   ├── cost_tracker.py    # Cálculo de custos de API
 │   ├── event_models.py    # Models Pydantic para eventos
-│   └── event_bus.py       # EventBus para Dashboard
+│   └── event_bus/         # EventBus modularizado para Dashboard
+│       ├── core.py        # Classe base com persistência
+│       ├── publishers.py  # Métodos publish_*
+│       ├── readers.py     # Métodos get_* e list_*
+│       └── singleton.py   # Classe EventBus completa
 │
 ├── cli/                   # Interface de linha de comando
 │   ├── __init__.py
