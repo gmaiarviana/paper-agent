@@ -5,13 +5,13 @@ Responsável por:
 - Seção colapsável "📊 Bastidores" (header clicável, sem toggle separado)
 - Card de pensamento: emoji + nome + reasoning resumido (~280 chars) + link "Ver completo"
 - Estado vazio: 🤖 + "Aguardando..." centralizado
-- Card de timeline: últimos 2 agentes + link "Ver histórico"
+- Histórico: últimos 2 agentes + link "Ver histórico"
 - Modal de raciocínio completo (JSON estruturado)
 - Modal de histórico completo (lista de todos os agentes)
 
-Versão: 3.3
+Versão: 3.3.1
 Data: 04/12/2025
-Status: Épico 3.3 - Card de timeline
+Status: Épico 3.3 - Ajustes (remover métricas, renomear Timeline → Histórico)
 """
 
 import streamlit as st
@@ -395,29 +395,6 @@ def _render_active_agent(reasoning: Dict[str, Any]) -> None:
     if st.button("Ver completo", key="view_full_reasoning", type="secondary"):
         _show_reasoning_modal(reasoning)
 
-    # Métricas do agente
-    st.markdown("**Métricas:**")
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.metric(
-            label="⏱️ Tempo",
-            value=f"{reasoning['duration']:.2f}s"
-        )
-
-    with col2:
-        st.metric(
-            label="💰 Custo",
-            value=f"${reasoning['cost']:.4f}"
-        )
-
-    with col3:
-        tokens_total = reasoning['tokens']['total']
-        st.metric(
-            label="📊 Tokens",
-            value=f"{tokens_total}"
-        )
-
 
 @st.dialog("📜 Histórico Completo", width="large")
 def _show_timeline_modal(events: List[Dict[str, Any]]) -> None:
@@ -471,13 +448,13 @@ def _format_time(timestamp: str) -> str:
 
 def _render_agent_timeline(session_id: str) -> None:
     """
-    Renderiza card de timeline com últimos 2 agentes anteriores (Épico 3.3).
+    Renderiza histórico com últimos 2 agentes anteriores (Épico 3.3).
 
     Args:
         session_id: ID da sessão ativa
 
     Comportamento:
-        - Header "📜 Timeline"
+        - Header "📜 Histórico"
         - Mostra últimos 2 eventos (atual já está no card de pensamento)
         - Formato: ● emoji + nome curto + horário
         - Link "Ver histórico" abre modal com lista completa
@@ -492,8 +469,8 @@ def _render_agent_timeline(session_id: str) -> None:
         # Remover último evento (já mostrado no card de pensamento)
         previous_events = completed_events[:-1] if len(completed_events) > 1 else []
 
-        # Header da timeline
-        st.markdown("**📜 Timeline**")
+        # Header do histórico
+        st.markdown("**📜 Histórico**")
 
         if not previous_events:
             st.caption("Nenhum evento anterior")
