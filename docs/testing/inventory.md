@@ -10,7 +10,7 @@ Este documento lista todos os comportamentos testados pelo sistema.
 
 | Tipo | Quantidade | Custo API |
 |------|------------|-----------|
-| Unit Tests (mocks) | 16 arquivos | $0 |
+| Unit Tests (mocks) | ~14 arquivos | $0 |
 | Integration Tests (API real) | 5 arquivos | ~$0.10/execução |
 | Behavior Validations (API real) | 10 arquivos | ~$0.15/execução |
 
@@ -50,12 +50,12 @@ Este documento lista todos os comportamentos testados pelo sistema.
 | Arquivo | Comportamentos Testados |
 |---------|------------------------|
 | `test_event_bus.py` | Publicação/consumo de eventos |
-| `test_event_models.py` | Modelos de eventos |
 | `test_cost_tracker.py` | Cálculo de custos |
-| `test_memory_manager.py` | Gerenciamento de memória |
+| `test_memory_manager.py` | Gerenciamento de memória (lógica complexa: isolamento, cálculos) |
 | `test_execution_tracker.py` | Rastreamento de execução |
-| `test_config_loader.py` | Carregamento de configs |
+| `test_config_loader.py` | Carregamento de configs (validação de erros e schema) |
 | `test_json_extraction.py` | Extração de JSON |
+| `test_database_manager.py` | DatabaseManager, IdeasCRUD, ArgumentsCRUD, schema, versionamento |
 
 ---
 

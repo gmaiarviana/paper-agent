@@ -2,9 +2,9 @@
 
 ## Rodar Testes
 
-### Todos os testes unitários
+### Todos os testes unitários (bateria rápida - recomendado após refatorações)
 ```bash
-pytest tests/unit/
+pytest tests/unit/ -v
 ```
 
 ### Todos os testes de integração
@@ -15,6 +15,11 @@ pytest tests/integration/ -m integration
 ### Todos os testes (unit + integration)
 ```bash
 pytest tests/
+```
+
+### Bateria completa (unit + integration, verbose)
+```bash
+pytest tests/ -v --tb=short
 ```
 
 ### Com coverage
