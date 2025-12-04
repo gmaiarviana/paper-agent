@@ -13,6 +13,7 @@
 ### ✅ Concluídos
 - Infraestrutura base completa
 - **ÉPICO 2**: Sidebar (navegação minimalista)
+- **ÉPICO 4**: Contexto (seção colapsável + custo acumulado + modal detalhes) - *pendências: indicador solidez, chat de página ideia*
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
@@ -22,7 +23,6 @@
 #### Planejados (refinados)
 - **ÉPICO 1**: Convergência Orgânica (refinado)
 - **ÉPICO 3**: Bastidores (refinado)
-- **ÉPICO 4**: Contexto (refinado)
 - **ÉPICO 5**: UX Polish (refinado)
 
 #### Planejados (não refinados)
@@ -184,13 +184,13 @@
 
 ---
 
-## ÉPICO 4: Contexto
+## ✅ ÉPICO 4: Contexto
 
 **Objetivo:** Nova seção acima dos bastidores mostrando ideia ativa e informações da conversa.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído (com pendências documentadas abaixo)
 
-**Dependências:** Nenhuma (pode ser paralelo aos Épicos 2 e 3)
+**Dependências:** Nenhuma
 
 ### Funcionalidades:
 
