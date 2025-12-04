@@ -321,21 +321,15 @@ Formatos possíveis:
 
 **Estrutura principal:**
 - **Minhas Ideias** = navegação principal (destaque)
+- **Catálogo** = conceitos reutilizáveis (referência)
 - **Histórico** = conversas passadas (secundário)
-- **Biblioteca** = conceitos (acessível via menu)
-- **Suposições** = proposições de baixa solidez (futuro)
 
-**Menu minimalista (fechado por padrão):**
+**Sidebar minimalista:**
 ```
-[Menu ☰]              [Chat Principal]
-```
-
-Menu expandido:
-```
-├── 💡 Minhas Ideias (principal)
-├── 🕐 Histórico de conversas
-├── 📚 Biblioteca de conceitos
-└── ❓ Suposições (futuro)
+├── 📖 Pensamentos
+├── 🏷️ Catálogo
+├── 💬 Conversas
+└── [+ Nova conversa]
 ```
 
 **Dentro de cada Ideia:**
@@ -356,27 +350,27 @@ Menu expandido:
 
 **Layout consolidado:**
 ```
-┌─────────────────────────────────────────────────┐
-│  [Sidebar]           [Chat Principal]           │
-│                                                 │
-│  💬 Conversas         Você: "..."               │
-│  • Conv 1 (ativa)     💰 $0.0012                │
-│  • Conv 2 (2h atrás)                            │
-│                       Sistema: "..."            │
-│  [+ Nova Conversa]    [digitando...]            │
-│  [📖 Pensamentos]                               │
-│  [🏷️ Catálogo]       [🔍 Bastidores →]         │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  [Sidebar]              [Chat]                      [Direita]   │
+│                                                                 │
+│  📖 Pensamentos         Conversa...           ┌───────────────┐ │
+│  🏷️ Catálogo                                 │ 💡 Contexto   │ │
+│  💬 Conversas                                 └───────────────┘ │
+│  [+ Nova conversa]                            ┌───────────────┐ │
+│                                               │📊 Bastidores  │ │
+│                                               └───────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 **Transparência diferencial:**
-- Ver agentes pensando: Reasoning inline ou modal
+- **Contexto:** Informações sobre ideia e conversa (painel direito, acima)
+- **Bastidores:** Pensamento dos agentes em tempo real (painel direito, abaixo)
+- Ambos são seções colapsáveis, sem toggle separado
 - Tempo real: Eventos via polling (1s)
-- 3 níveis: Inline (discreto) → Resumido (280 chars) → Completo (modal)
 
 **Agentes Visíveis:**
-- Sistema mostra qual agente está ativo
-- Raciocínio resumido por agente
+- Sistema mostra qual agente está ativo nos Bastidores
+- Cards de pensamento e timeline exibem raciocínio por agente
 - Diferencial: usuário entende QUE tipo de análise está sendo feita
 
 ### 5.3 CLI: Ferramenta de Desenvolvimento

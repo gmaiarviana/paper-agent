@@ -85,69 +85,45 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 
 ### 3.1 Estrutura Geral (Desktop)
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  [☰ Menu]           [Chat Principal]                    [🔍 Bastidores]    │
-│                                                                             │
-│  (colapsado         Você: "..."                         (colapsado         │
-│   por padrão)       💰 $0.0012                           por padrão)       │
-│                                                                             │
-│                     Sistema: "..."                                          │
-│                     [digitando...]                                          │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-**Menu ☰ expandido:**
-```
-├── 💡 Minhas Ideias (principal)
-│   └── [lista de ideias com solidez]
-├── 🕐 Histórico
-│   └── [conversas recentes]
-├── 📚 Biblioteca
-│   └── [conceitos]
-└── ❓ Suposições (futuro)
+┌─────────────────────────────────────────────────────────────────┐
+│  [Sidebar]              [Chat]                      [Direita]   │
+│                                                                 │
+│  📖 Pensamentos         Conversa...           ┌───────────────┐ │
+│  🏷️ Catálogo                                 │ 💡 Contexto   │ │
+│  💬 Conversas                                 │ (ideia ativa) │ │
+│  [+ Nova conversa]                            └───────────────┘ │
+│                                               ┌───────────────┐ │
+│                                               │📊 Bastidores  │ │
+│                                               │ (pensamento)  │ │
+│                                               │ (timeline)    │ │
+│                                               └───────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 **Layout com 3 elementos:**
-- **Menu (colapsável):** Navegação principal com ideias como centro (fechado por padrão)
+- **Sidebar:** Links de navegação (sem lista de conversas)
 - **Chat (50-60%):** Conversação principal
-- **Bastidores (30%):** Reasoning dos agentes em tempo real (collapsible)
+- **Painel Direito:** Dividido em Contexto (acima) + Bastidores (abaixo)
 
 ### 3.2 Componentes Detalhados
 
-**A) Menu Principal (Colapsável)**
+**A) Sidebar (Links de Navegação)**
 
-**Fechado (padrão):**
-```
-[☰]
-```
-
-**Aberto:**
 ```
 ┌─────────────────────────┐
-│ 💡 Minhas Ideias        │ ← principal
+│ 📖 Pensamentos          │ → /pensamentos
+│ 🏷️ Catálogo            │ → /catalogo (desabilitado)
+│ 💬 Conversas            │ → /historico
 │                         │
-│ • LLMs em produtividade │
-│   ██████░░ 65% sólida   │ ← indicador de solidez
-│ • Semana de 4 dias      │
-│   ████░░░░ 40% sólida   │
-│                         │
-│ [+ Nova Ideia]          │
-│                         │
-│ ─────────────────────── │
-│                         │
-│ 🕐 Histórico            │ ← secundário
-│ 📚 Biblioteca           │
-│ ❓ Suposições (futuro)  │
+│ [+ Nova conversa]       │ → inicia chat novo
 └─────────────────────────┘
 ```
 
 **Funcionalidades:**
-- Menu fechado por padrão (minimalista)
-- Clicar em ideia → abre página de detalhes da ideia
-- Indicador de solidez visual (barra de progresso colorida)
-- Histórico mostra conversas recentes (secundário)
-- Biblioteca acessível via menu (conceitos)
+- Links com ícones para páginas dedicadas
+- Botão "+ Nova conversa" inicia chat novo
+- Sem lista de conversas recentes (histórico em página dedicada)
+- Sem header/logo (minimalista)
 
 **B) Página: Minhas Ideias**
 
@@ -230,78 +206,122 @@ O sistema mantém **duas interfaces web** com propósitos distintos:
 ```
 ┌──────────────────────────────────────┐
 │  Você: "Observei que TDD reduz bugs" │
-│  💰 $0.0012 · 215 tokens · 1.2s      │ ← inline, pequeno
+│  ℹ️                                  │ ← ícone pequeno (clicável)
 │                                      │
 │  Sistema: "Interessante! Em que...  │
-│  💰 $0.0008 · 180 tokens · 0.9s      │
+│  ℹ️                                  │ ← ícone pequeno (clicável)
 │                                      │
-│  [Input de texto aqui]               │
-│  [Enviar]                            │
+│  [Input de texto aqui]               │ ← st.chat_input (nativo)
 └──────────────────────────────────────┘
 ```
 
-**E) Bastidores (30% largura, collapsible)**
+**Métricas por mensagem:**
+- Ícone pequeno (ℹ️) após cada mensagem do sistema
+- Clique no ícone abre popover com métricas
+- Formato: "💰 R$0,02 · 215 tokens · 1.2s"
+- Métricas NÃO ficam sempre visíveis (reduz ruído)
 
-> **🔍 DIFERENÇA CHAVE:** Bastidores mostra o **sistema pensando** (reasoning em tempo real).  
-> Progress mostra **onde o usuário está na jornada** (estado atual do argumento).
+**Input de chat:**
+- Usar `st.chat_input` (componente nativo Streamlit)
+- Enter envia mensagem
 
-**Agentes Visíveis:**
-- Sistema mostra qual agente está ativo:
-  - 🎯 Orquestrador (provocador socrático)
-  - 📝 Estruturador (organizador lógico)
-  - 🔬 Metodologista (validador de rigor)
-- Raciocínio resumido (1 frase, ~280 chars)
-- Link "Ver raciocínio completo" → modal com detalhes
-- Diferencial: usuário entende QUE tipo de análise está sendo feita
-- **Propósito:** Transparência do processo de reasoning (como o sistema está pensando)
+**E) Bastidores (Painel Direito - Abaixo)**
+
+**Propósito:** Mostrar o sistema pensando (reasoning dos agentes).
+
+**Estrutura:**
+```
+┌──────────────────────────────┐
+│ 📊 Bastidores            🔴  │ ← header clicável + indicador
+├──────────────────────────────┤
+│                              │
+│ ┌──────────────────────────┐ │
+│ │ 🎯 Orquestrador          │ │ ← Card de pensamento
+│ │ "Analisando contexto..." │ │
+│ │ [Ver completo]           │ │
+│ └──────────────────────────┘ │
+│                              │
+│ ┌──────────────────────────┐ │
+│ │ 📜 Timeline              │ │ ← Card de timeline
+│ │ ● 🎯 Orq. - 10:32        │ │
+│ │ ● 📝 Est. - 10:31        │ │
+│ │ ● 🎯 Orq. - 10:30        │ │
+│ │ [Ver histórico]          │ │
+│ └──────────────────────────┘ │
+└──────────────────────────────┘
+```
+
+**Comportamento:**
+- Header clicável para expandir/colapsar seção inteira
+- Indicador de novidade (🔴 ou "+2") quando há atualizações
+- Indicador some ao expandir
+- Não expande automaticamente (não distrai usuário)
+
+**Estado vazio:**
+```
+┌──────────────────────────────┐
+│ 📊 Bastidores                │
+│                              │
+│           🤖                 │
+│       Aguardando...          │
+│                              │
+└──────────────────────────────┘
+```
+
+**Card de Pensamento:**
+- Emoji + nome do agente ativo
+- Pensamento resumido (~280 chars)
+- Link "Ver completo" → modal com raciocínio completo
+
+**Card de Timeline:**
+- Últimos 3 agentes (atual + 2 anteriores)
+- Formato: emoji + nome + resumo curto + horário
+- Link "Ver histórico" → modal com lista completa
+
+**Modal de Timeline:**
+- Lista completa de todos os agentes que trabalharam
+- Mesmo formato: emoji + nome + resumo + horário
+- Ordenado por mais recente primeiro
 
 **Futuro (Épico 18):**
 - Agentes customizáveis como personas (Sócrates, Aristóteles, Popper)
 - Botão "Customizar persona" ao lado de cada agente
 - Ver: `docs/vision/agent_personas.md`
 
-**Fechado (padrão):**
+**F) Contexto (Painel Direito - Acima)**
+
+**Propósito:** Mostrar informações sobre a ideia e conversa ativa.
+
+**Estrutura:**
 ```
-┌──────────────────────┐
-│ [🔍 Ver raciocínio]  │ ← botão toggle
-└──────────────────────┘
+┌──────────────────────────────┐
+│ 💡 Contexto              [↗] │ ← header clicável
+├──────────────────────────────┤
+│ 📝 "LLMs e produtividade"    │ ← título da ideia
+│ Status: Estruturada          │
+│ Solidez: ██████░░ 65%        │
+│                              │
+│ 💰 R$ 0,15 total             │ ← custo acumulado (clicável)
+└──────────────────────────────┘
 ```
 
-**Aberto:**
-```
-┌────────────────────────────────────┐
-│ 🧠 Orquestrador (agora)            │
-│                                    │
-│ Usuário tem observação vaga.       │ ← resumo (280 chars)
-│ Preciso contexto: onde observou... │
-│                                    │
-│ [📄 Ver raciocínio completo]       │ ← expande modal
-│                                    │
-│ ⏱️ 1.2s | 💰 $0.0012 | 📊 215 tokens│
-│                                    │
-│ ▼ Timeline de agentes anteriores   │ ← colapsado
-└────────────────────────────────────┘
-```
+**Comportamento:**
+- Header clicável para expandir/colapsar
+- Clique no custo abre modal com detalhes
+- Atualiza em tempo real
 
-**Modal (raciocínio completo):**
-```
-┌──────────────────────────────────────────────┐
-│ 🧠 Orquestrador - Raciocínio Completo        │
-│                                              │
-│ {                                            │
-│   "agent": "orchestrator",                   │
-│   "reasoning": "Analisei o input...",        │
-│   "next_step": "explore",                    │
-│   "message": "Interessante! Em que...",      │
-│   "agent_suggestion": null,                  │
-│   "tokens": {"input": 120, "output": 95},    │
-│   "cost": 0.0012,                            │
-│   "timestamp": "2025-11-15T10:30:00Z"        │
-│ }                                            │
-│                                              │
-│ [Fechar]                                     │
-└──────────────────────────────────────────────┘
-```
+**Estado vazio (sem ideia associada):**
+- Seção em branco ou não aparece
+- Só mostra custo acumulado
+
+**Modal de detalhes:**
+- Ideia completa (título, status, argumentos)
+- Custo detalhado por mensagem
+- Modelo usado
+- Total de tokens
+
+**Chat iniciado de página de ideia:**
+- Já começa com ideia associada no Contexto
 
 ---
 
@@ -390,41 +410,9 @@ Solidez: ███░░░░░ 35%            ← vermelho
 
 ---
 
-### 3.5 Mostrar Status da Ideia (Épico 12.1)
+### 3.5 Status da Ideia
 
-**Localização:** Bastidores (painel direito), topo
-
-**Visual:**
-```
-┌────────────────────────────────────┐
-│ 💡 Ideia Atual                     │
-│                                    │
-│ 📝 Semana de 4 dias                │ ← título
-│ [Estruturada]                      │ ← badge
-│                                    │
-│ 3 argumentos (V3 focal)             │ ← metadados
-│ Última atualização: 10min atrás    │
-│                                    │
-│ ─────────────────────────          │
-│                                    │
-│ 🧠 Orquestrador (agora)            │
-│ [reasoning...]                     │
-└────────────────────────────────────┘
-```
-
-**Funcionalidades:**
-- Badge de status inferido do modelo cognitivo (não manual)
-- Status atualiza em tempo real conforme conversa evolui
-- Badges visuais:
-  - 🔍 Explorando (amarelo)
-  - 📝 Estruturada (azul)
-  - ✅ Validada (verde)
-- Metadados: # argumentos, argumento focal, timestamp
-
-**Critérios de inferência de status:**
-- **Explorando:** claim vago, fundamentos vazios, open_questions muitas
-- **Estruturada:** claim específico, fundamentos preenchidos, open_questions < 3
-- **Validada:** Metodologista aprovou, contradictions vazias, poucos fundamentos com baixa solidez
+**Nota:** Conteúdo movido para seção "Contexto" (3.2 F). Ver detalhes acima.
 
 ---
 
@@ -529,19 +517,19 @@ Solidez: ███░░░░░ 35%            ← vermelho
 
 ### 4.2 Fluxo de Bastidores
 ```
-1. Usuário clica "🔍 Ver raciocínio"
+1. Usuário envia mensagem
    ↓
-2. Painel expande (30-40% da tela)
+2. Bastidores atualiza card de pensamento (agente ativo)
    ↓
-3. Mostra agente ativo + reasoning resumido
+3. Indicador de novidade aparece se bastidores colapsado
    ↓
-4. Usuário clica "Ver raciocínio completo"
+4. Timeline atualiza com novo evento
    ↓
-5. Modal abre com JSON estruturado
+5. Usuário pode expandir para ver detalhes
    ↓
-6. Usuário fecha modal
+6. Usuário clica "Ver completo" → modal com raciocínio completo
    ↓
-7. Volta ao resumido
+7. Usuário clica "Ver histórico" → modal com timeline completa
 ```
 
 ### 4.3 Fluxo de Sessões
@@ -629,9 +617,10 @@ import streamlit as st
 from agents.multi_agent_graph import create_multi_agent_graph
 
 def render_chat_input(session_id: str):
-    user_input = st.text_input("Digite sua mensagem:", key="chat_input")
+    # Usar st.chat_input (componente nativo Streamlit)
+    user_input = st.chat_input("Digite sua mensagem:")
     
-    if st.button("Enviar") or user_input:
+    if user_input:
         # Mostrar "digitando..."
         with st.spinner("Sistema está pensando..."):
             # Invocar LangGraph
@@ -656,7 +645,7 @@ def render_chat_input(session_id: str):
             "cost": result.get("cost")
         })
         
-        # Limpar input
+        # st.chat_input limpa automaticamente após envio
         st.rerun()
 ```
 
@@ -665,35 +654,36 @@ def render_chat_input(session_id: str):
 import streamlit as st
 
 def render_backstage(session_id: str):
-    # Toggle
-    show_backstage = st.toggle("🔍 Ver raciocínio", value=False)
+    # Header colapsável com indicador de novidade
+    has_updates = check_new_updates(session_id)
+    indicator = "🔴" if has_updates else ""
     
-    if not show_backstage:
-        return
-    
-    # Buscar reasoning do agente ativo
-    reasoning = get_latest_reasoning(session_id)
-    
-    if reasoning:
-        st.subheader(f"🧠 {reasoning['agent'].title()}")
-        st.write(reasoning['summary'][:280])  # Resumido
+    with st.expander(f"📊 Bastidores {indicator}", expanded=False):
+        # Buscar reasoning do agente ativo
+        reasoning = get_latest_reasoning(session_id)
         
-        if st.button("📄 Ver raciocínio completo"):
-            with st.expander("Raciocínio Completo"):
-                st.json(reasoning)
-        
-        # Métricas
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Tempo", f"{reasoning['duration']:.1f}s")
-        col2.metric("Custo", f"${reasoning['cost']:.4f}")
-        col3.metric("Tokens", reasoning['tokens'])
-        
-        # Timeline colapsada
-        with st.expander("▼ Timeline de agentes anteriores"):
-            timeline = get_timeline(session_id)
+        if reasoning:
+            # Card de pensamento
+            st.markdown(f"### {get_agent_emoji(reasoning['agent'])} {reasoning['agent'].title()}")
+            st.write(reasoning['summary'][:280])  # Resumido
+            
+            if st.button("Ver completo", key="view_reasoning"):
+                show_reasoning_modal(reasoning)
+            
+            # Card de timeline
+            st.markdown("### 📜 Timeline")
+            timeline = get_timeline(session_id, limit=3)
             for event in timeline:
-                st.write(f"**{event['agent']}** ({event['timestamp']})")
+                st.write(f"● {get_agent_emoji(event['agent'])} {event['agent']} - {event['timestamp']}")
                 st.caption(event['summary'][:100])
+            
+            if len(get_timeline(session_id)) > 3:
+                if st.button("Ver histórico", key="view_timeline"):
+                    show_timeline_modal(session_id)
+        else:
+            # Estado vazio
+            st.markdown("🤖")
+            st.markdown("Aguardando...")
 ```
 
 **Arquivo: `app/components/sidebar.py` (Épico 12)**

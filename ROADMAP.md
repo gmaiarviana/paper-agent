@@ -17,20 +17,27 @@
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
+
+#### Planejados (refinados)
 - **ÉPICO 1**: Convergência Orgânica (refinado)
-- **ÉPICO 2**: Qualidade de Testes (LLM-as-Judge) (não refinado)
-- **ÉPICO 3**: Integração Backend↔Frontend (não refinado)
-- **ÉPICO 4**: UX Polish (não refinado)
-- **ÉPICO 5**: Conceitos (não refinado)
-- **ÉPICO 6**: Alinhamento de Ontologia (não refinado)
-- **ÉPICO 7**: Pesquisador (não refinado)
-- **ÉPICO 8**: Escritor (não refinado)
+- **ÉPICO 2**: Sidebar (refinado)
+- **ÉPICO 3**: Bastidores (refinado)
+- **ÉPICO 4**: Contexto (refinado)
+- **ÉPICO 5**: UX Polish (refinado)
+
+#### Planejados (não refinados)
+- **ÉPICO 6**: Qualidade de Testes - LLM-as-Judge (não refinado)
+- **ÉPICO 7**: Integração Backend↔Frontend (não refinado)
+- **ÉPICO 8**: Conceitos (não refinado)
+- **ÉPICO 9**: Alinhamento de Ontologia (não refinado)
+- **ÉPICO 10**: Pesquisador (não refinado)
+- **ÉPICO 11**: Escritor (não refinado)
 
 **Nota sobre Dependências:**
-- Épicos 1, 2, 3 e 4 podem ser desenvolvidos em paralelo (independentes)
-- Épico 2 valida o comportamento do Épico 1 (recomendado desenvolver 1 antes de 2)
-- Épico 5 depende do Épico 3 (precisa da integração frontend para exibir conceitos)
-- Épicos 6-8 seguem sequência: Ontologia → Pesquisador → Escritor
+- Épicos 1, 2, 3, 4 podem ser desenvolvidos em paralelo (independentes)
+- Épico 5 depende dos Épicos 3-4 (usa nova estrutura de Contexto/Bastidores)
+- Épico 6 depende do Épico 1 (valida comportamento de convergência)
+- Épicos 7-11 seguem sequência: Integração → Conceitos → Ontologia → Pesquisador → Escritor
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -108,7 +115,157 @@
 
 ---
 
-## ÉPICO 2: Qualidade de Testes (LLM-as-Judge)
+## ÉPICO 2: Sidebar
+
+**Objetivo:** Simplificar sidebar para navegação limpa, apenas links para páginas.
+
+**Status:** ⏳ Planejado (refinado)
+
+**Dependências:** Nenhuma
+
+### Funcionalidades:
+
+#### 2.1 Links de navegação
+
+- **Descrição:** Sidebar com links para páginas dedicadas e botão de nova conversa
+- **Critérios de Aceite:**
+  - Deve exibir link "📖 Pensamentos" → `/pensamentos`
+  - Deve exibir link "🏷️ Catálogo" → `/catalogo` (desabilitado se não implementado)
+  - Deve exibir link "💬 Conversas" → `/historico` (página de histórico)
+  - Deve exibir botão "+ Nova conversa" → inicia chat novo
+  - Links com ícones, sem header/logo
+
+---
+
+## ÉPICO 3: Bastidores
+
+**Objetivo:** Reorganizar bastidores com cards de pensamento e timeline, atualizando em tempo real.
+
+**Status:** ⏳ Planejado (refinado)
+
+**Dependências:** Nenhuma
+
+### Funcionalidades:
+
+#### 3.1 Remover toggle "Ver raciocínio"
+
+- **Descrição:** Bastidores sempre visíveis como seção colapsável, sem toggle separado
+- **Critérios de Aceite:**
+  - Deve remover toggle "🔍 Ver raciocínio"
+  - Bastidores visíveis como seção colapsável (header clicável)
+  - Usuário expande/colapsa clicando no header "📊 Bastidores"
+
+#### 3.2 Card de pensamento atual
+
+- **Descrição:** Card mostrando output user-friendly do agente ativo
+- **Critérios de Aceite:**
+  - Deve mostrar emoji + nome do agente (🎯 Orquestrador, 📝 Estruturador, 🔬 Metodologista)
+  - Deve mostrar pensamento resumido (~280 chars)
+  - Deve ter link "Ver completo" → abre modal com raciocínio completo
+  - Estado vazio: mostrar 🤖 + "Aguardando..." centralizado
+
+#### 3.3 Card de timeline
+
+- **Descrição:** Card mostrando histórico de contribuições dos agentes
+- **Critérios de Aceite:**
+  - Deve mostrar últimos 3 agentes (atual + 2 anteriores)
+  - Formato: lista simples com emoji + nome + resumo + horário
+  - Deve ter link "Ver histórico" → abre modal com lista completa
+  - MVP: lista simples. Timeline visual é evolução futura.
+
+#### 3.4 Indicador de novidade
+
+- **Descrição:** Indicador sutil quando há atualização nos bastidores
+- **Critérios de Aceite:**
+  - Deve mostrar indicador no header quando há novidade (🔴 ou "(+2)")
+  - Indicador some quando usuário expande bastidores
+  - Não expande automaticamente (não distrai usuário)
+
+---
+
+## ÉPICO 4: Contexto
+
+**Objetivo:** Nova seção acima dos bastidores mostrando ideia ativa e informações da conversa.
+
+**Status:** ⏳ Planejado (refinado)
+
+**Dependências:** Nenhuma (pode ser paralelo aos Épicos 2 e 3)
+
+### Funcionalidades:
+
+#### 4.1 Seção de contexto
+
+- **Descrição:** Seção colapsável acima dos bastidores no painel direito
+- **Critérios de Aceite:**
+  - Deve ter header "💡 Contexto" clicável para expandir/colapsar
+  - Posicionada acima dos Bastidores no painel direito
+
+#### 4.2 Ideia ativa
+
+- **Descrição:** Mostrar informações da ideia sendo trabalhada
+- **Critérios de Aceite:**
+  - Deve mostrar título da ideia
+  - Deve mostrar status (🔍 Explorando | 📝 Estruturada | ✅ Validada)
+  - Deve mostrar indicador de solidez (quando disponível)
+  - Estado vazio: seção em branco (não mostrar nada até ter ideia)
+  - Atualiza em tempo real quando ideia é associada/atualizada
+  - Se chat iniciado a partir de página de ideia → já começa com ideia associada
+
+#### 4.3 Custo acumulado
+
+- **Descrição:** Mostrar custo total da conversa na seção de contexto
+- **Critérios de Aceite:**
+  - Deve mostrar custo acumulado (ex: "💰 R$ 0,15 total")
+  - Clicável para ver detalhes (tokens, modelo usado)
+  - Atualiza a cada mensagem
+
+#### 4.4 Modal de detalhes
+
+- **Descrição:** Modal para ver detalhes expandidos do contexto
+- **Critérios de Aceite:**
+  - Abre ao clicar no custo ou botão "expandir"
+  - Deve mostrar: ideia completa, custo detalhado por mensagem, modelo usado, total de tokens
+
+---
+
+## ÉPICO 5: UX Polish
+
+**Objetivo:** Ajustes de experiência do usuário: input de chat, métricas discretas, custo em R$.
+
+**Status:** ⏳ Planejado (refinado)
+
+**Dependências:** Épicos 3-4 (métricas movidas para Contexto)
+
+### Funcionalidades:
+
+#### 5.1 Enter envia mensagem
+
+- **Descrição:** Usar componente nativo do Streamlit para input de chat
+- **Critérios de Aceite:**
+  - Deve usar `st.chat_input` (componente nativo)
+  - Enter envia mensagem (comportamento padrão)
+
+#### 5.2 Métricas discretas
+
+- **Descrição:** Métricas por mensagem discretas, visíveis sob demanda
+- **Critérios de Aceite:**
+  - Deve mostrar ícone pequeno (ℹ️) após cada mensagem do sistema
+  - Clique no ícone abre popover/tooltip com métricas
+  - Formato: "💰 R$0,02 · 215 tokens · 1.2s"
+  - Não mostra métricas sempre visíveis (reduz ruído visual)
+
+#### 5.3 Custo em R$
+
+- **Descrição:** Exibir custos em reais (BRL) ao invés de dólares
+- **Critérios de Aceite:**
+  - Deve converter USD → BRL usando taxa configurável
+  - Deve adicionar config em `.env`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.5`
+  - Deve exibir: "R$ 0,02" ao invés de "$0.0039"
+  - Fallback para USD se config não existir
+
+---
+
+## ÉPICO 6: Qualidade de Testes - LLM-as-Judge
 
 **Objetivo:** Validar qualidade conversacional, não apenas estrutura.
 
@@ -128,7 +285,7 @@
 
 ### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
 
-#### 2.1 Infraestrutura LLM-as-Judge
+#### 6.1 Infraestrutura LLM-as-Judge
 
 - **Descrição:** Criar infraestrutura base para testes com LLM-as-judge.
 - **Critérios de Aceite:**
@@ -137,7 +294,7 @@
   - Deve adicionar marker `@pytest.mark.llm_judge` em `pytest.ini`
   - Deve usar modelo Haiku para custo-benefício
 
-#### 2.2 Testes Prioritários (6 arquivos)
+#### 6.2 Testes Prioritários (6 arquivos)
 
 - **Descrição:** Adicionar validação LLM-as-judge nos testes prioritários identificados na análise.
 - **Critérios de Aceite:**
@@ -149,7 +306,7 @@
   - Deve adicionar validação em `test_multi_agent_smoke.py`
   - Cada teste deve validar qualidade conversacional (score >= 4)
 
-#### 2.3 Documentação de Estratégia
+#### 6.3 Documentação de Estratégia
 
 - **Descrição:** Documentar estratégia de testes com LLM-as-judge.
 - **Critérios de Aceite:**
@@ -161,14 +318,14 @@
 
 ---
 
-## ÉPICO 3: Integração Backend↔Frontend
+## ÉPICO 7: Integração Backend↔Frontend
 
 **Objetivo:** Integrar componentes de backend já implementados (SnapshotManager, ProgressTracker) com interface web para completar ciclo de persistência silenciosa e feedback visual de progresso.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Nenhuma (pode ser desenvolvido em paralelo com Épicos 1 e 2)
+- Nenhuma (pode ser desenvolvido em paralelo com outros épicos)
 
 **Consulte:**
 - `docs/architecture/snapshot_strategy.md` - Estratégia de snapshots
@@ -176,19 +333,19 @@
 
 ### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
 
-#### 3.1 Integrar SnapshotManager no Orquestrador
+#### 7.1 Integrar SnapshotManager no Orquestrador
 
 - **Descrição:** Integrar SnapshotManager no fluxo conversacional para criar snapshots automáticos quando argumento amadurece.
 
-#### 3.2 Exibir ProgressTracker como painel flutuante
+#### 7.2 Exibir ProgressTracker como painel flutuante
 
 - **Descrição:** Exibir ProgressTracker como painel flutuante/fixo na borda direita do chat, mostrando checklist de progresso sincronizado com modelo cognitivo.
 
-#### 3.3 Sincronizar checklist com modelo cognitivo em tempo real
+#### 7.3 Sincronizar checklist com modelo cognitivo em tempo real
 
 - **Descrição:** Sincronizar checklist do ProgressTracker com modelo cognitivo em tempo real, atualizando status conforme argumento evolui.
 
-#### 3.x Checklist de Progresso na UI
+#### 7.x Checklist de Progresso na UI
 
 - **Descrição:** Exibir checklist visual no header do chat sincronizado com modelo cognitivo.
 - **Critérios de Aceite:**
@@ -200,7 +357,7 @@
 
 ---
 
-## ÉPICO 5: Conceitos
+## ÉPICO 8: Conceitos
 
 **Objetivo:** Criar entidade Concept com vetores semânticos para busca por similaridade ("produtividade" encontra "eficiência").
 
@@ -209,7 +366,7 @@
 > **📖 Filosofia:** Conceitos são essências globais (biblioteca única). Ideias referenciam conceitos, não os possuem. Ver `docs/architecture/ontology.md`.
 
 **Dependências:**
-- Épico 3
+- Épico 7
 
 **Consulte:**
 - `docs/architecture/concept_model.md` - Schema técnico de Concept
@@ -218,7 +375,7 @@
 
 ### Funcionalidades:
 
-#### 5.1 Setup ChromaDB Local [POC]
+#### 8.1 Setup ChromaDB Local [POC]
 
 - **Descrição:** Configurar ChromaDB para armazenar vetores semânticos de conceitos (gratuito, local).
 - **Critérios de Aceite:**
@@ -227,7 +384,7 @@
   - Deve criar collection: `concepts` (metadata: label, essence, variations)
   - Deve usar modelo: `all-MiniLM-L6-v2` (384 dim, 80MB download)
 
-#### 5.2 Schema SQLite de Concept [POC]
+#### 8.2 Schema SQLite de Concept [POC]
 
 - **Descrição:** Criar tabelas `concepts` e `idea_concepts` para metadados estruturados e relacionamento N:N.
 - **Critérios de Aceite:**
@@ -237,7 +394,7 @@
   - Deve criar índices: ON label, ON idea_id, ON concept_id
   - Conceitos são globais (biblioteca única), ideias referenciam via `idea_concepts`
 
-#### 5.3 Pipeline de Detecção de Conceitos [POC]
+#### 8.3 Pipeline de Detecção de Conceitos [POC]
 
 - **Descrição:** LLM extrai conceitos-chave quando argumento amadurece (ao criar snapshot de Idea) e salva em ChromaDB + SQLite.
 - **Critérios de Aceite:**
@@ -248,7 +405,7 @@
   - Deve criar registro em `idea_concepts` (linking N:N)
   - **Não** deve executar detecção a cada mensagem (apenas no snapshot)
 
-#### 5.4 Busca Semântica [POC]
+#### 8.4 Busca Semântica [POC]
 
 - **Descrição:** Buscar conceitos similares via embeddings (threshold > 0.80 = mesmo conceito).
 - **Critérios de Aceite:**
@@ -257,7 +414,7 @@
   - Deve usar threshold 0.80 para deduplicação ("produtividade" = "eficiência")
   - Deve retornar lista ordenada por similaridade
 
-#### 5.5 Variations Automáticas [Protótipo]
+#### 8.5 Variations Automáticas [Protótipo]
 
 - **Descrição:** Sistema detecta variações linguísticas e adiciona ao Concept existente (colaboração = cooperação) com thresholds diferenciados.
 - **Critérios de Aceite:**
@@ -267,7 +424,7 @@
   - Deve adicionar variation ao Concept existente se confirmado
   - Deve criar novo Concept se usuário rejeitar ou similaridade < 0.80
 
-#### 5.6 Mostrar Conceitos na Interface [Protótipo]
+#### 8.6 Mostrar Conceitos na Interface [Protótipo]
 
 - **Descrição:** Exibir conceitos detectados em dois níveis: preview discreto na página da ideia + exploração completa no Catálogo.
 - **Critérios de Aceite:**
@@ -283,68 +440,7 @@
 
 ---
 
-## ÉPICO 4: UX Polish
-
-**Objetivo:** Polimento de interface web baseado em feedbacks do usuário (Enter envia, custo em R$, métricas discretas).
-
-**Status:** ⏳ Planejado (não refinado)
-
-**Dependências:**
-- Nenhuma (pode ser desenvolvido em paralelo com outros épicos)
-
-**Consulte:**
-- `docs/interface/web.md` - Especificação de interface completa
-
-### Funcionalidades:
-
-#### 4.1 Enter Envia, Ctrl+Enter Pula Linha
-
-- **Descrição:** Textarea com comportamento padrão (Enter envia, Ctrl+Enter pula linha).
-- **Critérios de Aceite:**
-  - Enter deve submeter form (enviar mensagem)
-  - Ctrl+Enter deve inserir `\n` (pular linha)
-  - Deve seguir padrão Claude.ai/ChatGPT
-  - Deve funcionar cross-browser (Chrome, Firefox, Safari)
-
-#### 4.2 Custo em R$
-
-- **Descrição:** Exibir custos em reais (BRL) ao invés de dólares (USD).
-- **Critérios de Aceite:**
-  - Deve converter USD → BRL (taxa fixa ou API de câmbio)
-  - Deve exibir: "R$ 0,02" ao invés de "$0.0039"
-  - Deve adicionar config em `.env`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.2`
-  - Deve permitir fallback para USD se conversão falhar
-
-#### 4.3 Métricas Inline Mais Discretas
-
-- **Descrição:** Tornar métricas inline (tokens, custo, tempo) mais discretas visualmente.
-- **Critérios de Aceite:**
-  - Deve reduzir tamanho fonte para 0.75rem
-  - Deve usar cor cinza claro (#94a3b8)
-  - Deve posicionar no canto inferior direito da mensagem
-  - Deve manter formato: "💰 R$0.02 · 215 tokens · 1.2s"
-
-#### 4.4 Timeline Colapsada por Padrão
-
-- **Descrição:** Bastidores com timeline de agentes anteriores colapsada inicialmente.
-- **Critérios de Aceite:**
-  - Deve mostrar seção "📈 Timeline" colapsada por padrão
-  - Deve ter ícone: ▶ (colapsado) / ▼ (expandido)
-  - Deve expandir ao clicar (mostrar histórico de agentes)
-  - Deve persistir estado (colapsado/expandido) durante sessão
-
-#### 4.5 Botão "Copiar Raciocínio"
-
-- **Descrição:** Modal de raciocínio completo com botão para copiar texto.
-- **Critérios de Aceite:**
-  - Deve adicionar botão "📋 Copiar" no modal de raciocínio
-  - Deve copiar texto markdown para clipboard
-  - Deve mostrar feedback visual: "✓ Copiado!" (2s)
-  - Deve funcionar cross-browser (clipboard API)
-
----
-
-## ÉPICO 6: Alinhamento de Ontologia
+## ÉPICO 9: Alinhamento de Ontologia
 
 **Objetivo:** Migrar código atual (premises/assumptions como strings separadas) para nova ontologia (Proposição unificada com solidez derivada de Evidências).
 
@@ -353,7 +449,7 @@
 **Abordagem:** Evolução gradual, não refatoração big-bang.
 
 **Dependências:**
-- Épicos 3-4 concluídos
+- Épicos 7-8 concluídos
 
 **Referências:**
 - `docs/architecture/ontology.md` - Nova ontologia
@@ -361,18 +457,18 @@
 
 ---
 
-## ÉPICO 7: Pesquisador
+## ÉPICO 10: Pesquisador
 
 **Objetivo:** Agente para busca e síntese de literatura científica. Introduz Evidência como entidade prática.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 6
+- Épico 9
 
 ---
 
-## ÉPICO 8: Escritor
+## ÉPICO 11: Escritor
 
 **Objetivo:** Agente para compilação de seções do artigo científico.
 

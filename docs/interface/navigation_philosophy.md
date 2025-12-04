@@ -1,16 +1,16 @@
 # Filosofia de Navegação - Paper Agent
 
 ## Visão Geral
-Documento que estabelece a filosofia de navegação do sistema, organizando quatro espaços distintos com propósitos diferentes, com ideias como centro da experiência.
+Documento que estabelece a filosofia de navegação do sistema, organizando três espaços de navegação com propósitos diferentes, com ideias como centro da experiência.
 
-## Quatro Espaços Distintos
+## Três Espaços de Navegação
 
-### 1. Minhas Ideias (Página Principal - Centro)
-**Propósito:** Navegar, elaborar e criar conteúdo a partir de ideias.
+### 1. Minhas Ideias (Principal)
+**Propósito:** Navegar e elaborar ideias.
 
 **Características:**
 - Natureza: Permanente, refinável
-- Localização: Página principal, acesso direto
+- Acesso: Link "📖 Pensamentos" na sidebar
 - Ação principal: Ver ideias, continuar elaboração, criar conteúdo
 
 **Dentro de cada Ideia:**
@@ -23,41 +23,31 @@ Documento que estabelece a filosofia de navegação do sistema, organizando quat
 
 ---
 
-### 2. Histórico (Secundário - Processo)
-**Propósito:** Acessar conversas passadas quando necessário.
-
-**Características:**
-- Natureza: Registro de interações
-- Localização: Menu lateral (não proeminente)
-- Ação: Retomar conversa específica
-
-**Metáfora:** Logs de trabalho (valioso mas não é o foco)
-
-**Nota:** O valioso é o resultado (ideia elaborada), não a conversa em si.
-
----
-
-### 3. Biblioteca de Conceitos (Referência - Conhecimento)
+### 2. Catálogo (Referência)
 **Propósito:** Explorar conceitos reutilizáveis.
 
 **Características:**
 - Natureza: Atemporal, compartilhável
-- Localização: Menu lateral
+- Acesso: Link "🏷️ Catálogo" na sidebar
 - Origem: Usuário, literatura, múltiplos usuários
 
 **Metáfora:** Dicionário universal de termos
 
 ---
 
-### 4. Suposições (Futuro - Fragilidades)
-**Propósito:** Navegar por proposições de baixa solidez.
+### 3. Histórico (Secundário)
+**Propósito:** Acessar conversas passadas.
 
 **Características:**
-- Natureza: Proposições que precisam fortalecimento
-- Localização: Menu lateral (futuro)
-- Ação: Fortalecer com pesquisa (abre conversa com Pesquisador)
+- Natureza: Registro de interações
+- Acesso: Link "💬 Conversas" na sidebar → página dedicada
+- Ação: Retomar conversa específica
 
-**Metáfora:** Lista de pendências epistêmicas
+**Nota:** Não aparece listado na sidebar, apenas link para página dedicada.
+
+**Metáfora:** Logs de trabalho (valioso mas não é o foco)
+
+**Nota:** O valioso é o resultado (ideia elaborada), não a conversa em si.
 
 ---
 
@@ -83,7 +73,7 @@ Documento que estabelece a filosofia de navegação do sistema, organizando quat
 
 ### Fluxo 3: Conceito → Ideias Relacionadas
 ```
-[Biblioteca] Clicar em conceito
+[Catálogo] Clicar em conceito
     ↓
 [Página do Conceito] Ver ideias que usam
     ↓
@@ -101,18 +91,7 @@ Documento que estabelece a filosofia de navegação do sistema, organizando quat
 [Escritor] Gera conteúdo baseado em metadados
 ```
 
-### Fluxo 5: Suposição → Fortalecer (Futuro)
-```
-[Suposições] Ver proposição frágil
-    ↓
-[Botão: Fortalecer com pesquisa]
-    ↓
-[Chat com Pesquisador] Discutir evidências encontradas
-    ↓
-[Sistema] Atualiza solidez da proposição
-```
-
-### Fluxo 6: Retomar Assunto Anterior
+### Fluxo 5: Retomar Assunto Anterior
 ```
 [Novo Chat] Usuário menciona tema já discutido
     ↓
@@ -131,7 +110,6 @@ Documento que estabelece a filosofia de navegação do sistema, organizando quat
 - **Conversas:** Pensamento ativo, volátil
 - **Ideias:** Pensamento cristalizado, permanente
 - **Conceitos:** Conhecimento reutilizável, universal
-- **Suposições:** Fragilidades que precisam fortalecimento
 
 ### 2. Progressão Natural
 ```
@@ -145,16 +123,18 @@ Conversa (processo) → Ideia (cristalização) → Conceito (abstração)
 
 ### 4. Menu Minimalista
 - Não distrair com navegação durante conversa
-- Acesso às entidades via menu colapsável
+- Sidebar minimalista com links para páginas dedicadas (sem listar conversas)
 - Foco no chat durante elaboração
 
 ### 5. Nomenclatura Intencional
 - ❌ "Nova Ideia" (usuário não cria ideia explicitamente)
 - ✅ "Nova Conversa" (sistema cristaliza ideia durante conversa)
 
-### 6. Localização Justificada
-- **Menu colapsável:** Acesso quando necessário (ideias, histórico, biblioteca)
-- **Página dedicada:** Contemplação calma (ideias, conceitos)
+### 6. Sidebar como Navegação Pura
+- Sidebar contém apenas links para páginas
+- Não lista conversas ou ideias inline
+- Histórico acessível via página dedicada
+- Inspirado no padrão Claude/ChatGPT
 
 ---
 
