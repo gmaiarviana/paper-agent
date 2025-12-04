@@ -101,7 +101,8 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 **Código:**
 - `app/chat.py` - Interface principal
 - `app/dashboard.py` - Dashboard de debug
-- `app/components/` - Componentes (chat_input, chat_history, backstage, sidebar, etc)
+- `app/components/` - Componentes (chat_input, chat_history, backstage, sidebar/, etc)
+  - `sidebar/` - Sidebar modular (navigation, conversations, ideas)
 - `app/pages/` - Páginas dedicadas (pensamentos, ideia_detalhes)
 
 **Documentação:**

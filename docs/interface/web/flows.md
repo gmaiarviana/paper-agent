@@ -208,7 +208,7 @@ def render_backstage(session_id: str):
             st.markdown("Aguardando...")
 ```
 
-**Arquivo: `app/components/sidebar.py` (Épico 12)**
+**Arquivo: `app/components/sidebar/` (Épico 14.1 - Modular)**
 ```python
 import streamlit as st
 from datetime import datetime

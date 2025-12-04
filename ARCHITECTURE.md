@@ -340,7 +340,11 @@ paper-agent/
 │       ├── chat_input.py     # Input de mensagens (esqueleto)
 │       ├── chat_history.py   # Histórico de conversa (esqueleto)
 │       ├── backstage.py      # Painel "Bastidores" (esqueleto)
-│       ├── sidebar.py        # Lista de sessões (esqueleto)
+│       ├── sidebar/          # Sidebar modular (Épico 14.1)
+│       │   ├── __init__.py
+│       │   ├── navigation.py    # Navegação principal
+│       │   ├── conversations.py # Gestão de conversas
+│       │   └── ideas.py         # Gestão de ideias
 │       └── storage.py        # Persistência localStorage
 │
 ├── tests/                 # Testes automatizados (pytest)
