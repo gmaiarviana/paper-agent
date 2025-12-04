@@ -115,25 +115,26 @@
 
 ---
 
-## ÉPICO 2: Sidebar
+## ÉPICO 2: Sidebar ✅
 
 **Objetivo:** Simplificar sidebar para navegação limpa, apenas links para páginas.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído
 
 **Dependências:** Nenhuma
 
 ### Funcionalidades:
 
-#### 2.1 Links de navegação
+#### 2.1 Links de navegação ✅
 
 - **Descrição:** Sidebar com links para páginas dedicadas e botão de nova conversa
 - **Critérios de Aceite:**
-  - Deve exibir link "📖 Pensamentos" → `/pensamentos`
-  - Deve exibir link "🏷️ Catálogo" → `/catalogo` (desabilitado se não implementado)
-  - Deve exibir link "💬 Conversas" → `/historico` (página de histórico)
-  - Deve exibir botão "+ Nova conversa" → inicia chat novo
-  - Links com ícones, sem header/logo
+  - ✅ Link "📖 Pensamentos" → `/pensamentos`
+  - ✅ Link "💬 Conversas" → `/historico` (página de histórico criada)
+  - ✅ Botão "+ Nova conversa" → inicia chat novo
+  - ✅ Links com ícones, sem header/logo
+  - ✅ Sidebar disponível em todas as páginas
+  - ⏸️ Link "🏷️ Catálogo" removido (será adicionado quando implementado)
 
 ---
 

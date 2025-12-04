@@ -1,21 +1,19 @@
 """
-Módulo sidebar para navegação de conversas (Épico 14.1).
+Módulo sidebar para navegação (Épico 2.1).
 
 Responsável por:
-- Listar conversas recentes (últimas 5 - reduzido de 10)
-- Destacar conversa ativa
-- Botão "+ Nova Conversa"
-- Alternar entre conversas (restaura contexto completo - Épico 14.5)
-- Botões de navegação para páginas dedicadas:
-  - [📖 Meus Pensamentos] → /pensamentos
-  - [🏷️ Catálogo] → /catalogo (desabilitado até Épico 13)
+- Renderizar sidebar minimalista com links de navegação
+- Botão "+ Nova conversa"
+- Links para páginas dedicadas:
+  - 📖 Pensamentos → /pensamentos
+  - 🏷️ Catálogo → /catalogo (desabilitado)
+  - 💬 Conversas → /historico
 
-Versão: 4.0
-Data: 19/11/2025
-Status: Épico 14.1 - Navegação em Três Espaços
+Versão: 2.0
+Data: 04/12/2025
+Status: Épico 2.1 - Sidebar com Links de Navegação
 """
 
 from app.components.sidebar.navigation import render_sidebar
 
 __all__ = ["render_sidebar"]
-

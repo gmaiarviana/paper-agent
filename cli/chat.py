@@ -6,12 +6,12 @@ Este script implementa um chat contínuo que:
 1. Mantém conversa com múltiplos turnos
 2. Preserva contexto ao longo da sessão
 3. Executa sistema multi-agente (Orquestrador → Estruturador → Metodologista)
-4. Exibe timeline de execução e decisão final
-5. Publica eventos em tempo real para o Dashboard
-6. Exibe argumento focal, provocações e sugestões de estágio (MVP)
+4. Transição fluida entre agentes (sem pedir confirmação)
+5. Exibe transparência nos bastidores (quais agentes trabalharam)
+6. Curadoria unificada pelo Orquestrador
 
-Versão: 4.0 (Épico 7 MVP - CLI com Argumento Focal + Provocação + Detecção de Estágio)
-Data: 15/11/2025
+Versão: 5.0 (Épico 1.1 - Transição Fluida + Curadoria)
+Data: 04/12/2025
 """
 
 import os
@@ -206,7 +206,7 @@ def run_cli(verbose=False):
                         print(f"{reasoning}")
                         print(f"{'=' * 70}\n")
 
-                    # Exibir argumento focal (se verbose - MVP 7.8)
+                    # Exibir argumento focal (se verbose)
                     if verbose and final_state.get('focal_argument'):
                         focal = final_state['focal_argument']
                         print("📌 ARGUMENTO FOCAL:")
@@ -216,10 +216,20 @@ def run_cli(verbose=False):
                         print(f"   Metrics: {focal.get('metrics')}")
                         print(f"   Type: {focal.get('article_type')}\n")
 
-                    # Exibir mensagem conversacional
+                    # Exibir transparência nos bastidores (Épico 1.1 - quais agentes trabalharam)
+                    agents_worked = []
+                    if final_state.get('structurer_output'):
+                        agents_worked.append("📝 Estruturador")
+                    if final_state.get('methodologist_output'):
+                        agents_worked.append("🔬 Metodologista")
+
+                    if agents_worked:
+                        print(f"[Bastidores: {' → '.join(agents_worked)} trabalhou]")
+
+                    # Exibir mensagem conversacional (curadoria do Orquestrador)
                     if final_state.get('messages'):
                         last_message = final_state['messages'][-1].content
-                        print(f"Sistema: {last_message}")
+                        print(f"\nSistema: {last_message}")
 
                     # Exibir provocação de reflexão (se existir - MVP 7.9)
                     if final_state.get('reflection_prompt'):
@@ -238,11 +248,13 @@ def run_cli(verbose=False):
                     # Continuar loop (próximo turno)
                     continue
 
-                # CASO 2: Orquestrador sugeriu agente
+                # CASO 2: Transição para agente (Épico 1.1 - Transição Fluida)
+                # NOTA: Este caso só ocorre se o grafo terminou antes do agente executar
+                # (ex: agent_suggestion inválido). No fluxo normal, o agente executa
+                # automaticamente e o Orquestrador faz curadoria antes de retornar.
                 elif next_step == 'suggest_agent':
                     agent_suggestion = final_state.get('agent_suggestion', {})
                     suggested_agent = agent_suggestion.get('agent', 'N/A')
-                    justification = agent_suggestion.get('justification', 'N/A')
 
                     # Exibir raciocínio completo (se verbose)
                     if verbose and final_state.get('orchestrator_analysis'):
@@ -253,7 +265,7 @@ def run_cli(verbose=False):
                         print(f"{reasoning}")
                         print(f"{'=' * 70}\n")
 
-                    # Exibir argumento focal (se verbose - MVP 7.8)
+                    # Exibir argumento focal (se verbose)
                     if verbose and final_state.get('focal_argument'):
                         focal = final_state['focal_argument']
                         print("📌 ARGUMENTO FOCAL:")
@@ -263,20 +275,27 @@ def run_cli(verbose=False):
                         print(f"   Metrics: {focal.get('metrics')}")
                         print(f"   Type: {focal.get('article_type')}\n")
 
-                    # Exibir sugestão
+                    # Exibir transparência nos bastidores (quais agentes trabalharam)
+                    agents_worked = []
+                    if final_state.get('structurer_output'):
+                        agents_worked.append("📝 Estruturador")
+                    if final_state.get('methodologist_output'):
+                        agents_worked.append("🔬 Metodologista")
+
+                    if agents_worked:
+                        print(f"\n[Bastidores: {' → '.join(agents_worked)} trabalhou]")
+
+                    # Exibir mensagem do sistema (curadoria ou próxima ação)
                     if final_state.get('messages'):
                         last_message = final_state['messages'][-1].content
-                        print(f"Sistema: {last_message}")
+                        print(f"\nSistema: {last_message}")
 
-                    print(f"\n📌 Agente sugerido: {suggested_agent}")
-                    print(f"📝 Justificativa: {justification}")
-
-                    # Exibir provocação de reflexão (se existir - MVP 7.9)
+                    # Exibir provocação de reflexão (se existir)
                     if final_state.get('reflection_prompt'):
                         reflection = final_state['reflection_prompt']
                         print(f"\n💭 Reflexão: {reflection}")
 
-                    # Exibir sugestão de estágio (se existir - MVP 7.10)
+                    # Exibir sugestão de estágio (se existir)
                     if final_state.get('stage_suggestion'):
                         stage_sug = final_state['stage_suggestion']
                         from_stage = stage_sug.get('from_stage')
@@ -285,17 +304,9 @@ def run_cli(verbose=False):
                         print(f"\n🎯 Sugestão de Estágio: {from_stage} → {to_stage}")
                         print(f"   {justif_stage}")
 
-                    # Perguntar se usuário quer chamar agente
-                    confirmation = input("\n💬 Você quer que eu chame este agente? (sim/não): ").strip().lower()
-
-                    if confirmation in ['sim', 's', 'yes', 'y', 'ok']:
-                        print(f"\n🤖 Chamando {suggested_agent}...")
-                        # TODO: Implementar chamada de agente (próxima iteração)
-                        print("⚠️  Funcionalidade em desenvolvimento.")
-                        continue
-                    else:
-                        print("\nSistema: Sem problema! Me conte mais sobre sua ideia.")
-                        continue
+                    # Continuar loop automaticamente (sem pedir confirmação)
+                    # O grafo já executou o agente ou houve fallback
+                    continue
 
                 # CASO 3: Fim de sessão (agente processou e terminou)
                 else:

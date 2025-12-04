@@ -69,7 +69,7 @@ class TestOrchestratorNode:
 {
   "reasoning": "Tem ideia central mas falta especificidade",
   "next_step": "suggest_agent",
-  "message": "Posso chamar o Estruturador para transformar sua observação em questão de pesquisa?",
+  "message": "Vou organizar sua observação em uma questão de pesquisa estruturada.",
   "agent_suggestion": {
     "agent": "structurer",
     "justification": "Ideia concreta porém não estruturada como questão"
@@ -104,7 +104,7 @@ class TestOrchestratorNode:
 {
   "reasoning": "Hipótese bem especificada com métricas",
   "next_step": "suggest_agent",
-  "message": "Sua hipótese já está bem formada. Posso chamar o Metodologista para validar?",
+  "message": "Sua hipótese está bem formada. Vou validar metodologicamente.",
   "agent_suggestion": {
     "agent": "methodologist",
     "justification": "Hipótese completa, pronta para validação metodológica"
@@ -219,7 +219,7 @@ class TestOrchestratorNode:
 {
   "reasoning": "Usuário escolheu validar. Tem observação concreta mas não estruturada.",
   "next_step": "suggest_agent",
-  "message": "Posso chamar o Estruturador para transformar sua observação em questão de pesquisa?",
+  "message": "Vou organizar sua observação em uma questão de pesquisa estruturada.",
   "agent_suggestion": {
     "agent": "structurer",
     "justification": "Observação concreta existe mas não está estruturada como questão PICO/SPIDER"
@@ -396,15 +396,15 @@ class TestBuildContext:
         )
         state['messages'] = [
             HumanMessage(content="Quero validar essa observação"),
-            AIMessage(content="Entendi. Posso chamar o Estruturador?"),
-            HumanMessage(content="Sim, pode chamar")
+            AIMessage(content="Vou organizar sua ideia em uma questão de pesquisa."),
+            HumanMessage(content="Perfeito, obrigado")
         ]
 
         context = _build_context(state)
 
         assert "[Usuário]: Quero validar essa observação" in context
-        assert "[Assistente]: Entendi. Posso chamar o Estruturador?" in context
-        assert "[Usuário]: Sim, pode chamar" in context
+        assert "[Assistente]: Vou organizar sua ideia em uma questão de pesquisa." in context
+        assert "[Usuário]: Perfeito, obrigado" in context
 
     def test_preserves_chronological_order(self):
         """Contexto preserva ordem cronológica."""

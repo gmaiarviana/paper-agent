@@ -27,6 +27,7 @@ from datetime import datetime
 
 from agents.database.manager import get_database_manager
 from app.components.conversation_helpers import get_relative_timestamp
+from app.components.sidebar import render_sidebar
 
 
 # === CONFIGURAÇÃO ===
@@ -35,7 +36,7 @@ st.set_page_config(
     page_title="Meus Pensamentos - Paper Agent",
     page_icon="📖",
     layout="wide",
-    initial_sidebar_state="collapsed"  # Sidebar colapsada (não é necessária aqui)
+    initial_sidebar_state="expanded"
 )
 
 
@@ -115,7 +116,7 @@ def render_idea_card(idea: dict, db):
             # Passar idea_id via query params ANTES do switch_page
             st.query_params["id"] = idea_id
             # Redirecionar para página de detalhes
-            st.switch_page("pages/2_ideia_detalhes.py")
+            st.switch_page("pages/_ideia_detalhes.py")
 
 
 # === APLICAÇÃO PRINCIPAL ===
@@ -123,15 +124,12 @@ def render_idea_card(idea: dict, db):
 def main():
     """Função principal da página Meus Pensamentos."""
 
+    # Sidebar com navegação
+    render_sidebar()
+
     # Título
     st.title("📖 Meus Pensamentos")
     st.caption("Ideias cristalizadas durante suas conversas")
-
-    # Botão voltar para chat
-    if st.button("← Voltar para Chat", key="back_to_chat"):
-        st.switch_page("chat.py")
-
-    st.markdown("---")
 
     # Busca e filtros (Épico 14.2)
     col_search, col_filter = st.columns([3, 1])

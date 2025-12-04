@@ -16,10 +16,10 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │  [Sidebar]              [Chat]                      [Direita]   │
 │                                                                 │
-│  📖 Pensamentos         Conversa...           ┌───────────────┐ │
-│  🏷️ Catálogo                                 │ 💡 Contexto   │ │
-│  💬 Conversas                                 │ (ideia ativa) │ │
-│  [+ Nova conversa]                            └───────────────┘ │
+│  [+ Nova conversa]      Conversa...           ┌───────────────┐ │
+│  ─────────────────                            │ 💡 Contexto   │ │
+│  📖 Pensamentos                               │ (ideia ativa) │ │
+│  💬 Conversas                                 └───────────────┘ │
 │                                               ┌───────────────┐ │
 │                                               │📊 Bastidores  │ │
 │                                               │ (pensamento)  │ │
@@ -35,23 +35,24 @@
 
 ### 3.2 Componentes Detalhados
 
-**A) Sidebar (Links de Navegação)**
+**A) Sidebar (Links de Navegação)** ✅ Implementado (Épico 2.1)
 
 ```
 ┌─────────────────────────┐
-│ 📖 Pensamentos          │ → /pensamentos
-│ 🏷️ Catálogo            │ → /catalogo (desabilitado)
-│ 💬 Conversas            │ → /historico
-│                         │
 │ [+ Nova conversa]       │ → inicia chat novo
+│─────────────────────────│
+│ 📖 Pensamentos          │ → /pensamentos
+│ 💬 Conversas            │ → /historico
 └─────────────────────────┘
 ```
 
 **Funcionalidades:**
+- Botão "+ Nova conversa" em destaque (primário)
 - Links com ícones para páginas dedicadas
-- Botão "+ Nova conversa" inicia chat novo
+- Sidebar disponível em todas as páginas (navegação livre)
 - Sem lista de conversas recentes (histórico em página dedicada)
 - Sem header/logo (minimalista)
+- Link "🏷️ Catálogo" será adicionado quando funcionalidade for implementada
 
 **B) Página: Minhas Ideias**
 
