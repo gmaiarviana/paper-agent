@@ -12,6 +12,7 @@
 
 ### ✅ Concluídos
 - Infraestrutura base completa
+- **ÉPICO 2**: Sidebar (navegação minimalista)
 - **ÉPICO 3**: Bastidores (3.1-3.3 ✅, 3.4 adiado)
 
 ### 🟡 Épicos Em Andamento
@@ -21,7 +22,6 @@
 
 #### Planejados (refinados)
 - **ÉPICO 1**: Convergência Orgânica (refinado)
-- **ÉPICO 2**: Sidebar (refinado)
 - **ÉPICO 4**: Contexto (refinado)
 - **ÉPICO 5**: UX Polish (refinado)
 
