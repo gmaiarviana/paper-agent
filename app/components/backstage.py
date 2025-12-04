@@ -3,13 +3,14 @@ Componente "Bastidores" para visualização de reasoning dos agentes.
 
 Responsável por:
 - Seção colapsável "📊 Bastidores" (header clicável, sem toggle separado)
-- Exibir agente ativo + reasoning resumido (~280 chars)
+- Card de pensamento: emoji + nome + reasoning resumido (~280 chars) + link "Ver completo"
+- Estado vazio: 🤖 + "Aguardando..." centralizado
 - Modal com reasoning completo (JSON estruturado)
 - Timeline de agentes anteriores
 
-Versão: 3.1
+Versão: 3.2
 Data: 04/12/2025
-Status: Épico 3.1 - Remover toggle "Ver raciocínio"
+Status: Épico 3.2 - Card de pensamento atual
 """
 
 import streamlit as st
@@ -62,7 +63,16 @@ def render_backstage(session_id: str) -> None:
         reasoning = _get_latest_reasoning(session_id)
 
         if reasoning is None:
-            st.info("ℹ️ Nenhum evento de agente encontrado ainda. Envie uma mensagem para começar!")
+            # Estado vazio: 🤖 + "Aguardando..." centralizado (Épico 3.2)
+            st.markdown(
+                """
+                <div style='text-align: center; padding: 2rem; color: #666;'>
+                    <div style='font-size: 2rem;'>🤖</div>
+                    <div>Aguardando...</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
         else:
             # Renderizar agente ativo
             _render_active_agent(reasoning)
@@ -374,16 +384,14 @@ def _render_active_agent(reasoning: Dict[str, Any]) -> None:
     agent_display = reasoning["agent_display"]
     emoji = AGENT_EMOJIS.get(agent_name, "🤖")
 
-    # Cabeçalho com emoji e nome
-    st.markdown(f"### {emoji} {agent_display}")
-    st.caption("Agente mais recente")
+    # Cabeçalho com emoji e nome (Épico 3.2)
+    st.markdown(f"**{emoji} {agent_display}**")
 
-    # Reasoning resumido
-    st.markdown("**Raciocínio:**")
+    # Reasoning resumido (~280 chars)
     st.write(reasoning["summary"])
 
-    # Botão para ver completo (abre modal)
-    if st.button("📄 Ver raciocínio completo", key="view_full_reasoning", use_container_width=True):
+    # Link discreto para ver completo (abre modal)
+    if st.button("Ver completo", key="view_full_reasoning", type="secondary"):
         _show_reasoning_modal(reasoning)
 
     # Métricas do agente
