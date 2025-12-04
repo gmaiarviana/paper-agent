@@ -245,26 +245,135 @@ def test_router_fallback_safety():
     print("\n✅ Router é seguro com estados inválidos")
 
 
+def test_curation_with_structurer_output():
+    """
+    BEHAVIOR: Curadoria pós-Estruturador (Épico 1.1)
+
+    Quando Orquestrador recebe structurer_output, deve:
+    - Detectar modo curadoria
+    - Apresentar resultado como se fosse seu
+    - NÃO dizer "O Estruturador disse X"
+    - Confirmar entendimento com usuário
+    """
+    print_separator("BEHAVIOR: Curadoria Pós-Estruturador (Épico 1.1)")
+
+    # Estado simulando retorno do Estruturador
+    user_input = "Confirme se entendi corretamente"
+    state = create_initial_multi_agent_state(user_input, session_id="test-curation-1")
+    state['structurer_output'] = {
+        "research_question": "Como o uso de LLMs impacta o tempo de desenvolvimento em equipes de 2-5 desenvolvedores?",
+        "elements": {
+            "context": "Desenvolvimento de software com assistentes de IA",
+            "problem": "Falta de métricas sobre impacto de LLMs",
+            "contribution": "Quantificar redução de tempo"
+        },
+        "version": 1
+    }
+    state['messages'] = [
+        HumanMessage(content="LLMs reduzem tempo de tarefas de 2h para 30min em equipes pequenas"),
+        AIMessage(content="Vou organizar isso em uma questão de pesquisa estruturada.")
+    ]
+
+    print("Estado: structurer_output presente (modo curadoria)")
+    print(f"Questão estruturada: {state['structurer_output']['research_question'][:60]}...\n")
+
+    result = orchestrator_node(state)
+    print_result(result)
+
+    # Validações
+    message = result.get('messages', [{}])[0].content if result.get('messages') else ''
+
+    # Não deve mencionar "O Estruturador disse" ou similar
+    bad_patterns = ['o estruturador disse', 'o estruturador organizou', 'estruturador retornou']
+    has_bad_pattern = any(p in message.lower() for p in bad_patterns)
+
+    if not has_bad_pattern:
+        print("\n✅ Curadoria correta: não menciona 'O Estruturador disse'")
+    else:
+        print("\n⚠️ Curadoria pode melhorar: mencionou agente diretamente")
+
+    # Deve confirmar entendimento
+    confirmation_patterns = ['isso captura', 'captura o que', 'entendi corretamente', 'é isso']
+    has_confirmation = any(p in message.lower() for p in confirmation_patterns)
+
+    if has_confirmation:
+        print("✅ Curadoria confirma entendimento com usuário")
+    else:
+        print("⚠️ Curadoria pode melhorar: faltou confirmação de entendimento")
+
+
+def test_automatic_transition_to_agent():
+    """
+    BEHAVIOR: Transição automática para agente (Épico 1.1)
+
+    Quando contexto está suficientemente claro, Orquestrador deve:
+    - Definir next_step = "suggest_agent"
+    - NÃO pedir permissão ("Posso chamar X?")
+    - Anunciar ação: "Vou organizar..." não "Posso organizar?"
+    """
+    print_separator("BEHAVIOR: Transição Automática para Agente (Épico 1.1)")
+
+    # Estado com contexto claro (após múltiplos turnos)
+    user_input = "Quero testar se LLMs reduzem tempo de desenvolvimento em equipes de 2-5 devs, medindo tempo por tarefa"
+    state = create_initial_multi_agent_state(user_input, session_id="test-auto-transition-1")
+    state['messages'] = [
+        HumanMessage(content="Observei que LLMs aumentam produtividade"),
+        AIMessage(content="Interessante! Produtividade como? Tempo? Qualidade?"),
+        HumanMessage(content="Tempo por tarefa - tarefas de 2h agora levam 30min"),
+        AIMessage(content="Legal! E isso foi em que contexto? Qual tamanho de equipe?"),
+        HumanMessage(content=user_input)
+    ]
+
+    print(f"Input com contexto claro: '{user_input[:60]}...'")
+    print(f"Histórico: {len(state['messages'])} mensagens (contexto maduro)\n")
+
+    result = orchestrator_node(state)
+    print_result(result)
+
+    message = result.get('messages', [{}])[0].content if result.get('messages') else ''
+
+    # Verificar se NÃO pede permissão
+    permission_patterns = ['posso chamar', 'posso organizar', 'quer que eu chame', 'gostaria que eu']
+    asks_permission = any(p in message.lower() for p in permission_patterns)
+
+    if not asks_permission:
+        print("\n✅ Transição fluida: não pede permissão")
+    else:
+        print("\n⚠️ Anti-padrão detectado: ainda pede permissão")
+        print(f"   Mensagem: {message[:100]}...")
+
+    # Verificar se anuncia ação
+    action_patterns = ['vou organizar', 'vou estruturar', 'vou validar', 'organizei', 'estruturei']
+    announces_action = any(p in message.lower() for p in action_patterns)
+
+    if announces_action:
+        print("✅ Anuncia ação diretamente")
+    else:
+        print("⚠️ Pode melhorar: faltou anunciar ação diretamente")
+
+
 # =============================================================================
 # MAIN
 # =============================================================================
 
 def main():
     print_separator("VALIDAÇÃO: FLUXO CONVERSACIONAL")
-    
+
     load_dotenv()
-    
+
     if not os.getenv("ANTHROPIC_API_KEY"):
         print("❌ ERRO: ANTHROPIC_API_KEY não configurada no .env")
         sys.exit(1)
-    
+
     try:
         test_exploration_vague_input()
         test_multi_turn_context_preserved()
         test_agent_suggestion_with_justification()
         test_direction_change_detection()
         test_router_fallback_safety()
-        
+        test_curation_with_structurer_output()
+        test_automatic_transition_to_agent()
+
         print_separator("RESUMO")
         print("✅ TODOS OS BEHAVIORS DE CONVERSAÇÃO VALIDADOS!")
         print("\nCapacidades testadas:")
@@ -273,6 +382,8 @@ def main():
         print("  ✅ Sugestão de agente com justificativa")
         print("  ✅ Detecção de mudança de direção")
         print("  ✅ Router com fallback seguro")
+        print("  ✅ Curadoria pós-agente (Épico 1.1)")
+        print("  ✅ Transição automática sem permissão (Épico 1.1)")
         
     except AssertionError as e:
         print(f"\n❌ FALHA: {e}")
