@@ -2,7 +2,7 @@
 Script de validação manual para System Prompt do Metodologista (Funcionalidade 2.6).
 
 Valida que METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1 foi implementado corretamente:
-- Constante definida em utils/prompts.py
+- Constante definida em utils/prompts/methodologist.py
 - Menciona tool ask_user explicitamente
 - Define output JSON com campos corretos
 - Linguagem direta, <= 500 palavras
@@ -79,7 +79,7 @@ def validate_system_prompt():
     print("TODOS OS TESTES PASSARAM! ✅")
     print("=" * 70)
     print("\nCritérios de aceite atendidos:")
-    print("  ✅ Constante METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1 em utils/prompts.py")
+    print("  ✅ Constante METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1 em utils/prompts/methodologist.py")
     print("  ✅ Tool calling explícito (instrui LLM a usar ask_user)")
     print("  ✅ Define output JSON: {\"status\": \"approved|rejected\", \"justification\": \"...\"}")
     print(f"  ✅ Linguagem direta, <= 500 palavras ({word_count}/500)")

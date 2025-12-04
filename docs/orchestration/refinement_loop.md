@@ -215,9 +215,9 @@ Orquestrador: "Versão refinada criada: [resultado]. Validei novamente: [resulta
    - ✅ Adicionar: Nó do Orquestrador após Metodologista (negocia com usuário)
    - ✅ Manter: Edge Metodologista → Orquestrador (não mais → Estruturador automático)
 
-5. `utils/prompts.py`
-   - ✅ Manter: Prompt do Metodologista V2 (modo colaborativo)
-   - ✅ Manter: Prompt do Estruturador V2 (handling de feedback)
+5. `utils/prompts/` (modularizado por agente)
+   - ✅ Manter: Prompt do Metodologista V2 (modo colaborativo) em `methodologist.py`
+   - ✅ Manter: Prompt do Estruturador V1 (handling de feedback) em `structurer.py`
 
 **Fluxo conversacional (novo):**
 

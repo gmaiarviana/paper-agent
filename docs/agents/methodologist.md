@@ -174,7 +174,7 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 
 ### System Prompt
 
-**Localização:** `utils/prompts.py`
+**Localização:** `utils/prompts/methodologist.py`
 **Constante:** `METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1`
 
 **Características:**
@@ -188,7 +188,7 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 
 ### Prompt Colaborativo (Épico 4)
 
-**Localização:** `utils/prompts.py` - `METHODOLOGIST_AGENT_SYSTEM_PROMPT_V2`
+**Localização:** `utils/prompts/methodologist.py` - `METHODOLOGIST_DECIDE_PROMPT_V2`
 
 **Instruções adicionadas:**
 ```

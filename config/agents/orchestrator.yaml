@@ -2,7 +2,7 @@
 # Este arquivo define o comportamento socrático do Orquestrador
 
 # System prompt do agente (referência para documentação)
-# O prompt real está em utils/prompts.py: ORCHESTRATOR_SOCRATIC_PROMPT_V1
+# O prompt real está em utils/prompts/orchestrator.py: ORCHESTRATOR_SOCRATIC_PROMPT_V1
 prompt: |
   Orquestrador Socrático - facilitador conversacional que expõe suposições
   implícitas através de contra-perguntas provocativas.
@@ -11,7 +11,7 @@ prompt: |
   baseline ausente, causalidade assumida, generalização excessiva) e provoca reflexão
   através de contra-perguntas ao estilo socrático.
   
-  Prompt completo: utils/prompts.py::ORCHESTRATOR_SOCRATIC_PROMPT_V1
+  Prompt completo: utils/prompts/orchestrator.py::ORCHESTRATOR_SOCRATIC_PROMPT_V1
 
 # Tags para categorização
 tags:
