@@ -98,11 +98,11 @@ Navegador abre em `http://localhost:8501`.
 1. Execute o comando acima
 2. Digite sua ideia ou observação no chat
 3. Converse naturalmente - sistema faz perguntas para entender contexto
-4. Clique "🔍 Ver raciocínio" para ver bastidores (opcional)
+4. Clique no header "📊 Bastidores" para expandir o painel de raciocínio (opcional)
 5. Sistema sugere quando chamar agentes especializados
 6. Você decide aceitar ou continuar conversando
 
-**Bastidores (quando aberto):**
+**Bastidores (quando expandido):**
 ````
 ┌─────────────────────────────────────┐
 │ 🧠 Orquestrador                     │
