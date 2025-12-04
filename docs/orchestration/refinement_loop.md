@@ -14,11 +14,11 @@ Mecânica de refinamento colaborativo que permite ao sistema multi-agente melhor
 
 ### 1. MultiAgentState
 
-Ver schema completo em `docs/orchestration/multi_agent_architecture.md`.
+Ver schema completo em `docs/orchestration/multi_agent_architecture/state.md`.
 
 ### 2. Metodologista - Modo Colaborativo
 
-**Output:** Ver estrutura completa em `docs/orchestration/multi_agent_architecture.md` (seção "Estrutura de `methodologist_output`").
+**Output:** Ver estrutura completa em `docs/orchestration/multi_agent_architecture/state.md` (seção "`methodologist_output`").
 
 **Lógica de decisão:**
 
@@ -70,7 +70,7 @@ Output: {
 
 ### 3. Estruturador - Processamento de Feedback
 
-**Input no refinamento (V2+):** Estruturador recebe `methodologist_output` do estado compartilhado (`MultiAgentState`). Ver `docs/orchestration/multi_agent_architecture.md` para estrutura completa.
+**Input no refinamento (V2+):** Estruturador recebe `methodologist_output` do estado compartilhado (`MultiAgentState`). Ver `docs/orchestration/multi_agent_architecture/state.md` para estrutura completa.
 
 **Lógica de refinamento:**
 

@@ -172,7 +172,7 @@ argument_2 = Argument(
 
 ## Responsabilidades dos Agentes
 
-> **Nota:** Para detalhes dos agentes, consulte `docs/orchestration/multi_agent_architecture.md`.
+> **Nota:** Para detalhes dos agentes, consulte `docs/orchestration/multi_agent_architecture/`.
 
 **Quem constrói cada campo:**
 
@@ -254,5 +254,5 @@ CREATE TABLE argument_concepts (
 - `docs/vision/cognitive_model/core.md` - Conceitos fundamentais do modelo cognitivo
 - `docs/vision/cognitive_model/evolution.md` - Processo de evolução do pensamento
 - `docs/architecture/idea_model.md` - Como Ideia possui Argumentos
-- `docs/orchestration/multi_agent_architecture.md` - Responsabilidades dos agentes
+- `docs/orchestration/multi_agent_architecture/` - Responsabilidades dos agentes
 

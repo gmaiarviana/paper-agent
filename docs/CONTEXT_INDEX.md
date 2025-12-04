@@ -36,7 +36,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `agents/orchestrator/state.py` - MultiAgentState (schema completo)
 
 **Documentação:**
-- `docs/orchestration/multi_agent_architecture.md` - **FONTE ÚNICA DA VERDADE** para fluxo e estado
+- `docs/orchestration/multi_agent_architecture/` - **FONTE ÚNICA DA VERDADE** para fluxo e estado
 - `docs/orchestration/conversational_orchestrator/` - Orquestrador conversacional
 - `docs/orchestration/socratic_orchestrator.md` - Orquestrador socrático
 - `docs/orchestration/refinement_loop.md` - Loop de refinamento
@@ -73,7 +73,11 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Dados e Persistência
 
 **Código:**
-- `agents/database/` - DatabaseManager, schema SQLite
+- `agents/database/` - DatabaseManager (orquestrador), IdeasCRUD, ArgumentsCRUD, schema SQLite
+  - `manager.py` - DatabaseManager singleton (orquestrador)
+  - `ideas_crud.py` - CRUD operations para Ideas
+  - `arguments_crud.py` - CRUD operations para Arguments
+  - `schema.py` - Schema SQL (tabelas, índices, triggers, views)
 - `agents/persistence/snapshot_manager.py` - Snapshots e detecção de maturidade
 - `agents/checklist/progress_tracker.py` - Rastreamento de progresso
 - `agents/models/cognitive_model.py` - Modelos de domínio

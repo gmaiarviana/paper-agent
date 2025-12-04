@@ -99,7 +99,7 @@ Produtos são **serviços desacoplados** que consomem core via APIs.
 - EventBus para comunicação CLI ↔ Dashboard
 - MemoryManager para registro de metadados
 
-**Detalhes de fluxo:** Ver `docs/orchestration/multi_agent_architecture.md`
+**Detalhes de fluxo:** Ver `docs/orchestration/multi_agent_architecture/`
 
 ---
 
@@ -159,7 +159,7 @@ Evolução do Orquestrador Conversacional que adiciona capacidade de exposição
 
 MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento focal) e específicos por agente (estruturação, validação). Suporta versionamento de hipóteses (V1 → V2 → V3) e rastreamento de iterações de refinamento.
 
-**Detalhes:** Ver `docs/orchestration/multi_agent_architecture.md`
+**Detalhes:** Ver `docs/orchestration/multi_agent_architecture/`
 
 ## Modelo Cognitivo
 
@@ -204,7 +204,9 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
   - Versionamento automático (V1, V2, V3...) via UNIQUE constraint (idea_id, version)
   - Triggers para updated_at automático
   - Views otimizadas para JOIN idea + argumento focal
-- **DatabaseManager singleton:** `agents/database/manager.py` - CRUD operations
+- **DatabaseManager singleton:** `agents/database/manager.py` - Orquestrador que delega para CRUDs especializados
+  - `agents/database/ideas_crud.py` - CRUD operations para Ideas
+  - `agents/database/arguments_crud.py` - CRUD operations para Arguments
 - **Localização:** Arquivos locais em `./data/`
 
 **Futuro (MVP/Produção):**
@@ -301,7 +303,9 @@ paper-agent/
 │   ├── database/          # Persistência SQLite
 │   │   ├── __init__.py
 │   │   ├── schema.py       # Schema SQL (tabelas, índices, triggers, views)
-│   │   └── manager.py      # DatabaseManager (singleton CRUD)
+│   │   ├── manager.py      # DatabaseManager (orquestrador singleton)
+│   │   ├── ideas_crud.py   # CRUD operations para Ideas
+│   │   └── arguments_crud.py # CRUD operations para Arguments
 │   ├── persistence/       # Snapshots e maturidade
 │   │   ├── __init__.py
 │   │   └── snapshot_manager.py   # SnapshotManager (detecção LLM + snapshot automático)
@@ -465,7 +469,7 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 - `docs/vision/cognitive_model/` - Modelo cognitivo e evolução
 
 **Orquestração:**
-- `docs/orchestration/multi_agent_architecture.md` - Arquitetura multi-agente
+- `docs/orchestration/multi_agent_architecture/` - Arquitetura multi-agente
 - `docs/orchestration/conversational_orchestrator/` - Orquestrador conversacional
 
 **Produtos:**

@@ -158,7 +158,7 @@ collection.add(
 - State management (MultiAgentState)
 - Checkpointer (persistência de sessões via SQLite)
 
-> **Nota:** Arquitetura multi-agente detalhada em `docs/orchestration/multi_agent_architecture.md`.
+> **Nota:** Arquitetura multi-agente detalhada em `docs/orchestration/multi_agent_architecture/`.
 
 ---
 
