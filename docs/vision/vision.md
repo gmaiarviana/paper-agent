@@ -152,20 +152,15 @@ Orquestrador: "Perfeito! Organizei uma questão de pesquisa estruturada
 ↓
 Usuário: "Sim"
 ↓
-Orquestrador: "Para buscar papers, preciso fazer chamadas de API que podem ter 
-               custo. Quer que eu chame o Pesquisador agora?"
+Orquestrador: "Busquei papers relevantes e organizei uma síntese inicial: 
+               [resumo dos papers encontrados]. Isso cobre o que você precisa?"
+[Bastidores: 🔍 Pesquisador buscou → 🎯 Orquestrador curou]
 ↓
-Usuário: "Sim"
+Usuário: "Perfeito! Agora quero compilar a revisão completa"
 ↓
-Pesquisador: busca papers, realiza síntese
-↓
-Orquestrador: "Temos uma boa base de papers. Para compilar a revisão completa, 
-               preciso fazer chamadas de API que podem ter custo. Quer que eu 
-               chame o Escritor para compilar agora, ou prefere revisar os papers primeiro?"
-↓
-Usuário: "Compilar"
-↓
-Escritor: compila revisão
+Orquestrador: "Compilei a revisão estruturada: [revisão completa]. Isso captura 
+               o que você queria explorar?"
+[Bastidores: ✍️ Escritor compilou → 🎯 Orquestrador curou]
 ```
 
 ### Cenário C: Framework Teórico
@@ -189,14 +184,15 @@ Orquestrador: "Ótimo! Agora podemos: 1) estruturar o argumento completo,
 ↓
 Usuário: "Estruturar o argumento"
 ↓
-Estruturador: organiza argumentação
+Orquestrador: "Estruturei o argumento completo do framework: [argumentação 
+               organizada]. Isso captura a lógica que você quer apresentar?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 ↓
-Orquestrador: "Argumento estruturado! Quer que eu chame o Escritor para 
-               redigir o artigo teórico?"
+Usuário: "Sim, agora quero redigir o artigo"
 ↓
-Usuário: "Sim"
-↓
-Escritor: redige artigo teórico
+Orquestrador: "Redigi o artigo teórico completo: [artigo]. Isso reflete o que 
+               você queria comunicar?"
+[Bastidores: ✍️ Escritor redigiu → 🎯 Orquestrador curou]
 ```
 
 ### Cenário D: Exploração Gradual (Claim Evolui)
@@ -217,7 +213,9 @@ Sistema (detecta suposições): "Você assumiu que precisão de drones é sufici
 ↓
 Usuário: "Boa pergunta. Qual margem é aceitável?"
 ↓
-Sistema: "Levantamento oficial exige < 2%. Quer que eu pesquise se drones conseguem?"
+Sistema: "Levantamento oficial exige < 2%. Pesquisei e encontrei que drones com 
+         visão computacional conseguem < 1.5% de erro. Isso resolve sua questão?"
+[Bastidores: 🔍 Pesquisador pesquisou → 🎯 Orquestrador curou]
 ↓
 [Claim evoluiu: "Tecnologia ajuda obras" → "Drones com visão computacional 
  podem medir volumes com precisão suficiente para levantamento oficial"]
@@ -282,9 +280,11 @@ Formatos possíveis:
 - Começa com perguntas abertas para entender contexto
 
 **Negociação contínua:**
-- Sistema sugere próximos passos mas usuário decide
-- "Posso chamar o Metodologista para validar?" vs "Vou chamar o Metodologista"
-- Oferece opções: "Podemos A, B ou C. O que prefere?"
+- Agentes trabalham automaticamente quando há contexto suficiente
+- Orquestrador faz curadoria da resposta e confirma entendimento: "Isso captura o que você quer?"
+- Transparência nos bastidores: usuário vê quem trabalhou (indicadores [Bastidores: ...])
+- Usuário pode ajustar/refazer se resultado não capturar intenção
+- Sistema ainda oferece opções quando há múltiplos caminhos: "Podemos A, B ou C. O que prefere?"
 
 **Detecção emergente:**
 - Tipo de artigo emerge da conversa (não é classificado upfront)

@@ -17,7 +17,7 @@
 
 **Mudanças:**
 - ❌ Remove lógica de classificação (`vague`/`semi_formed`/`complete`)
-- ✅ Novo comportamento: explorar → analisar → sugerir → negociar
+- ✅ Novo comportamento: explorar → analisar → chamar agente automaticamente → curar → confirmar
 - ✅ Mantém estrutura de `MultiAgentState`
 - ✅ Ignora limite de contexto no POC (foco em raciocínio básico)
 
@@ -29,15 +29,16 @@ O Orquestrador POC evolui de **classificador determinístico** para **facilitado
 ANTES (Épico 3):
 Input → Classifica (vague/semi_formed/complete) → Roteia automaticamente
 
-DEPOIS (Épico 7 POC):
-Input → Conversa → Analisa contexto → Sugere opções → Usuário decide → Executa
+DEPOIS (Épico 7 POC - Transição Fluida):
+Input → Conversa → Analisa contexto → Chama agente automaticamente → Curadoria → Confirma entendimento
 ```
 
 **Papel do Orquestrador:**
 - **Explorar:** Faz perguntas abertas para entender contexto
 - **Analisar:** Examina input + histórico conversacional
-- **Sugerir:** Opina sobre direções possíveis com justificativa
-- **Negociar:** Oferece opções ao usuário antes de chamar agentes
+- **Decidir:** Chama agente automaticamente quando contexto suficiente
+- **Curar:** Recebe resultado do agente, apresenta em tom coeso e unificado
+- **Confirmar:** Valida entendimento com usuário, não pede permissão
 
 ---
 
@@ -148,7 +149,7 @@ No Épico 11, o argumento focal se tornará campo explícito na entidade `Idea` 
 
 ## 4. FLUXO POC
 
-### Fluxo Conversacional Completo
+### Fluxo Conversacional Completo (Modelo de Transição Fluida)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -168,22 +169,27 @@ No Épico 11, o argumento focal se tornará campo explícito na entidade `Idea` 
 └─────────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 4. Orquestrador: [analisa + histórico] → sugere opções     │
-│    com justificativa                                        │
-│    Ex: "Entendi! Vejo duas direções possíveis:             │
-│        A) Validar essa observação como hipótese testável   │
-│        B) Primeiro entender o que já existe na literatura   │
-│        Qual faz mais sentido para você?"                    │
+│ 4. Orquestrador: [analisa + histórico] → continua          │
+│    explorando se necessário                                 │
+│    Ex: "Entendi! Como você mediu produtividade? Tempo,     │
+│        qualidade, quantidade de código?"                    │
 └─────────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 5. Usuário: escolhe                                         │
-│    Ex: "A) Validar"                                          │
+│ 5. Usuário: fornece mais contexto                           │
+│    Ex: "Tempo por sprint, tarefas que levavam 2h agora     │
+│        levam 30min"                                         │
 └─────────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 6. Orquestrador: [Agente trabalha nos bastidores]          │
-│    → Apresenta resultado curado                             │
+│ 6. Orquestrador: [contexto suficiente detectado] →         │
+│    CHAMA AGENTE AUTOMATICAMENTE                             │
+│    [Bastidores: 📝 Estruturador trabalha]                  │
+└─────────────────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 7. Orquestrador: [recebe resultado] → faz curadoria →      │
+│    apresenta em tom coeso                                   │
 │    Ex: "Organizei sua ideia em uma hipótese testável:      │
 │        [resultado com população, variáveis, métricas].      │
 │        Isso captura o que você quer explorar?"               │
@@ -191,37 +197,26 @@ No Épico 11, o argumento focal se tornará campo explícito na entidade `Idea` 
 └─────────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 7. Usuário: confirma entendimento                           │
+│ 8. Usuário: confirma entendimento ou ajusta                 │
 │    Ex: "Sim, perfeito!" ou "Ajuste X"                       │
 └─────────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ 8. [Agente processa]                                        │
-│    Metodologista valida/refina hipótese                     │
-└─────────────────────────────────────────────────────────────┘
-                        ↓
-┌─────────────────────────────────────────────────────────────┐
-│ 9. Orquestrador: [analisa resultado] → apresenta opções   │
-│    contextuais                                              │
-│    Ex: "O Metodologista sugeriu refinamentos. Você quer:    │
-│        A) Refinar a hipótese agora                          │
-│        B) Pesquisar literatura primeiro                     │
-│        C) Mudar de direção"                                 │
-└─────────────────────────────────────────────────────────────┘
-                        ↓
-┌─────────────────────────────────────────────────────────────┐
-│ 10. [Loop continua]                                         │
-│     Conversação adaptativa até usuário decidir finalizar    │
+│ 9. [Loop continua]                                          │
+│    Se ajuste: Orquestrador explora novamente                │
+│    Se confirma: Orquestrador pode chamar próximo agente     │
+│    automaticamente quando contexto suficiente                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### Características do Fluxo
 
 - ✅ **Conversação natural:** Não usa números/keywords, apenas diálogo
-- ✅ **Negociação contínua:** Usuário decide a cada passo
+- ✅ **Transição fluida:** Chama agente automaticamente quando contexto suficiente
 - ✅ **Contexto preservado:** Histórico completo considerado
-- ✅ **Sugestões justificadas:** Cada opção vem com razão clara
-- ✅ **Adaptação dinâmica:** Detecta mudanças e ajusta
+- ✅ **Curadoria unificada:** Apresenta resultado em tom coeso, como se fosse o próprio Orquestrador
+- ✅ **Confirmação de entendimento:** Valida com usuário, não pede permissão
+- ✅ **Transparência nos bastidores:** Mostra quem trabalhou, mas conversa principal é fluida
 
 ---
 
@@ -239,10 +234,21 @@ No Épico 11, o argumento focal se tornará campo explícito na entidade `Idea` 
 - Identifica padrões, lacunas, contradições
 - Opina sobre direções possíveis
 
-✅ **Sugestões com justificativa**
-- Oferece múltiplas opções ao usuário
-- Cada opção vem com explicação clara do porquê
-- Não impõe caminho, apenas sugere
+✅ **Chamada automática de agente**
+- Chama agente automaticamente quando contexto suficiente
+- Não pede permissão, age proativamente
+- Transparência nos bastidores mostra quem trabalhou
+
+✅ **Curadoria da resposta**
+- Recebe resultado do agente
+- Faz curadoria: apresenta em tom único e coeso
+- Primeira pessoa: "Organizei...", "Validei...", "Identifiquei..."
+- NÃO menciona agente na conversa principal
+
+✅ **Confirmação de entendimento**
+- Confirma entendimento, não pede permissão
+- "Isso captura o que você quer?" em vez de "Posso chamar agente?"
+- Usuário ajusta se necessário, sistema adapta
 
 ✅ **Detecção de mudança via LLM**
 - Compara novo input com histórico
@@ -258,9 +264,12 @@ No Épico 11, o argumento focal se tornará campo explícito na entidade `Idea` 
 
 **✅ BOM:**
 ```
-Orquestrador: "Interessante observação! Vejo que você mencionou produtividade, 
-mas não especificou como mediu. Isso me sugere duas direções: validar como 
-hipótese ou primeiro entender o que já existe. Qual faz mais sentido?"
+Orquestrador: "Interessante observação! Me conta mais: onde você observou isso? 
+Em que contexto?"
+[Após contexto suficiente]
+Orquestrador: "Organizei sua ideia em uma hipótese testável: [resultado]. 
+Isso captura o que você quer explorar?"
+[Bastidores: 📝 Estruturador trabalhou → 🎯 Orquestrador curou]
 ```
 
 **❌ RUIM:**
@@ -271,13 +280,16 @@ Orquestrador: "Input classificado como 'semi_formed'. Roteando para Metodologist
 **✅ BOM:**
 ```
 Orquestrador: "Entendi que você mudou o foco de produtividade para qualidade. 
-Isso muda a abordagem. Posso chamar o Metodologista para estruturar uma 
-hipótese sobre qualidade?"
+Isso muda a abordagem metodológica. Estruturei uma hipótese sobre qualidade: 
+[resultado]. Isso direciona bem o que você quer testar?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 ```
 
 **❌ RUIM:**
 ```
 Orquestrador: "Por que você mudou de ideia? Isso contradiz o que você disse antes."
+Orquestrador: "Posso chamar o Metodologista?" [pede permissão]
+Orquestrador: "O Estruturador disse que..." [menciona agente na conversa]
 ```
 
 ---
@@ -296,14 +308,14 @@ A estrutura básica se mantém, mas o raciocínio evolui incrementalmente:
 
 **Funcionalidades:**
 - 7.1: Orquestrador mantém diálogo fluido (não apenas roteia)
-- 7.2: Oferece opções ao usuário (não impõe caminho)
-- 7.3: Chama agentes sob demanda (quando usuário concorda)
+- 7.2: Chama agente automaticamente quando contexto suficiente
+- 7.3: Faz curadoria da resposta (tom único, coeso)
 
 **Critérios de aceite:**
 - Sistema conversa antes de chamar agente
-- Usuário pode escolher entre opções (A, B ou C)
-- Agentes trabalham automaticamente quando contexto suficiente (transição fluida)
-- Orquestrador faz curadoria da resposta final (tom unificado)
+- Chama agente automaticamente quando contexto suficiente (não pede permissão)
+- Orquestrador faz curadoria da resposta final (tom unificado, primeira pessoa)
+- Confirma entendimento, não pede permissão
 - Transparência nos bastidores (usuário pode ver quem trabalhou)
 
 #### Protótipo (segunda entrega - inteligência básica)
@@ -393,17 +405,29 @@ O prompt do Orquestrador conversacional deve guiar os seguintes comportamentos:
 - Identificar o que está claro e o que falta
 - Detectar padrões: crença vs observação vs hipótese
 
-**3. SUGESTÃO COM JUSTIFICATIVA**
-- Sugerir próximos passos com RAZÃO clara
-- Sempre apresentar opções, não decidir sozinho
-- Explicar por que agente específico faz sentido
+**3. CHAMADA AUTOMÁTICA DE AGENTE**
+- Quando contexto suficiente, CHAMAR o agente automaticamente
+- Não pedir permissão, agir proativamente
+- Decidir qual agente chamar baseado no contexto acumulado
 
-**4. DETECÇÃO DE MUDANÇA**
+**4. CURADORIA DA RESPOSTA**
+- Receber resultado do agente
+- Fazer curadoria: apresentar resultado como se fosse você, em tom coeso
+- Primeira pessoa: "Organizei...", "Validei...", "Identifiquei..."
+- NÃO mencionar agente na conversa principal
+- Coeso com conversa anterior
+
+**5. CONFIRMAÇÃO DE ENTENDIMENTO**
+- Confirmar entendimento: "Isso captura o que você quer?"
+- NÃO pedir permissão: "Posso chamar agente?" ❌
+- Usuário ajusta se necessário, sistema adapta
+
+**6. DETECÇÃO DE MUDANÇA**
 - Comparar novo input com histórico
 - Se detectar contradição ou mudança de foco, adaptar sem questionar
 - Atualizar "argumento focal" implícito
 
-**5. CONVERSAÇÃO NATURAL**
+**7. CONVERSAÇÃO NATURAL**
 - Linguagem clara e acessível
 - Evitar jargões desnecessários
 - Perguntar quantas vezes precisar (sem limite artificial)
@@ -418,14 +442,16 @@ O prompt do Orquestrador conversacional deve guiar os seguintes comportamentos:
 ```json
 {
   "reasoning": "Análise do contexto e histórico",
-  "next_step": "explore" | "suggest_agent" | "clarify",
-  "message": "Mensagem ao usuário (pergunta ou sugestão)",
-  "agent_suggestion": null | {
+  "next_step": "explore" | "call_agent" | "clarify",
+  "message": "Mensagem ao usuário (pergunta ou resultado curado)",
+  "agent_call": null | {
     "agent": "nome", 
     "justification": "por que faz sentido"
   }
 }
 ```
+
+**Nota:** `next_step: "call_agent"` significa chamar automaticamente (não sugerir).
 
 ### Exemplos de Output
 
@@ -449,16 +475,18 @@ Input: "Sim, quero validar essa hipótese"
 
 Output:
 {
-  "reasoning": "Usuário definiu hipótese com população (equipes 2-5 devs) e métricas (tempo por sprint). Estrutura testável. Contexto suficiente para validar automaticamente.",
-  "next_step": "suggest_agent",
-  "message": "Validei sua hipótese: ela atende critérios de testabilidade, falseabilidade e operacionalização. Faz sentido para você?",
-  "agent_suggestion": {
+  "reasoning": "Usuário definiu hipótese com população (equipes 2-5 devs) e métricas (tempo por sprint). Estrutura testável. Contexto suficiente. Chamando Metodologista automaticamente.",
+  "next_step": "call_agent",
+  "message": "Validei sua hipótese: ela atende critérios de testabilidade, falseabilidade e operacionalização. Isso captura o que você quer explorar?",
+  "agent_call": {
     "agent": "methodologist",
     "justification": "Hipótese estruturada com população e métricas definidas, pronta para validação metodológica"
   }
 }
 [Bastidores: 🔬 Metodologista validou → 🎯 Orquestrador curou]
 ```
+
+**Nota:** O `message` é a resposta curada após o agente trabalhar, não uma pergunta de permissão.
 
 **Exemplo 3: Detecção de mudança de direção**
 ```
@@ -467,10 +495,10 @@ Input: "Na verdade, quero fazer revisão de literatura"
 
 Output:
 {
-  "reasoning": "Detecto mudança de direção: de teste de hipótese para revisão de literatura. Usuário mudou de ideia. Adaptar sem questionar. Argumento focal anterior (testar hipótese X) → novo argumento focal (revisar literatura sobre X).",
-  "next_step": "suggest_agent",
+  "reasoning": "Detecto mudança de direção: de teste de hipótese para revisão de literatura. Usuário mudou de ideia. Adaptar sem questionar. Chamando Estruturador automaticamente para criar questão PICO/SPIDER.",
+  "next_step": "call_agent",
   "message": "Sem problema! Vamos adaptar. Organizei uma questão de pesquisa estruturada (PICO/SPIDER) para a revisão: [resultado]. Isso direciona bem o que você quer buscar?",
-  "agent_suggestion": {
+  "agent_call": {
     "agent": "structurer",
     "justification": "Revisão de literatura precisa de questão estruturada. PICO/SPIDER são frameworks adequados."
   }
@@ -496,67 +524,126 @@ Output:
 
 **Orquestrador:**
 ```
-Interessante observação! Para eu entender melhor e sugerir o melhor caminho, 
-me conta:
-
-1. Onde você observou isso? (experiência pessoal, estudo, dados?)
-2. Como você mediu produtividade? (tempo, qualidade, quantidade?)
-3. Em que contexto? (desenvolvimento, pesquisa, escrita?)
-
-Quanto mais contexto você compartilhar, melhor posso ajudar a estruturar 
-isso como pesquisa acadêmica.
+Interessante observação! Me conta mais: onde você observou isso? 
+Em que contexto?
 ```
 
-### Exemplo 2: Sugestão de Direções
+**Usuário:**
+```
+"Na minha equipe, usando Claude Code"
+```
+
+**Orquestrador:**
+```
+Entendi! Como você mediu produtividade? Tempo, qualidade, quantidade de código?
+```
+
+**Usuário:**
+```
+"Tempo por sprint, tarefas que levavam 2h agora levam 30min"
+```
+
+**Orquestrador:**
+```
+Organizei sua ideia em uma hipótese testável: [resultado com população, 
+variáveis, métricas]. Isso captura o que você quer explorar?
+```
+[Bastidores: 📝 Estruturador trabalhou → 🎯 Orquestrador curou]
+
+### Exemplo 2: Transição Fluida Automática
 
 **Contexto:**
 ```
 Usuário: "Na minha equipe, usando Claude Code, vi que tarefas que levavam 
          2 horas agora levam 30 minutos"
+Orquestrador: "Interessante! Me conta mais: onde você observou isso?"
+Usuário: "Equipe de 5 desenvolvedores Python, medindo tempo por sprint"
 ```
 
 **Orquestrador:**
 ```
-Excelente! Agora tenho contexto concreto. Vejo duas direções possíveis:
-
-A) VALIDAR como hipótese testável
-   - Transformar sua observação em hipótese formal
-   - Definir população, variáveis, métricas
-   - O Metodologista pode ajudar aqui
-   - Faz sentido se você quer testar isso cientificamente
-
-B) ENTENDER o que já existe
-   - Revisar literatura sobre produtividade com LLMs
-   - Ver como outros pesquisadores mediram isso
-   - O Pesquisador pode ajudar aqui
-   - Faz sentido se você quer primeiro entender o estado da arte
-
-Qual direção faz mais sentido para você?
+Organizei sua ideia em uma hipótese testável: [resultado estruturado]. 
+Isso captura o que você quer explorar?
 ```
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
+
+**Nota:** Orquestrador chamou Estruturador automaticamente quando contexto suficiente, 
+sem pedir permissão. Apresentou resultado em tom coeso, primeira pessoa.
 
 ### Exemplo 3: Detecção de Mudança
 
 **Histórico:**
 ```
 Usuário: "Quero estudar impacto de LLMs em produtividade"
-Orquestrador: [explora, sugere direções]
+Orquestrador: [explora contexto]
 Usuário: "Na verdade, quero focar em qualidade de código, não produtividade"
 ```
 
 **Orquestrador:**
 ```
 Entendi! Você mudou o foco de produtividade para qualidade de código. 
-Isso muda a abordagem metodológica - qualidade tem métricas diferentes 
-(complexidade, bugs, manutenibilidade).
+Isso muda a abordagem metodológica. Estruturei uma hipótese sobre qualidade: 
+[resultado]. Isso direciona bem o que você quer testar?
+```
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 
-Posso chamar o Metodologista para ajudar a estruturar uma hipótese sobre 
-qualidade de código? Ele vai ajudar a definir como medir qualidade e 
-quais variáveis considerar.
+**Nota:** Orquestrador detectou mudança, adaptou sem questionar, chamou agente 
+automaticamente e apresentou resultado curado.
+
+---
+
+## 9. MODELO DE CURADORIA
+
+O Orquestrador atua como "mente observadora" que sintetiza trabalho dos agentes.
+
+### Responsabilidades
+
+- **Decidir QUANDO chamar agente:** Avalia se contexto é suficiente
+- **Receber resultado do agente:** Captura output do agente especializado
+- **Fazer curadoria:** Apresenta resultado em tom único e coeso
+- **Confirmar entendimento:** Valida com usuário, não pede permissão
+
+### Tom da Curadoria
+
+**✅ CORRETO:**
+- Primeira pessoa: "Organizei...", "Validei...", "Identifiquei..."
+- Coeso com conversa anterior
+- Natural e fluido
+
+**❌ INCORRETO:**
+- "O Estruturador disse..." ❌
+- "O Metodologista sugeriu..." ❌
+- "Posso chamar o agente?" ❌
+
+### Transparência
+
+**Bastidores:**
+- Mostram quem trabalhou: `[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]`
+- Permitem rastreabilidade
+- Não interferem na conversa principal
+
+**Conversa principal:**
+- Fluida e natural
+- Tom único e coeso
+- Como se fosse o próprio Orquestrador que fez o trabalho
+
+### Exemplo de Curadoria
+
+**Antes (sem curadoria):**
+```
+Orquestrador: "O Estruturador estruturou sua ideia: [resultado bruto do agente]"
+```
+
+**Depois (com curadoria):**
+```
+Orquestrador: "Organizei sua ideia em uma hipótese testável: [resultado curado, 
+tom coeso, primeira pessoa]. Isso captura o que você quer explorar?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 ```
 
 ---
 
-## 9. NOTAS DE IMPLEMENTAÇÃO
+## 10. NOTAS DE IMPLEMENTAÇÃO
 
 ### Limitações do POC
 
@@ -580,7 +667,7 @@ quais variáveis considerar.
 
 ---
 
-## 10. Protótipo: CLI Conversacional (Épico 7.5-7.7)
+## 11. Protótipo: CLI Conversacional (Épico 7.5-7.7)
 
 ### Mudanças Implementadas
 
@@ -647,14 +734,16 @@ message = "Pergunta esclarecedora específica"
 ```json
 {
   "reasoning": "Análise do contexto acumulado...",
-  "next_step": "suggest_agent",
-  "message": "Posso chamar o Estruturador para transformar em questão?",
-  "agent_suggestion": {
+  "next_step": "call_agent",
+  "message": "Organizei sua ideia em uma questão estruturada: [resultado curado]. Isso captura o que você quer explorar?",
+  "agent_call": {
     "agent": "structurer",
     "justification": "Usuário tem observação + contexto, falta estruturação"
   }
 }
 ```
+
+**Nota:** `next_step: "call_agent"` significa chamar automaticamente. `message` é resultado curado, não pergunta de permissão.
 
 ### Transparência do Raciocínio (7.7)
 

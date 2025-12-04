@@ -91,6 +91,19 @@ Usuário: [sobrecarregado]
 ### Objetivo
 Agentes trabalham nos bastidores automaticamente quando contexto suficiente. Orquestrador apresenta resultado curado de forma coesa.
 
+### Modelo de Transição Fluida
+
+**Princípio:** Agentes trabalham nos bastidores. Orquestrador faz curadoria.
+
+**Fluxo:**
+1. Orquestrador analisa contexto
+2. Se contexto suficiente → chama agente automaticamente (sem pedir permissão)
+3. Agente trabalha nos bastidores
+4. Orquestrador recebe resultado e apresenta em tom coeso
+5. Usuário confirma ENTENDIMENTO (não permissão)
+
+**Transparência:** Bastidores mostram quem trabalhou, conversa principal é fluida.
+
 ### Comportamento Esperado
 
 **✅ BOM:**
@@ -105,6 +118,13 @@ Sistema: "Validei sua hipótese. Está quase lá, mas falta definir
 ```
 
 **❌ RUIM:**
+```
+Sistema: "Posso chamar o Estruturador para organizar essa ideia?"
+Usuário: "Sim"
+Sistema: "O Estruturador organizou: [resultado]"
+```
+
+**❌ RUIM (também):**
 ```
 Sistema: "Metodologista detectou needs_refinement. Refinando 
          automaticamente..."
@@ -122,14 +142,14 @@ Sistema: "Metodologista detectou needs_refinement. Refinando
 
 **Após feedback do Metodologista:**
 ```
-"Validei sua hipótese. Identifiquei que falta população e métricas. 
+Sistema: "Validei sua hipótese. Identifiquei que falta população e métricas. 
 Refinei para você: [resultado estruturado]. Isso faz sentido?"
-[Bastidores: 🔬 Metodologista validou → 📝 Estruturador refinou]
+[Bastidores: 🔬 Metodologista validou → 📝 Estruturador refinou → 🎯 Orquestrador curou]
 ```
 
 **Após estrutura criada:**
 ```
-"Organizei sua ideia em uma questão de pesquisa estruturada: [resultado]. 
+Sistema: "Organizei sua ideia em uma questão de pesquisa estruturada: [resultado]. 
 Podemos seguir com: 1) definir desenho experimental, 2) pesquisar literatura 
 sobre métricas, ou 3) algo diferente?"
 [Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
@@ -137,7 +157,7 @@ sobre métricas, ou 3) algo diferente?"
 
 **Após pesquisa realizada (ação cara - ainda pede permissão):**
 ```
-"Temos uma boa base de papers. Para compilar a revisão completa, preciso 
+Sistema: "Temos uma boa base de papers. Para compilar a revisão completa, preciso 
 fazer chamadas de API que podem ter custo. Quer que eu chame o Escritor 
 para compilar agora, ou prefere revisar os papers primeiro?"
 ```
@@ -154,9 +174,10 @@ Permitir que usuário mude de ideia sem penalização ou fricção.
 **✅ BOM:**
 ```
 Usuário: "Na verdade, quero fazer revisão de literatura"
-Sistema: "Sem problema! Vamos adaptar. Posso chamar o Estruturador 
-         para ajudar a definir uma questão de pesquisa estruturada 
-         (tipo PICO/SPIDER)?"
+Sistema: "Sem problema! Vamos adaptar. Organizei uma questão de pesquisa 
+         estruturada (PICO/SPIDER) para revisão: [resultado]. Isso direciona 
+         bem o que você quer buscar?"
+[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
 ```
 
 **❌ RUIM:**
@@ -308,6 +329,25 @@ Sistema: "Hipótese aprovada. Finalizando."
 - ❌ Sem negociação (ignora contexto da conversa)
 - ❌ Fluxo determinístico (roteia automaticamente sem considerar histórico)
 
+### 6.2.1 Conversa RUIM: Negociação Explícita (Anti-padrão)
+
+```
+Usuário: "Observei que LLMs aumentam produtividade"
+Sistema: "Posso chamar o Estruturador para organizar essa ideia?"
+Usuário: "Sim"
+Sistema: "O Estruturador organizou: [resultado]"
+Usuário: "Ok"
+Sistema: "Posso chamar o Metodologista para validar?"
+Usuário: "Sim"
+Sistema: "O Metodologista validou: [resultado]"
+```
+
+**Por que é ruim:**
+- ❌ Sistema pede permissão para cada transição (cria fricção desnecessária)
+- ❌ Quebra fluidez da conversa (usuário precisa aprovar cada passo)
+- ❌ Não confia no contexto suficiente (deveria chamar automaticamente)
+- ❌ Anti-padrão de transição fluida (deveria apresentar resultado curado diretamente)
+
 ### 6.3 Conversa BOA: Mudança de Direção
 
 ```
@@ -355,7 +395,8 @@ Sistema: "Você já escolheu hipótese empírica. Não posso mudar agora.
 ### 7.1 Sistema como Facilitador, não Decisor
 
 - Sistema **sugere** caminhos, não impõe
-- Sistema **pergunta** antes de agir
+- Sistema **age automaticamente** quando contexto suficiente (transição fluida)
+- Sistema **apresenta resultados curados** e confirma entendimento
 - Sistema **respeita** decisão do usuário
 
 ### 7.2 Conversação sobre Classificação
@@ -382,14 +423,16 @@ Sistema: "Você já escolheu hipótese empírica. Não posso mudar agora.
 
 Antes de implementar uma interação, verificar:
 
-- [ ] Sistema pergunta antes de agir?
+- [ ] Sistema chama agentes automaticamente quando contexto suficiente? (transição fluida)
+- [ ] Orquestrador apresenta resultado curado em tom coeso?
+- [ ] Sistema confirma entendimento (não permissão)?
 - [ ] Opções são apresentadas claramente?
 - [ ] Contexto é explicado (por que essas opções)?
 - [ ] Usuário pode mudar de direção?
 - [ ] Sistema adapta sem questionar mudanças?
 - [ ] Perguntas são específicas e contextuais?
 - [ ] Sistema não classifica automaticamente?
-- [ ] Cada passo é negociado?
+- [ ] Sistema não pede permissão para transições automáticas? (anti-padrão: "Posso chamar X?")
 
 ---
 

@@ -156,6 +156,32 @@ Permitir customização de agentes como "personas" (Sócrates, Aristóteles, Pop
 
 ---
 
+### Agentes em Paralelo (LangGraph Parallel Branches)
+Permitir que múltiplos agentes trabalhem simultaneamente quando análises são independentes.
+
+- Implementar parallel branches no LangGraph
+- Exemplo: Estruturador e Metodologista analisam ao mesmo tempo
+- Orquestrador sintetiza resultados de múltiplos agentes
+- Reduz latência em fluxos complexos
+- Requer: análise de dependências entre agentes
+
+**Contexto:** Identificado durante refinamento do Épico 1 (Convergência Orgânica). Sistema atual usa fluxo sequencial que atende 95% dos casos. Paralelo é otimização para quando latência se tornar problema.
+
+---
+
+### Mediação de Divergências entre Agentes
+Orquestrador media quando agentes têm opiniões conflitantes sobre mesmo input.
+
+- Detectar divergências automáticamente (Metodologista rejeita, Estruturador aprova)
+- Apresentar perspectivas lado a lado nos bastidores
+- Orquestrador sintetiza: "Há perspectivas diferentes sobre isso..."
+- Usuário tem contexto para decidir direção
+- Requer: sistema de votação ou consenso entre agentes
+
+**Contexto:** Identificado durante refinamento do Épico 1. Atualmente agentes trabalham em sequência e não divergem. Mediação será necessária quando sistema tiver mais agentes com opiniões independentes.
+
+---
+
 ### Alertas de Custo
 Avisos automáticos para evitar surpresas com gastos de API.
 

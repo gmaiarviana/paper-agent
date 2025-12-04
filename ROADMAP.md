@@ -17,7 +17,7 @@
 - _Nenhum épico em andamento no momento_
 
 ### ⏳ Épicos Planejados
-- **ÉPICO 1**: Convergência Orgânica (não refinado)
+- **ÉPICO 1**: Convergência Orgânica (refinado)
 - **ÉPICO 2**: Qualidade de Testes (LLM-as-Judge) (não refinado)
 - **ÉPICO 3**: Integração Backend↔Frontend (não refinado)
 - **ÉPICO 4**: UX Polish (não refinado)
@@ -40,69 +40,71 @@
 
 ## ÉPICO 1: Convergência Orgânica
 
-**Objetivo:** Sistema transiciona entre agentes de forma fluida, sem pedir permissão.
+**Objetivo:** Sistema transiciona entre agentes de forma fluida, sem pedir permissão. Orquestrador atua como "mente observadora" que sintetiza trabalho dos agentes em resposta coesa.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ⏳ Planejado (refinado)
 
-**Problema:**
-- Orquestrador fica em loop socrático indefinido
-- Transições requerem aceite manual ("Posso chamar X?")
+**Problema atual:**
+- Orquestrador pergunta "Posso chamar X?" e aguarda confirmação
+- CLI bloqueia fluxo pedindo input do usuário
 - Usuário não vê valor do sistema multi-agente
 
-**Modelo desejado:**
-- Agentes trabalham nos bastidores
-- Orquestrador faz curadoria da resposta final
-- Transparência nos bastidores (quem trabalhou)
-- Confirmação de entendimento, não permissão
+**Comportamento desejado:**
+- Agentes trabalham automaticamente quando contexto suficiente
+- Orquestrador faz curadoria da resposta final (tom único)
+- Transparência nos bastidores (quem trabalhou), não na conversa principal
+- Usuário confirma entendimento, não permissão
 
 **Dependências:**
 - Nenhuma
 
 **Consulte:**
 - `docs/vision/conversation_patterns.md` - Padrões de conversação
-- `docs/vision/vision.md` - Visão de produto
-- `docs/agents/methodologist.md` - Documentação do Metodologista
+- `docs/orchestration/conversational_orchestrator.md` - Spec do Orquestrador
+- `docs/analysis/transicao_fluida_impacto.md` - Análise de impacto completa
 
-### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
+### Funcionalidades:
 
 #### 1.1 Ajustar Prompts do Orquestrador
 
-- **Descrição:** Ajustar `ORCHESTRATOR_MVP_PROMPT_V1` e `ORCHESTRATOR_SOCRATIC_PROMPT_V1` para remover "sugerir e aguardar" e adicionar "chamar quando contexto suficiente" com instrução de curadoria.
-- **Critérios de Aceite:**
-  - Deve remover instruções de "sugerir e aguardar permissão"
-  - Deve adicionar instrução: "chamar agente quando contexto suficiente"
-  - Deve adicionar instrução de curadoria da resposta final
-  - Deve manter comportamento socrático (provocação, timing emergente)
+**Descrição:** Modificar `ORCHESTRATOR_MVP_PROMPT_V1` e `ORCHESTRATOR_SOCRATIC_PROMPT_V1` para chamar agentes automaticamente.
+
+**Critérios de Aceite:**
+- Deve remover instruções de "sugerir agente e aguardar confirmação"
+- Deve adicionar instrução: "Quando contexto suficiente, CHAME o agente automaticamente"
+- Deve adicionar instrução de curadoria: "Apresente resultado como se fosse você, em tom coeso"
+- Deve manter comportamento socrático (provocação, detecção de suposições)
+- Deve atualizar exemplos de output para mostrar transição fluida
 
 #### 1.2 Remover Confirmação Manual no CLI
 
-- **Descrição:** Remover confirmação manual em `cli/chat.py` (linhas 288-298) que bloqueia transições automáticas.
-- **Critérios de Aceite:**
-  - Deve remover prompt "Posso chamar X?" do CLI
-  - Deve permitir transições automáticas entre agentes
-  - Deve manter transparência (mostrar quem trabalhou nos bastidores)
+**Descrição:** Remover bloco de confirmação em `cli/chat.py` (linhas 288-298) que bloqueia transições automáticas.
 
-#### 1.3 Atualizar Documentação
+**Critérios de Aceite:**
+- Deve remover prompt "Você quer que eu chame este agente? (sim/não)"
+- Deve chamar agente automaticamente quando `next_step == "suggest_agent"`
+- Deve exibir transparência nos bastidores: "[Bastidores: Estruturador trabalhou]"
+- Deve exibir resposta curada do Orquestrador
 
-- **Descrição:** Atualizar documentação (conversation_patterns, vision, methodologist) para refletir modelo de convergência orgânica.
-- **Critérios de Aceite:**
-  - Deve atualizar `docs/vision/conversation_patterns.md`
-  - Deve atualizar `docs/vision/vision.md`
-  - Deve atualizar `docs/agents/methodologist.md`
-  - Deve remover referências a "pedir permissão"
+#### 1.3 Garantir Curadoria Funciona
 
-#### 1.4 Teste Funcional de Convergência
+**Descrição:** Verificar que Orquestrador recebe resultado do agente e apresenta resposta sintetizada.
 
-- **Descrição:** Validar que agente é chamado automaticamente quando contexto suficiente.
-- **Critérios de Aceite:**
-  - Deve criar teste funcional que valida chamada automática
-  - Deve validar que não há prompt "Posso chamar X?"
-  - Deve validar que transição é fluida
+**Critérios de Aceite:**
+- Após agente trabalhar, Orquestrador deve receber estado atualizado
+- Orquestrador deve apresentar resultado em tom único (não "O Estruturador disse X")
+- Deve confirmar entendimento: "Organizei sua ideia: [resultado]. Isso captura o que você quer?"
+- Fluxo: Orquestrador → Agente → Orquestrador (curadoria) → Usuário
 
-**Não inclui:**
-- LLM-as-judge (Épico 2)
-- Mudanças no frontend
-- Novos campos no state
+#### 1.4 Atualizar Testes
+
+**Descrição:** Atualizar testes para verificar transição automática.
+
+**Critérios de Aceite:**
+- Deve atualizar `tests/unit/test_orchestrator.py` (remover asserts de "Posso chamar")
+- Deve atualizar `scripts/flows/validate_conversation_flow.py`
+- Deve adicionar teste que verifica chamada automática quando contexto suficiente
+- Deve adicionar teste que verifica curadoria
 
 ---
 

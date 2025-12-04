@@ -12,7 +12,7 @@ Agente especializado em avaliar rigor científico de hipóteses. Implementado co
 - Tomar decisões com raciocínio explícito
 - Avaliar hipóteses segundo critérios metodológicos (testabilidade, falseabilidade, especificidade)
 
-**⚠️ NOTA IMPORTANTE (13/11/2025):** O Metodologista é usado **sob demanda**, não automaticamente no fluxo. O Orquestrador negocia com o usuário antes de chamar o Metodologista, e após receber feedback, apresenta opções ao usuário (refinar, pesquisar, ou outra direção). O refinamento não é automático - usuário decide quando refinar.
+**⚠️ NOTA IMPORTANTE:** O Metodologista é chamado **automaticamente** pelo Orquestrador quando o contexto é suficiente para validação metodológica. O Orquestrador faz curadoria do resultado e apresenta ao usuário em tom coeso, sem necessidade de negociação prévia.
 
 ## Implementação Atual
 
@@ -251,31 +251,30 @@ Output: {
 
 ### Uso no Fluxo Multi-Agente (Transição Fluida)
 
-**⚠️ IMPORTANTE (16/11/2025):** O Metodologista trabalha nos bastidores quando o contexto é suficiente. O Orquestrador faz curadoria da resposta final.
+**⚠️ IMPORTANTE:** O Metodologista é chamado automaticamente pelo Orquestrador
+quando o contexto é suficiente para validação metodológica. O Orquestrador
+faz curadoria do resultado e apresenta ao usuário em tom coeso.
 
-**Fluxo conversacional:**
+**Fluxo:**
 
-1. **Orquestrador detecta contexto suficiente:** Hipótese com população, variáveis, métricas definidas
-2. **Metodologista trabalha automaticamente:** Valida rigor científico nos bastidores
-3. **Orquestrador apresenta resultado curado:** "Validei sua hipótese: [resultado]. Faz sentido?"
-4. **Se precisa refinamento:** Estruturador refina automaticamente e Orquestrador apresenta: "Refinei: [resultado]. Isso captura melhor?"
-5. **Usuário confirma entendimento:** Pode aceitar, pedir ajustes, ou mudar direção
+1. Orquestrador detecta contexto suficiente (hipótese estruturada)
+2. Metodologista é chamado automaticamente (bastidores)
+3. Metodologista valida: approved | needs_refinement | rejected
+4. Orquestrador recebe resultado e faz curadoria
+5. Orquestrador apresenta: "Validei sua hipótese: [resultado]. Faz sentido?"
 
 **Exemplo completo:**
 
 ```
-Orquestrador: "Validei sua hipótese. Está quase lá, mas falta definir 
-              população e métricas. Refinei para você:
-              
-              Claim: 'X reduz tempo em 30% em equipes de 2-5 devs'
-              
-              Isso captura melhor o que você quer testar?"
-[Bastidores: 🔬 Metodologista validou → 📝 Estruturador refinou → 🎯 Orquestrador curou]
+Orquestrador: "Validei sua hipótese. Ela atende critérios de testabilidade
+              e falseabilidade. Identifiquei que falta definir baseline.
+              Isso faz sentido para você?"
+[Bastidores: 🔬 Metodologista validou → 🎯 Orquestrador curou]
 ↓
-Usuário: "Perfeito!"
+Usuário: "Faz sentido, mas como definir baseline?"
 ↓
-Orquestrador: "Ótimo! Podemos seguir com: 1) definir desenho experimental, 
-              2) pesquisar literatura, ou 3) algo diferente?"
+Orquestrador: "Podemos usar métricas históricas da equipe ou benchmark
+              da literatura. Qual prefere?"
 ```
 
 **Princípios:**
