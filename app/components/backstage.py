@@ -1,16 +1,25 @@
 """
-Componente "Bastidores" para visualização de reasoning dos agentes (Épico 9.5 + 9.6-9.8).
+Componentes do Painel Direito: Contexto + Bastidores (Épico 4 + Épico 9).
 
 Responsável por:
-- Painel collapsible para reasoning dos agentes
-- Exibir agente ativo + reasoning resumido (~280 chars)
+- Seção "💡 Contexto" (Épico 4.1): ideia ativa, status, metadados
+- Seção "📊 Bastidores" (Épico 9.5-9.8): reasoning dos agentes
 - Modal com reasoning completo (JSON estruturado)
 - Timeline de agentes anteriores
 - Polling de eventos do EventBus (1s via auto-refresh)
 
-Versão: 3.0
-Data: 16/11/2025
-Status: Protótipo completo (modal com abas - Épico 9.6-9.8)
+Estrutura:
+┌──────────────────────┐
+│ 💡 Contexto [▼]      │  ← Expander (expandido por padrão)
+│ └─ Ideia ativa       │
+├──────────────────────┤
+│ 📊 Bastidores [▶]    │  ← Expander (colapsado por padrão)
+│ └─ Reasoning         │
+└──────────────────────┘
+
+Versão: 4.0
+Data: 04/12/2025
+Status: Épico 4.1 implementado (seção contexto colapsável)
 """
 
 import streamlit as st
@@ -32,55 +41,79 @@ AGENT_EMOJIS = {
 }
 
 
-def render_backstage(session_id: str) -> None:
+def render_right_panel(session_id: str) -> None:
     """
-    Renderiza painel "Bastidores" com reasoning dos agentes e status da ideia.
+    Renderiza painel direito completo: Contexto + Bastidores (Épico 4.1).
 
     Args:
         session_id: ID da sessão ativa
 
-    Comportamento (Épico 9 + Épico 12.1):
-        - Mostra status da ideia ativa (título, badge, metadados)
-        - Toggle "🔍 Ver raciocínio" (fechado por padrão)
+    Estrutura:
+        1. Seção "💡 Contexto" (expandida por padrão)
+           - Ideia ativa (título, status, metadados)
+        2. Seção "📊 Bastidores" (colapsada por padrão)
+           - Reasoning dos agentes, timeline
+    """
+    # Seção 1: Contexto (acima)
+    render_context_section(session_id)
+
+    # Seção 2: Bastidores (abaixo)
+    render_backstage(session_id)
+
+
+def render_context_section(session_id: str) -> None:
+    """
+    Renderiza seção "💡 Contexto" colapsável (Épico 4.1).
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Comportamento:
+        - Expander "💡 Contexto" clicável para expandir/colapsar
+        - Expandido por padrão
+        - Contém: ideia ativa (título, status, metadados)
+
+    Critérios de Aceite (4.1):
+        - ✅ Header "💡 Contexto" clicável para expandir/colapsar
+        - ✅ Posicionada acima dos Bastidores no painel direito
+    """
+    with st.expander("💡 Contexto", expanded=True):
+        _render_idea_status(session_id)
+
+
+def render_backstage(session_id: str) -> None:
+    """
+    Renderiza seção "📊 Bastidores" colapsável com reasoning dos agentes.
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Comportamento (Épico 9 + Épico 4.1):
+        - Expander "📊 Bastidores" clicável (colapsado por padrão)
         - Quando aberto: mostra agente ativo + reasoning resumido
         - Botão "Ver raciocínio completo" abre modal com JSON
         - Métricas do agente (tempo, tokens, custo)
         - Timeline colapsada de agentes anteriores
-        - Auto-refresh a cada 2s para polling de eventos
 
     Integração:
         - EventBus: Busca eventos via get_session_events()
-        - Database: Busca ideia ativa via get_database_manager()
-        - Polling: Implementado via st.rerun() a cada 2s (quando aberto)
+        - Polling: Implementado via st.rerun() (quando aberto)
     """
-    st.markdown("---")
-    st.subheader("🎬 Bastidores")
+    with st.expander("📊 Bastidores", expanded=False):
+        # Buscar reasoning mais recente
+        reasoning = _get_latest_reasoning(session_id)
 
-    # 12.1: Mostrar status da ideia ativa
-    _render_idea_status(session_id)
+        if reasoning is None:
+            st.info("ℹ️ Nenhum evento de agente encontrado ainda. Envie uma mensagem para começar!")
+            return
 
-    st.markdown("---")
+        # Renderizar agente ativo
+        _render_active_agent(reasoning)
 
-    # Toggle para mostrar/ocultar reasoning
-    show_backstage = st.toggle("🔍 Ver raciocínio", value=False, key="toggle_backstage")
+        st.markdown("---")
 
-    if not show_backstage:
-        return
-
-    # Buscar reasoning mais recente
-    reasoning = _get_latest_reasoning(session_id)
-
-    if reasoning is None:
-        st.info("ℹ️ Nenhum evento de agente encontrado ainda. Envie uma mensagem para começar!")
-        return
-
-    # Renderizar agente ativo
-    _render_active_agent(reasoning)
-
-    st.markdown("---")
-
-    # Timeline de agentes anteriores (colapsado)
-    _render_agent_timeline(session_id)
+        # Timeline de agentes anteriores (colapsado)
+        _render_agent_timeline(session_id)
 
     # Auto-refresh para polling (POC - 2s)
     # Em produção: usar st.empty() + loop ou SSE
@@ -158,8 +191,7 @@ def _render_idea_status(session_id: str) -> None:
             st.warning("⚠️ Ideia ativa não encontrada no banco de dados.")
             return
 
-        # Exibir título e status
-        st.markdown("### 💡 Ideia Atual")
+        # Exibir título da ideia (sem header, pois já está no expander)
 
         # Buscar argumento focal
         focal_arg_id = idea.get("current_argument_id")
