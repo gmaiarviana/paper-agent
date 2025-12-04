@@ -63,7 +63,7 @@ def render_right_panel(session_id: str) -> None:
 
 def render_context_section(session_id: str) -> None:
     """
-    Renderiza seção "💡 Contexto" colapsável (Épico 4.1).
+    Renderiza seção "💡 Contexto" colapsável (Épico 4.1 + 4.3).
 
     Args:
         session_id: ID da sessão ativa
@@ -72,13 +72,16 @@ def render_context_section(session_id: str) -> None:
         - Expander "💡 Contexto" clicável para expandir/colapsar
         - Expandido por padrão
         - Contém: ideia ativa (título, status, metadados)
+        - Contém: custo acumulado da conversa (4.3)
 
-    Critérios de Aceite (4.1):
+    Critérios de Aceite (4.1 + 4.3):
         - ✅ Header "💡 Contexto" clicável para expandir/colapsar
         - ✅ Posicionada acima dos Bastidores no painel direito
+        - ✅ Custo acumulado da conversa
     """
     with st.expander("💡 Contexto", expanded=True):
         _render_idea_status(session_id)
+        _render_accumulated_cost(session_id)
 
 
 def render_backstage(session_id: str) -> None:
@@ -118,6 +121,68 @@ def render_backstage(session_id: str) -> None:
     # Auto-refresh para polling (POC - 2s)
     # Em produção: usar st.empty() + loop ou SSE
     time.sleep(0.1)  # Pequeno delay para não sobrecarregar
+
+
+def _get_session_accumulated_cost(session_id: str) -> Dict[str, Any]:
+    """
+    Calcula custo e tokens acumulados da sessão (Épico 4.3).
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Returns:
+        dict: {"cost": float, "tokens": int, "num_events": int}
+    """
+    try:
+        bus = get_event_bus()
+        events = bus.get_session_events(session_id)
+
+        # Filtrar eventos "agent_completed"
+        completed_events = [e for e in events if e.get("event_type") == "agent_completed"]
+
+        if not completed_events:
+            return {"cost": 0.0, "tokens": 0, "num_events": 0}
+
+        # Somar custos e tokens
+        total_cost = sum(e.get("cost", 0.0) for e in completed_events)
+        total_tokens = sum(e.get("tokens_total", 0) for e in completed_events)
+
+        return {
+            "cost": total_cost,
+            "tokens": total_tokens,
+            "num_events": len(completed_events)
+        }
+
+    except Exception as e:
+        logger.error(f"Erro ao calcular custo acumulado: {e}", exc_info=True)
+        return {"cost": 0.0, "tokens": 0, "num_events": 0}
+
+
+def _render_accumulated_cost(session_id: str) -> None:
+    """
+    Renderiza custo acumulado da conversa (Épico 4.3).
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Comportamento:
+        - Exibe custo acumulado: "💰 $0.0045 total"
+        - Exibe tokens totais abaixo
+        - Só exibe se houver eventos (custo > 0)
+
+    Critérios de Aceite (4.3):
+        - ✅ Mostrar custo acumulado
+        - ✅ Atualiza a cada mensagem
+    """
+    accumulated = _get_session_accumulated_cost(session_id)
+
+    # Só exibe se houver custo
+    if accumulated["cost"] <= 0 and accumulated["tokens"] <= 0:
+        return
+
+    st.markdown("---")
+    st.caption(f"💰 ${accumulated['cost']:.4f} total")
+    st.caption(f"📊 {accumulated['tokens']:,} tokens · {accumulated['num_events']} chamadas")
 
 
 def _infer_status_from_argument(argument: Dict[str, Any]) -> str:
