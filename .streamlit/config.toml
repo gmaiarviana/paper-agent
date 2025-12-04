@@ -8,6 +8,10 @@ toolbarMode = "minimal"
 # Mostra detalhes de erros (útil para desenvolvimento)
 showErrorDetails = true
 
+# Esconde navegação automática de páginas na sidebar
+# (usamos navegação customizada via botões)
+showSidebarNavigation = false
+
 [server]
 # Porta padrão (pode ser sobrescrita via linha de comando)
 port = 8501
