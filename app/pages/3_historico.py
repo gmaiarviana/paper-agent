@@ -29,6 +29,7 @@ from app.components.conversation_helpers import (
     get_relative_timestamp,
     restore_conversation_context
 )
+from app.components.sidebar import render_sidebar
 
 
 # === CONFIGURAÇÃO ===
@@ -37,7 +38,7 @@ st.set_page_config(
     page_title="Conversas - Paper Agent",
     page_icon="💬",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 
@@ -91,15 +92,12 @@ def render_conversation_card(conv: Dict[str, Any]) -> None:
 def main():
     """Função principal da página Histórico de Conversas."""
 
+    # Sidebar com navegação
+    render_sidebar()
+
     # Título
     st.title("💬 Conversas")
     st.caption("Histórico de conversas passadas")
-
-    # Botão voltar para chat
-    if st.button("← Voltar para Chat", key="back_to_chat"):
-        st.switch_page("chat.py")
-
-    st.markdown("---")
 
     # Buscar conversas recentes
     try:

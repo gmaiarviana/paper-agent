@@ -99,13 +99,6 @@ def render_sidebar() -> str:
         if st.button("📖 Pensamentos", use_container_width=True):
             st.switch_page("pages/1_pensamentos.py")
 
-        st.button(
-            "🏷️ Catálogo",
-            use_container_width=True,
-            disabled=True,
-            help="Disponível em breve"
-        )
-
         if st.button("💬 Conversas", use_container_width=True):
             st.switch_page("pages/3_historico.py")
 
