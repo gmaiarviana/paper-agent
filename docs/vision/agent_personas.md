@@ -169,6 +169,6 @@ Orquestrador:
 ## Referências
 
 - `docs/vision/vision.md` - Visão de produto
-- `docs/vision/cognitive_model.md` - Modelo cognitivo
+- `docs/vision/cognitive_model/` - Modelo cognitivo
 - `docs/agents/` - Especificações técnicas de cada agente
 

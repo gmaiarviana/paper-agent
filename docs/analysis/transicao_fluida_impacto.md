@@ -80,8 +80,8 @@ Esta análise identifica **TODOS** os pontos do codebase que precisam mudar para
 
 ---
 
-#### `docs/orchestration/conversational_orchestrator.md`
-**Linhas:** 122, 184, 272, 303, 449-467, 601-645  
+#### `docs/orchestration/conversational_orchestrator/`
+**Arquivos afetados:** reasoning.md, flow.md, acceptance_criteria.md, implementation.md, curation.md  
 **Impacto:** ALTO  
 **Detalhes:**
 - Múltiplas menções a "Posso chamar X?" e confirmação
@@ -94,7 +94,7 @@ Esta análise identifica **TODOS** os pontos do codebase que precisam mudar para
 
 ---
 
-#### `docs/vision/cognitive_model.md`
+#### `docs/vision/cognitive_model/`
 **Linhas:** 587, 785, 844  
 **Impacto:** BAIXO  
 **Detalhes:**
@@ -388,7 +388,7 @@ Esta análise identifica **TODOS** os pontos do codebase que precisam mudar para
    - Adicionar testes de curadoria
 
 5. **Atualizar Documentação Técnica**
-   - `docs/orchestration/conversational_orchestrator.md`
+   - `docs/orchestration/conversational_orchestrator/`
    - `docs/interface/conversational_cli.md`
 
 6. **Melhorar Transparência nos Bastidores**
@@ -402,7 +402,7 @@ Esta análise identifica **TODOS** os pontos do codebase que precisam mudar para
    - Atualizar todos os lugares que usam essa constante
 
 8. **Atualizar Documentação Secundária**
-   - `docs/vision/cognitive_model.md`
+   - `docs/vision/cognitive_model/`
    - `docs/orchestration/refinement_loop.md`
 
 ---
@@ -431,7 +431,7 @@ Esta análise identifica **TODOS** os pontos do codebase que precisam mudar para
 - [ ] Atualizar `docs/vision/conversation_patterns.md`
 - [ ] Atualizar `docs/vision/vision.md`
 - [ ] Atualizar `docs/agents/methodologist.md`
-- [ ] Atualizar `docs/orchestration/conversational_orchestrator.md`
+- [ ] Atualizar `docs/orchestration/conversational_orchestrator/`
 - [ ] Atualizar `docs/interface/conversational_cli.md`
 
 ### Fase 5: Validação

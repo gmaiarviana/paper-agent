@@ -13,7 +13,7 @@ O modelo cognitivo é volátil (em memória) e captura:
 - solid_grounds: Argumentos com base bibliográfica
 - context: Domínio, tecnologia, população inferidos
 
-Ver docs/vision/cognitive_model.md para detalhes completos.
+Ver docs/vision/cognitive_model/core.md para detalhes completos.
 
 Épico 11.1: Schema Explícito de CognitiveModel
 Data: 2025-11-17
@@ -116,7 +116,7 @@ class CognitiveModel(BaseModel):
         >>> len(model.premises)
         1
 
-    Ver docs/vision/cognitive_model.md para modelo completo.
+    Ver docs/vision/cognitive_model/core.md para modelo completo.
     """
 
     claim: str = Field(

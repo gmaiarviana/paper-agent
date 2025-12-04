@@ -56,7 +56,7 @@ Este documento detalha a **implementação técnica** do sistema multi-agente. P
 - 🔄 `route_after_methodologist`: De automático para oferece opções
 - ✅ Refinamento sob demanda: usuário controla quando refinar (sem limite fixo)
 
-**Especificação detalhada:** `docs/orchestration/conversational_orchestrator.md`
+**Especificação detalhada:** `docs/orchestration/conversational_orchestrator/`
 
 ---
 

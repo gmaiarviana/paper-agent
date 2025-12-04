@@ -403,7 +403,7 @@ O sistema diferencia ações que podem ser proativas (baratas) daquelas que requ
 - Escritor gerar rascunho
 - Análise profunda que consome muitos tokens
 
-**Referências**: Ver `cognitive_model.md` para detalhes sobre a estrutura do modelo cognitivo.
+**Referências**: Ver `docs/vision/cognitive_model/core.md` para detalhes sobre a estrutura do modelo cognitivo.
 
 ---
 

@@ -88,7 +88,7 @@ A epistemologia do sistema se materializa em decisões arquiteturais específica
 
 - **Evolução dinâmica**: Conforme novas evidências são adicionadas ou contradições são identificadas, a solidez é recalculada dinamicamente.
 
-- **Rastreabilidade**: Ver `docs/vision/cognitive_model.md` para como solidez evolui na conversa através de evidências acumuladas.
+- **Rastreabilidade**: Ver `docs/vision/cognitive_model/evolution.md` para como solidez evolui na conversa através de evidências acumuladas.
 
 ### Rastreabilidade de Fragilidade
 
@@ -127,5 +127,5 @@ A epistemologia do sistema se manifesta diretamente na experiência do usuário,
 ## Referências
 
 - `docs/architecture/ontology.md` - Estrutura de Proposição e como solidez é representada na ontologia
-- `docs/vision/cognitive_model.md` - Como solidez evolui na conversa através de evidências acumuladas e refinamento progressivo
+- `docs/vision/cognitive_model/evolution.md` - Como solidez evolui na conversa através de evidências acumuladas e refinamento progressivo
 

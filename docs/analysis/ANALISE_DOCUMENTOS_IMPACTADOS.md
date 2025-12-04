@@ -37,7 +37,7 @@
 | `docs/vision/vision.md` (seção 5.2) | ✅ **SIM - MÉDIO IMPACTO** | **5.2 Interface Web: Chat + Bastidores**:<br>- Atualizar layout consolidado para remover lista de conversas da sidebar<br>- Atualizar descrição de Bastidores para refletir nova estrutura (cards + timeline)<br>- Remover menção a toggle "Ver raciocínio"<br>- Atualizar descrição de métricas para discretas | **CONFLITO 1**: Layout consolidado (linha 358-369) mostra sidebar com "💬 Conversas" e lista - precisa remover<br><br>**CONFLITO 2**: Descrição de "Painel 'Bastidores' opcional" - precisa mudar para sempre visível (sem toggle)<br><br>**CONFLITO 3**: Menção a "Ver raciocínio" como opcional - precisa remover |
 | `ARCHITECTURE.md` (seção Interfaces Mantidas) | ✅ **SIM - BAIXO IMPACTO** | **Seção "Interfaces Mantidas" - Chat Web**:<br>- Atualizar descrição da sidebar para mencionar apenas links (Pensamentos, Catálogo)<br>- Remover menção a "últimas 5 conversas" | **CONFLITO 1**: Linha 113 menciona "Sidebar com últimas 5 conversas" - precisa remover ou atualizar |
 | `docs/vision/conversation_patterns.md` | ⚠️ **PARCIAL - BAIXO IMPACTO** | **Seção 3 - Padrões de Transição Fluida**: Verificar menções a "Bastidores" e atualizar se necessário para refletir nova estrutura (cards sempre visíveis) | **POSSÍVEL CONFLITO**: Menções a "Bastidores" podem assumir toggle - verificar e ajustar se necessário |
-| `docs/vision/cognitive_model.md` | ❌ **NÃO IMPACTADO** | Nenhuma seção específica - documento foca em modelo de dados, não em interface | Nenhum conflito identificado |
+| `docs/vision/cognitive_model/` | ❌ **NÃO IMPACTADO** | Nenhuma seção específica - documento foca em modelo de dados, não em interface | Nenhum conflito identificado |
 
 ---
 
@@ -55,7 +55,7 @@
 5. **`docs/vision/conversation_patterns.md`** - Verificação pontual de menções a Bastidores
 
 ### Documentos NÃO IMPACTADOS:
-6. **`docs/vision/cognitive_model.md`** - Foca em modelo de dados, não em interface
+6. **`docs/vision/cognitive_model/`** - Foca em modelo de dados, não em interface
 
 ---
 

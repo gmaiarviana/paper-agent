@@ -188,7 +188,7 @@ streamlit run app/dashboard.py
 ---
 
 **Referências:**
-- `docs/orchestration/conversational_orchestrator.md` - Lógica do Orquestrador
+- `docs/orchestration/conversational_orchestrator/` - Lógica do Orquestrador
 - `ROADMAP.md` - Épico 7 Protótipo
 - `docs/interface/cli.md` - CLI original (antes do Épico 7)
 

@@ -340,7 +340,7 @@ Sistema: "OK! E como você vai FORTALECER a proposição de que a visão computa
 
 ### Prompt do Orquestrador
 
-**Arquivo:** `utils/prompts.py`  
+**Arquivo:** `utils/prompts/orchestrator.py`  
 **Nome:** `ORCHESTRATOR_SOCRATIC_PROMPT_V1`
 
 **Estrutura do prompt:**
@@ -377,8 +377,8 @@ Sistema: "OK! E como você vai FORTALECER a proposição de que a visão computa
 ## Referências
 
 - `docs/product/vision.md` - Sistema como "mestre socrático"
-- `docs/product/cognitive_model.md` - Modelo de fundamentos com solidez
-- `docs/orchestration/conversational_orchestrator.md` - Base conversacional (Épico 7)
+- `docs/vision/cognitive_model/core.md` - Modelo de fundamentos com solidez
+- `docs/orchestration/conversational_orchestrator/` - Base conversacional (Épico 7)
 
 ---
 

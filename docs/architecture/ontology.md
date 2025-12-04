@@ -258,5 +258,6 @@ Quando uma proposição é identificada como frágil:
 - `docs/architecture/concept_model.md` - Estrutura de dados técnica de Conceito
 - `docs/architecture/idea_model.md` - Estrutura de dados técnica de Ideia
 - `docs/architecture/argument_model.md` - Estrutura de dados técnica de Argumento
-- `docs/vision/cognitive_model.md` - Como pensamento evolui e solidez é calculada
+- `docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, solidez)
+- `docs/vision/cognitive_model/evolution.md` - Como pensamento evolui e solidez é calculada
 

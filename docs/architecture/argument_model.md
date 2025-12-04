@@ -1,7 +1,7 @@
 # Argument Model - Estrutura de Dados
 
 > **Nota:** Para entender o que é Argumento filosoficamente, consulte `docs/architecture/ontology.md`.
-> Para evolução cognitiva (claim → fundamentos), consulte `docs/product/cognitive_model.md`.
+> Para evolução cognitiva (claim → fundamentos), consulte `docs/vision/cognitive_model/evolution.md`.
 
 ## Visão Geral
 Argumento é estrutura lógica que defende/explora uma ideia. É a materialização técnica do modelo cognitivo.
@@ -129,7 +129,7 @@ argumento = Argument(
 
 ## Conexão com Modelo Cognitivo
 
-> **Nota:** Para detalhes completos do modelo cognitivo, consulte `docs/product/cognitive_model.md`.
+> **Nota:** Para detalhes completos do modelo cognitivo, consulte `docs/vision/cognitive_model/core.md`.
 
 Argumento é estruturação técnica do modelo cognitivo. Durante a conversa, o modelo cognitivo trabalha com proposições (strings) que são então persistidas como entidades Proposição e referenciadas pelo Argumento.
 
@@ -251,7 +251,8 @@ CREATE TABLE argument_concepts (
 
 - `docs/architecture/ontology.md` - Estrutura de Proposição e Evidência
 - `docs/vision/epistemology.md` - Base filosófica (por que não há premises/assumptions)
-- `docs/product/cognitive_model.md` - Modelo cognitivo completo
+- `docs/vision/cognitive_model/core.md` - Conceitos fundamentais do modelo cognitivo
+- `docs/vision/cognitive_model/evolution.md` - Processo de evolução do pensamento
 - `docs/architecture/idea_model.md` - Como Ideia possui Argumentos
 - `docs/orchestration/multi_agent_architecture.md` - Responsabilidades dos agentes
 
