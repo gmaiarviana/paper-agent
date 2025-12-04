@@ -47,7 +47,7 @@
 
 ## ÉPICO 5: UX Polish
 
-**Objetivo:** Ajustes de experiência do usuário: métricas discretas, custo em R$.
+**Objetivo:** Ajustes de experiência do usuário: custo em R$.
 
 **Status:** ⏳ Planejado (refinado)
 
@@ -55,23 +55,15 @@
 
 ### Funcionalidades:
 
-#### 5.1 Métricas discretas
+#### 5.1 Custo em R$
 
-- **Descrição:** Métricas por mensagem discretas, visíveis sob demanda
+- **Descrição:** Exibir custos em reais (BRL) com formato brasileiro
 - **Critérios de Aceite:**
-  - Deve mostrar ícone pequeno (ℹ️) após cada mensagem do sistema
-  - Clique no ícone abre popover/tooltip com métricas
-  - Formato: "💰 R$0,02 · 215 tokens · 1.2s"
-  - Não mostra métricas sempre visíveis (reduz ruído visual)
-
-#### 5.2 Custo em R$
-
-- **Descrição:** Exibir custos em reais (BRL) ao invés de dólares
-- **Critérios de Aceite:**
+  - Deve adicionar configs em `.env`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.5`
   - Deve converter USD → BRL usando taxa configurável
-  - Deve adicionar config em `.env`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.5`
-  - Deve exibir: "R$ 0,02" ao invés de "$0.0039"
-  - Fallback para USD se config não existir
+  - Deve exibir formato brasileiro: "R$ 0,02" (vírgula decimal)
+  - Fallback: se `CURRENCY` não for `BRL`, mantém USD como hoje
+  - Deve aplicar em todos os pontos: chat_history, backstage, dashboard
 
 ---
 

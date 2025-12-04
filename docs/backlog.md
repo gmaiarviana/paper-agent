@@ -105,6 +105,18 @@ Agente para compilação do artigo final (essencial para entregar artigo complet
 
 ---
 
+### Métricas Discretas (UX Polish)
+Reduzir ruído visual escondendo métricas por padrão, mostrando sob demanda.
+
+- Substituir `st.caption` inline por ícone (ℹ️) clicável
+- `st.popover` com métricas ao clicar: "💰 R$ 0,02 · 215 tokens · 1.2s"
+- Aplicar em: chat_history, backstage, dashboard
+- Fallback: `st.expander` se `st.popover` não disponível
+
+**Contexto:** Originalmente Épico 5.1, movido para backlog para simplificar escopo. Intenção: interface mais limpa e elegante, sem métricas sempre visíveis.
+
+---
+
 ### Crítico
 Agente para revisão final do artigo (essencial para garantir qualidade).
 
