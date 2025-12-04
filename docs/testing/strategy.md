@@ -158,6 +158,9 @@ python scripts/health_checks/validate_api.py
 - Um assert por conceito
 - Fixtures para setup repetitivo
 - Mocks para dependências externas
+- **Teste lógica própria, não bibliotecas**
+- **Teste comportamento, não apenas estrutura**
+- **Valide qualidade quando relevante (LLM-as-Judge)**
 
 ### ❌ DON'T
 - Testes que dependem de ordem de execução
@@ -165,8 +168,100 @@ python scripts/health_checks/validate_api.py
 - Testes lentos em unit tests (> 1s)
 - Hard-coding de valores mágicos
 - Testes que sempre passam
+- **Testar bibliotecas externas (Pydantic, YAML, etc.)**
+- **Mocks que retornam exatamente o esperado**
+- **Asserts que verificam apenas presença (`is not None`)**
 
 ---
 
-**Versão:** 2.0
-**Data:** 10/11/2025
+## Critérios para Remover/Criar Testes
+
+### ❌ Remover se:
+- Testa comportamento padrão de biblioteca (Pydantic, YAML, etc.)
+- Verifica apenas estrutura de dados (sem lógica)
+- Mock retorna exatamente o esperado (não testa lógica)
+- Assert verifica apenas presença (`is not None`)
+- Teste sempre passa (não cobre edge cases)
+
+### ✅ Criar quando:
+- Testa lógica de negócio própria
+- Cobre edge cases reais
+- Valida cálculos ou transformações
+- Testa integração entre componentes
+- Detecta bugs reais
+- **Valida qualidade conversacional (LLM-as-Judge)**
+
+---
+
+## Exemplos Práticos
+
+### ❌ Teste Ruim (Burocrático)
+```python
+def test_event_has_fields():
+    event = AgentStartedEvent(session_id="s1", agent_name="orch")
+    assert event.session_id == "s1"
+    assert event.agent_name == "orch"
+    # Testa apenas estrutura - Pydantic já valida isso!
+```
+
+### ✅ Teste Bom (Agrega Valor)
+```python
+def test_cost_calculation_large_volume():
+    """Testa cálculo com 1M tokens (edge case real)."""
+    result = CostTracker.calculate_cost("claude-3-5-haiku-20241022", 1_000_000, 1_000_000)
+    assert result["total_cost"] == pytest.approx(4.80, rel=1e-6)
+    # Testa lógica real, edge case importante!
+```
+
+### ❌ Mock Superficial
+```python
+def test_orchestrator_vague_input():
+    mock_response.content = '{"next_step": "explore"}'  # Retorna exatamente o esperado
+    result = orchestrator_node(state)
+    assert result["next_step"] == "explore"  # Sempre passa!
+    # Não testa se o LLM realmente classifica corretamente!
+```
+
+### ✅ Teste de Integração Real
+```python
+@pytest.mark.integration
+def test_orchestrator_classifies_vague_input():
+    state = create_initial_multi_agent_state("Observei que X é interessante")
+    result = orchestrator_node(state)  # API real
+    assert result["next_step"] in ["explore", "clarify"]
+    # Testa comportamento real!
+```
+
+### ❌ Assert Fraco
+```python
+def test_multi_agent_flow():
+    result = multi_agent_graph.invoke(state)
+    assert result["orchestrator_analysis"] is not None  # Aceita qualquer coisa!
+```
+
+### ✅ Validação de Qualidade (LLM-as-Judge)
+```python
+@pytest.mark.llm_judge
+def test_socratic_provocation_quality():
+    result = orchestrator_node(state)
+    evaluation = llm_judge.invoke(
+        SOCRATIC_BEHAVIOR_PROMPT.format(response=result['message'])
+    )
+    score = extract_score(evaluation.content)
+    assert score >= 4, "Provocação não é suficientemente socrática"
+    # Valida qualidade real!
+```
+
+---
+
+## Referências
+
+- **LLM-as-Judge:** `docs/analysis/llm_judge_strategy.md` - Estratégia completa para testes de qualidade
+- **Inventário:** `docs/testing/inventory.md` - O que já está testado
+- **Estrutura:** `docs/testing/structure.md` - Organização de pastas e fixtures
+- **Comandos:** `docs/testing/commands.md` - Comandos pytest
+
+---
+
+**Versão:** 3.1
+**Data:** Dezembro 2025

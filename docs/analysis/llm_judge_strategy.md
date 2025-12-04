@@ -5,7 +5,7 @@
 Esta análise avalia os arquivos de teste e validação existentes para determinar quais se beneficiariam de uma camada de testes usando LLM como avaliador de qualidade (LLM-as-judge).
 
 **Total de arquivos analisados:** 30
-- `tests/unit/`: 15 arquivos
+- `tests/unit/`: 14 arquivos (após limpeza - removido `test_event_models.py`)
 - `tests/integration/`: 5 arquivos
 - `scripts/flows/`: 10 arquivos
 
@@ -21,7 +21,7 @@ Esta análise avalia os arquivos de teste e validação existentes para determin
 | `test_config_loader.py` | Valida carregamento e validação de configs YAML | Determinístico | NÃO | - |
 | `test_cost_tracker.py` | Testa cálculo de custo de tokens por modelo | Determinístico | NÃO | - |
 | `test_event_bus.py` | Valida publicação e consumo de eventos | Determinístico | NÃO | - |
-| `test_event_models.py` | Valida schemas Pydantic de eventos | Determinístico | NÃO | - |
+| ~~`test_event_models.py`~~ | ~~Valida schemas Pydantic de eventos~~ | ~~Determinístico~~ | ~~NÃO~~ | ~~Removido (testa biblioteca externa)~~ |
 | `test_execution_tracker.py` | Valida registro de execuções e tokens | Determinístico | NÃO | - |
 | `test_graph_nodes.py` | Testa nós do grafo do Metodologista (analyze, ask_clarification, decide) | Padrão (mocks) | SIM | MÉDIA |
 | `test_initial_state_human_message.py` | Valida que HumanMessage é adicionada ao estado inicial | Determinístico | NÃO | - |
@@ -148,7 +148,7 @@ Os seguintes arquivos **NÃO** se beneficiariam de LLM-as-judge:
 
 1. **`test_cost_tracker.py`**: Resultado binário (cálculo matemático), assert simples é suficiente.
 2. **`test_event_bus.py`**: Testa infraestrutura (publicação/consumo), resultado determinístico.
-3. **`test_event_models.py`**: Valida schemas Pydantic, resultado determinístico.
+3. ~~**`test_event_models.py`**~~: ~~Valida schemas Pydantic~~ - **REMOVIDO** (testava biblioteca externa, não código próprio)
 4. **`test_config_loader.py`**: Valida carregamento de configs, resultado determinístico.
 5. **`test_memory_manager.py`**: Testa gerenciamento de memória, resultado determinístico.
 6. **`test_json_extraction.py`**: Valida parsing de JSON, resultado determinístico.

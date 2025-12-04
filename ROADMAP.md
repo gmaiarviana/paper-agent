@@ -265,56 +265,69 @@
 
 ---
 
-## ÉPICO 6: Qualidade de Testes - LLM-as-Judge
+## ÉPICO 6: Melhorar Testes - Integração Real + Validação de Qualidade
 
-**Objetivo:** Validar qualidade conversacional, não apenas estrutura.
+**Objetivo:** Resolver débito técnico: adicionar testes de integração reais onde há mocks superficiais e validação de qualidade conversacional com LLM-as-Judge.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Problema:**
-- Testes atuais verificam presença de campos, não qualidade
+- Testes com mocks superficiais não validam comportamento real (`test_orchestrator.py`, `test_structurer.py`)
+- Testes verificam apenas presença de campos, não qualidade
 - Comportamento socrático impossível de testar deterministicamente
-- Sem garantia de que transições são realmente "fluidas"
+- Asserts fracos aceitam qualquer resultado válido
 
 **Dependências:**
 - Épico 1 (comportamento a ser testado precisa existir)
 
 **Consulte:**
-- `docs/analysis/llm_judge_strategy.md` - Análise completa de estratégia
-- `docs/testing/strategy.md` - Estratégia de testes
+- `docs/testing/epic6_refactoring_plan.md` - **Plano detalhado** (ações específicas, código exemplo)
+- `docs/analysis/llm_judge_strategy.md` - Análise completa de estratégia e candidatos prioritários
+- `docs/testing/strategy.md` - Estratégia de testes e boas práticas
 
-### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
+### Funcionalidades:
 
-#### 6.1 Infraestrutura LLM-as-Judge
+#### 6.1 Adicionar Testes de Integração Reais
+
+- **Descrição:** Adicionar testes de integração com API real onde há mocks superficiais.
+- **Critérios de Aceite:**
+  - `test_orchestrator.py` - Adicionar testes de integração em `tests/integration/test_orchestrator_integration.py` (classificação real, routing real)
+  - `test_structurer.py` - Adicionar testes de integração em `tests/integration/test_structurer_integration.py` (estruturação real)
+  - Testes devem usar API real (não mocks)
+  - Testes devem validar comportamento real (não apenas estrutura)
+  - Manter testes unitários existentes (validam estrutura, mocks são OK para isso)
+
+#### 6.2 Infraestrutura LLM-as-Judge
 
 - **Descrição:** Criar infraestrutura base para testes com LLM-as-judge.
 - **Critérios de Aceite:**
-  - Deve criar fixture `llm_judge` em `conftest.py`
-  - Deve criar prompts de avaliação em `utils/test_prompts.py`
+  - Deve criar fixture `llm_judge` em `tests/conftest.py` (modelo Haiku, temperature=0)
+  - Deve criar prompts de avaliação em `utils/test_prompts.py` (5 prompts: socrático, conversação, fluidez, integração, refinamento)
+  - Deve criar função `extract_score` em `utils/test_helpers.py` (extrai score 1-5 da avaliação)
   - Deve adicionar marker `@pytest.mark.llm_judge` em `pytest.ini`
-  - Deve usar modelo Haiku para custo-benefício
+  - Deve pular testes se `ANTHROPIC_API_KEY` não estiver definida
 
-#### 6.2 Testes Prioritários (6 arquivos)
+#### 6.3 Adicionar Validação de Qualidade (6 arquivos)
 
-- **Descrição:** Adicionar validação LLM-as-judge nos testes prioritários identificados na análise.
+- **Descrição:** Adicionar validação LLM-as-judge nos testes críticos identificados.
 - **Critérios de Aceite:**
-  - Deve adicionar validação em `validate_socratic_behavior.py`
-  - Deve adicionar validação em `validate_conversation_flow.py`
-  - Deve adicionar validação em `validate_multi_agent_flow.py`
-  - Deve adicionar validação em `validate_refinement_loop.py`
-  - Deve adicionar validação em `test_methodologist_smoke.py`
-  - Deve adicionar validação em `test_multi_agent_smoke.py`
-  - Cada teste deve validar qualidade conversacional (score >= 4)
+  - `test_multi_agent_smoke.py` - Adicionar validação de qualidade conversacional (fluidez, integração)
+  - `test_methodologist_smoke.py` - Adicionar validação de perguntas socráticas (não burocráticas)
+  - `validate_socratic_behavior.py` - Adicionar validação de provocação socrática genuína
+  - `validate_conversation_flow.py` - Adicionar validação de fluidez (sem "Posso chamar X?")
+  - `validate_multi_agent_flow.py` - Adicionar validação de integração natural entre agentes
+  - `validate_refinement_loop.py` - Adicionar validação de refinamento significativo
+  - Cada teste deve validar qualidade (score >= 4) além de estrutura
 
-#### 6.3 Documentação de Estratégia
+#### 6.4 Documentação
 
-- **Descrição:** Documentar estratégia de testes com LLM-as-judge.
+- **Descrição:** Documentar estratégia e custos de testes melhorados.
 - **Critérios de Aceite:**
-  - Deve atualizar `docs/testing/strategy.md`
-  - Deve documentar custos estimados
-  - Deve documentar estratégia de execução (local, CI/CD, nightly)
+  - Deve atualizar `docs/testing/strategy.md` com seção sobre testes de integração reais e LLM-as-Judge
+  - Deve documentar custos estimados (~$0.01-0.02 por execução completa com LLM-as-Judge)
+  - Deve documentar estratégia de execução (local: `pytest -m integration`, `pytest -m llm_judge`)
 
-**Custo estimado:** ~$0.01-0.02 por execução completa
+**Custo estimado:** ~$0.01-0.02 por execução completa (testes de integração + LLM-as-Judge)
 
 ---
 
