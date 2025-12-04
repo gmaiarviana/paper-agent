@@ -39,6 +39,31 @@ Claude Web gera prompts separados para Cursor executar:
 
 Cada prompt é enxuto mas claro, deixando Cursor pensar também.
 
+### Otimização do Workflow: Usando Cursor para Análises
+
+**Ao invés de enviar todos os arquivos de contexto ao Claude Web**, você pode solicitar ao Cursor para fazer análises do código e gerar insights que facilitam o refinamento:
+
+**Estratégia:**
+- **Antes de ir ao Claude Web:** Use o Cursor para escanear o repositório e fazer análises específicas
+- **Envie ao Claude Web:** Os insights gerados pelo Cursor + os 4 arquivos essenciais (CONSTITUTION, ROADMAP, ARCHITECTURE, planning_guidelines)
+
+**Exemplos de prompts para o Cursor:**
+- "Analise a estrutura atual do sistema de persistência e identifique pontos de extensão para suportar pausar/retomar conversas"
+- "Escanee o código do orquestrador e identifique como ele gerencia estado atualmente"
+- "Analise os padrões de implementação dos agentes existentes para manter consistência no novo épico"
+- "Revise a arquitetura de eventos e sugira como integrar nova funcionalidade X"
+
+**Benefícios:**
+- ✅ Reduz o volume de arquivos enviados ao Claude Web
+- ✅ Cursor tem acesso completo ao código e pode fazer análises profundas
+- ✅ Insights técnicos específicos facilitam decisões no refinamento
+- ✅ Claude Web recebe contexto já processado e focado
+
+**Fluxo recomendado:**
+1. Cursor faz análise técnica do código relevante
+2. Claude Web recebe insights + documentos essenciais para refinamento estratégico
+3. Claude Web gera prompts para Cursor implementar
+
 ### Exemplo de Refinamento Bem Feito
 
 **Cenário:** Refinar Épico 10 - Persistência
