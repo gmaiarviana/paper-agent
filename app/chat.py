@@ -1,11 +1,10 @@
 """
-Interface Web Conversacional - Paper Agent (Épico 4 + 9).
+Interface Web Conversacional - Paper Agent (Épico 3 + 4 + 9).
 
 Interface principal do sistema:
 - Chat conversacional com histórico
 - Painel direito: Contexto + Bastidores (collapsible)
 - Sidebar com lista de sessões
-- Métricas inline discretas
 - Backend compartilhado com CLI (LangGraph + EventBus)
 
 Layout (Desktop):
@@ -21,11 +20,12 @@ Progressão:
 - ✅ POC (9.1-9.5): Chat básico + polling + métricas + backend integrado
 - ✅ Protótipo (9.6-9.9): localStorage (removido no MVP)
 - ✅ MVP (9.10-9.11): Sidebar + SqliteSaver + persistência em banco
-- ✅ Épico 4.1: Seção de contexto colapsável acima dos bastidores
+- ✅ Épico 3: Bastidores reorganizados (seção colapsável, cards, histórico)
+- ✅ Épico 4: Seção de contexto colapsável acima dos bastidores
 
 Versão: 4.0
 Data: 04/12/2025
-Status: Épico 4.1 implementado (seção contexto)
+Status: Épico 3 + 4 implementados
 """
 
 import sys
