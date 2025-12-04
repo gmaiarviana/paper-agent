@@ -106,7 +106,7 @@ Princípios não-negociáveis para trabalhar com este projeto.
 ### Output Esperado (Claude web gera)
 PROMPT 1: ROADMAP.md
 [instruções enxutas pro Cursor]
-PROMPT 2: docs/orchestration/conversational_orchestrator.md
+PROMPT 2: docs/orchestration/conversational_orchestrator/README.md
 [instruções enxutas pro Cursor]
 PROMPT 3: ARCHITECTURE.md
 [instruções enxutas pro Cursor]
@@ -140,10 +140,10 @@ PROMPT 3: ARCHITECTURE.md
 | Se você quer... | Claude web consulta... | Gera prompts para... |
 |----------------|----------------------|---------------------|
 | **Refinar épico novo** | docs/product/vision.md + ROADMAP.md (épicos anteriores) + ARCHITECTURE.md | ROADMAP.md + docs/[spec técnica nova] |
-| **Discutir comportamento do orquestrador** | docs/orchestration/conversational_orchestrator.md + docs/product/conversation_patterns.md | conversational_orchestrator.md + ROADMAP.md + ARCHITECTURE.md |
+| **Discutir comportamento do orquestrador** | docs/orchestration/conversational_orchestrator/ + docs/product/conversation_patterns.md | conversational_orchestrator/README.md + ROADMAP.md + ARCHITECTURE.md |
 | **Discutir comportamento de agente** | docs/agents/[agente].md + docs/orchestration/multi_agent_architecture.md | [agente].md + ROADMAP.md + ARCHITECTURE.md |
 | **Ajustar fluxo de dados** | docs/orchestration/multi_agent_architecture.md + ARCHITECTURE.md | multi_agent_architecture.md + ARCHITECTURE.md |
-| **Mudar interface** | docs/interface/web.md OU cli.md + ARCHITECTURE.md | web.md/cli.md + ROADMAP.md + ARCHITECTURE.md |
+| **Mudar interface** | docs/interface/web/ OU cli.md + ARCHITECTURE.md | web/ (overview.md, components.md, flows.md) /cli.md + ROADMAP.md + ARCHITECTURE.md |
 | **Revisar processo de refinamento** | planning_guidelines.md (já tem no contexto) | planning_guidelines.md + CONSTITUTION.md (se princípios mudarem) |
 | **Revisar processo de implementação** | docs/process/development/*.md | development/*.md (não é seu escopo principal) |
 

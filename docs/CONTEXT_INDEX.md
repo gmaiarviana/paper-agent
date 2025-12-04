@@ -37,7 +37,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 **Documentação:**
 - `docs/orchestration/multi_agent_architecture.md` - **FONTE ÚNICA DA VERDADE** para fluxo e estado
-- `docs/orchestration/conversational_orchestrator.md` - Orquestrador conversacional
+- `docs/orchestration/conversational_orchestrator/` - Orquestrador conversacional
 - `docs/orchestration/socratic_orchestrator.md` - Orquestrador socrático
 - `docs/orchestration/refinement_loop.md` - Loop de refinamento
 - `docs/orchestration/orchestrator.md` - Orquestrador (especificação adicional)
@@ -105,7 +105,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `app/pages/` - Páginas dedicadas (pensamentos, ideia_detalhes)
 
 **Documentação:**
-- `docs/interface/web.md` - Especificação completa da interface web
+- `docs/interface/web/` - Especificação completa da interface web (overview.md, components.md, flows.md)
   - Seção 3.4: Painel Progress (Checklist) - documenta `progress_tracker.py`
 - `docs/interface/navigation_philosophy.md` - Filosofia de navegação (3 espaços)
 
@@ -142,7 +142,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `utils/cost_tracker.py` - Cálculo de custos
 - `utils/token_extractor.py` - Extração de tokens
 - `utils/json_parser.py` - Parser de JSON de LLM
-- `utils/prompts.py` - Prompts versionados (fallback)
+- `utils/prompts/` - Prompts dos agentes (modularizado por agente: methodologist.py, orchestrator.py, structurer.py)
 - `utils/config.py` - Configurações e circuit breaker
 
 **Documentação:**
@@ -264,8 +264,8 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - ✅ `agents/structurer/` - Documentado em `refinement_loop.md`
 - ✅ `agents/models/cognitive_model.py` - Documentado em `cognitive_model.md` e `argument_model.md`
 - ✅ `agents/persistence/snapshot_manager.py` - Documentado em `snapshot_strategy.md`
-- ✅ `agents/checklist/progress_tracker.py` - Documentado em `web.md` (seção 3.4)
-- ✅ `app/pages/` - Documentado em `web.md` e `navigation_philosophy.md`
+- ✅ `agents/checklist/progress_tracker.py` - Documentado em `web/components.md` (seção 3.6)
+- ✅ `app/pages/` - Documentado em `web/components.md` e `navigation_philosophy.md`
 - ✅ `app/components/conversation_helpers.py` - Docstrings detalhadas no código
 - ✅ `utils/event_bus.py` - Docstrings detalhadas no código
 

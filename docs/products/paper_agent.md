@@ -205,5 +205,5 @@ Sistema: "Resumo da sessão de hoje:
 - `docs/architecture/super_system_vision.md` - Arquitetura core → produtos
 - `docs/architecture/idea_model.md` - Ideias que Article agrega
 - `docs/vision/vision.md` - Visão geral do produto
-- `docs/interface/web.md` - Especificação técnica da interface
+- `docs/interface/web/` - Especificação técnica da interface (overview.md, components.md, flows.md)
 

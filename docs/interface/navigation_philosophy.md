@@ -163,7 +163,7 @@ Conversa (processo) → Ideia (cristalização) → Conceito (abstração)
 
 ## Referências
 
-- `docs/interface/web.md` - Implementação técnica
+- `docs/interface/web/` - Implementação técnica (overview.md, components.md, flows.md)
 - `docs/vision/vision.md` - Visão de produto
 - `docs/architecture/ontology.md` - Definição de Ideia vs Conceito
 - `docs/vision/epistemology.md` - Por que proposições têm solidez

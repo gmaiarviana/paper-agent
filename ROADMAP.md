@@ -67,7 +67,7 @@
 
 **Consulte:**
 - `docs/vision/conversation_patterns.md` - Padrões de conversação
-- `docs/orchestration/conversational_orchestrator.md` - Spec do Orquestrador
+- `docs/orchestration/conversational_orchestrator/` - Spec do Orquestrador
 - `docs/analysis/transicao_fluida_impacto.md` - Análise de impacto completa
 
 ### Funcionalidades:
@@ -329,7 +329,7 @@
 
 **Consulte:**
 - `docs/architecture/snapshot_strategy.md` - Estratégia de snapshots
-- `docs/interface/web.md` (seção 3.4) - Painel Progress
+- `docs/interface/web/components.md` (seção 3.6) - Painel Progress
 
 ### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
 

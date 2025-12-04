@@ -51,7 +51,7 @@ personalizados. Ver: docs/vision/agent_personas.md
 **Resultado esperado:**
 "Flecha penetrante" / "Ideia irresistível" - argumento sólido com respaldo bibliográfico, sem premissas frágeis, sem dúvidas não examinadas. Às vezes o usuário nem sabe onde quer chegar, mas ao elaborar, a clareza aparece.
 
-**Ver detalhes sobre evolução cognitiva em:** `docs/product/cognitive_model.md`
+**Ver detalhes sobre evolução cognitiva em:** `docs/vision/cognitive_model/`
 
 ### 1.2 Super-Sistema: Core Universal
 
@@ -388,7 +388,7 @@ Formatos possíveis:
 - ✅ Scripts de automação
 - ❌ Uso interativo por usuários finais (usar web)
 
-**Documentação:** Ver `docs/interface/cli.md` e `docs/interface/web.md`
+**Documentação:** Ver `docs/interface/cli.md` e `docs/interface/web/` (overview.md, components.md, flows.md)
 
 ## 6. Casos de Uso Principais
 - **UC1: Validar Ideia** – De uma observação vaga para uma hipótese testável ou descarte fundamentado.
@@ -409,7 +409,7 @@ Formatos possíveis:
 
 - `docs/architecture/super_system_vision.md` - Arquitetura do super-sistema
 - `docs/architecture/ontology.md` - O que é Conceito, Ideia, Argumento
-- `docs/product/cognitive_model.md` - Como pensamento evolui
+- `docs/vision/cognitive_model/` - Como pensamento evolui
 - `docs/products/paper_agent.md` - Produto específico paper-agent
 - `docs/vision/epistemology.md` - Filosofia epistemológica do sistema
 

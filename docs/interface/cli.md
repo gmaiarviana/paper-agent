@@ -1,7 +1,7 @@
 CLI e Interfaces
 ================
 
-> **📌 Mudança de Papel (15/11/2025):** CLI passou de interface principal para ferramenta de desenvolvimento. Interface web conversacional (Streamlit) é agora a experiência principal do sistema. Ver `docs/interface/web.md` para detalhes.
+> **📌 Mudança de Papel (15/11/2025):** CLI passou de interface principal para ferramenta de desenvolvimento. Interface web conversacional (Streamlit) é agora a experiência principal do sistema. Ver `docs/interface/web/` (overview.md, components.md, flows.md) para detalhes.
 
 ---
 

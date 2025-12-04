@@ -145,7 +145,7 @@ O sistema oferece **duas interfaces web** com propósitos distintos:
 
 Facilitador conversacional que mantém diálogo fluido, detecta necessidades, oferece opções ao usuário e adapta-se a mudanças de direção. Extrai e atualiza argumento focal a cada turno, provoca reflexão sobre lacunas e detecta emergência de novo estágio.
 
-**Detalhes:** Ver `docs/orchestration/conversational_orchestrator.md`
+**Detalhes:** Ver `docs/orchestration/conversational_orchestrator/README.md`
 
 ## Orquestrador Socrático
 
@@ -165,7 +165,7 @@ MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento fo
 
 Sistema captura evolução do pensamento do usuário através de modelo cognitivo explícito com campos: `claim`, `premises`, `assumptions`, `open_questions`, `contradictions`, `solid_grounds`, `context`.
 
-**Detalhes completos:** Ver `docs/vision/cognitive_model.md`
+**Detalhes completos:** Ver `docs/vision/cognitive_model/`
 
 **Responsabilidades:**
 - Orquestrador: detecta suposições, extrai claim, atualiza contexto
@@ -225,7 +225,7 @@ Sistema de configuração dinâmica que permite definir prompts, modelos LLM e l
 - **Bootstrap**: Validação automática no `create_multi_agent_graph()`
 
 **Funcionalidades:**
-- Prompts carregados do YAML substituem prompts hard-coded em `utils/prompts.py`
+- Prompts carregados do YAML substituem prompts hard-coded em `utils/prompts/` (módulo modularizado por agente)
 - Modelos LLM configuráveis por agente (Haiku para performance, Sonnet para precisão)
 - Limites de contexto (`max_input_tokens`, `max_output_tokens`, `max_total_tokens`) por agente
 - **Fallback automático**: Se YAML falhar, nós usam prompts hard-coded para não quebrar sistema
@@ -318,7 +318,11 @@ paper-agent/
 │
 ├── utils/                 # Utilitários e helpers
 │   ├── __init__.py
-│   ├── prompts.py         # Prompts versionados dos agentes
+│   ├── prompts/           # Prompts dos agentes (modularizado)
+│   │   ├── __init__.py    # Re-exporta todos os prompts
+│   │   ├── methodologist.py
+│   │   ├── orchestrator.py
+│   │   └── structurer.py
 │   ├── cost_tracker.py    # Cálculo de custos de API
 │   ├── event_models.py    # Models Pydantic para eventos
 │   └── event_bus.py       # EventBus para Dashboard
@@ -389,7 +393,7 @@ paper-agent/
     ├── orchestration/     # Orquestração e estado
     ├── vision/            # Visão de produto
     │   ├── vision.md
-    │   ├── cognitive_model.md
+    │   ├── cognitive_model/
     │   ├── conversation_patterns.md
     │   └── agent_personas.md
     ├── products/          # Produtos específicos (paper-agent, fichamento)
@@ -406,7 +410,7 @@ Agente especializado em avaliar rigor científico de hipóteses usando LangGraph
 ### Orquestrador (`agents/orchestrator/`)
 Agente responsável por facilitar conversa e coordenar chamadas a agentes especializados. Facilitador conversacional que negocia caminho com usuário.
 
-**Detalhes:** Ver `docs/orchestration/conversational_orchestrator.md`
+**Detalhes:** Ver `docs/orchestration/conversational_orchestrator/README.md`
 
 ### Estruturador (`agents/structurer/`)
 Agente responsável por organizar ideias vagas e refinar questões de pesquisa baseado em feedback. Nó simples com 2 modos: estruturação inicial (V1) e refinamento (V2/V3).
@@ -416,7 +420,7 @@ Agente responsável por organizar ideias vagas e refinar questões de pesquisa b
 ### Interface Web (`app/`)
 Interface web conversacional (Streamlit) como experiência principal do sistema. Chat fluido com reasoning dos agentes visível ("Bastidores"), métricas inline e streaming de eventos. Componentes: chat, bastidores, timeline, sidebar. Eventos consumidos via polling (POC) ou SSE (MVP).
 
-**Detalhes:** Ver `docs/interface/web.md`
+**Detalhes:** Ver `docs/interface/web/` (overview.md, components.md, flows.md)
 
 ### CLI (`cli/chat.py`)
 Loop interativo minimalista para desenvolvimento e automação. Backend compartilhado com interface web.
@@ -430,7 +434,7 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 - **Claude Sonnet 4 usado pelo Metodologista:** Para confiabilidade de JSON estruturado
 - **Claude Haiku usado pelo Estruturador:** Custo-benefício para estruturação/refinamento
 - **Refinamento sob demanda:** Loop não é automático; usuário decide quando refinar baseado em feedback do Metodologista. Sem limite fixo de iterações
-- **Transição para conversação adaptativa:** Ver `docs/orchestration/conversational_orchestrator.md` para padrões de conversa vs classificação
+- **Transição para conversação adaptativa:** Ver `docs/orchestration/conversational_orchestrator/` para padrões de conversa vs classificação
 - **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários
 - **Modo colaborativo:** Prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar)
 
@@ -454,11 +458,11 @@ Loop interativo minimalista para desenvolvimento e automação. Backend comparti
 
 **Visão de Produto:**
 - `docs/vision/vision.md` - Visão de produto, tipos de artigo
-- `docs/vision/cognitive_model.md` - Modelo cognitivo e evolução
+- `docs/vision/cognitive_model/` - Modelo cognitivo e evolução
 
 **Orquestração:**
 - `docs/orchestration/multi_agent_architecture.md` - Arquitetura multi-agente
-- `docs/orchestration/conversational_orchestrator.md` - Orquestrador conversacional
+- `docs/orchestration/conversational_orchestrator/` - Orquestrador conversacional
 
 **Produtos:**
 - `docs/products/paper_agent.md` - Paper-agent (produto atual)
