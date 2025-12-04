@@ -115,7 +115,7 @@ def render_idea_card(idea: dict, db):
             # Passar idea_id via query params ANTES do switch_page
             st.query_params["id"] = idea_id
             # Redirecionar para página de detalhes
-            st.switch_page("pages/2_ideia_detalhes.py")
+            st.switch_page("pages/_ideia_detalhes.py")
 
 
 # === APLICAÇÃO PRINCIPAL ===
