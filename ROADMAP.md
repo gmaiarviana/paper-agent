@@ -205,12 +205,12 @@
 
 - **Descrição:** Mostrar informações da ideia sendo trabalhada
 - **Critérios de Aceite:**
-  - Deve mostrar título da ideia
-  - Deve mostrar status (🔍 Explorando | 📝 Estruturada | ✅ Validada)
-  - Deve mostrar indicador de solidez (quando disponível)
-  - Estado vazio: seção em branco (não mostrar nada até ter ideia)
-  - Atualiza em tempo real quando ideia é associada/atualizada
-  - Se chat iniciado a partir de página de ideia → já começa com ideia associada
+  - ✅ Deve mostrar título da ideia
+  - ✅ Deve mostrar status (🔍 Explorando | 📝 Estruturada | ✅ Validada)
+  - ⏳ Deve mostrar indicador de solidez (quando disponível) - **PENDENTE: requer Épico 7**
+  - ✅ Estado vazio: seção em branco (não mostrar nada até ter ideia)
+  - ✅ Atualiza em tempo real quando ideia é associada/atualizada
+  - ⏳ Se chat iniciado a partir de página de ideia → já começa com ideia associada - **PENDENTE: verificar**
 
 #### 4.3 Custo acumulado
 
