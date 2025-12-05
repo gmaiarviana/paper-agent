@@ -55,13 +55,20 @@ def _merge_focal_argument(previous_focal: Optional[dict], new_focal: dict) -> di
         new_value = new_focal.get(field)
         previous_value = previous_focal.get(field)
         
-        # Valores considerados "vazios/vagos"
-        empty_values = ['not specified', 'unclear', None, '']
+        # EXPANDIDO: Reconhecer variações naturais de "vago" que o LLM pode retornar
+        empty_values = [
+            # Valores padronizados
+            'not specified', 'unclear', None, '',
+            # Variações naturais que o LLM inventa
+            'not operationalized', 'undefined', 'not defined',
+            'vague', 'ambiguous', 'to be determined', 'tbd',
+            'not clear', 'unspecified', 'unknown'
+        ]
         
         # Se novo valor é vago e havia valor anterior específico → preserva anterior
         if new_value in empty_values and previous_value and previous_value not in empty_values:
             merged[field] = previous_value
-            logger.debug(f"Preservando {field} anterior: '{previous_value}' (novo valor era vago)")
+            logger.debug(f"Preservando {field} anterior: '{previous_value}' (novo valor era vago: '{new_value}')")
         # Se novo valor é específico → usa novo valor
         elif new_value and new_value not in empty_values:
             merged[field] = new_value
