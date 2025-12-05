@@ -1,0 +1,70 @@
+# Configuracao do Agente Observador (Epico 10.2)
+# Este arquivo define o comportamento do Observador (Mente Analitica)
+
+# System prompt do agente (referencia para documentacao)
+# O prompt real esta em agents/observer/prompts.py
+prompt: |
+  Observador (Mente Analitica) - agente silencioso que monitora a conversa
+  e cataloga a evolucao do raciocinio.
+
+  Comportamento: Processa cada turno automaticamente, extraindo claims,
+  conceitos, fundamentos e contradicoes. Atualiza o CognitiveModel sem
+  interferir no fluxo conversacional.
+
+  Prompt completo: agents/observer/prompts.py
+
+# Tags para categorizacao
+tags:
+  - observer
+  - cognitive-model
+  - extraction
+  - silent
+  - multi-agent
+
+# Limites de contexto (tokens)
+# Observador usa prompts menores e focados para extracao
+context_limits:
+  max_input_tokens: 2000      # Input menor (apenas turno atual + contexto minimo)
+  max_output_tokens: 500      # Output estruturado pequeno (JSON)
+  max_total_tokens: 2500      # Total por chamada de extracao
+
+# Modelo LLM
+# Haiku e ideal para extracao: rapido, barato, suficiente para a tarefa
+model: claude-3-5-haiku-20241022
+
+# Temperature para extracao (deterministico)
+temperature: 0
+
+# Configuracoes especificas do Observador
+observer_config:
+  # Processar automaticamente a cada turno
+  process_every_turn: true
+
+  # Publicar eventos para Dashboard
+  publish_events: true
+
+  # Threshold de confianca para contradicoes
+  contradiction_confidence_threshold: 0.80
+
+  # Maximo de conceitos por turno
+  max_concepts_per_turn: 5
+
+  # Maximo de claims por turno
+  max_claims_per_turn: 3
+
+# Metadados
+metadata:
+  version: "1.0"
+  epic: "10.2"
+  created_at: "2025-12-05"
+  description: "Observador (Mente Analitica) que monitora conversa e atualiza CognitiveModel"
+  responsibilities:
+    - "Processar cada turno automaticamente"
+    - "Extrair claims, fundamentos, contradicoes, conceitos"
+    - "Atualizar CognitiveModel em memoria"
+    - "Calcular metricas (solidez, completude)"
+    - "Publicar eventos para Dashboard"
+  not_responsible_for:
+    - "Decidir next_step (Orquestrador)"
+    - "Falar com usuario (Orquestrador)"
+    - "Persistir conceitos em ChromaDB (10.3)"

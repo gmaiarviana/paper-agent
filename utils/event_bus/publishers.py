@@ -14,7 +14,8 @@ from utils.event_models import (
     AgentCompletedEvent,
     AgentErrorEvent,
     SessionStartedEvent,
-    SessionCompletedEvent
+    SessionCompletedEvent,
+    CognitiveModelUpdatedEvent
 )
 
 logger = logging.getLogger(__name__)
@@ -211,6 +212,66 @@ class EventBusPublishers:
             session_id=session_id,
             final_status=final_status,
             tokens_total=tokens_total,
+            metadata=metadata or {}
+        )
+        self.publish_event(event)
+
+    def publish_cognitive_model_updated(
+        self,
+        session_id: str,
+        turn_number: int,
+        solidez: float,
+        completude: float,
+        claims_count: int = 0,
+        premises_count: int = 0,
+        concepts_count: int = 0,
+        open_questions_count: int = 0,
+        contradictions_count: int = 0,
+        is_mature: bool = False,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Publica evento de atualizacao do CognitiveModel (Epico 10.2).
+
+        Este evento e publicado pelo Observador a cada turno processado.
+        Permite ao Dashboard exibir a evolucao do argumento em tempo real.
+
+        Args:
+            session_id (str): ID da sessao
+            turn_number (int): Numero do turno processado
+            solidez (float): Solidez do argumento (0-1)
+            completude (float): Completude do argumento (0-1)
+            claims_count (int): Numero de claims
+            premises_count (int): Numero de premissas
+            concepts_count (int): Numero de conceitos
+            open_questions_count (int): Numero de questoes abertas
+            contradictions_count (int): Numero de contradicoes
+            is_mature (bool): Se argumento esta maduro
+            metadata (dict, optional): Metadados adicionais
+
+        Example:
+            >>> bus = EventBus()
+            >>> bus.publish_cognitive_model_updated(
+            ...     "session-1",
+            ...     turn_number=3,
+            ...     solidez=0.65,
+            ...     completude=0.50,
+            ...     claims_count=1,
+            ...     premises_count=2,
+            ...     concepts_count=3
+            ... )
+        """
+        event = CognitiveModelUpdatedEvent(
+            session_id=session_id,
+            turn_number=turn_number,
+            solidez=solidez,
+            completude=completude,
+            claims_count=claims_count,
+            premises_count=premises_count,
+            concepts_count=concepts_count,
+            open_questions_count=open_questions_count,
+            contradictions_count=contradictions_count,
+            is_mature=is_mature,
             metadata=metadata or {}
         )
         self.publish_event(event)

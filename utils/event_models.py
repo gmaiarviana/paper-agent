@@ -208,5 +208,67 @@ class SessionCompletedEvent(BaseEvent):
     )
 
 
-# Union type para deserialização automática
-EventType = AgentStartedEvent | AgentCompletedEvent | AgentErrorEvent | SessionStartedEvent | SessionCompletedEvent
+class CognitiveModelUpdatedEvent(BaseEvent):
+    """
+    Evento emitido quando o Observador atualiza o CognitiveModel (Epico 10.2).
+
+    Este evento e publicado silenciosamente a cada turno processado
+    pelo Observador. Permite ao Dashboard exibir evolucao do argumento.
+
+    Attributes:
+        turn_number (int): Numero do turno processado
+        solidez (float): Solidez atual do argumento (0-1)
+        completude (float): Completude atual do argumento (0-1)
+        claims_count (int): Numero de claims no modelo
+        premises_count (int): Numero de premissas/fundamentos
+        concepts_count (int): Numero de conceitos detectados
+        open_questions_count (int): Numero de questoes abertas
+        contradictions_count (int): Numero de contradicoes detectadas
+        is_mature (bool): Se argumento atingiu maturidade
+        metadata (dict): Metadados adicionais opcionais
+    """
+    event_type: Literal["cognitive_model_updated"] = "cognitive_model_updated"
+    turn_number: int = Field(..., ge=1, description="Numero do turno processado")
+    solidez: float = Field(..., ge=0.0, le=1.0, description="Solidez do argumento")
+    completude: float = Field(..., ge=0.0, le=1.0, description="Completude do argumento")
+    claims_count: int = Field(0, ge=0, description="Numero de claims")
+    premises_count: int = Field(0, ge=0, description="Numero de premissas")
+    concepts_count: int = Field(0, ge=0, description="Numero de conceitos")
+    open_questions_count: int = Field(0, ge=0, description="Numero de questoes abertas")
+    contradictions_count: int = Field(0, ge=0, description="Numero de contradicoes")
+    is_mature: bool = Field(False, description="Se argumento esta maduro")
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Metadados adicionais opcionais"
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "session_id": "cli-session-abc123",
+                "timestamp": "2025-12-05T18:30:00Z",
+                "event_type": "cognitive_model_updated",
+                "turn_number": 3,
+                "solidez": 0.65,
+                "completude": 0.50,
+                "claims_count": 1,
+                "premises_count": 2,
+                "concepts_count": 3,
+                "open_questions_count": 1,
+                "contradictions_count": 0,
+                "is_mature": False,
+                "metadata": {"claim": "LLMs aumentam produtividade"}
+            }
+        }
+    )
+
+
+# Union type para deserializacao automatica
+EventType = (
+    AgentStartedEvent |
+    AgentCompletedEvent |
+    AgentErrorEvent |
+    SessionStartedEvent |
+    SessionCompletedEvent |
+    CognitiveModelUpdatedEvent
+)

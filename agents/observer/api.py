@@ -15,12 +15,12 @@ Quando usar:
 - Incerteza sobre profundidade do argumento
 - Checagem de completude antes de sugerir agente
 
-Versao: 1.0 (Epico 10.1 - Mitose do Orquestrador)
+Versao: 2.0 (Epico 10.2 - Processamento via LLM)
 Data: 05/12/2025
 """
 
 import logging
-from typing import Optional, Dict, Any, TYPE_CHECKING
+from typing import Optional, Dict, Any, List, TYPE_CHECKING
 
 from .state import ObserverInsight
 
@@ -57,24 +57,30 @@ class ObservadorAPI:
         'Parcial - LLMs ainda central, bugs e novo foco'
 
     Notes:
-        - Esta e a versao POC (Epico 10.1)
-        - Processamento via LLM sera implementado em 10.2
+        - Versao 2.0 (Epico 10.2): Processamento via LLM implementado
         - Integracao com ChromaDB em 10.3
     """
 
-    def __init__(self, cognitive_model: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        cognitive_model: Optional[Dict[str, Any]] = None,
+        session_id: Optional[str] = None
+    ):
         """
         Inicializa API do Observador.
 
         Args:
             cognitive_model: CognitiveModel inicial (opcional).
                 Se None, usa modelo vazio.
+            session_id: ID da sessao (para eventos - opcional).
         """
         self._cognitive_model: Dict[str, Any] = cognitive_model or self._create_empty_model()
-        self._concepts: list[str] = []
+        self._concepts: List[str] = []
         self._turn_count: int = 0
+        self._session_id: Optional[str] = session_id
+        self._conversation_history: List[Dict[str, Any]] = []
 
-        logger.info("ObservadorAPI inicializada")
+        logger.info(f"ObservadorAPI inicializada (session={session_id})")
 
     def _create_empty_model(self) -> Dict[str, Any]:
         """Cria CognitiveModel vazio."""
@@ -112,7 +118,7 @@ class ObservadorAPI:
         self._turn_count += 1
         logger.debug(f"CognitiveModel atualizado (turno {self._turn_count})")
 
-    def add_concepts(self, concepts: list[str]) -> None:
+    def add_concepts(self, concepts: List[str]) -> None:
         """
         Adiciona conceitos detectados.
 
@@ -126,6 +132,74 @@ class ObservadorAPI:
             if concept not in self._concepts:
                 self._concepts.append(concept)
         logger.debug(f"Conceitos adicionados: {concepts}")
+
+    def process_turn(self, user_input: str) -> Dict[str, Any]:
+        """
+        Processa um turno via LLM e atualiza CognitiveModel (Epico 10.2).
+
+        Esta funcao e chamada a cada mensagem do usuario para extrair
+        informacoes semanticas e atualizar o modelo cognitivo.
+
+        IMPORTANTE: Esta funcao e SILENCIOSA - nao interfere no fluxo
+        conversacional do Orquestrador.
+
+        Args:
+            user_input: Mensagem do usuario.
+
+        Returns:
+            Dict com:
+            - cognitive_model: CognitiveModel atualizado
+            - extracted: Informacoes extraidas neste turno
+            - metrics: Metricas calculadas (solidez, completude)
+            - maturity: Avaliacao de maturidade
+
+        Example:
+            >>> result = api.process_turn("LLMs aumentam produtividade em 30%")
+            >>> print(result['metrics']['solidez'])
+            0.35
+        """
+        from .nodes import process_turn as _process_turn
+
+        # Adicionar ao historico interno
+        self._conversation_history.append({
+            "role": "user",
+            "content": user_input
+        })
+
+        self._turn_count += 1
+
+        # Processar via nodes.py
+        result = _process_turn(
+            user_input=user_input,
+            conversation_history=self._conversation_history,
+            previous_cognitive_model=self._cognitive_model,
+            session_id=self._session_id,
+            turn_number=self._turn_count
+        )
+
+        # Atualizar estado interno
+        self._cognitive_model = result["cognitive_model"]
+        self._concepts = self._cognitive_model.get("concepts_detected", [])
+
+        return result
+
+    def add_assistant_message(self, content: str) -> None:
+        """
+        Adiciona mensagem do assistente ao historico interno.
+
+        Deve ser chamado apos cada resposta do Orquestrador
+        para manter o historico completo.
+
+        Args:
+            content: Conteudo da mensagem do assistente.
+
+        Example:
+            >>> api.add_assistant_message("Interessante! Me conte mais...")
+        """
+        self._conversation_history.append({
+            "role": "assistant",
+            "content": content
+        })
 
     # =========================================================================
     # METODOS DE CONSULTA (usados pelo Orquestrador)

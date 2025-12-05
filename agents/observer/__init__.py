@@ -25,15 +25,22 @@ O que o Observador NAO faz:
 Modulos:
 - api: ObservadorAPI - Interface de consulta nao-deterministica
 - state: ObserverState - Estado interno do processamento
+- nodes: process_turn - Processamento de turnos via LLM
+- extractors: Extratores semanticos via LLM
+- metrics: Calculo de solidez e completude
 - prompts: Prompts de extracao via LLM
 
-Versao: 1.0 (Epico 10.1 - Mitose do Orquestrador)
+Versao: 2.0 (Epico 10.2 - Processamento via LLM)
 Data: 05/12/2025
 
 Example:
-    >>> from agents.observer import ObservadorAPI, ObserverInsight
-    >>> api = ObservadorAPI()
-    >>> api.update_cognitive_model({"claim": "LLMs aumentam produtividade", ...})
+    >>> from agents.observer import ObservadorAPI
+    >>> api = ObservadorAPI(session_id="session-123")
+    >>> # Processar turno via LLM
+    >>> result = api.process_turn("LLMs aumentam produtividade em 30%")
+    >>> print(result['metrics']['solidez'])
+    0.35
+    >>> # Consultar estado
     >>> insight = api.what_do_you_see(
     ...     context="Usuario mudou de direcao",
     ...     question="Conceitos anteriores ainda relevantes?"
@@ -53,6 +60,16 @@ from .state import (
     ObserverInsight,
     create_initial_observer_state
 )
+from .nodes import process_turn, ObserverProcessor
+from .metrics import calculate_solidez, calculate_completude, calculate_metrics, evaluate_maturity
+from .extractors import (
+    extract_claims,
+    extract_concepts,
+    extract_fundamentos,
+    detect_contradictions,
+    identify_open_questions,
+    extract_all
+)
 
 __all__ = [
     # API principal
@@ -62,7 +79,25 @@ __all__ = [
     "ObserverState",
     "ObserverInsight",
     "create_initial_observer_state",
+
+    # Processamento (10.2)
+    "process_turn",
+    "ObserverProcessor",
+
+    # Metricas (10.2)
+    "calculate_solidez",
+    "calculate_completude",
+    "calculate_metrics",
+    "evaluate_maturity",
+
+    # Extratores (10.2)
+    "extract_claims",
+    "extract_concepts",
+    "extract_fundamentos",
+    "detect_contradictions",
+    "identify_open_questions",
+    "extract_all",
 ]
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 __author__ = "Paper Agent Team"
