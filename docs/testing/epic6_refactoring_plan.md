@@ -447,31 +447,22 @@ pytest tests/
 
 ## ✅ Critérios de Aceite
 
-### Testes de Integração Reais (6.1)
+### Remover Testes Burocráticos (6.1)
+- [ ] Identificar e remover testes que apenas testam bibliotecas externas
+- [ ] Remover `test_event_models.py` (testa apenas Pydantic)
+- [ ] Identificar outros testes burocráticos que não agregam valor
+- [ ] Documentar razão da remoção
+
+### Testes de Integração Reais (6.2)
 - [ ] Criar `tests/integration/test_orchestrator_integration.py` com testes de classificação real
 - [ ] Criar `tests/integration/test_structurer_integration.py` com testes de estruturação real
 - [ ] Testes devem usar API real (não mocks)
 - [ ] Testes devem validar comportamento real (não apenas estrutura)
-- [ ] Manter testes unitários existentes (não remover)
+- [ ] Manter testes unitários existentes que validam estrutura importante
 
-### Infraestrutura LLM-as-Judge (6.2)
-- [ ] Fixture `llm_judge` criada em `tests/conftest.py`
-- [ ] Prompts de avaliação criados em `utils/test_prompts.py`
-- [ ] Função `extract_score` criada em `utils/test_helpers.py`
-- [ ] Marker `@pytest.mark.llm_judge` adicionado em `pytest.ini`
-
-### Validação de Qualidade (6.3)
-- [ ] `test_multi_agent_smoke.py` - Adicionar validação de qualidade conversacional
-- [ ] `test_methodologist_smoke.py` - Adicionar validação de perguntas socráticas
-- [ ] `validate_socratic_behavior.py` - Adicionar validação de provocação socrática
-- [ ] `validate_conversation_flow.py` - Adicionar validação de fluidez
-- [ ] `validate_multi_agent_flow.py` - Adicionar validação de integração
-- [ ] `validate_refinement_loop.py` - Adicionar validação de refinamento
-
-### Documentação (6.4)
-- [ ] Atualizar `docs/testing/strategy.md` com seção sobre testes de integração reais e LLM-as-Judge
-- [ ] Documentar custos estimados
-- [ ] Documentar estratégia de execução (local: `pytest -m integration`, `pytest -m llm_judge`)
+### Documentação (6.3)
+- [ ] Atualizar `docs/testing/strategy.md` com seção sobre testes de integração reais
+- [ ] Documentar estratégia de execução (local: `pytest -m integration`)
 
 ---
 
@@ -479,40 +470,44 @@ pytest tests/
 
 ### Ordem de Implementação Recomendada
 
-1. **Testes de integração reais primeiro** (6.1)
+1. **Remover testes burocráticos primeiro** (6.1)
+   - Identificar testes que apenas testam bibliotecas externas
+   - Remover `test_event_models.py` e outros similares
+   - Limpa a suite de testes
+
+2. **Adicionar testes de integração reais** (6.2)
    - Criar `test_orchestrator_integration.py` e `test_structurer_integration.py`
    - Validar comportamento real (não mocks)
    - Resolve débito técnico imediato
 
-2. **Infraestrutura LLM-as-Judge** (6.2)
-   - Criar fixture, prompts, helper
-   - Testar com um teste simples antes de adicionar nos 6 arquivos
-
-3. **Validação de qualidade** (6.3)
-   - Começar com `test_multi_agent_smoke.py` e `test_methodologist_smoke.py`
-   - São mais simples (já são testes de integração)
-   - **ADICIONAR** função de teste com `@pytest.mark.llm_judge` (não substituir teste existente)
-   - Depois adicionar nos scripts de validação (itens 3-6)
-
 ### Manter Testes Existentes
 
-- **NÃO remover** testes existentes (validam estrutura)
-- **ADICIONAR** novos testes com validação de qualidade (LLM-as-Judge)
-- Testes estruturais + testes de qualidade = cobertura completa
+- **NÃO remover** testes existentes que validam estrutura importante
+- **REMOVER** apenas testes burocráticos que não agregam valor
+- **ADICIONAR** novos testes de integração reais onde há mocks superficiais
 
 ---
 
 **Versão:** 2.0  
 **Data:** Dezembro 2025  
-**Relacionado:** ÉPICO 6 no ROADMAP
+**Relacionado:** ÉPICO 6 no ROADMAP  
+**Ver também:** ÉPICO 8 (Automação)
 
 ---
 
 ## 📝 Nota sobre Débito Técnico
 
 Este épico resolve débito técnico identificado na análise de testes:
-- **Mocks superficiais** → Adicionar testes de integração reais (Fase 1)
-- **Asserts fracos** → Adicionar validação de qualidade (Fase 2)
+- **Testes burocráticos** → Remover testes que apenas testam bibliotecas externas
+- **Mocks superficiais** → Adicionar testes de integração reais
 
 **Não jogar para backlog:** Testes que não agregam valor devem ser corrigidos ou removidos, não ignorados.
+
+---
+
+## 📝 Nota sobre Automação
+
+A automação de validação de qualidade com LLM-as-Judge foi movida para o **ÉPICO 8**.
+
+Ver: `docs/testing/epic8_automation_strategy.md`
 
