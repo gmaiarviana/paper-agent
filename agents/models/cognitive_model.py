@@ -12,11 +12,15 @@ O modelo cognitivo é volátil (em memória) e captura:
 - contradictions: Tensões internas detectadas
 - solid_grounds: Argumentos com base bibliográfica
 - context: Domínio, tecnologia, população inferidos
+- conceitos: Conceitos semânticos catalogados (Épico 10.1)
+- solidez_geral: Métrica de solidez do argumento (Épico 10.1)
+- completude: Métrica de completude do argumento (Épico 10.1)
 
 Ver docs/vision/cognitive_model/core.md para detalhes completos.
 
 Épico 11.1: Schema Explícito de CognitiveModel
-Data: 2025-11-17
+Épico 10.1: Adição de campos do Observador
+Data: 2025-12-05
 """
 
 from typing import Optional, List, Dict, Any, Literal
@@ -162,6 +166,33 @@ class CognitiveModel(BaseModel):
                     "população, métricas, tipo de artigo."
     )
 
+    # === CAMPOS DO OBSERVADOR (Épico 10.1) ===
+
+    conceitos: List[str] = Field(
+        default_factory=list,
+        description="Conceitos semânticos catalogados pelo Observador. "
+                    "Lista de labels (ex: ['LLMs', 'Produtividade']). "
+                    "Serão UUIDs referenciando ChromaDB no Épico 10.3."
+    )
+
+    solidez_geral: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Métrica de solidez do argumento (0-1). "
+                    "Calculada pelo Observador baseada em premissas, "
+                    "suposições e evidências."
+    )
+
+    completude: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Métrica de completude do argumento (0-1). "
+                    "Calculada pelo Observador baseada em questões abertas "
+                    "e lacunas identificadas."
+    )
+
     model_config = ConfigDict(
         extra="forbid",
         json_schema_extra={
@@ -187,7 +218,10 @@ class CognitiveModel(BaseModel):
                     "population": "teams of 2-5 developers",
                     "metrics": "time per sprint",
                     "article_type": "empirical"
-                }
+                },
+                "conceitos": ["LLMs", "Produtividade", "Claude Code"],
+                "solidez_geral": 0.65,
+                "completude": 0.70
             }
         }
     )
@@ -312,6 +346,95 @@ class CognitiveModel(BaseModel):
             score += min(10, len(self.solid_grounds) * 3)
 
         return min(100.0, score)
+
+    def calculate_completude(self) -> float:
+        """
+        Calcula completude do argumento (0-100%).
+
+        Completude mede quanto do argumento está desenvolvido baseado em:
+        - Presença de claim (0-30 pontos)
+        - Presença de premissas (0-25 pontos)
+        - Poucas questões abertas (0-25 pontos)
+        - Poucas suposições não verificadas (0-20 pontos)
+
+        Total máximo: 100 pontos.
+
+        Returns:
+            float: Completude (0-100)
+
+        Example:
+            >>> model = CognitiveModel(
+            ...     claim="Claude Code reduz tempo de sprint em 30%",
+            ...     premises=["Equipes usam Claude Code", "Tempo é mensurável"],
+            ...     assumptions=[],
+            ...     open_questions=[]
+            ... )
+            >>> completude = model.calculate_completude()
+            >>> print(f"Completude: {completude:.0f}%")
+            Completude: 100%
+        """
+        score = 0.0
+
+        # 1. Presença de claim (0-30)
+        claim_len = len(self.claim)
+        if claim_len > 50:
+            score += 30
+        elif claim_len > 20:
+            score += 20
+        elif claim_len > 0:
+            score += 10
+
+        # 2. Presença de premissas (0-25)
+        premises_count = len(self.premises)
+        if premises_count >= 3:
+            score += 25
+        elif premises_count == 2:
+            score += 20
+        elif premises_count == 1:
+            score += 10
+
+        # 3. Poucas questões abertas (0-25) - menos é melhor
+        questions_count = len(self.open_questions)
+        if questions_count == 0:
+            score += 25
+        elif questions_count == 1:
+            score += 15
+        elif questions_count == 2:
+            score += 10
+        elif questions_count <= 4:
+            score += 5
+
+        # 4. Poucas suposições (0-20) - menos é melhor
+        assumptions_count = len(self.assumptions)
+        if assumptions_count == 0:
+            score += 20
+        elif assumptions_count == 1:
+            score += 15
+        elif assumptions_count == 2:
+            score += 10
+        elif assumptions_count <= 4:
+            score += 5
+
+        return min(100.0, score)
+
+    def update_metrics(self) -> None:
+        """
+        Atualiza campos solidez_geral e completude com valores calculados.
+
+        Este método deve ser chamado pelo Observador após processar um turno
+        para manter as métricas atualizadas no modelo.
+
+        As métricas são normalizadas para 0-1 (ao invés de 0-100).
+
+        Example:
+            >>> model = CognitiveModel(claim="LLMs aumentam produtividade")
+            >>> model.update_metrics()
+            >>> model.solidez_geral
+            0.25  # Exemplo: baixa solidez pois faltam premissas
+        """
+        # Calcula e normaliza para 0-1
+        self.solidez_geral = self.calculate_solidez() / 100.0
+        self.completude = self.calculate_completude() / 100.0
 
     def to_dict(self) -> Dict[str, Any]:
         """
