@@ -10,8 +10,8 @@ Este documento lista todos os comportamentos testados pelo sistema.
 
 | Tipo | Quantidade | Custo API |
 |------|------------|-----------|
-| Unit Tests (mocks) | ~14 arquivos | $0 |
-| Integration Tests (API real) | 5 arquivos | ~$0.10/execução |
+| Unit Tests (mocks) | 16 arquivos | $0 |
+| Integration Tests (API real) | 7 arquivos | ~$0.10-0.15/execução |
 | Behavior Validations (API real) | 10 arquivos | ~$0.15/execução |
 
 ---

@@ -29,9 +29,9 @@
 - **ÉPICO 6**: Limpeza de Testes
 - **ÉPICO 7**: Validação de Maturidade do Sistema - Fase Manual
 - **ÉPICO 8**: Validação de Maturidade do Sistema - Automação
+- **ÉPICO 9**: Integração Backend↔Frontend
 
 #### Planejados (não refinados)
-- **ÉPICO 9**: Integração Backend↔Frontend (não refinado)
 - **ÉPICO 10**: Conceitos (não refinado)
 - **ÉPICO 11**: Alinhamento de Ontologia (não refinado)
 - **ÉPICO 12**: Pesquisador (não refinado)
@@ -77,13 +77,9 @@
 
 **Objetivo:** Remover testes burocráticos e adicionar testes de integração reais onde há mocks superficiais.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído
 
 **Dependências:** Nenhuma
-
-**Duração estimada:** 1-2 dias
-
-**Consulte:** `docs/testing/epic6_refactoring_plan.md` para plano detalhado
 
 ### Funcionalidades:
 
@@ -108,13 +104,14 @@
   - ✅ Testes validam comportamento real (não apenas estrutura)
   - ✅ Testes unitários existentes mantidos (31 testes passando)
 
-#### 6.3 Atualizar Documentação de Testes
+#### 6.3 Atualizar Documentação de Testes ✅
 
 - **Descrição:** Atualizar documentação com novos padrões e estratégia
-- **Critérios de Aceite:**
-  - Deve atualizar `docs/testing/strategy.md` com seção sobre testes de integração reais
-  - Deve documentar quando usar mocks vs API real
-  - Deve atualizar `docs/testing/inventory.md` com testes removidos/adicionados
+- **Status:** ✅ Concluído
+- **Implementação:**
+  - ✅ Atualizado `docs/testing/strategy.md` com seção sobre testes de integração reais (padrões, quando usar)
+  - ✅ Aprimorada documentação sobre mocks vs API real (tabela comparativa, exemplos práticos)
+  - ✅ Atualizado `docs/testing/inventory.md` com testes removidos (`test_event_models.py`) e adicionados (`test_orchestrator_integration.py`, `test_structurer_integration.py`)
 
 ---
 
@@ -237,58 +234,54 @@
 
 ## ÉPICO 9: Integração Backend↔Frontend
 
-**Objetivo:** Integrar componentes de backend já implementados (SnapshotManager, ProgressTracker) com interface web para completar ciclo de persistência silenciosa e feedback visual de progresso.
+**Objetivo:** Completar ciclo de persistência silenciosa e feedback visual de progresso.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ⏳ Planejado (refinado)
 
-**Dependências:**
-- Nenhuma (pode ser desenvolvido em paralelo com outros épicos)
+**Dependências:** Nenhuma
 
-**Consulte:**
-- `docs/architecture/snapshot_strategy.md` - Estratégia de snapshots
-- `docs/interface/web/components.md` (seção 3.6) - Painel Progress
+**Duração estimada:** 2-3 dias
 
-### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
+### Funcionalidades:
 
-#### 9.1 Integrar SnapshotManager no Orquestrador
+#### 9.1 Atualização de cognitive_model no Orchestrator
 
-- **Descrição:** Integrar SnapshotManager no fluxo conversacional para criar snapshots automáticos quando argumento amadurece.
-
-#### 9.2 Exibir ProgressTracker como painel flutuante
-
-- **Descrição:** Exibir ProgressTracker como painel flutuante/fixo na borda direita do chat, mostrando checklist de progresso sincronizado com modelo cognitivo.
-
-#### 9.3 Sincronizar checklist com modelo cognitivo em tempo real
-
-- **Descrição:** Sincronizar checklist do ProgressTracker com modelo cognitivo em tempo real, atualizando status conforme argumento evolui.
-
-#### 9.4 Indicador de solidez na seção de contexto
-
-- **Descrição:** Mostrar indicador de solidez da ideia na seção "💡 Contexto" do painel direito.
+- **Descrição:** Implementar atualização do cognitive_model no orchestrator_node a cada turno
 - **Critérios de Aceite:**
-  - Deve calcular solidez baseado em modelo cognitivo (solid_grounds, evidências, etc)
-  - Deve exibir indicador visual (ex: barra de progresso ou badge)
-  - Deve atualizar em tempo real conforme argumento evolui
-  - Deve estar integrado com SnapshotManager (quando argumento amadurece)
+  - Prompt do orchestrator solicita `cognitive_model` no JSON de saída
+  - Orchestrator extrai `cognitive_model` da resposta LLM
+  - Orchestrator retorna `cognitive_model` no state update
+  - Schema `CognitiveModel` usado para validação (Pydantic)
+  - Campos: claim, premises, assumptions, open_questions, contradictions, solid_grounds, context
 
-#### 9.5 Associação automática de ideia ao iniciar chat da página de ideia
+#### 9.2 Passar active_idea_id via Config
 
-- **Descrição:** Quando usuário clica "🔄 Continuar explorando" na página de detalhes da ideia, o chat deve iniciar automaticamente com a ideia associada e exibida na seção "💡 Contexto".
+- **Descrição:** Disponibilizar active_idea_id no config do LangGraph (agnóstico de framework)
 - **Critérios de Aceite:**
-  - Deve preservar `active_idea_id` entre navegação de páginas (usar query params ou session_state persistente)
-  - Deve exibir ideia na seção de contexto imediatamente ao carregar chat
-  - Deve funcionar mesmo após refresh da página (persistência)
-  - Deve limpar associação quando usuário cria nova conversa
+  - Streamlit adiciona `active_idea_id` ao config ao invocar grafo
+  - Orchestrator acessa `active_idea_id` via `config.get("configurable", {})`
+  - Funciona mesmo sem active_idea_id (opcional, não quebra fluxo)
 
-#### 9.x Checklist de Progresso na UI
+#### 9.3 SnapshotManager no Orquestrador
 
-- **Descrição:** Exibir checklist visual no header do chat sincronizado com modelo cognitivo.
+- **Descrição:** Integrar avaliação de maturidade via LLM no orchestrator_node
 - **Critérios de Aceite:**
-  - Deve mostrar bolinhas no header: [⚪⚪🟡⚪⚪] (clicável para expandir)
-  - Deve usar status: ⚪ pendente 🟡 em progresso 🟢 completo
-  - Deve adaptar checklist conforme tipo de artigo (empírico vs revisão vs teórico)
-  - Deve sincronizar com modelo cognitivo (claim → escopo ✓, premises → população ✓, etc)
-  - Deve mostrar minimizado por padrão (expandir ao clicar)
+  - Orchestrator chama `create_snapshot_if_mature()` após processar turno
+  - Usa `SnapshotManager.assess_maturity()` existente (LLM avalia maturidade)
+  - Threshold de confiança configurável (padrão: 0.8)
+  - Silencioso: sem logs visíveis ao usuário, sem notificações
+  - Depende de 9.1 (cognitive_model) e 9.2 (active_idea_id)
+
+#### 9.4 Indicador de Solidez no Contexto
+
+- **Descrição:** Exibir barra de progresso de solidez do argumento focal
+- **Critérios de Aceite:**
+  - Backend: Método reutilizável calcula solidez (ex: `CognitiveModel.calculate_solidez()`)
+  - Frontend: Exibe barra de progresso (0-100%) no painel Contexto
+  - Atualiza quando argumento focal muda
+  - Agnóstico de framework (cálculo no backend, UI apenas exibe)
+
+**Ordem de implementação:** 9.1 → 9.2 → 9.3 → 9.4
 
 ---
 

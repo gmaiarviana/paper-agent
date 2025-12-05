@@ -54,6 +54,8 @@ pytest tests/unit/
 - ✅ Validar contratos com APIs externas
 - ✅ Testar fluxos críticos end-to-end
 - ✅ Verificar comportamento real de agentes
+- ✅ Validar que LLM classifica/responde corretamente (não apenas estrutura)
+- ✅ Testar comportamento real onde mocks são superficiais
 
 **Rodar:**
 ```bash
@@ -65,6 +67,14 @@ pytest tests/integration/ -m integration
 - Roda apenas em PRs importantes
 - Usa chave de teste (limite baixo) via GitHub Secrets
 - Pode ser pulado em desenvolvimento local
+
+**Padrões de Testes de Integração Real:**
+- Validam comportamento real do LLM (não apenas estrutura)
+- Asserts significativos: `assert result["next_step"] in ["explore", "clarify"]` ao invés de `assert result["next_step"] is not None`
+- Skip automático se `ANTHROPIC_API_KEY` não estiver definida
+- Focados em cenários críticos: classificação, estruturação, preservação de contexto
+
+**Exemplos:** `test_orchestrator_integration.py` (5 testes), `test_structurer_integration.py` (4 testes)
 
 ---
 
@@ -92,16 +102,25 @@ python scripts/health_checks/validate_api.py
 
 ## Mocks vs API Real: Quando Usar?
 
-### ✅ Use Mocks (Unit Tests) quando:
-- Testar **lógica interna** (não integração)
-- Desenvolvimento rápido (TDD)
-- Custo zero
-- Testes confiáveis (sem falhas de rede)
+| Critério | Use Mocks | Use API Real |
+|----------|-----------|--------------|
+| **O que testa** | Lógica interna, cálculos, transformações | Comportamento real de LLM, classificação |
+| **Custo** | $0 | ~$0.01-0.02 por teste |
+| **Velocidade** | Milissegundos | Segundos (1-3s) |
 
-### ✅ Use API Real (Integration Tests) quando:
-- Testar **contrato com API externa**
-- Validar **comportamento real** de modelos
-- Verificar **breaking changes** na API
+### ✅ Use Mocks quando:
+- Lógica de negócio interna (`test_cost_tracker.py`, `test_json_extraction.py`)
+- Estrutura e tipos (sem testar bibliotecas externas)
+- Transformações determinísticas (`test_currency.py`)
+
+### ✅ Use API Real quando:
+- Validar comportamento real do LLM (classificação, estruturação)
+- Testar contrato com API externa
+- Validar qualidade conversacional
+
+**Estratégia híbrida:** Unit tests (mocks) para estrutura/parsing + Integration tests (API real) para comportamento do LLM.
+
+**Exemplo:** `test_orchestrator.py` (mocks) + `test_orchestrator_integration.py` (API real)
 
 ---
 
@@ -263,5 +282,6 @@ def test_socratic_provocation_quality():
 
 ---
 
-**Versão:** 3.1
+**Versão:** 3.2
 **Data:** Dezembro 2025
+**Atualizado:** Épico 6.3 - Adicionada seção detalhada sobre testes de integração reais e aprimorada seção Mocks vs API Real
