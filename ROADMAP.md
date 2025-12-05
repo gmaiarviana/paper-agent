@@ -19,6 +19,8 @@
 - **ÉPICO 5**: UX Polish
 - **ÉPICO 6**: Limpeza de Testes
 - **ÉPICO 7**: Validação de Maturidade do Sistema - Fase Manual
+- **ÉPICO 8**: Análise Assistida de Qualidade - Ferramentas para Discussão
+- **ÉPICO 9**: Integração Backend↔Frontend
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
@@ -28,8 +30,7 @@
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
 #### Planejados (refinados)
-- **ÉPICO 8**: Análise Assistida de Qualidade
-- **ÉPICO 9**: Integração Backend↔Frontend
+- _Nenhum épico refinado planejado no momento_
 
 #### Planejados (não refinados)
 - **ÉPICO 10**: Conceitos (não refinado)
@@ -70,21 +71,68 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
 
 **Status:** ✅ Concluído
 
-10 cenários críticos executados e validados (10/10 bem-sucedidos). Problema crítico identificado e corrigido (regra "Turno 1" bloqueava transição automática). Relatório completo em `docs/testing/epic7_results/summary.md`.
+**Dependências:** Nenhuma (pode começar imediatamente)
+
+**Duração estimada:** 1-2 dias (criação do roteiro) + 2-3 horas (execução)
+
+**Consulte:** `docs/testing/epic7_validation_strategy.md` para estratégia completa
+
+### Funcionalidades:
+
+#### 7.1 Criar Roteiro de Validação Manual ✅
+
+- **Status:** ✅ Concluído
+- **Descrição:** Criar roteiro estruturado com 10-15 cenários críticos que validam comportamento do sistema multi-agente
+- **Critérios de Aceite:**
+  - ✅ `docs/testing/epic7_validation_strategy.md` criado com estratégia completa
+  - ✅ 10 cenários críticos definidos cobrindo:
+    - Transições entre agentes (Orquestrador → Estruturador → Metodologista)
+    - Preservação de contexto (focal_argument, messages)
+    - Decisões coerentes (next_step, agent_suggestion)
+    - Fluidez conversacional (sem quebras)
+    - Provocação socrática (reflection_prompt)
+    - Reasoning loop (Metodologista)
+  - ✅ Cada cenário especifica input, comportamento esperado, logs necessários e critérios de sucesso/falha
+
+#### 7.2 Executar Cenários e Coletar Logs ✅
+
+- **Status:** ✅ Concluído
+- **Descrição:** Executar cenários manualmente e coletar logs estruturados
+- **Critérios de Aceite:**
+  - ✅ 10/10 cenários executados no sistema real
+  - ✅ Logs estruturados coletados (EventBus JSON + outputs) em `docs/testing/epic7_results/`
+  - ✅ Comportamento observado anotado (sucesso/falha/parcial) em cada `execution_report.md`
+  - ✅ 1 problema crítico identificado e corrigido (Turno 1 bloqueando chamada de agente)
+
+#### 7.3 Analisar Resultados e Gerar Relatório de Maturidade ✅
+
+- **Status:** ✅ Concluído
+- **Descrição:** Analisar logs e gerar relatório de maturidade do sistema
+- **Critérios de Aceite:**
+  - ✅ Todos os logs analisados
+  - ✅ Problemas classificados (1 crítico corrigido, sistema maduro)
+  - ✅ Relatório de maturidade gerado em `docs/testing/epic7_results/summary.md` com:
+    - Sumário executivo (sistema maduro após correção)
+    - Problemas por categoria (transições, contexto, decisões, fluidez)
+    - Recomendações de correções (aplicadas)
+    - Priorização de correções (crítico resolvido)
+  - ✅ Documentado o que funciona bem (10/10 cenários bem-sucedidos após correção)
 
 ---
 
-## ÉPICO 8: Análise Assistida de Qualidade
+## ÉPICO 8: Análise Assistida de Qualidade - Ferramentas para Discussão
 
 **Objetivo:** Facilitar análise humana de qualidade conversacional através de ferramentas que estruturam dados para discussão eficiente com LLM.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído (8.1 e 8.2 implementados; 8.3-8.5 opcionais e não priorizados)
 
 **Dependências:** Épico 7 (precisa identificar problemas reais primeiro)
 
-**Duração estimada:** 6 dias
+**Duração estimada:** 6 dias (planejado) / 2-3 dias (executado - apenas 8.1 e 8.2)
 
 **Custo estimado:** ~$0.10-0.20 por execução completa (discussão com Claude)
+
+**Filosofia:** Análise assistida (humano + LLM) > Automação completa (perde contexto e qualidade)
 
 **Consulte:** `docs/testing/epic8_automation_strategy.md` para estratégia completa
 
@@ -119,202 +167,95 @@ O valor NÃO veio de automação, mas de **discussão contextualizada**:
 
 ### Funcionalidades (8.1 - 8.5)
 
-#### 8.1 Multi-Turn Executor (PRIORIDADE #1)
+#### 8.1 Multi-Turn Executor ✅
 
-**Objetivo:** Rodar cenários completos end-to-end (3-5 turnos).
+- **Status:** ✅ Implementado
+- **Objetivo:** Rodar cenários completos end-to-end (3-5 turnos)
+- **Descrição:** Executar conversas completas end-to-end para validar fluxos multi-agente
+- **Critérios de Aceite:**
+  - ✅ `MultiTurnExecutor` criado em `utils/test_executor.py`
+  - ✅ `ConversationScenario` criado em `utils/test_scenarios.py`
+  - ✅ Fixture `multi_turn_executor` disponível em `tests/conftest.py`
+  - ✅ Suporta execução de cenários multi-turn (3-5 turnos)
+  - ✅ Rastreia agentes chamados, preserva estado entre turnos
+  - ✅ Coleta métricas (tokens, custo, duração)
+  - ✅ `scripts/testing/run_scenario.py` criado (executa cenário específico via CLI)
+  - ✅ `scripts/testing/run_all_scenarios.py` criado (executa todos os cenários)
+  - ✅ Testes de integração em `tests/integration/test_multi_turn_flows.py`
+- **Tempo estimado:** 2 dias
+- **Tempo real:** ~2 dias
 
-**Descrição:** 
-Implementar executor que valida fluxos multi-agente completos identificados como incompletos no Épico 7 (Cenários 3, 6, 7). Sistema deve executar conversas turn-by-turn, validar transições entre agentes, e gerar dados estruturados para análise.
+#### 8.2 Scripts de Execução e Relatórios Estruturados ✅
 
-**Componentes:**
-- `ConversationScenario`: Define cenários multi-turn com turnos esperados
-- `MultiTurnExecutor`: Executa cenários e coleta resultados
-- `run_scenario.py`: CLI para rodar cenários individuais
-- `run_all_scenarios.py`: CLI para rodar suite completa
+- **Status:** ✅ Implementado
+- **Objetivo:** Formatar dados de forma otimizada para análise com LLM
+- **Descrição:** Scripts que executam cenários e geram relatórios estruturados para análise humana
+- **Critérios de Aceite:**
+  - ✅ `scripts/testing/run_scenario.py` criado (executa cenário específico via CLI)
+  - ✅ `scripts/testing/run_all_scenarios.py` criado (executa todos os cenários)
+  - ✅ `scripts/testing/debug_scenario.py` criado (debug mode com logs detalhados)
+  - ✅ `scripts/testing/collect_scenario_logs.py` criado (coleta logs estruturados)
+  - ✅ Relatórios formatados para terminal (comportamento esperado vs observado)
+  - ✅ Suporte a salvar resultados em JSON (`--save`)
+- **Tempo estimado:** 1 dia
+- **Tempo real:** ~1 dia
 
-**Critérios de Aceite:**
-- Deve implementar `ConversationScenario` em `utils/test_scenarios.py`
-  - Suportar definição de turnos: `[("user", "input"), ("system", "action")]`
-  - Suportar agentes esperados: `["orchestrator", "structurer", "methodologist"]`
-  - Suportar validação de estado final esperado
-- Deve implementar `MultiTurnExecutor` em `scripts/testing/multi_turn_executor.py`
-  - Executar cenários turn-by-turn
-  - Rastrear agentes chamados em cada transição
-  - Preservar estado entre turnos
-  - Coletar métricas (tokens, custo, duração)
-- Deve converter Cenários 3, 6, 7 do Épico 7 para formato multi-turn
-- Deve implementar `run_scenario.py` com CLI:
-  - `--scenario N`: roda cenário específico
-  - Output estruturado no terminal (sem clipboard)
-- Deve implementar `run_all_scenarios.py`:
-  - Roda todos os 10 cenários sequencialmente
-  - `--save`: salva resultados em JSON para comparação
-  - Gera sumário de execução
-- Deve validar que fluxos completos funcionam (não apenas turno 1)
+#### 8.3 Comparison Tool ⏳
 
-**Tempo estimado:** 2 dias
+- **Status:** ⏳ Planejado (prioridade baixa)
+- **Objetivo:** Comparar antes/depois de mudanças no prompt para detectar regressões
+- **Descrição:** Implementar ferramenta que compara resultados de execução antes/depois de mudanças no código/prompt, identifica regressões automaticamente, e gera relatório de impacto estruturado para discussão
+- **Critérios de Aceite:**
+  - Deve implementar `compare_results()` em `utils/result_comparer.py`
+  - Deve implementar `detect_regressions()` para identificar regressões automaticamente
+  - Deve implementar `compare_results.py` com CLI
+  - Output deve incluir resumo de mudanças e lista de cenários que precisam atenção
+- **Tempo estimado:** 1 dia
+- **Prioridade:** 🟡 ALTA (mas não implementado)
 
----
+#### 8.4 Interactive Analysis Mode ⏳
 
-#### 8.2 Report Generator
+- **Status:** ⏳ Planejado (prioridade baixa)
+- **Objetivo:** Guiar fluxo de investigação de forma interativa
+- **Descrição:** Implementar modo interativo que apresenta menu de opções, executa ações conforme escolha do usuário, e gera outputs estruturados para discussão
+- **Critérios de Aceite:**
+  - Deve implementar `interactive_analyzer.py` em `scripts/testing/`
+  - Menu inicial deve listar cenários disponíveis
+  - Após executar cenário, deve oferecer opções de análise
+  - Deve ser intuitivo (não requer documentação para usar)
+- **Tempo estimado:** 1 dia
+- **Prioridade:** 🟡 ALTA (mas não implementado)
 
-**Objetivo:** Formatar dados de forma otimizada para análise com LLM.
+#### 8.5 Debug Workflow ⏳
 
-**Descrição:**
-Implementar formatadores que transformam resultados de execução em relatórios estruturados, concisos e otimizados para discussão com Claude. Diferentes formatadores para diferentes focos de análise (transições, contexto, decisões).
-
-**Componentes:**
-- `format_for_llm_analysis()`: Formata resultados para análise geral
-- `format_transition_analysis()`: Foca em transições entre agentes
-- `format_context_analysis()`: Foca em preservação de contexto
-- `format_decision_analysis()`: Foca em qualidade de decisões
-- `analyze_scenario.py`: CLI que aplica formatadores
-
-**Critérios de Aceite:**
-- Deve implementar formatadores em `utils/report_formatter.py`
-  - `format_for_llm_analysis(result, focus="general")`: formatação base
-  - Suportar focos: "general", "transition", "context", "decision"
-  - Output em markdown, conciso e estruturado
-  - Incluir seções: Contexto, Esperado vs Observado, Logs Relevantes, Problema Detectado, Sugestão de Análise
-- Deve implementar `analyze_scenario.py` com CLI:
-  - `--scenario N`: analisa cenário específico
-  - `--focus [transition|context|decision]`: aplica formatador específico
-  - Output estruturado no terminal
-- Relatórios devem ser < 50 linhas (concisos)
-- Deve incluir "Pergunta sugerida para Claude" ao final
-- Output deve ser fácil de copiar manualmente do terminal
-
-**Tempo estimado:** 1 dia
-
----
-
-#### 8.3 Comparison Tool
-
-**Objetivo:** Comparar antes/depois de mudanças no prompt para detectar regressões.
-
-**Descrição:**
-Implementar ferramenta que compara resultados de execução antes/depois de mudanças no código/prompt, identifica regressões automaticamente, e gera relatório de impacto estruturado para discussão.
-
-**Componentes:**
-- `compare_results()`: Compara dois arquivos JSON de resultados
-- `detect_regressions()`: Identifica regressões automaticamente
-- `compare_results.py`: CLI para comparações
-
-**Critérios de Aceite:**
-- Deve implementar `compare_results()` em `utils/result_comparer.py`
-  - Receber dois arquivos JSON (before, after)
-  - Identificar cenários que mudaram
-  - Classificar mudanças: CORREÇÃO ✅, REGRESSÃO ❌, SEM MUDANÇA ⚪
-  - Detectar mudanças em métricas (custo, duração, tokens)
-- Deve implementar `detect_regressions()`:
-  - Cenário passou → falhou: REGRESSÃO CRÍTICA 🔴
-  - Score caiu >2 pontos: ATENÇÃO 🟡
-  - Custo aumentou >50%: ATENÇÃO 🟡
-  - Duração aumentou >100%: ATENÇÃO 🟡
-- Deve implementar `compare_results.py` com CLI:
-  - `--before baseline.json`: arquivo de referência
-  - `--after current.json`: arquivo atual
-  - `--summary`: mostra apenas sumário (não detalhes)
-- Output deve incluir:
-  - Resumo de mudanças (X correções, Y regressões, Z sem mudança)
-  - Lista de cenários que precisam atenção
-  - Sugestão: "Copie acima e pergunte ao Claude: 'Qual cenário priorizar?'"
-- Deve salvar diff detalhado em `comparison_report.md` (opcional)
-
-**Tempo estimado:** 1 dia
+- **Status:** ⏳ Parcialmente implementado
+- **Objetivo:** Facilitar troubleshooting de problemas sutis com logs detalhados
+- **Descrição:** Implementar workflow de debug que gera logs completos (prompt enviado, resposta bruta, reasoning do LLM, decisões step-by-step) quando problema é identificado
+- **Critérios de Aceite:**
+  - ✅ `scripts/testing/debug_scenario.py` criado (debug mode com logs detalhados)
+  - ⏳ `generate_debug_report()` em `utils/debug_reporter.py` (parcial)
+  - ⏳ Logs formatados com marcadores visuais completos
+  - ⏳ Comparação antes/depois de mudanças no prompt (futuro)
+- **Tempo estimado:** 1 dia
+- **Prioridade:** 🟡 ALTA (parcialmente implementado)
 
 ---
 
-#### 8.4 Interactive Analysis Mode
+### Cronograma Épico 8 (Planejado vs Executado)
 
-**Objetivo:** Guiar fluxo de investigação de forma interativa.
-
-**Descrição:**
-Implementar modo interativo que apresenta menu de opções, executa ações conforme escolha do usuário, e gera outputs estruturados para discussão. Facilita exploração e troubleshooting sem precisar lembrar comandos.
-
-**Componentes:**
-- `interactive_analyzer.py`: Script com menu interativo
-- Integração com ferramentas existentes (executor, report, comparison, debug)
-
-**Critérios de Aceite:**
-- Deve implementar `interactive_analyzer.py` em `scripts/testing/`
-- Menu inicial deve listar:
-  - 10 cenários disponíveis com nomes descritivos
-  - Opção para rodar todos os cenários
-  - Opção para comparar com baseline
-  - Opção para sair
-- Após executar cenário, deve oferecer:
-  - Ver relatório formatado
-  - Ver debug logs detalhados
-  - Comparar com baseline
-  - Gerar prompt de correção para Cursor
-  - Analisar outro cenário
-  - Voltar ao menu principal
-- Outputs devem ser printados no terminal (sem clipboard)
-- Deve validar inputs do usuário (números válidos)
-- Deve ter opção "voltar" em cada submenu
-- Deve ser intuitivo (não requer documentação para usar)
-
-**Tempo estimado:** 1 dia
-
----
-
-#### 8.5 Debug Workflow
-
-**Objetivo:** Facilitar troubleshooting de problemas sutis com logs detalhados.
-
-**Descrição:**
-Implementar workflow de debug que gera logs completos (prompt enviado, resposta bruta, reasoning do LLM, decisões step-by-step) quando problema é identificado. Logs formatados para análise com Claude.
-
-**Componentes:**
-- `generate_debug_report()`: Gera relatório de debug detalhado
-- `debug_scenario.py`: CLI para debug de cenários específicos
-- `compare_prompts.py`: Compara comportamento antes/depois de mudança no prompt (futuro)
-
-**Critérios de Aceite:**
-- Deve implementar `generate_debug_report()` em `utils/debug_reporter.py`
-  - Incluir prompt COMPLETO enviado ao LLM (sem truncar)
-  - Incluir resposta bruta antes de parsing JSON
-  - Incluir reasoning do LLM (campo "reasoning")
-  - Incluir decisões tomadas (next_step, agent_suggestion)
-  - Incluir estado antes/depois de cada transição
-  - Incluir timestamps e duração de cada operação
-- Deve implementar `debug_scenario.py` com CLI:
-  - `--scenario N`: gera debug do cenário específico
-  - `--turn N`: foca em turno específico (opcional)
-  - `--save`: salva em arquivo `logs/debug/cenario_N_TIMESTAMP.md`
-- Debug report deve ser < 100 linhas por turno (conciso mas completo)
-- Deve incluir marcadores visuais:
-  - `[PROMPT ENVIADO]`: início do prompt
-  - `[RESPOSTA LLM]`: resposta bruta
-  - `[REASONING]`: reasoning extraído
-  - `[DECISÃO]`: decisão tomada (next_step)
-  - `[PROBLEMA]`: onde problema foi detectado (se houver)
-- Output deve terminar com:
-  - "Copie acima e pergunte ao Claude: 'Onde o reasoning levou à decisão errada?'"
-- Logs devem ser salvos automaticamente em `logs/debug/` para histórico
-
-**Tempo estimado:** 1 dia
-
----
-
-### Cronograma Épico 8 (Atualizado)
-
-| Funcionalidade | Duração | Dependências | Prioridade |
-|----------------|---------|--------------|------------|
-| 8.1: Multi-Turn Executor | 2 dias | - | 🔴 CRÍTICA |
-| 8.2: Report Generator | 1 dia | 8.1 | 🔴 CRÍTICA |
-| 8.3: Comparison Tool | 1 dia | 8.1 | 🟡 ALTA |
-| 8.4: Interactive Mode | 1 dia | 8.1, 8.2 | 🟡 ALTA |
-| 8.5: Debug Workflow | 1 dia | 8.1 | 🟡 ALTA |
-| **Total** | **6 dias** | | |
+| Funcionalidade | Duração Planejada | Duração Real | Dependências | Prioridade | Status |
+|----------------|-------------------|--------------|--------------|------------|--------|
+| 8.1: Multi-Turn Executor | 2 dias | ~2 dias | - | 🔴 CRÍTICA | ✅ Concluído |
+| 8.2: Scripts e Relatórios | 1 dia | ~1 dia | 8.1 | 🔴 CRÍTICA | ✅ Concluído |
+| 8.3: Comparison Tool | 1 dia | - | 8.1 | 🟡 ALTA | ⏳ Não implementado |
+| 8.4: Interactive Mode | 1 dia | - | 8.1, 8.2 | 🟡 ALTA | ⏳ Não implementado |
+| 8.5: Debug Workflow | 1 dia | ~0.5 dia | 8.1 | 🟡 ALTA | ⏳ Parcial |
+| **Total** | **6 dias** | **~3.5 dias** | | | |
 
 **Mudanças em relação à proposta original:**
-- ↑ Duração total: 2-3 → 6 dias (+3-4 dias)
-- Reordenado: Multi-turn agora é #1 (era #2)
-- Removido: CI/CD (prematuro - postergar)
-- Removido: LLM-as-Judge como única forma de validação
-- Adicionado: Ferramentas de análise assistida
+- ✅ 8.1 e 8.2 implementados conforme planejado
+- ⏳ 8.3-8.5 não implementados (prioridade reduzida após validação de que 8.1+8.2 são suficientes)
+- ✅ Decisão estratégica: focar em ferramentas essenciais primeiro
 
 ---
 
@@ -375,14 +316,14 @@ Implementar workflow de debug que gera logs completos (prompt enviado, resposta 
 ### Documentação
 
 Após implementação, deve atualizar:
-- `docs/testing/epic8_automation_strategy.md` (já reformulado)
-- `docs/testing/strategy.md` (adicionar seção sobre análise assistida)
-- `README.md` (adicionar seção sobre ferramentas de análise)
+- ✅ `docs/testing/epic8_automation_strategy.md` (já reformulado)
+- ⏳ `docs/testing/strategy.md` (adicionar seção sobre análise assistida)
+- ⏳ `README.md` (adicionar seção sobre ferramentas de análise)
 
 Cada ferramenta deve ter:
-- Exemplos de uso em comentários do código
-- Output de exemplo em docstrings
-- Seção no README com comandos principais
+- ✅ Exemplos de uso em comentários do código
+- ✅ Output de exemplo em docstrings
+- ⏳ Seção no README com comandos principais
 
 ---
 
@@ -390,7 +331,7 @@ Cada ferramenta deve ter:
 
 **Objetivo:** Completar ciclo de persistência silenciosa e feedback visual de progresso.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído
 
 **Dependências:** Nenhuma
 
@@ -398,8 +339,9 @@ Cada ferramenta deve ter:
 
 ### Funcionalidades:
 
-#### 9.1 Atualização de cognitive_model no Orchestrator
+#### 9.1 Atualização de cognitive_model no Orchestrator ✅
 
+- **Status:** Concluído
 - **Descrição:** Implementar atualização do cognitive_model no orchestrator_node a cada turno
 - **Critérios de Aceite:**
   - Prompt do orchestrator solicita `cognitive_model` no JSON de saída
@@ -408,16 +350,18 @@ Cada ferramenta deve ter:
   - Schema `CognitiveModel` usado para validação (Pydantic)
   - Campos: claim, premises, assumptions, open_questions, contradictions, solid_grounds, context
 
-#### 9.2 Passar active_idea_id via Config
+#### 9.2 Passar active_idea_id via Config ✅
 
+- **Status:** Concluído
 - **Descrição:** Disponibilizar active_idea_id no config do LangGraph (agnóstico de framework)
 - **Critérios de Aceite:**
   - Streamlit adiciona `active_idea_id` ao config ao invocar grafo
   - Orchestrator acessa `active_idea_id` via `config.get("configurable", {})`
   - Funciona mesmo sem active_idea_id (opcional, não quebra fluxo)
 
-#### 9.3 SnapshotManager no Orquestrador
+#### 9.3 SnapshotManager no Orquestrador ✅
 
+- **Status:** Concluído
 - **Descrição:** Integrar avaliação de maturidade via LLM no orchestrator_node
 - **Critérios de Aceite:**
   - Orchestrator chama `create_snapshot_if_mature()` após processar turno
@@ -426,8 +370,9 @@ Cada ferramenta deve ter:
   - Silencioso: sem logs visíveis ao usuário, sem notificações
   - Depende de 9.1 (cognitive_model) e 9.2 (active_idea_id)
 
-#### 9.4 Indicador de Solidez no Contexto
+#### 9.4 Indicador de Solidez no Contexto ✅
 
+- **Status:** Concluído
 - **Descrição:** Exibir barra de progresso de solidez do argumento focal
 - **Critérios de Aceite:**
   - Backend: Método reutilizável calcula solidez (ex: `CognitiveModel.calculate_solidez()`)
@@ -435,7 +380,7 @@ Cada ferramenta deve ter:
   - Atualiza quando argumento focal muda
   - Agnóstico de framework (cálculo no backend, UI apenas exibe)
 
-**Ordem de implementação:** 9.1 → 9.2 → 9.3 → 9.4
+**Ordem de implementação:** 9.1 → 9.2 → 9.3 → 9.4 ✅
 
 ---
 

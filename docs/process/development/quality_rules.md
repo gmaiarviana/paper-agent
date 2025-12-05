@@ -26,6 +26,53 @@
 
 ---
 
+## Diretrizes Aprendidas em Produção
+
+### Sistemas Conversacionais com LLMs
+
+**Debug estruturado > Testes unitários:**
+- SEMPRE crie ferramentas de observabilidade (logs detalhados, rastreamento de decisões) ANTES de escrever testes
+- Testes unitários não capturam bugs de fluxo multi-turn
+- Ferramentas de debug revelam causa raiz em minutos vs horas
+
+**Orientação > Prescrição em prompts:**
+- Prompts com 50+ linhas de regras IF-THEN transformam LLM em script
+- PREFIRA: código robusto (tolera variações) + prompt minimalista (1-3 parágrafos)
+- EVITE: regras rígidas que eliminam autonomia do LLM
+- Para sistemas inteligentes: flexibilidade > determinismo
+
+**Preservação de contexto:**
+- Reconheça variações naturais do LLM (`"not operationalized"`, `"undefined"`) como valores vagos
+- Não dependa apenas do LLM retornar valores padronizados
+- Código deve ser resiliente a variações linguísticas
+
+### Validação e Testes
+
+**Validação incremental:**
+- Commits separados (infraestrutura → fix parcial → fix completo) aceleram debug
+- Facilita rollback e análise histórica
+- Cada commit deve ter descrição clara do que resolve
+
+**Cenários de teste:**
+- Escreva cenários baseados em hipótese inicial
+- Execute e observe comportamento REAL do sistema
+- Ajuste cenários OU sistema conforme necessário
+- Não tenha medo de ajustar cenários se comportamento real for razoável
+
+### Arquitetura e Design
+
+**Visão do produto define solução técnica:**
+- SEMPRE pergunte: "Essa solução está alinhada com a visão do produto?" ANTES de implementar
+- Soluções tecnicamente corretas podem conflitar com experiência desejada
+- Exemplo: Regras rígidas vs "facilitador inteligente"
+
+**Quando evitar automação completa:**
+- Para análise de qualidade conversacional, humano + LLM > automação
+- Automação completa perde contexto e qualidade de insights
+- PREFIRA: ferramentas que estruturam dados para análise, não que tomam decisões
+
+---
+
 ## Regras Anti-Redundância
 
 **Responsabilidade Única de Cada Documento:**
@@ -180,6 +227,149 @@ npm run dev
 
 ---
 
+## Verificação de Conflitos e Prevenção de Perda de Trabalho
+
+### 🚨 Problema Identificado: Sobrescrição de Trabalho
+
+**Cenário:**
+- Trabalho em múltiplas frentes (ex: Épico 9 + Funcionalidade 8.1)
+- Branch local atrás do origin/main
+- Mudanças locais sobrescrevem conteúdo importante de commits anteriores
+
+**Causa Raiz:**
+- Edição direta do ROADMAP.md sem verificar commits recentes do origin/main
+- Falta de processo de verificação antes de editar arquivos críticos
+- Git status não mostra conflitos até tentar push/merge
+
+### ✅ Processo de Verificação Obrigatório
+
+**ANTES de editar arquivos críticos (ROADMAP.md, ARCHITECTURE.md, README.md):**
+
+1. **Verificar status do repositório:**
+   ```powershell
+   git fetch origin
+   git status
+   git log --oneline HEAD..origin/main
+   ```
+
+2. **Se branch local está atrás:**
+   ```powershell
+   # Ver diferenças em arquivos críticos
+   git diff HEAD origin/main -- ROADMAP.md
+   git diff HEAD origin/main -- ARCHITECTURE.md
+   git diff HEAD origin/main -- README.md
+   ```
+
+3. **Se houver mudanças locais não commitadas:**
+   ```powershell
+   # Ver o que foi modificado localmente
+   git diff -- ROADMAP.md
+   git diff -- ARCHITECTURE.md
+   ```
+
+4. **Decisão:**
+   - **Se origin/main tem conteúdo importante que local não tem:**
+     - Fazer merge/rebase ANTES de editar
+     - OU criar branch separada para cada frente de trabalho
+   - **Se local tem mudanças importantes:**
+     - Commitar local primeiro
+     - Depois fazer merge/rebase
+     - Resolver conflitos preservando ambas as mudanças
+
+### 📋 Checklist Antes de Editar ROADMAP.md
+
+- [ ] `git fetch origin` executado
+- [ ] `git status` verificado (branch atrás? mudanças locais?)
+- [ ] `git log HEAD..origin/main` revisado (commits importantes?)
+- [ ] `git diff HEAD origin/main -- ROADMAP.md` revisado (conteúdo perdido?)
+- [ ] Se houver conteúdo importante em origin/main: merge/rebase ANTES de editar
+- [ ] Se houver mudanças locais: commitar ANTES de merge/rebase
+
+### 🔍 Verificação de Arquivos Modificados
+
+**Quando há múltiplas frentes de trabalho:**
+
+1. **Listar arquivos modificados:**
+   ```powershell
+   git status --short
+   ```
+
+2. **Para cada arquivo modificado, verificar:**
+   ```powershell
+   # Ver diferenças locais
+   git diff -- <arquivo>
+   
+   # Ver diferenças com origin/main
+   git diff HEAD origin/main -- <arquivo>
+   
+   # Ver histórico de commits recentes
+   git log --oneline -5 -- <arquivo>
+   ```
+
+3. **Identificar conflitos potenciais:**
+   - Arquivo modificado localmente E em origin/main?
+   - Mesmas seções editadas em ambos?
+   - Conteúdo complementar ou conflitante?
+
+### 🛡️ Prevenção de Perda de Trabalho
+
+**Estratégias:**
+
+1. **Commits frequentes:**
+   - Commitar trabalho parcial antes de mudar de frente
+   - Mensagens descritivas: "Épico 9.1: cognitive_model no orchestrator"
+
+2. **Branches separadas:**
+   - Uma branch por frente de trabalho
+   - Merge apenas quando trabalho estiver completo
+
+3. **Verificação antes de push:**
+   ```powershell
+   # Sempre verificar antes de push
+   git fetch origin
+   git log --oneline HEAD..origin/main
+   git diff HEAD origin/main -- <arquivos-críticos>
+   ```
+
+4. **Documentação de decisões:**
+   - Se conteúdo foi removido intencionalmente, documentar por quê
+   - Se conteúdo foi perdido acidentalmente, restaurar imediatamente
+
+### 📝 Template de Verificação (Copiar antes de editar ROADMAP.md)
+
+```powershell
+# 1. Verificar status
+git fetch origin
+git status
+
+# 2. Ver commits recentes no origin/main
+git log --oneline -10 origin/main
+
+# 3. Ver diferenças em ROADMAP.md
+git diff HEAD origin/main -- ROADMAP.md | Select-Object -First 200
+
+# 4. Ver mudanças locais
+git diff -- ROADMAP.md | Select-Object -First 200
+
+# 5. Se necessário, ver commits específicos
+git show <commit-hash>:ROADMAP.md | Select-Object -First 100
+```
+
+### ⚠️ Sinais de Alerta
+
+**Pare e verifique se:**
+- Git status mostra "Your branch is behind 'origin/main' by X commits"
+- Você está trabalhando em múltiplas frentes simultaneamente
+- Arquivo crítico foi editado recentemente (últimos commits)
+- Você não tem certeza se mudanças locais conflitam com origin/main
+
+**Ação imediata:**
+1. Parar edições
+2. Executar checklist de verificação
+3. Resolver conflitos antes de continuar
+
+---
+
 ## Observações Finais
 
 ### Para o Dev
@@ -187,6 +377,7 @@ npm run dev
 - Se algo não estiver claro, pergunte
 - Ajuste estas diretrizes conforme o projeto evolui
 - **Interrompa o agente se perceber loop** (não deixe rodar infinitamente)
+- **SEMPRE verificar conflitos antes de editar arquivos críticos**
 
 ### Para o Agente (Claude Code / Cursor Background)
 - Seja autônomo mas transparente
@@ -195,6 +386,7 @@ npm run dev
 - Decisões técnicas devem fazer sentido
 - Documentação é tão importante quanto código
 - PR deve ser auto-explicativo e permitir validação fácil
+- **ANTES de editar ROADMAP.md/ARCHITECTURE.md: verificar conflitos com origin/main**
 
 ---
 
