@@ -185,7 +185,7 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
 
 **Objetivo:** Completar ciclo de persistência silenciosa e feedback visual de progresso.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** 🔄 Em progresso (9.1 concluído)
 
 **Dependências:** Nenhuma
 
@@ -193,8 +193,9 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
 
 ### Funcionalidades:
 
-#### 9.1 Atualização de cognitive_model no Orchestrator
+#### 9.1 Atualização de cognitive_model no Orchestrator ✅
 
+- **Status:** Concluído
 - **Descrição:** Implementar atualização do cognitive_model no orchestrator_node a cada turno
 - **Critérios de Aceite:**
   - Prompt do orchestrator solicita `cognitive_model` no JSON de saída
