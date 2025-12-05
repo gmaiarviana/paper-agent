@@ -5,8 +5,8 @@ Este módulo implementa o nó principal do Orquestrador:
 - orchestrator_node: Facilitador conversacional MVP com argumento focal explícito
 - _build_context: Constrói contexto incluindo outputs de agentes para curadoria
 
-Versão: 4.0 (Épico 1.1 - Transição Fluida + Curadoria)
-Data: 04/12/2025
+Versão: 4.1 (Bugfix - Preservação de contexto do focal_argument)
+Data: 05/12/2025
 """
 
 import logging
@@ -24,6 +24,61 @@ from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
 
 logger = logging.getLogger(__name__)
+
+
+def _merge_focal_argument(previous_focal: Optional[dict], new_focal: dict) -> dict:
+    """
+    Faz merge inteligente do focal_argument preservando valores anteriores quando novos são vagos.
+    
+    Regras de merge:
+    - Se novo valor é "not specified" ou "unclear" → preserva valor anterior (se existir)
+    - Se novo valor é específico → usa novo valor
+    - Se não havia valor anterior → usa novo valor
+    
+    Args:
+        previous_focal: Argumento focal anterior (pode ser None)
+        new_focal: Argumento focal novo extraído do LLM
+        
+    Returns:
+        dict: Argumento focal mesclado preservando contexto anterior
+    """
+    if not previous_focal:
+        # Sem valor anterior, usa novo valor diretamente
+        return new_focal.copy()
+    
+    merged = {}
+    
+    # Campos que devem ser mesclados
+    fields_to_merge = ['intent', 'subject', 'population', 'metrics', 'article_type']
+    
+    for field in fields_to_merge:
+        new_value = new_focal.get(field)
+        previous_value = previous_focal.get(field)
+        
+        # Valores considerados "vazios/vagos"
+        empty_values = ['not specified', 'unclear', None, '']
+        
+        # Se novo valor é vago e havia valor anterior específico → preserva anterior
+        if new_value in empty_values and previous_value and previous_value not in empty_values:
+            merged[field] = previous_value
+            logger.debug(f"Preservando {field} anterior: '{previous_value}' (novo valor era vago)")
+        # Se novo valor é específico → usa novo valor
+        elif new_value and new_value not in empty_values:
+            merged[field] = new_value
+        # Se novo valor existe mas é vago e não havia anterior → usa novo valor
+        elif new_value:
+            merged[field] = new_value
+        # Fallback: usa anterior se existir
+        elif previous_value:
+            merged[field] = previous_value
+        else:
+            # Último fallback: valor padrão
+            if field in ['intent', 'article_type']:
+                merged[field] = 'unclear'
+            else:
+                merged[field] = 'not specified'
+    
+    return merged
 
 
 def _build_context(state: MultiAgentState) -> str:
@@ -277,6 +332,18 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
             }
             logger.warning(f"Usando focal_argument fallback: {focal_argument}")
 
+        # BUGFIX: Merge inteligente com focal_argument anterior para preservar contexto
+        # Evita perda de informações como população e métricas entre turnos
+        # IMPORTANTE: Preserva valores anteriores mesmo após rejeição do Methodologist
+        if previous_focal:
+            logger.info("Mesclando focal_argument novo com anterior para preservar contexto...")
+            focal_argument_before_merge = focal_argument.copy()
+            focal_argument = _merge_focal_argument(previous_focal, focal_argument)
+            # Log se algum valor foi preservado
+            if focal_argument != focal_argument_before_merge:
+                logger.info("✅ Valores preservados do focal_argument anterior após merge")
+            logger.debug(f"Focal argument após merge: {json.dumps(focal_argument, indent=2, ensure_ascii=False)}")
+
         # Validar next_step
         valid_next_steps = ["explore", "suggest_agent", "clarify"]
         if next_step not in valid_next_steps:
@@ -313,13 +380,18 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         logger.error(f"Resposta recebida: {response.content[:300]}...")
         # Fallback seguro
         reasoning = "Erro ao processar resposta do orquestrador"
-        focal_argument = {
-            "intent": "unclear",
-            "subject": "not specified",
-            "population": "not specified",
-            "metrics": "not specified",
-            "article_type": "unclear"
-        }
+        # BUGFIX: Preservar focal_argument anterior mesmo em caso de erro
+        if previous_focal:
+            logger.warning("Erro ao parsear JSON, mas preservando focal_argument anterior")
+            focal_argument = previous_focal.copy()
+        else:
+            focal_argument = {
+                "intent": "unclear",
+                "subject": "not specified",
+                "population": "not specified",
+                "metrics": "not specified",
+                "article_type": "unclear"
+            }
         next_step = "explore"
         message = "Desculpe, tive dificuldade em processar. Pode reformular sua ideia?"
         agent_suggestion = None
