@@ -31,6 +31,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 
 from utils.event_bus import get_event_bus
+from utils.currency import format_currency, format_currency_precise
 from agents.database.manager import get_database_manager
 
 logger = logging.getLogger(__name__)
@@ -230,7 +231,7 @@ def _show_context_details_modal(session_id: str, accumulated: Dict[str, Any]) ->
                         st.markdown(f"**{event['emoji']} {event['agent_display']}**")
                         st.caption(f"🕐 {event['timestamp']}")
                     with col2:
-                        st.metric("Custo", f"${event['cost']:.4f}")
+                        st.metric("Custo", format_currency(event['cost']))
                     with col3:
                         st.metric("Tokens", f"{event['tokens_total']:,}")
                     st.markdown("---")
@@ -239,7 +240,7 @@ def _show_context_details_modal(session_id: str, accumulated: Dict[str, Any]) ->
             st.markdown("### Total")
             col1, col2 = st.columns(2)
             with col1:
-                st.metric("💰 Custo Total", f"${accumulated['cost']:.4f}")
+                st.metric("💰 Custo Total", format_currency(accumulated['cost']))
             with col2:
                 st.metric("📊 Tokens Totais", f"{accumulated['tokens']:,}")
 
@@ -252,7 +253,7 @@ def _show_context_details_modal(session_id: str, accumulated: Dict[str, Any]) ->
             st.metric("Chamadas", accumulated['num_events'])
         with col2:
             avg_cost = accumulated['cost'] / max(accumulated['num_events'], 1)
-            st.metric("Custo Médio", f"${avg_cost:.4f}")
+            st.metric("Custo Médio", format_currency(avg_cost))
         with col3:
             avg_tokens = accumulated['tokens'] // max(accumulated['num_events'], 1)
             st.metric("Tokens Médio", f"{avg_tokens:,}")
@@ -284,7 +285,7 @@ def _show_context_details_modal(session_id: str, accumulated: Dict[str, Any]) ->
                 with col1:
                     st.caption(f"Chamadas: {stats['calls']}")
                 with col2:
-                    st.caption(f"Custo: ${stats['cost']:.4f}")
+                    st.caption(f"Custo: {format_currency(stats['cost'])}")
                 with col3:
                     st.caption(f"Tokens: {stats['tokens']:,}")
                 with col4:
@@ -326,7 +327,7 @@ def _render_accumulated_cost(session_id: str) -> None:
     # Layout: custo + botão de detalhes
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.caption(f"💰 ${accumulated['cost']:.4f} total")
+        st.caption(f"💰 {format_currency(accumulated['cost'])} total")
         st.caption(f"📊 {accumulated['tokens']:,} tokens")
     with col2:
         if st.button("📊", key="btn_details", help="Ver detalhes"):
@@ -592,7 +593,7 @@ def _show_reasoning_modal(reasoning: Dict[str, Any]) -> None:
         with col2:
             st.metric(
                 label="💰 Custo Total",
-                value=f"${reasoning['cost']:.6f}"
+                value=format_currency_precise(reasoning['cost'])
             )
             st.metric(
                 label="📊 Tokens Totais",
@@ -604,7 +605,7 @@ def _show_reasoning_modal(reasoning: Dict[str, Any]) -> None:
                 cost_per_1k = (reasoning['cost'] / reasoning['tokens']['total']) * 1000
                 st.metric(
                     label="💵 Custo/1K tokens",
-                    value=f"${cost_per_1k:.4f}"
+                    value=format_currency(cost_per_1k)
                 )
 
     with tab3:
@@ -671,7 +672,7 @@ def _show_timeline_modal(events: List[Dict[str, Any]]) -> None:
 
         st.markdown(f"**{emoji} {agent_display}** - {time_str}")
         st.caption(f"{summary[:150]}..." if len(summary) > 150 else summary)
-        st.caption(f"⏱️ {duration:.2f}s | 💰 ${cost:.4f}")
+        st.caption(f"⏱️ {duration:.2f}s | 💰 {format_currency(cost)}")
         st.markdown("---")
 
 

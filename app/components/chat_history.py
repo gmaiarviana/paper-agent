@@ -16,6 +16,8 @@ import streamlit as st
 from typing import List, Dict, Any
 import logging
 
+from utils.currency import format_currency
+
 logger = logging.getLogger(__name__)
 
 
@@ -113,7 +115,7 @@ def _render_inline_metrics(
     metrics_parts = []
 
     if cost is not None:
-        metrics_parts.append(f"💰 ${cost:.4f}")
+        metrics_parts.append(f"💰 {format_currency(cost)}")
 
     if tokens is not None:
         total_tokens = tokens.get("total", 0)

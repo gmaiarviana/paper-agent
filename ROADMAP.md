@@ -16,6 +16,7 @@
 - **ÉPICO 2**: Sidebar
 - **ÉPICO 3**: Bastidores
 - **ÉPICO 4**: Contexto
+- **ÉPICO 5**: UX Polish
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
@@ -25,7 +26,6 @@
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
 #### Planejados (refinados)
-- **ÉPICO 5**: UX Polish (refinado)
 - **ÉPICO 6**: Limpeza de Testes
 - **ÉPICO 7**: Validação de Maturidade do Sistema - Fase Manual
 - **ÉPICO 8**: Validação de Maturidade do Sistema - Automação
@@ -39,7 +39,8 @@
 
 **Nota sobre Dependências:**
 - Épicos 1, 2, 3, 4, 5 concluídos (independentes)
-- Épicos 6, 7, 8 são independentes (podem começar imediatamente)
+- Épico 6 depende do Épico 1 (valida comportamento de convergência) - Épico 1 já concluído
+- Épicos 7, 8 são independentes (podem começar imediatamente)
 - Épico 8 depende do Épico 7 (precisa identificar problemas reais primeiro)
 - Épicos 9-13 seguem sequência: Integração → Conceitos → Ontologia → Pesquisador → Escritor
 
@@ -53,21 +54,22 @@
 
 **Objetivo:** Ajustes de experiência do usuário: custo em R$.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído
 
 **Dependências:** Épicos 3-4 (métricas movidas para Contexto)
 
 ### Funcionalidades:
 
-#### 5.1 Custo em R$
+#### 5.1 Custo em R$ ✅
 
 - **Descrição:** Exibir custos em reais (BRL) com formato brasileiro
-- **Critérios de Aceite:**
-  - Deve adicionar configs em `.env`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.5`
-  - Deve converter USD → BRL usando taxa configurável
-  - Deve exibir formato brasileiro: "R$ 0,02" (vírgula decimal)
-  - Fallback: se `CURRENCY` não for `BRL`, mantém USD como hoje
-  - Deve aplicar em todos os pontos: chat_history, backstage, dashboard
+- **Implementação:**
+  - ✅ Criado `utils/currency.py` com `format_currency()` para conversão USD→BRL
+  - ✅ Configs em `.env.example`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.5`
+  - ✅ Formato brasileiro: "R$ 0,02" (vírgula decimal)
+  - ✅ Fallback para USD se `CURRENCY` não for `BRL`
+  - ✅ Aplicado em: chat_history, backstage, dashboard
+  - ✅ 22 testes unitários em `tests/unit/test_currency.py`
 
 ---
 
