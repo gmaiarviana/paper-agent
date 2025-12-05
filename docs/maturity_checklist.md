@@ -137,18 +137,19 @@
 ### Funcionalidades Básicas
 - [✅] EventBus (comunicação CLI ↔ Dashboard - `utils/event_bus/`)
 - [✅] Dashboard (visualização de eventos - `app/dashboard.py` com timeline)
-- [🟡] Logs estruturados (JSON) (Parcial: alguns logs estruturados em `utils/config.py`, mas não todos)
+- [✅] Logs estruturados (JSON) (Épico 8.5 concluído: StructuredLogger implementado e integrado)
 - [🟡] Métricas de qualidade (LLM-as-Judge) (Épico 8 planejado, mas não implementado ainda)
 
 ### Estado da Arte
-- [ ] **Logs estruturados completos**: Todos os eventos são logados em formato estruturado (JSON)
+- [✅] **Logs estruturados completos**: Todos os eventos são logados em formato estruturado (JSON) (Épico 8.5)
 - [ ] **Tracing distribuído**: Sistema rastreia requisições através de múltiplos agentes (trace IDs)
 - [ ] **Métricas em tempo real**: Dashboard mostra métricas atualizadas em tempo real (não apenas eventos)
 - [ ] **Alertas proativos**: Sistema alerta sobre degradação antes de falhas críticas
 - [ ] **Análise de custos**: Sistema rastreia e analisa custos por agente, tool, conversa
 - [ ] **Análise de latência**: Sistema rastreia latência de cada componente e identifica gargalos
 - [ ] **LLM-as-Judge automatizado**: Sistema avalia qualidade automaticamente em cada conversa
-- [ ] **Replay de conversas**: Sistema permite re-executar conversas com diferentes configurações
+- [✅] **Replay de conversas**: Sistema permite re-executar conversas com diferentes configurações (Épico 8.5: `replay_session.py`)
+- [✅] **Debug reports formatados**: Sistema gera relatórios estruturados de debug (Épico 8.5: `debug_reporter.py`)
 - [ ] **Comparação de versões**: Sistema compara comportamento entre versões do sistema
 - [ ] **Heatmaps de uso**: Sistema mostra onde usuários mais interagem e onde há problemas
 - [ ] **Análise de erros**: Sistema agrupa e analisa erros para identificar padrões
@@ -285,8 +286,13 @@
     - Sistema de plugins
   - **Próximos passos**: Concluir Épico 9 (integração cognitive_model + snapshots)
 
+- **2025-12-XX**: Épico 8 concluído
+  - Sistema de observabilidade completo (logging estruturado, debug reports, session replay)
+  - Funcionalidades 8.1, 8.2 e 8.5 implementadas
+  - 8.4 (Interactive Analysis Mode) não implementado - sistema já tem ferramentas suficientes
+
 ---
 
-**Última atualização:** 2025-01-XX  
-**Próxima revisão:** Após conclusão do Épico 7
+**Última atualização:** 2025-12-XX  
+**Próxima revisão:** Após conclusão do Épico 10
 

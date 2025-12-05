@@ -46,29 +46,9 @@
 
 ---
 
-## ÉPICO 8: Análise Assistida de Qualidade
+## ✅ ÉPICO 8: Análise Assistida de Qualidade
 
-**Status:** ✅ Concluído (8.1, 8.2 e 8.5 implementados; 8.3 movido para backlog)
-
-Ferramentas para execução multi-turn, relatórios estruturados e sistema de observabilidade completo implementados. Funcionalidade 8.3 (Comparison Tool) movida para backlog. Funcionalidade 8.4 planejada mas não implementada (prioridade reduzida).
-
-### Funcionalidades Implementadas
-
-- **8.1 e 8.2**: Execução multi-turn e relatórios estruturados
-- **8.5**: Sistema de observabilidade com logging estruturado (JSONL), debug reports e session replay. Todos os nós principais instrumentados (orchestrator, structurer, methodologist). Ver `ARCHITECTURE.md` para detalhes completos.
-
-### Funcionalidades Planejadas (não implementadas)
-
-#### 8.4 Interactive Analysis Mode ⏳
-
-- **Status:** ⏳ Planejado (prioridade baixa)
-- **Objetivo:** Guiar fluxo de investigação de forma interativa
-- **Descrição:** Implementar modo interativo que apresenta menu de opções, executa ações conforme escolha do usuário, e gera outputs estruturados para discussão
-- **Critérios de Aceite:**
-  - Deve implementar `interactive_analyzer.py` em `scripts/testing/`
-  - Menu inicial deve listar cenários disponíveis
-  - Após executar cenário, deve oferecer opções de análise
-  - Deve ser intuitivo (não requer documentação para usar)
+Ferramentas para execução multi-turn, relatórios estruturados e sistema de observabilidade completo implementados (8.1, 8.2 e 8.5). Logging estruturado (JSONL), debug reports e session replay com todos os nós principais instrumentados.
 
 ---
 
