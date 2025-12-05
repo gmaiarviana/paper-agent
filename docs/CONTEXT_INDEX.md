@@ -208,29 +208,46 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 ---
 
-### TEMA: Testes
+### TEMA: Testes e Qualidade
 
 **Código:**
-- `tests/unit/` - Testes unitários
-- `tests/integration/` - Testes de integração
-- `scripts/flows/` - Scripts de validação manual
-- `scripts/health_checks/` - Health checks
+- `tests/unit/` - Testes unitários organizados por categoria (226 testes)
+  - `agents/` - Lógica de agentes (orchestrator, structurer, methodologist)
+  - `models/` - Estruturas de dados (cognitive_model)
+  - `memory/` - Sistema de memória (config_loader, execution_tracker, memory_manager)
+  - `utils/` - Utilitários (cost_tracker, event_bus, json_extraction, currency)
+  - `database/` - Database operations (database_manager)
+- `tests/integration/` - Testes de integração (19 testes)
+  - `smoke/` - Validação rápida (3 testes, ~$0.01)
+  - `behavior/` - Comportamentos específicos (15 testes, ~$0.02-0.03)
+  - `e2e/` - Cenários completos multi-turn (1 teste, ~$0.05)
+- `scripts/testing/` - Ferramentas de teste (Épico 8)
+  - `execute_scenario.py`, `debug_scenario.py`, `replay_session.py`
+- `scripts/health_checks/` - Health checks de setup
+- `scripts/debug/` - Ferramentas de debug
 
 **Documentação:**
-- `docs/testing/README.md` - Visão geral
-- `docs/testing/strategy.md` - Estratégia de testes
-- `docs/testing/structure.md` - Estrutura de testes
+- `docs/testing/README.md` - Índice e quick start
+- `docs/testing/strategy.md` - Estratégia de testes (pirâmide, quando usar)
+- `docs/testing/structure.md` - Estrutura de pastas detalhada
+- `docs/testing/commands.md` - Comandos pytest
 - `docs/testing/inventory.md` - Inventário de testes
-- `docs/testing/commands.md` - Comandos de teste
+- `docs/testing/migration/` - Histórico de reestruturação (Épico 8)
+- `docs/testing/epics/` - Histórico de épicos de testes
 
 **Solicitar quando:**
-- Escrever testes
-- Entender estratégia de testes
-- Validar cobertura
+- Escrever novos testes
+- Entender estrutura de testes
+- Escolher entre unit/smoke/behavior/e2e
+- Usar ferramentas de debug do Épico 8
+- Troubleshooting de testes
 
-**Gaps identificados:**
-- ⚠️ `scripts/flows/` - Scripts de validação (não encontrei doc)
-- ⚠️ `scripts/health_checks/` - Health checks (não encontrei doc)
+**Observações:**
+- Sistema reestruturado no Épico 8 (Dezembro 2025)
+- 237 testes, 0 falhas
+- Unit tests ($0) rodam em CI sempre
+- Integration tests ($$) rodam manual ou CI seletivo
+- Ferramentas de debug: replay, structured logging, debug reports
 
 ---
 
@@ -291,6 +308,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 1. Contexto Obrigatório + tema relevante
 2. Exemplo: Implementar feature de interface → Tema Interface Web
 3. Exemplo: Modificar agente → Tema Agentes Específicos
+4. Exemplo: Escrever testes → Tema Testes e Qualidade
 
 ### Formato de Solicitação
 ```
@@ -309,7 +327,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 | **Modificar modelo de dados** | Dados e Persistência |
 | **Implementar feature de interface** | Interface Web |
 | **Escrever código** | Desenvolvimento e Processo |
-| **Escrever testes** | Testes |
+| **Escrever testes** | Testes e Qualidade |
 | **Entender infraestrutura** | Infraestrutura e Utils |
 
 ---
