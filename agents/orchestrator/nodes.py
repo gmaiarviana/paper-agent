@@ -5,16 +5,17 @@ Este módulo implementa o nó principal do Orquestrador:
 - orchestrator_node: Facilitador conversacional MVP com argumento focal explícito
 - _build_context: Constrói contexto incluindo outputs de agentes para curadoria
 
-Versão: 4.0 (Épico 1.1 - Transição Fluida + Curadoria)
-Data: 04/12/2025
+Versão: 5.0 (Épico 9.1 - Atualização de cognitive_model a cada turno)
+Data: 05/12/2025
 """
 
 import logging
 import json
-from typing import Optional
+from typing import Optional, Dict, Any
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_anthropic import ChatAnthropic
+from pydantic import ValidationError
 
 from .state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
@@ -22,8 +23,109 @@ from utils.config import get_anthropic_model, invoke_with_retry
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
+from agents.models.cognitive_model import CognitiveModel
 
 logger = logging.getLogger(__name__)
+
+
+def _create_fallback_cognitive_model(state: MultiAgentState) -> Dict[str, Any]:
+    """
+    Cria cognitive_model de fallback quando LLM não retorna ou retorna inválido.
+
+    Usa o user_input para criar um modelo mínimo.
+
+    Args:
+        state: Estado atual do sistema
+
+    Returns:
+        Dict com cognitive_model mínimo válido
+    """
+    user_input = state.get("user_input", "")
+
+    return {
+        "claim": user_input[:200] if user_input else "",
+        "premises": [],
+        "assumptions": [],
+        "open_questions": ["O que você quer explorar sobre isso?"],
+        "contradictions": [],
+        "solid_grounds": [],
+        "context": {}
+    }
+
+
+def _validate_cognitive_model(
+    cognitive_model_raw: Optional[Dict[str, Any]],
+    state: MultiAgentState
+) -> Dict[str, Any]:
+    """
+    Valida cognitive_model usando schema Pydantic e retorna dict válido.
+
+    Esta função:
+    1. Se cognitive_model_raw for None, cria fallback
+    2. Valida contra schema CognitiveModel (Pydantic)
+    3. Se validação falhar, loga erro e cria fallback
+    4. Retorna dict (não instância Pydantic) para compatibilidade com state
+
+    Args:
+        cognitive_model_raw: Dict extraído do JSON do LLM (pode ser None)
+        state: Estado atual do sistema (para criar fallback)
+
+    Returns:
+        Dict[str, Any]: cognitive_model validado como dict
+
+    Example:
+        >>> raw = {"claim": "LLMs aumentam produtividade", "premises": [], ...}
+        >>> validated = _validate_cognitive_model(raw, state)
+        >>> validated["claim"]
+        'LLMs aumentam produtividade'
+    """
+    # Se não veio cognitive_model, cria fallback
+    if not cognitive_model_raw:
+        logger.warning("cognitive_model não fornecido pelo LLM. Usando fallback.")
+        return _create_fallback_cognitive_model(state)
+
+    # Tentar validar com Pydantic
+    try:
+        # Garantir que contradictions tenha estrutura correta
+        # LLM pode retornar contradictions vazio como [] ou com items sem confidence
+        contradictions = cognitive_model_raw.get("contradictions", [])
+        validated_contradictions = []
+        for c in contradictions:
+            if isinstance(c, dict):
+                # Garantir confidence >= 0.80 (regra do schema)
+                confidence = c.get("confidence", 0.85)
+                if confidence >= 0.80:
+                    validated_contradictions.append({
+                        "description": c.get("description", ""),
+                        "confidence": confidence,
+                        "suggested_resolution": c.get("suggested_resolution")
+                    })
+
+        # Construir dict para validação
+        model_dict = {
+            "claim": cognitive_model_raw.get("claim", ""),
+            "premises": cognitive_model_raw.get("premises", []),
+            "assumptions": cognitive_model_raw.get("assumptions", []),
+            "open_questions": cognitive_model_raw.get("open_questions", []),
+            "contradictions": validated_contradictions,
+            "solid_grounds": cognitive_model_raw.get("solid_grounds", []),
+            "context": cognitive_model_raw.get("context", {})
+        }
+
+        # Validar com Pydantic
+        validated_model = CognitiveModel.model_validate(model_dict)
+        logger.info(f"✅ cognitive_model validado: claim={validated_model.claim[:50]}...")
+
+        # Retornar como dict para compatibilidade com TypedDict state
+        return validated_model.model_dump()
+
+    except ValidationError as e:
+        logger.error(f"❌ Falha na validação do cognitive_model: {e}")
+        logger.warning("Usando cognitive_model fallback.")
+        return _create_fallback_cognitive_model(state)
+    except Exception as e:
+        logger.error(f"❌ Erro inesperado ao validar cognitive_model: {e}")
+        return _create_fallback_cognitive_model(state)
 
 
 def _build_context(state: MultiAgentState) -> str:
@@ -158,6 +260,7 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
         dict: Dicionário com updates incrementais do estado:
             - orchestrator_analysis: Raciocínio detalhado sobre contexto e histórico
             - focal_argument: Argumento focal extraído/atualizado (OBRIGATÓRIO)
+            - cognitive_model: Modelo cognitivo do argumento (Épico 9.1 - OBRIGATÓRIO)
             - next_step: Próxima ação ("explore", "suggest_agent", "clarify")
             - agent_suggestion: Sugestão de agente com justificativa (se next_step="suggest_agent")
             - reflection_prompt: Provocação de reflexão (se lacuna detectada)
@@ -258,11 +361,15 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
 
         reasoning = orchestrator_response.get("reasoning", "Raciocínio não fornecido")
         focal_argument = orchestrator_response.get("focal_argument")
+        cognitive_model_raw = orchestrator_response.get("cognitive_model")
         next_step = orchestrator_response.get("next_step", "explore")
         message = orchestrator_response.get("message", "Entendi. Como posso ajudar?")
         agent_suggestion = orchestrator_response.get("agent_suggestion", None)
         reflection_prompt = orchestrator_response.get("reflection_prompt", None)
         stage_suggestion = orchestrator_response.get("stage_suggestion", None)
+
+        # Validar e processar cognitive_model (Épico 9.1 - OBRIGATÓRIO)
+        cognitive_model_dict = _validate_cognitive_model(cognitive_model_raw, state)
 
         # Validar focal_argument (OBRIGATÓRIO no MVP)
         if not focal_argument:
@@ -299,6 +406,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         # Logs MVP
         logger.info(f"Raciocínio: {reasoning[:100]}...")
         logger.info(f"Argumento focal: intent={focal_argument.get('intent')}, subject={focal_argument.get('subject', 'N/A')[:50]}")
+        logger.info(f"🧠 Modelo cognitivo: claim={cognitive_model_dict.get('claim', 'N/A')[:50]}...")
         logger.info(f"Próximo passo: {next_step}")
         logger.info(f"Mensagem ao usuário: {message[:100]}...")
         if agent_suggestion:
@@ -320,6 +428,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
             "metrics": "not specified",
             "article_type": "unclear"
         }
+        cognitive_model_dict = _create_fallback_cognitive_model(state)
         next_step = "explore"
         message = "Desculpe, tive dificuldade em processar. Pode reformular sua ideia?"
         agent_suggestion = None
@@ -346,6 +455,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
     return {
         "orchestrator_analysis": reasoning,
         "focal_argument": focal_argument,
+        "cognitive_model": cognitive_model_dict,
         "next_step": next_step,
         "agent_suggestion": agent_suggestion,
         "reflection_prompt": reflection_prompt,
