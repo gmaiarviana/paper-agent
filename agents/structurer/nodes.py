@@ -11,6 +11,7 @@ Data: 13/11/2025
 
 import logging
 import json
+import time
 from typing import Optional
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
@@ -22,6 +23,7 @@ from utils.prompts import STRUCTURER_REFINEMENT_PROMPT_V1
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
+from utils.structured_logger import StructuredLogger
 
 logger = logging.getLogger(__name__)
 
@@ -91,24 +93,93 @@ Você pode operar em dois modos:
 IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensamento do usuário."""
         model_name = "claude-3-5-haiku-20241022"
 
-    # Passar config para funções auxiliares
-    node_config = {"system_prompt": system_prompt, "model_name": model_name, "langgraph_config": config}
-
+    # Extrair trace_id do config para logging estruturado
+    trace_id = "unknown"
+    if config:
+        trace_id = config.get("configurable", {}).get("thread_id", "unknown")
+    
+    # Inicializar logger estruturado
+    structured_logger = StructuredLogger()
+    
+    # Log de início
+    start_time = time.time()
+    
     # Detectar modo: estruturação inicial ou refinamento
     methodologist_feedback = state.get('methodologist_output')
     is_refinement_mode = (
         methodologist_feedback is not None and
         methodologist_feedback.get('status') == 'needs_refinement'
     )
-
+    
+    mode = "refinement" if is_refinement_mode else "initial"
+    
+    # Calcular versão antecipadamente para metadata
     if is_refinement_mode:
-        logger.info("=== NÓ STRUCTURER: Modo REFINAMENTO ===")
-        logger.info(f"Gaps a endereçar: {len(methodologist_feedback['improvements'])}")
-        return _refine_question(state, methodologist_feedback, node_config)
+        # Em modo refinamento, calcular versão a partir do state
+        if state.get('hypothesis_versions'):
+            version = state['hypothesis_versions'][-1]['version'] + 1
+        else:
+            # Fallback: V1 foi inicial, agora V2
+            version = 2
     else:
-        logger.info("=== NÓ STRUCTURER: Modo ESTRUTURAÇÃO INICIAL ===")
-        logger.info(f"Input do usuário: {state['user_input']}")
-        return _structure_initial_question(state, node_config)
+        # Modo inicial sempre gera V1
+        version = 1
+    
+    structured_logger.log_agent_start(
+        trace_id=trace_id,
+        agent="structurer",
+        node="structurer_node",
+        metadata={
+            "mode": mode,
+            "version": version
+        }
+    )
+
+    # Passar config para funções auxiliares
+    node_config = {"system_prompt": system_prompt, "model_name": model_name, "langgraph_config": config, "trace_id": trace_id, "structured_logger": structured_logger, "start_time": start_time}
+
+    try:
+        if is_refinement_mode:
+            logger.info("=== NÓ STRUCTURER: Modo REFINAMENTO ===")
+            logger.info(f"Gaps a endereçar: {len(methodologist_feedback['improvements'])}")
+            result = _refine_question(state, methodologist_feedback, node_config)
+        else:
+            logger.info("=== NÓ STRUCTURER: Modo ESTRUTURAÇÃO INICIAL ===")
+            logger.info(f"Input do usuário: {state['user_input']}")
+            result = _structure_initial_question(state, node_config)
+        
+        # Log de conclusão
+        duration_ms = (time.time() - start_time) * 1000
+        structurer_output = result.get("structurer_output", {})
+        version = structurer_output.get("version", 1)
+        
+        structured_logger.log_agent_complete(
+            trace_id=trace_id,
+            agent="structurer",
+            node="structurer_node",
+            metadata={
+                "duration_ms": duration_ms,
+                "tokens_input": result.get("last_agent_tokens_input", 0),
+                "tokens_output": result.get("last_agent_tokens_output", 0),
+                "tokens_total": result.get("last_agent_tokens_input", 0) + result.get("last_agent_tokens_output", 0),
+                "cost": result.get("last_agent_cost", 0.0),
+                "version": version,
+                "mode": mode
+            }
+        )
+        
+        return result
+        
+    except Exception as e:
+        # Log de erro antes de raise
+        structured_logger.log_error(
+            trace_id=trace_id,
+            agent="structurer",
+            node="structurer_node",
+            error=e,
+            metadata={"mode": mode, "version": version}
+        )
+        raise
 
 
 def _structure_initial_question(state: MultiAgentState, config: dict) -> dict:
@@ -235,6 +306,28 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
         traceback.print_exc()
         # Fallback: métricas zeradas
         metrics = {"tokens_input": 0, "tokens_output": 0, "tokens_total": 0, "cost": 0.0}
+
+    # Log de decisão (estruturação inicial - V1 criada)
+    structured_logger = config.get("structured_logger")
+    trace_id = config.get("trace_id", "unknown")
+    if structured_logger:
+        structured_logger.log_decision(
+            trace_id=trace_id,
+            agent="structurer",
+            node="structurer_node",
+            decision={
+                "version": 1,
+                "structured_question": structured_question[:100],
+                "elements_extracted": list(structurer_output.get("elements", {}).keys())
+            },
+            reasoning=f"Estruturou observação do usuário em questão V1. Contexto: {context[:50]}... Problema: {problem[:50]}...",
+            metadata={
+                "tokens_input": metrics.get("tokens_input", 0),
+                "tokens_output": metrics.get("tokens_output", 0),
+                "tokens_total": metrics.get("tokens_total", 0),
+                "cost": metrics.get("cost", 0.0)
+            }
+        )
 
     logger.info(f"Questão estruturada: {structured_question}")
     logger.info(f"Próximo estágio: validating (vai para Metodologista)")
@@ -382,6 +475,29 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
         traceback.print_exc()
         # Fallback: métricas zeradas
         metrics = {"tokens_input": 0, "tokens_output": 0, "tokens_total": 0, "cost": 0.0}
+
+    # Log de decisão (refinamento - versão refinada criada)
+    structured_logger = config.get("structured_logger")
+    trace_id = config.get("trace_id", "unknown")
+    if structured_logger:
+        structured_logger.log_decision(
+            trace_id=trace_id,
+            agent="structurer",
+            node="structurer_node",
+            decision={
+                "version": current_version,
+                "structured_question": structured_question[:100],
+                "addressed_gaps": addressed_gaps,
+                "gaps_count": len(improvements)
+            },
+            reasoning=f"Refinou questão para V{current_version} endereçando {len(improvements)} gap(s) do Metodologista: {', '.join(addressed_gaps[:3]) if addressed_gaps else 'nenhum gap específico'}...",
+            metadata={
+                "tokens_input": metrics.get("tokens_input", 0),
+                "tokens_output": metrics.get("tokens_output", 0),
+                "tokens_total": metrics.get("tokens_total", 0),
+                "cost": metrics.get("cost", 0.0)
+            }
+        )
 
     logger.info(f"Questão refinada V{current_version}: {structured_question}")
     logger.info(f"Gaps endereçados: {addressed_gaps}")

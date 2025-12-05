@@ -214,12 +214,12 @@ def _extract_summary(agent_name: str, state: MultiAgentState) -> str:
         return "Orquestrador processou"
 
     elif agent_name == "structurer":
-        output = state.get("structurer_output", {})
+        output = (state.get("structurer_output") or {})
         version = output.get("version", "unknown")
         return f"Estruturou questão de pesquisa (V{version})"
 
     elif agent_name == "methodologist":
-        output = state.get("methodologist_output", {})
+        output = (state.get("methodologist_output") or {})
         status = output.get("status", "unknown")
         return f"Decisão metodológica: {status}"
 
@@ -251,7 +251,7 @@ def _extract_reasoning(agent_name: str, state: MultiAgentState) -> str:
 
     elif agent_name == "structurer":
         # Épico 8.1: Estruturador reasoning baseado em modo
-        output = state.get("structurer_output", {})
+        output = (state.get("structurer_output") or {})
 
         # Detectar modo: estruturação inicial ou refinamento
         methodologist_feedback = state.get('methodologist_output')
