@@ -28,7 +28,7 @@
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
 #### Planejados (refinados)
-- **ÉPICO 8**: Validação de Maturidade do Sistema - Automação
+- **ÉPICO 8**: Análise Assistida de Qualidade
 - **ÉPICO 9**: Integração Backend↔Frontend
 
 #### Planejados (não refinados)
@@ -74,64 +74,315 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
 
 ---
 
-## ÉPICO 8: Validação de Maturidade do Sistema - Automação
+## ÉPICO 8: Análise Assistida de Qualidade
 
-**Objetivo:** Automatizar validação de qualidade conversacional com LLM-as-Judge para prevenir regressões futuras.
+**Objetivo:** Facilitar análise humana de qualidade conversacional através de ferramentas que estruturam dados para discussão eficiente com LLM.
 
 **Status:** ⏳ Planejado (refinado)
 
 **Dependências:** Épico 7 (precisa identificar problemas reais primeiro)
 
-**Duração estimada:** 2-3 dias
+**Duração estimada:** 6 dias
 
-**Custo estimado:** ~$0.01-0.02 por execução completa
+**Custo estimado:** ~$0.10-0.20 por execução completa (discussão com Claude)
 
 **Consulte:** `docs/testing/epic8_automation_strategy.md` para estratégia completa
 
-### Funcionalidades:
+### Motivação
 
-#### 8.1 Implementar Infraestrutura LLM-as-Judge
+**Insight do Épico 7:**
+O valor NÃO veio de automação, mas de **discussão contextualizada**:
+- Investigação interativa ("me mostre os logs", "por que isso?")
+- Decisões estratégicas debatidas (baseline opcional?)
+- Planejamento adaptativo (pivotamos de manual → automatizado)
+- **Humano + Claude analisando JUNTOS**
 
-- **Descrição:** Criar infraestrutura base para testes com LLM-as-judge
-- **Critérios de Aceite:**
-  - Deve criar fixture `llm_judge` em `tests/conftest.py` (modelo Haiku, temperature=0)
-  - Deve criar prompts de avaliação em `utils/test_prompts.py`:
-    - Prompt de fluidez conversacional
-    - Prompt de integração entre agentes
-    - Prompt de provocação socrática
-    - Prompt de preservação de contexto
-    - Prompt de qualidade de decisões
-  - Deve criar função `extract_score` em `utils/test_helpers.py` (extrai score 1-5)
-  - Deve adicionar marker `@pytest.mark.llm_judge` em `pytest.ini`
-  - Deve pular testes se `ANTHROPIC_API_KEY` não estiver definida
+**Problema:**
+- Validação manual (Épico 7) foi eficaz mas trabalhosa (~2-3h)
+- Precisamos reduzir tempo de setup
+- MAS: Automação completa perde contexto e qualidade
 
-#### 8.2 Criar Testes Automatizados para Problemas Identificados
+**Solução:**
+- Ferramentas que **estruturam dados** para análise
+- Output formatado para **fácil discussão** com LLM
+- Humano + Claude fazem análise (não script)
+- **Mantém qualidade, reduz trabalho manual**
 
-- **Descrição:** Criar testes automatizados com LLM-as-Judge para problemas identificados no Épico 7
-- **Critérios de Aceite:**
-  - Deve criar testes para cada problema crítico/médio identificado no Épico 7
-  - Cada teste deve validar qualidade (score >= 4) além de estrutura
-  - Testes devem usar LLM-as-Judge para avaliar:
-    - Fluidez conversacional (sem "Posso chamar X?")
-    - Integração natural entre agentes
-    - Provocação socrática genuína (não burocrática)
-    - Preservação de contexto entre transições
-    - Qualidade de decisões (coerentes com contexto)
-  - Deve adicionar testes em arquivos apropriados:
-    - `tests/integration/test_multi_agent_smoke.py` (fluidez, integração)
-    - `tests/integration/test_methodologist_smoke.py` (provocação socrática)
-    - Novos arquivos conforme necessário
+**Resultado Esperado:**
+- Rodar cenário completo: 1 comando
+- Gerar relatório estruturado: automático
+- Colar no Claude e discutir: 30 segundos
+- Identificar causa raiz: minutos (não horas)
+- **60-75% mais rápido que manual, mantém qualidade**
 
-#### 8.3 Documentar Estratégia e Custos
+---
 
-- **Descrição:** Documentar estratégia de testes automatizados e custos estimados
-- **Critérios de Aceite:**
-  - Deve atualizar `docs/testing/strategy.md` com seção sobre LLM-as-Judge
-  - Deve documentar custos estimados (~$0.01-0.02 por execução completa)
-  - Deve documentar estratégia de execução:
-    - Local: `pytest -m llm_judge` (seletivo)
-    - CI: rodar em PRs relevantes (quando implementado)
-  - Deve documentar como adicionar novos testes LLM-as-Judge
+### Funcionalidades (8.1 - 8.5)
+
+#### 8.1 Multi-Turn Executor (PRIORIDADE #1)
+
+**Objetivo:** Rodar cenários completos end-to-end (3-5 turnos).
+
+**Descrição:** 
+Implementar executor que valida fluxos multi-agente completos identificados como incompletos no Épico 7 (Cenários 3, 6, 7). Sistema deve executar conversas turn-by-turn, validar transições entre agentes, e gerar dados estruturados para análise.
+
+**Componentes:**
+- `ConversationScenario`: Define cenários multi-turn com turnos esperados
+- `MultiTurnExecutor`: Executa cenários e coleta resultados
+- `run_scenario.py`: CLI para rodar cenários individuais
+- `run_all_scenarios.py`: CLI para rodar suite completa
+
+**Critérios de Aceite:**
+- Deve implementar `ConversationScenario` em `utils/test_scenarios.py`
+  - Suportar definição de turnos: `[("user", "input"), ("system", "action")]`
+  - Suportar agentes esperados: `["orchestrator", "structurer", "methodologist"]`
+  - Suportar validação de estado final esperado
+- Deve implementar `MultiTurnExecutor` em `scripts/testing/multi_turn_executor.py`
+  - Executar cenários turn-by-turn
+  - Rastrear agentes chamados em cada transição
+  - Preservar estado entre turnos
+  - Coletar métricas (tokens, custo, duração)
+- Deve converter Cenários 3, 6, 7 do Épico 7 para formato multi-turn
+- Deve implementar `run_scenario.py` com CLI:
+  - `--scenario N`: roda cenário específico
+  - Output estruturado no terminal (sem clipboard)
+- Deve implementar `run_all_scenarios.py`:
+  - Roda todos os 10 cenários sequencialmente
+  - `--save`: salva resultados em JSON para comparação
+  - Gera sumário de execução
+- Deve validar que fluxos completos funcionam (não apenas turno 1)
+
+**Tempo estimado:** 2 dias
+
+---
+
+#### 8.2 Report Generator
+
+**Objetivo:** Formatar dados de forma otimizada para análise com LLM.
+
+**Descrição:**
+Implementar formatadores que transformam resultados de execução em relatórios estruturados, concisos e otimizados para discussão com Claude. Diferentes formatadores para diferentes focos de análise (transições, contexto, decisões).
+
+**Componentes:**
+- `format_for_llm_analysis()`: Formata resultados para análise geral
+- `format_transition_analysis()`: Foca em transições entre agentes
+- `format_context_analysis()`: Foca em preservação de contexto
+- `format_decision_analysis()`: Foca em qualidade de decisões
+- `analyze_scenario.py`: CLI que aplica formatadores
+
+**Critérios de Aceite:**
+- Deve implementar formatadores em `utils/report_formatter.py`
+  - `format_for_llm_analysis(result, focus="general")`: formatação base
+  - Suportar focos: "general", "transition", "context", "decision"
+  - Output em markdown, conciso e estruturado
+  - Incluir seções: Contexto, Esperado vs Observado, Logs Relevantes, Problema Detectado, Sugestão de Análise
+- Deve implementar `analyze_scenario.py` com CLI:
+  - `--scenario N`: analisa cenário específico
+  - `--focus [transition|context|decision]`: aplica formatador específico
+  - Output estruturado no terminal
+- Relatórios devem ser < 50 linhas (concisos)
+- Deve incluir "Pergunta sugerida para Claude" ao final
+- Output deve ser fácil de copiar manualmente do terminal
+
+**Tempo estimado:** 1 dia
+
+---
+
+#### 8.3 Comparison Tool
+
+**Objetivo:** Comparar antes/depois de mudanças no prompt para detectar regressões.
+
+**Descrição:**
+Implementar ferramenta que compara resultados de execução antes/depois de mudanças no código/prompt, identifica regressões automaticamente, e gera relatório de impacto estruturado para discussão.
+
+**Componentes:**
+- `compare_results()`: Compara dois arquivos JSON de resultados
+- `detect_regressions()`: Identifica regressões automaticamente
+- `compare_results.py`: CLI para comparações
+
+**Critérios de Aceite:**
+- Deve implementar `compare_results()` em `utils/result_comparer.py`
+  - Receber dois arquivos JSON (before, after)
+  - Identificar cenários que mudaram
+  - Classificar mudanças: CORREÇÃO ✅, REGRESSÃO ❌, SEM MUDANÇA ⚪
+  - Detectar mudanças em métricas (custo, duração, tokens)
+- Deve implementar `detect_regressions()`:
+  - Cenário passou → falhou: REGRESSÃO CRÍTICA 🔴
+  - Score caiu >2 pontos: ATENÇÃO 🟡
+  - Custo aumentou >50%: ATENÇÃO 🟡
+  - Duração aumentou >100%: ATENÇÃO 🟡
+- Deve implementar `compare_results.py` com CLI:
+  - `--before baseline.json`: arquivo de referência
+  - `--after current.json`: arquivo atual
+  - `--summary`: mostra apenas sumário (não detalhes)
+- Output deve incluir:
+  - Resumo de mudanças (X correções, Y regressões, Z sem mudança)
+  - Lista de cenários que precisam atenção
+  - Sugestão: "Copie acima e pergunte ao Claude: 'Qual cenário priorizar?'"
+- Deve salvar diff detalhado em `comparison_report.md` (opcional)
+
+**Tempo estimado:** 1 dia
+
+---
+
+#### 8.4 Interactive Analysis Mode
+
+**Objetivo:** Guiar fluxo de investigação de forma interativa.
+
+**Descrição:**
+Implementar modo interativo que apresenta menu de opções, executa ações conforme escolha do usuário, e gera outputs estruturados para discussão. Facilita exploração e troubleshooting sem precisar lembrar comandos.
+
+**Componentes:**
+- `interactive_analyzer.py`: Script com menu interativo
+- Integração com ferramentas existentes (executor, report, comparison, debug)
+
+**Critérios de Aceite:**
+- Deve implementar `interactive_analyzer.py` em `scripts/testing/`
+- Menu inicial deve listar:
+  - 10 cenários disponíveis com nomes descritivos
+  - Opção para rodar todos os cenários
+  - Opção para comparar com baseline
+  - Opção para sair
+- Após executar cenário, deve oferecer:
+  - Ver relatório formatado
+  - Ver debug logs detalhados
+  - Comparar com baseline
+  - Gerar prompt de correção para Cursor
+  - Analisar outro cenário
+  - Voltar ao menu principal
+- Outputs devem ser printados no terminal (sem clipboard)
+- Deve validar inputs do usuário (números válidos)
+- Deve ter opção "voltar" em cada submenu
+- Deve ser intuitivo (não requer documentação para usar)
+
+**Tempo estimado:** 1 dia
+
+---
+
+#### 8.5 Debug Workflow
+
+**Objetivo:** Facilitar troubleshooting de problemas sutis com logs detalhados.
+
+**Descrição:**
+Implementar workflow de debug que gera logs completos (prompt enviado, resposta bruta, reasoning do LLM, decisões step-by-step) quando problema é identificado. Logs formatados para análise com Claude.
+
+**Componentes:**
+- `generate_debug_report()`: Gera relatório de debug detalhado
+- `debug_scenario.py`: CLI para debug de cenários específicos
+- `compare_prompts.py`: Compara comportamento antes/depois de mudança no prompt (futuro)
+
+**Critérios de Aceite:**
+- Deve implementar `generate_debug_report()` em `utils/debug_reporter.py`
+  - Incluir prompt COMPLETO enviado ao LLM (sem truncar)
+  - Incluir resposta bruta antes de parsing JSON
+  - Incluir reasoning do LLM (campo "reasoning")
+  - Incluir decisões tomadas (next_step, agent_suggestion)
+  - Incluir estado antes/depois de cada transição
+  - Incluir timestamps e duração de cada operação
+- Deve implementar `debug_scenario.py` com CLI:
+  - `--scenario N`: gera debug do cenário específico
+  - `--turn N`: foca em turno específico (opcional)
+  - `--save`: salva em arquivo `logs/debug/cenario_N_TIMESTAMP.md`
+- Debug report deve ser < 100 linhas por turno (conciso mas completo)
+- Deve incluir marcadores visuais:
+  - `[PROMPT ENVIADO]`: início do prompt
+  - `[RESPOSTA LLM]`: resposta bruta
+  - `[REASONING]`: reasoning extraído
+  - `[DECISÃO]`: decisão tomada (next_step)
+  - `[PROBLEMA]`: onde problema foi detectado (se houver)
+- Output deve terminar com:
+  - "Copie acima e pergunte ao Claude: 'Onde o reasoning levou à decisão errada?'"
+- Logs devem ser salvos automaticamente em `logs/debug/` para histórico
+
+**Tempo estimado:** 1 dia
+
+---
+
+### Cronograma Épico 8 (Atualizado)
+
+| Funcionalidade | Duração | Dependências | Prioridade |
+|----------------|---------|--------------|------------|
+| 8.1: Multi-Turn Executor | 2 dias | - | 🔴 CRÍTICA |
+| 8.2: Report Generator | 1 dia | 8.1 | 🔴 CRÍTICA |
+| 8.3: Comparison Tool | 1 dia | 8.1 | 🟡 ALTA |
+| 8.4: Interactive Mode | 1 dia | 8.1, 8.2 | 🟡 ALTA |
+| 8.5: Debug Workflow | 1 dia | 8.1 | 🟡 ALTA |
+| **Total** | **6 dias** | | |
+
+**Mudanças em relação à proposta original:**
+- ↑ Duração total: 2-3 → 6 dias (+3-4 dias)
+- Reordenado: Multi-turn agora é #1 (era #2)
+- Removido: CI/CD (prematuro - postergar)
+- Removido: LLM-as-Judge como única forma de validação
+- Adicionado: Ferramentas de análise assistida
+
+---
+
+### Custo Estimado
+
+**Uso das Ferramentas (Sem Custo LLM):**
+- Rodar cenário: $0 (apenas execução local)
+- Gerar relatório: $0 (formatação de dados)
+- Debug logs: $0 (extração de logs)
+- Comparação: $0 (diff de arquivos JSON)
+
+**Discussão com Claude (Custo LLM):**
+- Por problema investigado: ~$0.01-0.02 (5-10 mensagens)
+- Suite completa (10 cenários): ~$0.10-0.20 (se todos tiverem problemas)
+- Execução semanal: ~$0.10-0.15 (desenvolvimento típico)
+
+**Comparado com Épico 7:**
+- Épico 7 manual: ~2-3h de trabalho, $0.13
+- Épico 8 assistido: ~30-45min de trabalho, $0.10-0.20
+- **Economia:** 60-75% do tempo, custo similar
+
+---
+
+### Aprendizados do Épico 7 que Moldaram este Épico
+
+#### 1. Discussão Contextualizada Gera Mais Valor
+
+**O que funcionou:**
+- Investigação interativa com Claude
+- Análise de logs detalhados
+- Decisões estratégicas debatidas
+
+**O que NÃO teria funcionado:**
+- LLM-as-Judge: "Score: 4/5"
+- Automação superficial sem contexto
+
+#### 2. Multi-Turn É Crítico
+
+**Problema:** Cenários 3 e 6 ficaram incompletos (script single-turn)
+**Solução:** Multi-turn executor é funcionalidade #1
+
+#### 3. Debug Detalhado Foi Essencial
+
+**Problema:** `debug_scenario_2.py` revelou causa raiz
+**Solução:** Debug mode embutido no framework
+
+#### 4. Humano Toma Decisões Estratégicas
+
+**Exemplos:** Baseline opcional? Cenário mal definido?
+**Solução:** LLM assiste, humano decide
+
+#### 5. CI/CD É Prematuro
+
+**Decisão:** Postergar para Épico 10+ (se necessário)
+
+---
+
+### Documentação
+
+Após implementação, deve atualizar:
+- `docs/testing/epic8_automation_strategy.md` (já reformulado)
+- `docs/testing/strategy.md` (adicionar seção sobre análise assistida)
+- `README.md` (adicionar seção sobre ferramentas de análise)
+
+Cada ferramenta deve ter:
+- Exemplos de uso em comentários do código
+- Output de exemplo em docstrings
+- Seção no README com comandos principais
 
 ---
 
