@@ -181,11 +181,13 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - **Checklist:** `agents/checklist/progress_tracker.py` - Rastreamento adaptativo por tipo de artigo
 - **Banco de dados:** `data/data.db` - Separado de checkpoints.db (LangGraph)
 
-**Status de integração (Épico 9):**
+**Status de integração (Épico 9):** ✅ Concluído
 - ✅ Schema implementado (`CognitiveModel`)
 - ✅ SnapshotManager implementado (avalia maturidade via LLM)
-- ⏳ **Épico 9.1:** Orquestrador atualizar cognitive_model no state a cada turno
-- ⏳ **Épico 9.3:** Integrar SnapshotManager no fluxo conversacional (persistência automática)
+- ✅ **Épico 9.1:** Orquestrador atualizar cognitive_model no state a cada turno
+- ✅ **Épico 9.2:** Passar active_idea_id via config do LangGraph
+- ✅ **Épico 9.3:** Integrar SnapshotManager no fluxo conversacional (persistência automática)
+- ✅ **Épico 9.4:** Indicador de solidez no painel Contexto (`calculate_solidez()`)
 
 ## Stack Técnico
 
