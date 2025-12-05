@@ -69,6 +69,8 @@ Este documento lista todos os comportamentos testados pelo sistema.
 |---------|------------------------|
 | `test_multi_agent_smoke.py` | Fluxo completo vague→structured→validated, preservação de contexto |
 | `test_methodologist_smoke.py` | Metodologista com API real |
+| `test_orchestrator_integration.py` | Classificação real de inputs (vago, semi-formado, completo, ambíguo), preservação de contexto |
+| `test_structurer_integration.py` | Estruturação real de observações vagas, extração de elementos, comportamento colaborativo |
 | `test_conversation_switching.py` | Alternância entre conversas |
 | `test_real_api_tokens.py` | Tokens reais da API |
 | `test_token_extraction.py` | Extração de tokens |

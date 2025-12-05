@@ -35,18 +35,6 @@ class TestMethodologistState:
         assert state["max_iterations"] == custom_max
         assert state["iterations"] == 0
 
-    def test_initial_state_has_correct_types(self):
-        """Deve criar estado com tipos corretos."""
-        state = create_initial_state("Hipótese teste")
-
-        # Validar tipos
-        assert isinstance(state["hypothesis"], str)
-        assert isinstance(state["messages"], list)
-        assert isinstance(state["clarifications"], dict)
-        assert isinstance(state["status"], str)
-        assert isinstance(state["iterations"], int)
-        assert isinstance(state["max_iterations"], int)
-
     def test_initial_state_status_is_pending(self):
         """Deve sempre iniciar com status 'pending'."""
         state = create_initial_state("Qualquer hipótese")
@@ -58,22 +46,3 @@ class TestMethodologistState:
         state = create_initial_state("Qualquer hipótese")
 
         assert state["iterations"] == 0
-
-    def test_state_structure_matches_typeddict(self):
-        """Deve criar estado com todos os campos do TypedDict."""
-        state = create_initial_state("Teste")
-
-        # Validar que todos os campos obrigatórios estão presentes
-        # Nota: justification e needs_clarification adicionados na Task 2.4
-        required_fields = {
-            "hypothesis",
-            "messages",
-            "clarifications",
-            "status",
-            "iterations",
-            "max_iterations",
-            "justification",
-            "needs_clarification"
-        }
-
-        assert set(state.keys()) == required_fields

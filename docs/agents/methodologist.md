@@ -293,7 +293,7 @@ Orquestrador: "Podemos usar métricas históricas da equipe ou benchmark
 ## Testes
 
 ### Testes Unitários
-- **Estado:** `tests/unit/test_methodologist_state.py` (6/6)
+- **Estado:** `tests/unit/test_methodologist_state.py` (4/4)
 - **Tool ask_user:** `tests/unit/test_ask_user_tool.py` (10/10)
 - **Nós do grafo:** `tests/unit/test_graph_nodes.py` (16/16)
 

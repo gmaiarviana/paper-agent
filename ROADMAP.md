@@ -87,24 +87,26 @@
 
 ### Funcionalidades:
 
-#### 6.1 Remover Testes Burocráticos
+#### 6.1 Remover Testes Burocráticos ✅
 
 - **Descrição:** Remover testes que testam bibliotecas externas (Pydantic, YAML, etc.) sem lógica própria
-- **Critérios de Aceite:**
-  - Deve remover testes que validam apenas estrutura de dados (sem lógica)
-  - Deve remover testes onde mock retorna exatamente o esperado
-  - Deve remover testes com asserts fracos (`is not None`, sempre passa)
-  - Deve documentar o que foi removido e por quê
+- **Status:** ✅ Concluído
+- **Implementação:**
+  - ✅ Removidos testes que validavam apenas estrutura (test_state_has_required_fields, test_state_annotations_exist, etc.)
+  - ✅ Removidos testes que validavam apenas tipos Python (test_initial_state_has_correct_types, test_next_step_literal_type, etc.)
+  - ✅ Removidos testes que validavam apenas presença de campos YAML (test_all_configs_valid)
+  - ✅ Documentação atualizada (methodologist.md)
 
-#### 6.2 Adicionar Testes de Integração Reais
+#### 6.2 Adicionar Testes de Integração Reais ✅
 
 - **Descrição:** Adicionar testes de integração com API real onde há mocks superficiais
-- **Critérios de Aceite:**
-  - Deve criar `tests/integration/test_orchestrator_integration.py` com testes de classificação real
-  - Deve criar `tests/integration/test_structurer_integration.py` com testes de estruturação real
-  - Testes devem usar API real (não mocks)
-  - Testes devem validar comportamento real (não apenas estrutura)
-  - Manter testes unitários existentes (não remover)
+- **Status:** ✅ Concluído
+- **Implementação:**
+  - ✅ Criado `tests/integration/test_orchestrator_integration.py` com 5 testes de classificação real
+  - ✅ Criado `tests/integration/test_structurer_integration.py` com 4 testes de estruturação real
+  - ✅ Testes usam API real (não mocks)
+  - ✅ Testes validam comportamento real (não apenas estrutura)
+  - ✅ Testes unitários existentes mantidos (31 testes passando)
 
 #### 6.3 Atualizar Documentação de Testes
 

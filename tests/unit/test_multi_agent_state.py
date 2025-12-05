@@ -16,36 +16,6 @@ from agents.orchestrator.state import MultiAgentState, create_initial_multi_agen
 class TestMultiAgentStateStructure:
     """Testes de estrutura e validação do MultiAgentState."""
 
-    def test_state_has_required_fields(self):
-        """Valida que MultiAgentState possui todos os campos obrigatórios."""
-        # Criar estado inicial
-        state = create_initial_multi_agent_state(
-            user_input="Teste de input",
-            session_id="test-session-123"
-        )
-
-        # Campos compartilhados
-        assert "user_input" in state
-        assert "session_id" in state
-        assert "conversation_history" in state
-        assert "current_stage" in state
-        assert "hypothesis_versions" in state
-
-        # Campos do Orquestrador (Épico 7 - Conversacional)
-        assert "orchestrator_analysis" in state
-        assert "next_step" in state
-        assert "agent_suggestion" in state
-
-        # Campos de outros agentes
-        assert "structurer_output" in state
-        assert "methodologist_output" in state
-        assert "messages" in state
-
-        # Campos de métricas (Épico 8.3)
-        assert "last_agent_tokens_input" in state
-        assert "last_agent_tokens_output" in state
-        assert "last_agent_cost" in state
-
     def test_orchestrator_classification_removed(self):
         """Valida que orchestrator_classification foi removido (obsoleto no POC)."""
         state = create_initial_multi_agent_state(
@@ -218,44 +188,3 @@ class TestMultiAgentStateMetrics:
         assert state["last_agent_cost"] == 0.0
 
 
-class TestMultiAgentStateTyping:
-    """Testes de typing e anotações do MultiAgentState."""
-
-    def test_state_annotations_exist(self):
-        """Valida que MultiAgentState tem anotações de tipo."""
-        annotations = MultiAgentState.__annotations__
-
-        # Campos do Orquestrador (Épico 7)
-        assert "orchestrator_analysis" in annotations
-        assert "next_step" in annotations
-        assert "agent_suggestion" in annotations
-
-        # Campos compartilhados
-        assert "user_input" in annotations
-        assert "session_id" in annotations
-        assert "conversation_history" in annotations
-        assert "current_stage" in annotations
-
-        # Campos de métricas (Épico 8.3)
-        assert "last_agent_tokens_input" in annotations
-        assert "last_agent_tokens_output" in annotations
-        assert "last_agent_cost" in annotations
-
-    def test_next_step_literal_type(self):
-        """Valida que next_step usa Literal com valores corretos."""
-        annotations = MultiAgentState.__annotations__
-
-        # Obter anotação de next_step
-        next_step_annotation = annotations["next_step"]
-
-        # Verificar que é Optional[Literal[...]]
-        assert "Literal" in str(next_step_annotation)
-
-    def test_current_stage_literal_type(self):
-        """Valida que current_stage usa Literal."""
-        annotations = MultiAgentState.__annotations__
-
-        current_stage_annotation = annotations["current_stage"]
-
-        # Verificar que é Literal com valores esperados
-        assert "Literal" in str(current_stage_annotation)

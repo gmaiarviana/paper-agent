@@ -33,21 +33,6 @@ class TestLoadAgentConfig:
         assert "não encontrado" in str(exc_info.value)
 
 
-class TestLoadAllAgentConfigs:
-    """Testes para load_all_agent_configs()."""
-
-    def test_all_configs_valid(self):
-        """Todas as configurações devem ter campos obrigatórios (validação de schema)."""
-        configs = load_all_agent_configs()
-
-        for agent_name, config in configs.items():
-            assert "prompt" in config, f"{agent_name} faltando 'prompt'"
-            assert "tags" in config, f"{agent_name} faltando 'tags'"
-            assert "context_limits" in config, f"{agent_name} faltando 'context_limits'"
-            assert "model" in config, f"{agent_name} faltando 'model'"
-            assert "metadata" in config, f"{agent_name} faltando 'metadata'"
-
-
 class TestContextLimits:
     """Testes para validação de limites de contexto (lógica de negócio)."""
 
