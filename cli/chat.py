@@ -132,7 +132,8 @@ def run_cli(verbose=False):
         "configurable": {
             "thread_id": thread_id,
             "session_id": session_id,
-            "memory_manager": memory_manager
+            "memory_manager": memory_manager,
+            "active_idea_id": None  # CLI não usa ideias persistidas (Épico 9.2)
         }
     }
 

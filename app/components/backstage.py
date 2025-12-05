@@ -77,9 +77,11 @@ def render_context_section(session_id: str) -> None:
         - Expandido por padrão
         - Contém: ideia ativa (título, status, metadados)
         - Contém: custo acumulado da conversa (4.3)
+        - Contém: indicador de solidez (Épico 9.4)
     """
     with st.expander("💡 Contexto", expanded=True):
         _render_idea_status(session_id)
+        _render_session_solidez(session_id)  # Épico 9.4: solidez da sessão atual
         _render_accumulated_cost(session_id)
 
 
@@ -372,6 +374,66 @@ def _infer_status_from_argument(argument: Dict[str, Any]) -> str:
     return "exploring"
 
 
+def _render_session_solidez(session_id: str) -> None:
+    """
+    Renderiza indicador de solidez da sessão atual (Épico 9.4).
+
+    Mostra a solidez do cognitive_model da última resposta do orchestrator,
+    mesmo quando não há ideia persistida. Isso permite feedback visual
+    durante toda a conversa.
+
+    Args:
+        session_id: ID da sessão ativa
+
+    Comportamento:
+        - Se há active_idea_id com focal_arg: solidez já é mostrada em _render_idea_status
+        - Se não há: mostra solidez do cognitive_model da sessão (st.session_state)
+        - Barra de progresso 0-100%
+    """
+    # Se já tem ideia ativa com argumento, a solidez é mostrada em _render_idea_status
+    active_idea_id = st.session_state.get("active_idea_id")
+    if active_idea_id:
+        try:
+            db = get_database_manager()
+            idea = db.get_idea(active_idea_id)
+            if idea and idea.get("current_argument_id"):
+                # Já tem argumento focal - solidez mostrada em _render_idea_status
+                return
+        except Exception:
+            pass
+
+    # Buscar cognitive_model da sessão atual
+    cognitive_model_dict = st.session_state.get("cognitive_model")
+
+    if not cognitive_model_dict:
+        # Sem cognitive_model ainda - nada a mostrar
+        return
+
+    try:
+        from agents.models.cognitive_model import CognitiveModel
+
+        # Reconstruir modelo cognitivo da sessão
+        cognitive_model = CognitiveModel(
+            claim=cognitive_model_dict.get("claim", ""),
+            premises=cognitive_model_dict.get("premises", []),
+            assumptions=cognitive_model_dict.get("assumptions", []),
+            open_questions=cognitive_model_dict.get("open_questions", []),
+            contradictions=[],  # Não persistido
+            solid_grounds=[],   # Não persistido
+            context=cognitive_model_dict.get("context", {})
+        )
+
+        solidez = cognitive_model.calculate_solidez()
+
+        # Renderizar barra de progresso
+        st.progress(
+            value=solidez / 100.0,
+            text=f"🎯 Solidez: {solidez:.0f}%"
+        )
+    except Exception as e:
+        logger.debug(f"Não foi possível calcular solidez da sessão: {e}")
+
+
 def _render_idea_status(session_id: str) -> None:
     """
     Renderiza status da ideia ativa no painel Bastidores (Épico 12.1 + melhorias).
@@ -430,6 +492,32 @@ def _render_idea_status(session_id: str) -> None:
         # Título com badge
         st.markdown(f"**{idea['title']}**")
         st.caption(status_badge)
+
+        # Indicador de Solidez (Épico 9.4)
+        if focal_arg:
+            from agents.models.cognitive_model import CognitiveModel
+
+            # Reconstruir modelo cognitivo do argumento persistido
+            try:
+                cognitive_model = CognitiveModel(
+                    claim=focal_arg.get("claim", ""),
+                    premises=focal_arg.get("premises", []),
+                    assumptions=focal_arg.get("assumptions", []),
+                    open_questions=focal_arg.get("open_questions", []),
+                    contradictions=[],  # Contradictions não persistidas diretamente
+                    solid_grounds=[],   # Solid grounds não persistidos diretamente
+                    context=focal_arg.get("context", {})
+                )
+
+                solidez = cognitive_model.calculate_solidez()
+
+                # Renderizar barra de progresso
+                st.progress(
+                    value=solidez / 100.0,
+                    text=f"🎯 Solidez: {solidez:.0f}%"
+                )
+            except Exception as e:
+                logger.debug(f"Não foi possível calcular solidez: {e}")
 
         # Metadados
         arguments = db.get_arguments_by_idea(active_idea_id)
