@@ -11,6 +11,7 @@ Data: 05/12/2025
 
 import logging
 import json
+import time
 from typing import Optional, Dict, Any
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
@@ -25,6 +26,7 @@ from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
 from agents.models.cognitive_model import CognitiveModel
 from agents.persistence import create_snapshot_if_mature
+from utils.structured_logger import StructuredLogger
 
 logger = logging.getLogger(__name__)
 
@@ -347,6 +349,23 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
     logger.info("=== NÓ ORCHESTRATOR SOCRÁTICO: Iniciando análise contextual (Épico 10) ===")
     logger.info(f"Input do usuário: {state['user_input']}")
 
+    # Extrair trace_id do config para logging estruturado
+    trace_id = "unknown"
+    if config:
+        trace_id = config.get("configurable", {}).get("thread_id", "unknown")
+    
+    # Inicializar logger estruturado
+    structured_logger = StructuredLogger()
+    
+    # Log de início
+    start_time = time.time()
+    structured_logger.log_agent_start(
+        trace_id=trace_id,
+        agent="orchestrator",
+        node="orchestrator_node",
+        metadata={"messages_count": len(state.get("messages", []))}
+    )
+
     # Verificar se já existe argumento focal anterior (para detectar mudança de direção)
     previous_focal = state.get("focal_argument")
     if previous_focal:
@@ -392,11 +411,22 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         model_name = "claude-3-5-haiku-20241022"
         logger.warning(f"Config YAML não disponível. Usando fallback: {model_name}")
 
-    llm = ChatAnthropic(model=model_name, temperature=0)
-    messages = [HumanMessage(content=conversational_prompt)]
-    response = invoke_with_retry(llm=llm, messages=messages, agent_name="orchestrator")
+    try:
+        llm = ChatAnthropic(model=model_name, temperature=0)
+        messages = [HumanMessage(content=conversational_prompt)]
+        response = invoke_with_retry(llm=llm, messages=messages, agent_name="orchestrator")
 
-    logger.info(f"Resposta do LLM (primeiros 200 chars): {response.content[:200]}...")
+        logger.info(f"Resposta do LLM (primeiros 200 chars): {response.content[:200]}...")
+    except Exception as e:
+        # Log de erro na chamada do LLM
+        structured_logger.log_error(
+            trace_id=trace_id,
+            agent="orchestrator",
+            node="orchestrator_node",
+            error=e,
+            metadata={"model_name": model_name}
+        )
+        raise
 
     # Registrar execução no MemoryManager (Épico 6.2)
     if config:
@@ -444,6 +474,30 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         agent_suggestion = orchestrator_response.get("agent_suggestion", None)
         reflection_prompt = orchestrator_response.get("reflection_prompt", None)
         stage_suggestion = orchestrator_response.get("stage_suggestion", None)
+        
+        # Log de decisão após receber resposta do LLM
+        # Extrair métricas da resposta (se disponível)
+        decision_metadata = {}
+        if hasattr(response, 'response_metadata') and response.response_metadata:
+            usage = response.response_metadata.get("usage_metadata", {})
+            decision_metadata = {
+                "tokens_input": usage.get("input_tokens", 0),
+                "tokens_output": usage.get("output_tokens", 0),
+                "tokens_total": usage.get("input_tokens", 0) + usage.get("output_tokens", 0)
+            }
+        
+        structured_logger.log_decision(
+            trace_id=trace_id,
+            agent="orchestrator",
+            node="orchestrator_node",
+            decision={
+                "next_step": next_step,
+                "agent_suggestion": agent_suggestion,
+                "focal_argument_intent": focal_argument.get("intent") if focal_argument else None
+            },
+            reasoning=reasoning,
+            metadata=decision_metadata
+        )
 
         # Validar e processar cognitive_model (Épico 9.1 - OBRIGATÓRIO)
         cognitive_model_dict = _validate_cognitive_model(cognitive_model_raw, state)
@@ -508,6 +562,16 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
     except json.JSONDecodeError as e:
         logger.error(f"Falha ao parsear JSON do orquestrador: {e}")
         logger.error(f"Resposta recebida: {response.content[:300]}...")
+        
+        # Log de erro
+        structured_logger.log_error(
+            trace_id=trace_id,
+            agent="orchestrator",
+            node="orchestrator_node",
+            error=e,
+            metadata={"response_preview": response.content[:200] if hasattr(response, 'content') else "N/A"}
+        )
+        
         # Fallback seguro
         reasoning = "Erro ao processar resposta do orquestrador"
         # BUGFIX: Preservar focal_argument anterior mesmo em caso de erro
@@ -541,6 +605,23 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         traceback.print_exc()
         # Fallback: métricas zeradas
         metrics = {"tokens_input": 0, "tokens_output": 0, "tokens_total": 0, "cost": 0.0}
+    
+    # Calcular duração
+    duration_ms = (time.time() - start_time) * 1000
+    
+    # Log de conclusão
+    structured_logger.log_agent_complete(
+        trace_id=trace_id,
+        agent="orchestrator",
+        node="orchestrator_node",
+        metadata={
+            "duration_ms": duration_ms,
+            "tokens_input": metrics.get("tokens_input", 0),
+            "tokens_output": metrics.get("tokens_output", 0),
+            "tokens_total": metrics.get("tokens_total", 0),
+            "cost": metrics.get("cost", 0.0)
+        }
+    )
 
     logger.info("=== NÓ ORCHESTRATOR SOCRÁTICO: Finalizado ===\n")
 
