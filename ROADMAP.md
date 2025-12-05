@@ -19,7 +19,7 @@
 - **ÉPICO 5**: UX Polish - Custos exibidos em reais (BRL) com formato brasileiro
 - **ÉPICO 6**: Limpeza de Testes - Suite de testes limpa e focada com testes de integração reais
 - **ÉPICO 7**: Validação de Maturidade do Sistema - Validação manual com 10 cenários críticos executados
-- **ÉPICO 8**: Análise Assistida de Qualidade - Ferramentas para execução multi-turn, relatórios estruturados e sistema de observabilidade completo (8.1, 8.2 e 8.5 implementados)
+- **ÉPICO 8**: Análise Assistida de Qualidade - Ferramentas para execução multi-turn, relatórios estruturados, sistema de observabilidade completo e migração da estrutura de testes (226 unit tests, 11 smoke tests, estrutura modular por categoria)
 - **ÉPICO 9**: Integração Backend↔Frontend - Persistência silenciosa e feedback visual de progresso completos
 
 ### 🟡 Épicos Em Andamento
@@ -48,7 +48,7 @@
 
 ## ✅ ÉPICO 8: Análise Assistida de Qualidade
 
-Ferramentas para execução multi-turn, relatórios estruturados e sistema de observabilidade completo implementados (8.1, 8.2 e 8.5). Logging estruturado (JSONL), debug reports e session replay com todos os nós principais instrumentados.
+Ferramentas para execução multi-turn, relatórios estruturados, sistema de observabilidade completo e migração da estrutura de testes. Implementado: Multi-Turn Executor (8.1), Debug Mode (8.2), logging estruturado (JSONL), debug reports, session replay e reorganização completa dos testes em estrutura modular (unit/smoke/behavior/e2e). Resultado: 226 unit tests e 11 smoke tests passando, 0 falhas.
 
 ---
 
