@@ -30,13 +30,14 @@
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
 #### Planejados (refinados)
-- _Nenhum épico refinado planejado no momento_
+- **ÉPICO 10**: Observador - Mente Analítica (POC)
 
 #### Planejados (não refinados)
-- **ÉPICO 10**: Conceitos (não refinado)
 - **ÉPICO 11**: Alinhamento de Ontologia (não refinado)
-- **ÉPICO 12**: Pesquisador (não refinado)
-- **ÉPICO 13**: Escritor (não refinado)
+- **ÉPICO 12**: Observador Integrado ao Fluxo (não refinado)
+- **ÉPICO 13**: Catálogo de Conceitos - Interface Web (não refinado)
+- **ÉPICO 14**: Pesquisador (não refinado)
+- **ÉPICO 15**: Escritor (não refinado)
 
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
@@ -77,86 +78,96 @@ Ferramentas para execução multi-turn e relatórios estruturados implementadas.
 
 ---
 
-## ÉPICO 10: Conceitos
+## ÉPICO 10: Observador - Mente Analítica (POC)
 
-**Objetivo:** Criar entidade Concept com vetores semânticos para busca por similaridade ("produtividade" encontra "eficiência").
+**Objetivo:** Sistema monitora conversa e cataloga conceitos automaticamente. Foundation para inteligência semântica.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ✅ Refinado (pronto para implementação)
 
-> **📖 Filosofia:** Conceitos são essências globais (biblioteca única). Ideias referenciam conceitos, não os possuem. Ver `docs/architecture/ontology.md`.
+> **📖 Filosofia:** Observador trabalha silenciosamente em paralelo ao Orquestrador, atualizando CognitiveModel e extraindo conceitos sem interferir no fluxo conversacional.
 
 **Dependências:**
-- Épico 9
+- Épico 9 (Integração Backend↔Frontend)
 
 **Consulte:**
+- `docs/agents/observer.md` - Documentação completa do Observador
+- `docs/architecture/observer_architecture.md` - Arquitetura técnica
 - `docs/architecture/concept_model.md` - Schema técnico de Concept
-- `docs/architecture/tech_stack.md` - ChromaDB, embeddings, sentence-transformers
-- `docs/architecture/ontology.md` - Filosofia: Conceitos como essências globais
+- `docs/architecture/ontology.md` - CognitiveModel e Conceitos
 
 ### Funcionalidades:
 
-#### 10.1 Setup ChromaDB Local [POC]
+#### 10.1 Mitose do Orquestrador
 
-- **Descrição:** Configurar ChromaDB para armazenar vetores semânticos de conceitos (gratuito, local).
+- **Descrição:** Separar responsabilidades de facilitar conversa (Orquestrador) de observar raciocínio (Observador).
 - **Critérios de Aceite:**
-  - Deve instalar dependências: `chromadb`, `sentence-transformers`
-  - Deve criar cliente persistente: `chromadb.PersistentClient(path="./data/chroma")`
+  - Deve criar novo agente: `Observador` em `agents/observer/`
+  - Orquestrador mantém: facilitar conversa, negociar, decidir fluxo
+  - Observador recebe: atualizar CognitiveModel, extrair conceitos, calcular métricas
+  - Deve definir interface de consulta: `ObservadorAPI` em `agents/observer/api.py`
+  - Métodos: `what_do_you_see()`, `get_current_state()`, `has_contradiction()`, `get_solidez()`
+  - Consultas são não-determinísticas (Orquestrador consulta quando incerto)
+
+#### 10.2 Observador - CognitiveModel Básico
+
+- **Descrição:** Observador processa TODOS os turnos e atualiza CognitiveModel completo.
+- **Critérios de Aceite:**
+  - Deve processar cada turno automaticamente (não depende de snapshots)
+  - Deve extrair: claims, fundamentos, contradições, conceitos, open_questions
+  - Deve atualizar: `CognitiveModel` em memória (ainda não persistido)
+  - Deve calcular métricas: solidez (0-1), completude (0-1)
+  - Deve publicar eventos: `CognitiveModelUpdatedEvent` para Dashboard
+  - **Não** deve interferir no fluxo conversacional (silencioso)
+
+#### 10.3 Setup ChromaDB + Schema SQLite
+
+- **Descrição:** Configurar ChromaDB para vetores semânticos e SQLite para metadados estruturados.
+- **Critérios de Aceite:**
+  - Deve instalar: `chromadb`, `sentence-transformers`
+  - Deve criar cliente: `chromadb.PersistentClient(path="./data/chroma")`
   - Deve criar collection: `concepts` (metadata: label, essence, variations)
-  - Deve usar modelo: `all-MiniLM-L6-v2` (384 dim, 80MB download)
-
-#### 10.2 Schema SQLite de Concept [POC]
-
-- **Descrição:** Criar tabelas `concepts` e `idea_concepts` para metadados estruturados e relacionamento N:N.
-- **Critérios de Aceite:**
-  - Deve criar tabela `concepts`: id, label, essence, variations JSON, chroma_id
-  - Deve criar tabela `idea_concepts`: idea_id, concept_id (N:N, PK composta)
-  - Campo `chroma_id` deve referenciar registro no ChromaDB
+  - Deve usar modelo: `all-MiniLM-L6-v2` (384 dim, 80MB)
+  - **SQLite:**
+    - Tabela `concepts`: id, label, essence, variations JSON, chroma_id
+    - Tabela `concept_variations`: concept_id, variation
+    - Tabela `idea_concepts`: idea_id, concept_id (N:N)
   - Deve criar índices: ON label, ON idea_id, ON concept_id
-  - Conceitos são globais (biblioteca única), ideias referenciam via `idea_concepts`
 
-#### 10.3 Pipeline de Detecção de Conceitos [POC]
+#### 10.4 Pipeline de Detecção de Conceitos
 
-- **Descrição:** LLM extrai conceitos-chave quando argumento amadurece (ao criar snapshot de Idea) e salva em ChromaDB + SQLite.
+- **Descrição:** LLM extrai conceitos a cada turno e salva em ChromaDB + SQLite.
 - **Critérios de Aceite:**
-  - Deve disparar detecção ao criar snapshot de Idea (quando argumento amadurece)
-  - Deve detectar conceitos via LLM (prompt: "Extrair conceitos-chave desta ideia/argumento")
-  - Deve gerar embedding via sentence-transformers
-  - Deve salvar no ChromaDB (vetor) + SQLite (metadata)
-  - Deve criar registro em `idea_concepts` (linking N:N)
-  - **Não** deve executar detecção a cada mensagem (apenas no snapshot)
+  - Deve extrair conceitos via LLM (prompt: "Extrair conceitos-chave deste turno")
+  - Deve gerar embedding via sentence-transformers (all-MiniLM-L6-v2)
+  - Deve salvar no ChromaDB (vetor) + SQLite (metadados)
+  - Deve buscar similares (threshold 0.80 = mesmo conceito)
+  - **Deduplicação:**
+    - Similaridade > 0.80: adiciona como variation do conceito existente
+    - Similaridade < 0.80: cria novo conceito
+  - Deve criar registro em `idea_concepts` (link N:N) quando snapshot é criado
+  - **Não** deve executar a cada mensagem (apenas quando processando turno)
 
-#### 10.4 Busca Semântica [POC]
+#### 10.5 Busca Semântica Básica
 
-- **Descrição:** Buscar conceitos similares via embeddings (threshold > 0.80 = mesmo conceito).
+- **Descrição:** Buscar conceitos similares via embeddings.
 - **Critérios de Aceite:**
   - Deve implementar: `find_similar_concepts(query: str, top_k: int) -> list[Concept]`
   - Deve calcular similaridade cosseno entre embeddings
-  - Deve usar threshold 0.80 para deduplicação ("produtividade" = "eficiência")
-  - Deve retornar lista ordenada por similaridade
+  - Deve usar threshold 0.80 para deduplicação
+  - Deve retornar lista ordenada por similaridade (descendente)
+  - Deve incluir metadados: label, essence, variations, similarity_score
 
-#### 10.5 Variations Automáticas [Protótipo]
+#### 10.6 Testes POC
 
-- **Descrição:** Sistema detecta variações linguísticas e adiciona ao Concept existente (colaboração = cooperação) com thresholds diferenciados.
+- **Descrição:** Testes unitários para validar Observador isolado.
 - **Critérios de Aceite:**
-  - Deve detectar variações via busca semântica durante detecção de conceitos
-  - **Threshold > 0.90:** adicionar variation automaticamente ao Concept existente
-  - **Threshold 0.80-0.90:** perguntar ao usuário: "São o mesmo conceito?" (colaboração = cooperação?)
-  - Deve adicionar variation ao Concept existente se confirmado
-  - Deve criar novo Concept se usuário rejeitar ou similaridade < 0.80
-
-#### 10.6 Mostrar Conceitos na Interface [Protótipo]
-
-- **Descrição:** Exibir conceitos detectados em dois níveis: preview discreto na página da ideia + exploração completa no Catálogo.
-- **Critérios de Aceite:**
-  - **Preview na página da ideia** (`/pensamentos/{idea_id}`):
-    - Deve mostrar texto discreto: "Usa 3 conceitos: [Cooperação] [Ficção] [Linguagem]"
-    - Tags clicáveis → redireciona para `/catalogo?concept={concept_id}`
-  - **Exploração completa no Catálogo** (`/catalogo`):
-    - Deve implementar busca por nome de conceito (LIKE query)
-    - Deve implementar filtros: por ideias relacionadas, por variations
-    - Deve mostrar lista de ideias que usam o conceito
-    - Deve exibir variations como tags secundárias
-    - Deve permitir navegação: conceito → ideias relacionadas → detalhes da ideia
+  - Deve criar mocks do Observador (não chamadas LLM reais)
+  - Deve testar extração de conceitos com inputs fixos
+  - Deve validar schema SQLite (criar tabelas, índices)
+  - Deve testar busca semântica com vetores fixos (não embeddings reais)
+  - Deve validar deduplicação (threshold 0.80)
+  - **Não** deve integrar ao grafo ainda (teste isolado)
+  - **Não** deve usar API real (mocks apenas)
 
 ---
 
@@ -177,25 +188,119 @@ Ferramentas para execução multi-turn e relatórios estruturados implementadas.
 
 ---
 
-## ÉPICO 12: Pesquisador
+## ÉPICO 12: Observador Integrado ao Fluxo
+
+**Objetivo:** Orquestrador consulta Observador para decisões contextuais. Conversas mais inteligentes.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- Épicos 10-11
+
+**Consulte:**
+- `docs/agents/observer.md` - Comunicação Observador ↔ Orquestrador
+- `docs/architecture/observer_architecture.md` - Integração com grafo
+
+### Funcionalidades Planejadas:
+
+#### 12.1 Integrar Observador ao Grafo (Paralelo)
+
+- Observador roda em paralelo a cada turno
+- Investigar: LangGraph suporta paralelismo? Se não, usar callback
+- Não bloqueia fluxo principal
+
+#### 12.2 Interface de Consulta Não-Determinística
+
+- Orquestrador consulta quando incerto
+- Gatilhos naturais: mudança direção, contradição, completude
+- Observador responde com insights, não comandos
+
+#### 12.3 Detecção de Variations Automática
+
+- Threshold > 0.90: adiciona variation automaticamente
+- Threshold 0.80-0.90: pergunta ao usuário
+- Threshold < 0.80: conceito novo
+
+#### 12.4 Visualização nos Bastidores
+
+- Timeline (colapsável): ações de todos agentes
+- Painel Observador (colapsável): CognitiveModel em tempo real
+- Ambos colapsados por padrão
+- Mostra Observador na timeline apenas quando relevante
+
+#### 12.5 Testes de Integração
+
+- Cenários multi-turn com Observador ativo
+- Validar que não interfere no fluxo
+- LLM-as-Judge para qualidade de insights
+
+---
+
+## ÉPICO 13: Catálogo de Conceitos - Interface Web
+
+**Objetivo:** Usuário explora biblioteca de conceitos via web. Transparência sobre o que sistema aprendeu.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- Épico 12
+
+**Consulte:**
+- `docs/products/paper_agent.md` - Interface web conversacional
+- `docs/interface/web/components.md` - Componentes Streamlit
+
+### Funcionalidades Planejadas:
+
+#### 13.1 Página Catálogo (`/catalogo`)
+
+- Lista todos conceitos da biblioteca
+- Busca por nome (fuzzy search)
+- Filtros: por ideia, por frequência, por data
+- Visualização: cards com conceito + variations + ideias relacionadas
+
+#### 13.2 Preview na Página da Ideia
+
+- Mostra discretamente: "Usa 3 conceitos: [X] [Y] [Z]"
+- Tags clicáveis → redireciona para catálogo
+- Não polui interface
+
+#### 13.3 Analytics de Conceitos
+
+- Conceitos mais mencionados (gráfico)
+- Conceitos por ideia/artigo
+- Evolução temporal
+- Export em JSON
+- Sistema detecta padrões: "5+ usuários adicionaram conceito X" → atualiza biblioteca base
+
+#### 13.4 Testes E2E
+
+- Fluxo completo: conversa → conceitos → catálogo
+- Validar UX (não quebra experiência)
+- Performance (biblioteca com 100+ conceitos)
+
+---
+
+## ÉPICO 14: Pesquisador
 
 **Objetivo:** Agente para busca e síntese de literatura científica. Introduz Evidência como entidade prática.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 11
+- Épico 13
+
+**Adição:** Pesquisador pode usar catálogo de conceitos para buscar papers relacionados.
 
 ---
 
-## ÉPICO 13: Escritor
+## ÉPICO 15: Escritor
 
 **Objetivo:** Agente para compilação de seções do artigo científico.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 12
+- Épico 14
 
 ---
 

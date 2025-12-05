@@ -8,11 +8,77 @@ A ontologia reflete uma filosofia epistemológica onde não existe distinção b
 
 Outros documentos de arquitetura referenciam este documento como base para entender as entidades fundamentais do sistema.
 
+---
+
+## Observador e CognitiveModel
+
+### Responsável pela Atualização
+
+O **Observador (Mente Analítica)** é o agente responsável por monitorar conversa e atualizar o `CognitiveModel` a cada turno.
+
+**Processo:**
+1. Usuário envia mensagem
+2. Orquestrador processa (decide next_step)
+3. **Observador processa em paralelo** (silencioso):
+   - Extrai claims emergentes
+   - Identifica fundamentos
+   - Detecta contradições
+   - Cataloga conceitos (ChromaDB + SQLite)
+   - Identifica open_questions
+   - Atualiza context (domínio, população, tecnologia)
+   - Calcula métricas (solidez, completude)
+4. CognitiveModel atualizado
+
+**Timing:** Todo turno, sempre (não apenas snapshots).
+
+**Características:**
+- ✅ Silencioso (não interfere no fluxo)
+- ✅ Automático (não precisa ser chamado)
+- ✅ Completo (processa todos os turnos)
+- ✅ Consultável (Orquestrador pode pedir insights)
+
+### Estrutura do CognitiveModel
+
+```python
+CognitiveModel:
+  # Proposições centrais
+  claims: list[str]
+  
+  # Argumentos de suporte
+  fundamentos: list[str]
+  
+  # Inconsistências detectadas
+  contradictions: list[dict]
+  
+  # Conceitos semânticos (biblioteca global)
+  conceitos: list[UUID]  # Referências a Concept
+  
+  # Lacunas a investigar
+  open_questions: list[str]
+  
+  # Contexto evolutivo
+  context: dict  # {domain, population, technology}
+  
+  # Métricas calculadas
+  solidez_geral: float  # 0-1
+  completude: float     # 0-1
+```
+
+---
+
 ## Entidades Fundamentais
 
 ### Conceito (Abstrato, Reutilizável, Atemporal)
 
 **O que é:** Núcleo semântico abstrato que pode assumir diferentes formas linguísticas.
+
+**Natureza:** Entidade **GLOBAL** (biblioteca única, não pertence a uma ideia específica).
+
+**Filosofia:**
+- Conceitos são **essências compartilhadas** entre múltiplas ideias
+- Uma ideia **referencia** conceitos, não os **possui**
+- Biblioteca cresce continuamente (conceitos de todas as conversas)
+- Deduplicação automática (threshold 0.80) garante catálogo limpo
 
 **Características:**
 - Transcende palavras específicas
@@ -31,6 +97,47 @@ Outros documentos de arquitetura referenciam este documento como base para enten
 - Conceito existe uma vez na biblioteca, usado por N ideias
 - **Conceitos são atemporais**: Existem independente de quem os usa ou quando foram criados
 - **Conceitos não têm "solidez"**: São rótulos semânticos, não afirmações que podem ser verdadeiras ou falsas
+
+**Exemplo:**
+```
+Ideia 1: "LLMs aumentam produtividade"
+  → referencia: [Concept: "LLMs", Concept: "Produtividade"]
+
+Ideia 2: "Produtividade depende de métricas claras"
+  → referencia: [Concept: "Produtividade", Concept: "Métricas"]
+
+Biblioteca global:
+  • LLMs (usado por: Ideia 1)
+  • Produtividade (usado por: Ideia 1, Ideia 2)
+  • Métricas (usado por: Ideia 2)
+```
+
+**Atualizado por:** Observador (a cada turno)
+
+**Schema:**
+```python
+Concept:
+  id: UUID
+  label: str                    # "LLMs", "Produtividade"
+  essence: str                  # Definição curta (opcional)
+  variations: list[str]         # ["Language Models", "Large Language Models"]
+  embedding: vector[384]        # ChromaDB (sentence-transformers)
+  
+  # Metadados
+  created_at: datetime
+  usage_count: int              # Quantas ideias usam este conceito
+```
+
+**Relacionamento N:N:**
+```sql
+idea_concepts:
+  idea_id: UUID → ideas(id)
+  concept_id: UUID → concepts(id)
+```
+
+**Deduplicação:**
+- Similaridade > 0.80: variation do conceito existente
+- Similaridade < 0.80: conceito novo
 
 **Exemplos de globalidade:**
 
@@ -149,6 +256,82 @@ Argumento:
     - Claim: "Reduz turnover em 20%"
     - Fundamentos: [Proposição: "Satisfação aumenta retenção"]
 
+---
+
+## Fluxo de Detecção de Conceitos
+
+### Pipeline (Observador)
+
+```
+Usuário: "LLMs aumentam produtividade"
+    ↓
+Observador: Processa turno
+    ↓
+1. LLM extrai conceitos: ["LLMs", "Produtividade"]
+    ↓
+2. Para cada conceito:
+    ↓
+   Gera embedding (sentence-transformers)
+    ↓
+   Busca similares no catálogo (ChromaDB)
+    ↓
+   Similaridade > 0.80?
+     ├─ SIM → Adiciona como variation
+     └─ NÃO → Cria novo conceito
+    ↓
+   Salva metadados (SQLite)
+    ↓
+3. Atualiza CognitiveModel.conceitos
+    ↓
+4. Publica evento: ConceptsDetectedEvent
+```
+
+### Exemplo Completo
+
+**Turno 1:**
+```
+Input: "LLMs aumentam produtividade"
+Detecta: ["LLMs", "Produtividade"]
+Salva ambos (conceitos novos)
+
+Biblioteca:
+• LLMs
+• Produtividade
+```
+
+**Turno 3:**
+```
+Input: "Language models são eficientes"
+Detecta: ["Language models", "Eficiência"]
+
+"Language models" similar a "LLMs" (0.92)
+→ Adiciona como variation de "LLMs"
+
+"Eficiência" similar a "Produtividade" (0.85)
+→ Adiciona como variation de "Produtividade"
+
+Biblioteca:
+• LLMs (variations: ["Language models"])
+• Produtividade (variations: ["Eficiência"])
+```
+
+**Turno 5:**
+```
+Input: "Bugs afetam qualidade"
+Detecta: ["Bugs", "Qualidade"]
+
+Ambos novos (similaridade < 0.80)
+→ Cria 2 novos conceitos
+
+Biblioteca:
+• LLMs (variations: ["Language models"])
+• Produtividade (variations: ["Eficiência"])
+• Bugs
+• Qualidade
+```
+
+---
+
 ## Relações Entre Entidades
 
 ### Ideia ↔ Conceito (N:N)
@@ -217,6 +400,35 @@ Ideia macro: "Revoluções que transformaram Sapiens"
 
 Sistema identifica hierarquia automaticamente processando conteúdo.
 
+---
+
+## Observador e Snapshots
+
+### Complementaridade
+
+**Observador:** Processa TODOS os turnos (monitoramento contínuo)
+**Snapshots:** Marcos importantes quando argumento amadurece
+
+**Fluxo:**
+```
+Turno 1-5: Observador cataloga conceitos continuamente
+    ↓
+Turno 5: Argumento amadurece → Snapshot criado
+    ↓
+Snapshot referencia conceitos catalogados pelo Observador
+    ↓
+Turno 6-10: Observador continua catalogando
+    ↓
+Turno 10: Novo snapshot → referencia conceitos novos
+```
+
+**Vantagem:**
+- Snapshots não precisam reprocessar para detectar conceitos
+- Conceitos já estão catalogados pelo Observador
+- Snapshot apenas cria links (idea_concepts)
+
+---
+
 ## Rastreabilidade
 
 ### Propagação de Solidez
@@ -255,9 +467,11 @@ Quando uma proposição é identificada como frágil:
 ## Referências
 
 - `docs/vision/epistemology.md` - Fundamento filosófico da ontologia (proposições, solidez, evidências)
-- `docs/architecture/concept_model.md` - Estrutura de dados técnica de Conceito
+- `docs/architecture/concept_model.md` - Schema detalhado de Concept
 - `docs/architecture/idea_model.md` - Estrutura de dados técnica de Ideia
 - `docs/architecture/argument_model.md` - Estrutura de dados técnica de Argumento
 - `docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, solidez)
 - `docs/vision/cognitive_model/evolution.md` - Como pensamento evolui e solidez é calculada
+- `docs/agents/observer.md` - Documentação completa do Observador
+- `ROADMAP.md` - Épicos 10, 12, 13 (Observador e Conceitos)
 

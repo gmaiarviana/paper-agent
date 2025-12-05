@@ -11,6 +11,92 @@
 
 ---
 
+## 0. OBSERVADOR (Mente Analítica)
+
+### Responsabilidades
+- **Monitorar TODA conversa** (cada turno automaticamente)
+- Atualizar CognitiveModel completo:
+  - Claims emergentes
+  - Fundamentos
+  - Contradições
+  - Conceitos (ChromaDB + SQLite)
+  - Open questions
+  - Context (domínio, população, tecnologia)
+- **Avaliar evolução** de ideias e argumentos
+- **Detectar lacunas** e inconsistências
+- **Calcular métricas** (solidez, completude)
+- **Responder consultas** do Orquestrador (insights contextuais)
+- **Publicar eventos** para Dashboard (silencioso)
+
+### PODE fazer
+- Processar cada turno automaticamente
+- Extrair conceitos via LLM e gerar embeddings
+- Salvar conceitos no catálogo (ChromaDB + SQLite)
+- Consultar biblioteca para deduplicação (threshold 0.80)
+- Responder consultas contextuais do Orquestrador
+- Calcular solidez e completude do raciocínio
+
+### NÃO PODE fazer
+- **Decidir next_step** (quem decide: Orquestrador)
+- **Falar com usuário** (quem fala: Orquestrador)
+- **Negociar caminhos** (quem negocia: Orquestrador)
+- Interromper fluxo conversacional
+- Dar comandos ao Orquestrador (apenas insights)
+
+### Input esperado
+- De cada turno: user_input, conversation_history
+- De Orquestrador: consultas contextuais (quando incerto)
+
+### Output esperado
+**Silenciosamente (todo turno):**
+- CognitiveModel atualizado
+- Conceitos salvos no catálogo
+- Eventos publicados (Dashboard)
+
+**Quando consultado (não-determinístico):**
+- Insights contextuais: {insight, suggestion, confidence, evidence}
+- Estado completo: CognitiveModel.to_dict()
+
+### Critérios de qualidade
+- Conceitos relevantes extraídos (não ruído)
+- Deduplicação precisa (threshold 0.80)
+- Insights úteis (não genéricos)
+- Não interfere no fluxo (silencioso)
+- Sempre responde consultas rapidamente
+
+### Timing
+**Todo turno, sempre:**
+- Processa cada turno automaticamente
+- Não depende de snapshots ou eventos externos
+- Garante que nada é perdido
+
+### Interface de Consulta
+
+**Filosofia:** Insights, não comandos
+
+```python
+# Consultas contextuais (não-determinísticas)
+insight = observador.what_do_you_see(
+    context="Usuário mudou de direção",
+    question="Conceitos anteriores ainda relevantes?"
+)
+
+# Estado completo
+state = observador.get_current_state()
+
+# Checks rápidos
+has_issues = observador.has_contradiction()
+solidez = observador.get_solidez()
+```
+
+**Gatilhos naturais para consulta:**
+- Mudança de direção detectada
+- Contradição aparente
+- Incerteza sobre profundidade
+- Checagem de completude
+
+---
+
 ## 1. ORQUESTRADOR
 
 ### Responsabilidades
@@ -21,12 +107,8 @@
 - Apresentar conflitos para o usuário resolver
 - Determinar quando o artigo está completo
 - **Adaptar fluxo** conforme decisões do usuário
-- **Detectar proposições não examinadas** no discurso do usuário
-- **Extrair claim** do que o usuário está dizendo
-- **Atualizar context** (domínio, tecnologia, população) do modelo cognitivo
 - **Provocar reflexão** sobre aspectos não explorados: "Você assumiu X. Quer examinar?"
-- **Identificar open_questions** iniciais que precisam ser respondidas
-- **Observador integrado (POC)**: Atualiza CognitiveModel a cada turno
+- **Consultar Observador** quando incerto (gatilhos naturais)
 
 ### PODE fazer
 - **Perguntar ao usuário** antes de chamar agentes
@@ -37,6 +119,8 @@
 - Salvar checkpoints do progresso
 - **Adaptar fluxo** quando usuário muda de direção
 - Encerrar processo (com aprovação do usuário)
+- **Consultar Observador** para insights contextuais
+- Usar insights para decisões mais inteligentes
 
 ### NÃO PODE fazer
 - **Decidir sozinho** qual agente chamar (deve negociar)
@@ -46,6 +130,9 @@
 - Tomar decisões sobre metodologia
 - Ignorar feedback de agentes especialistas
 - **Forçar fluxo rígido** (deve ser adaptativo)
+- **Detectar proposições não examinadas** (responsabilidade do Observador)
+- **Extrair claims** (responsabilidade do Observador)
+- **Atualizar CognitiveModel** (responsabilidade do Observador)
 
 ### Input esperado
 - Do usuário: hipótese inicial, observação, constatação, **decisões sobre caminhos**
@@ -83,6 +170,30 @@
 ```
 ❌ ANTES: "Detectei que seu input é vago. Chamando Estruturador automaticamente."
 ✅ AGORA: "Interessante! Você quer testar uma hipótese ou verificar literatura?"
+```
+
+### Mitose: Observador Separado (05/12/2025)
+
+**EVOLUÇÃO:**
+- Orquestrador tinha 2 responsabilidades conflitantes
+- Separamos em 2 agentes especializados:
+  - **Orquestrador:** Facilitar conversa, negociar, decidir fluxo
+  - **Observador:** Atualizar CognitiveModel, extrair conceitos, calcular métricas
+
+**Como se comunicam:**
+- Orquestrador consulta Observador quando incerto (não-determinístico)
+- Observador responde com insights, não comandos
+- Orquestrador mantém autonomia sobre decisões
+
+**Exemplo de consulta:**
+```
+Orquestrador detecta mudança de direção
+↓
+Consulta Observador: "Conceitos anteriores ainda relevantes?"
+↓
+Observador responde: {relevance: "Parcial", suggestion: "...", confidence: 0.8}
+↓
+Orquestrador decide baseado em insight + própria análise
 ```
 
 ---
@@ -338,18 +449,33 @@
 
 O sistema multi-agente interage com um modelo cognitivo que representa o entendimento progressivo do que o usuário está construindo. Cada agente contribui de forma específica para atualizar e enriquecer este modelo.
 
-### Orquestrador
+### Observador (Mente Analítica)
 
-O Orquestrador atua como observador integrado do modelo cognitivo, atualizando-o a cada turno da conversa:
+O Observador monitora toda conversa e atualiza o CognitiveModel automaticamente:
 
-- **Detecta proposições não examinadas**: Identifica o que o usuário assume mas não declara explicitamente
-- **Extrai claim do que usuário está dizendo**: Captura a afirmação central de cada input
-- **Atualiza context (domínio, tecnologia, população)**: Enriquece o contexto do modelo cognitivo com informações novas
-- **Provoca reflexão**: Quando detecta lacunas, pergunta "Você assumiu X. Quer examinar?"
-- **Identifica open_questions iniciais**: Mapeia questões que precisam ser respondidas para avançar
-- **Observador integrado (POC)**: Atualiza CognitiveModel a cada turno automaticamente
+- **Monitora cada turno:** Processa TODO input do usuário (não apenas snapshots)
+- **Extrai claims:** Captura proposições centrais emergentes
+- **Identifica fundamentos:** Mapeia argumentos de suporte
+- **Detecta contradições:** Encontra inconsistências lógicas
+- **Cataloga conceitos:** Extrai essências semânticas (ChromaDB)
+- **Identifica open_questions:** Mapeia lacunas a investigar
+- **Atualiza context:** Enriquece domínio, população, tecnologia
+- **Calcula métricas:** Solidez e completude do raciocínio
 
-**Futuro**: Pode virar agente separado se houver conflito de responsabilidades entre facilitar conversa e observar modelo cognitivo.
+**Integração com fluxo:**
+- Trabalha silenciosamente em paralelo
+- Não interfere na conversa
+- Responde consultas do Orquestrador
+- Publica eventos para Dashboard
+
+### Orquestrador (Facilitador)
+
+O Orquestrador facilita a conversa e consulta o Observador:
+
+- **Provoca reflexão** baseado em insights do Observador
+- **Consulta Observador** quando incerto (mudança direção, contradição, completude)
+- **Usa insights** para decisões contextuais (não segue comandos)
+- **Mantém autonomia** sobre next_step
 
 ### Estruturador
 
@@ -389,13 +515,24 @@ As transições entre agentes são projetadas para serem:
 - **Sem interrupções**: Sem mensagens como "Chamando X..." → A conversa flui naturalmente
 - **Contextuais**: Cada agente continua a conversa de forma natural, como em "Hmm, esse fundamento parece frágil..." (natural)
 
+### Observador nos Bastidores
+
+**Quando aparece na timeline:**
+- Conceito novo detectado: "👁️ Observador detectou: LLMs, Produtividade"
+- Contradição: "👁️ Observador detectou contradição entre X e Y"
+- Solidez muda: "👁️ Solidez aumentou: 0.65 → 0.80"
+
+**Quando NÃO aparece:**
+- Atualização rotineira sem novidades
+- Trabalho silencioso é transparente ao usuário
+
 ### Ações Baratas vs Caras
 
 O sistema diferencia ações que podem ser proativas (baratas) daquelas que requerem permissão (caras):
 
 **Ações Baratas (proativas)**:
 - Estruturador organizar fundamentos
-- Orquestrador detectar proposições não examinadas
+- Observador processar turno e atualizar CognitiveModel
 - Metodologista apontar lacuna
 
 **Ações Caras (pedir permissão)**:
@@ -436,7 +573,7 @@ Ver `MultiAgentState` em `docs/orchestration/multi_agent_architecture/state.md`.
 
 ---
 
-**Versão:** 2.0  
-**Data:** 13/11/2025  
-**Status:** Atualizado - Orquestrador como facilitador, fluxo adaptativo e conversacional
+**Versão:** 3.0  
+**Data:** 05/12/2025  
+**Status:** Atualizado - Observador separado do Orquestrador (mitose), arquitetura especializada
 
