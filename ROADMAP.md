@@ -18,6 +18,7 @@
 - **ÉPICO 4**: Contexto
 - **ÉPICO 5**: UX Polish
 - **ÉPICO 6**: Limpeza de Testes
+- **ÉPICO 7**: Validação de Maturidade do Sistema - Fase Manual
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
@@ -27,7 +28,6 @@
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
 #### Planejados (refinados)
-- **ÉPICO 7**: Validação de Maturidade do Sistema - Fase Manual
 - **ÉPICO 8**: Validação de Maturidade do Sistema - Automação
 - **ÉPICO 9**: Integração Backend↔Frontend
 
@@ -68,55 +68,9 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
 
 **Objetivo:** Validar que sistema multi-agente funciona como deveria através de roteiro de cenários críticos executados manualmente.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído
 
-**Dependências:** Nenhuma (pode começar imediatamente)
-
-**Duração estimada:** 1-2 dias (criação do roteiro) + 2-3 horas (execução)
-
-**Consulte:** `docs/testing/epic7_validation_strategy.md` para estratégia completa
-
-### Funcionalidades:
-
-#### 7.1 Criar Roteiro de Validação Manual
-
-- **Descrição:** Criar roteiro estruturado com 10-15 cenários críticos que validam comportamento do sistema multi-agente
-- **Critérios de Aceite:**
-  - Deve criar `docs/testing/epic7_validation_strategy.md` com estratégia completa
-  - Deve definir 10-15 cenários críticos cobrindo:
-    - Transições entre agentes (Orquestrador → Estruturador → Metodologista)
-    - Preservação de contexto (focal_argument, messages)
-    - Decisões coerentes (next_step, agent_suggestion)
-    - Fluidez conversacional (sem quebras)
-    - Provocação socrática (reflection_prompt)
-    - Reasoning loop (Metodologista)
-  - Cada cenário deve especificar:
-    - Input do usuário
-    - Comportamento esperado (checklist)
-    - Logs necessários (EventBus, MultiAgentState)
-    - Critérios de sucesso/falha
-
-#### 7.2 Executar Cenários e Coletar Logs
-
-- **Descrição:** Executar cenários manualmente e coletar logs estruturados
-- **Critérios de Aceite:**
-  - Deve executar todos os cenários no sistema real
-  - Deve coletar logs estruturados (EventBus JSON + outputs)
-  - Deve anotar comportamento observado (sucesso/falha/parcial)
-  - Deve identificar problemas críticos, médios e baixos
-
-#### 7.3 Analisar Resultados e Gerar Relatório de Maturidade
-
-- **Descrição:** Analisar logs e gerar relatório de maturidade do sistema
-- **Critérios de Aceite:**
-  - Deve analisar todos os logs coletados
-  - Deve classificar problemas encontrados (crítico/médio/baixo)
-  - Deve gerar relatório de maturidade com:
-    - Sumário executivo (sistema maduro? O que falta?)
-    - Problemas por categoria (transições, contexto, decisões, fluidez)
-    - Recomendações de correções
-    - Priorização de correções
-  - Deve documentar o que funciona bem (não apenas problemas)
+10 cenários críticos executados e validados (10/10 bem-sucedidos). Problema crítico identificado e corrigido (regra "Turno 1" bloqueava transição automática). Relatório completo em `docs/testing/epic7_results/summary.md`.
 
 ---
 
