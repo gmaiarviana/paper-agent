@@ -74,6 +74,7 @@ Este documento lista todos os comportamentos testados pelo sistema.
 | `test_conversation_switching.py` | Alternância entre conversas |
 | `test_real_api_tokens.py` | Tokens reais da API |
 | `test_token_extraction.py` | Extração de tokens |
+| `test_multi_turn_flows.py` | Fluxos multi-turn end-to-end: refinamento (Cenário 3), reasoning loop (Cenário 6), preservação de contexto (Cenário 7) |
 
 ---
 
