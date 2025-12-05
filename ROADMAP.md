@@ -37,11 +37,6 @@
 - **ÉPICO 12**: Pesquisador (não refinado)
 - **ÉPICO 13**: Escritor (não refinado)
 
-**Nota sobre Dependências:**
-- Épicos 1, 2, 3, 4, 5, 6 concluídos (independentes)
-- Épicos 7, 8 são independentes (podem começar imediatamente)
-- Épico 8 depende do Épico 7 (precisa identificar problemas reais primeiro)
-- Épicos 9-13 seguem sequência: Integração → Conceitos → Ontologia → Pesquisador → Escritor
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -55,20 +50,7 @@
 
 **Status:** ✅ Concluído
 
-**Dependências:** Épicos 3-4 (métricas movidas para Contexto)
-
-### Funcionalidades:
-
-#### 5.1 Custo em R$ ✅
-
-- **Descrição:** Exibir custos em reais (BRL) com formato brasileiro
-- **Implementação:**
-  - ✅ Criado `utils/currency.py` com `format_currency()` para conversão USD→BRL
-  - ✅ Configs em `.env.example`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.5`
-  - ✅ Formato brasileiro: "R$ 0,02" (vírgula decimal)
-  - ✅ Fallback para USD se `CURRENCY` não for `BRL`
-  - ✅ Aplicado em: chat_history, backstage, dashboard
-  - ✅ 22 testes unitários em `tests/unit/test_currency.py`
+Custos exibidos em reais (BRL) com formato brasileiro, aplicado em toda interface (chat, backstage, dashboard).
 
 ---
 
@@ -78,39 +60,7 @@
 
 **Status:** ✅ Concluído
 
-**Dependências:** Nenhuma
-
-### Funcionalidades:
-
-#### 6.1 Remover Testes Burocráticos ✅
-
-- **Descrição:** Remover testes que testam bibliotecas externas (Pydantic, YAML, etc.) sem lógica própria
-- **Status:** ✅ Concluído
-- **Implementação:**
-  - ✅ Removidos testes que validavam apenas estrutura (test_state_has_required_fields, test_state_annotations_exist, etc.)
-  - ✅ Removidos testes que validavam apenas tipos Python (test_initial_state_has_correct_types, test_next_step_literal_type, etc.)
-  - ✅ Removidos testes que validavam apenas presença de campos YAML (test_all_configs_valid)
-  - ✅ Documentação atualizada (methodologist.md)
-
-#### 6.2 Adicionar Testes de Integração Reais ✅
-
-- **Descrição:** Adicionar testes de integração com API real onde há mocks superficiais
-- **Status:** ✅ Concluído
-- **Implementação:**
-  - ✅ Criado `tests/integration/test_orchestrator_integration.py` com 5 testes de classificação real
-  - ✅ Criado `tests/integration/test_structurer_integration.py` com 4 testes de estruturação real
-  - ✅ Testes usam API real (não mocks)
-  - ✅ Testes validam comportamento real (não apenas estrutura)
-  - ✅ Testes unitários existentes mantidos (31 testes passando)
-
-#### 6.3 Atualizar Documentação de Testes ✅
-
-- **Descrição:** Atualizar documentação com novos padrões e estratégia
-- **Status:** ✅ Concluído
-- **Implementação:**
-  - ✅ Atualizado `docs/testing/strategy.md` com seção sobre testes de integração reais (padrões, quando usar)
-  - ✅ Aprimorada documentação sobre mocks vs API real (tabela comparativa, exemplos práticos)
-  - ✅ Atualizado `docs/testing/inventory.md` com testes removidos (`test_event_models.py`) e adicionados (`test_orchestrator_integration.py`, `test_structurer_integration.py`)
+Suite de testes limpa e focada: testes burocráticos removidos, testes de integração reais adicionados para validar comportamento do LLM, documentação atualizada com novos padrões.
 
 ---
 
