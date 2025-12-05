@@ -39,6 +39,7 @@ requires_anthropic = pytest.mark.skipif(
 )
 
 
+@pytest.mark.smoke
 @pytest.mark.integration
 @requires_anthropic
 def test_methodologist_complete_flow_with_clarifications():
@@ -160,6 +161,7 @@ def test_methodologist_complete_flow_with_clarifications():
     print("\n✅ Teste de fumaça passou! Fluxo completo validado.")
 
 
+@pytest.mark.smoke
 @pytest.mark.integration
 @requires_anthropic
 def test_methodologist_respects_max_iterations():
