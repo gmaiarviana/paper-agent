@@ -22,22 +22,26 @@
 
 ### ⏳ Épicos Planejados
 
+> **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
+
 #### Planejados (refinados)
 - **ÉPICO 5**: UX Polish (refinado)
+- **ÉPICO 6**: Limpeza de Testes
+- **ÉPICO 7**: Validação de Maturidade do Sistema - Fase Manual
+- **ÉPICO 8**: Validação de Maturidade do Sistema - Automação
 
 #### Planejados (não refinados)
-- **ÉPICO 6**: Qualidade de Testes - LLM-as-Judge (não refinado)
-- **ÉPICO 7**: Integração Backend↔Frontend (não refinado)
-- **ÉPICO 8**: Conceitos (não refinado)
-- **ÉPICO 9**: Alinhamento de Ontologia (não refinado)
-- **ÉPICO 10**: Pesquisador (não refinado)
-- **ÉPICO 11**: Escritor (não refinado)
+- **ÉPICO 9**: Integração Backend↔Frontend (não refinado)
+- **ÉPICO 10**: Conceitos (não refinado)
+- **ÉPICO 11**: Alinhamento de Ontologia (não refinado)
+- **ÉPICO 12**: Pesquisador (não refinado)
+- **ÉPICO 13**: Escritor (não refinado)
 
 **Nota sobre Dependências:**
-- Épicos 1, 2, 3, 4 concluídos (independentes)
-- Épico 5 depende dos Épicos 3-4 (usa nova estrutura de Contexto/Bastidores)
-- Épico 6 depende do Épico 1 (valida comportamento de convergência) - Épico 1 já concluído
-- Épicos 7-11 seguem sequência: Integração → Conceitos → Ontologia → Pesquisador → Escritor
+- Épicos 1, 2, 3, 4, 5 concluídos (independentes)
+- Épicos 6, 7, 8 são independentes (podem começar imediatamente)
+- Épico 8 depende do Épico 7 (precisa identificar problemas reais primeiro)
+- Épicos 9-13 seguem sequência: Integração → Conceitos → Ontologia → Pesquisador → Escritor
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
@@ -67,73 +71,167 @@
 
 ---
 
-## ÉPICO 6: Melhorar Testes - Integração Real + Validação de Qualidade
+## ÉPICO 6: Limpeza de Testes
 
-**Objetivo:** Resolver débito técnico: adicionar testes de integração reais onde há mocks superficiais e validação de qualidade conversacional com LLM-as-Judge.
+**Objetivo:** Remover testes burocráticos e adicionar testes de integração reais onde há mocks superficiais.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ⏳ Planejado (refinado)
 
-**Problema:**
-- Testes com mocks superficiais não validam comportamento real (`test_orchestrator.py`, `test_structurer.py`)
-- Testes verificam apenas presença de campos, não qualidade
-- Comportamento socrático impossível de testar deterministicamente
-- Asserts fracos aceitam qualquer resultado válido
+**Dependências:** Nenhuma
 
-**Dependências:**
-- Épico 1 (comportamento a ser testado precisa existir)
+**Duração estimada:** 1-2 dias
 
-**Consulte:**
-- `docs/testing/epic6_refactoring_plan.md` - **Plano detalhado** (ações específicas, código exemplo)
-- `docs/analysis/llm_judge_strategy.md` - Análise completa de estratégia e candidatos prioritários
-- `docs/testing/strategy.md` - Estratégia de testes e boas práticas
+**Consulte:** `docs/testing/epic6_refactoring_plan.md` para plano detalhado
 
 ### Funcionalidades:
 
-#### 6.1 Adicionar Testes de Integração Reais
+#### 6.1 Remover Testes Burocráticos
 
-- **Descrição:** Adicionar testes de integração com API real onde há mocks superficiais.
+- **Descrição:** Remover testes que testam bibliotecas externas (Pydantic, YAML, etc.) sem lógica própria
 - **Critérios de Aceite:**
-  - `test_orchestrator.py` - Adicionar testes de integração em `tests/integration/test_orchestrator_integration.py` (classificação real, routing real)
-  - `test_structurer.py` - Adicionar testes de integração em `tests/integration/test_structurer_integration.py` (estruturação real)
+  - Deve remover testes que validam apenas estrutura de dados (sem lógica)
+  - Deve remover testes onde mock retorna exatamente o esperado
+  - Deve remover testes com asserts fracos (`is not None`, sempre passa)
+  - Deve documentar o que foi removido e por quê
+
+#### 6.2 Adicionar Testes de Integração Reais
+
+- **Descrição:** Adicionar testes de integração com API real onde há mocks superficiais
+- **Critérios de Aceite:**
+  - Deve criar `tests/integration/test_orchestrator_integration.py` com testes de classificação real
+  - Deve criar `tests/integration/test_structurer_integration.py` com testes de estruturação real
   - Testes devem usar API real (não mocks)
   - Testes devem validar comportamento real (não apenas estrutura)
-  - Manter testes unitários existentes (validam estrutura, mocks são OK para isso)
+  - Manter testes unitários existentes (não remover)
 
-#### 6.2 Infraestrutura LLM-as-Judge
+#### 6.3 Atualizar Documentação de Testes
 
-- **Descrição:** Criar infraestrutura base para testes com LLM-as-judge.
+- **Descrição:** Atualizar documentação com novos padrões e estratégia
 - **Critérios de Aceite:**
-  - Deve criar fixture `llm_judge` em `tests/conftest.py` (modelo Haiku, temperature=0)
-  - Deve criar prompts de avaliação em `utils/test_prompts.py` (5 prompts: socrático, conversação, fluidez, integração, refinamento)
-  - Deve criar função `extract_score` em `utils/test_helpers.py` (extrai score 1-5 da avaliação)
-  - Deve adicionar marker `@pytest.mark.llm_judge` em `pytest.ini`
-  - Deve pular testes se `ANTHROPIC_API_KEY` não estiver definida
-
-#### 6.3 Adicionar Validação de Qualidade (6 arquivos)
-
-- **Descrição:** Adicionar validação LLM-as-judge nos testes críticos identificados.
-- **Critérios de Aceite:**
-  - `test_multi_agent_smoke.py` - Adicionar validação de qualidade conversacional (fluidez, integração)
-  - `test_methodologist_smoke.py` - Adicionar validação de perguntas socráticas (não burocráticas)
-  - `validate_socratic_behavior.py` - Adicionar validação de provocação socrática genuína
-  - `validate_conversation_flow.py` - Adicionar validação de fluidez (sem "Posso chamar X?")
-  - `validate_multi_agent_flow.py` - Adicionar validação de integração natural entre agentes
-  - `validate_refinement_loop.py` - Adicionar validação de refinamento significativo
-  - Cada teste deve validar qualidade (score >= 4) além de estrutura
-
-#### 6.4 Documentação
-
-- **Descrição:** Documentar estratégia e custos de testes melhorados.
-- **Critérios de Aceite:**
-  - Deve atualizar `docs/testing/strategy.md` com seção sobre testes de integração reais e LLM-as-Judge
-  - Deve documentar custos estimados (~$0.01-0.02 por execução completa com LLM-as-Judge)
-  - Deve documentar estratégia de execução (local: `pytest -m integration`, `pytest -m llm_judge`)
-
-**Custo estimado:** ~$0.01-0.02 por execução completa (testes de integração + LLM-as-Judge)
+  - Deve atualizar `docs/testing/strategy.md` com seção sobre testes de integração reais
+  - Deve documentar quando usar mocks vs API real
+  - Deve atualizar `docs/testing/inventory.md` com testes removidos/adicionados
 
 ---
 
-## ÉPICO 7: Integração Backend↔Frontend
+## ÉPICO 7: Validação de Maturidade do Sistema - Fase Manual
+
+**Objetivo:** Validar que sistema multi-agente funciona como deveria através de roteiro de cenários críticos executados manualmente.
+
+**Status:** ⏳ Planejado (refinado)
+
+**Dependências:** Nenhuma (pode começar imediatamente)
+
+**Duração estimada:** 1-2 dias (criação do roteiro) + 2-3 horas (execução)
+
+**Consulte:** `docs/testing/epic7_validation_strategy.md` para estratégia completa
+
+### Funcionalidades:
+
+#### 7.1 Criar Roteiro de Validação Manual
+
+- **Descrição:** Criar roteiro estruturado com 10-15 cenários críticos que validam comportamento do sistema multi-agente
+- **Critérios de Aceite:**
+  - Deve criar `docs/testing/epic7_validation_strategy.md` com estratégia completa
+  - Deve definir 10-15 cenários críticos cobrindo:
+    - Transições entre agentes (Orquestrador → Estruturador → Metodologista)
+    - Preservação de contexto (focal_argument, messages)
+    - Decisões coerentes (next_step, agent_suggestion)
+    - Fluidez conversacional (sem quebras)
+    - Provocação socrática (reflection_prompt)
+    - Reasoning loop (Metodologista)
+  - Cada cenário deve especificar:
+    - Input do usuário
+    - Comportamento esperado (checklist)
+    - Logs necessários (EventBus, MultiAgentState)
+    - Critérios de sucesso/falha
+
+#### 7.2 Executar Cenários e Coletar Logs
+
+- **Descrição:** Executar cenários manualmente e coletar logs estruturados
+- **Critérios de Aceite:**
+  - Deve executar todos os cenários no sistema real
+  - Deve coletar logs estruturados (EventBus JSON + outputs)
+  - Deve anotar comportamento observado (sucesso/falha/parcial)
+  - Deve identificar problemas críticos, médios e baixos
+
+#### 7.3 Analisar Resultados e Gerar Relatório de Maturidade
+
+- **Descrição:** Analisar logs e gerar relatório de maturidade do sistema
+- **Critérios de Aceite:**
+  - Deve analisar todos os logs coletados
+  - Deve classificar problemas encontrados (crítico/médio/baixo)
+  - Deve gerar relatório de maturidade com:
+    - Sumário executivo (sistema maduro? O que falta?)
+    - Problemas por categoria (transições, contexto, decisões, fluidez)
+    - Recomendações de correções
+    - Priorização de correções
+  - Deve documentar o que funciona bem (não apenas problemas)
+
+---
+
+## ÉPICO 8: Validação de Maturidade do Sistema - Automação
+
+**Objetivo:** Automatizar validação de qualidade conversacional com LLM-as-Judge para prevenir regressões futuras.
+
+**Status:** ⏳ Planejado (refinado)
+
+**Dependências:** Épico 7 (precisa identificar problemas reais primeiro)
+
+**Duração estimada:** 2-3 dias
+
+**Custo estimado:** ~$0.01-0.02 por execução completa
+
+**Consulte:** `docs/testing/epic8_automation_strategy.md` para estratégia completa
+
+### Funcionalidades:
+
+#### 8.1 Implementar Infraestrutura LLM-as-Judge
+
+- **Descrição:** Criar infraestrutura base para testes com LLM-as-judge
+- **Critérios de Aceite:**
+  - Deve criar fixture `llm_judge` em `tests/conftest.py` (modelo Haiku, temperature=0)
+  - Deve criar prompts de avaliação em `utils/test_prompts.py`:
+    - Prompt de fluidez conversacional
+    - Prompt de integração entre agentes
+    - Prompt de provocação socrática
+    - Prompt de preservação de contexto
+    - Prompt de qualidade de decisões
+  - Deve criar função `extract_score` em `utils/test_helpers.py` (extrai score 1-5)
+  - Deve adicionar marker `@pytest.mark.llm_judge` em `pytest.ini`
+  - Deve pular testes se `ANTHROPIC_API_KEY` não estiver definida
+
+#### 8.2 Criar Testes Automatizados para Problemas Identificados
+
+- **Descrição:** Criar testes automatizados com LLM-as-Judge para problemas identificados no Épico 7
+- **Critérios de Aceite:**
+  - Deve criar testes para cada problema crítico/médio identificado no Épico 7
+  - Cada teste deve validar qualidade (score >= 4) além de estrutura
+  - Testes devem usar LLM-as-Judge para avaliar:
+    - Fluidez conversacional (sem "Posso chamar X?")
+    - Integração natural entre agentes
+    - Provocação socrática genuína (não burocrática)
+    - Preservação de contexto entre transições
+    - Qualidade de decisões (coerentes com contexto)
+  - Deve adicionar testes em arquivos apropriados:
+    - `tests/integration/test_multi_agent_smoke.py` (fluidez, integração)
+    - `tests/integration/test_methodologist_smoke.py` (provocação socrática)
+    - Novos arquivos conforme necessário
+
+#### 8.3 Documentar Estratégia e Custos
+
+- **Descrição:** Documentar estratégia de testes automatizados e custos estimados
+- **Critérios de Aceite:**
+  - Deve atualizar `docs/testing/strategy.md` com seção sobre LLM-as-Judge
+  - Deve documentar custos estimados (~$0.01-0.02 por execução completa)
+  - Deve documentar estratégia de execução:
+    - Local: `pytest -m llm_judge` (seletivo)
+    - CI: rodar em PRs relevantes (quando implementado)
+  - Deve documentar como adicionar novos testes LLM-as-Judge
+
+---
+
+## ÉPICO 9: Integração Backend↔Frontend
 
 **Objetivo:** Integrar componentes de backend já implementados (SnapshotManager, ProgressTracker) com interface web para completar ciclo de persistência silenciosa e feedback visual de progresso.
 
@@ -148,19 +246,19 @@
 
 ### Funcionalidades sugeridas (não refinadas - requer sessão de refinamento):
 
-#### 7.1 Integrar SnapshotManager no Orquestrador
+#### 9.1 Integrar SnapshotManager no Orquestrador
 
 - **Descrição:** Integrar SnapshotManager no fluxo conversacional para criar snapshots automáticos quando argumento amadurece.
 
-#### 7.2 Exibir ProgressTracker como painel flutuante
+#### 9.2 Exibir ProgressTracker como painel flutuante
 
 - **Descrição:** Exibir ProgressTracker como painel flutuante/fixo na borda direita do chat, mostrando checklist de progresso sincronizado com modelo cognitivo.
 
-#### 7.3 Sincronizar checklist com modelo cognitivo em tempo real
+#### 9.3 Sincronizar checklist com modelo cognitivo em tempo real
 
 - **Descrição:** Sincronizar checklist do ProgressTracker com modelo cognitivo em tempo real, atualizando status conforme argumento evolui.
 
-#### 7.4 Indicador de solidez na seção de contexto
+#### 9.4 Indicador de solidez na seção de contexto
 
 - **Descrição:** Mostrar indicador de solidez da ideia na seção "💡 Contexto" do painel direito.
 - **Critérios de Aceite:**
@@ -169,7 +267,7 @@
   - Deve atualizar em tempo real conforme argumento evolui
   - Deve estar integrado com SnapshotManager (quando argumento amadurece)
 
-#### 7.5 Associação automática de ideia ao iniciar chat da página de ideia
+#### 9.5 Associação automática de ideia ao iniciar chat da página de ideia
 
 - **Descrição:** Quando usuário clica "🔄 Continuar explorando" na página de detalhes da ideia, o chat deve iniciar automaticamente com a ideia associada e exibida na seção "💡 Contexto".
 - **Critérios de Aceite:**
@@ -178,7 +276,7 @@
   - Deve funcionar mesmo após refresh da página (persistência)
   - Deve limpar associação quando usuário cria nova conversa
 
-#### 7.x Checklist de Progresso na UI
+#### 9.x Checklist de Progresso na UI
 
 - **Descrição:** Exibir checklist visual no header do chat sincronizado com modelo cognitivo.
 - **Critérios de Aceite:**
@@ -190,7 +288,7 @@
 
 ---
 
-## ÉPICO 8: Conceitos
+## ÉPICO 10: Conceitos
 
 **Objetivo:** Criar entidade Concept com vetores semânticos para busca por similaridade ("produtividade" encontra "eficiência").
 
@@ -199,7 +297,7 @@
 > **📖 Filosofia:** Conceitos são essências globais (biblioteca única). Ideias referenciam conceitos, não os possuem. Ver `docs/architecture/ontology.md`.
 
 **Dependências:**
-- Épico 7
+- Épico 9
 
 **Consulte:**
 - `docs/architecture/concept_model.md` - Schema técnico de Concept
@@ -208,7 +306,7 @@
 
 ### Funcionalidades:
 
-#### 8.1 Setup ChromaDB Local [POC]
+#### 10.1 Setup ChromaDB Local [POC]
 
 - **Descrição:** Configurar ChromaDB para armazenar vetores semânticos de conceitos (gratuito, local).
 - **Critérios de Aceite:**
@@ -217,7 +315,7 @@
   - Deve criar collection: `concepts` (metadata: label, essence, variations)
   - Deve usar modelo: `all-MiniLM-L6-v2` (384 dim, 80MB download)
 
-#### 8.2 Schema SQLite de Concept [POC]
+#### 10.2 Schema SQLite de Concept [POC]
 
 - **Descrição:** Criar tabelas `concepts` e `idea_concepts` para metadados estruturados e relacionamento N:N.
 - **Critérios de Aceite:**
@@ -227,7 +325,7 @@
   - Deve criar índices: ON label, ON idea_id, ON concept_id
   - Conceitos são globais (biblioteca única), ideias referenciam via `idea_concepts`
 
-#### 8.3 Pipeline de Detecção de Conceitos [POC]
+#### 10.3 Pipeline de Detecção de Conceitos [POC]
 
 - **Descrição:** LLM extrai conceitos-chave quando argumento amadurece (ao criar snapshot de Idea) e salva em ChromaDB + SQLite.
 - **Critérios de Aceite:**
@@ -238,7 +336,7 @@
   - Deve criar registro em `idea_concepts` (linking N:N)
   - **Não** deve executar detecção a cada mensagem (apenas no snapshot)
 
-#### 8.4 Busca Semântica [POC]
+#### 10.4 Busca Semântica [POC]
 
 - **Descrição:** Buscar conceitos similares via embeddings (threshold > 0.80 = mesmo conceito).
 - **Critérios de Aceite:**
@@ -247,7 +345,7 @@
   - Deve usar threshold 0.80 para deduplicação ("produtividade" = "eficiência")
   - Deve retornar lista ordenada por similaridade
 
-#### 8.5 Variations Automáticas [Protótipo]
+#### 10.5 Variations Automáticas [Protótipo]
 
 - **Descrição:** Sistema detecta variações linguísticas e adiciona ao Concept existente (colaboração = cooperação) com thresholds diferenciados.
 - **Critérios de Aceite:**
@@ -257,7 +355,7 @@
   - Deve adicionar variation ao Concept existente se confirmado
   - Deve criar novo Concept se usuário rejeitar ou similaridade < 0.80
 
-#### 8.6 Mostrar Conceitos na Interface [Protótipo]
+#### 10.6 Mostrar Conceitos na Interface [Protótipo]
 
 - **Descrição:** Exibir conceitos detectados em dois níveis: preview discreto na página da ideia + exploração completa no Catálogo.
 - **Critérios de Aceite:**
@@ -273,7 +371,7 @@
 
 ---
 
-## ÉPICO 9: Alinhamento de Ontologia
+## ÉPICO 11: Alinhamento de Ontologia
 
 **Objetivo:** Migrar código atual (premises/assumptions como strings separadas) para nova ontologia (Proposição unificada com solidez derivada de Evidências).
 
@@ -282,7 +380,7 @@
 **Abordagem:** Evolução gradual, não refatoração big-bang.
 
 **Dependências:**
-- Épicos 7-8 concluídos
+- Épicos 9-10 concluídos
 
 **Referências:**
 - `docs/architecture/ontology.md` - Nova ontologia
@@ -290,25 +388,25 @@
 
 ---
 
-## ÉPICO 10: Pesquisador
+## ÉPICO 12: Pesquisador
 
 **Objetivo:** Agente para busca e síntese de literatura científica. Introduz Evidência como entidade prática.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 9
+- Épico 11
 
 ---
 
-## ÉPICO 11: Escritor
+## ÉPICO 13: Escritor
 
 **Objetivo:** Agente para compilação de seções do artigo científico.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 7
+- Épico 12
 
 ---
 
