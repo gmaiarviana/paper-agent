@@ -185,6 +185,7 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - ✅ Schema implementado (`CognitiveModel`)
 - ✅ SnapshotManager implementado (avalia maturidade via LLM)
 - ✅ **Épico 9.1:** Orquestrador atualizar cognitive_model no state a cada turno
+- ✅ **Épico 9.2:** Passar active_idea_id via config do LangGraph
 - ⏳ **Épico 9.3:** Integrar SnapshotManager no fluxo conversacional (persistência automática)
 
 ## Stack Técnico

@@ -704,3 +704,160 @@ class TestOrchestratorReturnsCognitiveModel:
         assert "cognitive_model" in result
         assert result["cognitive_model"]["claim"] == "Minha observação"
         assert len(result["cognitive_model"]["open_questions"]) >= 1
+
+
+# =============================================================================
+# TESTES DO ACTIVE_IDEA_ID (Épico 9.2)
+# =============================================================================
+
+class TestActiveIdeaIdFromConfig:
+    """Testes para extração de active_idea_id do config (Épico 9.2)."""
+
+    def test_orchestrator_works_without_active_idea_id(self):
+        """orchestrator_node funciona sem active_idea_id no config."""
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade",
+            session_id="test-session"
+        )
+
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Teste",
+  "next_step": "explore",
+  "message": "Interessante!",
+  "focal_argument": {
+    "intent": "unclear",
+    "subject": "LLMs productivity",
+    "population": "not specified",
+    "metrics": "not specified",
+    "article_type": "unclear"
+  },
+  "cognitive_model": {
+    "claim": "LLMs aumentam produtividade",
+    "premises": [],
+    "assumptions": [],
+    "open_questions": [],
+    "contradictions": [],
+    "solid_grounds": [],
+    "context": {}
+  },
+  "agent_suggestion": null
+}
+"""
+        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+
+        # Config SEM active_idea_id
+        config = {"configurable": {"thread_id": "test-thread"}}
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+
+            # Não deve lançar exceção
+            result = orchestrator_node(state, config=config)
+
+        assert result["next_step"] == "explore"
+
+    def test_orchestrator_works_with_active_idea_id(self):
+        """orchestrator_node funciona com active_idea_id no config."""
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade",
+            session_id="test-session"
+        )
+
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Teste",
+  "next_step": "explore",
+  "message": "Interessante!",
+  "focal_argument": {
+    "intent": "unclear",
+    "subject": "LLMs productivity",
+    "population": "not specified",
+    "metrics": "not specified",
+    "article_type": "unclear"
+  },
+  "cognitive_model": {
+    "claim": "LLMs aumentam produtividade",
+    "premises": [],
+    "assumptions": [],
+    "open_questions": [],
+    "contradictions": [],
+    "solid_grounds": [],
+    "context": {}
+  },
+  "agent_suggestion": null
+}
+"""
+        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+
+        # Config COM active_idea_id
+        config = {
+            "configurable": {
+                "thread_id": "test-thread",
+                "active_idea_id": "idea-uuid-12345678"
+            }
+        }
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+
+            result = orchestrator_node(state, config=config)
+
+        assert result["next_step"] == "explore"
+
+    def test_orchestrator_works_with_none_active_idea_id(self):
+        """orchestrator_node funciona com active_idea_id=None no config."""
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade",
+            session_id="test-session"
+        )
+
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Teste",
+  "next_step": "explore",
+  "message": "Interessante!",
+  "focal_argument": {
+    "intent": "unclear",
+    "subject": "LLMs productivity",
+    "population": "not specified",
+    "metrics": "not specified",
+    "article_type": "unclear"
+  },
+  "cognitive_model": {
+    "claim": "LLMs aumentam produtividade",
+    "premises": [],
+    "assumptions": [],
+    "open_questions": [],
+    "contradictions": [],
+    "solid_grounds": [],
+    "context": {}
+  },
+  "agent_suggestion": null
+}
+"""
+        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+
+        # Config COM active_idea_id=None (padrão CLI)
+        config = {
+            "configurable": {
+                "thread_id": "test-thread",
+                "active_idea_id": None
+            }
+        }
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+
+            result = orchestrator_node(state, config=config)
+
+        assert result["next_step"] == "explore"

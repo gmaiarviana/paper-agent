@@ -330,10 +330,13 @@ def _invoke_langgraph(user_input: str, session_id: str) -> dict:
         session_id=session_id
     )
 
-    # Configuração com thread_id (preserva histórico entre turnos)
+    # Configuração com thread_id e active_idea_id (Épico 9.2)
+    # thread_id: preserva histórico entre turnos (LangGraph)
+    # active_idea_id: ideia ativa para persistência (Épico 9.3)
     config = {
         "configurable": {
-            "thread_id": session_id
+            "thread_id": session_id,
+            "active_idea_id": st.session_state.get("active_idea_id")  # Épico 9.2
         }
     }
 

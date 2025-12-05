@@ -5,7 +5,7 @@ Este módulo implementa o nó principal do Orquestrador:
 - orchestrator_node: Facilitador conversacional MVP com argumento focal explícito
 - _build_context: Constrói contexto incluindo outputs de agentes para curadoria
 
-Versão: 5.0 (Épico 9.1 - Atualização de cognitive_model a cada turno)
+Versão: 5.1 (Épico 9.2 - active_idea_id via config)
 Data: 05/12/2025
 """
 
@@ -254,7 +254,10 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
 
     Args:
         state (MultiAgentState): Estado atual do sistema multi-agente.
-        config (RunnableConfig, optional): Configuração do LangGraph (contém memory_manager)
+        config (RunnableConfig, optional): Configuração do LangGraph.
+            Campos suportados em config["configurable"]:
+            - memory_manager: MemoryManager para tracking de tokens (Épico 6.2)
+            - active_idea_id: UUID da ideia ativa para persistência (Épico 9.2)
 
     Returns:
         dict: Dicionário com updates incrementais do estado:
@@ -354,6 +357,16 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
                     "context_length": len(full_context)
                 }
             )
+
+    # Extrair active_idea_id do config (Épico 9.2)
+    # Usado pelo SnapshotManager para persistência (Épico 9.3)
+    active_idea_id = None
+    if config:
+        active_idea_id = config.get("configurable", {}).get("active_idea_id")
+        if active_idea_id:
+            logger.info(f"📝 Processando ideia: {active_idea_id[:8]}...")
+        else:
+            logger.debug("active_idea_id não fornecido no config (opcional)")
 
     # Parse da resposta JSON
     try:

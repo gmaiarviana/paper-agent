@@ -185,7 +185,7 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
 
 **Objetivo:** Completar ciclo de persistência silenciosa e feedback visual de progresso.
 
-**Status:** 🔄 Em progresso (9.1 concluído)
+**Status:** 🔄 Em progresso (9.1, 9.2 concluídos)
 
 **Dependências:** Nenhuma
 
@@ -204,8 +204,9 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
   - Schema `CognitiveModel` usado para validação (Pydantic)
   - Campos: claim, premises, assumptions, open_questions, contradictions, solid_grounds, context
 
-#### 9.2 Passar active_idea_id via Config
+#### 9.2 Passar active_idea_id via Config ✅
 
+- **Status:** Concluído
 - **Descrição:** Disponibilizar active_idea_id no config do LangGraph (agnóstico de framework)
 - **Critérios de Aceite:**
   - Streamlit adiciona `active_idea_id` ao config ao invocar grafo
