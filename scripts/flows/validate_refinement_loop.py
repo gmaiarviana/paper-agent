@@ -173,7 +173,7 @@ def validate_scenario_2_refinement_cycle():
         
         result_method_2 = decide_collaborative(state)
         
-        status_2 = result_method_2.get('methodologist_output', {}).get('status')
+        status_2 = (result_method_2.get('methodologist_output') or {}).get('status')
         print(f"   Status V2: {status_2}")
         
         state['hypothesis_versions'] = result_method_2.get('hypothesis_versions', [])
