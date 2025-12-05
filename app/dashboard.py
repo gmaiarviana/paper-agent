@@ -23,6 +23,7 @@ sys.path.insert(0, str(project_root))
 
 import streamlit as st
 from utils.event_bus import get_event_bus
+from utils.currency import format_currency
 
 
 # === CONFIGURAÇÃO ===
@@ -413,7 +414,7 @@ def render_consolidated_metrics(events: List[Dict[str, Any]]):
             with col1:
                 st.metric("Tokens", f"{metrics['tokens']:,}")
             with col2:
-                st.metric("Custo", f"${metrics['cost']:.4f}")
+                st.metric("Custo", format_currency(metrics['cost']))
             with col3:
                 st.metric("Tempo", f"{metrics['duration']:.2f}s")
 
@@ -425,7 +426,7 @@ def render_consolidated_metrics(events: List[Dict[str, Any]]):
     with col1:
         st.metric("🔢 Total Tokens", f"{total_tokens:,}")
     with col2:
-        st.metric("💰 Total Custo", f"${total_cost:.4f}")
+        st.metric("💰 Total Custo", format_currency(total_cost))
     with col3:
         st.metric("⏱️ Total Tempo", f"{total_duration:.2f}s")
 
