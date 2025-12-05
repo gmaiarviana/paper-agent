@@ -19,7 +19,7 @@
 - **ÉPICO 5**: UX Polish - Custos exibidos em reais (BRL) com formato brasileiro
 - **ÉPICO 6**: Limpeza de Testes - Suite de testes limpa e focada com testes de integração reais
 - **ÉPICO 7**: Validação de Maturidade do Sistema - Validação manual com 10 cenários críticos executados
-- **ÉPICO 8**: Análise Assistida de Qualidade - Ferramentas para execução multi-turn e relatórios estruturados (8.1 e 8.2 implementados)
+- **ÉPICO 8**: Análise Assistida de Qualidade - Ferramentas para execução multi-turn, relatórios estruturados e sistema de observabilidade completo (8.1, 8.2 e 8.5 implementados)
 - **ÉPICO 9**: Integração Backend↔Frontend - Persistência silenciosa e feedback visual de progresso completos
 
 ### 🟡 Épicos Em Andamento
@@ -48,9 +48,14 @@
 
 ## ÉPICO 8: Análise Assistida de Qualidade
 
-**Status:** ✅ Concluído (8.1 e 8.2 implementados; 8.3 movido para backlog)
+**Status:** ✅ Concluído (8.1, 8.2 e 8.5 implementados; 8.3 movido para backlog)
 
-Ferramentas para execução multi-turn e relatórios estruturados implementadas. Funcionalidade 8.3 (Comparison Tool) movida para backlog. Funcionalidades 8.4-8.5 planejadas mas não implementadas (prioridade reduzida).
+Ferramentas para execução multi-turn, relatórios estruturados e sistema de observabilidade completo implementados. Funcionalidade 8.3 (Comparison Tool) movida para backlog. Funcionalidade 8.4 planejada mas não implementada (prioridade reduzida).
+
+### Funcionalidades Implementadas
+
+- **8.1 e 8.2**: Execução multi-turn e relatórios estruturados
+- **8.5**: Sistema de observabilidade com logging estruturado (JSONL), debug reports e session replay. Todos os nós principais instrumentados (orchestrator, structurer, methodologist). Ver `ARCHITECTURE.md` para detalhes completos.
 
 ### Funcionalidades Planejadas (não implementadas)
 
@@ -64,17 +69,6 @@ Ferramentas para execução multi-turn e relatórios estruturados implementadas.
   - Menu inicial deve listar cenários disponíveis
   - Após executar cenário, deve oferecer opções de análise
   - Deve ser intuitivo (não requer documentação para usar)
-
-#### 8.5 Debug Workflow ⏳
-
-- **Status:** ⏳ Parcialmente implementado
-- **Objetivo:** Facilitar troubleshooting de problemas sutis com logs detalhados
-- **Descrição:** Implementar workflow de debug que gera logs completos (prompt enviado, resposta bruta, reasoning do LLM, decisões step-by-step) quando problema é identificado
-- **Critérios de Aceite:**
-  - ✅ `scripts/testing/debug_scenario.py` criado (debug mode com logs detalhados)
-  - ⏳ `generate_debug_report()` em `utils/debug_reporter.py` (parcial)
-  - ⏳ Logs formatados com marcadores visuais completos
-  - ⏳ Comparação antes/depois de mudanças no prompt (futuro)
 
 ---
 
