@@ -185,7 +185,7 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
 
 **Objetivo:** Completar ciclo de persistência silenciosa e feedback visual de progresso.
 
-**Status:** 🔄 Em progresso (9.1, 9.2 concluídos)
+**Status:** 🔄 Em progresso (9.1, 9.2, 9.3 concluídos)
 
 **Dependências:** Nenhuma
 
@@ -213,8 +213,9 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
   - Orchestrator acessa `active_idea_id` via `config.get("configurable", {})`
   - Funciona mesmo sem active_idea_id (opcional, não quebra fluxo)
 
-#### 9.3 SnapshotManager no Orquestrador
+#### 9.3 SnapshotManager no Orquestrador ✅
 
+- **Status:** Concluído
 - **Descrição:** Integrar avaliação de maturidade via LLM no orchestrator_node
 - **Critérios de Aceite:**
   - Orchestrator chama `create_snapshot_if_mature()` após processar turno

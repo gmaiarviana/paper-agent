@@ -5,7 +5,7 @@ Este módulo implementa o nó principal do Orquestrador:
 - orchestrator_node: Facilitador conversacional MVP com argumento focal explícito
 - _build_context: Constrói contexto incluindo outputs de agentes para curadoria
 
-Versão: 5.1 (Épico 9.2 - active_idea_id via config)
+Versão: 5.2 (Épico 9.3 - SnapshotManager no Orquestrador)
 Data: 05/12/2025
 """
 
@@ -24,6 +24,7 @@ from agents.memory.config_loader import get_agent_prompt, get_agent_model, Confi
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
 from agents.models.cognitive_model import CognitiveModel
+from agents.persistence import create_snapshot_if_mature
 
 logger = logging.getLogger(__name__)
 
@@ -241,6 +242,7 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
     7. Negocia com o usuário antes de chamar agentes
     8. Detecta mudanças de direção comparando focal_argument (7.8)
     9. Registra execução no MemoryManager (se configurado - Épico 6.2)
+    10. Cria snapshot automático quando argumento amadurece (Épico 9.3)
 
     NOVIDADES MVP (Épico 7.8-7.10):
     - focal_argument: Campo explícito extraído a cada turno (intent, subject, population, metrics, article_type)
@@ -464,6 +466,22 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
 
     # Criar AIMessage com a mensagem conversacional para histórico
     ai_message = AIMessage(content=message)
+
+    # Criar snapshot se argumento maduro (Épico 9.3)
+    # Silencioso: não notifica usuário, apenas log interno
+    if active_idea_id and cognitive_model_dict:
+        try:
+            cognitive_model_instance = CognitiveModel(**cognitive_model_dict)
+            snapshot_id = create_snapshot_if_mature(
+                idea_id=active_idea_id,
+                cognitive_model=cognitive_model_instance,
+                confidence_threshold=0.8  # Threshold configurável
+            )
+            if snapshot_id:
+                logger.info(f"📸 Snapshot automático criado: {snapshot_id[:8]}...")
+        except Exception as e:
+            # Silencioso: falha não bloqueia fluxo
+            logger.debug(f"Snapshot não criado: {e}")
 
     return {
         "orchestrator_analysis": reasoning,
