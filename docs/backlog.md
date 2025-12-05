@@ -6,18 +6,6 @@ Melhorias importantes que expandem capacidades essenciais do sistema.
 
 ---
 
-### Pesquisador
-Agente para busca e síntese de literatura acadêmica (essencial para revisões e contextualização).
-
-- Busca bibliográfica automática (Google Scholar, Semantic Scholar)
-- Síntese de papers acadêmicos relevantes
-- Identificação de gaps na literatura
-- Comparação de abordagens metodológicas
-- RAG para armazenar papers encontrados
-- Tool `search_papers(query)` e `find_similar_papers(paper_id)`
-
----
-
 ### Estruturador como Sub-Grafo
 Transformar Estruturador de função simples para agente complexo com reasoning loop.
 
@@ -54,11 +42,13 @@ Checklist adaptativo com status em tempo real no painel Contexto.
 ### RAG Infrastructure - Metodologista Knowledge Base
 Metodologista consulta knowledge base via RAG ao invés de arquivo `.md` estático.
 
-- Setup ChromaDB (vector store local, gratuito)
+**Nota:** A infraestrutura base do ChromaDB será implementada no ÉPICO 10 (Observador) para catálogo de conceitos. Esta funcionalidade aproveitará essa infraestrutura para uso específico do Metodologista.
+
+- Setup ChromaDB (vector store local, gratuito) - aproveitar infraestrutura do ÉPICO 10
 - Tool `consult_methodology(query)` com busca semântica
 - Popular KB inicial com `docs/agents/methodologist_knowledge.md`
 - Integrar tool no grafo do Metodologista
-- Embeddings: sentence-transformers (all-MiniLM-L6-v2)
+- Embeddings: sentence-transformers (all-MiniLM-L6-v2) - mesmo modelo do ÉPICO 10
 - CLI para gerenciar KB: `python cli/kb_manager.py add/search/stats`
 
 ---
@@ -87,17 +77,6 @@ Documentação, templates e patterns para criar novos agentes.
 - Checklist de implementação completa
 - Patterns comuns documentados: reasoning loop, tools, conditional routing
 - Helpers opcionais para boilerplate (TypedDict, graph setup básico)
-
----
-
-### Escritor
-Agente para compilação do artigo final (essencial para entregar artigo completo).
-
-- Compilação de seções do artigo baseado em outline
-- Formatação acadêmica (ABNT, APA, Chicago, etc)
-- Geração de rascunhos com estilo consistente
-- Integração com pesquisas e validações anteriores
-- RAG sobre textos anteriores do usuário (aprender estilo)
 
 ---
 
