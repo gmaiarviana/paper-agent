@@ -16,6 +16,7 @@
 - **ÉPICO 2**: Sidebar
 - **ÉPICO 3**: Bastidores
 - **ÉPICO 4**: Contexto
+- **ÉPICO 5**: UX Polish
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
@@ -23,7 +24,7 @@
 ### ⏳ Épicos Planejados
 
 #### Planejados (refinados)
-- **ÉPICO 5**: UX Polish (refinado)
+- _Nenhum épico refinado pendente_
 
 #### Planejados (não refinados)
 - **ÉPICO 6**: Qualidade de Testes - LLM-as-Judge (não refinado)
@@ -34,8 +35,7 @@
 - **ÉPICO 11**: Escritor (não refinado)
 
 **Nota sobre Dependências:**
-- Épicos 1, 2, 3, 4 concluídos (independentes)
-- Épico 5 depende dos Épicos 3-4 (usa nova estrutura de Contexto/Bastidores)
+- Épicos 1, 2, 3, 4, 5 concluídos (independentes)
 - Épico 6 depende do Épico 1 (valida comportamento de convergência) - Épico 1 já concluído
 - Épicos 7-11 seguem sequência: Integração → Conceitos → Ontologia → Pesquisador → Escritor
 
@@ -49,21 +49,22 @@
 
 **Objetivo:** Ajustes de experiência do usuário: custo em R$.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído
 
 **Dependências:** Épicos 3-4 (métricas movidas para Contexto)
 
 ### Funcionalidades:
 
-#### 5.1 Custo em R$
+#### 5.1 Custo em R$ ✅
 
 - **Descrição:** Exibir custos em reais (BRL) com formato brasileiro
-- **Critérios de Aceite:**
-  - Deve adicionar configs em `.env`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.5`
-  - Deve converter USD → BRL usando taxa configurável
-  - Deve exibir formato brasileiro: "R$ 0,02" (vírgula decimal)
-  - Fallback: se `CURRENCY` não for `BRL`, mantém USD como hoje
-  - Deve aplicar em todos os pontos: chat_history, backstage, dashboard
+- **Implementação:**
+  - ✅ Criado `utils/currency.py` com `format_currency()` para conversão USD→BRL
+  - ✅ Configs em `.env.example`: `CURRENCY=BRL`, `USD_TO_BRL_RATE=5.5`
+  - ✅ Formato brasileiro: "R$ 0,02" (vírgula decimal)
+  - ✅ Fallback para USD se `CURRENCY` não for `BRL`
+  - ✅ Aplicado em: chat_history, backstage, dashboard
+  - ✅ 22 testes unitários em `tests/unit/test_currency.py`
 
 ---
 
