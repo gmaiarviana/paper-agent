@@ -47,22 +47,11 @@
 
 ## ÉPICO 8: Análise Assistida de Qualidade
 
-**Status:** ✅ Concluído (8.1 e 8.2 implementados; 8.3-8.5 opcionais e não priorizados)
+**Status:** ✅ Concluído (8.1 e 8.2 implementados; 8.3 movido para backlog)
 
-Ferramentas para execução multi-turn e relatórios estruturados implementadas. Funcionalidades 8.3-8.5 planejadas mas não implementadas (prioridade reduzida).
+Ferramentas para execução multi-turn e relatórios estruturados implementadas. Funcionalidade 8.3 (Comparison Tool) movida para backlog. Funcionalidades 8.4-8.5 planejadas mas não implementadas (prioridade reduzida).
 
 ### Funcionalidades Planejadas (não implementadas)
-
-#### 8.3 Comparison Tool ⏳
-
-- **Status:** ⏳ Planejado (prioridade baixa)
-- **Objetivo:** Comparar antes/depois de mudanças no prompt para detectar regressões
-- **Descrição:** Implementar ferramenta que compara resultados de execução antes/depois de mudanças no código/prompt, identifica regressões automaticamente, e gera relatório de impacto estruturado para discussão
-- **Critérios de Aceite:**
-  - Deve implementar `compare_results()` em `utils/result_comparer.py`
-  - Deve implementar `detect_regressions()` para identificar regressões automaticamente
-  - Deve implementar `compare_results.py` com CLI
-  - Output deve incluir resumo de mudanças e lista de cenários que precisam atenção
 
 #### 8.4 Interactive Analysis Mode ⏳
 

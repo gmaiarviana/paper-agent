@@ -172,6 +172,32 @@ Por que sistema não reconheceu contexto suficiente?
 
 ---
 
+## 📋 Funcionalidades (8.1 - 8.5)
+
+### 8.1 Multi-Turn Executor ✅
+- **Status:** Implementado
+- **Prioridade:** 🔴 PRIORIDADE #1
+- **Descrição:** Executar conversas completas end-to-end para validar fluxos multi-agente
+
+### 8.2 Debug Mode ✅
+- **Status:** Implementado
+- **Prioridade:** 🔴 PRIORIDADE #2
+- **Descrição:** Facilitar troubleshooting de problemas sutis através de logs detalhados
+
+### 8.3 Comparison Tool ❌
+- **Status:** ❌ Movido para backlog (não prioritário para MVP)
+- **Descrição:** Comparar antes/depois de mudanças no prompt para detectar regressões
+
+### 8.4 Interactive Analysis Mode ⏳
+- **Status:** ⏳ Planejado (prioridade baixa)
+- **Descrição:** Guiar fluxo de investigação de forma interativa
+
+### 8.5 Debug Workflow ⏳
+- **Status:** ⏳ Parcialmente implementado
+- **Descrição:** Workflow de debug completo com logs formatados
+
+---
+
 ## 🔄 Multi-Turn Executor (PRIORIDADE #1)
 
 ### Objetivo
@@ -1121,6 +1147,22 @@ pytest tests/integration/test_multi_turn_flows.py
 
 **Removido do escopo:**
 - ❌ CI/CD (postergar para Épico 10+)
+- ❌ 8.3 Comparison Tool (movido para backlog)
+
+---
+
+## 📅 Cronograma Épico 8
+
+- **8.1 Multi-Turn Executor:** ✅ Concluído
+- **8.2 Debug Mode:** ✅ Concluído
+- **8.4 Interactive Analysis Mode:** ⏳ Planejado (prioridade baixa)
+- **8.5 Debug Workflow:** ⏳ Parcialmente implementado
+
+---
+
+## 📝 Mudanças em relação à proposta original
+
+- **8.3 Comparison Tool:** Movido para backlog por não ser prioritário para MVP. Funcionalidade será implementada quando necessário para validação de mudanças em prompts.
 
 ---
 

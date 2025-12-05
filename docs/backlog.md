@@ -386,6 +386,16 @@ Dashboard de métricas e otimização contínua.
 
 ---
 
+### Comparison Tool (Testes)
+Comparar antes/depois de mudanças no prompt para detectar regressões.
+
+- Implementar `compare_results()` em `utils/result_comparer.py`
+- Implementar `detect_regressions()` para identificar regressões automaticamente
+- Implementar `compare_results.py` com CLI
+- Output deve incluir resumo de mudanças e lista de cenários que precisam atenção
+
+---
+
 ### Exportação e Formatação Avançada
 Suporte a múltiplos formatos e publicação.
 
