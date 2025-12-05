@@ -431,6 +431,32 @@ def _render_idea_status(session_id: str) -> None:
         st.markdown(f"**{idea['title']}**")
         st.caption(status_badge)
 
+        # Indicador de Solidez (Épico 9.4)
+        if focal_arg:
+            from agents.models.cognitive_model import CognitiveModel
+
+            # Reconstruir modelo cognitivo do argumento persistido
+            try:
+                cognitive_model = CognitiveModel(
+                    claim=focal_arg.get("claim", ""),
+                    premises=focal_arg.get("premises", []),
+                    assumptions=focal_arg.get("assumptions", []),
+                    open_questions=focal_arg.get("open_questions", []),
+                    contradictions=[],  # Contradictions não persistidas diretamente
+                    solid_grounds=[],   # Solid grounds não persistidos diretamente
+                    context=focal_arg.get("context", {})
+                )
+
+                solidez = cognitive_model.calculate_solidez()
+
+                # Renderizar barra de progresso
+                st.progress(
+                    value=solidez / 100.0,
+                    text=f"🎯 Solidez: {solidez:.0f}%"
+                )
+            except Exception as e:
+                logger.debug(f"Não foi possível calcular solidez: {e}")
+
         # Metadados
         arguments = db.get_arguments_by_idea(active_idea_id)
         num_arguments = len(arguments)

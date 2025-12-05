@@ -235,6 +235,84 @@ class CognitiveModel(BaseModel):
             len(self.contradictions) == 0
         )
 
+    def calculate_solidez(self) -> float:
+        """
+        Calcula solidez do argumento focal (0-100%).
+
+        Solidez é uma medida composta da força/fundação do argumento baseado em:
+        - Especificidade do claim (0-20 pontos)
+        - Força dos fundamentos/premises (0-25 pontos)
+        - Fraqueza das suposições não verificadas (0-20 pontos)
+        - Questões respondidas (0-20 pontos)
+        - Ausência de contradições (0-15 pontos)
+        - Presença de evidências bibliográficas (0-10 pontos bonus)
+
+        Total máximo: 110 pontos, normalizado para 100%.
+
+        Returns:
+            float: Solidez (0-100)
+
+        Example:
+            >>> model = CognitiveModel(
+            ...     claim="Claude Code reduz tempo de sprint em 30%",
+            ...     premises=["Equipes usam Claude Code", "Tempo é mensurável"],
+            ...     assumptions=[],
+            ...     open_questions=[],
+            ...     contradictions=[],
+            ...     solid_grounds=[]
+            ... )
+            >>> solidez = model.calculate_solidez()
+            >>> print(f"Solidez: {solidez:.0f}%")
+            Solidez: 80%
+        """
+        score = 0.0
+
+        # 1. Especificidade do claim (0-20)
+        claim_len = len(self.claim)
+        if claim_len > 50:
+            score += 20
+        elif claim_len > 20:
+            score += 10 + min(10, (claim_len - 20) / 3)
+
+        # 2. Força dos fundamentos (0-25)
+        premises_count = len(self.premises)
+        if premises_count >= 3:
+            score += 25
+        elif premises_count == 2:
+            score += 20
+        elif premises_count == 1:
+            score += 10
+
+        # 3. Fraqueza das suposições (0-20) - menos é melhor
+        assumptions_count = len(self.assumptions)
+        if assumptions_count == 0:
+            score += 20
+        elif assumptions_count == 1:
+            score += 15
+        elif assumptions_count == 2:
+            score += 10
+        elif assumptions_count <= 5:
+            score += max(0, 10 - assumptions_count)
+
+        # 4. Questões respondidas (0-20) - menos é melhor
+        questions_count = len(self.open_questions)
+        if questions_count == 0:
+            score += 20
+        elif questions_count == 1:
+            score += 10
+
+        # 5. Contradições resolvidas (0-15)
+        if len(self.contradictions) == 0:
+            score += 15
+        elif len(self.contradictions) == 1:
+            score += 5
+
+        # 6. Evidências presentes (0-10 bonus)
+        if len(self.solid_grounds) > 0:
+            score += min(10, len(self.solid_grounds) * 3)
+
+        return min(100.0, score)
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Serializa modelo para dict (útil para persistência).

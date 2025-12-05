@@ -185,7 +185,7 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
 
 **Objetivo:** Completar ciclo de persistência silenciosa e feedback visual de progresso.
 
-**Status:** 🔄 Em progresso (9.1, 9.2, 9.3 concluídos)
+**Status:** ✅ Concluído
 
 **Dependências:** Nenhuma
 
@@ -224,8 +224,9 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
   - Silencioso: sem logs visíveis ao usuário, sem notificações
   - Depende de 9.1 (cognitive_model) e 9.2 (active_idea_id)
 
-#### 9.4 Indicador de Solidez no Contexto
+#### 9.4 Indicador de Solidez no Contexto ✅
 
+- **Status:** Concluído
 - **Descrição:** Exibir barra de progresso de solidez do argumento focal
 - **Critérios de Aceite:**
   - Backend: Método reutilizável calcula solidez (ex: `CognitiveModel.calculate_solidez()`)
@@ -233,7 +234,7 @@ Suite de testes limpa e focada: testes burocráticos removidos, testes de integr
   - Atualiza quando argumento focal muda
   - Agnóstico de framework (cálculo no backend, UI apenas exibe)
 
-**Ordem de implementação:** 9.1 → 9.2 → 9.3 → 9.4
+**Ordem de implementação:** 9.1 → 9.2 → 9.3 → 9.4 ✅
 
 ---
 
