@@ -390,7 +390,7 @@ Cada ferramenta deve ter:
 
 **Objetivo:** Completar ciclo de persistência silenciosa e feedback visual de progresso.
 
-**Status:** ⏳ Planejado (refinado)
+**Status:** ✅ Concluído
 
 **Dependências:** Nenhuma
 
@@ -398,8 +398,9 @@ Cada ferramenta deve ter:
 
 ### Funcionalidades:
 
-#### 9.1 Atualização de cognitive_model no Orchestrator
+#### 9.1 Atualização de cognitive_model no Orchestrator ✅
 
+- **Status:** Concluído
 - **Descrição:** Implementar atualização do cognitive_model no orchestrator_node a cada turno
 - **Critérios de Aceite:**
   - Prompt do orchestrator solicita `cognitive_model` no JSON de saída
@@ -408,16 +409,18 @@ Cada ferramenta deve ter:
   - Schema `CognitiveModel` usado para validação (Pydantic)
   - Campos: claim, premises, assumptions, open_questions, contradictions, solid_grounds, context
 
-#### 9.2 Passar active_idea_id via Config
+#### 9.2 Passar active_idea_id via Config ✅
 
+- **Status:** Concluído
 - **Descrição:** Disponibilizar active_idea_id no config do LangGraph (agnóstico de framework)
 - **Critérios de Aceite:**
   - Streamlit adiciona `active_idea_id` ao config ao invocar grafo
   - Orchestrator acessa `active_idea_id` via `config.get("configurable", {})`
   - Funciona mesmo sem active_idea_id (opcional, não quebra fluxo)
 
-#### 9.3 SnapshotManager no Orquestrador
+#### 9.3 SnapshotManager no Orquestrador ✅
 
+- **Status:** Concluído
 - **Descrição:** Integrar avaliação de maturidade via LLM no orchestrator_node
 - **Critérios de Aceite:**
   - Orchestrator chama `create_snapshot_if_mature()` após processar turno
@@ -426,8 +429,9 @@ Cada ferramenta deve ter:
   - Silencioso: sem logs visíveis ao usuário, sem notificações
   - Depende de 9.1 (cognitive_model) e 9.2 (active_idea_id)
 
-#### 9.4 Indicador de Solidez no Contexto
+#### 9.4 Indicador de Solidez no Contexto ✅
 
+- **Status:** Concluído
 - **Descrição:** Exibir barra de progresso de solidez do argumento focal
 - **Critérios de Aceite:**
   - Backend: Método reutilizável calcula solidez (ex: `CognitiveModel.calculate_solidez()`)
@@ -435,7 +439,7 @@ Cada ferramenta deve ter:
   - Atualiza quando argumento focal muda
   - Agnóstico de framework (cálculo no backend, UI apenas exibe)
 
-**Ordem de implementação:** 9.1 → 9.2 → 9.3 → 9.4
+**Ordem de implementação:** 9.1 → 9.2 → 9.3 → 9.4 ✅
 
 ---
 

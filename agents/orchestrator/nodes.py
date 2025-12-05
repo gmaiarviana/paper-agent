@@ -5,16 +5,17 @@ Este módulo implementa o nó principal do Orquestrador:
 - orchestrator_node: Facilitador conversacional MVP com argumento focal explícito
 - _build_context: Constrói contexto incluindo outputs de agentes para curadoria
 
-Versão: 4.1 (Bugfix - Preservação de contexto do focal_argument)
+Versão: 5.3 (Épico 9.3 + Bugfix preservação focal_argument)
 Data: 05/12/2025
 """
 
 import logging
 import json
-from typing import Optional
+from typing import Optional, Dict, Any
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_anthropic import ChatAnthropic
+from pydantic import ValidationError
 
 from .state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
@@ -22,39 +23,141 @@ from utils.config import get_anthropic_model, invoke_with_retry
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
+from agents.models.cognitive_model import CognitiveModel
+from agents.persistence import create_snapshot_if_mature
 
 logger = logging.getLogger(__name__)
+
+
+def _create_fallback_cognitive_model(state: MultiAgentState) -> Dict[str, Any]:
+    """
+    Cria cognitive_model de fallback quando LLM não retorna ou retorna inválido.
+
+    Usa o user_input para criar um modelo mínimo.
+
+    Args:
+        state: Estado atual do sistema
+
+    Returns:
+        Dict com cognitive_model mínimo válido
+    """
+    user_input = state.get("user_input", "")
+
+    return {
+        "claim": user_input[:200] if user_input else "",
+        "premises": [],
+        "assumptions": [],
+        "open_questions": ["O que você quer explorar sobre isso?"],
+        "contradictions": [],
+        "solid_grounds": [],
+        "context": {}
+    }
+
+
+def _validate_cognitive_model(
+    cognitive_model_raw: Optional[Dict[str, Any]],
+    state: MultiAgentState
+) -> Dict[str, Any]:
+    """
+    Valida cognitive_model usando schema Pydantic e retorna dict válido.
+
+    Esta função:
+    1. Se cognitive_model_raw for None, cria fallback
+    2. Valida contra schema CognitiveModel (Pydantic)
+    3. Se validação falhar, loga erro e cria fallback
+    4. Retorna dict (não instância Pydantic) para compatibilidade com state
+
+    Args:
+        cognitive_model_raw: Dict extraído do JSON do LLM (pode ser None)
+        state: Estado atual do sistema (para criar fallback)
+
+    Returns:
+        Dict[str, Any]: cognitive_model validado como dict
+
+    Example:
+        >>> raw = {"claim": "LLMs aumentam produtividade", "premises": [], ...}
+        >>> validated = _validate_cognitive_model(raw, state)
+        >>> validated["claim"]
+        'LLMs aumentam produtividade'
+    """
+    # Se não veio cognitive_model, cria fallback
+    if not cognitive_model_raw:
+        logger.warning("cognitive_model não fornecido pelo LLM. Usando fallback.")
+        return _create_fallback_cognitive_model(state)
+
+    # Tentar validar com Pydantic
+    try:
+        # Garantir que contradictions tenha estrutura correta
+        # LLM pode retornar contradictions vazio como [] ou com items sem confidence
+        contradictions = cognitive_model_raw.get("contradictions", [])
+        validated_contradictions = []
+        for c in contradictions:
+            if isinstance(c, dict):
+                # Garantir confidence >= 0.80 (regra do schema)
+                confidence = c.get("confidence", 0.85)
+                if confidence >= 0.80:
+                    validated_contradictions.append({
+                        "description": c.get("description", ""),
+                        "confidence": confidence,
+                        "suggested_resolution": c.get("suggested_resolution")
+                    })
+
+        # Construir dict para validação
+        model_dict = {
+            "claim": cognitive_model_raw.get("claim", ""),
+            "premises": cognitive_model_raw.get("premises", []),
+            "assumptions": cognitive_model_raw.get("assumptions", []),
+            "open_questions": cognitive_model_raw.get("open_questions", []),
+            "contradictions": validated_contradictions,
+            "solid_grounds": cognitive_model_raw.get("solid_grounds", []),
+            "context": cognitive_model_raw.get("context", {})
+        }
+
+        # Validar com Pydantic
+        validated_model = CognitiveModel.model_validate(model_dict)
+        logger.info(f"✅ cognitive_model validado: claim={validated_model.claim[:50]}...")
+
+        # Retornar como dict para compatibilidade com TypedDict state
+        return validated_model.model_dump()
+
+    except ValidationError as e:
+        logger.error(f"❌ Falha na validação do cognitive_model: {e}")
+        logger.warning("Usando cognitive_model fallback.")
+        return _create_fallback_cognitive_model(state)
+    except Exception as e:
+        logger.error(f"❌ Erro inesperado ao validar cognitive_model: {e}")
+        return _create_fallback_cognitive_model(state)
 
 
 def _merge_focal_argument(previous_focal: Optional[dict], new_focal: dict) -> dict:
     """
     Faz merge inteligente do focal_argument preservando valores anteriores quando novos são vagos.
-    
+
     Regras de merge:
     - Se novo valor é "not specified" ou "unclear" → preserva valor anterior (se existir)
     - Se novo valor é específico → usa novo valor
     - Se não havia valor anterior → usa novo valor
-    
+
     Args:
         previous_focal: Argumento focal anterior (pode ser None)
         new_focal: Argumento focal novo extraído do LLM
-        
+
     Returns:
         dict: Argumento focal mesclado preservando contexto anterior
     """
     if not previous_focal:
         # Sem valor anterior, usa novo valor diretamente
         return new_focal.copy()
-    
+
     merged = {}
-    
+
     # Campos que devem ser mesclados
     fields_to_merge = ['intent', 'subject', 'population', 'metrics', 'article_type']
-    
+
     for field in fields_to_merge:
         new_value = new_focal.get(field)
         previous_value = previous_focal.get(field)
-        
+
         # EXPANDIDO: Reconhecer variações naturais de "vago" que o LLM pode retornar
         empty_values = [
             # Valores padronizados
@@ -64,7 +167,7 @@ def _merge_focal_argument(previous_focal: Optional[dict], new_focal: dict) -> di
             'vague', 'ambiguous', 'to be determined', 'tbd',
             'not clear', 'unspecified', 'unknown'
         ]
-        
+
         # Se novo valor é vago e havia valor anterior específico → preserva anterior
         if new_value in empty_values and previous_value and previous_value not in empty_values:
             merged[field] = previous_value
@@ -84,7 +187,7 @@ def _merge_focal_argument(previous_focal: Optional[dict], new_focal: dict) -> di
                 merged[field] = 'unclear'
             else:
                 merged[field] = 'not specified'
-    
+
     return merged
 
 
@@ -201,6 +304,7 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
     7. Negocia com o usuário antes de chamar agentes
     8. Detecta mudanças de direção comparando focal_argument (7.8)
     9. Registra execução no MemoryManager (se configurado - Épico 6.2)
+    10. Cria snapshot automático quando argumento amadurece (Épico 9.3)
 
     NOVIDADES MVP (Épico 7.8-7.10):
     - focal_argument: Campo explícito extraído a cada turno (intent, subject, population, metrics, article_type)
@@ -214,12 +318,16 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
 
     Args:
         state (MultiAgentState): Estado atual do sistema multi-agente.
-        config (RunnableConfig, optional): Configuração do LangGraph (contém memory_manager)
+        config (RunnableConfig, optional): Configuração do LangGraph.
+            Campos suportados em config["configurable"]:
+            - memory_manager: MemoryManager para tracking de tokens (Épico 6.2)
+            - active_idea_id: UUID da ideia ativa para persistência (Épico 9.2)
 
     Returns:
         dict: Dicionário com updates incrementais do estado:
             - orchestrator_analysis: Raciocínio detalhado sobre contexto e histórico
             - focal_argument: Argumento focal extraído/atualizado (OBRIGATÓRIO)
+            - cognitive_model: Modelo cognitivo do argumento (Épico 9.1 - OBRIGATÓRIO)
             - next_step: Próxima ação ("explore", "suggest_agent", "clarify")
             - agent_suggestion: Sugestão de agente com justificativa (se next_step="suggest_agent")
             - reflection_prompt: Provocação de reflexão (se lacuna detectada)
@@ -314,17 +422,31 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
                 }
             )
 
+    # Extrair active_idea_id do config (Épico 9.2)
+    # Usado pelo SnapshotManager para persistência (Épico 9.3)
+    active_idea_id = None
+    if config:
+        active_idea_id = config.get("configurable", {}).get("active_idea_id")
+        if active_idea_id:
+            logger.info(f"📝 Processando ideia: {active_idea_id[:8]}...")
+        else:
+            logger.debug("active_idea_id não fornecido no config (opcional)")
+
     # Parse da resposta JSON
     try:
         orchestrator_response = extract_json_from_llm_response(response.content)
 
         reasoning = orchestrator_response.get("reasoning", "Raciocínio não fornecido")
         focal_argument = orchestrator_response.get("focal_argument")
+        cognitive_model_raw = orchestrator_response.get("cognitive_model")
         next_step = orchestrator_response.get("next_step", "explore")
         message = orchestrator_response.get("message", "Entendi. Como posso ajudar?")
         agent_suggestion = orchestrator_response.get("agent_suggestion", None)
         reflection_prompt = orchestrator_response.get("reflection_prompt", None)
         stage_suggestion = orchestrator_response.get("stage_suggestion", None)
+
+        # Validar e processar cognitive_model (Épico 9.1 - OBRIGATÓRIO)
+        cognitive_model_dict = _validate_cognitive_model(cognitive_model_raw, state)
 
         # Validar focal_argument (OBRIGATÓRIO no MVP)
         if not focal_argument:
@@ -373,6 +495,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         # Logs MVP
         logger.info(f"Raciocínio: {reasoning[:100]}...")
         logger.info(f"Argumento focal: intent={focal_argument.get('intent')}, subject={focal_argument.get('subject', 'N/A')[:50]}")
+        logger.info(f"🧠 Modelo cognitivo: claim={cognitive_model_dict.get('claim', 'N/A')[:50]}...")
         logger.info(f"Próximo passo: {next_step}")
         logger.info(f"Mensagem ao usuário: {message[:100]}...")
         if agent_suggestion:
@@ -399,6 +522,8 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
                 "metrics": "not specified",
                 "article_type": "unclear"
             }
+        # Fallback para cognitive_model (Épico 9.1)
+        cognitive_model_dict = _create_fallback_cognitive_model(state)
         next_step = "explore"
         message = "Desculpe, tive dificuldade em processar. Pode reformular sua ideia?"
         agent_suggestion = None
@@ -422,9 +547,26 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
     # Criar AIMessage com a mensagem conversacional para histórico
     ai_message = AIMessage(content=message)
 
+    # Criar snapshot se argumento maduro (Épico 9.3)
+    # Silencioso: não notifica usuário, apenas log interno
+    if active_idea_id and cognitive_model_dict:
+        try:
+            cognitive_model_instance = CognitiveModel(**cognitive_model_dict)
+            snapshot_id = create_snapshot_if_mature(
+                idea_id=active_idea_id,
+                cognitive_model=cognitive_model_instance,
+                confidence_threshold=0.8  # Threshold configurável
+            )
+            if snapshot_id:
+                logger.info(f"📸 Snapshot automático criado: {snapshot_id[:8]}...")
+        except Exception as e:
+            # Silencioso: falha não bloqueia fluxo
+            logger.debug(f"Snapshot não criado: {e}")
+
     return {
         "orchestrator_analysis": reasoning,
         "focal_argument": focal_argument,
+        "cognitive_model": cognitive_model_dict,
         "next_step": next_step,
         "agent_suggestion": agent_suggestion,
         "reflection_prompt": reflection_prompt,
