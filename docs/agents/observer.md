@@ -1,7 +1,7 @@
 # Observador - Mente Analítica
 
-**Status:** Planejado (Épico 10)
-**Versão:** 1.0
+**Status:** Implementado (Épico 10.1, 10.2)
+**Versão:** 2.0
 **Data:** 05/12/2025
 
 ## Resumo
@@ -474,11 +474,19 @@ def create_snapshot(idea_id: UUID):
 ## Evolução (Épicos)
 
 ### Épico 10: Observador - Mente Analítica (POC)
-- ✅ Mitose do Orquestrador
-- ✅ CognitiveModel completo
-- ✅ ChromaDB + SQLite setup
-- ✅ Extração de conceitos (LLM + embeddings)
-- ✅ Busca semântica básica
+- ✅ **10.1 Mitose do Orquestrador** - IMPLEMENTADO
+  - Estrutura `agents/observer/` criada
+  - ObservadorAPI com interface de consulta
+  - Separação de responsabilidades documentada
+- ✅ **10.2 Processamento via LLM** - IMPLEMENTADO
+  - Extratores semânticos (claims, concepts, fundamentos, contradictions)
+  - Métricas (solidez, completude)
+  - `process_turn()` + `ObserverProcessor`
+  - `CognitiveModelUpdatedEvent` no EventBus
+- ⏳ **10.3 ChromaDB + SQLite setup** - PENDENTE
+- ⏳ **10.4 Pipeline de conceitos** - PENDENTE
+- ⏳ **10.5 Busca semântica** - PENDENTE
+- ⏳ **10.6 Testes POC** - PENDENTE
 - ❌ NÃO integrado ao grafo ainda (chamada manual)
 
 ### Épico 12: Observador Integrado ao Fluxo
@@ -506,7 +514,7 @@ def create_snapshot(idea_id: UUID):
 
 ---
 
-**Versão:** 1.0  
-**Data:** 05/12/2025  
-**Status:** Planejado (Épico 10)
+**Versão:** 2.0
+**Data:** 05/12/2025
+**Status:** Implementado (Épico 10.1, 10.2) | Pendente (10.3-10.6)
 
