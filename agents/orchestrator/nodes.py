@@ -1,11 +1,33 @@
 """
-Nós do grafo do agente Orquestrador.
+Nos do grafo do agente Orquestrador.
 
-Este módulo implementa o nó principal do Orquestrador:
-- orchestrator_node: Facilitador conversacional MVP com argumento focal explícito
-- _build_context: Constrói contexto incluindo outputs de agentes para curadoria
+Este modulo implementa o no principal do Orquestrador:
+- orchestrator_node: Facilitador conversacional MVP com argumento focal explicito
+- _build_context: Constroi contexto incluindo outputs de agentes para curadoria
 
-Versão: 5.3 (Épico 9.3 + Bugfix preservação focal_argument)
+=== SEPARACAO DE RESPONSABILIDADES (Epico 10.1) ===
+
+Apos a "mitose" do Orquestrador, as responsabilidades foram separadas:
+
+ORQUESTRADOR (este modulo):
+- Facilitar conversa com usuario
+- Negociar caminhos e apresentar opcoes
+- Provocar reflexao sobre lacunas
+- Decidir next_step (explore, suggest_agent, clarify)
+- Consultar Observador quando incerto
+
+OBSERVADOR (agents/observer/):
+- Monitorar TODA conversa (todo turno)
+- Atualizar CognitiveModel completo
+- Extrair conceitos para catalogo
+- Calcular metricas (solidez, completude)
+- Responder consultas do Orquestrador (insights, nao comandos)
+
+NOTA: Na versao atual (10.1), o Orquestrador ainda gera cognitive_model
+diretamente. Em versoes futuras (10.2+), o Observador assumira essa
+responsabilidade e o Orquestrador apenas consultara.
+
+Versao: 5.4 (Epico 10.1 - Mitose do Orquestrador)
 Data: 05/12/2025
 """
 
@@ -294,29 +316,39 @@ def _build_context(state: MultiAgentState) -> str:
 
 def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> dict:
     """
-    Nó socrático que facilita diálogo provocativo com exposição de assumptions implícitas.
+    No socratico que facilita dialogo provocativo com exposicao de assumptions implicitas.
 
-    Este nó é o facilitador inteligente do sistema multi-agente (Épico 7 MVP). Ele:
-    1. Analisa input + histórico completo da conversa
-    2. Extrai e atualiza ARGUMENTO FOCAL explícito a cada turno (7.8)
-    3. Explora contexto através de perguntas abertas
-    4. Provoca REFLEXÃO sobre lacunas quando relevante (7.9)
-    5. Detecta EMERGÊNCIA de novo estágio naturalmente (7.10)
-    6. Sugere próximos passos com justificativas claras
-    7. Negocia com o usuário antes de chamar agentes
-    8. Detecta mudanças de direção comparando focal_argument (7.8)
-    9. Registra execução no MemoryManager (se configurado - Épico 6.2)
-    10. Cria snapshot automático quando argumento amadurece (Épico 9.3)
+    Este no e o FACILITADOR CONVERSACIONAL do sistema multi-agente. Ele:
+    1. Analisa input + historico completo da conversa
+    2. Extrai e atualiza ARGUMENTO FOCAL explicito a cada turno (7.8)
+    3. Explora contexto atraves de perguntas abertas
+    4. Provoca REFLEXAO sobre lacunas quando relevante (7.9)
+    5. Detecta EMERGENCIA de novo estagio naturalmente (7.10)
+    6. Sugere proximos passos com justificativas claras
+    7. Negocia com o usuario antes de chamar agentes
+    8. Detecta mudancas de direcao comparando focal_argument (7.8)
+    9. Registra execucao no MemoryManager (se configurado - Epico 6.2)
+    10. Cria snapshot automatico quando argumento amadurece (Epico 9.3)
 
-    NOVIDADES MVP (Épico 7.8-7.10):
-    - focal_argument: Campo explícito extraído a cada turno (intent, subject, population, metrics, article_type)
-    - reflection_prompt: Provocação de reflexão quando lacuna clara detectada
-    - stage_suggestion: Sugestão emergente quando estágio evolui (exploration → hypothesis)
+    === SEPARACAO DE RESPONSABILIDADES (Epico 10.1) ===
+
+    ORQUESTRADOR (este no):
+    - Facilitar conversa (perguntas abertas, negociacao)
+    - Decidir next_step (explore, suggest_agent, clarify)
+    - Consultar Observador quando incerto (futuro - 10.2+)
+
+    OBSERVADOR (agents/observer/ - futuro):
+    - Monitorar conversa e atualizar CognitiveModel
+    - Extrair conceitos para catalogo
+    - Calcular metricas (solidez, completude)
+
+    NOTA: Atualmente, cognitive_model ainda e gerado aqui.
+    Em 10.2+, sera responsabilidade do Observador.
 
     Comportamento Conversacional:
     - "explore": Fazer perguntas abertas para entender contexto
-    - "suggest_agent": Sugerir agente específico com justificativa
-    - "clarify": Esclarecer ambiguidade ou contradição detectada
+    - "suggest_agent": Sugerir agente especifico com justificativa
+    - "clarify": Esclarecer ambiguidade ou contradicao detectada
 
     Args:
         state (MultiAgentState): Estado atual do sistema multi-agente.
