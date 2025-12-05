@@ -17,6 +17,7 @@
 - **ÉPICO 3**: Bastidores
 - **ÉPICO 4**: Contexto
 - **ÉPICO 5**: UX Polish
+- **ÉPICO 6**: Limpeza de Testes
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
@@ -26,7 +27,6 @@
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
 #### Planejados (refinados)
-- **ÉPICO 6**: Limpeza de Testes
 - **ÉPICO 7**: Validação de Maturidade do Sistema - Fase Manual
 - **ÉPICO 8**: Validação de Maturidade do Sistema - Automação
 - **ÉPICO 9**: Integração Backend↔Frontend
@@ -38,8 +38,7 @@
 - **ÉPICO 13**: Escritor (não refinado)
 
 **Nota sobre Dependências:**
-- Épicos 1, 2, 3, 4, 5 concluídos (independentes)
-- Épico 6 depende do Épico 1 (valida comportamento de convergência) - Épico 1 já concluído
+- Épicos 1, 2, 3, 4, 5, 6 concluídos (independentes)
 - Épicos 7, 8 são independentes (podem começar imediatamente)
 - Épico 8 depende do Épico 7 (precisa identificar problemas reais primeiro)
 - Épicos 9-13 seguem sequência: Integração → Conceitos → Ontologia → Pesquisador → Escritor

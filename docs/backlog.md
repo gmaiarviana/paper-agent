@@ -46,6 +46,23 @@ Funcionalidades técnicas que melhoram qualidade e manutenibilidade.
 
 ---
 
+### ProgressTracker Completo (Interface Web)
+Checklist adaptativo com status em tempo real no painel Contexto.
+
+- Backend: `ProgressTracker.evaluate()` retorna checklist com status
+- Frontend: Componente renderiza checklist no painel Contexto (borda direita, flutuante/fixo)
+- Atualiza em tempo real conforme cognitive_model evolui
+- Checklist adaptativo por tipo de artigo (empírico vs revisão vs teórico)
+- Mostra itens: ⚪ pendente, 🟡 em progresso, 🟢 completo
+- Integração com modelo cognitivo (`CognitiveModel`)
+- Sincronização via polling ou SSE (conforme infraestrutura disponível)
+
+**Contexto:** Originalmente planejado no Épico 9, mas movido para backlog devido à complexidade de expor cognitive_model em tempo real. Indicador de Solidez (9.4) resolve 80% do valor com 20% do esforço. ProgressTracker completo será implementado quando infraestrutura de eventos estiver madura.
+
+**Referência técnica:** Ver `agents/checklist/progress_tracker.py` (backend já implementado) e `docs/interface/web/components.md` seção 3.6 (especificação completa da UI).
+
+---
+
 ### RAG Infrastructure - Metodologista Knowledge Base
 Metodologista consulta knowledge base via RAG ao invés de arquivo `.md` estático.
 
