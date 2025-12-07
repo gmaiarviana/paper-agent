@@ -29,9 +29,11 @@ Modulos:
 - extractors: Extratores semanticos via LLM
 - metrics: Calculo de solidez e completude
 - prompts: Prompts de extracao via LLM
+- catalog: ConceptCatalog - Persistencia ChromaDB + SQLite (10.3)
+- embeddings: Geracao de embeddings semanticos (10.3)
 
-Versao: 2.0 (Epico 10.2 - Processamento via LLM)
-Data: 05/12/2025
+Versao: 2.1 (Epico 10.3 - ChromaDB + SQLite)
+Data: 07/12/2025
 
 Example:
     >>> from agents.observer import ObservadorAPI
@@ -70,6 +72,21 @@ from .extractors import (
     identify_open_questions,
     extract_all
 )
+from .catalog import (
+    ConceptCatalog,
+    Concept,
+    SimilarConcept,
+    get_concept_catalog,
+    SIMILARITY_THRESHOLD_SAME,
+    SIMILARITY_THRESHOLD_AUTO
+)
+from .embeddings import (
+    generate_embedding,
+    generate_embeddings_batch,
+    calculate_similarity,
+    get_embedding_dimensions,
+    get_model_name
+)
 
 __all__ = [
     # API principal
@@ -97,7 +114,22 @@ __all__ = [
     "detect_contradictions",
     "identify_open_questions",
     "extract_all",
+
+    # Catalogo de Conceitos (10.3)
+    "ConceptCatalog",
+    "Concept",
+    "SimilarConcept",
+    "get_concept_catalog",
+    "SIMILARITY_THRESHOLD_SAME",
+    "SIMILARITY_THRESHOLD_AUTO",
+
+    # Embeddings (10.3)
+    "generate_embedding",
+    "generate_embeddings_batch",
+    "calculate_similarity",
+    "get_embedding_dimensions",
+    "get_model_name",
 ]
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 __author__ = "Paper Agent Team"
