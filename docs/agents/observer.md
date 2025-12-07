@@ -1,8 +1,8 @@
 # Observador - Mente Analítica
 
-**Status:** Implementado (Épico 10.1, 10.2)
-**Versão:** 2.0
-**Data:** 05/12/2025
+**Status:** ✅ Implementado (Épico 10 Completo - POC)
+**Versão:** 2.2
+**Data:** 07/12/2025
 
 ## Resumo
 
@@ -473,21 +473,35 @@ def create_snapshot(idea_id: UUID):
 
 ## Evolução (Épicos)
 
-### Épico 10: Observador - Mente Analítica (POC)
+### ✅ Épico 10: Observador - Mente Analítica (POC) - COMPLETO
 - ✅ **10.1 Mitose do Orquestrador** - IMPLEMENTADO
   - Estrutura `agents/observer/` criada
   - ObservadorAPI com interface de consulta
   - Separação de responsabilidades documentada
 - ✅ **10.2 Processamento via LLM** - IMPLEMENTADO
   - Extratores semânticos (claims, concepts, fundamentos, contradictions)
-  - Métricas (solidez, completude)
+  - Métricas via LLM (solidez, completude)
   - `process_turn()` + `ObserverProcessor`
   - `CognitiveModelUpdatedEvent` no EventBus
-- ⏳ **10.3 ChromaDB + SQLite setup** - PENDENTE
-- ⏳ **10.4 Pipeline de conceitos** - PENDENTE
-- ⏳ **10.5 Busca semântica** - PENDENTE
-- ⏳ **10.6 Testes POC** - PENDENTE
-- ❌ NÃO integrado ao grafo ainda (chamada manual)
+- ✅ **10.3 ChromaDB + SQLite setup** - IMPLEMENTADO
+  - ChromaDB persistente com cosine distance (`data/chroma/`)
+  - SQLite com tabelas: concepts, concept_variations, idea_concepts
+  - Embedding model: all-MiniLM-L6-v2 (384 dim)
+  - `ConceptCatalog` com deduplicação automática
+- ✅ **10.4 Pipeline de conceitos** - IMPLEMENTADO
+  - `persist_concepts()` e `persist_concepts_batch()`
+  - Integração com `process_turn()` via `persist_concepts_flag`
+  - Link N:N entre Idea e Concept via `idea_id`
+  - Parâmetros opcionais para Agentic RAG (Epic 12)
+- ✅ **10.5 Busca semântica** - IMPLEMENTADO
+  - `find_similar_concepts()` com threshold configurável
+  - Similaridade cosseno ordenada descendente
+  - Thresholds: 0.80 (mesmo conceito), 0.90 (auto-variation)
+- ✅ **10.6 Testes POC** - IMPLEMENTADO
+  - 22 testes unitários em `tests/unit/test_observer.py`
+  - Cobertura: ConceptCatalog, Pipeline, Embeddings, Deduplicação
+  - Mocks para LLM, vetores fixos para busca semântica
+- ❌ NÃO integrado ao grafo ainda (chamada manual - Epic 12)
 
 ### Épico 12: Observador Integrado ao Fluxo
 - ✅ Integração ao grafo (paralelo ou callback)
@@ -514,7 +528,7 @@ def create_snapshot(idea_id: UUID):
 
 ---
 
-**Versão:** 2.0
-**Data:** 05/12/2025
-**Status:** Implementado (Épico 10.1, 10.2) | Pendente (10.3-10.6)
+**Versão:** 2.2
+**Data:** 07/12/2025
+**Status:** ✅ Épico 10 Completo (POC) | Próximo: Épico 12 (Integração ao Fluxo)
 

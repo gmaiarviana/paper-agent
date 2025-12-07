@@ -2,6 +2,9 @@
 Shared test configuration and reusable fixtures.
 
 Carrega o .env da raiz uma vez por sessão de testes e expõe fixtures comuns.
+
+Nota: Fixtures do multi-agent graph (multi_agent_graph, multi_turn_executor)
+só estão disponíveis quando langgraph está instalado.
 """
 
 from pathlib import Path
@@ -16,19 +19,32 @@ env_path = project_root / ".env"
 load_dotenv(dotenv_path=env_path)
 
 
-from agents.multi_agent_graph import create_multi_agent_graph
-from utils.test_executor import MultiTurnExecutor
+# Import condicional: multi-agent graph requer langgraph
+# Se langgraph não estiver instalado, fixtures não estarão disponíveis
+# mas testes unitários (Observer, etc) continuam funcionando
+try:
+    from agents.multi_agent_graph import create_multi_agent_graph
+    from utils.test_executor import MultiTurnExecutor
+    MULTI_AGENT_AVAILABLE = True
+except ImportError as e:
+    MULTI_AGENT_AVAILABLE = False
+    import logging
+    logging.debug(f"Multi-agent fixtures não disponíveis: {e}")
 
 
 @pytest.fixture
 def multi_agent_graph():
     """Fixture que cria o super-grafo multi-agente para testes."""
+    if not MULTI_AGENT_AVAILABLE:
+        pytest.skip("langgraph não instalado - fixture multi_agent_graph indisponível")
     return create_multi_agent_graph()
 
 
 @pytest.fixture
 def multi_turn_executor(multi_agent_graph):
     """Fixture que cria executor multi-turn para testes."""
+    if not MULTI_AGENT_AVAILABLE:
+        pytest.skip("langgraph não instalado - fixture multi_turn_executor indisponível")
     return MultiTurnExecutor(multi_agent_graph)
 
 

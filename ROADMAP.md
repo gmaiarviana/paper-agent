@@ -21,6 +21,7 @@
 - **ÉPICO 7**: Validação de Maturidade do Sistema - Validação manual com 10 cenários críticos executados
 - **ÉPICO 8**: Análise Assistida de Qualidade - Ferramentas para execução multi-turn e relatórios estruturados (8.1 e 8.2 implementados)
 - **ÉPICO 9**: Integração Backend↔Frontend - Persistência silenciosa e feedback visual de progresso completos
+- **ÉPICO 10**: Observador - Mente Analítica (POC) - ChromaDB + SQLite para catálogo de conceitos, pipeline de persistência, busca semântica e 22 testes unitários
 
 ### 🟡 Épicos Em Andamento
 - _Nenhum épico em andamento no momento_
@@ -29,12 +30,9 @@
 
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
-#### Planejados (refinados)
-- **ÉPICO 10**: Observador - Mente Analítica (POC)
-
 #### Planejados (não refinados)
 - **ÉPICO 11**: Alinhamento de Ontologia (não refinado)
-- **ÉPICO 12**: Observador Integrado ao Fluxo (não refinado)
+- **ÉPICO 12**: Observador Integrado ao Fluxo (não refinado) - Próximo candidato
 - **ÉPICO 13**: Catálogo de Conceitos - Interface Web (não refinado)
 - **ÉPICO 14**: Pesquisador (não refinado)
 - **ÉPICO 15**: Escritor (não refinado)
@@ -78,96 +76,11 @@ Ferramentas para execução multi-turn e relatórios estruturados implementadas.
 
 ---
 
-## ÉPICO 10: Observador - Mente Analítica (POC)
+## ✅ ÉPICO 10: Observador - Mente Analítica (POC)
 
-**Objetivo:** Sistema monitora conversa e cataloga conceitos automaticamente. Foundation para inteligência semântica.
+Observador implementado com ChromaDB + SQLite para catálogo de conceitos. Inclui pipeline de persistência com deduplicação automática (threshold 0.80), busca semântica via embeddings (all-MiniLM-L6-v2), e 22 testes unitários. Preparado para Agentic RAG (Epic 12) com parâmetros opcionais em `process_turn()`.
 
-**Status:** ✅ Refinado (pronto para implementação)
-
-> **📖 Filosofia:** Observador trabalha silenciosamente em paralelo ao Orquestrador, atualizando CognitiveModel e extraindo conceitos sem interferir no fluxo conversacional.
-
-**Dependências:**
-- Épico 9 (Integração Backend↔Frontend)
-
-**Consulte:**
-- `docs/agents/observer.md` - Documentação completa do Observador
-- `docs/architecture/observer_architecture.md` - Arquitetura técnica
-- `docs/architecture/concept_model.md` - Schema técnico de Concept
-- `docs/architecture/ontology.md` - CognitiveModel e Conceitos
-
-### Funcionalidades:
-
-#### 10.1 Mitose do Orquestrador
-
-- **Descrição:** Separar responsabilidades de facilitar conversa (Orquestrador) de observar raciocínio (Observador).
-- **Critérios de Aceite:**
-  - Deve criar novo agente: `Observador` em `agents/observer/`
-  - Orquestrador mantém: facilitar conversa, negociar, decidir fluxo
-  - Observador recebe: atualizar CognitiveModel, extrair conceitos, calcular métricas
-  - Deve definir interface de consulta: `ObservadorAPI` em `agents/observer/api.py`
-  - Métodos: `what_do_you_see()`, `get_current_state()`, `has_contradiction()`, `get_solidez()`
-  - Consultas são não-determinísticas (Orquestrador consulta quando incerto)
-
-#### 10.2 Observador - CognitiveModel Básico
-
-- **Descrição:** Observador processa TODOS os turnos e atualiza CognitiveModel completo.
-- **Critérios de Aceite:**
-  - Deve processar cada turno automaticamente (não depende de snapshots)
-  - Deve extrair: claims, fundamentos, contradições, conceitos, open_questions
-  - Deve atualizar: `CognitiveModel` em memória (ainda não persistido)
-  - Deve calcular métricas: solidez (0-1), completude (0-1)
-  - Deve publicar eventos: `CognitiveModelUpdatedEvent` para Dashboard
-  - **Não** deve interferir no fluxo conversacional (silencioso)
-
-#### 10.3 Setup ChromaDB + Schema SQLite
-
-- **Descrição:** Configurar ChromaDB para vetores semânticos e SQLite para metadados estruturados.
-- **Critérios de Aceite:**
-  - Deve instalar: `chromadb`, `sentence-transformers`
-  - Deve criar cliente: `chromadb.PersistentClient(path="./data/chroma")`
-  - Deve criar collection: `concepts` (metadata: label, essence, variations)
-  - Deve usar modelo: `all-MiniLM-L6-v2` (384 dim, 80MB)
-  - **SQLite:**
-    - Tabela `concepts`: id, label, essence, variations JSON, chroma_id
-    - Tabela `concept_variations`: concept_id, variation
-    - Tabela `idea_concepts`: idea_id, concept_id (N:N)
-  - Deve criar índices: ON label, ON idea_id, ON concept_id
-
-#### 10.4 Pipeline de Detecção de Conceitos
-
-- **Descrição:** LLM extrai conceitos a cada turno e salva em ChromaDB + SQLite.
-- **Critérios de Aceite:**
-  - Deve extrair conceitos via LLM (prompt: "Extrair conceitos-chave deste turno")
-  - Deve gerar embedding via sentence-transformers (all-MiniLM-L6-v2)
-  - Deve salvar no ChromaDB (vetor) + SQLite (metadados)
-  - Deve buscar similares (threshold 0.80 = mesmo conceito)
-  - **Deduplicação:**
-    - Similaridade > 0.80: adiciona como variation do conceito existente
-    - Similaridade < 0.80: cria novo conceito
-  - Deve criar registro em `idea_concepts` (link N:N) quando snapshot é criado
-  - **Não** deve executar a cada mensagem (apenas quando processando turno)
-
-#### 10.5 Busca Semântica Básica
-
-- **Descrição:** Buscar conceitos similares via embeddings.
-- **Critérios de Aceite:**
-  - Deve implementar: `find_similar_concepts(query: str, top_k: int) -> list[Concept]`
-  - Deve calcular similaridade cosseno entre embeddings
-  - Deve usar threshold 0.80 para deduplicação
-  - Deve retornar lista ordenada por similaridade (descendente)
-  - Deve incluir metadados: label, essence, variations, similarity_score
-
-#### 10.6 Testes POC
-
-- **Descrição:** Testes unitários para validar Observador isolado.
-- **Critérios de Aceite:**
-  - Deve criar mocks do Observador (não chamadas LLM reais)
-  - Deve testar extração de conceitos com inputs fixos
-  - Deve validar schema SQLite (criar tabelas, índices)
-  - Deve testar busca semântica com vetores fixos (não embeddings reais)
-  - Deve validar deduplicação (threshold 0.80)
-  - **Não** deve integrar ao grafo ainda (teste isolado)
-  - **Não** deve usar API real (mocks apenas)
+**Consulte:** `docs/agents/observer.md` - Documentação completa do Observador
 
 ---
 
