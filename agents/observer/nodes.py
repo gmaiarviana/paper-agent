@@ -28,7 +28,13 @@ def process_turn(
     conversation_history: List[Dict[str, Any]],
     previous_cognitive_model: Optional[Dict[str, Any]] = None,
     session_id: Optional[str] = None,
-    turn_number: int = 1
+    turn_number: int = 1,
+    # Parametros opcionais para Agentic RAG (Epic 12)
+    extract_claims: bool = True,
+    extract_concepts: bool = True,
+    extract_fundamentos: bool = True,
+    detect_contradictions: bool = True,
+    calculate_metrics_flag: bool = True
 ) -> Dict[str, Any]:
     """
     Processa um turno completo e atualiza o CognitiveModel.
@@ -49,6 +55,11 @@ def process_turn(
         previous_cognitive_model: CognitiveModel do turno anterior.
         session_id: ID da sessao (para eventos).
         turn_number: Numero do turno atual.
+        extract_claims: Se deve extrair claims (default True).
+        extract_concepts: Se deve extrair conceitos (default True).
+        extract_fundamentos: Se deve extrair fundamentos (default True).
+        detect_contradictions: Se deve detectar contradicoes (default True).
+        calculate_metrics_flag: Se deve calcular metricas (default True).
 
     Returns:
         Dict com:
@@ -57,6 +68,7 @@ def process_turn(
         - metrics: Metricas calculadas (solidez, completude)
         - maturity: Avaliacao de maturidade
         - processing_time_ms: Tempo de processamento
+        - skipped: Lista de etapas puladas (se houver)
 
     Example:
         >>> result = process_turn(
@@ -66,13 +78,35 @@ def process_turn(
         ... )
         >>> print(result['metrics']['solidez'])
         0.35
+
+    Notes:
+        Os parametros opcionais (extract_*, calculate_*) permitem
+        bypass de etapas especificas para otimizacao (Agentic RAG).
+        Por padrao, todas as etapas sao executadas.
     """
     start_time = time.time()
+    skipped = []
 
     logger.info(f"=== OBSERVADOR: Processando turno {turn_number} ===")
     logger.debug(f"Input: {user_input[:100]}...")
 
+    # Verificar quais etapas serao executadas (para Agentic RAG no Epic 12)
+    if not extract_claims:
+        skipped.append("extract_claims")
+    if not extract_concepts:
+        skipped.append("extract_concepts")
+    if not extract_fundamentos:
+        skipped.append("extract_fundamentos")
+    if not detect_contradictions:
+        skipped.append("detect_contradictions")
+    if not calculate_metrics_flag:
+        skipped.append("calculate_metrics")
+
+    if skipped:
+        logger.info(f"Etapas puladas (Agentic RAG): {skipped}")
+
     # 1. Extrair informacoes semanticas via LLM
+    # TODO (Epic 12): Usar flags para chamar extratores individuais
     logger.info("Extraindo informacoes semanticas...")
     extracted = extract_all(
         user_input=user_input,
@@ -132,7 +166,8 @@ def process_turn(
         "metrics": metrics,
         "maturity": maturity,
         "processing_time_ms": processing_time_ms,
-        "turn_number": turn_number
+        "turn_number": turn_number,
+        "skipped": skipped  # Etapas puladas (para Agentic RAG)
     }
 
 

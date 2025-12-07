@@ -138,7 +138,10 @@ class ConceptCatalog:
 
         self._collection = self._chroma_client.get_or_create_collection(
             name="concepts",
-            metadata={"description": "Biblioteca global de conceitos"}
+            metadata={
+                "description": "Biblioteca global de conceitos",
+                "hnsw:space": "cosine"  # Usar distancia cosseno (mais intuitivo)
+            }
         )
 
         logger.debug(f"ChromaDB collection 'concepts' inicializada")
@@ -310,11 +313,11 @@ class ConceptCatalog:
 
         if results["ids"] and results["ids"][0]:
             for i, concept_id in enumerate(results["ids"][0]):
-                # ChromaDB retorna distancia L2, converter para similaridade
-                # Distancia L2 para similaridade cosseno aproximada:
-                # similarity = 1 - (distance^2 / 2)
+                # ChromaDB com hnsw:space=cosine retorna distancia cosseno
+                # Distancia cosseno: 0 = identico, 1 = ortogonal, 2 = oposto
+                # Similaridade = 1 - distancia
                 distance = results["distances"][0][i]
-                similarity = 1 - (distance ** 2 / 2)
+                similarity = 1 - distance
                 similarity = max(0.0, min(1.0, similarity))
 
                 if similarity >= threshold:
@@ -592,6 +595,39 @@ class ConceptCatalog:
             logger.info(f"Conceito removido: {concept_id}")
 
         return deleted
+
+    def get_stats(self) -> Dict[str, Any]:
+        """
+        Retorna estatisticas do catalogo.
+
+        Returns:
+            Dict com contagens de conceitos, variacoes e links.
+
+        Example:
+            >>> stats = catalog.get_stats()
+            >>> print(stats)
+            {'concepts': 42, 'variations': 128, 'idea_links': 15}
+        """
+        concepts_count = self.count_concepts()
+
+        variations_cursor = self._conn.execute(
+            "SELECT COUNT(*) FROM concept_variations"
+        )
+        variations_count = variations_cursor.fetchone()[0]
+
+        links_cursor = self._conn.execute(
+            "SELECT COUNT(*) FROM idea_concepts"
+        )
+        links_count = links_cursor.fetchone()[0]
+
+        chroma_count = self._collection.count()
+
+        return {
+            "concepts": concepts_count,
+            "variations": variations_count,
+            "idea_links": links_count,
+            "chroma_vectors": chroma_count
+        }
 
     def close(self) -> None:
         """Fecha conexoes."""
