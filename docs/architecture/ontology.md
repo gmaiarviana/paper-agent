@@ -171,12 +171,18 @@ Conceito "Cooperação" (global, único na biblioteca):
 ```python
 Proposição:
   id: UUID
-  enunciado: str                    # "Qualidade de código é mensurável"
-  evidencias_apoiam: [Evidência]    # Lista de evidências que apoiam
-  evidencias_refutam: [Evidência]   # Lista de evidências que refutam
-  solidez: float                    # 0-1, DERIVADO (não definido manualmente)
+  texto: str                        # "Qualidade de código é mensurável"
+  solidez: Optional[float]          # 0-1, DERIVADO (não definido manualmente)
+                                    # None = proposição ainda não avaliada pelo sistema
+  evidencias: list[Evidência]       # Lista de evidências (inicialmente vazia)
   usos: [ArgumentoRef]              # Onde é usada como fundamento
 ```
+
+**Solidez inicial:**
+- Proposições nascem com `solidez: None` (não avaliada)
+- Observador ou Orquestrador avaliam via LLM e atualizam para valor numérico (0-1)
+- Pesquisador (futuro) adiciona evidências que recalculam solidez
+- Cálculos de maturidade ignoram proposições com `solidez=None`
 
 **Características fundamentais:**
 - **Não existe "fato" vs "suposição"**: Todas são proposições com diferentes graus de solidez
@@ -237,12 +243,16 @@ Evidência:
 - Argumento = mapa, Ideia = território
 - **Fundamentos são proposições**: Não há mais distinção entre premises/assumptions
 
+**Nota de migração (Épico 11):**
+O código atual ainda usa `premises`/`assumptions` como strings separadas.
+O Épico 11 migrará para estrutura de `proposicoes: List[Proposicao]`.
+
 **Estrutura atualizada:**
 ```python
 Argumento:
   id: UUID
   idea_id: UUID
-  claim: str                        # Afirmação principal
+  claim: str                        # Afirmação principal (campo separado, não é proposição)
   fundamentos: [ProposicaoRef]      # Proposições que sustentam o argumento
   evidencias: [EvidenciaRef]        # Evidências diretas do argumento
 ```

@@ -41,8 +41,9 @@ def test_cenario_3_refinement_flow(multi_turn_executor):
     
     # Validar estado final
     final_state = result["final_state"]
-    assert final_state.get("methodologist_output", {}).get("status") == "needs_refinement", \
-        f"Status esperado: needs_refinement, obtido: {final_state.get('methodologist_output', {}).get('status')}"
+    methodologist_output = (final_state.get("methodologist_output") or {})
+    assert methodologist_output.get("status") == "needs_refinement", \
+        f"Status esperado: needs_refinement, obtido: {methodologist_output.get('status')}"
 
 
 @pytest.mark.integration

@@ -1,54 +1,91 @@
 # Testing Structure
 
 ## Estrutura de Pastas
-
 ```
 paper-agent/
-├── tests/                      # Testes automatizados (pytest)
-│   ├── __init__.py
-│   ├── unit/                   # Testes unitários (mocks)
-│   │   ├── __init__.py
-│   │   ├── test_cost_tracker.py
-│   │   ├── test_methodologist_state.py
-│   │   ├── test_graph_nodes.py
-│   │   └── test_json_extraction.py
-│   ├── integration/            # Testes de integração (API real)
-│   │   ├── __init__.py
-│   │   └── test_anthropic_connection.py
-│   └── conftest.py             # Fixtures compartilhadas
+├── tests/
+│   ├── unit/                       # Testes rápidos, sem API ($0)
+│   │   ├── agents/                 # Lógica de agentes (11 arquivos)
+│   │   │   ├── test_orchestrator_logic.py
+│   │   │   ├── test_structurer.py
+│   │   │   ├── test_methodologist_*.py
+│   │   │   └── ...
+│   │   ├── models/                 # Estruturas de dados (1 arquivo)
+│   │   │   └── test_cognitive_model.py
+│   │   ├── memory/                 # Sistema de memória (3 arquivos)
+│   │   │   ├── test_config_loader.py
+│   │   │   ├── test_execution_tracker.py
+│   │   │   └── test_memory_manager.py
+│   │   ├── utils/                  # Utilitários (5 arquivos)
+│   │   │   ├── test_cost_tracker.py
+│   │   │   ├── test_event_bus.py
+│   │   │   ├── test_json_extraction.py
+│   │   │   └── ...
+│   │   └── database/               # Database (1 arquivo)
+│   │       └── test_database_manager.py
+│   │
+│   ├── integration/
+│   │   ├── smoke/                  # Validação rápida (3 arquivos, ~$0.01)
+│   │   │   ├── test_methodologist_smoke.py
+│   │   │   ├── test_multi_agent_smoke.py
+│   │   │   └── test_structurer_smoke.py
+│   │   │
+│   │   ├── behavior/               # Comportamentos (15 arquivos, ~$0.02-0.03)
+│   │   │   ├── test_socratic_behavior.py
+│   │   │   ├── test_refinement_loop.py
+│   │   │   ├── test_conversation_flow.py
+│   │   │   ├── test_cognitive_evolution.py
+│   │   │   └── ...
+│   │   │
+│   │   └── e2e/                    # Cenários completos (1 arquivo, ~$0.05)
+│   │       └── test_multi_turn_flows.py
+│   │
+│   └── conftest.py                 # Fixtures compartilhadas
 │
-├── scripts/                    # Validação manual (dev local)
-│   ├── __init__.py
-│   ├── health_checks/          # Sanidade de ambiente e configs
-│   │   ├── validate_api.py
-│   │   ├── validate_agent_config.py
-│   │   ├── validate_runtime_config_simple.py
-│   │   ├── validate_syntax.py
-│   │   ├── validate_system_prompt.py
-│   │   ├── validate_execution_tracker.py
-│   │   └── validate_orchestrator_json_parsing.py
-│   ├── state_introspection/    # Nós isolados e estados
-│   │   ├── validate_state.py
-│   │   ├── validate_graph.py
-│   │   ├── validate_graph_nodes.py
-│   │   ├── validate_state_syntax.py
-│   │   ├── validate_multi_agent_state.py
-│   │   └── validate_ask_user.py
-│   ├── flows/                  # Cenários completos (consomem API)
-│   │   ├── validate_cli.py
-│   │   ├── validate_cli_integration.py
-│   │   ├── validate_dashboard.py
-│   │   ├── validate_memory_integration.py
-│   │   ├── validate_multi_agent_flow.py
-│   │   ├── validate_orchestrator.py
-│   │   ├── validate_refinement_loop.py
-│   │   ├── validate_structurer.py
-│   │   ├── validate_structurer_refinement.py
-│   │   └── validate_build_context.py
-│   └── debug/                  # Diagnóstico ad hoc
-│       ├── debug_multi_agent.py
-│       └── check_events.py
+└── scripts/
+    ├── debug/                      # Ferramentas de debug (Épico 8)
+    │   ├── check_events.py
+    │   └── debug_multi_agent.py
+    │
+    ├── health_checks/              # Health checks de setup
+    │   ├── validate_api.py
+    │   ├── validate_agent_config.py
+    │   └── ...
+    │
+    └── testing/                    # Utilitários de teste (Épico 8)
+        ├── execute_scenario.py
+        ├── debug_scenario.py
+        ├── replay_session.py
+        └── ...
 ```
+
+---
+
+## Categorias de Testes
+
+### Unit Tests (`tests/unit/`)
+- **Custo:** $0
+- **Velocidade:** < 1s por teste
+- **Quando:** CI em todo PR
+- **Total:** 226 testes
+
+### Smoke Tests (`tests/integration/smoke/`)
+- **Custo:** ~$0.01 por teste
+- **Velocidade:** 1-2s por teste
+- **Quando:** Manual ou CI seletivo
+- **Total:** 11 testes
+
+### Behavior Tests (`tests/integration/behavior/`)
+- **Custo:** ~$0.02-0.03 por teste
+- **Velocidade:** 2-5s por teste
+- **Quando:** Manual (antes de releases)
+- **Total:** 15 arquivos
+
+### E2E Tests (`tests/integration/e2e/`)
+- **Custo:** ~$0.05 por teste
+- **Velocidade:** 5-10s por teste
+- **Quando:** Manual (validações críticas)
+- **Total:** 1 arquivo
 
 ---
 
@@ -86,5 +123,5 @@ Logger para rastrear custos em testes
 
 ---
 
-**Versão:** 2.1
-**Data:** 13/11/2025
+**Versão:** 3.0
+**Data:** 15/01/2025

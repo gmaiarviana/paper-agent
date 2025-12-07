@@ -271,6 +271,57 @@ Sistema de captura e agregação de tokens, custos e metadados de execução por
 - `decide_collaborative` (v3.1): Registra decisões colaborativas (approved/needs_refinement/rejected) + tokens
 - `force_decision_collaborative` (v3.1): Registra decisões forçadas após limite + tokens
 
+## Sistema de Observabilidade (Epic 8.5)
+
+Sistema de logging estruturado para debugging e análise de sessões multi-agente.
+
+**Arquitetura:**
+- **StructuredLogger**: `utils/structured_logger.py` - Captura eventos em formato JSONL append-only
+- **DebugReporter**: `utils/debug_reporter.py` - Gera relatórios formatados a partir dos logs
+- **Session Replay**: `scripts/testing/replay_session.py` - Reproduz sessões passo a passo
+
+**Logs capturados:**
+- `agent_started`: Início de execução de agente
+- `agent_completed`: Conclusão com métricas (tokens, cost, duration)
+- `decision_made`: Decisões tomadas com reasoning completo
+- `error`: Erros durante execução
+
+**Schema do log:**
+```json
+{
+  "timestamp": "2025-12-05T18:10:57.331970Z",
+  "trace_id": "test-scenario-2-1764958245",
+  "agent": "orchestrator",
+  "node": "orchestrator_node",
+  "event": "decision_made",
+  "level": "INFO",
+  "message": "orchestrator made decision",
+  "metadata": {
+    "tokens_input": 8570,
+    "tokens_output": 368,
+    "tokens_total": 8938,
+    "cost": 0.0083,
+    "duration_ms": 12545.157,
+    "decision": {...},
+    "reasoning": "..."
+  }
+}
+```
+
+**Localização:** `logs/structured/{trace_id}.jsonl`
+
+**Ferramentas:**
+- Debug detalhado: `python scripts/testing/debug_scenario.py --scenario N --level full`
+- Replay de sessão: `python scripts/testing/replay_session.py {trace_id}`
+
+**Nós instrumentados:**
+- `orchestrator_node`: Logs de análise e decisão
+- `structurer_node`: Logs de estruturação (V1, V2, V3)
+- `decide_collaborative`: Logs de validação metodológica
+- `force_decision_collaborative`: Logs de decisão forçada
+
+**Ver especificação completa:** `docs/testing/epic8_5_structured_logging_spec.md`
+
 ## Estrutura do Projeto
 
 ```

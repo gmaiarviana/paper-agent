@@ -6,18 +6,6 @@ Melhorias importantes que expandem capacidades essenciais do sistema.
 
 ---
 
-### Pesquisador
-Agente para busca e síntese de literatura acadêmica (essencial para revisões e contextualização).
-
-- Busca bibliográfica automática (Google Scholar, Semantic Scholar)
-- Síntese de papers acadêmicos relevantes
-- Identificação de gaps na literatura
-- Comparação de abordagens metodológicas
-- RAG para armazenar papers encontrados
-- Tool `search_papers(query)` e `find_similar_papers(paper_id)`
-
----
-
 ### Estruturador como Sub-Grafo
 Transformar Estruturador de função simples para agente complexo com reasoning loop.
 
@@ -29,16 +17,6 @@ Transformar Estruturador de função simples para agente complexo com reasoning 
 
 ---
 
-### Error Handling e Retry Logic
-Sistema robusto que não quebra com erros de API ou parsing.
-
-- Retry com backoff exponencial (3 tentativas: 2s → 4s → 8s)
-- JSON parsing defensivo com fallback (extract_json quando parsing falhar)
-- Validação Pydantic em outputs de todos os agentes
-- Circuit breaker para API (stop após 5 falhas seguidas)
-- Logging estruturado de erros e retries
-
----
 
 ## 🔜 PRÓXIMOS PASSOS
 
@@ -46,56 +24,47 @@ Funcionalidades técnicas que melhoram qualidade e manutenibilidade.
 
 ---
 
-### ProgressTracker Completo (Interface Web)
+### ProgressTracker (Frontend - Interface Web)
 Checklist adaptativo com status em tempo real no painel Contexto.
 
-- Backend: `ProgressTracker.evaluate()` retorna checklist com status
-- Frontend: Componente renderiza checklist no painel Contexto (borda direita, flutuante/fixo)
+**Status:** Backend já implementado em `agents/checklist/progress_tracker.py` com `ProgressTracker.evaluate()`.
+
+**Pendente (Frontend):**
+- Componente renderiza checklist no painel Contexto (borda direita, flutuante/fixo)
 - Atualiza em tempo real conforme cognitive_model evolui
-- Checklist adaptativo por tipo de artigo (empírico vs revisão vs teórico)
 - Mostra itens: ⚪ pendente, 🟡 em progresso, 🟢 completo
-- Integração com modelo cognitivo (`CognitiveModel`)
 - Sincronização via polling ou SSE (conforme infraestrutura disponível)
 
 **Contexto:** Originalmente planejado no Épico 9, mas movido para backlog devido à complexidade de expor cognitive_model em tempo real. Indicador de Solidez (9.4) resolve 80% do valor com 20% do esforço. ProgressTracker completo será implementado quando infraestrutura de eventos estiver madura.
 
 **Referência técnica:** Ver `agents/checklist/progress_tracker.py` (backend já implementado) e `docs/interface/web/components.md` seção 3.6 (especificação completa da UI).
 
----
-
 ### RAG Infrastructure - Metodologista Knowledge Base
 Metodologista consulta knowledge base via RAG ao invés de arquivo `.md` estático.
 
-- Setup ChromaDB (vector store local, gratuito)
+**Nota:** A infraestrutura base do ChromaDB será implementada no ÉPICO 10 (Observador) para catálogo de conceitos. Esta funcionalidade aproveitará essa infraestrutura para uso específico do Metodologista.
+
+- Setup ChromaDB (vector store local, gratuito) - aproveitar infraestrutura do ÉPICO 10
 - Tool `consult_methodology(query)` com busca semântica
 - Popular KB inicial com `docs/agents/methodologist_knowledge.md`
 - Integrar tool no grafo do Metodologista
-- Embeddings: sentence-transformers (all-MiniLM-L6-v2)
+- Embeddings: sentence-transformers (all-MiniLM-L6-v2) - mesmo modelo do ÉPICO 10
 - CLI para gerenciar KB: `python cli/kb_manager.py add/search/stats`
 
 ---
 
-### Structured Logging
-Logs estruturados em JSON para debugging e observabilidade.
 
-- Logger JSON estruturado (trace_id, agent, node, event, tokens, cost, duration_ms)
-- Instrumentar todos os nós (orchestrator, structurer, methodologist)
-- Rastreamento completo de sessões (trace_id único por sessão)
-- Logs exportáveis em JSONL (um arquivo por sessão)
-- Níveis: DEBUG (prompts completos), INFO (decisões), ERROR (falhas)
-
----
-
-### Cost Controller
+### Cost Controller (Budget Control)
 Budget por sessão para evitar gastos inesperados.
 
+**Status:** Cálculo de custos já implementado (`utils/cost_tracker.py`, `agents/memory/execution_tracker.py`). Métricas de custo já aparecem no dashboard.
+
+**Pendente:**
 - Budget configurável por sessão (default: $1, max: $10)
 - Stop automático ao exceder budget
 - Warning ao atingir 80% do budget
-- Métricas de custo no dashboard
 - Config em `.env`: `MAX_COST_PER_SESSION=1.0`
-
-**Pendente:** Budget detalhado por tipo de artigo, alertas preventivos baseados em histórico.
+- Budget detalhado por tipo de artigo, alertas preventivos baseados em histórico
 
 ---
 
@@ -108,17 +77,6 @@ Documentação, templates e patterns para criar novos agentes.
 - Checklist de implementação completa
 - Patterns comuns documentados: reasoning loop, tools, conditional routing
 - Helpers opcionais para boilerplate (TypedDict, graph setup básico)
-
----
-
-### Escritor
-Agente para compilação do artigo final (essencial para entregar artigo completo).
-
-- Compilação de seções do artigo baseado em outline
-- Formatação acadêmica (ABNT, APA, Chicago, etc)
-- Geração de rascunhos com estilo consistente
-- Integração com pesquisas e validações anteriores
-- RAG sobre textos anteriores do usuário (aprender estilo)
 
 ---
 
@@ -215,12 +173,12 @@ Orquestrador media quando agentes têm opiniões conflitantes sobre mesmo input.
 ### Alertas de Custo
 Avisos automáticos para evitar surpresas com gastos de API.
 
-- Budget configurável por sessão (default: $1, max: $10)
-- Stop automático ao exceder budget
-- Warning ao atingir 80% do budget
+**Status:** Métricas de custo já implementadas (Épico 8.3). Dashboard já mostra custos acumulados por sessão.
+
+**Pendente:**
 - Alertas em tempo real na interface web
-- Config em `.env`: `MAX_COST_PER_SESSION=1.0`
 - Dashboard com histórico de gastos (últimos 30 dias)
+- Ver também: "Cost Controller (Budget Control)" acima para funcionalidades de budget
 
 **Contexto:** Funcionalidade planejada originalmente para MVP do Épico 8, mas movida para Backlog. Sistema já tem métricas consolidadas (Épico 8.3), alertas são otimização adicional.
 

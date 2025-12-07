@@ -2,34 +2,46 @@
 
 ## Rodar Testes
 
-### Todos os testes unitários (bateria rápida - recomendado após refatorações)
+### Por Categoria (Nova Estrutura)
 ```bash
+# Unit tests (sempre rodam - $0)
 pytest tests/unit/ -v
+
+# Smoke tests (validação rápida - ~$0.01)
+pytest tests/integration/smoke/ -v -m smoke
+
+# Behavior tests (comportamentos específicos - ~$0.02-0.03)
+pytest tests/integration/behavior/ -v -m behavior
+
+# E2E tests (cenários completos - ~$0.05)
+pytest tests/integration/e2e/ -v -m e2e
+
+# Todos os integration tests
+pytest tests/integration/ -v -m integration
 ```
 
-### Todos os testes de integração
+### Por Componente
 ```bash
-pytest tests/integration/ -m integration
+# Testar apenas agentes
+pytest tests/unit/agents/ -v
+
+# Testar apenas memória
+pytest tests/unit/memory/ -v
+
+# Testar apenas utils
+pytest tests/unit/utils/ -v
 ```
 
-### Todos os testes (unit + integration)
+### Exemplos Específicos
 ```bash
-pytest tests/
-```
+# Testar apenas Orquestrador
+pytest tests/unit/agents/test_orchestrator_logic.py -v
 
-### Bateria completa (unit + integration, verbose)
-```bash
-pytest tests/ -v --tb=short
-```
+# Testar comportamento socrático
+pytest tests/integration/behavior/test_socratic_behavior.py -v
 
-### Com coverage
-```bash
-pytest tests/unit/ --cov=utils --cov=agents --cov=orchestrator
-```
-
-### Health checks (rápidos, sem fluxo completo)
-```bash
-python scripts/health_checks/validate_api.py
+# Testar fluxos multi-turn
+pytest tests/integration/e2e/test_multi_turn_flows.py -v
 ```
 
 ---
@@ -162,5 +174,5 @@ pytest -m "not integration"
 
 ---
 
-**Versão:** 2.1
-**Data:** 13/11/2025
+**Versão:** 3.0
+**Data:** 15/01/2025

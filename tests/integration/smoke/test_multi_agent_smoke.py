@@ -38,8 +38,8 @@ requires_anthropic = pytest.mark.skipif(
     reason="Integration test skipped: ANTHROPIC_API_KEY not set (requires real API)",
 )
 
-# Todos os testes deste módulo são de integração que usam API real
-pytestmark = [pytest.mark.integration, requires_anthropic]
+# Todos os testes deste módulo são smoke tests de integração que usam API real
+pytestmark = [pytest.mark.smoke, pytest.mark.integration, requires_anthropic]
 
 
 def test_vague_idea_full_flow(multi_agent_graph):
@@ -81,13 +81,13 @@ def test_vague_idea_full_flow(multi_agent_graph):
     # Metodologista também pode não ter sido chamado ainda (fluxo conversacional)
     if result['methodologist_output'] is not None:
         # Status pode ser 'pending' se Metodologista pediu clarificações
-        assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
-            "Metodologista deveria ter status válido (approved, rejected ou pending)"
+        assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending', 'needs_refinement'], \
+            "Metodologista deveria ter status válido (approved, rejected, pending ou needs_refinement)"
 
         # Se não estiver pending, deve ter justificativa
-        if result['methodologist_output']['status'] != 'pending':
+        if result['methodologist_output']['status'] not in ['pending']:
             assert result['methodologist_output']['justification'], \
-                "Metodologista deveria fornecer justificativa quando decide"
+                "Metodologista deveria fornecer justificativa quando decide (status: {})".format(result['methodologist_output']['status'])
 
     # current_stage pode variar no fluxo conversacional; validamos apenas que existe
     assert result["current_stage"] in ["classifying", "structuring", "validating", "done"]
@@ -121,8 +121,8 @@ def test_semi_formed_direct_flow(multi_agent_graph):
 
     if result['methodologist_output'] is not None:
         # Status pode ser 'pending' se Metodologista pediu clarificações
-        assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
-            "Metodologista deveria ter status válido (approved, rejected ou pending)"
+        assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending', 'needs_refinement'], \
+            "Metodologista deveria ter status válido (approved, rejected, pending ou needs_refinement)"
 
     assert result["current_stage"] in ["classifying", "structuring", "validating", "done"]
 
@@ -157,8 +157,8 @@ def test_complete_hypothesis_flow(multi_agent_graph):
 
     if result['methodologist_output'] is not None:
         # Status pode ser 'pending' se Metodologista pediu clarificações
-        assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending'], \
-            "Metodologista deveria ter status válido (approved, rejected ou pending)"
+        assert result['methodologist_output']['status'] in ['approved', 'rejected', 'pending', 'needs_refinement'], \
+            "Metodologista deveria ter status válido (approved, rejected, pending ou needs_refinement)"
 
     assert result["current_stage"] in ["classifying", "structuring", "validating", "done"]
 

@@ -69,3 +69,8 @@ logs/
 # Data files (session checkpoints, etc)
 data/
 
+# Migration temporary files (Épico 8)
+docs/testing/migration_map.csv
+docs/testing/redundancy_analysis.md
+scripts/migrate_tests.py
+

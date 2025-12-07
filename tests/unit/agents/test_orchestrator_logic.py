@@ -48,7 +48,7 @@ class TestOrchestratorNode:
   "agent_suggestion": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
@@ -82,7 +82,7 @@ class TestOrchestratorNode:
   }
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
@@ -117,7 +117,7 @@ class TestOrchestratorNode:
   }
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
@@ -146,7 +146,7 @@ class TestOrchestratorNode:
   "agent_suggestion": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 80, "output_tokens": 40}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 80, "output_tokens": 40}}
 
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
@@ -168,7 +168,7 @@ class TestOrchestratorNode:
 
         mock_response = Mock()
         mock_response.content = "Resposta sem JSON válido"
-        mock_response.usage_metadata = {"input_tokens": 50, "output_tokens": 10}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 50, "output_tokens": 10}}
 
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
@@ -196,7 +196,7 @@ class TestOrchestratorNode:
   "agent_suggestion": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 50, "output_tokens": 20}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 50, "output_tokens": 20}}
 
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
@@ -232,7 +232,7 @@ class TestOrchestratorNode:
   }
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 200, "output_tokens": 80}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 200, "output_tokens": 80}}
 
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
@@ -655,7 +655,7 @@ class TestOrchestratorReturnsCognitiveModel:
   "reflection_prompt": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
@@ -692,7 +692,7 @@ class TestOrchestratorReturnsCognitiveModel:
   "agent_suggestion": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
             mock_llm = Mock()
@@ -745,7 +745,7 @@ class TestActiveIdeaIdFromConfig:
   "agent_suggestion": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         # Config SEM active_idea_id
         config = {"configurable": {"thread_id": "test-thread"}}
@@ -792,7 +792,7 @@ class TestActiveIdeaIdFromConfig:
   "agent_suggestion": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         # Config COM active_idea_id
         config = {
@@ -843,7 +843,7 @@ class TestActiveIdeaIdFromConfig:
   "agent_suggestion": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         # Config COM active_idea_id=None (padrão CLI)
         config = {
@@ -902,7 +902,7 @@ class TestSnapshotCreation:
   "agent_suggestion": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         config = {
             "configurable": {
@@ -960,7 +960,7 @@ class TestSnapshotCreation:
   "agent_suggestion": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         # Config SEM active_idea_id
         config = {"configurable": {"thread_id": "test-thread"}}
@@ -1010,7 +1010,7 @@ class TestSnapshotCreation:
   "agent_suggestion": null
 }
 """
-        mock_response.usage_metadata = {"input_tokens": 100, "output_tokens": 50}
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
         config = {
             "configurable": {
