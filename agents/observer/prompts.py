@@ -208,6 +208,156 @@ REGRAS:
 """
 
 # =============================================================================
+# PROMPT: AVALIACAO DE SOLIDEZ (Via LLM)
+# =============================================================================
+
+EVALUATE_SOLIDEZ_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
+
+FILOSOFIA EPISTEMOLOGICA:
+- Nao existe verdade absoluta, apenas narrativas com diferentes graus de SUSTENTACAO
+- Proposicoes tem SOLIDEZ (nao sao "verdadeiras" ou "falsas")
+- Sistema nao julga verdade, MAPEIA sustentacao
+
+TAREFA:
+Avalie a SOLIDEZ do argumento. Solidez mede QUAO BEM FUNDAMENTADO esta o argumento.
+
+CLAIM CENTRAL:
+{claim}
+
+FUNDAMENTOS (argumentos de suporte):
+{fundamentos}
+
+SUPOSICOES (nao verificadas):
+{assumptions}
+
+CONTRADICOES DETECTADAS:
+{contradictions}
+
+EVIDENCIAS BIBLIOGRAFICAS (se existirem):
+{solid_grounds}
+
+ANALISE CONTEXTUAL:
+Considere:
+1. Os fundamentos REALMENTE sustentam o claim? (nao apenas contar)
+2. A logica entre fundamentos e claim e coerente?
+3. As suposicoes enfraquecem significativamente o argumento?
+4. As contradicoes sao graves ou superficiais?
+5. Ha lacunas criticas na sustentacao?
+
+RETORNE APENAS JSON:
+{{
+    "solidez": 0.65,
+    "analysis": "Explicacao de como avaliou a solidez",
+    "strengths": ["ponto forte 1", "ponto forte 2"],
+    "weaknesses": ["ponto fraco 1", "ponto fraco 2"],
+    "critical_gaps": ["lacuna critica se houver"]
+}}
+
+ESCALA DE SOLIDEZ:
+- 0.0-0.2: Argumento sem sustentacao (claim vago, sem fundamentos)
+- 0.2-0.4: Argumento fragil (fundamentos fracos ou insuficientes)
+- 0.4-0.6: Argumento em construcao (alguns fundamentos, lacunas importantes)
+- 0.6-0.8: Argumento solido (boa sustentacao, lacunas menores)
+- 0.8-1.0: Argumento muito solido (excelente sustentacao, poucas lacunas)
+"""
+
+# =============================================================================
+# PROMPT: AVALIACAO DE COMPLETUDE (Via LLM)
+# =============================================================================
+
+EVALUATE_COMPLETUDE_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
+
+TAREFA:
+Avalie a COMPLETUDE do argumento. Completude mede QUANTO do argumento esta DESENVOLVIDO.
+
+CLAIMS EXTRAIDOS:
+{claims}
+
+FUNDAMENTOS:
+{fundamentos}
+
+QUESTOES ABERTAS:
+{open_questions}
+
+CONTEXTO DO ARGUMENTO:
+{context}
+
+ANALISE CONTEXTUAL:
+Considere:
+1. Os claims estao bem articulados ou sao vagos?
+2. O raciocinio tem começo, meio e fim logico?
+3. As questoes abertas sao muitas ou criticas?
+4. O contexto esta definido (dominio, populacao, metricas)?
+5. Ha aspectos importantes nao mencionados?
+
+RETORNE APENAS JSON:
+{{
+    "completude": 0.55,
+    "analysis": "Explicacao de como avaliou a completude",
+    "developed_aspects": ["aspecto desenvolvido 1", "aspecto desenvolvido 2"],
+    "missing_aspects": ["aspecto faltante 1", "aspecto faltante 2"],
+    "next_steps_suggested": ["proximo passo para completar 1"]
+}}
+
+ESCALA DE COMPLETUDE:
+- 0.0-0.2: Argumento embrionario (apenas ideia inicial)
+- 0.2-0.4: Argumento parcial (alguns elementos, estrutura incompleta)
+- 0.4-0.6: Argumento em desenvolvimento (estrutura visivel, lacunas importantes)
+- 0.6-0.8: Argumento quase completo (maioria dos elementos, ajustes finos)
+- 0.8-1.0: Argumento completo (todos elementos essenciais presentes)
+"""
+
+# =============================================================================
+# PROMPT: AVALIACAO DE MATURIDADE (Via LLM)
+# =============================================================================
+
+EVALUATE_MATURITY_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
+
+TAREFA:
+Avalie se o argumento esta MADURO o suficiente para criar um snapshot (persisti-lo como marco evolutivo).
+
+METRICAS ATUAIS:
+- Solidez: {solidez}
+- Completude: {completude}
+
+QUESTOES ABERTAS:
+{open_questions}
+
+CONTRADICOES:
+{contradictions}
+
+CLAIMS:
+{claims}
+
+FUNDAMENTOS:
+{fundamentos}
+
+ANALISE CONTEXTUAL:
+Considere:
+1. O argumento tem identidade propria (nao e apenas fragmentos)?
+2. As metricas indicam progresso real ou estagnacao?
+3. As questoes abertas sao bloqueadoras ou exploratórias?
+4. Ha contradicoes nao resolvidas que impedem progresso?
+5. Faz sentido registrar este momento como marco?
+
+RETORNE APENAS JSON:
+{{
+    "is_mature": true,
+    "confidence": 0.75,
+    "reason": "Explicacao contextual da decisao",
+    "blocking_issues": ["questao bloqueadora se houver"],
+    "recommendation": "Criar snapshot" ou "Continuar desenvolvimento"
+}}
+
+CRITERIOS DE MATURIDADE (contextuais, nao rigidos):
+- Argumento tem estrutura identificavel
+- Solidez e completude mostram progresso
+- Questoes abertas nao sao bloqueadoras
+- Contradicoes nao sao fundamentais
+- Momento faz sentido como registro evolutivo
+"""
+
+# =============================================================================
 # CONSTANTES DE CONFIGURACAO
 # =============================================================================
 
@@ -217,8 +367,14 @@ RECOMMENDED_MODEL = "claude-3-5-haiku-20241022"
 # Temperature para extracao (deterministica)
 EXTRACTION_TEMPERATURE = 0
 
+# Temperature para avaliacao de metricas (permite variacao contextual)
+METRICS_TEMPERATURE = 0.3
+
 # Maximo de tokens para resposta de extracao
 MAX_EXTRACTION_TOKENS = 500
+
+# Maximo de tokens para avaliacao de metricas
+MAX_METRICS_TOKENS = 800
 
 # Threshold de confianca para reportar contradicoes
 CONTRADICTION_CONFIDENCE_THRESHOLD = 0.80

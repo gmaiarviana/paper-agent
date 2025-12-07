@@ -97,12 +97,14 @@ def process_turn(
         solid_grounds=cognitive_model.get("solid_grounds", [])
     )
 
-    # 4. Avaliar maturidade
+    # 4. Avaliar maturidade (via LLM com contexto completo)
     maturity = evaluate_maturity(
         solidez=metrics["solidez"],
         completude=metrics["completude"],
         open_questions=cognitive_model.get("open_questions", []),
-        contradictions=cognitive_model.get("contradictions", [])
+        contradictions=cognitive_model.get("contradictions", []),
+        claims=extracted.get("claims", []),
+        fundamentos=cognitive_model.get("premises", [])
     )
 
     # 5. Publicar eventos (se session_id fornecido)
@@ -218,7 +220,7 @@ def _merge_cognitive_model(
 def _publish_cognitive_model_event(
     session_id: str,
     cognitive_model: Dict[str, Any],
-    metrics: Dict[str, float],
+    metrics: Dict[str, Any],
     turn_number: int
 ) -> None:
     """
@@ -236,12 +238,14 @@ def _publish_cognitive_model_event(
 
         event_bus = get_event_bus()
 
-        # Avaliar maturidade para o evento
+        # Avaliar maturidade para o evento (via LLM)
         maturity = evaluate_maturity(
             solidez=metrics["solidez"],
             completude=metrics["completude"],
             open_questions=cognitive_model.get("open_questions", []),
-            contradictions=cognitive_model.get("contradictions", [])
+            contradictions=cognitive_model.get("contradictions", []),
+            claims=[cognitive_model.get("claim", "")] if cognitive_model.get("claim") else [],
+            fundamentos=cognitive_model.get("premises", [])
         )
 
         # Publicar evento especifico do CognitiveModel (Epico 10.2)

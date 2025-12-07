@@ -1,19 +1,55 @@
 """
-Calculo de metricas do Observador.
+Calculo de metricas do Observador via LLM.
 
-Este modulo contem funcoes para calcular metricas de qualidade
-do argumento em construcao:
-- Solidez: quao bem fundamentado esta o argumento
-- Completude: quanto do argumento esta desenvolvido
+Este modulo contem funcoes que usam LLM para avaliar a qualidade
+do argumento em construcao de forma NAO-DETERMINISTICA:
+- Solidez: quao bem fundamentado esta o argumento (via LLM)
+- Completude: quanto do argumento esta desenvolvido (via LLM)
+- Maturidade: se o argumento esta pronto para snapshot (via LLM)
 
-Versao: 1.0 (Epico 10.2)
-Data: 05/12/2025
+FILOSOFIA:
+- Sistema NAO usa formulas deterministicas
+- Sistema avalia CONTEXTO e QUALIDADE, nao apenas conta elementos
+- Proposicoes tem SOLIDEZ (nao sao "verdadeiras" ou "falsas")
+- Sistema mapeia SUSTENTACAO, nao julga verdade
+
+Versao: 2.0 (Epico 10.2 - Avaliacao via LLM)
+Data: 07/12/2025
 """
 
 import logging
+import json
 from typing import List, Dict, Any, Optional
 
+from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import HumanMessage
+
+from .prompts import (
+    EVALUATE_SOLIDEZ_PROMPT,
+    EVALUATE_COMPLETUDE_PROMPT,
+    EVALUATE_MATURITY_PROMPT,
+    RECOMMENDED_MODEL,
+    METRICS_TEMPERATURE,
+    MAX_METRICS_TOKENS
+)
+from utils.config import invoke_with_retry
+from utils.json_parser import extract_json_from_llm_response
+
 logger = logging.getLogger(__name__)
+
+
+def _get_metrics_llm() -> ChatAnthropic:
+    """
+    Retorna instancia do LLM para avaliacao de metricas.
+
+    Usa temperature > 0 para permitir variacao contextual
+    (nao-determinismo controlado).
+    """
+    return ChatAnthropic(
+        model=RECOMMENDED_MODEL,
+        temperature=METRICS_TEMPERATURE,
+        max_tokens=MAX_METRICS_TOKENS
+    )
 
 
 def calculate_solidez(
@@ -21,151 +57,192 @@ def calculate_solidez(
     fundamentos: List[str],
     assumptions: List[str],
     contradictions: List[Dict[str, Any]],
-    solid_grounds: Optional[List[Dict[str, Any]]] = None
-) -> float:
+    solid_grounds: Optional[List[Dict[str, Any]]] = None,
+    llm: Optional[ChatAnthropic] = None
+) -> Dict[str, Any]:
     """
-    Calcula solidez do argumento (0-1).
+    Avalia solidez do argumento via LLM (0-1).
 
-    Solidez mede quao bem fundamentado esta o argumento.
-    Baseado em:
-    - Especificidade do claim (+)
-    - Quantidade de fundamentos (+)
-    - Quantidade de assumptions (-)
-    - Presenca de contradicoes (--)
-    - Evidencias bibliograficas (bonus)
+    Solidez mede QUAO BEM FUNDAMENTADO esta o argumento.
+    Diferente de contagem deterministica, analisa QUALIDADE
+    da sustentacao em contexto.
 
     Args:
         claim: Afirmacao central do argumento.
         fundamentos: Lista de argumentos de suporte.
         assumptions: Lista de suposicoes nao verificadas.
         contradictions: Lista de contradicoes detectadas.
-        solid_grounds: Lista de evidencias (opcional).
+        solid_grounds: Lista de evidencias bibliograficas (opcional).
+        llm: Instancia do LLM (opcional, cria se nao fornecido).
 
     Returns:
-        float: Solidez entre 0.0 e 1.0.
+        Dict com:
+        - solidez: float (0-1)
+        - analysis: str explicando avaliacao
+        - strengths: List[str] pontos fortes
+        - weaknesses: List[str] pontos fracos
+        - critical_gaps: List[str] lacunas criticas
 
     Example:
-        >>> solidez = calculate_solidez(
+        >>> result = calculate_solidez(
         ...     claim="LLMs aumentam produtividade em 30%",
         ...     fundamentos=["Equipes usam LLMs", "Tempo e mensuravel"],
         ...     assumptions=["Qualidade nao e afetada"],
         ...     contradictions=[]
         ... )
-        >>> print(f"Solidez: {solidez:.0%}")
-        Solidez: 65%
+        >>> print(f"Solidez: {result['solidez']:.0%}")
+        Solidez: 45%
+        >>> print(result['analysis'])
+        'Argumento tem fundamentos relevantes mas...'
     """
-    score = 0.0
+    if llm is None:
+        llm = _get_metrics_llm()
 
-    # 1. Claim definido: base 20%
-    if claim:
-        score += 0.20
+    # Formatar dados para o prompt
+    fundamentos_str = json.dumps(fundamentos, ensure_ascii=False) if fundamentos else "(nenhum)"
+    assumptions_str = json.dumps(assumptions, ensure_ascii=False) if assumptions else "(nenhuma)"
+    contradictions_str = json.dumps(contradictions, ensure_ascii=False) if contradictions else "(nenhuma)"
+    solid_grounds_str = json.dumps(solid_grounds, ensure_ascii=False) if solid_grounds else "(nenhuma)"
 
-        # Bonus para claim especifico (> 50 chars)
-        if len(claim) > 50:
-            score += 0.05
-
-    # 2. Fundamentos: cada um adiciona ate 15% (max 45%)
-    fundamentos_score = min(0.45, len(fundamentos) * 0.15)
-    score += fundamentos_score
-
-    # 3. Assumptions: cada uma subtrai 5% (max -20%)
-    assumptions_penalty = min(0.20, len(assumptions) * 0.05)
-    score -= assumptions_penalty
-
-    # 4. Contradicoes: cada uma subtrai 10% (max -30%)
-    contradictions_penalty = min(0.30, len(contradictions) * 0.10)
-    score -= contradictions_penalty
-
-    # 5. Bonus: evidencias bibliograficas (se existirem)
-    if solid_grounds:
-        evidence_bonus = min(0.15, len(solid_grounds) * 0.05)
-        score += evidence_bonus
-
-    # Garantir range 0-1
-    solidez = max(0.0, min(1.0, score))
-
-    logger.debug(
-        f"Solidez calculada: {solidez:.2f} "
-        f"(claim={bool(claim)}, fundamentos={len(fundamentos)}, "
-        f"assumptions={len(assumptions)}, contradictions={len(contradictions)})"
+    # Construir prompt
+    prompt = EVALUATE_SOLIDEZ_PROMPT.format(
+        claim=claim or "(claim nao definido)",
+        fundamentos=fundamentos_str,
+        assumptions=assumptions_str,
+        contradictions=contradictions_str,
+        solid_grounds=solid_grounds_str
     )
 
-    return solidez
+    try:
+        messages = [HumanMessage(content=prompt)]
+        response = invoke_with_retry(llm=llm, messages=messages, agent_name="observer_solidez")
+
+        # Parse JSON
+        data = extract_json_from_llm_response(response.content)
+
+        # Extrair e validar resultado
+        solidez = float(data.get("solidez", 0.0))
+        solidez = max(0.0, min(1.0, solidez))  # Garantir range 0-1
+
+        result = {
+            "solidez": solidez,
+            "analysis": data.get("analysis", "Analise nao disponivel"),
+            "strengths": data.get("strengths", []),
+            "weaknesses": data.get("weaknesses", []),
+            "critical_gaps": data.get("critical_gaps", [])
+        }
+
+        logger.info(
+            f"Solidez avaliada via LLM: {solidez:.2f} "
+            f"(strengths={len(result['strengths'])}, "
+            f"weaknesses={len(result['weaknesses'])})"
+        )
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Erro ao avaliar solidez via LLM: {e}")
+        # Retorna avaliacao conservadora em caso de erro
+        return {
+            "solidez": 0.1,
+            "analysis": f"Erro na avaliacao: {str(e)}",
+            "strengths": [],
+            "weaknesses": ["Avaliacao nao concluida"],
+            "critical_gaps": ["Erro no processamento LLM"]
+        }
 
 
 def calculate_completude(
     claims: List[str],
     fundamentos: List[str],
     open_questions: List[str],
-    context: Optional[Dict[str, Any]] = None
-) -> float:
+    context: Optional[Dict[str, Any]] = None,
+    llm: Optional[ChatAnthropic] = None
+) -> Dict[str, Any]:
     """
-    Calcula completude do argumento (0-1).
+    Avalia completude do argumento via LLM (0-1).
 
-    Completude mede quanto do argumento esta desenvolvido.
-    Baseado em:
-    - Presenca de claims (+)
-    - Presenca de fundamentos (+)
-    - Quantidade de open questions (-)
-    - Contexto definido (+)
+    Completude mede QUANTO do argumento esta DESENVOLVIDO.
+    Analisa estrutura, articulacao e cobertura do raciocinio.
 
     Args:
         claims: Lista de claims extraidos.
         fundamentos: Lista de fundamentos.
         open_questions: Lista de questoes abertas.
         context: Contexto do argumento (opcional).
+        llm: Instancia do LLM (opcional).
 
     Returns:
-        float: Completude entre 0.0 e 1.0.
+        Dict com:
+        - completude: float (0-1)
+        - analysis: str explicando avaliacao
+        - developed_aspects: List[str] aspectos desenvolvidos
+        - missing_aspects: List[str] aspectos faltantes
+        - next_steps_suggested: List[str] proximos passos
 
     Example:
-        >>> completude = calculate_completude(
+        >>> result = calculate_completude(
         ...     claims=["LLMs aumentam produtividade"],
         ...     fundamentos=["Equipes usam LLMs"],
         ...     open_questions=["Como medir?", "Qual baseline?"]
         ... )
-        >>> print(f"Completude: {completude:.0%}")
-        Completude: 40%
+        >>> print(f"Completude: {result['completude']:.0%}")
+        Completude: 35%
     """
-    score = 0.0
+    if llm is None:
+        llm = _get_metrics_llm()
 
-    # 1. Claims definidos: ate 25%
-    if claims:
-        claims_score = min(0.25, len(claims) * 0.10)
-        score += claims_score
+    # Formatar dados para o prompt
+    claims_str = json.dumps(claims, ensure_ascii=False) if claims else "(nenhum)"
+    fundamentos_str = json.dumps(fundamentos, ensure_ascii=False) if fundamentos else "(nenhum)"
+    questions_str = json.dumps(open_questions, ensure_ascii=False) if open_questions else "(nenhuma)"
+    context_str = json.dumps(context, ensure_ascii=False) if context else "(nao definido)"
 
-    # 2. Fundamentos: ate 35%
-    if fundamentos:
-        fundamentos_score = min(0.35, len(fundamentos) * 0.12)
-        score += fundamentos_score
-
-    # 3. Open questions: subtraem da completude (max -30%)
-    if open_questions:
-        questions_penalty = min(0.30, len(open_questions) * 0.10)
-        score -= questions_penalty
-
-    # 4. Contexto definido: bonus ate 20%
-    if context:
-        # Cada campo do contexto adiciona pontos
-        context_fields = ['domain', 'population', 'technology', 'metrics', 'article_type']
-        defined_fields = sum(1 for f in context_fields if context.get(f))
-        context_bonus = min(0.20, defined_fields * 0.04)
-        score += context_bonus
-
-    # Base minima se tiver pelo menos claim
-    if claims and score < 0.10:
-        score = 0.10
-
-    # Garantir range 0-1
-    completude = max(0.0, min(1.0, score))
-
-    logger.debug(
-        f"Completude calculada: {completude:.2f} "
-        f"(claims={len(claims)}, fundamentos={len(fundamentos)}, "
-        f"open_questions={len(open_questions)})"
+    # Construir prompt
+    prompt = EVALUATE_COMPLETUDE_PROMPT.format(
+        claims=claims_str,
+        fundamentos=fundamentos_str,
+        open_questions=questions_str,
+        context=context_str
     )
 
-    return completude
+    try:
+        messages = [HumanMessage(content=prompt)]
+        response = invoke_with_retry(llm=llm, messages=messages, agent_name="observer_completude")
+
+        # Parse JSON
+        data = extract_json_from_llm_response(response.content)
+
+        # Extrair e validar resultado
+        completude = float(data.get("completude", 0.0))
+        completude = max(0.0, min(1.0, completude))  # Garantir range 0-1
+
+        result = {
+            "completude": completude,
+            "analysis": data.get("analysis", "Analise nao disponivel"),
+            "developed_aspects": data.get("developed_aspects", []),
+            "missing_aspects": data.get("missing_aspects", []),
+            "next_steps_suggested": data.get("next_steps_suggested", [])
+        }
+
+        logger.info(
+            f"Completude avaliada via LLM: {completude:.2f} "
+            f"(developed={len(result['developed_aspects'])}, "
+            f"missing={len(result['missing_aspects'])})"
+        )
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Erro ao avaliar completude via LLM: {e}")
+        # Retorna avaliacao conservadora em caso de erro
+        return {
+            "completude": 0.1,
+            "analysis": f"Erro na avaliacao: {str(e)}",
+            "developed_aspects": [],
+            "missing_aspects": ["Avaliacao nao concluida"],
+            "next_steps_suggested": ["Resolver erro no processamento"]
+        }
 
 
 def calculate_metrics(
@@ -176,13 +253,14 @@ def calculate_metrics(
     open_questions: List[str],
     contradictions: List[Dict[str, Any]],
     context: Optional[Dict[str, Any]] = None,
-    solid_grounds: Optional[List[Dict[str, Any]]] = None
-) -> Dict[str, float]:
+    solid_grounds: Optional[List[Dict[str, Any]]] = None,
+    llm: Optional[ChatAnthropic] = None
+) -> Dict[str, Any]:
     """
-    Calcula todas as metricas do CognitiveModel.
+    Calcula todas as metricas do CognitiveModel via LLM.
 
-    Funcao de conveniencia que calcula solidez e completude
-    em uma unica chamada.
+    Funcao de conveniencia que avalia solidez e completude
+    em chamadas LLM separadas para analise mais precisa.
 
     Args:
         claim: Afirmacao central.
@@ -193,9 +271,14 @@ def calculate_metrics(
         contradictions: Lista de contradicoes.
         context: Contexto do argumento.
         solid_grounds: Evidencias bibliograficas.
+        llm: Instancia do LLM (opcional).
 
     Returns:
-        Dict com 'solidez' e 'completude' (ambos 0-1).
+        Dict com:
+        - solidez: float (0-1)
+        - completude: float (0-1)
+        - solidez_details: Dict com analise detalhada
+        - completude_details: Dict com analise detalhada
 
     Example:
         >>> metrics = calculate_metrics(
@@ -206,27 +289,36 @@ def calculate_metrics(
         ...     open_questions=["Como medir?"],
         ...     contradictions=[]
         ... )
-        >>> print(metrics)
-        {'solidez': 0.35, 'completude': 0.25}
+        >>> print(f"Solidez: {metrics['solidez']:.0%}")
+        Solidez: 40%
     """
-    solidez = calculate_solidez(
+    if llm is None:
+        llm = _get_metrics_llm()
+
+    # Avaliar solidez
+    solidez_result = calculate_solidez(
         claim=claim,
         fundamentos=fundamentos,
         assumptions=assumptions,
         contradictions=contradictions,
-        solid_grounds=solid_grounds
+        solid_grounds=solid_grounds,
+        llm=llm
     )
 
-    completude = calculate_completude(
+    # Avaliar completude
+    completude_result = calculate_completude(
         claims=claims,
         fundamentos=fundamentos,
         open_questions=open_questions,
-        context=context
+        context=context,
+        llm=llm
     )
 
     return {
-        "solidez": solidez,
-        "completude": completude
+        "solidez": solidez_result["solidez"],
+        "completude": completude_result["completude"],
+        "solidez_details": solidez_result,
+        "completude_details": completude_result
     }
 
 
@@ -234,67 +326,101 @@ def evaluate_maturity(
     solidez: float,
     completude: float,
     open_questions: List[str],
-    contradictions: List[Dict[str, Any]]
+    contradictions: List[Dict[str, Any]],
+    claims: Optional[List[str]] = None,
+    fundamentos: Optional[List[str]] = None,
+    llm: Optional[ChatAnthropic] = None
 ) -> Dict[str, Any]:
     """
-    Avalia maturidade do argumento para potencial snapshot.
+    Avalia maturidade do argumento para potencial snapshot via LLM.
 
-    Determina se o argumento esta maduro o suficiente para
-    criar um snapshot (persisti-lo).
+    Determina contextualmente se o argumento esta maduro o suficiente
+    para criar um snapshot (persisti-lo como marco evolutivo).
+
+    Diferente de thresholds rigidos, usa analise contextual LLM.
 
     Args:
         solidez: Solidez calculada (0-1).
         completude: Completude calculada (0-1).
         open_questions: Lista de questoes abertas.
         contradictions: Lista de contradicoes.
+        claims: Lista de claims (opcional).
+        fundamentos: Lista de fundamentos (opcional).
+        llm: Instancia do LLM (opcional).
 
     Returns:
         Dict com:
         - is_mature: bool indicando se esta maduro
         - confidence: float indicando confianca (0-1)
-        - reason: str explicando a avaliacao
+        - reason: str explicando a avaliacao contextual
+        - blocking_issues: List[str] questoes bloqueadoras
+        - recommendation: str recomendacao de acao
 
     Example:
         >>> result = evaluate_maturity(
-        ...     solidez=0.75,
-        ...     completude=0.80,
-        ...     open_questions=[],
-        ...     contradictions=[]
+        ...     solidez=0.65,
+        ...     completude=0.70,
+        ...     open_questions=["Detalhe menor?"],
+        ...     contradictions=[],
+        ...     claims=["LLMs aumentam produtividade"]
         ... )
-        >>> print(result)
-        {'is_mature': True, 'confidence': 0.85, 'reason': 'Argumento bem fundamentado'}
+        >>> print(f"Maduro: {result['is_mature']}")
+        Maduro: True
+        >>> print(result['reason'])
+        'Argumento tem estrutura solida com fundamentos...'
     """
-    # Criterios de maturidade
-    has_high_solidez = solidez >= 0.60
-    has_high_completude = completude >= 0.50
-    has_few_questions = len(open_questions) <= 1
-    has_no_contradictions = len(contradictions) == 0
+    if llm is None:
+        llm = _get_metrics_llm()
 
-    # Calcular confianca
-    confidence = (solidez + completude) / 2
+    # Formatar dados para o prompt
+    questions_str = json.dumps(open_questions, ensure_ascii=False) if open_questions else "(nenhuma)"
+    contradictions_str = json.dumps(contradictions, ensure_ascii=False) if contradictions else "(nenhuma)"
+    claims_str = json.dumps(claims, ensure_ascii=False) if claims else "(nenhum)"
+    fundamentos_str = json.dumps(fundamentos, ensure_ascii=False) if fundamentos else "(nenhum)"
 
-    # Avaliar maturidade
-    if has_high_solidez and has_high_completude and has_few_questions and has_no_contradictions:
-        return {
-            "is_mature": True,
-            "confidence": confidence,
-            "reason": "Argumento bem fundamentado com poucas lacunas"
+    # Construir prompt
+    prompt = EVALUATE_MATURITY_PROMPT.format(
+        solidez=f"{solidez:.2f}",
+        completude=f"{completude:.2f}",
+        open_questions=questions_str,
+        contradictions=contradictions_str,
+        claims=claims_str,
+        fundamentos=fundamentos_str
+    )
+
+    try:
+        messages = [HumanMessage(content=prompt)]
+        response = invoke_with_retry(llm=llm, messages=messages, agent_name="observer_maturity")
+
+        # Parse JSON
+        data = extract_json_from_llm_response(response.content)
+
+        # Extrair resultado
+        result = {
+            "is_mature": data.get("is_mature", False),
+            "confidence": float(data.get("confidence", 0.5)),
+            "reason": data.get("reason", "Avaliacao nao disponivel"),
+            "blocking_issues": data.get("blocking_issues", []),
+            "recommendation": data.get("recommendation", "Continuar desenvolvimento")
         }
-    elif has_high_solidez and has_high_completude:
-        return {
-            "is_mature": True,
-            "confidence": confidence * 0.9,
-            "reason": "Argumento solido, mas com algumas questoes abertas"
-        }
-    elif solidez >= 0.40 and completude >= 0.40:
+
+        # Garantir confidence no range 0-1
+        result["confidence"] = max(0.0, min(1.0, result["confidence"]))
+
+        logger.info(
+            f"Maturidade avaliada via LLM: is_mature={result['is_mature']}, "
+            f"confidence={result['confidence']:.2f}"
+        )
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Erro ao avaliar maturidade via LLM: {e}")
+        # Retorna avaliacao conservadora em caso de erro
         return {
             "is_mature": False,
-            "confidence": confidence,
-            "reason": "Argumento em desenvolvimento, precisa mais fundamentos"
-        }
-    else:
-        return {
-            "is_mature": False,
-            "confidence": confidence,
-            "reason": "Argumento inicial, precisa ser mais desenvolvido"
+            "confidence": 0.3,
+            "reason": f"Erro na avaliacao: {str(e)}",
+            "blocking_issues": ["Erro no processamento LLM"],
+            "recommendation": "Resolver erro antes de continuar"
         }
