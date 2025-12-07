@@ -19,6 +19,7 @@ from typing import Dict, Any, Optional, List
 from .state import ObserverState, ObserverInsight, create_initial_observer_state
 from .extractors import extract_all
 from .metrics import calculate_metrics, evaluate_maturity
+from .concept_pipeline import persist_concepts_batch
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,10 @@ def process_turn(
     extract_concepts: bool = True,
     extract_fundamentos: bool = True,
     detect_contradictions: bool = True,
-    calculate_metrics_flag: bool = True
+    calculate_metrics_flag: bool = True,
+    # Parametros para persistencia de conceitos (Epic 10.4)
+    persist_concepts_flag: bool = True,
+    idea_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Processa um turno completo e atualiza o CognitiveModel.
@@ -60,6 +64,8 @@ def process_turn(
         extract_fundamentos: Se deve extrair fundamentos (default True).
         detect_contradictions: Se deve detectar contradicoes (default True).
         calculate_metrics_flag: Se deve calcular metricas (default True).
+        persist_concepts_flag: Se deve persistir conceitos no catalogo (default True).
+        idea_id: ID da Idea para criar link N:N (opcional).
 
     Returns:
         Dict com:
@@ -69,6 +75,7 @@ def process_turn(
         - maturity: Avaliacao de maturidade
         - processing_time_ms: Tempo de processamento
         - skipped: Lista de etapas puladas (se houver)
+        - persisted_concepts: Resumo da persistencia de conceitos (Epic 10.4)
 
     Example:
         >>> result = process_turn(
@@ -101,6 +108,8 @@ def process_turn(
         skipped.append("detect_contradictions")
     if not calculate_metrics_flag:
         skipped.append("calculate_metrics")
+    if not persist_concepts_flag:
+        skipped.append("persist_concepts")
 
     if skipped:
         logger.info(f"Etapas puladas (Agentic RAG): {skipped}")
@@ -113,13 +122,26 @@ def process_turn(
         conversation_history=conversation_history
     )
 
-    # 2. Mesclar com CognitiveModel anterior (se existir)
+    # 2. Persistir conceitos no catalogo (Epic 10.4)
+    persisted_concepts = None
+    if persist_concepts_flag and extracted.get("concepts"):
+        logger.info(f"Persistindo {len(extracted['concepts'])} conceitos no catalogo...")
+        persisted_concepts = persist_concepts_batch(
+            concepts=extracted["concepts"],
+            idea_id=idea_id
+        )
+        logger.info(
+            f"Conceitos persistidos: {persisted_concepts['new_count']} novos, "
+            f"{persisted_concepts['merged_count']} merged"
+        )
+
+    # 3. Mesclar com CognitiveModel anterior (se existir)
     cognitive_model = _merge_cognitive_model(
         previous=previous_cognitive_model,
         extracted=extracted
     )
 
-    # 3. Calcular metricas
+    # 4. Calcular metricas
     metrics = calculate_metrics(
         claim=cognitive_model.get("claim", ""),
         claims=extracted.get("claims", []),
@@ -131,7 +153,7 @@ def process_turn(
         solid_grounds=cognitive_model.get("solid_grounds", [])
     )
 
-    # 4. Avaliar maturidade (via LLM com contexto completo)
+    # 5. Avaliar maturidade (via LLM com contexto completo)
     maturity = evaluate_maturity(
         solidez=metrics["solidez"],
         completude=metrics["completude"],
@@ -141,7 +163,7 @@ def process_turn(
         fundamentos=cognitive_model.get("premises", [])
     )
 
-    # 5. Publicar eventos (se session_id fornecido)
+    # 6. Publicar eventos (se session_id fornecido)
     if session_id:
         _publish_cognitive_model_event(
             session_id=session_id,
@@ -167,7 +189,8 @@ def process_turn(
         "maturity": maturity,
         "processing_time_ms": processing_time_ms,
         "turn_number": turn_number,
-        "skipped": skipped  # Etapas puladas (para Agentic RAG)
+        "skipped": skipped,  # Etapas puladas (para Agentic RAG)
+        "persisted_concepts": persisted_concepts  # Resumo da persistencia (Epic 10.4)
     }
 
 

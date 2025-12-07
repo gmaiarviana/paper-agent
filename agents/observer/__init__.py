@@ -31,8 +31,9 @@ Modulos:
 - prompts: Prompts de extracao via LLM
 - catalog: ConceptCatalog - Persistencia ChromaDB + SQLite (10.3)
 - embeddings: Geracao de embeddings semanticos (10.3)
+- concept_pipeline: Pipeline de deteccao e persistencia de conceitos (10.4)
 
-Versao: 2.1 (Epico 10.3 - ChromaDB + SQLite)
+Versao: 2.2 (Epico 10.4 - Pipeline de Conceitos)
 Data: 07/12/2025
 
 Example:
@@ -87,6 +88,11 @@ from .embeddings import (
     get_embedding_dimensions,
     get_model_name
 )
+from .concept_pipeline import (
+    persist_concepts,
+    persist_concepts_batch,
+    ConceptPersistResult
+)
 
 __all__ = [
     # API principal
@@ -129,7 +135,12 @@ __all__ = [
     "calculate_similarity",
     "get_embedding_dimensions",
     "get_model_name",
+
+    # Pipeline de Conceitos (10.4)
+    "persist_concepts",
+    "persist_concepts_batch",
+    "ConceptPersistResult",
 ]
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 __author__ = "Paper Agent Team"
