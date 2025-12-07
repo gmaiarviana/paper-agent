@@ -39,6 +39,20 @@ pytest tests/integration/ -m integration
 
 ---
 
+---
+
+## 📚 Histórico de Épicos
+
+Documentação histórica de épicos de testes:
+
+- [Épico 6](epics/epic6/) - Limpeza de testes
+- [Épico 7](epics/epic7/) - Validação de maturidade (manual)
+- [Épico 8](epics/epic8/) - Sistema de testes maduro + reestruturação
+
+Ver também: [Migração](migration/) - Reestruturação completa (Épico 8)
+
+---
+
 **Versão:** 3.0
 **Data:** 15/01/2025
 **Status:** Documentação atualizada para estrutura migrada (Épico 8)
