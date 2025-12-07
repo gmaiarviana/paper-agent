@@ -31,9 +31,9 @@
 
 #### Planejados (refinados)
 - **ÉPICO 10**: Observador - Mente Analítica (POC)
+- **ÉPICO 11**: Alinhamento de Ontologia
 
 #### Planejados (não refinados)
-- **ÉPICO 11**: Alinhamento de Ontologia (não refinado)
 - **ÉPICO 12**: Observador Integrado ao Fluxo (não refinado)
 - **ÉPICO 13**: Catálogo de Conceitos - Interface Web (não refinado)
 - **ÉPICO 14**: Pesquisador (não refinado)
@@ -147,18 +147,96 @@ Ferramentas para execução multi-turn, relatórios estruturados, sistema de obs
 
 ## ÉPICO 11: Alinhamento de Ontologia
 
-**Objetivo:** Migrar código atual (premises/assumptions como strings separadas) para nova ontologia (Proposição unificada com solidez derivada de Evidências).
+**Objetivo:** Migrar código de premises/assumptions (strings separadas) para Proposições unificadas com solidez. Simplificar o sistema para refletir a realidade epistemológica.
 
-**Status:** ⏳ Planejado (não refinado)
-
-**Abordagem:** Evolução gradual, não refatoração big-bang.
+**Status:** ✅ Refinado (aguardando conclusão do Épico 10)
 
 **Dependências:**
-- Épicos 9-10 concluídos
+- Épico 10 concluído
 
-**Referências:**
-- `docs/architecture/ontology.md` - Nova ontologia
-- `docs/vision/epistemology.md` - Fundamentos epistemológicos
+**Consulte:**
+- `docs/architecture/ontology.md` - Nova ontologia (Proposição)
+- `docs/vision/epistemology.md` - Base filosófica
+- `docs/vision/cognitive_model/core.md` - Evolução de solidez
+
+### Funcionalidades:
+
+#### 11.1 Schema Unificado (Camada Modelo)
+
+- **Descrição:** Criar estrutura `Proposicao` e migrar schema SQLite.
+- **Critérios de Aceite:**
+  - Deve criar modelo Pydantic `Proposicao` com: `id`, `texto`, `solidez` (Optional[float]), `evidencias` (lista vazia)
+  - Deve atualizar schema SQLite: substituir colunas `premises`, `assumptions` por `proposicoes` (JSON)
+  - Deve criar script de migração que converte dados existentes (premises → proposicoes com solidez=None, assumptions → proposicoes com solidez=None)
+  - Deve manter `solid_grounds` temporariamente (migra para `evidencias` no Épico 14)
+  - Claim continua como campo separado (não vira proposição)
+
+#### 11.2 Adapter de Compatibilidade
+
+- **Descrição:** Criar adapter que traduz estrutura nova ↔ antiga durante transição.
+- **Critérios de Aceite:**
+  - Deve criar `ProposicaoAdapter` em `agents/models/adapters.py`
+  - Deve implementar `to_legacy()`: proposicoes → premises/assumptions (para código não migrado)
+  - Deve implementar `from_legacy()`: premises/assumptions → proposicoes
+  - Deve ser removido ao final do Épico 11 (código temporário)
+
+#### 11.3 Migrar CognitiveModel
+
+- **Descrição:** Atualizar `CognitiveModel` para usar `proposicoes`.
+- **Critérios de Aceite:**
+  - Deve substituir campos `premises` e `assumptions` por `proposicoes: List[Proposicao]`
+  - Deve atualizar `is_mature()` para usar solidez média das proposições avaliadas (ignorar None)
+  - Deve atualizar `calculate_solidez()` para derivar de solidez das proposições
+  - Deve manter compatibilidade via Adapter durante transição
+  - Proposições com `solidez=None` não contam para cálculos
+
+#### 11.4 Migrar Observador
+
+- **Descrição:** Atualizar Observador para extrair/armazenar proposições.
+- **Critérios de Aceite:**
+  - Deve atualizar `extract_fundamentos()` para retornar `List[Proposicao]` (com solidez=None inicial)
+  - Deve atualizar `_merge_cognitive_model()` para mesclar proposições (por similaridade de texto)
+  - Deve atualizar `metrics.py` para calcular solidez a partir de proposições avaliadas
+  - Deve remover referências a `premises`/`assumptions`
+  - Avaliação de solidez via LLM continua funcionando (atualiza solidez de None → valor)
+
+#### 11.5 Migrar Orquestrador e Estruturador
+
+- **Descrição:** Atualizar nós que leem/escrevem cognitive_model.
+- **Critérios de Aceite:**
+  - Deve atualizar `orchestrator/nodes.py` para usar `proposicoes`
+  - Deve atualizar `structurer/nodes.py` para usar `proposicoes`
+  - Deve atualizar prompts em `utils/prompts/` para nova estrutura JSON
+  - Deve atualizar fallbacks e validações
+
+#### 11.6 Migrar Interface
+
+- **Descrição:** Atualizar componentes Streamlit para exibir proposições.
+- **Critérios de Aceite:**
+  - Deve atualizar `_ideia_detalhes.py` para renderizar proposições com solidez
+  - Deve atualizar `sidebar/ideas.py` para exibir proposições
+  - Deve atualizar `backstage.py` para inferir status a partir de solidez média
+  - Deve mostrar indicador visual de solidez (cor: verde >0.7, amarelo 0.4-0.7, vermelho <0.4, cinza None)
+  - Não deve exibir "Premises" e "Assumptions" separados
+
+#### 11.7 Migrar Testes
+
+- **Descrição:** Atualizar testes para nova estrutura.
+- **Critérios de Aceite:**
+  - Deve atualizar `test_cognitive_model.py` para testar `Proposicao`
+  - Deve atualizar `test_orchestrator_logic.py` para usar `proposicoes`
+  - Deve atualizar `test_database_manager.py` para testar migração e nova estrutura
+  - Todos os 237 testes devem passar após migração
+
+#### 11.8 Limpeza Final
+
+- **Descrição:** Remover código legado e Adapter.
+- **Critérios de Aceite:**
+  - Deve remover `ProposicaoAdapter` após todas as camadas migradas
+  - Deve remover referências a `premises`/`assumptions` do código
+  - Deve atualizar documentação técnica (`ARCHITECTURE.md`, docstrings)
+  - Deve garantir que nenhum arquivo Python referencia estrutura antiga
+  - Documentação de visão já está alinhada (não precisa mudar)
 
 ---
 
