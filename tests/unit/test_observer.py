@@ -111,14 +111,13 @@ class TestConceptCatalog:
 
     def test_save_concept_deduplicates(self, catalog):
         """Testa que conceitos similares sao deduplicados."""
-        # Criar primeiro conceito
-        embedding1 = [0.1] * 384
-        id1 = catalog.save_concept("cooperacao", "trabalho conjunto", embedding1)
+        # Criar primeiro conceito (sem fornecer embedding - usa real)
+        id1 = catalog.save_concept("cooperacao", "trabalho conjunto")
 
-        # Tentar criar conceito muito similar (mesmo embedding)
-        id2 = catalog.save_concept("cooperacao", "acao conjunta", embedding1)
+        # Tentar criar conceito identico (mesmo label)
+        id2 = catalog.save_concept("cooperacao", "acao conjunta")
 
-        # Deve retornar mesmo ID (deduplicado)
+        # Deve retornar mesmo ID (deduplicado por similaridade alta)
         assert id1 == id2
 
     def test_find_similar_concepts_returns_ordered(self, catalog):

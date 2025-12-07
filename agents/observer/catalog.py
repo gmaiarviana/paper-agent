@@ -17,7 +17,7 @@ import sqlite3
 import json
 import uuid
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 
@@ -371,7 +371,7 @@ class ConceptCatalog:
                         SET variations = ?, updated_at = ?
                         WHERE id = ?
                         """,
-                        (json.dumps(variations), datetime.utcnow().isoformat(), concept_id)
+                        (json.dumps(variations), datetime.now(timezone.utc).isoformat(), concept_id)
                     )
 
             self._conn.commit()
