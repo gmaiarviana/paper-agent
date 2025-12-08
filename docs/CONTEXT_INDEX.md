@@ -266,7 +266,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Exemplos
 
 **Documentação:**
-- `docs/examples/sapiens_processing.md` - Exemplo de processamento
+- `docs/products/examples/sapiens_processing.md` - Exemplo de processamento (produto Fichamento)
 
 **Solicitar quando:**
 - Entender casos de uso práticos

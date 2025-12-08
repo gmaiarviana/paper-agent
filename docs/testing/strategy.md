@@ -275,7 +275,7 @@ def test_socratic_provocation_quality():
 
 ## Referências
 
-- **LLM-as-Judge:** `docs/analysis/llm_judge_strategy.md` - Estratégia completa para testes de qualidade
+- **LLM-as-Judge:** Estratégia documentada em testes de integração (ver `tests/integration/behavior/`)
 - **Inventário:** `docs/testing/inventory.md` - O que já está testado
 - **Estrutura:** `docs/testing/structure.md` - Organização de pastas e fixtures
 - **Comandos:** `docs/testing/commands.md` - Comandos pytest
