@@ -35,7 +35,11 @@ pytest tests/unit/utils/ -v
 ### Exemplos Específicos
 ```bash
 # Testar apenas Orquestrador
-pytest tests/unit/agents/test_orchestrator_logic.py -v
+# Executar todos os testes do orquestrador
+pytest tests/unit/agents/orchestrator/ -v
+
+# Executar teste específico
+pytest tests/unit/agents/orchestrator/test_node.py -v
 
 # Testar comportamento socrático
 pytest tests/integration/behavior/test_socratic_behavior.py -v

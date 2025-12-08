@@ -1,0 +1,331 @@
+"""
+Testes de integração para funcionalidades avançadas do Orquestrador.
+
+Cobre:
+- Integração com active_idea_id do config (Épico 9.2)
+- Criação automática de snapshots (Épico 9.3)
+- Tratamento de falhas silenciosas
+"""
+
+from unittest.mock import Mock, patch
+from agents.orchestrator.state import create_initial_multi_agent_state
+from agents.orchestrator.nodes import orchestrator_node
+
+
+class TestActiveIdeaIdFromConfig:
+    """Testes para extração de active_idea_id do config (Épico 9.2)."""
+
+    def test_orchestrator_works_without_active_idea_id(self):
+        """orchestrator_node funciona sem active_idea_id no config."""
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade",
+            session_id="test-session"
+        )
+
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Teste",
+  "next_step": "explore",
+  "message": "Interessante!",
+  "focal_argument": {
+    "intent": "unclear",
+    "subject": "LLMs productivity",
+    "population": "not specified",
+    "metrics": "not specified",
+    "article_type": "unclear"
+  },
+  "cognitive_model": {
+    "claim": "LLMs aumentam produtividade",
+    "proposicoes": [],
+    "open_questions": [],
+    "contradictions": [],
+    "solid_grounds": [],
+    "context": {}
+  },
+  "agent_suggestion": null
+}
+"""
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
+
+        # Config SEM active_idea_id
+        config = {"configurable": {"thread_id": "test-thread"}}
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+
+            # Não deve lançar exceção
+            result = orchestrator_node(state, config=config)
+
+        assert result["next_step"] == "explore"
+
+    def test_orchestrator_works_with_active_idea_id(self):
+        """orchestrator_node funciona com active_idea_id no config."""
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade",
+            session_id="test-session"
+        )
+
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Teste",
+  "next_step": "explore",
+  "message": "Interessante!",
+  "focal_argument": {
+    "intent": "unclear",
+    "subject": "LLMs productivity",
+    "population": "not specified",
+    "metrics": "not specified",
+    "article_type": "unclear"
+  },
+  "cognitive_model": {
+    "claim": "LLMs aumentam produtividade",
+    "proposicoes": [],
+    "open_questions": [],
+    "contradictions": [],
+    "solid_grounds": [],
+    "context": {}
+  },
+  "agent_suggestion": null
+}
+"""
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
+
+        # Config COM active_idea_id
+        config = {
+            "configurable": {
+                "thread_id": "test-thread",
+                "active_idea_id": "idea-uuid-12345678"
+            }
+        }
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+
+            result = orchestrator_node(state, config=config)
+
+        assert result["next_step"] == "explore"
+
+    def test_orchestrator_works_with_none_active_idea_id(self):
+        """orchestrator_node funciona com active_idea_id=None no config."""
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade",
+            session_id="test-session"
+        )
+
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Teste",
+  "next_step": "explore",
+  "message": "Interessante!",
+  "focal_argument": {
+    "intent": "unclear",
+    "subject": "LLMs productivity",
+    "population": "not specified",
+    "metrics": "not specified",
+    "article_type": "unclear"
+  },
+  "cognitive_model": {
+    "claim": "LLMs aumentam produtividade",
+    "proposicoes": [],
+    "open_questions": [],
+    "contradictions": [],
+    "solid_grounds": [],
+    "context": {}
+  },
+  "agent_suggestion": null
+}
+"""
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
+
+        # Config COM active_idea_id=None (padrão CLI)
+        config = {
+            "configurable": {
+                "thread_id": "test-thread",
+                "active_idea_id": None
+            }
+        }
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+
+            result = orchestrator_node(state, config=config)
+
+        assert result["next_step"] == "explore"
+
+
+class TestSnapshotCreation:
+    """Testes para criação automática de snapshot quando argumento amadurece (Épico 9.3)."""
+
+    def test_snapshot_called_when_active_idea_and_cognitive_model(self):
+        """create_snapshot_if_mature é chamado quando há active_idea_id e cognitive_model."""
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade",
+            session_id="test-session"
+        )
+
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Teste",
+  "next_step": "explore",
+  "message": "Interessante!",
+  "focal_argument": {
+    "intent": "unclear",
+    "subject": "LLMs productivity",
+    "population": "not specified",
+    "metrics": "not specified",
+    "article_type": "unclear"
+  },
+  "cognitive_model": {
+    "claim": "LLMs aumentam produtividade",
+    "proposicoes": [
+      {"texto": "Premissa 1", "solidez": None},
+      {"texto": "Premissa 2", "solidez": None}
+    ],
+    "open_questions": [],
+    "contradictions": [],
+    "solid_grounds": [],
+    "context": {"domain": "software"}
+  },
+  "agent_suggestion": null
+}
+"""
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
+
+        config = {
+            "configurable": {
+                "thread_id": "test-thread",
+                "active_idea_id": "idea-uuid-12345678"
+            }
+        }
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class, \
+             patch('agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+            mock_snapshot.return_value = None  # Argumento não maduro
+
+            result = orchestrator_node(state, config=config)
+
+            # Verifica que create_snapshot_if_mature foi chamado
+            mock_snapshot.assert_called_once()
+            call_args = mock_snapshot.call_args
+            assert call_args.kwargs["idea_id"] == "idea-uuid-12345678"
+            assert call_args.kwargs["confidence_threshold"] == 0.8
+
+        assert result["next_step"] == "explore"
+
+    def test_snapshot_not_called_without_active_idea_id(self):
+        """create_snapshot_if_mature NÃO é chamado sem active_idea_id."""
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade",
+            session_id="test-session"
+        )
+
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Teste",
+  "next_step": "explore",
+  "message": "Interessante!",
+  "focal_argument": {
+    "intent": "unclear",
+    "subject": "LLMs",
+    "population": "not specified",
+    "metrics": "not specified",
+    "article_type": "unclear"
+  },
+  "cognitive_model": {
+    "claim": "LLMs aumentam produtividade",
+    "proposicoes": [],
+    "open_questions": [],
+    "contradictions": [],
+    "solid_grounds": [],
+    "context": {}
+  },
+  "agent_suggestion": null
+}
+"""
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
+
+        # Config SEM active_idea_id
+        config = {"configurable": {"thread_id": "test-thread"}}
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class, \
+             patch('agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+
+            result = orchestrator_node(state, config=config)
+
+            # create_snapshot_if_mature NÃO deve ser chamado
+            mock_snapshot.assert_not_called()
+
+        assert result["next_step"] == "explore"
+
+    def test_snapshot_failure_does_not_break_orchestrator(self):
+        """Falha no snapshot não interrompe o orchestrator (silencioso)."""
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade",
+            session_id="test-session"
+        )
+
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Teste",
+  "next_step": "explore",
+  "message": "Interessante!",
+  "focal_argument": {
+    "intent": "unclear",
+    "subject": "LLMs",
+    "population": "not specified",
+    "metrics": "not specified",
+    "article_type": "unclear"
+  },
+  "cognitive_model": {
+    "claim": "LLMs aumentam produtividade",
+    "proposicoes": [],
+    "open_questions": [],
+    "contradictions": [],
+    "solid_grounds": [],
+    "context": {}
+  },
+  "agent_suggestion": null
+}
+"""
+        mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
+
+        config = {
+            "configurable": {
+                "thread_id": "test-thread",
+                "active_idea_id": "idea-uuid-12345678"
+            }
+        }
+
+        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class, \
+             patch('agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
+            mock_llm = Mock()
+            mock_llm.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm
+            # Simula falha no snapshot
+            mock_snapshot.side_effect = Exception("Database error")
+
+            # Não deve lançar exceção - falha silenciosa
+            result = orchestrator_node(state, config=config)
+
+        # Orchestrator continua funcionando normalmente
+        assert result["next_step"] == "explore"
+        assert "cognitive_model" in result
+

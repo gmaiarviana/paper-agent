@@ -138,7 +138,7 @@ Observador implementado com ChromaDB + SQLite para catálogo de conceitos. Inclu
 - **Descrição:** Atualizar testes para nova estrutura.
 - **Critérios de Aceite:**
   - Deve atualizar `test_cognitive_model.py` para testar `Proposicao`
-  - Deve atualizar `test_orchestrator_logic.py` para usar `proposicoes`
+  - Deve atualizar testes em `tests/unit/agents/orchestrator/` para usar `proposicoes`
   - Deve atualizar `test_database_manager.py` para testar migração e nova estrutura
   - Todos os 237 testes devem passar após migração
 
