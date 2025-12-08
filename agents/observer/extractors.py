@@ -5,12 +5,12 @@ Este modulo contem funcoes que usam LLM para extrair informacoes
 semanticas de cada turno da conversa:
 - Claims (proposicoes centrais)
 - Conceitos (essencias semanticas)
-- Fundamentos (argumentos de suporte)
+- Proposicoes/Fundamentos (argumentos de suporte com solidez)
 - Contradicoes (inconsistencias logicas)
 - Open questions (lacunas)
 
-Versao: 1.0 (Epico 10.2)
-Data: 05/12/2025
+Versao: 2.0 (Epico 11.4 - Migracao para Proposicoes)
+Data: 08/12/2025
 """
 
 import logging
@@ -19,6 +19,8 @@ from typing import List, Dict, Any, Optional
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
+
+from agents.models.proposition import Proposicao
 
 from .prompts import (
     EXTRACT_CLAIMS_PROMPT,
@@ -150,12 +152,14 @@ def extract_fundamentos(
     claims: List[str],
     conversation_history: Optional[List[Dict[str, Any]]] = None,
     llm: Optional[ChatAnthropic] = None
-) -> List[str]:
+) -> List[Proposicao]:
     """
-    Extrai fundamentos (argumentos de suporte) para os claims.
+    Extrai fundamentos (argumentos de suporte) para os claims como Proposicoes.
 
     Fundamentos sao afirmacoes que sustentam os claims principais.
-    Sao a base logica do argumento.
+    Sao a base logica do argumento. Retornados como Proposicao com solidez=None.
+
+    Epico 11.4: Migrado para retornar List[Proposicao] ao inves de List[str].
 
     Args:
         claims: Lista de claims extraidos.
@@ -163,15 +167,17 @@ def extract_fundamentos(
         llm: Instancia do LLM (opcional).
 
     Returns:
-        Lista de fundamentos extraidos (strings).
+        Lista de Proposicao com solidez=None (nao avaliadas).
 
     Example:
-        >>> fundamentos = extract_fundamentos(
+        >>> proposicoes = extract_fundamentos(
         ...     ["LLMs aumentam produtividade"],
         ...     conversation_history
         ... )
-        >>> print(fundamentos)
-        ['Equipes usam LLMs para desenvolvimento']
+        >>> print(proposicoes[0].texto)
+        'Equipes usam LLMs para desenvolvimento'
+        >>> print(proposicoes[0].solidez)
+        None
     """
     if not claims:
         return []
@@ -222,10 +228,16 @@ REGRAS:
         response = invoke_with_retry(llm=llm, messages=messages, agent_name="observer_fundamentos")
 
         data = extract_json_from_llm_response(response.content)
-        fundamentos = data.get("fundamentos", [])
+        fundamentos_text = data.get("fundamentos", [])
 
-        logger.debug(f"Fundamentos extraidos: {fundamentos}")
-        return fundamentos[:3]
+        # Converter strings para Proposicao com solidez=None
+        proposicoes = [
+            Proposicao.from_text(texto=f, solidez=None)
+            for f in fundamentos_text[:3]
+        ]
+
+        logger.debug(f"Proposicoes extraidas: {len(proposicoes)}")
+        return proposicoes
 
     except Exception as e:
         logger.warning(f"Erro ao extrair fundamentos: {e}")
@@ -379,6 +391,9 @@ def extract_all(
     Esta funcao combina todos os extratores em uma unica chamada LLM
     para eficiencia. Retorna um dicionario com todos os campos extraidos.
 
+    Epico 11.4: Agora retorna 'proposicoes' como List[Proposicao] ao inves
+    de 'fundamentos' como List[str].
+
     Args:
         user_input: Mensagem atual do usuario.
         conversation_history: Historico da conversa.
@@ -386,16 +401,18 @@ def extract_all(
 
     Returns:
         Dicionario com:
-        - claims: Lista de claims
-        - concepts: Lista de conceitos
-        - fundamentos: Lista de fundamentos
-        - contradictions: Lista de contradicoes
-        - open_questions: Lista de questoes abertas
+        - claims: Lista de claims (strings)
+        - concepts: Lista de conceitos (strings)
+        - proposicoes: Lista de Proposicao com solidez=None
+        - contradictions: Lista de contradicoes (dicts)
+        - open_questions: Lista de questoes abertas (strings)
 
     Example:
         >>> result = extract_all("LLMs aumentam produtividade em 30%")
         >>> print(result['claims'])
         ['LLMs aumentam produtividade em 30%']
+        >>> print(result['proposicoes'][0].texto)
+        'Equipes usam LLMs'
     """
     if llm is None:
         llm = _get_llm()
@@ -431,9 +448,9 @@ EXTRAIA e RETORNE APENAS JSON no formato:
         "conceito-chave 1",
         "conceito-chave 2"
     ],
-    "fundamentos": [
-        "argumento de suporte 1",
-        "argumento de suporte 2"
+    "proposicoes": [
+        "fundamento/argumento de suporte 1",
+        "fundamento/argumento de suporte 2"
     ],
     "contradictions": [
         {{
@@ -453,7 +470,7 @@ EXTRAIA e RETORNE APENAS JSON no formato:
 REGRAS:
 - Claims: proposicoes centrais que o usuario defende (max 3)
 - Concepts: abstracoes reutilizaveis (max 5)
-- Fundamentos: argumentos que sustentam os claims (max 3)
+- Proposicoes: fundamentos que sustentam os claims (max 3)
 - Contradictions: apenas se confianca >= 0.80
 - Open questions: lacunas relevantes (max 3)
 - Se nao houver itens em alguma categoria, retorne lista vazia
@@ -465,11 +482,20 @@ REGRAS:
 
         data = extract_json_from_llm_response(response.content)
 
+        # Extrair fundamentos/proposicoes do JSON (campo pode ser 'proposicoes' ou 'fundamentos')
+        fundamentos_text = data.get("proposicoes", data.get("fundamentos", []))[:3]
+
+        # Converter strings para Proposicao com solidez=None
+        proposicoes = [
+            Proposicao.from_text(texto=f, solidez=None)
+            for f in fundamentos_text
+        ]
+
         # Extrair e validar cada campo
         result = {
             "claims": data.get("claims", [])[:3],
             "concepts": data.get("concepts", [])[:5],
-            "fundamentos": data.get("fundamentos", [])[:3],
+            "proposicoes": proposicoes,
             "contradictions": [
                 c for c in data.get("contradictions", [])
                 if c.get("confidence", 0) >= CONTRADICTION_CONFIDENCE_THRESHOLD
@@ -480,7 +506,7 @@ REGRAS:
         logger.info(
             f"Extracao completa: {len(result['claims'])} claims, "
             f"{len(result['concepts'])} conceitos, "
-            f"{len(result['fundamentos'])} fundamentos, "
+            f"{len(result['proposicoes'])} proposicoes, "
             f"{len(result['contradictions'])} contradicoes, "
             f"{len(result['open_questions'])} questoes"
         )
@@ -492,7 +518,7 @@ REGRAS:
         return {
             "claims": [],
             "concepts": [],
-            "fundamentos": [],
+            "proposicoes": [],
             "contradictions": [],
             "open_questions": []
         }

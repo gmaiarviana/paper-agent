@@ -13,8 +13,8 @@ FILOSOFIA:
 - Proposicoes tem SOLIDEZ (nao sao "verdadeiras" ou "falsas")
 - Sistema mapeia SUSTENTACAO, nao julga verdade
 
-Versao: 2.0 (Epico 10.2 - Avaliacao via LLM)
-Data: 07/12/2025
+Versao: 3.0 (Epico 11.4 - Migracao para Proposicoes Unificadas)
+Data: 08/12/2025
 """
 
 import logging
@@ -52,10 +52,63 @@ def _get_metrics_llm() -> ChatAnthropic:
     )
 
 
+def _extract_proposicoes_texts(proposicoes: List[Dict[str, Any]]) -> List[str]:
+    """
+    Extrai textos de uma lista de proposicoes (dicts ou objetos).
+
+    Helper para converter proposicoes para lista de strings para prompts.
+
+    Args:
+        proposicoes: Lista de dicts com campo 'texto' ou objetos Proposicao.
+
+    Returns:
+        Lista de strings com os textos das proposicoes.
+    """
+    texts = []
+    for p in proposicoes:
+        if isinstance(p, dict):
+            texts.append(p.get("texto", str(p)))
+        elif hasattr(p, "texto"):
+            texts.append(p.texto)
+        else:
+            texts.append(str(p))
+    return texts
+
+
+def _extract_proposicoes_with_solidez(proposicoes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Extrai proposicoes com texto e solidez para analise.
+
+    Helper para formatar proposicoes para prompts mostrando solidez quando avaliada.
+
+    Args:
+        proposicoes: Lista de dicts com campos 'texto' e 'solidez'.
+
+    Returns:
+        Lista de dicts formatados para prompt.
+    """
+    formatted = []
+    for p in proposicoes:
+        if isinstance(p, dict):
+            texto = p.get("texto", str(p))
+            solidez = p.get("solidez")
+        elif hasattr(p, "texto"):
+            texto = p.texto
+            solidez = getattr(p, "solidez", None)
+        else:
+            texto = str(p)
+            solidez = None
+
+        formatted.append({
+            "texto": texto,
+            "solidez": solidez if solidez is not None else "nao avaliada"
+        })
+    return formatted
+
+
 def calculate_solidez(
     claim: str,
-    fundamentos: List[str],
-    assumptions: List[str],
+    proposicoes: List[Dict[str, Any]],
     contradictions: List[Dict[str, Any]],
     solid_grounds: Optional[List[Dict[str, Any]]] = None,
     llm: Optional[ChatAnthropic] = None
@@ -63,14 +116,15 @@ def calculate_solidez(
     """
     Avalia solidez do argumento via LLM (0-1).
 
+    Epico 11.4: Recebe proposicoes unificadas ao inves de fundamentos/assumptions.
+
     Solidez mede QUAO BEM FUNDAMENTADO esta o argumento.
     Diferente de contagem deterministica, analisa QUALIDADE
     da sustentacao em contexto.
 
     Args:
         claim: Afirmacao central do argumento.
-        fundamentos: Lista de argumentos de suporte.
-        assumptions: Lista de suposicoes nao verificadas.
+        proposicoes: Lista de proposicoes (dicts com 'texto' e 'solidez').
         contradictions: Lista de contradicoes detectadas.
         solid_grounds: Lista de evidencias bibliograficas (opcional).
         llm: Instancia do LLM (opcional, cria se nao fornecido).
@@ -86,29 +140,29 @@ def calculate_solidez(
     Example:
         >>> result = calculate_solidez(
         ...     claim="LLMs aumentam produtividade em 30%",
-        ...     fundamentos=["Equipes usam LLMs", "Tempo e mensuravel"],
-        ...     assumptions=["Qualidade nao e afetada"],
+        ...     proposicoes=[
+        ...         {"texto": "Equipes usam LLMs", "solidez": 0.8},
+        ...         {"texto": "Qualidade nao e afetada", "solidez": None}
+        ...     ],
         ...     contradictions=[]
         ... )
         >>> print(f"Solidez: {result['solidez']:.0%}")
         Solidez: 45%
-        >>> print(result['analysis'])
-        'Argumento tem fundamentos relevantes mas...'
     """
     if llm is None:
         llm = _get_metrics_llm()
 
-    # Formatar dados para o prompt
-    fundamentos_str = json.dumps(fundamentos, ensure_ascii=False) if fundamentos else "(nenhum)"
-    assumptions_str = json.dumps(assumptions, ensure_ascii=False) if assumptions else "(nenhuma)"
+    # Formatar proposicoes com solidez para o prompt
+    proposicoes_formatted = _extract_proposicoes_with_solidez(proposicoes)
+    proposicoes_str = json.dumps(proposicoes_formatted, ensure_ascii=False) if proposicoes_formatted else "(nenhuma)"
     contradictions_str = json.dumps(contradictions, ensure_ascii=False) if contradictions else "(nenhuma)"
     solid_grounds_str = json.dumps(solid_grounds, ensure_ascii=False) if solid_grounds else "(nenhuma)"
 
-    # Construir prompt
+    # Construir prompt (adaptado para proposicoes)
     prompt = EVALUATE_SOLIDEZ_PROMPT.format(
         claim=claim or "(claim nao definido)",
-        fundamentos=fundamentos_str,
-        assumptions=assumptions_str,
+        fundamentos=proposicoes_str,  # Usar mesmo placeholder para compatibilidade
+        assumptions="(migrado para proposicoes)",  # Campo removido
         contradictions=contradictions_str,
         solid_grounds=solid_grounds_str
     )
@@ -154,7 +208,7 @@ def calculate_solidez(
 
 def calculate_completude(
     claims: List[str],
-    fundamentos: List[str],
+    proposicoes: List[Dict[str, Any]],
     open_questions: List[str],
     context: Optional[Dict[str, Any]] = None,
     llm: Optional[ChatAnthropic] = None
@@ -162,12 +216,14 @@ def calculate_completude(
     """
     Avalia completude do argumento via LLM (0-1).
 
+    Epico 11.4: Recebe proposicoes unificadas ao inves de fundamentos.
+
     Completude mede QUANTO do argumento esta DESENVOLVIDO.
     Analisa estrutura, articulacao e cobertura do raciocinio.
 
     Args:
         claims: Lista de claims extraidos.
-        fundamentos: Lista de fundamentos.
+        proposicoes: Lista de proposicoes (dicts com 'texto' e 'solidez').
         open_questions: Lista de questoes abertas.
         context: Contexto do argumento (opcional).
         llm: Instancia do LLM (opcional).
@@ -183,7 +239,7 @@ def calculate_completude(
     Example:
         >>> result = calculate_completude(
         ...     claims=["LLMs aumentam produtividade"],
-        ...     fundamentos=["Equipes usam LLMs"],
+        ...     proposicoes=[{"texto": "Equipes usam LLMs", "solidez": 0.8}],
         ...     open_questions=["Como medir?", "Qual baseline?"]
         ... )
         >>> print(f"Completude: {result['completude']:.0%}")
@@ -194,14 +250,15 @@ def calculate_completude(
 
     # Formatar dados para o prompt
     claims_str = json.dumps(claims, ensure_ascii=False) if claims else "(nenhum)"
-    fundamentos_str = json.dumps(fundamentos, ensure_ascii=False) if fundamentos else "(nenhum)"
+    proposicoes_texts = _extract_proposicoes_texts(proposicoes)
+    proposicoes_str = json.dumps(proposicoes_texts, ensure_ascii=False) if proposicoes_texts else "(nenhum)"
     questions_str = json.dumps(open_questions, ensure_ascii=False) if open_questions else "(nenhuma)"
     context_str = json.dumps(context, ensure_ascii=False) if context else "(nao definido)"
 
     # Construir prompt
     prompt = EVALUATE_COMPLETUDE_PROMPT.format(
         claims=claims_str,
-        fundamentos=fundamentos_str,
+        fundamentos=proposicoes_str,  # Usar mesmo placeholder para compatibilidade
         open_questions=questions_str,
         context=context_str
     )
@@ -248,8 +305,7 @@ def calculate_completude(
 def calculate_metrics(
     claim: str,
     claims: List[str],
-    fundamentos: List[str],
-    assumptions: List[str],
+    proposicoes: List[Dict[str, Any]],
     open_questions: List[str],
     contradictions: List[Dict[str, Any]],
     context: Optional[Dict[str, Any]] = None,
@@ -259,14 +315,15 @@ def calculate_metrics(
     """
     Calcula todas as metricas do CognitiveModel via LLM.
 
+    Epico 11.4: Recebe proposicoes unificadas ao inves de fundamentos/assumptions.
+
     Funcao de conveniencia que avalia solidez e completude
     em chamadas LLM separadas para analise mais precisa.
 
     Args:
         claim: Afirmacao central.
         claims: Lista de claims extraidos.
-        fundamentos: Lista de fundamentos.
-        assumptions: Lista de suposicoes.
+        proposicoes: Lista de proposicoes (dicts com 'texto' e 'solidez').
         open_questions: Lista de questoes abertas.
         contradictions: Lista de contradicoes.
         context: Contexto do argumento.
@@ -284,8 +341,7 @@ def calculate_metrics(
         >>> metrics = calculate_metrics(
         ...     claim="LLMs aumentam produtividade",
         ...     claims=["LLMs aumentam produtividade"],
-        ...     fundamentos=["Equipes usam LLMs"],
-        ...     assumptions=["Qualidade nao afetada"],
+        ...     proposicoes=[{"texto": "Equipes usam LLMs", "solidez": 0.8}],
         ...     open_questions=["Como medir?"],
         ...     contradictions=[]
         ... )
@@ -298,8 +354,7 @@ def calculate_metrics(
     # Avaliar solidez
     solidez_result = calculate_solidez(
         claim=claim,
-        fundamentos=fundamentos,
-        assumptions=assumptions,
+        proposicoes=proposicoes,
         contradictions=contradictions,
         solid_grounds=solid_grounds,
         llm=llm
@@ -308,7 +363,7 @@ def calculate_metrics(
     # Avaliar completude
     completude_result = calculate_completude(
         claims=claims,
-        fundamentos=fundamentos,
+        proposicoes=proposicoes,
         open_questions=open_questions,
         context=context,
         llm=llm
@@ -328,11 +383,13 @@ def evaluate_maturity(
     open_questions: List[str],
     contradictions: List[Dict[str, Any]],
     claims: Optional[List[str]] = None,
-    fundamentos: Optional[List[str]] = None,
+    proposicoes: Optional[List[Dict[str, Any]]] = None,
     llm: Optional[ChatAnthropic] = None
 ) -> Dict[str, Any]:
     """
     Avalia maturidade do argumento para potencial snapshot via LLM.
+
+    Epico 11.4: Recebe proposicoes unificadas ao inves de fundamentos.
 
     Determina contextualmente se o argumento esta maduro o suficiente
     para criar um snapshot (persisti-lo como marco evolutivo).
@@ -345,7 +402,7 @@ def evaluate_maturity(
         open_questions: Lista de questoes abertas.
         contradictions: Lista de contradicoes.
         claims: Lista de claims (opcional).
-        fundamentos: Lista de fundamentos (opcional).
+        proposicoes: Lista de proposicoes (dicts com 'texto' e 'solidez').
         llm: Instancia do LLM (opcional).
 
     Returns:
@@ -362,12 +419,11 @@ def evaluate_maturity(
         ...     completude=0.70,
         ...     open_questions=["Detalhe menor?"],
         ...     contradictions=[],
-        ...     claims=["LLMs aumentam produtividade"]
+        ...     claims=["LLMs aumentam produtividade"],
+        ...     proposicoes=[{"texto": "Equipes usam LLMs", "solidez": 0.8}]
         ... )
         >>> print(f"Maduro: {result['is_mature']}")
         Maduro: True
-        >>> print(result['reason'])
-        'Argumento tem estrutura solida com fundamentos...'
     """
     if llm is None:
         llm = _get_metrics_llm()
@@ -376,7 +432,10 @@ def evaluate_maturity(
     questions_str = json.dumps(open_questions, ensure_ascii=False) if open_questions else "(nenhuma)"
     contradictions_str = json.dumps(contradictions, ensure_ascii=False) if contradictions else "(nenhuma)"
     claims_str = json.dumps(claims, ensure_ascii=False) if claims else "(nenhum)"
-    fundamentos_str = json.dumps(fundamentos, ensure_ascii=False) if fundamentos else "(nenhum)"
+
+    # Extrair textos das proposicoes para o prompt
+    proposicoes_texts = _extract_proposicoes_texts(proposicoes or [])
+    proposicoes_str = json.dumps(proposicoes_texts, ensure_ascii=False) if proposicoes_texts else "(nenhum)"
 
     # Construir prompt
     prompt = EVALUATE_MATURITY_PROMPT.format(
@@ -385,7 +444,7 @@ def evaluate_maturity(
         open_questions=questions_str,
         contradictions=contradictions_str,
         claims=claims_str,
-        fundamentos=fundamentos_str
+        fundamentos=proposicoes_str  # Usar mesmo placeholder para compatibilidade
     )
 
     try:
