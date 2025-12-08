@@ -22,9 +22,9 @@
 - **ÉPICO 8**: Análise Assistida de Qualidade - Ferramentas para execução multi-turn, relatórios estruturados, sistema de observabilidade completo e migração da estrutura de testes (226 unit tests, 11 smoke tests, estrutura modular por categoria)
 - **ÉPICO 9**: Integração Backend↔Frontend - Persistência silenciosa e feedback visual de progresso completos
 - **ÉPICO 10**: Observador - Mente Analítica (POC) - ChromaDB + SQLite para catálogo de conceitos, pipeline de persistência, busca semântica e 22 testes unitários
+- **ÉPICO 11**: Alinhamento de Ontologia - Migração completa de premises/assumptions para Proposições unificadas com solidez. Sistema usa `proposicoes` em todas as camadas (modelo, orquestrador, observador, interface). Schema SQLite atualizado, testes migrados, documentação alinhada.
 
 ### 🟡 Épicos Em Andamento
-- **ÉPICO 11**: Alinhamento de Ontologia (11.1, 11.3, 11.4 concluídos)
 
 ### ⏳ Épicos Planejados
 
@@ -57,100 +57,14 @@ Observador implementado com ChromaDB + SQLite para catálogo de conceitos. Inclu
 
 ---
 
-## ÉPICO 11: Alinhamento de Ontologia
+## ✅ ÉPICO 11: Alinhamento de Ontologia
 
-**Objetivo:** Migrar código de premises/assumptions (strings separadas) para Proposições unificadas com solidez. Simplificar o sistema para refletir a realidade epistemológica.
-
-**Status:** 🟡 Em Andamento (11.1, 11.3, 11.4 concluídos)
-
-**Dependências:**
-- Épico 10 concluído ✅
+Migração completa de premises/assumptions (strings separadas) para Proposições unificadas com solidez. Sistema usa `proposicoes` em todas as camadas: modelo (Proposicao Pydantic), orquestrador (validação e fallbacks), observador (extração e mesclagem), interface (renderização com indicadores de solidez). Schema SQLite atualizado, testes migrados (377 testes Proposicao, 330 testes CognitiveModel), documentação técnica alinhada.
 
 **Consulte:**
 - `docs/architecture/ontology.md` - Nova ontologia (Proposição)
 - `docs/vision/epistemology.md` - Base filosófica
 - `docs/vision/cognitive_model/core.md` - Evolução de solidez
-
-### Funcionalidades:
-
-#### ✅ 11.1 Schema Unificado (Camada Modelo)
-
-- **Descrição:** Criar estrutura `Proposicao` e migrar schema SQLite.
-- **Status:** Concluído (08/12/2025)
-- **Implementado:**
-  - Modelo Pydantic `Proposicao` com: `id`, `texto`, `solidez` (Optional[float]), `evidencias`
-  - Métodos utilitários: `is_evaluated()`, `is_solid()`, `is_fragile()`
-  - Factory methods: `from_text()`, `from_dict()`, `to_dict()`
-  - `ProposicaoRef` para relacionamentos N:N
-  - 377 testes unitários em `tests/unit/models/test_proposition.py`
-
-#### ❌ 11.2 Adapter de Compatibilidade (CANCELADO)
-
-- **Descrição:** Criar adapter que traduz estrutura nova ↔ antiga durante transição.
-- **Status:** Cancelado - Não há dados em produção, migração direta é mais simples
-- **Decisão:** Migrar componentes diretamente sem adapter intermediário
-
-#### ✅ 11.3 Migrar CognitiveModel
-
-- **Descrição:** Atualizar `CognitiveModel` para usar `proposicoes`.
-- **Status:** Concluído (08/12/2025)
-- **Implementado:**
-  - Campos `premises` e `assumptions` substituídos por `proposicoes: List[Proposicao]`
-  - `is_mature()` usa solidez média das proposições avaliadas (ignora None)
-  - `calculate_solidez()` deriva de solidez das proposições
-  - Helpers: `get_solid_propositions()`, `get_fragile_propositions()`
-  - 330 testes unitários em `tests/unit/models/test_cognitive_model.py`
-
-#### ✅ 11.4 Migrar Observador
-
-- **Descrição:** Atualizar Observador para extrair/armazenar proposições.
-- **Status:** Concluído (08/12/2025)
-- **Implementado:**
-  - `extract_fundamentos()` retorna `List[Proposicao]` com solidez=None inicial
-  - `extract_all()` retorna `proposicoes` ao invés de `fundamentos`
-  - `_merge_cognitive_model()` mescla proposições por similaridade de texto
-  - `calculate_metrics()` recebe `proposicoes` unificadas
-  - `evaluate_maturity()` usa proposições ao invés de fundamentos
-  - Referências a `premises`/`assumptions` removidas do Observer
-  - Avaliação de solidez via LLM continua funcionando
-
-#### 11.5 Migrar Orquestrador e Estruturador
-
-- **Descrição:** Atualizar nós que leem/escrevem cognitive_model.
-- **Critérios de Aceite:**
-  - Deve atualizar `orchestrator/nodes.py` para usar `proposicoes`
-  - Deve atualizar `structurer/nodes.py` para usar `proposicoes`
-  - Deve atualizar prompts em `utils/prompts/` para nova estrutura JSON
-  - Deve atualizar fallbacks e validações
-
-#### 11.6 Migrar Interface
-
-- **Descrição:** Atualizar componentes Streamlit para exibir proposições.
-- **Critérios de Aceite:**
-  - Deve atualizar `_ideia_detalhes.py` para renderizar proposições com solidez
-  - Deve atualizar `sidebar/ideas.py` para exibir proposições
-  - Deve atualizar `backstage.py` para inferir status a partir de solidez média
-  - Deve mostrar indicador visual de solidez (cor: verde >0.7, amarelo 0.4-0.7, vermelho <0.4, cinza None)
-  - Não deve exibir "Premises" e "Assumptions" separados
-
-#### 11.7 Migrar Testes
-
-- **Descrição:** Atualizar testes para nova estrutura.
-- **Critérios de Aceite:**
-  - Deve atualizar `test_cognitive_model.py` para testar `Proposicao`
-  - Deve atualizar testes em `tests/unit/agents/orchestrator/` para usar `proposicoes`
-  - Deve atualizar `test_database_manager.py` para testar migração e nova estrutura
-  - Todos os 237 testes devem passar após migração
-
-#### 11.8 Limpeza Final
-
-- **Descrição:** Remover código legado e Adapter.
-- **Critérios de Aceite:**
-  - Deve remover `ProposicaoAdapter` após todas as camadas migradas
-  - Deve remover referências a `premises`/`assumptions` do código
-  - Deve atualizar documentação técnica (`ARCHITECTURE.md`, docstrings)
-  - Deve garantir que nenhum arquivo Python referencia estrutura antiga
-  - Documentação de visão já está alinhada (não precisa mudar)
 
 ---
 

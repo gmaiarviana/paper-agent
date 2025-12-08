@@ -224,11 +224,8 @@ Avalie a SOLIDEZ do argumento. Solidez mede QUAO BEM FUNDAMENTADO esta o argumen
 CLAIM CENTRAL:
 {claim}
 
-FUNDAMENTOS (argumentos de suporte):
+PROPOSICOES (fundamentos do argumento com solidez variável):
 {fundamentos}
-
-SUPOSICOES (nao verificadas):
-{assumptions}
 
 CONTRADICOES DETECTADAS:
 {contradictions}
@@ -238,9 +235,9 @@ EVIDENCIAS BIBLIOGRAFICAS (se existirem):
 
 ANALISE CONTEXTUAL:
 Considere:
-1. Os fundamentos REALMENTE sustentam o claim? (nao apenas contar)
-2. A logica entre fundamentos e claim e coerente?
-3. As suposicoes enfraquecem significativamente o argumento?
+1. As proposicoes REALMENTE sustentam o claim? (nao apenas contar)
+2. A logica entre proposicoes e claim e coerente?
+3. Proposicoes com solidez baixa enfraquecem significativamente o argumento?
 4. As contradicoes sao graves ou superficiais?
 5. Ha lacunas criticas na sustentacao?
 

@@ -28,7 +28,7 @@ Idea:
 **Ontologia:**
 - **Conceito:** Abstração reutilizável (vetor semântico)
 - **Ideia:** Território (pensamento articulado)
-- **Argumento:** Lente (claim + premises + assumptions)
+- **Argumento:** Lente (claim + proposicoes com solidez variável)
 
 **Evolução fluida:** Sistema detecta status automaticamente; usuário pode voltar etapas; múltiplos argumentos por ideia.
 

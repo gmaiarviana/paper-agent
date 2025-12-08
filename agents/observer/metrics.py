@@ -161,8 +161,7 @@ def calculate_solidez(
     # Construir prompt (adaptado para proposicoes)
     prompt = EVALUATE_SOLIDEZ_PROMPT.format(
         claim=claim or "(claim nao definido)",
-        fundamentos=proposicoes_str,  # Usar mesmo placeholder para compatibilidade
-        assumptions="(migrado para proposicoes)",  # Campo removido
+        fundamentos=proposicoes_str,  # Proposicoes unificadas (substitui premises/assumptions)
         contradictions=contradictions_str,
         solid_grounds=solid_grounds_str
     )
