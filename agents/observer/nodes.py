@@ -329,14 +329,14 @@ def _publish_cognitive_model_event(
         )
 
         # Publicar evento especifico do CognitiveModel (Epico 10.2)
-        # Epico 11.4: 'proposicoes_count' substitui 'premises_count'
+        # Epico 11.5: usa 'proposicoes_count'
         event_bus.publish_cognitive_model_updated(
             session_id=session_id,
             turn_number=turn_number,
             solidez=metrics["solidez"],
             completude=metrics["completude"],
             claims_count=1 if cognitive_model.get("claim") else 0,
-            premises_count=len(cognitive_model.get("proposicoes", [])),  # Compatibilidade: mapeia para proposicoes
+            proposicoes_count=len(cognitive_model.get("proposicoes", [])),
             concepts_count=len(cognitive_model.get("concepts_detected", [])),
             open_questions_count=len(cognitive_model.get("open_questions", [])),
             contradictions_count=len(cognitive_model.get("contradictions", [])),

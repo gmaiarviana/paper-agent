@@ -265,14 +265,13 @@ class ObservadorAPI:
             ObserverInsight: Insight baseado em heuristicas.
         """
         claim = self._cognitive_model.get("claim", "")
-        premises = self._cognitive_model.get("premises", [])
-        assumptions = self._cognitive_model.get("assumptions", [])
+        proposicoes = self._cognitive_model.get("proposicoes", [])
         open_questions = self._cognitive_model.get("open_questions", [])
         contradictions = self._cognitive_model.get("contradictions", [])
 
         # Heuristica: Calcular solidez e completude
         solidez = self.get_solidez()
-        completude = 1.0 - (len(open_questions) / max(1, len(open_questions) + len(premises)))
+        completude = 1.0 - (len(open_questions) / max(1, len(open_questions) + len(proposicoes)))
 
         # Construir insight baseado no contexto
         if "mudanca" in context.lower() or "direcao" in context.lower():
@@ -303,8 +302,11 @@ class ObservadorAPI:
             confidence = 0.75
         else:
             # Fallback generico
+            # Conta proposições sólidas (solidez >= 0.6) e frágeis (solidez < 0.6 ou None)
+            solid_count = sum(1 for p in proposicoes if isinstance(p, dict) and p.get("solidez") is not None and p.get("solidez") >= 0.6)
+            fragile_count = len(proposicoes) - solid_count
             insight_text = f"Estado atual: claim definido={'sim' if claim else 'nao'}, "
-            insight_text += f"{len(premises)} premissas, {len(assumptions)} suposicoes, "
+            insight_text += f"{solid_count} proposicoes solidas, {fragile_count} frageis, "
             insight_text += f"{len(open_questions)} questoes abertas."
             suggestion = None
             confidence = 0.6
@@ -315,8 +317,7 @@ class ObservadorAPI:
             confidence=confidence,
             evidence={
                 "claim_defined": bool(claim),
-                "premises_count": len(premises),
-                "assumptions_count": len(assumptions),
+                "proposicoes_count": len(proposicoes),
                 "open_questions_count": len(open_questions),
                 "contradictions_count": len(contradictions),
                 "concepts_detected": self._concepts[:5],  # Primeiros 5

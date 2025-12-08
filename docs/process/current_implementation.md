@@ -119,9 +119,24 @@ grep -r "premises\|assumptions" agents/ app/ utils/ --include="*.py"  # Deve ret
 
 | Checkpoint | Features | Status | Branch | PR |
 |------------|----------|--------|--------|-----|
-| 1 | 11.5 (parcial) | ⏳ Pendente | - | - |
+| 1 | 11.5 (parcial) | ✅ Concluído | claude/epic-11-continue-01CbHwFD711NynxJQEcWFWng | - |
 | 2 | 11.5 + 11.6 | ⏳ Pendente | - | - |
 | 3 | 11.7 + 11.8 | ⏳ Pendente | - | - |
+
+### Checkpoint 1 - Detalhes (Concluído 08/12/2025)
+
+**Arquivos modificados:**
+- `agents/orchestrator/nodes.py` - fallback e validação usam proposicoes
+- `utils/prompts/orchestrator.py` - LLM gera proposicoes com solidez
+- `utils/event_models.py` - CognitiveModelUpdatedEvent usa proposicoes_count
+- `utils/event_bus/publishers.py` - publisher usa proposicoes_count
+- `agents/observer/nodes.py` - evento usa proposicoes_count
+- `agents/observer/api.py` - heurísticas usam proposicoes
+
+**Validação:**
+- ✅ Sintaxe Python OK (6 arquivos)
+- ✅ Imports OK
+- ⚠️ Testes não rodados (aguardando validação do dev)
 
 ---
 

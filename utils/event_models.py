@@ -220,7 +220,7 @@ class CognitiveModelUpdatedEvent(BaseEvent):
         solidez (float): Solidez atual do argumento (0-1)
         completude (float): Completude atual do argumento (0-1)
         claims_count (int): Numero de claims no modelo
-        premises_count (int): Numero de premissas/fundamentos
+        proposicoes_count (int): Numero de proposicoes/fundamentos
         concepts_count (int): Numero de conceitos detectados
         open_questions_count (int): Numero de questoes abertas
         contradictions_count (int): Numero de contradicoes detectadas
@@ -232,7 +232,7 @@ class CognitiveModelUpdatedEvent(BaseEvent):
     solidez: float = Field(..., ge=0.0, le=1.0, description="Solidez do argumento")
     completude: float = Field(..., ge=0.0, le=1.0, description="Completude do argumento")
     claims_count: int = Field(0, ge=0, description="Numero de claims")
-    premises_count: int = Field(0, ge=0, description="Numero de premissas")
+    proposicoes_count: int = Field(0, ge=0, description="Numero de proposicoes")
     concepts_count: int = Field(0, ge=0, description="Numero de conceitos")
     open_questions_count: int = Field(0, ge=0, description="Numero de questoes abertas")
     contradictions_count: int = Field(0, ge=0, description="Numero de contradicoes")
@@ -252,7 +252,7 @@ class CognitiveModelUpdatedEvent(BaseEvent):
                 "solidez": 0.65,
                 "completude": 0.50,
                 "claims_count": 1,
-                "premises_count": 2,
+                "proposicoes_count": 2,
                 "concepts_count": 3,
                 "open_questions_count": 1,
                 "contradictions_count": 0,

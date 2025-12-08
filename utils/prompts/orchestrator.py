@@ -277,18 +277,24 @@ A cada turno, você DEVE atualizar o modelo cognitivo do argumento em construç�
 - Se não há claim claro ainda, deixe string vazia ""
 - Exemplo: "" → "LLMs aumentam produtividade" → "Claude Code reduz tempo de sprint em 30%"
 
-**premises** (lista de strings):
-- Fundamentos ASSUMIDOS COMO VERDADEIROS pelo usuário
+**proposicoes** (lista de objetos):
+- Fundamentos do argumento, cada um com grau de solidez
+- Cada proposição tem: {"texto": "string", "solidez": float 0-1 ou null}
+- **solidez alta (>= 0.6):** Fundamento bem estabelecido, assumido como verdadeiro
+- **solidez baixa (< 0.6):** Hipótese não verificada, precisa validação
+- **solidez null:** Não avaliada ainda (use no início da conversa)
 - APENAS o que o usuário DISSE ou IMPLICOU claramente
-- NÃO adicione premises que você inferiu sozinho
-- Lista vazia é válida no início da conversa
-- Exemplo: ["Equipes Python existem", "Tempo de sprint é mensurável"]
-
-**assumptions** (lista de strings):
-- Hipóteses NÃO VERIFICADAS detectadas na fala do usuário
-- São as lacunas que você detecta e pode provocar
-- NÃO invente assumptions - capture apenas o que apareceu na conversa
-- Exemplo: ["Qualidade não é comprometida", "Resultado generaliza para outras linguagens"]
+- NÃO invente proposições - capture apenas o que apareceu na conversa
+- Lista vazia é válida no início
+- Exemplo:
+  ```json
+  [
+    {"texto": "Equipes Python de 2-5 devs existem", "solidez": 0.9},
+    {"texto": "Tempo de sprint é mensurável", "solidez": 0.8},
+    {"texto": "Qualidade não é comprometida", "solidez": 0.3},
+    {"texto": "Resultado generaliza para outras linguagens", "solidez": null}
+  ]
+  ```
 
 **open_questions** (lista de strings):
 - Lacunas identificadas que são RELEVANTES para o argumento
@@ -336,7 +342,7 @@ A cada turno, você DEVE atualizar o modelo cognitivo do argumento em construç�
 ## OUTPUT OBRIGATÓRIO (SEMPRE JSON)
 
 {
-  "reasoning": "Análise detalhada: assumptions detectadas, categoria, timing apropriado, profundidade escolhida",
+  "reasoning": "Análise detalhada: proposições detectadas, categoria, timing apropriado, profundidade escolhida",
   "focal_argument": {
     "intent": "test_hypothesis" | "review_literature" | "build_theory" | "explore" | "unclear",
     "subject": "string ou 'not specified'",
@@ -346,8 +352,11 @@ A cada turno, você DEVE atualizar o modelo cognitivo do argumento em construç�
   },
   "cognitive_model": {
     "claim": "Afirmação central que o usuário está tentando defender",
-    "premises": ["Lista de fundamentos assumidos verdadeiros"],
-    "assumptions": ["Lista de hipóteses não verificadas"],
+    "proposicoes": [
+      {"texto": "Fundamento sólido", "solidez": 0.9},
+      {"texto": "Hipótese a validar", "solidez": 0.3},
+      {"texto": "Não avaliada ainda", "solidez": null}
+    ],
     "open_questions": ["Lista de lacunas identificadas"],
     "contradictions": [],
     "solid_grounds": [],
@@ -365,7 +374,7 @@ A cada turno, você DEVE atualizar o modelo cognitivo do argumento em construç�
     "agent": "structurer" | "methodologist" | "researcher" | "writer",
     "justification": "Por que esse agente específico faz sentido agora"
   },
-  "reflection_prompt": null | "Contra-pergunta socrática sobre assumption detectada"
+  "reflection_prompt": null | "Contra-pergunta socrática sobre proposição frágil detectada"
 }
 
 ---
@@ -389,8 +398,9 @@ A cada turno, você DEVE atualizar o modelo cognitivo do argumento em construç�
   },
   "cognitive_model": {
     "claim": "LLMs aumentam produtividade",
-    "premises": [],
-    "assumptions": ["Produtividade é mensurável (usuário assumiu implicitamente)"],
+    "proposicoes": [
+      {"texto": "Produtividade é mensurável (usuário assumiu implicitamente)", "solidez": 0.3}
+    ],
     "open_questions": ["Qual métrica de produtividade?", "Qual é o baseline?", "Qual é o tamanho da equipe?"],
     "contradictions": [],
     "solid_grounds": [],
@@ -482,8 +492,13 @@ A cada turno, você DEVE atualizar o modelo cognitivo do argumento em construç�
   },
   "cognitive_model": {
     "claim": "LLMs reduzem tempo de desenvolvimento de 2h para 30min em equipes de 2-5 desenvolvedores",
-    "premises": ["Equipes de 2-5 desenvolvedores existem", "Tempo de tarefa é uma métrica válida de produtividade", "É possível medir tempo antes e depois"],
-    "assumptions": ["Qualidade do código não é comprometida", "Resultado pode generalizar para outras equipes"],
+    "proposicoes": [
+      {"texto": "Equipes de 2-5 desenvolvedores existem", "solidez": 0.95},
+      {"texto": "Tempo de tarefa é uma métrica válida de produtividade", "solidez": 0.8},
+      {"texto": "É possível medir tempo antes e depois", "solidez": 0.85},
+      {"texto": "Qualidade do código não é comprometida", "solidez": 0.3},
+      {"texto": "Resultado pode generalizar para outras equipes", "solidez": null}
+    ],
     "open_questions": [],
     "contradictions": [],
     "solid_grounds": [],

@@ -223,7 +223,7 @@ class EventBusPublishers:
         solidez: float,
         completude: float,
         claims_count: int = 0,
-        premises_count: int = 0,
+        proposicoes_count: int = 0,
         concepts_count: int = 0,
         open_questions_count: int = 0,
         contradictions_count: int = 0,
@@ -242,7 +242,7 @@ class EventBusPublishers:
             solidez (float): Solidez do argumento (0-1)
             completude (float): Completude do argumento (0-1)
             claims_count (int): Numero de claims
-            premises_count (int): Numero de premissas
+            proposicoes_count (int): Numero de proposicoes
             concepts_count (int): Numero de conceitos
             open_questions_count (int): Numero de questoes abertas
             contradictions_count (int): Numero de contradicoes
@@ -257,7 +257,7 @@ class EventBusPublishers:
             ...     solidez=0.65,
             ...     completude=0.50,
             ...     claims_count=1,
-            ...     premises_count=2,
+            ...     proposicoes_count=2,
             ...     concepts_count=3
             ... )
         """
@@ -267,7 +267,7 @@ class EventBusPublishers:
             solidez=solidez,
             completude=completude,
             claims_count=claims_count,
-            premises_count=premises_count,
+            proposicoes_count=proposicoes_count,
             concepts_count=concepts_count,
             open_questions_count=open_questions_count,
             contradictions_count=contradictions_count,

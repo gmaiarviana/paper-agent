@@ -47,6 +47,7 @@ from agents.memory.config_loader import get_agent_prompt, get_agent_model, Confi
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
 from agents.models.cognitive_model import CognitiveModel
+from agents.models.proposition import Proposicao
 from agents.persistence import create_snapshot_if_mature
 from utils.structured_logger import StructuredLogger
 
@@ -69,8 +70,7 @@ def _create_fallback_cognitive_model(state: MultiAgentState) -> Dict[str, Any]:
 
     return {
         "claim": user_input[:200] if user_input else "",
-        "premises": [],
-        "assumptions": [],
+        "proposicoes": [],
         "open_questions": ["O que você quer explorar sobre isso?"],
         "contradictions": [],
         "solid_grounds": [],
@@ -126,11 +126,27 @@ def _validate_cognitive_model(
                         "suggested_resolution": c.get("suggested_resolution")
                     })
 
+        # Processar proposições (Épico 11.5)
+        # LLM pode retornar proposicoes como lista de objetos ou lista de strings (legado)
+        proposicoes_raw = cognitive_model_raw.get("proposicoes", [])
+        validated_proposicoes = []
+        for p in proposicoes_raw:
+            if isinstance(p, dict):
+                # Formato novo: {"texto": "...", "solidez": 0.8}
+                validated_proposicoes.append(
+                    Proposicao(
+                        texto=p.get("texto", ""),
+                        solidez=p.get("solidez")  # None se não fornecido
+                    )
+                )
+            elif isinstance(p, str):
+                # Formato legado: string simples → proposição com solidez=None
+                validated_proposicoes.append(Proposicao.from_text(p))
+
         # Construir dict para validação
         model_dict = {
             "claim": cognitive_model_raw.get("claim", ""),
-            "premises": cognitive_model_raw.get("premises", []),
-            "assumptions": cognitive_model_raw.get("assumptions", []),
+            "proposicoes": validated_proposicoes,
             "open_questions": cognitive_model_raw.get("open_questions", []),
             "contradictions": validated_contradictions,
             "solid_grounds": cognitive_model_raw.get("solid_grounds", []),
