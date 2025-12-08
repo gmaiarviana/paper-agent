@@ -7,8 +7,8 @@ Este modulo implementa o no principal do Observador:
 O Observador trabalha SILENCIOSAMENTE em paralelo ao Orquestrador,
 monitorando a conversa e catalogando a evolucao do raciocinio.
 
-Versao: 1.0 (Epico 10.2)
-Data: 05/12/2025
+Versao: 2.0 (Epico 11.4 - Migracao para Proposicoes)
+Data: 08/12/2025
 """
 
 import logging
@@ -20,6 +20,8 @@ from .state import ObserverState, ObserverInsight, create_initial_observer_state
 from .extractors import extract_all
 from .metrics import calculate_metrics, evaluate_maturity
 from .concept_pipeline import persist_concepts_batch
+
+from agents.models.proposition import Proposicao
 
 logger = logging.getLogger(__name__)
 
@@ -141,12 +143,11 @@ def process_turn(
         extracted=extracted
     )
 
-    # 4. Calcular metricas
+    # 4. Calcular metricas (Epico 11.4: usando proposicoes unificadas)
     metrics = calculate_metrics(
         claim=cognitive_model.get("claim", ""),
         claims=extracted.get("claims", []),
-        fundamentos=cognitive_model.get("premises", []),
-        assumptions=cognitive_model.get("assumptions", []),
+        proposicoes=cognitive_model.get("proposicoes", []),
         open_questions=cognitive_model.get("open_questions", []),
         contradictions=cognitive_model.get("contradictions", []),
         context=cognitive_model.get("context", {}),
@@ -154,13 +155,18 @@ def process_turn(
     )
 
     # 5. Avaliar maturidade (via LLM com contexto completo)
+    # Extrair textos das proposicoes para passar ao avaliador
+    prop_texts = [
+        p.get("texto", "") if isinstance(p, dict) else p.texto
+        for p in cognitive_model.get("proposicoes", [])
+    ]
     maturity = evaluate_maturity(
         solidez=metrics["solidez"],
         completude=metrics["completude"],
         open_questions=cognitive_model.get("open_questions", []),
         contradictions=cognitive_model.get("contradictions", []),
         claims=extracted.get("claims", []),
-        fundamentos=cognitive_model.get("premises", [])
+        proposicoes=cognitive_model.get("proposicoes", [])
     )
 
     # 6. Publicar eventos (se session_id fornecido)
@@ -201,26 +207,31 @@ def _merge_cognitive_model(
     """
     Mescla CognitiveModel anterior com informacoes extraidas.
 
+    Epico 11.4: Migrado para usar 'proposicoes' unificado ao inves de
+    'premises'/'assumptions' separados.
+
     Esta funcao implementa a logica de acumulacao do CognitiveModel:
     - Claims novos substituem anteriores (evolucao)
     - Conceitos acumulam (nao perde conceitos anteriores)
-    - Fundamentos acumulam
+    - Proposicoes acumulam (por similaridade de texto)
     - Open questions sao substituidas (refletem estado atual)
     - Contradicoes acumulam (historico)
 
     Args:
-        previous: CognitiveModel do turno anterior.
-        extracted: Informacoes extraidas neste turno.
+        previous: CognitiveModel do turno anterior (pode conter proposicoes ou premises/assumptions legados).
+        extracted: Informacoes extraidas neste turno (contem proposicoes como List[Proposicao]).
 
     Returns:
-        CognitiveModel mesclado.
+        CognitiveModel mesclado com proposicoes unificadas.
     """
+    # Extrair proposicoes novas (List[Proposicao])
+    new_proposicoes: List[Proposicao] = extracted.get("proposicoes", [])
+
     if not previous:
         # Primeiro turno - criar modelo inicial
         return {
             "claim": extracted.get("claims", [""])[0] if extracted.get("claims") else "",
-            "premises": extracted.get("fundamentos", []),
-            "assumptions": [],  # Sera preenchido pelo Orquestrador
+            "proposicoes": [p.to_dict() for p in new_proposicoes],
             "open_questions": extracted.get("open_questions", []),
             "contradictions": [
                 {
@@ -244,11 +255,20 @@ def _merge_cognitive_model(
     if new_claims:
         merged["claim"] = new_claims[0]
 
-    # Premises/Fundamentos: acumular (evitar duplicatas)
-    existing_premises = set(merged.get("premises", []))
-    for fundamento in extracted.get("fundamentos", []):
-        if fundamento not in existing_premises:
-            merged.setdefault("premises", []).append(fundamento)
+    # Proposicoes: acumular por similaridade de texto
+    existing_proposicoes = merged.get("proposicoes", [])
+    existing_texts = {
+        p.get("texto", "") if isinstance(p, dict) else p.texto
+        for p in existing_proposicoes
+    }
+
+    for prop in new_proposicoes:
+        # Verificar similaridade por texto (threshold simples: texto diferente)
+        prop_text = prop.texto if isinstance(prop, Proposicao) else prop.get("texto", "")
+        if prop_text and prop_text not in existing_texts:
+            prop_dict = prop.to_dict() if isinstance(prop, Proposicao) else prop
+            merged.setdefault("proposicoes", []).append(prop_dict)
+            existing_texts.add(prop_text)
 
     # Open questions: substituir (refletem estado atual)
     new_questions = extracted.get("open_questions", [])
@@ -284,6 +304,8 @@ def _publish_cognitive_model_event(
     """
     Publica evento CognitiveModelUpdatedEvent no EventBus.
 
+    Epico 11.4: Atualizado para usar proposicoes unificadas.
+
     Args:
         session_id: ID da sessao.
         cognitive_model: CognitiveModel atualizado.
@@ -303,17 +325,18 @@ def _publish_cognitive_model_event(
             open_questions=cognitive_model.get("open_questions", []),
             contradictions=cognitive_model.get("contradictions", []),
             claims=[cognitive_model.get("claim", "")] if cognitive_model.get("claim") else [],
-            fundamentos=cognitive_model.get("premises", [])
+            proposicoes=cognitive_model.get("proposicoes", [])
         )
 
         # Publicar evento especifico do CognitiveModel (Epico 10.2)
+        # Epico 11.4: 'proposicoes_count' substitui 'premises_count'
         event_bus.publish_cognitive_model_updated(
             session_id=session_id,
             turn_number=turn_number,
             solidez=metrics["solidez"],
             completude=metrics["completude"],
             claims_count=1 if cognitive_model.get("claim") else 0,
-            premises_count=len(cognitive_model.get("premises", [])),
+            premises_count=len(cognitive_model.get("proposicoes", [])),  # Compatibilidade: mapeia para proposicoes
             concepts_count=len(cognitive_model.get("concepts_detected", [])),
             open_questions_count=len(cognitive_model.get("open_questions", [])),
             contradictions_count=len(cognitive_model.get("contradictions", [])),
@@ -416,12 +439,11 @@ class ObserverProcessor:
         return self.cognitive_model.copy()
 
     def get_solidez(self) -> float:
-        """Retorna solidez atual."""
+        """Retorna solidez atual (Epico 11.4: usa proposicoes)."""
         metrics = calculate_metrics(
             claim=self.cognitive_model.get("claim", ""),
             claims=[self.cognitive_model.get("claim", "")] if self.cognitive_model.get("claim") else [],
-            fundamentos=self.cognitive_model.get("premises", []),
-            assumptions=self.cognitive_model.get("assumptions", []),
+            proposicoes=self.cognitive_model.get("proposicoes", []),
             open_questions=self.cognitive_model.get("open_questions", []),
             contradictions=self.cognitive_model.get("contradictions", []),
             context=self.cognitive_model.get("context", {})
@@ -429,12 +451,11 @@ class ObserverProcessor:
         return metrics["solidez"]
 
     def get_completude(self) -> float:
-        """Retorna completude atual."""
+        """Retorna completude atual (Epico 11.4: usa proposicoes)."""
         metrics = calculate_metrics(
             claim=self.cognitive_model.get("claim", ""),
             claims=[self.cognitive_model.get("claim", "")] if self.cognitive_model.get("claim") else [],
-            fundamentos=self.cognitive_model.get("premises", []),
-            assumptions=self.cognitive_model.get("assumptions", []),
+            proposicoes=self.cognitive_model.get("proposicoes", []),
             open_questions=self.cognitive_model.get("open_questions", []),
             contradictions=self.cognitive_model.get("contradictions", []),
             context=self.cognitive_model.get("context", {})

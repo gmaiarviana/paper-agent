@@ -105,15 +105,18 @@ Observador implementado com ChromaDB + SQLite para catálogo de conceitos. Inclu
   - Deve manter compatibilidade via Adapter durante transição
   - Proposições com `solidez=None` não contam para cálculos
 
-#### 11.4 Migrar Observador
+#### ✅ 11.4 Migrar Observador
 
 - **Descrição:** Atualizar Observador para extrair/armazenar proposições.
-- **Critérios de Aceite:**
-  - Deve atualizar `extract_fundamentos()` para retornar `List[Proposicao]` (com solidez=None inicial)
-  - Deve atualizar `_merge_cognitive_model()` para mesclar proposições (por similaridade de texto)
-  - Deve atualizar `metrics.py` para calcular solidez a partir de proposições avaliadas
-  - Deve remover referências a `premises`/`assumptions`
-  - Avaliação de solidez via LLM continua funcionando (atualiza solidez de None → valor)
+- **Status:** Concluído (08/12/2025)
+- **Implementado:**
+  - `extract_fundamentos()` retorna `List[Proposicao]` com solidez=None inicial
+  - `extract_all()` retorna `proposicoes` ao invés de `fundamentos`
+  - `_merge_cognitive_model()` mescla proposições por similaridade de texto
+  - `calculate_metrics()` recebe `proposicoes` unificadas
+  - `evaluate_maturity()` usa proposições ao invés de fundamentos
+  - Referências a `premises`/`assumptions` removidas do Observer
+  - Avaliação de solidez via LLM continua funcionando
 
 #### 11.5 Migrar Orquestrador e Estruturador
 
