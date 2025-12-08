@@ -38,13 +38,13 @@
 | Arquivo | Referências | Complexidade |
 |---------|-------------|--------------|
 | `app/pages/_ideia_detalhes.py` | 6 | Baixa |
-| `app/components/backstage.py` | ~12 | Média |
+| `app/components/backstage/` | ~12 | Média (modularizado) |
 | `app/components/sidebar/ideas.py` | 2 | Baixa |
 
 **Camada Testes (11.7):**
 | Arquivo | Tipo |
 |---------|------|
-| `tests/unit/agents/test_orchestrator_logic.py` | Unit |
+| `tests/unit/agents/orchestrator/` | Unit (modularizado) |
 | `tests/integration/behavior/test_socratic_behavior.py` | Integration |
 | `tests/integration/behavior/test_system_maturity.py` | Integration |
 
@@ -68,7 +68,7 @@
 
 **Validação:**
 ```bash
-pytest tests/unit/agents/test_orchestrator_logic.py -v
+pytest tests/unit/agents/orchestrator/ -v
 python -c "from agents.orchestrator.nodes import process_turn; print('OK')"
 ```
 
@@ -79,7 +79,7 @@ python -c "from agents.orchestrator.nodes import process_turn; print('OK')"
 **Escopo:**
 - `agents/checklist/progress_tracker.py` → usar proposições para inferir progresso
 - `app/pages/_ideia_detalhes.py` → exibir proposições com solidez
-- `app/components/backstage.py` → inferir status de proposições
+- `app/components/backstage/` → inferir status de proposições
 - `app/components/sidebar/ideas.py` → preview de proposições
 
 **Estimativa:** ~400-500 linhas modificadas
@@ -97,7 +97,7 @@ streamlit run app/main.py  # Testar manualmente
 ### Checkpoint 3 (PR #3) - Testes + Limpeza
 **Features:** 11.7 + 11.8
 **Escopo:**
-- `tests/unit/agents/test_orchestrator_logic.py` → usar proposições
+- `tests/unit/agents/orchestrator/` → usar proposições
 - `tests/integration/behavior/test_socratic_behavior.py` → atualizar
 - `tests/integration/behavior/test_system_maturity.py` → atualizar
 - Buscar e remover qualquer referência residual a premises/assumptions

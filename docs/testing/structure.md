@@ -5,8 +5,14 @@
 paper-agent/
 ├── tests/
 │   ├── unit/                       # Testes rápidos, sem API ($0)
-│   │   ├── agents/                 # Lógica de agentes (11 arquivos)
-│   │   │   ├── test_orchestrator_logic.py
+│   │   ├── agents/                 # Lógica de agentes
+│   │   │   ├── orchestrator/       # Testes do Orquestrador (modularizado)
+│   │   │   │   ├── test_node.py
+│   │   │   │   ├── test_router.py
+│   │   │   │   ├── test_state.py
+│   │   │   │   ├── test_context.py
+│   │   │   │   ├── test_cognitive_model.py
+│   │   │   │   └── test_integration.py
 │   │   │   ├── test_structurer.py
 │   │   │   ├── test_methodologist_*.py
 │   │   │   └── ...
@@ -123,5 +129,6 @@ Logger para rastrear custos em testes
 
 ---
 
-**Versão:** 3.0
-**Data:** 15/01/2025
+**Versão:** 3.1 (Refatorado - modularizado)
+**Data:** 14/12/2025
+**Nota:** Testes do Orquestrador foram modularizados em `tests/unit/agents/orchestrator/` para melhor organização.

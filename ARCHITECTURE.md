@@ -406,7 +406,12 @@ paper-agent/
 │       ├── __init__.py
 │       ├── chat_input.py     # Input de mensagens (esqueleto)
 │       ├── chat_history.py   # Histórico de conversa (esqueleto)
-│       ├── backstage.py      # Painel "Bastidores" (esqueleto)
+│       ├── backstage/        # Painel "Bastidores" (modularizado)
+│       │   ├── __init__.py
+│       │   ├── context.py      # Seção "💡 Contexto" (ideia, solidez, custos)
+│       │   ├── reasoning.py    # Seção "📊 Bastidores" (reasoning dos agentes)
+│       │   ├── timeline.py     # Histórico de agentes
+│       │   └── constants.py    # Constantes compartilhadas
 │       ├── sidebar/          # Sidebar modular (Épico 14.1)
 │       │   ├── __init__.py
 │       │   ├── navigation.py    # Navegação principal

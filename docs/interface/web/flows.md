@@ -113,7 +113,7 @@
 import streamlit as st
 from components.chat_input import render_chat_input
 from components.chat_history import render_chat_history
-from components.backstage import render_backstage
+from components.backstage import render_backstage  # Agora um pacote modularizado
 from components.sidebar import render_sidebar
 
 def main():
@@ -171,7 +171,7 @@ def render_chat_input(session_id: str):
         st.rerun()
 ```
 
-**Arquivo: `app/components/backstage.py`**
+**Arquivo: `app/components/backstage/__init__.py`**
 ```python
 import streamlit as st
 
@@ -301,7 +301,7 @@ def show_argument_modal(argument):
 
 ### 5.2 Polling de Eventos (POC)
 
-**Arquivo:** `app/components/backstage.py`
+**Arquivo:** `app/components/backstage/` (modularizado)
 ```python
 import streamlit as st
 import time

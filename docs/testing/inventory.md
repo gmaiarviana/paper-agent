@@ -23,7 +23,13 @@ Lista organizada de testes por categoria e propósito.
 ## 🧪 Unit Tests (tests/unit/)
 
 ### agents/ (11 arquivos)
-- `test_orchestrator_logic.py` - Lógica do orquestrador (classificação, routing)
+- `orchestrator/` - Testes do orquestrador (modularizados):
+  - `test_node.py` - orchestrator_node
+  - `test_router.py` - route_from_orchestrator
+  - `test_state.py` - MultiAgentState
+  - `test_context.py` - _build_context
+  - `test_cognitive_model.py` - Validação e fallback do cognitive_model
+  - `test_integration.py` - Integração (active_idea_id, snapshots)
 - `test_orchestrator_json_extraction.py` - Parsing JSON do orquestrador
 - `test_structurer.py` - Lógica do estruturador
 - `test_methodologist_state.py` - Estado do metodologista
