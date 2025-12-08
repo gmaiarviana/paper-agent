@@ -24,6 +24,7 @@ from agents.database.manager import DatabaseManager, get_database_manager
 from agents.database.ideas_crud import IdeasCRUD
 from agents.database.arguments_crud import ArgumentsCRUD
 from agents.models.cognitive_model import CognitiveModel
+from agents.models.proposition import Proposicao
 
 
 # =============================================================================
@@ -64,8 +65,11 @@ def sample_cognitive_model():
     """CognitiveModel de exemplo para testes."""
     return CognitiveModel(
         claim="LLMs aumentam produtividade em desenvolvimento",
-        premises=["Desenvolvimento com IA é mais rápido", "Código gerado precisa revisão"],
-        assumptions=["Desenvolvedores usam ferramentas corretamente"],
+        proposicoes=[
+            Proposicao(texto="Desenvolvimento com IA é mais rápido", solidez=0.8),
+            Proposicao(texto="Código gerado precisa revisão", solidez=0.7),
+            Proposicao(texto="Desenvolvedores usam ferramentas corretamente", solidez=0.5),
+        ],
         open_questions=["Qual o impacto na qualidade?"],
         contradictions=[],
         solid_grounds=[],
@@ -305,6 +309,42 @@ class TestArgumentsCRUD:
 # TESTES: DATABASEMANAGER
 # =============================================================================
 
+@pytest.fixture
+def temp_db_path():
+    """Cria caminho temporário para banco de dados."""
+    import tempfile
+    import os
+    fd, db_path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+    yield db_path
+    # Limpar arquivo
+    try:
+        Path(db_path).unlink(missing_ok=True)
+    except PermissionError:
+        pass
+
+
+@pytest.fixture(autouse=True)
+def reset_db_singleton():
+    """Reset singleton antes de cada teste em TestDatabaseManager."""
+    import agents.database.manager as manager_module
+    # Fechar conexão existente se houver
+    if manager_module._db_instance is not None:
+        try:
+            manager_module._db_instance.conn.close()
+        except Exception:
+            pass
+        manager_module._db_instance = None
+    yield
+    # Limpar após teste
+    if manager_module._db_instance is not None:
+        try:
+            manager_module._db_instance.conn.close()
+        except Exception:
+            pass
+        manager_module._db_instance = None
+
+
 class TestDatabaseManager:
     """Testes para DatabaseManager (orquestrador)."""
 
@@ -341,44 +381,44 @@ class TestDatabaseManager:
                 # No Windows, pode estar travado. Tentar depois.
                 pass
 
-    def test_get_database_manager_singleton(self):
+    def test_get_database_manager_singleton(self, temp_db_path):
         """Testa que get_database_manager retorna singleton."""
-        db1 = get_database_manager()
-        db2 = get_database_manager()
-        
+        db1 = get_database_manager(temp_db_path)
+        db2 = get_database_manager(temp_db_path)
+
         # Mesma instância (singleton)
         assert db1 is db2
 
-    def test_delegates_to_ideas_crud(self):
+    def test_delegates_to_ideas_crud(self, temp_db_path):
         """Testa que DatabaseManager delega para IdeasCRUD."""
-        db = get_database_manager()
-        
+        db = get_database_manager(temp_db_path)
+
         idea_id = db.create_idea("Teste Delegation")
         idea = db.get_idea(idea_id)
-        
+
         assert idea is not None
         assert idea["title"] == "Teste Delegation"
 
-    def test_delegates_to_arguments_crud(self, sample_cognitive_model):
+    def test_delegates_to_arguments_crud(self, temp_db_path, sample_cognitive_model):
         """Testa que DatabaseManager delega para ArgumentsCRUD."""
-        db = get_database_manager()
-        
+        db = get_database_manager(temp_db_path)
+
         idea_id = db.create_idea("Teste")
         arg_id = db.create_argument(idea_id, sample_cognitive_model)
-        
+
         arg = db.get_argument(arg_id)
         assert arg is not None
         assert arg["claim"] == sample_cognitive_model.claim
 
-    def test_update_idea_current_argument(self, sample_cognitive_model):
+    def test_update_idea_current_argument(self, temp_db_path, sample_cognitive_model):
         """Testa operação completa: criar ideia → argumento → atualizar."""
-        db = get_database_manager()
-        
+        db = get_database_manager(temp_db_path)
+
         idea_id = db.create_idea("Teste")
         arg_id = db.create_argument(idea_id, sample_cognitive_model)
-        
+
         db.update_idea_current_argument(idea_id, arg_id)
-        
+
         idea = db.get_idea(idea_id)
         assert idea["current_argument_id"] == arg_id
 

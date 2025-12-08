@@ -7,9 +7,9 @@ Este módulo implementa operações de Create, Read para Arguments:
 - get_arguments_by_idea: Buscar todos os argumentos de uma ideia
 - get_latest_argument_version: Buscar versão mais recente
 
-Épico 11.2: Setup de Persistência e Schema SQLite
-Data: 2025-11-17
-Refatoração: Divisão de manager.py em CRUD separados
+Épico 11.1: Schema Unificado - proposicoes (substitui premises/assumptions)
+Épico 11.3: Migração CognitiveModel para proposicoes
+Data: 2025-12-08
 """
 
 import sqlite3
@@ -19,6 +19,7 @@ from typing import Optional, List, Dict, Any
 from uuid import uuid4
 
 from agents.models.cognitive_model import CognitiveModel
+from agents.models.proposition import Proposicao
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ logger = logging.getLogger(__name__)
 class ArgumentsCRUD:
     """
     CRUD operations para entidade Arguments.
-    
+
     Esta classe encapsula todas as operações de banco relacionadas a Arguments.
     Recebe conexão SQLite como dependência (não gerencia conexão).
     """
@@ -34,7 +35,7 @@ class ArgumentsCRUD:
     def __init__(self, conn: sqlite3.Connection):
         """
         Inicializa ArgumentsCRUD com conexão SQLite.
-        
+
         Args:
             conn: Conexão SQLite ativa (row_factory já configurado)
         """
@@ -65,7 +66,6 @@ class ArgumentsCRUD:
             >>> crud = ArgumentsCRUD(conn)
             >>> model = CognitiveModel(claim="LLMs aumentam produtividade", ...)
             >>> arg_id = crud.create_argument(idea_id, model)  # version=1 (auto)
-            >>> arg_id_v2 = crud.create_argument(idea_id, model_v2)  # version=2 (auto)
         """
         if argument_id is None:
             argument_id = str(uuid4())
@@ -77,17 +77,16 @@ class ArgumentsCRUD:
         # Serializar campos JSON do CognitiveModel
         query = """
         INSERT INTO arguments (
-            id, idea_id, claim, premises, assumptions,
+            id, idea_id, claim, proposicoes,
             open_questions, contradictions, solid_grounds, context, version
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
 
         params = (
             argument_id,
             idea_id,
             cognitive_model.claim,
-            json.dumps(cognitive_model.premises),
-            json.dumps(cognitive_model.assumptions),
+            json.dumps([p.model_dump() for p in cognitive_model.proposicoes], ensure_ascii=False),
             json.dumps(cognitive_model.open_questions),
             json.dumps([c.model_dump() for c in cognitive_model.contradictions]),
             json.dumps([s.model_dump() for s in cognitive_model.solid_grounds]),
@@ -114,16 +113,16 @@ class ArgumentsCRUD:
             argument_id: UUID do argumento
 
         Returns:
-            Dict com campos do argumento (JSON deserializado) ou None
+            Dict com campos do argumento (JSON deserializado) ou None.
 
         Example:
             >>> arg = crud.get_argument(argument_id)
             >>> if arg:
             ...     print(arg["claim"])
-            ...     print(arg["premises"])  # Lista deserializada
+            ...     print(arg["proposicoes"])  # Lista de Proposicao
         """
         query = """
-        SELECT id, idea_id, claim, premises, assumptions, open_questions,
+        SELECT id, idea_id, claim, proposicoes, open_questions,
                contradictions, solid_grounds, context, version, created_at, updated_at
         FROM arguments
         WHERE id = ?
@@ -158,7 +157,7 @@ class ArgumentsCRUD:
         """
         if limit:
             query = """
-            SELECT id, idea_id, claim, premises, assumptions, open_questions,
+            SELECT id, idea_id, claim, proposicoes, open_questions,
                    contradictions, solid_grounds, context, version, created_at, updated_at
             FROM arguments
             WHERE idea_id = ?
@@ -168,7 +167,7 @@ class ArgumentsCRUD:
             params = (idea_id, limit)
         else:
             query = """
-            SELECT id, idea_id, claim, premises, assumptions, open_questions,
+            SELECT id, idea_id, claim, proposicoes, open_questions,
                    contradictions, solid_grounds, context, version, created_at, updated_at
             FROM arguments
             WHERE idea_id = ?
@@ -228,14 +227,16 @@ class ArgumentsCRUD:
             row: Dict com dados brutos do banco (JSON como strings)
 
         Returns:
-            Dict com JSON deserializado (listas e dicts Python)
+            Dict com JSON deserializado (listas e dicts Python).
         """
+        proposicoes_raw = json.loads(row["proposicoes"])
+        proposicoes = [Proposicao(**p) for p in proposicoes_raw]
+
         return {
             "id": row["id"],
             "idea_id": row["idea_id"],
             "claim": row["claim"],
-            "premises": json.loads(row["premises"]),
-            "assumptions": json.loads(row["assumptions"]),
+            "proposicoes": proposicoes,
             "open_questions": json.loads(row["open_questions"]),
             "contradictions": json.loads(row["contradictions"]),
             "solid_grounds": json.loads(row["solid_grounds"]),
@@ -244,4 +245,3 @@ class ArgumentsCRUD:
             "created_at": row["created_at"],
             "updated_at": row["updated_at"]
         }
-
