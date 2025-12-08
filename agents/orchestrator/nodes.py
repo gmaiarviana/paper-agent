@@ -231,6 +231,134 @@ def _merge_focal_argument(previous_focal: Optional[dict], new_focal: dict) -> di
     return merged
 
 
+def _build_cognitive_model_context(cognitive_model: Dict[str, Any]) -> str:
+    """
+    Formata cognitive_model do Observer para o prompt do Orquestrador (Épico 12.2).
+
+    Esta função prepara o cognitive_model gerado pelo Observer para inclusão
+    no contexto do Orquestrador, permitindo que ele use as análises semânticas
+    para tomar decisões mais informadas.
+
+    Limites para evitar sobrecarga do prompt:
+    - Proposições: 5 primeiras (ordenadas por solidez)
+    - Conceitos: 10 primeiros
+    - Contradições: 3 primeiras
+    - Questões abertas: 5 primeiras
+
+    Args:
+        cognitive_model: Dict com CognitiveModel do Observer contendo:
+            - claim: Afirmação central
+            - proposicoes: Lista de proposições com solidez
+            - concepts_detected: Conceitos extraídos
+            - contradictions: Contradições detectadas
+            - open_questions: Questões em aberto
+            - overall_solidez/overall_completude: Métricas (opcional)
+
+    Returns:
+        str: Seção formatada para inclusão no prompt
+
+    Example:
+        >>> cm = {"claim": "LLMs aumentam produtividade", "proposicoes": [...]}
+        >>> context = _build_cognitive_model_context(cm)
+        >>> "COGNITIVE MODEL DISPONÍVEL" in context
+        True
+    """
+    parts = ["## COGNITIVE MODEL DISPONÍVEL (via Observer)"]
+    parts.append("")
+    parts.append("O Observador analisou o diálogo e extraiu:")
+    parts.append("")
+
+    # Afirmação atual
+    claim = cognitive_model.get("claim", "")
+    if claim:
+        parts.append(f"**Afirmação central:** {claim}")
+        parts.append("")
+
+    # Fundamentos (proposições) - ordenar por solidez decrescente, limitar a 5
+    proposicoes = cognitive_model.get("proposicoes", [])
+    if proposicoes:
+        # Ordenar por solidez (maior primeiro)
+        sorted_props = sorted(
+            proposicoes,
+            key=lambda p: (p.get("solidez", 0.0) if isinstance(p, dict) else getattr(p, "solidez", 0.0) or 0.0),
+            reverse=True
+        )[:5]
+
+        parts.append("**Fundamentos (proposições com solidez):**")
+        for prop in sorted_props:
+            texto = prop.get("texto", "") if isinstance(prop, dict) else getattr(prop, "texto", "")
+            solidez = prop.get("solidez", None) if isinstance(prop, dict) else getattr(prop, "solidez", None)
+            solidez_str = f" (solidez: {solidez:.2f})" if solidez is not None else " (solidez: pendente)"
+            parts.append(f"- {texto}{solidez_str}")
+
+        if len(proposicoes) > 5:
+            parts.append(f"- ... e mais {len(proposicoes) - 5} fundamentos")
+        parts.append("")
+
+    # Conceitos detectados - limitar a 10
+    concepts = cognitive_model.get("concepts_detected", [])
+    if concepts:
+        concepts_str = ", ".join(concepts[:10])
+        if len(concepts) > 10:
+            concepts_str += f" (+{len(concepts) - 10} mais)"
+        parts.append(f"**Conceitos detectados:** {concepts_str}")
+        parts.append("")
+
+    # Contradições - limitar a 3
+    contradictions = cognitive_model.get("contradictions", [])
+    if contradictions:
+        parts.append("**Contradições detectadas:**")
+        for c in contradictions[:3]:
+            desc = c.get("description", "") if isinstance(c, dict) else str(c)
+            confidence = c.get("confidence", 0.0) if isinstance(c, dict) else 0.0
+            parts.append(f"- {desc} (confiança: {confidence:.0%})")
+
+        if len(contradictions) > 3:
+            parts.append(f"- ... e mais {len(contradictions) - 3} contradições")
+        parts.append("")
+
+    # Questões em aberto - limitar a 5
+    open_questions = cognitive_model.get("open_questions", [])
+    if open_questions:
+        parts.append("**Questões em aberto:**")
+        for q in open_questions[:5]:
+            parts.append(f"- {q}")
+
+        if len(open_questions) > 5:
+            parts.append(f"- ... e mais {len(open_questions) - 5} questões")
+        parts.append("")
+
+    # Métricas (se disponíveis)
+    solidez = cognitive_model.get("overall_solidez")
+    completude = cognitive_model.get("overall_completude")
+
+    # Fallback: calcular solidez/completude se não estiverem no dict
+    if solidez is None and proposicoes:
+        solidez_values = [
+            (p.get("solidez") if isinstance(p, dict) else getattr(p, "solidez", None))
+            for p in proposicoes
+        ]
+        valid_values = [v for v in solidez_values if v is not None]
+        solidez = sum(valid_values) / len(valid_values) if valid_values else 0.0
+
+    if solidez is not None or completude is not None:
+        parts.append("**Métricas:**")
+        if solidez is not None:
+            parts.append(f"- Solidez: {solidez:.0%} (quão bem fundamentada está a afirmação)")
+        if completude is not None:
+            parts.append(f"- Completude: {completude:.0%} (quanto do argumento foi desenvolvido)")
+        parts.append("")
+
+    # Instrução de uso
+    parts.append("Use este modelo cognitivo para:")
+    parts.append("- Identificar lacunas no raciocínio")
+    parts.append("- Detectar contradições a resolver")
+    parts.append("- Sugerir próximos passos baseados nas questões abertas")
+    parts.append("- Avaliar se o argumento está maduro para estruturação")
+
+    return "\n".join(parts)
+
+
 def _build_context(state: MultiAgentState) -> str:
     """
     Constrói contexto completo para o Orquestrador, incluindo outputs de agentes.
@@ -312,6 +440,13 @@ def _build_context(state: MultiAgentState) -> str:
                 context_parts.append(f"[{msg_type}]: {msg.content}")
 
         context_parts.append("")  # linha em branco final
+
+    # Cognitive Model do Observer (se existir - Épico 12.2)
+    # Disponibiliza análise semântica do Observador para o Orquestrador
+    cognitive_model = state.get("cognitive_model")
+    if cognitive_model and (cognitive_model.get("claim") or cognitive_model.get("proposicoes")):
+        context_parts.append(_build_cognitive_model_context(cognitive_model))
+        context_parts.append("")
 
     # Output do Estruturador (se existir - Épico 1.1 Curadoria)
     structurer_output = state.get("structurer_output")

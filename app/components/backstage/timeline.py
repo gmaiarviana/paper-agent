@@ -5,6 +5,7 @@ Responsável por:
 - Histórico de agentes que trabalharam na sessão
 - Modal com histórico completo
 - Formatação de timestamps
+- Seção do Observador com métricas cognitivas (Épico 12.3)
 """
 
 import streamlit as st
@@ -17,6 +18,9 @@ from utils.currency import format_currency
 from .constants import AGENT_EMOJIS
 
 logger = logging.getLogger(__name__)
+
+# Emoji do Observer (não está em AGENT_EMOJIS por ser agente especial)
+OBSERVER_EMOJI = "👁️"
 
 
 def render_agent_timeline(session_id: str) -> None:
@@ -65,6 +69,12 @@ def render_agent_timeline(session_id: str) -> None:
         if completed_events:
             if st.button("Ver histórico", key="view_timeline_history", type="secondary"):
                 _show_timeline_modal(completed_events)
+
+        # Seção do Observer (Épico 12.3)
+        # Mostra atividade do Observer em seção separada
+        observer_events = [e for e in events if e.get("event_type") == "cognitive_model_updated"]
+        if observer_events:
+            render_observer_section(observer_events)
 
     except Exception as e:
         logger.error(f"Erro ao renderizar timeline: {e}", exc_info=True)
@@ -119,4 +129,126 @@ def format_time(timestamp: str) -> str:
         return dt.strftime("%H:%M")
     except Exception:
         return timestamp[:5] if len(timestamp) >= 5 else "—"
+
+
+def render_observer_section(observer_events: List[Dict[str, Any]]) -> None:
+    """
+    Renderiza seção do Observer na timeline (Épico 12.3).
+
+    Mostra atividade do Observer em seção colapsável com:
+    - Últimos turnos processados
+    - Métricas: conceitos detectados, solidez
+    - Link para modal com detalhes completos
+
+    Args:
+        observer_events: Lista de eventos 'cognitive_model_updated'
+
+    Example:
+        >>> events = [{"event_type": "cognitive_model_updated", "turn_number": 1, ...}]
+        >>> render_observer_section(events)
+        # Renderiza: 👁️ Observador (seção colapsável)
+    """
+    if not observer_events:
+        return
+
+    st.markdown("---")
+
+    # Seção colapsável do Observer
+    with st.expander(f"{OBSERVER_EMOJI} **Observador**", expanded=False):
+        # Mostrar últimos 3 eventos do Observer (mais recentes primeiro)
+        recent_events = list(reversed(observer_events))[:3]
+
+        for event in recent_events:
+            turn_number = event.get("turn_number", 0)
+            timestamp = event.get("timestamp", "")
+            time_str = format_time(timestamp)
+
+            # Extrair métricas do evento
+            solidez = event.get("solidez", 0.0)
+            concepts_count = event.get("concepts_count", 0)
+            proposicoes_count = event.get("proposicoes_count", 0)
+            is_mature = event.get("is_mature", False)
+
+            # Indicador de maturidade
+            maturity_indicator = "✅" if is_mature else ""
+
+            st.markdown(f"**{OBSERVER_EMOJI} Turno {turn_number}** {maturity_indicator}")
+            st.caption(
+                f"🧠 {concepts_count} conceitos · "
+                f"📊 {proposicoes_count} proposições · "
+                f"Solidez: {solidez:.0%} · "
+                f"{time_str}"
+            )
+
+        # Mostrar total de turnos processados
+        st.caption(f"📈 {len(observer_events)} turnos analisados")
+
+        # Botão para ver detalhes completos
+        if len(observer_events) > 3:
+            if st.button("Ver análise completa", key="view_observer_details", type="secondary"):
+                _show_observer_modal(observer_events)
+
+
+@st.dialog("👁️ Análise do Observador", width="large")
+def _show_observer_modal(events: List[Dict[str, Any]]) -> None:
+    """
+    Modal para exibir histórico completo do Observer (Épico 12.3).
+
+    Mostra todos os turnos processados com métricas detalhadas:
+    - Solidez e completude
+    - Conceitos detectados
+    - Contradições encontradas
+    - Questões abertas
+
+    Args:
+        events: Lista de eventos 'cognitive_model_updated'
+    """
+    st.markdown("### Evolução do Argumento")
+    st.caption(f"O Observer analisou {len(events)} turnos nesta sessão")
+
+    # Mostrar eventos em ordem cronológica reversa (mais recente primeiro)
+    for event in reversed(events):
+        turn_number = event.get("turn_number", 0)
+        timestamp = event.get("timestamp", "")
+        time_str = format_time(timestamp)
+
+        # Métricas principais
+        solidez = event.get("solidez", 0.0)
+        completude = event.get("completude", 0.0)
+        is_mature = event.get("is_mature", False)
+
+        # Contadores
+        concepts_count = event.get("concepts_count", 0)
+        proposicoes_count = event.get("proposicoes_count", 0)
+        open_questions_count = event.get("open_questions_count", 0)
+        contradictions_count = event.get("contradictions_count", 0)
+
+        # Metadata extra
+        metadata = event.get("metadata", {})
+        processing_time = metadata.get("processing_time_ms", 0)
+        claim_preview = metadata.get("claim", "")[:100]
+
+        # Status de maturidade
+        status_emoji = "✅ Maduro" if is_mature else "🔄 Em desenvolvimento"
+
+        st.markdown(f"**{OBSERVER_EMOJI} Turno {turn_number}** - {time_str}")
+
+        # Afirmação central (se disponível)
+        if claim_preview:
+            st.caption(f"📝 \"{claim_preview}...\"")
+
+        # Métricas em colunas
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Solidez", f"{solidez:.0%}")
+            st.caption(f"🧠 {concepts_count} conceitos")
+            st.caption(f"📊 {proposicoes_count} proposições")
+        with col2:
+            st.metric("Completude", f"{completude:.0%}")
+            st.caption(f"❓ {open_questions_count} questões abertas")
+            st.caption(f"⚠️ {contradictions_count} contradições")
+
+        # Status e tempo de processamento
+        st.caption(f"{status_emoji} · Processado em {processing_time:.0f}ms")
+        st.markdown("---")
 

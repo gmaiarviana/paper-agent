@@ -24,8 +24,9 @@ Data: 14/11/2025
 import logging
 import time
 import sqlite3
+import threading
 from pathlib import Path
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Optional, Dict, List
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langchain_core.runnables import RunnableConfig
@@ -44,7 +45,143 @@ try:
 except ImportError:
     EVENT_BUS_AVAILABLE = False
 
+# Import Observer para processamento em background (Épico 12.1)
+try:
+    from agents.observer.nodes import process_turn as observer_process_turn
+    OBSERVER_AVAILABLE = True
+except ImportError:
+    OBSERVER_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
+
+# Timeout para processamento do Observer em background (Épico 12.1)
+OBSERVER_TIMEOUT_SECONDS = 5.0
+
+
+# === OBSERVER CALLBACK ASSÍNCRONO (Épico 12.1) ===
+
+def _create_observer_callback(state: MultiAgentState, result: Dict[str, Any]) -> None:
+    """
+    Executa Observer em background após turno do Orquestrador (Épico 12.1).
+
+    Esta função cria uma thread daemon que processa o turno através do Observer,
+    atualizando o cognitive_model no state sem bloquear a resposta ao usuário.
+
+    Comportamento:
+    - Executa em thread separada (daemon=True para não bloquear shutdown)
+    - Timeout de OBSERVER_TIMEOUT_SECONDS (5s) para não travar sistema
+    - Publica evento cognitive_model_updated via EventBus
+    - Falhas são silenciosas (não quebram fluxo principal)
+
+    Args:
+        state: Estado atual do sistema multi-agente (para extrair contexto)
+        result: Resultado do orchestrator_node (contém resposta atual)
+
+    Notes:
+        - Observer processa em paralelo, não aumenta latência do usuário
+        - cognitive_model é atualizado no result dict (referência compartilhada)
+        - Eventos são publicados para Timeline visual (Épico 12.3)
+    """
+    if not OBSERVER_AVAILABLE:
+        logger.debug("Observer não disponível. Pulando callback.")
+        return
+
+    # Extrair dados necessários
+    session_id = state.get("session_id", "unknown-session")
+    user_input = state.get("user_input", "")
+    turn_count = state.get("turn_count", 1)
+    idea_id = state.get("idea_id")
+
+    # Converter messages para formato do Observer (list of dicts)
+    messages = state.get("messages", [])
+    conversation_history: List[Dict[str, Any]] = []
+    for msg in messages:
+        if hasattr(msg, '__class__'):
+            msg_type = msg.__class__.__name__
+            role = "user" if msg_type == "HumanMessage" else "assistant"
+            conversation_history.append({
+                "role": role,
+                "content": msg.content if hasattr(msg, 'content') else str(msg)
+            })
+
+    # Adicionar a resposta atual do orchestrator ao histórico
+    orchestrator_message = result.get("messages", [])
+    if orchestrator_message:
+        for msg in orchestrator_message:
+            conversation_history.append({
+                "role": "assistant",
+                "content": msg.content if hasattr(msg, 'content') else str(msg)
+            })
+
+    # Cognitive model anterior (se existir)
+    previous_cognitive_model = state.get("cognitive_model")
+
+    def _run_observer():
+        """Thread interna que executa o Observer."""
+        try:
+            logger.info(f"👁️ Observer iniciando processamento em background (session: {session_id}, turno: {turn_count})")
+            start_time = time.time()
+
+            # Processar turno via Observer
+            observer_result = observer_process_turn(
+                user_input=user_input,
+                conversation_history=conversation_history,
+                previous_cognitive_model=previous_cognitive_model,
+                session_id=session_id,
+                turn_number=turn_count,
+                idea_id=idea_id
+            )
+
+            processing_time = (time.time() - start_time) * 1000  # em ms
+
+            # Extrair cognitive_model atualizado
+            cognitive_model = observer_result.get("cognitive_model", {})
+            metrics = observer_result.get("metrics", {})
+
+            # Atualizar result com novo cognitive_model
+            # NOTA: Isso funciona porque result é passado por referência
+            # O state do LangGraph pode não ser atualizado imediatamente,
+            # mas o cognitive_model estará disponível no próximo turno
+            result["cognitive_model"] = cognitive_model
+
+            logger.info(
+                f"👁️ Observer concluído em {processing_time:.0f}ms "
+                f"(solidez: {metrics.get('solidez', 0):.0%}, "
+                f"conceitos: {len(cognitive_model.get('concepts_detected', []))})"
+            )
+
+            # Publicar evento via EventBus (para Timeline - Épico 12.3)
+            if EVENT_BUS_AVAILABLE:
+                try:
+                    bus = get_event_bus()
+                    bus.publish_cognitive_model_updated(
+                        session_id=session_id,
+                        turn_number=turn_count,
+                        solidez=metrics.get("solidez", 0.0),
+                        completude=metrics.get("completude", 0.0),
+                        claims_count=1 if cognitive_model.get("claim") else 0,
+                        proposicoes_count=len(cognitive_model.get("proposicoes", [])),
+                        concepts_count=len(cognitive_model.get("concepts_detected", [])),
+                        open_questions_count=len(cognitive_model.get("open_questions", [])),
+                        contradictions_count=len(cognitive_model.get("contradictions", [])),
+                        is_mature=metrics.get("solidez", 0.0) > 0.70,
+                        metadata={
+                            "processing_time_ms": processing_time,
+                            "observer_version": "12.1"
+                        }
+                    )
+                    logger.debug(f"👁️ Evento cognitive_model_updated publicado (session: {session_id})")
+                except Exception as e:
+                    logger.warning(f"Falha ao publicar evento Observer: {e}")
+
+        except Exception as e:
+            logger.error(f"❌ Erro ao executar Observer em background: {e}")
+            # Silencioso: não propaga erro para não quebrar fluxo principal
+
+    # Executar em thread separada (daemon = True para não bloquear shutdown)
+    thread = threading.Thread(target=_run_observer, daemon=True, name=f"observer-{session_id}-{turn_count}")
+    thread.start()
+    logger.debug(f"👁️ Observer thread iniciada (session: {session_id}, turno: {turn_count})")
 
 
 # === INSTRUMENTAÇÃO COM EVENTBUS (Épico 5.1) ===
@@ -167,6 +304,15 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
                     logger.debug(f"   Métricas: {tokens_total} tokens, ${cost:.4f}, {duration:.2f}s")
                 except Exception as e:
                     logger.warning(f"Falha ao publicar agent_completed para {agent_name}: {e}")
+
+            # Épico 12.1: Disparar Observer em background após Orchestrator
+            # Observer processa turno de forma assíncrona, sem bloquear resposta
+            if agent_name == "orchestrator" and OBSERVER_AVAILABLE:
+                try:
+                    _create_observer_callback(state, result)
+                except Exception as e:
+                    logger.warning(f"Falha ao criar callback do Observer: {e}")
+                    # Silencioso: não quebra fluxo se Observer falhar
 
             return result
 
