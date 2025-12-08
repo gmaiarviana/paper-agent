@@ -27,6 +27,64 @@
 - **Comandos para validação local** (dev testa antes de mergear)
 - **Aviso ao dev que branch está pronta** (dev cria PR manualmente)
 
+## Modo de Operação: Validação Híbrida
+
+### Seu Papel na Validação
+- **Sintaxe e imports:** Validar automaticamente (Python parser)
+- **Busca de impactos:** Identificar arquivos que usam funções modificadas
+- **Comandos de teste:** Fornecer comandos prontos para dev rodar
+- **NÃO rodar testes:** Ambiente não tem dependências completas instaladas
+- **NÃO instalar requirements.txt:** Demorado (~2-5min) e desnecessário
+
+### Validação ao Fim de Checkpoint
+Ao finalizar checkpoint (conjunto de funcionalidades), fornecer:
+1. ✅ Status de validação automática (sintaxe, imports)
+2. ⚠️ Arquivos impactados (busca por chamadas a funções modificadas)
+3. 📋 Comandos de validação prontos (copiar e colar)
+4. 🔍 Validações esperadas (o que dev deve verificar)
+5. 📄 Atualizar `docs/process/current_implementation.md` (marcar checkpoint ✅)
+
+**Exemplo de mensagem ao fim de checkpoint:**
+```
+✅ Checkpoint 1 concluído (Features 11.1 + 11.2)
+Branch pronta: feature/11.1-11.2
+
+✅ Validação automática:
+- Sintaxe Python: OK (5 arquivos)
+- Imports: OK
+
+⚠️ Impactos detectados:
+- agents/orchestrator/nodes.py usa fundamentos (linha 45)
+- agents/structurer/nodes.py usa fundamentos (linha 23)
+
+📋 Comandos de validação (copie e cole):
+pytest tests/unit/test_proposition.py -v
+pytest tests/unit/test_cognitive_model.py -v
+
+🔍 Validações esperadas:
+- ✅ Testes devem passar
+- ✅ Imports não devem quebrar
+- ✅ Sistema deve rodar sem erros
+
+📄 Atualizei docs/process/current_implementation.md
+   (Checkpoint 1 marcado como concluído)
+
+Aguardando sua validação para prosseguir ao Checkpoint 2.
+```
+
+**Exemplo de mensagem ao fim do ÚLTIMO checkpoint:**
+```
+✅ Checkpoint 3 concluído (Features 11.6 + 11.7 + 11.8)
+Branch pronta: feature/11.6-11.8
+
+[... validações automáticas ...]
+
+📄 Deletei docs/process/current_implementation.md
+   (Épico 11 finalizado)
+
+Aguardando sua validação final.
+```
+
 ---
 
 ## Regras de Interação com Dev

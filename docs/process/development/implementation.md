@@ -18,6 +18,120 @@ Para cada tarefa, seguir ciclo:
 - ⚠️ Configurações/setup (validar via comportamento)
 - ⚠️ Estilização (validar visualmente)
 
+### A.1) Checkpoints: Fluindo entre Funcionalidades
+
+**O que é um checkpoint:**
+- Conjunto de funcionalidades relacionadas que juntas agregam valor
+- Exemplo: Features 11.1 + 11.2 + 11.3 = 1 checkpoint = 1 PR
+- Documentado em `docs/process/current_implementation.md`
+
+**Como trabalhar dentro de um checkpoint:**
+1. Implementar TODAS as funcionalidades do checkpoint sem parar
+2. Para cada funcionalidade:
+   - Planejar tarefas
+   - Executar incrementalmente
+   - Validar localmente (sintaxe, imports)
+3. NÃO parar entre funcionalidades (manter fluxo)
+4. **AO FIM DO CHECKPOINT:**
+   - Atualizar `current_implementation.md`:
+     - Marcar checkpoint como ✅
+     - Adicionar info (branch, estimativas realizadas)
+   - Fornecer comandos de validação ao dev
+   - Commitar código + documentação atualizada
+
+**Exemplo de fluxo:**
+```
+Checkpoint 1 = Features 11.1 + 11.2
+
+Feature 11.1 (Schema):
+  Tarefa 1: Criar Proposicao
+  Tarefa 2: Atualizar schema SQL
+  ✅ Sintaxe OK
+
+Feature 11.2 (Adapter):
+  Tarefa 1: Criar ProposicaoAdapter
+  Tarefa 2: Implementar to_legacy()
+  ✅ Sintaxe OK
+
+AO FIM:
+  Atualizar current_implementation.md (Checkpoint 1 ✅)
+  Fornecer comandos de validação
+  PARAR e aguardar validação do dev
+```
+
+**Finalização do último checkpoint:**
+- Implementar checkpoint
+- **DELETAR** `docs/process/current_implementation.md`
+- Commitar código + remoção do arquivo
+
+**Benefício:**
+- ✅ Fluxo contínuo dentro do checkpoint
+- ✅ Validação quando há valor real entregue
+- ✅ PRs menores e mais coesas
+- ✅ Documentação sempre atualizada pós-checkpoint
+
+### A.2) Reflexão Obrigatória Entre Features
+
+**Ao finalizar cada feature dentro do checkpoint:**
+
+1. **Validar feature atual:**
+   - ✅ Sintaxe Python OK
+   - ✅ Imports funcionando
+   - ✅ Buscar impactos em outros módulos
+
+2. **Refletir sobre próxima feature:**
+   - 🔍 Ler código atualizado (feature anterior pode ter mudado contexto)
+   - 🔍 Avaliar se plano original ainda faz sentido
+   - 🔍 Identificar riscos/bloqueios/incertezas
+   - 🔍 **Replanejar se necessário** (não seguir cegamente)
+
+3. **Decidir próximo passo:**
+   
+   **Se tudo claro e sem riscos:**
+   - ✅ Seguir para próxima feature (não parar)
+   - ✅ Manter fluxo contínuo
+
+   **Se há riscos, bloqueios ou incertezas:**
+   - ⚠️ **PARAR e reportar ao dev:**
+```
+     ⚠️ Reflexão após Feature X.Y:
+     
+     Identifiquei risco/bloqueio:
+     [descrição do problema]
+     
+     Impacto no plano:
+     [como afeta features seguintes]
+     
+     Opções:
+     A) [ajustar abordagem]
+     B) [replanejar checkpoint]
+     C) [pedir esclarecimento]
+     
+     Como prefere prosseguir?
+```
+
+**Exemplo de fluxo:**
+```
+Feature 11.1 implementada
+  ↓
+Reflexão: Tudo OK, próxima feature clara
+  ↓
+Feature 11.2 (sem parar)
+  ↓
+Reflexão: ⚠️ Código da 11.2 revelou que 11.3 precisa abordagem diferente
+  ↓
+PARAR e reportar ao dev
+  ↓
+Dev ajusta plano ou confirma abordagem
+  ↓
+Feature 11.3 (com nova abordagem)
+```
+
+**Objetivo:**
+- ✅ Manter fluxo quando caminho está claro
+- ✅ Evitar implementação cega de plano desatualizado
+- ✅ Parar apenas quando há dúvida real (não por trivialidades)
+
 ### B) Ciclo de Implementação
 
 **Se TDD aplicável:**
