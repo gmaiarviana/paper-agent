@@ -79,8 +79,7 @@ def render_arguments_section(idea: dict, arguments: list, db):
         arg_id = arg["id"]
         version = arg["version"]
         claim = arg["claim"]
-        premises = arg["premises"]
-        assumptions = arg["assumptions"]
+        proposicoes = arg.get("proposicoes", [])
         is_focal = (arg_id == focal_arg_id)
 
         # Badge focal
@@ -94,19 +93,34 @@ def render_arguments_section(idea: dict, arguments: list, db):
             st.markdown("**Claim (Afirmação Central):**")
             st.write(claim)
 
-            st.markdown("**Premises (Premissas):**")
-            if premises:
-                for i, premise in enumerate(premises, 1):
-                    st.write(f"{i}. {premise}")
-            else:
-                st.caption("_Nenhuma premissa definida_")
+            st.markdown("**Proposições:**")
+            if proposicoes:
+                # Separar por solidez
+                solid = [p for p in proposicoes if isinstance(p, dict) and p.get("solidez") is not None and p.get("solidez", 0) >= 0.6]
+                fragile = [p for p in proposicoes if isinstance(p, dict) and p.get("solidez") is not None and p.get("solidez", 0) < 0.6]
+                not_evaluated = [p for p in proposicoes if isinstance(p, dict) and p.get("solidez") is None]
 
-            st.markdown("**Assumptions (Suposições):**")
-            if assumptions:
-                for i, assumption in enumerate(assumptions, 1):
-                    st.write(f"⚠️ {i}. {assumption}")
+                if solid:
+                    st.markdown("**🟢 Sólidas (solidez ≥ 0.6):**")
+                    for p in solid:
+                        texto = p.get("texto", str(p))
+                        solidez_val = p.get("solidez", 0)
+                        st.write(f"• [{solidez_val:.2f}] {texto}")
+
+                if fragile:
+                    st.markdown("**🟡 Frágeis (solidez < 0.6):**")
+                    for p in fragile:
+                        texto = p.get("texto", str(p))
+                        solidez_val = p.get("solidez", 0)
+                        st.write(f"• [{solidez_val:.2f}] {texto}")
+
+                if not_evaluated:
+                    st.markdown("**⚪ Não avaliadas:**")
+                    for p in not_evaluated:
+                        texto = p.get("texto", str(p))
+                        st.write(f"• {texto}")
             else:
-                st.caption("_Nenhuma suposição identificada_")
+                st.caption("_Nenhuma proposição definida_")
 
 
 def render_concepts_section():

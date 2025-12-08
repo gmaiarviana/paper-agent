@@ -119,16 +119,17 @@ class MultiAgentState(TypedDict):
         Estrutura:
         {
             "claim": str,                      # Afirmação central
-            "premises": list[str],             # Fundamentos assumidos verdadeiros
-            "assumptions": list[str],          # Hipóteses não verificadas
+            "proposicoes": list[dict],         # Fundamentos com solidez gradual (0-1)
             "open_questions": list[str],       # Lacunas identificadas
             "contradictions": list[dict],      # Tensões internas (confiança > 80%)
             "solid_grounds": list[dict],       # Evidências bibliográficas
             "context": dict                    # Metadados (domínio, tecnologia, etc)
         }
+        Proposições substituem premises/assumptions (Épico 11):
+        - proposicoes com solidez >= 0.6: fundamentos sólidos (antes: premises)
+        - proposicoes com solidez < 0.6: hipóteses a validar (antes: assumptions)
         Responsabilidades:
-        - Orquestrador: claim, assumptions, open_questions, context
-        - Estruturador: premises
+        - Orquestrador: claim, proposicoes, open_questions, context
         - Metodologista: contradictions
         - Pesquisador (futuro): solid_grounds
         Ver agents/models/cognitive_model.py para schema Pydantic completo.

@@ -92,7 +92,7 @@
 ## 5. Modelo Cognitivo Completo
 
 ### Funcionalidades Básicas
-- [🟡] Claim/fundamentos/assumptions extraídos (Schema `CognitiveModel` existe, mas Épico 9.1 pendente - Orquestrador não atualiza ainda)
+- [✅] Claim/proposições extraídos (Schema `CognitiveModel` com proposições unificadas - Épico 11 completo)
 - [✅] Contradições detectadas (Schema `Contradiction` existe em `cognitive_model.py`)
 - [✅] Provocação socrática implementada (`reflection_prompt` no Orquestrador)
 - [🟡] Snapshots automáticos (SnapshotManager existe, mas Épico 9.3 pendente - não integrado no fluxo conversacional ainda)

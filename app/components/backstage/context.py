@@ -256,32 +256,35 @@ def _infer_status_from_argument(argument: Dict[str, Any]) -> str:
     Infere status da ideia baseado no argumento focal (Épico 12.1 - melhorias).
 
     Args:
-        argument: Dict do argumento (claim, premises, assumptions, open_questions, etc.)
+        argument: Dict do argumento (claim, proposicoes, open_questions, etc.)
 
     Returns:
         str: Status inferido ("exploring" | "structured" | "validated")
 
-    Lógica de inferência:
-        - Explorando: claim vago (<30 chars), premises vazias, open_questions > 3
-        - Estruturada: claim específico, premises preenchidas, open_questions < 3
-        - Validada: contradictions vazias, assumptions baixas, solid_grounds presente
+    Lógica de inferência (usando proposições):
+        - Explorando: claim vago (<30 chars), proposições insuficientes, open_questions > 3
+        - Estruturada: claim específico, proposições sólidas preenchidas, open_questions < 3
+        - Validada: contradictions vazias, proposições frágeis baixas, solid_grounds presente
     """
     claim = argument.get("claim", "")
-    premises = argument.get("premises", [])
-    assumptions = argument.get("assumptions", [])
+    proposicoes = argument.get("proposicoes", [])
     open_questions = argument.get("open_questions", [])
     contradictions = argument.get("contradictions", [])
     solid_grounds = argument.get("solid_grounds", [])
 
+    # Calcular proposições sólidas e frágeis
+    solid_props = [p for p in proposicoes if isinstance(p, dict) and p.get("solidez") is not None and p.get("solidez", 0) >= 0.6]
+    fragile_props = [p for p in proposicoes if isinstance(p, dict) and p.get("solidez") is not None and p.get("solidez", 0) < 0.6]
+
     # Critérios de validação (mais rigoroso)
     if (len(contradictions) == 0 and
-        len(assumptions) <= 2 and
+        len(fragile_props) <= 2 and
         len(solid_grounds) > 0):
         return "validated"
 
     # Critérios de estruturação (intermediário)
     if (len(claim) >= 30 and
-        len(premises) >= 2 and
+        len(solid_props) >= 2 and
         len(open_questions) <= 2):
         return "structured"
 
@@ -326,12 +329,21 @@ def _render_session_solidez(session_id: str) -> None:
 
     try:
         from agents.models.cognitive_model import CognitiveModel
+        from agents.models.proposition import Proposicao
+
+        # Reconstruir proposições da sessão
+        proposicoes_raw = cognitive_model_dict.get("proposicoes", [])
+        proposicoes = []
+        for p in proposicoes_raw:
+            if isinstance(p, dict):
+                proposicoes.append(Proposicao(**p))
+            elif isinstance(p, str):
+                proposicoes.append(Proposicao.from_text(p))
 
         # Reconstruir modelo cognitivo da sessão
         cognitive_model = CognitiveModel(
             claim=cognitive_model_dict.get("claim", ""),
-            premises=cognitive_model_dict.get("premises", []),
-            assumptions=cognitive_model_dict.get("assumptions", []),
+            proposicoes=proposicoes,
             open_questions=cognitive_model_dict.get("open_questions", []),
             contradictions=[],  # Não persistido
             solid_grounds=[],   # Não persistido
@@ -411,13 +423,22 @@ def _render_idea_status(session_id: str) -> None:
         # Indicador de Solidez (Épico 9.4)
         if focal_arg:
             from agents.models.cognitive_model import CognitiveModel
+            from agents.models.proposition import Proposicao
 
             # Reconstruir modelo cognitivo do argumento persistido
             try:
+                # Reconstruir proposições
+                proposicoes_raw = focal_arg.get("proposicoes", [])
+                proposicoes = []
+                for p in proposicoes_raw:
+                    if isinstance(p, dict):
+                        proposicoes.append(Proposicao(**p))
+                    elif isinstance(p, str):
+                        proposicoes.append(Proposicao.from_text(p))
+
                 cognitive_model = CognitiveModel(
                     claim=focal_arg.get("claim", ""),
-                    premises=focal_arg.get("premises", []),
-                    assumptions=focal_arg.get("assumptions", []),
+                    proposicoes=proposicoes,
                     open_questions=focal_arg.get("open_questions", []),
                     contradictions=[],  # Contradictions não persistidas diretamente
                     solid_grounds=[],   # Solid grounds não persistidos diretamente
