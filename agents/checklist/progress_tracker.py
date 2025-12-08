@@ -147,12 +147,12 @@ CHECKLIST_GENERIC = [
     ChecklistItem(
         id="foundations",
         label="Fundamentos sólidos",
-        description="Premises claras (>= 2)"
+        description="Proposições sólidas (solidez >= 0.6, >= 2)"
     ),
     ChecklistItem(
         id="assumptions_low",
-        label="Suposições baixas",
-        description="Poucas hipóteses não verificadas (<= 2)"
+        label="Proposições frágeis baixas",
+        description="Poucas proposições frágeis (<= 2)"
     ),
     ChecklistItem(
         id="questions_answered",
@@ -237,7 +237,7 @@ class ProgressTracker:
                 population = context.get("population", "")
                 if population and population != "not specified":
                     item.status = "completed"
-                elif len(model.premises) > 0:  # Mencionado em premises
+                elif len(model.get_solid_propositions()) > 0:  # Mencionado em proposições sólidas
                     item.status = "in_progress"
                 else:
                     item.status = "pending"
@@ -251,12 +251,12 @@ class ProgressTracker:
                     item.status = "pending"
 
             elif item.id == "methodology":
-                # Metodologia: premises >= 2 (fundamentos claros)
-                item.status = "completed" if len(model.premises) >= 2 else "pending"
+                # Metodologia: proposições sólidas >= 2 (fundamentos claros)
+                item.status = "completed" if len(model.get_solid_propositions()) >= 2 else "pending"
 
             elif item.id == "baseline":
-                # Baseline: assumptions <= 2 (poucas suposições não verificadas)
-                item.status = "completed" if len(model.assumptions) <= 2 else "in_progress"
+                # Baseline: proposições frágeis <= 2 (poucas hipóteses não verificadas)
+                item.status = "completed" if len(model.get_fragile_propositions()) <= 2 else "in_progress"
 
     def _evaluate_review(
         self,
@@ -270,15 +270,15 @@ class ProgressTracker:
                 item.status = "completed" if len(model.claim) > 20 else "pending"
 
             elif item.id == "search_strategy":
-                # Estratégia de busca: mencionado em premises ou context
-                if any("search" in p.lower() or "base" in p.lower() for p in model.premises):
+                # Estratégia de busca: mencionado em proposições
+                if any("search" in prop.texto.lower() or "base" in prop.texto.lower() for prop in model.proposicoes):
                     item.status = "completed"
                 else:
                     item.status = "pending"
 
             elif item.id == "inclusion_criteria":
-                # Critérios: mencionado em assumptions ou premises
-                if len(model.premises) >= 1:
+                # Critérios: mencionado em proposições
+                if len(model.proposicoes) >= 1:
                     item.status = "in_progress"
                 else:
                     item.status = "pending"
@@ -303,8 +303,8 @@ class ProgressTracker:
                 item.status = "completed" if len(model.claim) > 20 else "pending"
 
             elif item.id == "framework":
-                # Framework: premises estruturadas
-                item.status = "completed" if len(model.premises) >= 2 else "in_progress"
+                # Framework: proposições sólidas estruturadas
+                item.status = "completed" if len(model.get_solid_propositions()) >= 2 else "in_progress"
 
             elif item.id == "logical_consistency":
                 # Consistência lógica: sem contradições
@@ -319,8 +319,8 @@ class ProgressTracker:
                     item.status = "pending"
 
             elif item.id == "implications":
-                # Implicações: assumptions baixas (explorou bem)
-                item.status = "completed" if len(model.assumptions) <= 2 else "in_progress"
+                # Implicações: proposições frágeis baixas (explorou bem)
+                item.status = "completed" if len(model.get_fragile_propositions()) <= 2 else "in_progress"
 
     def _evaluate_generic(
         self,
@@ -340,10 +340,10 @@ class ProgressTracker:
                     item.status = "pending"
 
             elif item.id == "foundations":
-                item.status = "completed" if len(model.premises) >= 2 else "in_progress"
+                item.status = "completed" if len(model.get_solid_propositions()) >= 2 else "in_progress"
 
             elif item.id == "assumptions_low":
-                item.status = "completed" if len(model.assumptions) <= 2 else "in_progress"
+                item.status = "completed" if len(model.get_fragile_propositions()) <= 2 else "in_progress"
 
             elif item.id == "questions_answered":
                 item.status = "completed" if len(model.open_questions) <= 1 else "in_progress"

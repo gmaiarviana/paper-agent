@@ -300,17 +300,16 @@ def render_argument_list(idea: Dict[str, Any], arguments: List[Dict[str, Any]]) 
 @st.dialog("🧠 Detalhes do Argumento", width="large")
 def show_argument_details(argument: Dict[str, Any]) -> None:
     """
-    Modal com detalhes completos do argumento (Épico 12.5.4).
+    Modal com detalhes completos do argumento (Épico 12.5.4 + Épico 11 Checkpoint 2).
 
     Args:
-        argument: Dict do argumento (com claim, premises, assumptions, etc)
+        argument: Dict do argumento (com claim, proposicoes, etc)
 
     Layout (modal):
         Versão: V3
         ---
         Claim: [texto completo]
-        Premises: [lista]
-        Assumptions: [lista]
+        Proposições: [lista com solidez]
         Open Questions: [lista]
         Contradictions: [lista]
         Solid Grounds: [lista]
@@ -318,8 +317,7 @@ def show_argument_details(argument: Dict[str, Any]) -> None:
     """
     version = argument["version"]
     claim = argument["claim"]
-    premises = argument["premises"]
-    assumptions = argument["assumptions"]
+    proposicoes = argument.get("proposicoes", [])
     open_questions = argument["open_questions"]
     contradictions = argument["contradictions"]
     solid_grounds = argument["solid_grounds"]
@@ -335,23 +333,38 @@ def show_argument_details(argument: Dict[str, Any]) -> None:
     st.markdown("**Claim (Afirmação Central)**")
     st.write(claim)
 
-    # Premises
-    if premises:
-        st.markdown("**Premises (Premissas)**")
-        for i, premise in enumerate(premises, 1):
-            st.write(f"{i}. {premise}")
+    # Proposições
+    if proposicoes:
+        st.markdown("**Proposições:**")
+
+        # Separar por solidez
+        solid = [p for p in proposicoes if isinstance(p, dict) and p.get("solidez") is not None and p.get("solidez", 0) >= 0.6]
+        fragile = [p for p in proposicoes if isinstance(p, dict) and p.get("solidez") is not None and p.get("solidez", 0) < 0.6]
+        not_evaluated = [p for p in proposicoes if isinstance(p, dict) and p.get("solidez") is None]
+
+        if solid:
+            st.markdown("**🟢 Sólidas (solidez ≥ 0.6):**")
+            for i, p in enumerate(solid, 1):
+                texto = p.get("texto", str(p))
+                solidez_val = p.get("solidez", 0)
+                st.write(f"{i}. [{solidez_val:.2f}] {texto}")
+
+        if fragile:
+            st.markdown("**🟡 Frágeis (solidez < 0.6):**")
+            for i, p in enumerate(fragile, 1):
+                texto = p.get("texto", str(p))
+                solidez_val = p.get("solidez", 0)
+                st.write(f"⚠️ {i}. [{solidez_val:.2f}] {texto}")
+
+        if not_evaluated:
+            st.markdown("**⚪ Não avaliadas:**")
+            for i, p in enumerate(not_evaluated, 1):
+                texto = p.get("texto", str(p))
+                st.write(f"{i}. {texto}")
     else:
-        st.caption("_Nenhuma premissa definida_")
+        st.caption("_Nenhuma proposição definida_")
 
     st.markdown("---")
-
-    # Assumptions
-    if assumptions:
-        st.markdown("**Assumptions (Suposições)**")
-        for i, assumption in enumerate(assumptions, 1):
-            st.write(f"⚠️ {i}. {assumption}")
-    else:
-        st.caption("_Nenhuma suposição identificada_")
 
     # Open Questions
     if open_questions:
