@@ -296,7 +296,7 @@ class DatabaseManager:
             >>> arg = db.get_argument(argument_id)
             >>> if arg:
             ...     print(arg["claim"])
-            ...     print(arg["premises"])  # Lista deserializada
+            ...     print(arg["proposicoes"])  # Lista deserializada com solidez
         """
         return self.arguments.get_argument(argument_id)
 

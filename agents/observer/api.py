@@ -86,8 +86,7 @@ class ObservadorAPI:
         """Cria CognitiveModel vazio."""
         return {
             "claim": "",
-            "premises": [],
-            "assumptions": [],
+            "proposicoes": [],
             "open_questions": [],
             "contradictions": [],
             "solid_grounds": [],
@@ -110,7 +109,7 @@ class ObservadorAPI:
         Example:
             >>> api.update_cognitive_model({
             ...     "claim": "LLMs aumentam produtividade",
-            ...     "premises": ["Equipes usam LLMs"],
+            ...     "proposicoes": [{"texto": "Equipes usam LLMs", "solidez": 0.8}],
             ...     ...
             ... })
         """
@@ -381,12 +380,12 @@ class ObservadorAPI:
             Solidez: 65%
 
         Notes:
-            - Versao POC usa formula simplificada
-            - Versao completa (10.2) calculara via analise LLM
+            - Versao POC usa formula simplificada baseada em proposicoes
+            - Proposicoes solidas (solidez >= 0.6) contribuem positivamente
+            - Proposicoes frageis (solidez < 0.6) contribuem negativamente
         """
         claim = self._cognitive_model.get("claim", "")
-        premises = self._cognitive_model.get("premises", [])
-        assumptions = self._cognitive_model.get("assumptions", [])
+        proposicoes = self._cognitive_model.get("proposicoes", [])
         open_questions = self._cognitive_model.get("open_questions", [])
         contradictions = self._cognitive_model.get("contradictions", [])
 
@@ -394,17 +393,28 @@ class ObservadorAPI:
         if not claim:
             return 0.0
 
+        # Separar proposicoes por solidez
+        solid_props = []
+        fragile_props = []
+        for p in proposicoes:
+            if isinstance(p, dict):
+                solidez = p.get("solidez")
+                if solidez is not None and solidez >= 0.6:
+                    solid_props.append(p)
+                elif solidez is not None and solidez < 0.6:
+                    fragile_props.append(p)
+
         # Calcular score
         score = 0.0
 
         # Claim definido: base 20%
         score += 0.20
 
-        # Premises: cada uma adiciona ate 15% (max 45%)
-        score += min(0.45, len(premises) * 0.15)
+        # Proposicoes solidas: cada uma adiciona ate 15% (max 45%)
+        score += min(0.45, len(solid_props) * 0.15)
 
-        # Assumptions: cada uma subtrai 5% (max -25%)
-        score -= min(0.25, len(assumptions) * 0.05)
+        # Proposicoes frageis: cada uma subtrai 5% (max -25%)
+        score -= min(0.25, len(fragile_props) * 0.05)
 
         # Open questions: cada uma subtrai 5% (max -15%)
         score -= min(0.15, len(open_questions) * 0.05)
@@ -424,7 +434,7 @@ class ObservadorAPI:
         Check rapido: completude atual.
 
         Completude indica o quanto do argumento esta desenvolvido.
-        Baseia-se na proporcao de questoes respondidas vs abertas.
+        Baseia-se na proporcao de proposicoes solidas vs questoes abertas.
 
         Returns:
             float: Completude entre 0.0 e 1.0.
@@ -434,16 +444,21 @@ class ObservadorAPI:
             >>> print(f"Completude: {completude:.0%}")
             Completude: 80%
         """
-        premises = self._cognitive_model.get("premises", [])
+        proposicoes = self._cognitive_model.get("proposicoes", [])
         open_questions = self._cognitive_model.get("open_questions", [])
 
-        total_elements = len(premises) + len(open_questions)
+        # Contar proposicoes solidas (solidez >= 0.6)
+        solid_count = sum(
+            1 for p in proposicoes
+            if isinstance(p, dict) and p.get("solidez") is not None and p.get("solidez") >= 0.6
+        )
+
+        total_elements = solid_count + len(open_questions)
         if total_elements == 0:
             return 0.0
 
-        # Completude = elementos "completos" / total
-        # Premises sao "completos", open_questions sao "incompletos"
-        return len(premises) / total_elements
+        # Completude = proposicoes solidas / total elementos
+        return solid_count / total_elements
 
     def get_concepts(self) -> list[str]:
         """

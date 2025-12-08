@@ -99,7 +99,7 @@ def _validate_cognitive_model(
         Dict[str, Any]: cognitive_model validado como dict
 
     Example:
-        >>> raw = {"claim": "LLMs aumentam produtividade", "premises": [], ...}
+        >>> raw = {"claim": "LLMs aumentam produtividade", "proposicoes": [...], ...}
         >>> validated = _validate_cognitive_model(raw, state)
         >>> validated["claim"]
         'LLMs aumentam produtividade'
