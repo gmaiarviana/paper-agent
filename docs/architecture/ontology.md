@@ -244,8 +244,10 @@ Evidência:
 - **Fundamentos são proposições**: Não há mais distinção entre premises/assumptions
 
 **Nota de migração (Épico 11):**
-O código atual ainda usa `premises`/`assumptions` como strings separadas.
-O Épico 11 migrará para estrutura de `proposicoes: List[Proposicao]`.
+O código está sendo migrado para usar `proposicoes: List[Proposicao]`.
+- ✅ Checkpoint 1: Orchestrator, prompts, event models migrados
+- ⏳ Checkpoint 2: Interface, checklist
+- ⏳ Checkpoint 3: Testes, limpeza final
 
 **Estrutura atualizada:**
 ```python
