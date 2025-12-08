@@ -7,8 +7,9 @@ Este módulo implementa operações de Create, Read para Arguments:
 - get_arguments_by_idea: Buscar todos os argumentos de uma ideia
 - get_latest_argument_version: Buscar versão mais recente
 
+Épico 11.1: Schema Unificado - proposicoes (substitui premises/assumptions)
 Épico 11.2: Setup de Persistência e Schema SQLite
-Data: 2025-11-17
+Data: 2025-12-08
 Refatoração: Divisão de manager.py em CRUD separados
 """
 
@@ -19,6 +20,7 @@ from typing import Optional, List, Dict, Any
 from uuid import uuid4
 
 from agents.models.cognitive_model import CognitiveModel
+from agents.models.proposicao import Proposicao
 
 logger = logging.getLogger(__name__)
 
@@ -74,20 +76,26 @@ class ArgumentsCRUD:
         if version is None:
             version = self._get_next_argument_version(idea_id)
 
+        # Converter premises + assumptions → proposicoes (Épico 11.1)
+        # Temporário: CognitiveModel ainda usa premises/assumptions (migra em 11.3)
+        proposicoes = self._convert_to_proposicoes(
+            cognitive_model.premises,
+            cognitive_model.assumptions
+        )
+
         # Serializar campos JSON do CognitiveModel
         query = """
         INSERT INTO arguments (
-            id, idea_id, claim, premises, assumptions,
+            id, idea_id, claim, proposicoes,
             open_questions, contradictions, solid_grounds, context, version
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
 
         params = (
             argument_id,
             idea_id,
             cognitive_model.claim,
-            json.dumps(cognitive_model.premises),
-            json.dumps(cognitive_model.assumptions),
+            json.dumps([p.model_dump() for p in proposicoes], ensure_ascii=False),
             json.dumps(cognitive_model.open_questions),
             json.dumps([c.model_dump() for c in cognitive_model.contradictions]),
             json.dumps([s.model_dump() for s in cognitive_model.solid_grounds]),
@@ -114,16 +122,17 @@ class ArgumentsCRUD:
             argument_id: UUID do argumento
 
         Returns:
-            Dict com campos do argumento (JSON deserializado) ou None
+            Dict com campos do argumento (JSON deserializado) ou None.
+            Inclui 'proposicoes' e também 'premises'/'assumptions' para compatibilidade.
 
         Example:
             >>> arg = crud.get_argument(argument_id)
             >>> if arg:
             ...     print(arg["claim"])
-            ...     print(arg["premises"])  # Lista deserializada
+            ...     print(arg["proposicoes"])  # Lista de Proposicao
         """
         query = """
-        SELECT id, idea_id, claim, premises, assumptions, open_questions,
+        SELECT id, idea_id, claim, proposicoes, open_questions,
                contradictions, solid_grounds, context, version, created_at, updated_at
         FROM arguments
         WHERE id = ?
@@ -158,7 +167,7 @@ class ArgumentsCRUD:
         """
         if limit:
             query = """
-            SELECT id, idea_id, claim, premises, assumptions, open_questions,
+            SELECT id, idea_id, claim, proposicoes, open_questions,
                    contradictions, solid_grounds, context, version, created_at, updated_at
             FROM arguments
             WHERE idea_id = ?
@@ -168,7 +177,7 @@ class ArgumentsCRUD:
             params = (idea_id, limit)
         else:
             query = """
-            SELECT id, idea_id, claim, premises, assumptions, open_questions,
+            SELECT id, idea_id, claim, proposicoes, open_questions,
                    contradictions, solid_grounds, context, version, created_at, updated_at
             FROM arguments
             WHERE idea_id = ?
@@ -228,14 +237,25 @@ class ArgumentsCRUD:
             row: Dict com dados brutos do banco (JSON como strings)
 
         Returns:
-            Dict com JSON deserializado (listas e dicts Python)
+            Dict com JSON deserializado (listas e dicts Python).
+            Inclui 'proposicoes' e também 'premises'/'assumptions' para compatibilidade
+            com CognitiveModel durante transição (Épico 11.1 → 11.3).
         """
+        # Deserializa proposicoes do banco
+        proposicoes_raw = json.loads(row["proposicoes"])
+        proposicoes = [Proposicao(**p) for p in proposicoes_raw]
+
+        # Extrai premises/assumptions para compatibilidade com CognitiveModel
+        # (temporário até Épico 11.3 migrar CognitiveModel)
+        premises, assumptions = self._convert_from_proposicoes(proposicoes)
+
         return {
             "id": row["id"],
             "idea_id": row["idea_id"],
             "claim": row["claim"],
-            "premises": json.loads(row["premises"]),
-            "assumptions": json.loads(row["assumptions"]),
+            "proposicoes": proposicoes,
+            "premises": premises,  # Compatibilidade
+            "assumptions": assumptions,  # Compatibilidade
             "open_questions": json.loads(row["open_questions"]),
             "contradictions": json.loads(row["contradictions"]),
             "solid_grounds": json.loads(row["solid_grounds"]),
@@ -244,4 +264,66 @@ class ArgumentsCRUD:
             "created_at": row["created_at"],
             "updated_at": row["updated_at"]
         }
+
+    def _convert_to_proposicoes(
+        self,
+        premises: List[str],
+        assumptions: List[str]
+    ) -> List[Proposicao]:
+        """
+        Converte premises e assumptions em lista de Proposicao.
+
+        Usado ao SALVAR: CognitiveModel (premises/assumptions) → banco (proposicoes).
+        Todas as proposições recebem solidez=None (não avaliadas).
+
+        Args:
+            premises: Lista de strings de premises
+            assumptions: Lista de strings de assumptions
+
+        Returns:
+            List[Proposicao]: Proposições unificadas com solidez=None
+        """
+        proposicoes = []
+
+        for texto in premises:
+            if texto.strip():
+                proposicoes.append(Proposicao.from_text(texto.strip()))
+
+        for texto in assumptions:
+            if texto.strip():
+                proposicoes.append(Proposicao.from_text(texto.strip()))
+
+        return proposicoes
+
+    def _convert_from_proposicoes(
+        self,
+        proposicoes: List[Proposicao]
+    ) -> tuple[List[str], List[str]]:
+        """
+        Converte proposicoes de volta para premises e assumptions.
+
+        Usado ao LER: banco (proposicoes) → CognitiveModel (premises/assumptions).
+        Temporário até Épico 11.3 migrar CognitiveModel para usar proposicoes.
+
+        Lógica de conversão:
+        - Proposições com solidez >= 0.6 ou solidez=None → premises
+        - Proposições com solidez < 0.6 → assumptions
+
+        Args:
+            proposicoes: Lista de Proposicao do banco
+
+        Returns:
+            tuple[List[str], List[str]]: (premises, assumptions)
+        """
+        premises = []
+        assumptions = []
+
+        for prop in proposicoes:
+            # Se não avaliada (None) ou solidez alta, considera premise
+            if prop.solidez is None or prop.solidez >= 0.6:
+                premises.append(prop.texto)
+            else:
+                assumptions.append(prop.texto)
+
+        return premises, assumptions
 

@@ -10,12 +10,15 @@ responsabilidades distintas:
 - data/checkpoints.db: Conversas e estado LangGraph
 - data/data.db: Entidades de domínio (ideas, arguments, concepts)
 
+Épico 11.1: Schema Unificado - premises/assumptions migrados para proposicoes
 Épico 11.2: Setup de Persistência e Schema SQLite
-Data: 2025-11-17
+Data: 2025-12-08
 """
 
 # Versão do schema (para migrations futuras)
-DATABASE_VERSION = "1.0.0"
+# v1.0.0: Schema inicial com premises/assumptions separados
+# v2.0.0: Migração para proposicoes unificadas (Épico 11.1)
+DATABASE_VERSION = "2.0.0"
 
 # Schema completo do banco de dados
 SCHEMA_SQL = """
@@ -42,17 +45,17 @@ CREATE INDEX IF NOT EXISTS idx_ideas_current_argument ON ideas(current_argument_
 
 -- Tabela de Argumentos
 -- Versões do argumento por ideia (V1, V2, V3...)
+-- Épico 11.1: premises/assumptions migrados para proposicoes unificadas
 CREATE TABLE IF NOT EXISTS arguments (
     id TEXT PRIMARY KEY,                    -- UUID gerado pela aplicação
     idea_id TEXT NOT NULL,                  -- FK para idea proprietária
 
     -- Estrutura cognitiva (JSON fields)
     claim TEXT NOT NULL,                    -- Afirmação central
-    premises TEXT NOT NULL DEFAULT '[]',    -- JSON: list[str]
-    assumptions TEXT NOT NULL DEFAULT '[]', -- JSON: list[str]
+    proposicoes TEXT NOT NULL DEFAULT '[]', -- JSON: list[Proposicao] - fundamentos unificados (Épico 11.1)
     open_questions TEXT NOT NULL DEFAULT '[]', -- JSON: list[str]
     contradictions TEXT NOT NULL DEFAULT '[]', -- JSON: list[dict]
-    solid_grounds TEXT NOT NULL DEFAULT '[]',  -- JSON: list[dict]
+    solid_grounds TEXT NOT NULL DEFAULT '[]',  -- JSON: list[dict] - temporário, migra para evidencias (Épico 14)
     context TEXT NOT NULL DEFAULT '{}',     -- JSON: dict
 
     -- Versionamento
@@ -89,6 +92,7 @@ BEGIN
 END;
 
 -- View helper: Ideias com argumento focal carregado (JOIN)
+-- Épico 11.1: proposicoes unificadas (substitui premises/assumptions)
 CREATE VIEW IF NOT EXISTS ideas_with_current_argument AS
 SELECT
     i.id as idea_id,
@@ -98,8 +102,7 @@ SELECT
     i.updated_at as idea_updated_at,
     a.id as argument_id,
     a.claim,
-    a.premises,
-    a.assumptions,
+    a.proposicoes,
     a.open_questions,
     a.contradictions,
     a.solid_grounds,
