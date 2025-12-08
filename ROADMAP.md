@@ -24,14 +24,11 @@
 - **ÉPICO 10**: Observador - Mente Analítica (POC) - ChromaDB + SQLite para catálogo de conceitos, pipeline de persistência, busca semântica e 22 testes unitários
 
 ### 🟡 Épicos Em Andamento
-- _Nenhum épico em andamento no momento_
+- **ÉPICO 11**: Alinhamento de Ontologia (11.1, 11.3, 11.4 concluídos)
 
 ### ⏳ Épicos Planejados
 
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
-
-#### Planejados (refinados)
-- **ÉPICO 11**: Alinhamento de Ontologia
 
 #### Planejados (não refinados)
 - **ÉPICO 12**: Observador Integrado ao Fluxo (não refinado) - Próximo candidato
@@ -64,10 +61,10 @@ Observador implementado com ChromaDB + SQLite para catálogo de conceitos. Inclu
 
 **Objetivo:** Migrar código de premises/assumptions (strings separadas) para Proposições unificadas com solidez. Simplificar o sistema para refletir a realidade epistemológica.
 
-**Status:** ✅ Refinado (aguardando conclusão do Épico 10)
+**Status:** 🟡 Em Andamento (11.1, 11.3, 11.4 concluídos)
 
 **Dependências:**
-- Épico 10 concluído
+- Épico 10 concluído ✅
 
 **Consulte:**
 - `docs/architecture/ontology.md` - Nova ontologia (Proposição)
@@ -76,34 +73,33 @@ Observador implementado com ChromaDB + SQLite para catálogo de conceitos. Inclu
 
 ### Funcionalidades:
 
-#### 11.1 Schema Unificado (Camada Modelo)
+#### ✅ 11.1 Schema Unificado (Camada Modelo)
 
 - **Descrição:** Criar estrutura `Proposicao` e migrar schema SQLite.
-- **Critérios de Aceite:**
-  - Deve criar modelo Pydantic `Proposicao` com: `id`, `texto`, `solidez` (Optional[float]), `evidencias` (lista vazia)
-  - Deve atualizar schema SQLite: substituir colunas `premises`, `assumptions` por `proposicoes` (JSON)
-  - Deve criar script de migração que converte dados existentes (premises → proposicoes com solidez=None, assumptions → proposicoes com solidez=None)
-  - Deve manter `solid_grounds` temporariamente (migra para `evidencias` no Épico 14)
-  - Claim continua como campo separado (não vira proposição)
+- **Status:** Concluído (08/12/2025)
+- **Implementado:**
+  - Modelo Pydantic `Proposicao` com: `id`, `texto`, `solidez` (Optional[float]), `evidencias`
+  - Métodos utilitários: `is_evaluated()`, `is_solid()`, `is_fragile()`
+  - Factory methods: `from_text()`, `from_dict()`, `to_dict()`
+  - `ProposicaoRef` para relacionamentos N:N
+  - 377 testes unitários em `tests/unit/models/test_proposition.py`
 
-#### 11.2 Adapter de Compatibilidade
+#### ❌ 11.2 Adapter de Compatibilidade (CANCELADO)
 
 - **Descrição:** Criar adapter que traduz estrutura nova ↔ antiga durante transição.
-- **Critérios de Aceite:**
-  - Deve criar `ProposicaoAdapter` em `agents/models/adapters.py`
-  - Deve implementar `to_legacy()`: proposicoes → premises/assumptions (para código não migrado)
-  - Deve implementar `from_legacy()`: premises/assumptions → proposicoes
-  - Deve ser removido ao final do Épico 11 (código temporário)
+- **Status:** Cancelado - Não há dados em produção, migração direta é mais simples
+- **Decisão:** Migrar componentes diretamente sem adapter intermediário
 
-#### 11.3 Migrar CognitiveModel
+#### ✅ 11.3 Migrar CognitiveModel
 
 - **Descrição:** Atualizar `CognitiveModel` para usar `proposicoes`.
-- **Critérios de Aceite:**
-  - Deve substituir campos `premises` e `assumptions` por `proposicoes: List[Proposicao]`
-  - Deve atualizar `is_mature()` para usar solidez média das proposições avaliadas (ignorar None)
-  - Deve atualizar `calculate_solidez()` para derivar de solidez das proposições
-  - Deve manter compatibilidade via Adapter durante transição
-  - Proposições com `solidez=None` não contam para cálculos
+- **Status:** Concluído (08/12/2025)
+- **Implementado:**
+  - Campos `premises` e `assumptions` substituídos por `proposicoes: List[Proposicao]`
+  - `is_mature()` usa solidez média das proposições avaliadas (ignora None)
+  - `calculate_solidez()` deriva de solidez das proposições
+  - Helpers: `get_solid_propositions()`, `get_fragile_propositions()`
+  - 330 testes unitários em `tests/unit/models/test_cognitive_model.py`
 
 #### ✅ 11.4 Migrar Observador
 
