@@ -30,11 +30,16 @@
 
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
+#### Refinados (prontos para implementação)
+- **ÉPICO 12**: Observer - Integração Básica (MVP) - Próximo candidato
+
 #### Planejados (não refinados)
-- **ÉPICO 12**: Observador Integrado ao Fluxo (não refinado) - Próximo candidato
-- **ÉPICO 13**: Catálogo de Conceitos - Interface Web (não refinado)
-- **ÉPICO 14**: Pesquisador (não refinado)
-- **ÉPICO 15**: Escritor (não refinado)
+- **ÉPICO 13**: Observer - Consultas Inteligentes (não refinado)
+- **ÉPICO 14**: Observer - Detecção de Mudanças (não refinado)
+- **ÉPICO 15**: Observer - Painel Dedicado (não refinado)
+- **ÉPICO 16**: Catálogo de Conceitos - Interface Web (não refinado)
+- **ÉPICO 17**: Pesquisador (não refinado)
+- **ÉPICO 18**: Escritor (não refinado)
 
 
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
@@ -68,62 +73,139 @@ Migração completa de premises/assumptions (strings separadas) para Proposiçõ
 
 ---
 
-## ÉPICO 12: Observador Integrado ao Fluxo
+## ÉPICO 12: Observer - Integração Básica (MVP)
 
-**Objetivo:** Orquestrador consulta Observador para decisões contextuais. Conversas mais inteligentes.
+**Objetivo:** Integrar Observer ao grafo principal. CognitiveModel disponível no estado para uso pelo orquestrador. Timeline mostra ações do Observer.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ✅ Refinado (pronto para implementação)
 
 **Dependências:**
 - Épicos 10-11
 
+> **Decisão Técnica:** Após spikes de validação (2025-12-08), confirmado que LangGraph não suporta paralelismo nativo via `add_edge(START, [list])`. Implementação usará callback assíncrono. Claude demonstrou uso natural do CognitiveModel via prompt (80% score), validando que tool explícita não é necessária no MVP.
+
 **Consulte:**
+- `docs/epics/epic-12-observer-integration.md` - **Especificação técnica completa**
 - `docs/agents/observer.md` - Comunicação Observador ↔ Orquestrador
 - `docs/architecture/observer_architecture.md` - Integração com grafo
 
-### Funcionalidades Planejadas:
+### Funcionalidades:
 
-#### 12.1 Integrar Observador ao Grafo (Paralelo)
+#### 12.1 Callback Assíncrono Observer
 
-- Observador roda em paralelo a cada turno
-- Investigar: LangGraph suporta paralelismo? Se não, usar callback
-- Não bloqueia fluxo principal
+- **Descrição:** Observer roda automaticamente após cada turno do Orquestrador em background thread
+- **Critérios de Aceite:**
+  - Observer dispara após `orchestrator_node` completar
+  - Execução em thread daemon (não bloqueia shutdown)
+  - Latência do usuário não aumenta (Observer <3s em background)
+  - CognitiveModel atualizado no `state["cognitive_model"]`
+  - Evento `cognitive_model_updated` publicado no EventBus
+  - Erros não quebram fluxo principal (try/except completo)
 
-#### 12.2 Interface de Consulta Não-Determinística
+#### 12.2 CognitiveModel no Estado e Prompt do Orquestrador
 
-- Orquestrador consulta quando incerto
-- Gatilhos naturais: mudança direção, contradição, completude
-- Observador responde com insights, não comandos
+- **Descrição:** Orquestrador acessa cognitive_model via prompt e usa naturalmente
+- **Critérios de Aceite:**
+  - Campo `cognitive_model` existe em `MultiAgentState` (já existe)
+  - Prompt do Orquestrador inclui seção "COGNITIVE MODEL DISPONÍVEL" quando disponível
+  - Formato inclui: afirmação, fundamentos (com solidez), conceitos, contradições, questões abertas, métricas
+  - Claude menciona cognitive_model no reasoning (validado por spike - 80% score)
+  - Limites de conteúdo (5 fundamentos, 3 contradições, 5 questões) para não sobrecarregar prompt
 
-#### 12.3 Detecção de Variations Automática
+#### 12.3 Timeline Visual
 
-- Threshold > 0.90: adiciona variation automaticamente
-- Threshold 0.80-0.90: pergunta ao usuário
-- Threshold < 0.80: conceito novo
+- **Descrição:** Timeline mostra quando Observer processou turno
+- **Critérios de Aceite:**
+  - Eventos `cognitive_model_updated` aparecem na timeline
+  - Formato: "👁️ Turno X processado" com métricas (conceitos, solidez)
+  - Integrado com timeline existente (não quebra UX)
+  - Mostra últimos 3-5 eventos do Observer
+  - Opcional: Seção colapsável separada "👁️ Observador"
 
-#### 12.4 Visualização nos Bastidores
+#### 12.4 Testes de Integração
 
-- Timeline (colapsável): ações de todos agentes
-- Painel Observador (colapsável): CognitiveModel em tempo real
-- Ambos colapsados por padrão
-- Mostra Observador na timeline apenas quando relevante
+- **Descrição:** Validação completa da integração
+- **Critérios de Aceite:**
+  - Testes unitários: callback disparado, state atualizado, eventos publicados
+  - Testes de integração: cenários multi-turn com Observer ativo
+  - Validação: Observer não interfere no fluxo principal
+  - Validação: cognitive_model disponível no próximo turno do Orquestrador
+  - Script de validação: `scripts/validate_observer_integration.py`
 
-#### 12.5 Testes de Integração
-
-- Cenários multi-turn com Observador ativo
-- Validar que não interfere no fluxo
-- LLM-as-Judge para qualidade de insights
+**Estimativas:**
+- LOC: ~600 linhas
+- Tempo: 2h
+- Risco: Baixo
 
 ---
 
-## ÉPICO 13: Catálogo de Conceitos - Interface Web
+## ÉPICO 13: Observer - Consultas Inteligentes
+
+**Objetivo:** Orquestrador pode fazer perguntas pontuais ao Observador para decisões contextuais.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- Épico 12
+
+**Entregas:**
+- API `what_do_you_see()` melhorada (LLM-based)
+- Consultas otimizadas (`has_contradiction()`, `get_maturity()`, `get_dominant_concept()`)
+- Orquestrador usa API em momentos estratégicos
+
+**Estimativa:** ~400 linhas, 1.5h
+**Risco:** Baixo
+
+---
+
+## ÉPICO 14: Observer - Detecção de Mudanças
+
+**Objetivo:** Sistema detecta quando usuário mudou de ideia significativamente.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- Épico 12
+
+**Entregas:**
+- Algoritmo de detecção de variations
+- Threshold configurável (>0.90)
+- Orquestrador reage a variations
+- Timeline marca variations visualmente
+
+**Estimativa:** ~500 linhas, 2h
+**Risco:** Médio
+
+---
+
+## ÉPICO 15: Observer - Painel Dedicado
+
+**Objetivo:** Interface visual completa para explorar cognitive_model.
+
+**Status:** ⏳ Planejado (não refinado)
+
+**Dependências:**
+- Épico 12
+
+**Entregas:**
+- Painel colapsável "👁️ Observador"
+- Seções: Afirmação, Fundamentos, Conceitos, Contradições, Lacunas
+- Métricas visuais (barras de progresso)
+- Reasoning colapsável (debug)
+
+**Estimativa:** ~400 linhas, 1.5h
+**Risco:** Baixo
+
+---
+
+## ÉPICO 16: Catálogo de Conceitos - Interface Web
 
 **Objetivo:** Usuário explora biblioteca de conceitos via web. Transparência sobre o que sistema aprendeu.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 12
+- Épico 15
 
 **Consulte:**
 - `docs/products/paper_agent.md` - Interface web conversacional
@@ -131,20 +213,20 @@ Migração completa de premises/assumptions (strings separadas) para Proposiçõ
 
 ### Funcionalidades Planejadas:
 
-#### 13.1 Página Catálogo (`/catalogo`)
+#### 16.1 Página Catálogo (`/catalogo`)
 
 - Lista todos conceitos da biblioteca
 - Busca por nome (fuzzy search)
 - Filtros: por ideia, por frequência, por data
 - Visualização: cards com conceito + variations + ideias relacionadas
 
-#### 13.2 Preview na Página da Ideia
+#### 16.2 Preview na Página da Ideia
 
 - Mostra discretamente: "Usa 3 conceitos: [X] [Y] [Z]"
 - Tags clicáveis → redireciona para catálogo
 - Não polui interface
 
-#### 13.3 Analytics de Conceitos
+#### 16.3 Analytics de Conceitos
 
 - Conceitos mais mencionados (gráfico)
 - Conceitos por ideia/artigo
@@ -152,7 +234,7 @@ Migração completa de premises/assumptions (strings separadas) para Proposiçõ
 - Export em JSON
 - Sistema detecta padrões: "5+ usuários adicionaram conceito X" → atualiza biblioteca base
 
-#### 13.4 Testes E2E
+#### 16.4 Testes E2E
 
 - Fluxo completo: conversa → conceitos → catálogo
 - Validar UX (não quebra experiência)
@@ -160,27 +242,27 @@ Migração completa de premises/assumptions (strings separadas) para Proposiçõ
 
 ---
 
-## ÉPICO 14: Pesquisador
+## ÉPICO 17: Pesquisador
 
 **Objetivo:** Agente para busca e síntese de literatura científica. Introduz Evidência como entidade prática.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 13
+- Épico 16
 
 **Adição:** Pesquisador pode usar catálogo de conceitos para buscar papers relacionados.
 
 ---
 
-## ÉPICO 15: Escritor
+## ÉPICO 18: Escritor
 
 **Objetivo:** Agente para compilação de seções do artigo científico.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Épico 14
+- Épico 17
 
 ---
 
