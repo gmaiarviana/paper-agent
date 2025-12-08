@@ -13,7 +13,7 @@ Data: 2025-12-08
 """
 
 from .cognitive_model import CognitiveModel, Contradiction, SolidGround
-from .proposicao import Proposicao, ProposicaoRef
+from .proposition import Proposicao, ProposicaoRef
 
 __all__ = [
     "CognitiveModel",

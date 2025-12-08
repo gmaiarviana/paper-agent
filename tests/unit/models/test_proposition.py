@@ -13,7 +13,7 @@ Data: 2025-12-08
 
 import pytest
 from uuid import uuid4
-from agents.models.proposicao import Proposicao, ProposicaoRef
+from agents.models.proposition import Proposicao, ProposicaoRef
 
 
 # =============================================================================

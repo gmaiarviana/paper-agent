@@ -24,6 +24,7 @@ from agents.database.manager import DatabaseManager, get_database_manager
 from agents.database.ideas_crud import IdeasCRUD
 from agents.database.arguments_crud import ArgumentsCRUD
 from agents.models.cognitive_model import CognitiveModel
+from agents.models.proposition import Proposicao
 
 
 # =============================================================================
@@ -64,8 +65,11 @@ def sample_cognitive_model():
     """CognitiveModel de exemplo para testes."""
     return CognitiveModel(
         claim="LLMs aumentam produtividade em desenvolvimento",
-        premises=["Desenvolvimento com IA é mais rápido", "Código gerado precisa revisão"],
-        assumptions=["Desenvolvedores usam ferramentas corretamente"],
+        proposicoes=[
+            Proposicao(texto="Desenvolvimento com IA é mais rápido", solidez=0.8),
+            Proposicao(texto="Código gerado precisa revisão", solidez=0.7),
+            Proposicao(texto="Desenvolvedores usam ferramentas corretamente", solidez=0.5),
+        ],
         open_questions=["Qual o impacto na qualidade?"],
         contradictions=[],
         solid_grounds=[],

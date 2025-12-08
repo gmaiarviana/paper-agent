@@ -6,8 +6,7 @@ a evolução do pensamento do usuário durante a conversa.
 
 O modelo cognitivo é volátil (em memória) e captura:
 - claim: O que o usuário está tentando dizer/defender
-- premises: O que assumimos como verdadeiro
-- assumptions: Hipóteses não verificadas
+- proposicoes: Fundamentos do argumento (unifica premise/assumption)
 - open_questions: O que não sabemos ainda
 - contradictions: Tensões internas detectadas
 - solid_grounds: Argumentos com base bibliográfica
@@ -16,11 +15,14 @@ O modelo cognitivo é volátil (em memória) e captura:
 Ver docs/vision/cognitive_model/core.md para detalhes completos.
 
 Épico 11.1: Schema Explícito de CognitiveModel
-Data: 2025-11-17
+Épico 11.3: Migração para proposicoes unificadas
+Data: 2025-12-08
 """
 
-from typing import Optional, List, Dict, Any, Literal
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field, ConfigDict, field_validator
+
+from .proposition import Proposicao
 
 
 class Contradiction(BaseModel):
@@ -28,7 +30,7 @@ class Contradiction(BaseModel):
     Tensão interna detectada no argumento.
 
     O Metodologista detecta contradictions quando há inconsistências lógicas
-    entre claim, premises e assumptions. Apenas mencionadas quando confiança > 80%.
+    entre claim e proposicoes. Apenas mencionadas quando confiança > 80%.
     """
 
     description: str = Field(
@@ -88,33 +90,33 @@ class CognitiveModel(BaseModel):
 
     Campos principais:
     - claim: O que o usuário está tentando dizer/defender (evolui a cada turno)
-    - premises: Fundamentos assumidos como verdadeiros
-    - assumptions: Hipóteses não verificadas que precisam validação
+    - proposicoes: Fundamentos do argumento com solidez variável (unifica premise/assumption)
     - open_questions: Lacunas identificadas pelo sistema
     - contradictions: Tensões internas detectadas (não bloqueia)
     - solid_grounds: Evidências bibliográficas (futuro - Pesquisador)
     - context: Metadados (domínio, tecnologia, população)
 
     Responsabilidades dos agentes:
-    - Orquestrador: Atualiza claim, assumptions, open_questions, context
-    - Estruturador: Organiza premises
+    - Orquestrador: Atualiza claim, proposicoes, open_questions, context
+    - Estruturador: Organiza proposicoes
     - Metodologista: Detecta contradictions
     - Pesquisador (futuro): Preenche solid_grounds
 
     Example:
+        >>> from agents.models.proposition import Proposicao
         >>> model = CognitiveModel(
         ...     claim="LLMs aumentam produtividade",
-        ...     premises=["Equipes usam LLMs para desenvolvimento"],
-        ...     assumptions=["Produtividade é mensurável"],
+        ...     proposicoes=[
+        ...         Proposicao(texto="Equipes usam LLMs", solidez=0.9),
+        ...         Proposicao(texto="Produtividade é mensurável", solidez=0.5),
+        ...     ],
         ...     open_questions=["Como medir produtividade?"],
-        ...     contradictions=[],
-        ...     solid_grounds=[],
         ...     context={"domain": "software development"}
         ... )
         >>> model.claim
         'LLMs aumentam produtividade'
-        >>> len(model.premises)
-        1
+        >>> len(model.proposicoes)
+        2
 
     Ver docs/vision/cognitive_model/core.md para modelo completo.
     """
@@ -125,17 +127,10 @@ class CognitiveModel(BaseModel):
                     "Evolui a cada turno conforme conversa se refina."
     )
 
-    premises: List[str] = Field(
+    proposicoes: List[Proposicao] = Field(
         default_factory=list,
-        description="Fundamentos assumidos como verdadeiros para o argumento fazer sentido. "
-                    "Organizado pelo Estruturador."
-    )
-
-    assumptions: List[str] = Field(
-        default_factory=list,
-        description="Hipóteses não verificadas que sustentam o argumento. "
-                    "Diferente de premises: assumptions precisam validação. "
-                    "Detectadas pelo Orquestrador."
+        description="Fundamentos do argumento. Cada proposição tem solidez variável (0-1). "
+                    "Solidez alta = fundamento sólido, solidez baixa = hipótese a validar."
     )
 
     open_questions: List[str] = Field(
@@ -167,13 +162,10 @@ class CognitiveModel(BaseModel):
         json_schema_extra={
             "example": {
                 "claim": "Claude Code reduz tempo de sprint em 30%",
-                "premises": [
-                    "Equipes Python de 2-5 devs existem",
-                    "Tempo de sprint é métrica válida de produtividade"
-                ],
-                "assumptions": [
-                    "Qualidade não é comprometida",
-                    "Resultado é generalizável para outras linguagens"
+                "proposicoes": [
+                    {"texto": "Equipes Python de 2-5 devs existem", "solidez": 0.95},
+                    {"texto": "Tempo de sprint é métrica válida", "solidez": 0.8},
+                    {"texto": "Qualidade não é comprometida", "solidez": 0.4},
                 ],
                 "open_questions": [
                     "Qual é o baseline de tempo sem Claude Code?",
@@ -215,8 +207,7 @@ class CognitiveModel(BaseModel):
 
         Critérios de maturidade:
         - claim não vazio e específico (> 20 chars)
-        - premises sólidas (>= 2)
-        - assumptions baixas (<= 2)
+        - proposicoes suficientes (>= 2) com solidez média alta (>= 0.6)
         - open_questions vazias ou poucas (<= 1)
         - contradictions resolvidas (vazio)
 
@@ -227,10 +218,14 @@ class CognitiveModel(BaseModel):
             Esta é uma heurística simplificada. Na implementação completa (11.5),
             a detecção de maturidade será feita via LLM com análise contextual.
         """
+        # Calcula solidez média das proposições avaliadas
+        evaluated = [p for p in self.proposicoes if p.is_evaluated()]
+        avg_solidez = sum(p.solidez for p in evaluated) / len(evaluated) if evaluated else 0
+
         return (
             len(self.claim) > 20 and
-            len(self.premises) >= 2 and
-            len(self.assumptions) <= 2 and
+            len(self.proposicoes) >= 2 and
+            avg_solidez >= 0.6 and
             len(self.open_questions) <= 1 and
             len(self.contradictions) == 0
         )
@@ -241,8 +236,8 @@ class CognitiveModel(BaseModel):
 
         Solidez é uma medida composta da força/fundação do argumento baseado em:
         - Especificidade do claim (0-20 pontos)
-        - Força dos fundamentos/premises (0-25 pontos)
-        - Fraqueza das suposições não verificadas (0-20 pontos)
+        - Solidez média das proposições avaliadas (0-30 pontos)
+        - Quantidade de proposições (0-15 pontos)
         - Questões respondidas (0-20 pontos)
         - Ausência de contradições (0-15 pontos)
         - Presença de evidências bibliográficas (0-10 pontos bonus)
@@ -255,15 +250,16 @@ class CognitiveModel(BaseModel):
         Example:
             >>> model = CognitiveModel(
             ...     claim="Claude Code reduz tempo de sprint em 30%",
-            ...     premises=["Equipes usam Claude Code", "Tempo é mensurável"],
-            ...     assumptions=[],
+            ...     proposicoes=[
+            ...         Proposicao(texto="Equipes usam Claude Code", solidez=0.9),
+            ...         Proposicao(texto="Tempo é mensurável", solidez=0.85),
+            ...     ],
             ...     open_questions=[],
             ...     contradictions=[],
-            ...     solid_grounds=[]
             ... )
             >>> solidez = model.calculate_solidez()
             >>> print(f"Solidez: {solidez:.0f}%")
-            Solidez: 80%
+            Solidez: 95%
         """
         score = 0.0
 
@@ -274,25 +270,20 @@ class CognitiveModel(BaseModel):
         elif claim_len > 20:
             score += 10 + min(10, (claim_len - 20) / 3)
 
-        # 2. Força dos fundamentos (0-25)
-        premises_count = len(self.premises)
-        if premises_count >= 3:
-            score += 25
-        elif premises_count == 2:
-            score += 20
-        elif premises_count == 1:
-            score += 10
+        # 2. Solidez média das proposições (0-30)
+        evaluated = [p for p in self.proposicoes if p.is_evaluated()]
+        if evaluated:
+            avg_solidez = sum(p.solidez for p in evaluated) / len(evaluated)
+            score += avg_solidez * 30  # 0.0-1.0 → 0-30 pontos
 
-        # 3. Fraqueza das suposições (0-20) - menos é melhor
-        assumptions_count = len(self.assumptions)
-        if assumptions_count == 0:
-            score += 20
-        elif assumptions_count == 1:
+        # 3. Quantidade de proposições (0-15)
+        prop_count = len(self.proposicoes)
+        if prop_count >= 3:
             score += 15
-        elif assumptions_count == 2:
+        elif prop_count == 2:
             score += 10
-        elif assumptions_count <= 5:
-            score += max(0, 10 - assumptions_count)
+        elif prop_count == 1:
+            score += 5
 
         # 4. Questões respondidas (0-20) - menos é melhor
         questions_count = len(self.open_questions)
@@ -312,6 +303,30 @@ class CognitiveModel(BaseModel):
             score += min(10, len(self.solid_grounds) * 3)
 
         return min(100.0, score)
+
+    def get_solid_propositions(self, threshold: float = 0.6) -> List[Proposicao]:
+        """
+        Retorna proposições com solidez alta (>= threshold).
+
+        Args:
+            threshold: Limite mínimo de solidez (padrão: 0.6)
+
+        Returns:
+            List[Proposicao]: Proposições sólidas
+        """
+        return [p for p in self.proposicoes if p.is_solid(threshold)]
+
+    def get_fragile_propositions(self, threshold: float = 0.4) -> List[Proposicao]:
+        """
+        Retorna proposições com solidez baixa (< threshold).
+
+        Args:
+            threshold: Limite máximo para ser considerada frágil (padrão: 0.4)
+
+        Returns:
+            List[Proposicao]: Proposições frágeis que precisam validação
+        """
+        return [p for p in self.proposicoes if p.is_fragile(threshold)]
 
     def to_dict(self) -> Dict[str, Any]:
         """
