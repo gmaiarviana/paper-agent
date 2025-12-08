@@ -1,8 +1,8 @@
 # Observador - Mente Analítica
 
-**Status:** ✅ Implementado (Épico 10 Completo - POC)
-**Versão:** 2.2
-**Data:** 07/12/2025
+**Status:** ✅ Implementado (Épico 10 + 11.4 Completos)
+**Versão:** 2.3
+**Data:** 08/12/2025
 
 ## Resumo
 
@@ -90,65 +90,74 @@ Observador = Testemunha silenciosa (vê tudo, cataloga, não interfere)
 
 ### Estrutura Atualizada pelo Observador
 
+> **Épico 11.4:** Estrutura migrada de `premises`/`assumptions` para `proposicoes` unificadas.
+
 ```python
 CognitiveModel:
-  # Claims (proposições centrais)
-  claims: list[str]
-  
-  # Fundamentos (argumentos de suporte)
-  fundamentos: list[str]
-  
+  # Claim (afirmação central)
+  claim: str
+
+  # Proposições (fundamentos com solidez variável)
+  # Substitui distinção binária premise/assumption
+  proposicoes: list[Proposicao]  # {texto, solidez, evidencias}
+
   # Contradições (inconsistências)
-  contradictions: list[dict]  # {claim_a, claim_b, explanation}
-  
+  contradictions: list[Contradiction]  # {description, confidence, suggested_resolution}
+
   # Conceitos (essências semânticas)
-  conceitos: list[UUID]  # Referências a Concept (ChromaDB)
-  
+  concepts_detected: list[str]  # Labels detectados (ChromaDB)
+
   # Open questions (lacunas)
   open_questions: list[str]
-  
+
   # Context (contexto evolutivo)
   context: dict  # {domain, population, technology}
-  
-  # Métricas (calculadas)
-  solidez_geral: float  # 0-1
-  completude: float     # 0-1
+
+  # Solid grounds (evidências bibliográficas - futuro)
+  solid_grounds: list[SolidGround]  # {claim, evidence, source}
+```
+
+**Proposicao:**
+```python
+class Proposicao:
+    texto: str          # Enunciado da proposição
+    solidez: float|None # 0-1 (None = não avaliada)
+    evidencias: list    # IDs de evidências (futuro)
 ```
 
 ### Atualização a Cada Turno
 
 ```python
 def process_turn(user_input: str, conversation_history: list):
-    """Observador processa cada turno."""
-    
-    # 1. Análise completa
-    claims = extract_claims(user_input)
-    conceitos = extract_concepts(user_input)
-    fundamentos = identify_fundamentos(conversation_history)
-    contradictions = detect_contradictions(claims, fundamentos)
-    open_questions = identify_gaps(claims, fundamentos)
-    
-    # 2. Atualiza CognitiveModel
-    cognitive_model.update({
-        "claims": claims,
-        "conceitos": conceitos,
-        "fundamentos": fundamentos,
-        "contradictions": contradictions,
-        "open_questions": open_questions
-    })
-    
-    # 3. Calcula métricas
-    solidez = calculate_solidez(fundamentos)
-    completude = calculate_completude(open_questions)
-    
-    # 4. Salva conceitos no catálogo
-    for conceito in conceitos:
-        chromadb.save(conceito)
-        sqlite.save_metadata(conceito)
-    
+    """Observador processa cada turno (Épico 11.4)."""
+
+    # 1. Extração semântica via LLM
+    extracted = extract_all(user_input, conversation_history)
+    # extracted = {
+    #     "claims": [...],
+    #     "concepts": [...],
+    #     "proposicoes": [Proposicao(texto=..., solidez=None), ...],
+    #     "contradictions": [...],
+    #     "open_questions": [...]
+    # }
+
+    # 2. Mescla com CognitiveModel anterior
+    cognitive_model = merge_cognitive_model(previous, extracted)
+    # proposicoes acumulam por similaridade de texto
+
+    # 3. Calcula métricas (via LLM)
+    metrics = calculate_metrics(
+        claim=cognitive_model["claim"],
+        proposicoes=cognitive_model["proposicoes"],  # Lista unificada
+        open_questions=cognitive_model["open_questions"],
+        contradictions=cognitive_model["contradictions"]
+    )
+
+    # 4. Persiste conceitos no catálogo
+    persist_concepts_batch(extracted["concepts"], idea_id)
+
     # 5. Publica eventos (silencioso)
-    event_bus.publish(ConceptsDetectedEvent(conceitos))
-    event_bus.publish(CognitiveModelUpdatedEvent(cognitive_model))
+    event_bus.publish(CognitiveModelUpdatedEvent(cognitive_model, metrics))
 ```
 
 ---
@@ -528,7 +537,7 @@ def create_snapshot(idea_id: UUID):
 
 ---
 
-**Versão:** 2.2
-**Data:** 07/12/2025
-**Status:** ✅ Épico 10 Completo (POC) | Próximo: Épico 12 (Integração ao Fluxo)
+**Versão:** 2.3
+**Data:** 08/12/2025
+**Status:** ✅ Épico 10 Completo (POC) | ✅ Épico 11.4 Completo (Migração Proposições) | Próximo: Épico 12
 
