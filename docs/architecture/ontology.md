@@ -243,13 +243,7 @@ Evidência:
 - Argumento = mapa, Ideia = território
 - **Fundamentos são proposições**: Não há mais distinção entre premises/assumptions
 
-**Nota de migração (Épico 11):**
-O código está sendo migrado para usar `proposicoes: List[Proposicao]`.
-- ✅ Checkpoint 1: Orchestrator, prompts, event models migrados
-- ⏳ Checkpoint 2: Interface, checklist
-- ⏳ Checkpoint 3: Testes, limpeza final
-
-**Estrutura atualizada:**
+**Estrutura:**
 ```python
 Argumento:
   id: UUID

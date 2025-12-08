@@ -258,7 +258,7 @@ def render_sidebar():
                     focal_badge = "[focal]" if arg.id == idea.current_argument_id else ""
                     st.caption(f"• V{arg.version} {focal_badge}: {arg.claim[:50]}...")
                     if st.button("Ver detalhes", key=f"details_{arg.id}"):
-                        show_argument_modal(arg)  # Modal com claim, premises, etc
+                        show_argument_modal(arg)  # Modal com claim, proposições, etc
     
     # Botão criar nova (12.4)
     if st.sidebar.button("+ Nova Ideia"):
