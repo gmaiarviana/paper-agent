@@ -355,6 +355,182 @@ CRITERIOS DE MATURIDADE (contextuais, nao rigidos):
 """
 
 # =============================================================================
+# PROMPT: DETECCAO DE VARIACAO VS MUDANCA REAL (Epico 13.1)
+# =============================================================================
+
+VARIATION_DETECTION_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
+
+TAREFA:
+Analise se a mudanca entre o texto anterior e o novo texto representa uma VARIACAO (mesma essencia, formulacao diferente) ou uma MUDANCA REAL (essencia diferente, novo foco).
+
+DEFINICOES:
+- VARIACAO: Reformulacao, refinamento ou elaboracao da MESMA ideia central
+  Exemplo: "LLMs aumentam produtividade" → "LLMs aumentam produtividade em 30%"
+  (mesma essencia: LLMs + produtividade, apenas mais especifico)
+
+- MUDANCA REAL: Transicao para um foco ou argumento DIFERENTE
+  Exemplo: "LLMs aumentam produtividade" → "Bugs sao causados por falta de testes"
+  (essencia diferente: saiu de LLMs/produtividade para bugs/testes)
+
+TEXTO ANTERIOR:
+{previous_text}
+
+TEXTO NOVO:
+{new_text}
+
+COGNITIVE MODEL ATUAL (contexto):
+{cognitive_model}
+
+ANALISE CONTEXTUAL:
+Considere:
+1. O nucleo semantico (essencia) permanece o mesmo?
+2. O novo texto desenvolve/refina a ideia anterior ou introduz algo novo?
+3. Os conceitos centrais sao mantidos ou substituidos?
+4. Ha continuidade logica ou ruptura argumentativa?
+5. O usuario esta aprofundando ou redirecionando?
+
+RETORNE APENAS JSON:
+{{
+    "analysis": "Explicacao natural de como as afirmacoes se relacionam",
+    "classification": "variation" ou "real_change",
+    "essence_previous": "Nucleo semantico do texto anterior",
+    "essence_new": "Nucleo semantico do texto novo",
+    "shared_concepts": ["conceitos mantidos entre os textos"],
+    "new_concepts": ["conceitos novos introduzidos"],
+    "reasoning": "Justificativa da classificacao baseada na essencia"
+}}
+
+IMPORTANTE:
+- NAO use thresholds numericos para decidir
+- Baseie-se na ESSENCIA semantica, nao em palavras superficiais
+- Uma variacao pode ter palavras totalmente diferentes mas mesma essencia
+- Uma mudanca real pode ter palavras similares mas essencia diferente
+- Esta analise e DESCRITIVA - o Orquestrador decidira como agir"""
+
+# =============================================================================
+# PROMPT: AVALIACAO DE CLAREZA DA CONVERSA (Epico 13.2)
+# =============================================================================
+
+CLARITY_EVALUATION_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
+
+TAREFA:
+Avalie a CLAREZA da conversa atual. Determine se o dialogo esta fluindo bem
+e pode continuar, ou se precisa de um checkpoint para esclarecimentos.
+
+ESCALA DE CLAREZA (do melhor ao pior):
+- "cristalina": Conversa excepcional. Claim bem definido, raciocinio coerente, direcao clara.
+- "clara": Conversa boa. Alguns pontos podem ser refinados, mas flui bem.
+- "nebulosa": Conversa com ambiguidades. Ha pontos que merecem esclarecimento.
+- "confusa": Conversa dificil. Claims vagos, mudancas de direcao, precisa parar e clarificar.
+
+COGNITIVE MODEL ATUAL:
+Claim central: {claim}
+
+Proposicoes (fundamentos):
+{proposicoes}
+
+Contradicoes detectadas:
+{contradictions}
+
+Questoes abertas:
+{open_questions}
+
+Conceitos detectados:
+{concepts}
+
+HISTORICO RECENTE:
+{recent_history}
+
+CRITERIOS DE AVALIACAO:
+
+Para CLAREZA ALTA (cristalina/clara):
+- Claim bem definido e especifico
+- Proposicoes coerentes entre si
+- Evolucao logica do raciocinio
+- Direcao estavel (sem mudancas bruscas)
+- Facil de acompanhar o fio condutor
+
+Para CLAREZA BAIXA (nebulosa/confusa):
+- Claims vagos ou mal definidos
+- Ambiguidades nao resolvidas
+- Mudancas de direcao frequentes
+- Contradicoes nao endereçadas
+- Dificil entender para onde a conversa vai
+
+RETORNE APENAS JSON:
+{{
+    "clarity_level": "cristalina" ou "clara" ou "nebulosa" ou "confusa",
+    "clarity_score": 1 a 5,
+    "description": "Descricao natural de como a conversa esta fluindo",
+    "needs_checkpoint": true ou false,
+    "factors": {{
+        "claim_definition": "bem definido" ou "parcial" ou "vago",
+        "coherence": "alta" ou "media" ou "baixa",
+        "direction_stability": "estavel" ou "algumas mudancas" ou "instavel"
+    }},
+    "suggestion": "Sugestao para melhorar clareza (ou null se desnecessario)"
+}}
+
+MAPEAMENTO CLAREZA → SCORE:
+- cristalina = 5
+- clara = 4
+- nebulosa = 2-3
+- confusa = 1
+
+MAPEAMENTO CLAREZA → CHECKPOINT:
+- cristalina/clara = needs_checkpoint: false (pode continuar)
+- nebulosa/confusa = needs_checkpoint: true (precisa esclarecer)
+
+EXEMPLOS:
+
+Conversa CRISTALINA:
+{{
+    "clarity_level": "cristalina",
+    "clarity_score": 5,
+    "description": "A conversa esta fluindo muito bem. O usuario tem um claim claro sobre LLMs e produtividade, com fundamentos coerentes.",
+    "needs_checkpoint": false,
+    "factors": {{
+        "claim_definition": "bem definido",
+        "coherence": "alta",
+        "direction_stability": "estavel"
+    }},
+    "suggestion": null
+}}
+
+Conversa NEBULOSA:
+{{
+    "clarity_level": "nebulosa",
+    "clarity_score": 3,
+    "description": "Ha alguns pontos que merecem esclarecimento. O claim sobre produtividade esta definido, mas as metricas ainda estao vagas.",
+    "needs_checkpoint": true,
+    "factors": {{
+        "claim_definition": "parcial",
+        "coherence": "media",
+        "direction_stability": "algumas mudancas"
+    }},
+    "suggestion": "Esclarecer como a produtividade sera medida antes de continuar"
+}}
+
+Conversa CONFUSA:
+{{
+    "clarity_level": "confusa",
+    "clarity_score": 1,
+    "description": "A conversa esta dificil de acompanhar. O usuario mudou de assunto varias vezes e os claims estao vagos.",
+    "needs_checkpoint": true,
+    "factors": {{
+        "claim_definition": "vago",
+        "coherence": "baixa",
+        "direction_stability": "instavel"
+    }},
+    "suggestion": "Pausar e perguntar: qual e o foco principal que voce quer explorar?"
+}}
+
+IMPORTANTE:
+- Avalie como um colega avaliaria: "esta facil ou dificil de acompanhar?"
+- O objetivo e determinar se a conversa pode FLUIR ou precisa de PAUSA
+- Esta analise e DESCRITIVA - o Orquestrador decidira como agir"""
+
+# =============================================================================
 # CONSTANTES DE CONFIGURACAO
 # =============================================================================
 

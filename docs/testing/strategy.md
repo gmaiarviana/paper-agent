@@ -169,6 +169,49 @@ python scripts/health_checks/validate_api.py
 
 ---
 
+## Mocking do Observer (Épico 13.3+)
+
+### Contexto
+A partir do Épico 13.3, o `orchestrator_node()` consulta o Observer para análise de clareza e variação via `_consult_observer()`. Esta função faz chamadas LLM.
+
+### Problema
+**Sem mock adequado**, testes que chamam `orchestrator_node()` falham no CI porque:
+1. Sem API key, `_consult_observer()` usa fallback
+2. Fallback retorna `needs_checkpoint=True`
+3. Isso muda `next_step` para `"clarify"` inesperadamente
+
+### Solução
+Em testes unitários que usam `orchestrator_node()`, adicione mock para `_consult_observer`:
+
+```python
+# No início do arquivo de teste:
+MOCK_OBSERVER_RESULT = {
+    "clarity_evaluation": None,
+    "variation_analysis": None,
+    "needs_checkpoint": False,
+    "checkpoint_reason": None
+}
+
+@pytest.fixture(autouse=True)
+def mock_consult_observer():
+    """Mock automático de _consult_observer para todos os testes."""
+    with patch('agents.orchestrator.nodes._consult_observer') as mock:
+        mock.return_value = MOCK_OBSERVER_RESULT
+        yield mock
+```
+
+### Quando usar
+- ✅ **Testes unitários** que chamam `orchestrator_node()` diretamente
+- ✅ **Testes de integração mockados** que testam lógica do Orchestrator
+- ❌ **Testes de integração reais** (`@pytest.mark.integration`) - NÃO mockear
+
+### Arquivos que DEVEM ter este mock
+- `tests/unit/agents/orchestrator/test_node.py`
+- `tests/unit/agents/orchestrator/test_integration.py`
+- Qualquer novo teste unitário que chame `orchestrator_node()`
+
+---
+
 ## Boas Práticas
 
 ### ✅ DO
