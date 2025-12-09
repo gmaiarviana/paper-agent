@@ -153,6 +153,24 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Mudanças confirmadas: destaque suave
   - Não mostra métricas ou thresholds
 
+**Sub-tarefas:**
+- [ ] **13.5.1** Criar modelos de eventos em `utils/event_models.py`:
+  - `VariationDetectedEvent` (classification, essence_previous, essence_new, shared_concepts, new_concepts)
+  - `DirectionChangeConfirmedEvent` (classification, user_confirmed, previous_claim, new_claim)
+  - `ClarityCheckpointEvent` (clarity_level, checkpoint_reason)
+- [ ] **13.5.2** Adicionar métodos publish em `utils/event_bus/publishers.py`:
+  - `publish_variation_detected()`
+  - `publish_direction_change_confirmed()`
+  - `publish_clarity_checkpoint()`
+- [ ] **13.5.3** Publicar eventos em `agents/orchestrator/nodes.py`:
+  - Publicar `VariationDetectedEvent` quando variação detectada
+  - Publicar `DirectionChangeConfirmedEvent` quando mudança real
+  - Publicar `ClarityCheckpointEvent` quando `needs_checkpoint=True`
+- [ ] **13.5.4** Renderizar eventos em `app/components/backstage/timeline.py`:
+  - Nova função `render_observer_detection_events()`
+  - Exibir eventos com emojis discretos, seção colapsada
+- [ ] **13.5.5** Testes unitários em `tests/unit/utils/test_event_bus_observer.py`
+
 #### 13.6 Testes de Integração
 
 - **Descrição:** Validação em cenários reais de conversa.
@@ -162,6 +180,24 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Validação: variations não interrompem
   - Validação: confusão gera perguntas contextuais
   - Script: `scripts/validate_direction_change.py`
+
+**Sub-tarefas:**
+- [ ] **13.6.1** Criar cenários de teste em `tests/integration/e2e/test_direction_change.py`:
+  - Cenário A: Variação simples (não interrompe fluxo)
+  - Cenário B: Mudança real (checkpoint solicitado)
+  - Cenário C: Clareza nebulosa (needs_checkpoint=True)
+  - Cenário D: Conversa clara (needs_checkpoint=False)
+- [ ] **13.6.2** Criar script `scripts/validate_direction_change.py`:
+  - Executa cenários A-D automaticamente
+  - Gera relatório com eventos publicados e decisões
+  - Modo verbose para debug
+- [ ] **13.6.3** Implementar testes específicos:
+  - `test_variation_does_not_interrupt_flow()`
+  - `test_real_change_triggers_checkpoint()`
+  - `test_confusion_triggers_clarification()`
+  - `test_orchestrator_intervention_is_natural()`
+- [ ] **13.6.4** Integrar validação em `utils/test_executor.py`:
+  - Método `validate_observer_detections(scenario_result)`
 
 ---
 
