@@ -118,10 +118,9 @@ class ClarificationNeed(BaseModel):
         description="Contexto relevante (proposicoes, contradicoes, etc)"
     )
 
-    suggested_approach: str = Field(
-        ...,
-        description="Sugestao de como abordar o esclarecimento",
-        min_length=1
+    suggested_approach: Optional[str] = Field(
+        default=None,
+        description="Sugestao de como abordar o esclarecimento (None se nao precisa)"
     )
 
     priority: Literal["high", "medium", "low"] = Field(

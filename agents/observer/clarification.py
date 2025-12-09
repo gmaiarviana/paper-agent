@@ -211,13 +211,19 @@ def identify_clarification_needs(
         )
 
         # Criar ClarificationNeed
+        # Usar valores default quando None (LLM pode retornar null)
+        needs_clarification = data.get("needs_clarification", False)
+        clarification_type = data.get("clarification_type") or "confusion"
+        priority = data.get("priority") or "medium"
+        suggested_approach = data.get("suggested_approach")  # None e valido
+
         need = ClarificationNeed(
-            needs_clarification=data.get("needs_clarification", False),
-            clarification_type=data.get("clarification_type", "confusion"),
+            needs_clarification=needs_clarification,
+            clarification_type=clarification_type,
             description=data.get("description", "Esclarecimento necessario"),
             relevant_context=relevant_context,
-            suggested_approach=data.get("suggested_approach", "Perguntar naturalmente"),
-            priority=data.get("priority", "medium"),
+            suggested_approach=suggested_approach,
+            priority=priority,
             turn_detected=turn_number
         )
 
@@ -235,7 +241,7 @@ def identify_clarification_needs(
             needs_clarification=False,
             clarification_type="confusion",
             description="Erro ao analisar - assumindo sem necessidade",
-            suggested_approach="",
+            suggested_approach=None,
             turn_detected=turn_number
         )
 
@@ -666,7 +672,7 @@ def update_clarification_persistence(
             needs_clarification=False,
             clarification_type=clarification_need.clarification_type,
             description="Necessidade resolvida ou nao mais relevante",
-            suggested_approach="",
+            suggested_approach=None,
             turn_detected=clarification_need.turn_detected,
             turns_persisted=0
         )

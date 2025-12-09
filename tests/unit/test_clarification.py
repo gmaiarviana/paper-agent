@@ -45,12 +45,13 @@ class TestClarificationModels:
         need = ClarificationNeed(
             needs_clarification=False,
             clarification_type="confusion",
-            description="Conversa fluindo bem",
-            suggested_approach=""
+            description="Conversa fluindo bem"
+            # suggested_approach omitido (default=None)
         )
 
         assert need.needs_clarification is False
         assert need.priority == "medium"  # Default
+        assert need.suggested_approach is None
 
     def test_clarification_context_creation(self):
         """Testa criacao de ClarificationContext."""
@@ -213,8 +214,8 @@ class TestShouldAskClarification:
         need = ClarificationNeed(
             needs_clarification=False,
             clarification_type="confusion",
-            description="Sem necessidade",
-            suggested_approach=""
+            description="Sem necessidade"
+            # suggested_approach omitido (default=None)
         )
 
         decision = should_ask_clarification(
