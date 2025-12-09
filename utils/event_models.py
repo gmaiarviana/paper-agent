@@ -263,6 +263,104 @@ class CognitiveModelUpdatedEvent(BaseEvent):
     )
 
 
+class ClarificationRequestedEvent(BaseEvent):
+    """
+    Evento emitido quando Orquestrador faz pergunta de esclarecimento (Epico 14).
+
+    Este evento e publicado quando o sistema detecta necessidade de
+    esclarecimento e faz uma pergunta ao usuario.
+
+    Attributes:
+        turn_number (int): Numero do turno atual
+        clarification_type (str): Tipo de esclarecimento (contradiction, gap, confusion)
+        question (str): Pergunta feita ao usuario
+        priority (str): Prioridade do esclarecimento (high, medium, low)
+        related_context (dict): Contexto relacionado (proposicoes, contradicoes, etc)
+        metadata (dict): Metadados adicionais opcionais
+    """
+    event_type: Literal["clarification_requested"] = "clarification_requested"
+    turn_number: int = Field(..., ge=1, description="Numero do turno atual")
+    clarification_type: str = Field(..., description="Tipo de esclarecimento")
+    question: str = Field(..., description="Pergunta feita ao usuario")
+    priority: str = Field("medium", description="Prioridade do esclarecimento")
+    related_context: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Contexto relacionado (proposicoes, contradicoes, etc)"
+    )
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Metadados adicionais opcionais"
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "session_id": "cli-session-abc123",
+                "timestamp": "2025-12-09T18:30:00Z",
+                "event_type": "clarification_requested",
+                "turn_number": 5,
+                "clarification_type": "contradiction",
+                "question": "Voce mencionou X e Y. Eles se aplicam em situacoes diferentes?",
+                "priority": "medium",
+                "related_context": {
+                    "proposicoes": ["LLMs aumentam produtividade", "LLMs aumentam bugs"],
+                    "contradiction_description": "Aumento de produtividade vs aumento de bugs"
+                },
+                "metadata": {}
+            }
+        }
+    )
+
+
+class ClarificationResolvedEvent(BaseEvent):
+    """
+    Evento emitido quando esclarecimento e obtido (Epico 14).
+
+    Este evento e publicado apos usuario responder pergunta de esclarecimento
+    e Observer analisar a resposta.
+
+    Attributes:
+        turn_number (int): Numero do turno atual
+        clarification_type (str): Tipo de esclarecimento original
+        resolution_status (str): Status da resolucao (resolved, partially_resolved, unresolved)
+        summary (str): Resumo do que foi esclarecido
+        updates_made (dict): Atualizacoes feitas no CognitiveModel
+        metadata (dict): Metadados adicionais opcionais
+    """
+    event_type: Literal["clarification_resolved"] = "clarification_resolved"
+    turn_number: int = Field(..., ge=1, description="Numero do turno atual")
+    clarification_type: str = Field(..., description="Tipo de esclarecimento original")
+    resolution_status: str = Field(..., description="Status da resolucao")
+    summary: str = Field(..., description="Resumo do que foi esclarecido")
+    updates_made: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Atualizacoes feitas no CognitiveModel"
+    )
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Metadados adicionais opcionais"
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "session_id": "cli-session-abc123",
+                "timestamp": "2025-12-09T18:32:00Z",
+                "event_type": "clarification_resolved",
+                "turn_number": 6,
+                "clarification_type": "contradiction",
+                "resolution_status": "resolved",
+                "summary": "Usuario esclareceu que produtividade aumenta em tarefas simples, bugs aumentam em tarefas complexas",
+                "updates_made": {
+                    "contradictions_resolved": 1,
+                    "proposicoes_added": 2
+                },
+                "metadata": {}
+            }
+        }
+    )
+
+
 # Union type para deserializacao automatica
 EventType = (
     AgentStartedEvent |
@@ -270,5 +368,7 @@ EventType = (
     AgentErrorEvent |
     SessionStartedEvent |
     SessionCompletedEvent |
-    CognitiveModelUpdatedEvent
+    CognitiveModelUpdatedEvent |
+    ClarificationRequestedEvent |
+    ClarificationResolvedEvent
 )

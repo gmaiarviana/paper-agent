@@ -1,8 +1,8 @@
 # Observador - Mente Analítica
 
-**Status:** ✅ Implementado (Épico 10 + 11.4 Completos)
-**Versão:** 2.3
-**Data:** 08/12/2025
+**Status:** ✅ Implementado (Épico 10 + 11.4 + 12 + 14 base)
+**Versão:** 3.0
+**Data:** 09/12/2025
 
 ## Resumo
 
@@ -59,6 +59,8 @@ Observador = Testemunha silenciosa (vê tudo, cataloga, não interfere)
 - ✅ **Calcular métricas** (solidez, completude)
 - ✅ **Responder consultas** do Orquestrador (insights, não comandos)
 - ✅ **Publicar eventos** para Dashboard (silencioso)
+- ✅ **Identificar necessidades de esclarecimento** (Épico 14)
+- ✅ **Sugerir perguntas contextuais** para tensões e gaps (Épico 14)
 
 ### O que NÃO FAZ
 
@@ -552,6 +554,87 @@ User Input → Orchestrator → Response
 
 **Detalhes:** Ver `docs/epics/epic-12-observer-integration.md`
 
+### 🔄 Épico 14: Observer - Consultas Inteligentes (Base Implementada)
+
+Sistema de consultas inteligentes que identifica quando o argumento precisa de esclarecimento e sugere perguntas contextuais.
+
+**Filosofia:**
+- Observer identifica **O QUE** precisa esclarecimento
+- Orquestrador formula perguntas **NATURAIS** (não robóticas)
+- Tom de **parceiro pensante**, não fiscalizador
+- Perguntas ajudam a **AVANÇAR**, não apenas apontar problemas
+- Contradições são **tensões epistemológicas**, não erros
+
+**Implementação base:**
+
+- ✅ **14.1 Identificação de Necessidades** - IMPLEMENTADO
+  - `identify_clarification_needs()` analisa CognitiveModel
+  - Detecta contradições, gaps, confusão, mudanças de direção
+  - Retorna `ClarificationNeed` com descrição e sugestão de abordagem
+
+- ✅ **14.3 Perguntas sobre Contradições** - IMPLEMENTADO
+  - `generate_contradiction_question()` gera perguntas
+  - Explora contextos diferentes (não aponta erro)
+  - Prompts especializados para tensões epistemológicas
+
+- ✅ **14.4 Perguntas sobre Gaps** - IMPLEMENTADO
+  - `suggest_question_for_gap()` sugere perguntas para lacunas
+  - Foco em avançar o argumento, não coletar dados
+  - Perguntas específicas ao contexto da conversa
+
+- ✅ **14.5 Timing de Intervenção** - IMPLEMENTADO
+  - `should_ask_clarification()` decide QUANDO perguntar
+  - Regras: não interromper fluxo, esperar persistência
+  - Contradicão 2+ turnos → perguntar
+  - Usuário fluindo bem → não interromper
+
+- ✅ **14.6 Análise de Resposta** - IMPLEMENTADO
+  - `analyze_clarification_response()` analisa esclarecimento
+  - Status: resolved, partially_resolved, unresolved
+  - Sugere atualizações no CognitiveModel
+  - Eventos: `ClarificationRequestedEvent`, `ClarificationResolvedEvent`
+
+**Pendente (depende do Épico 13):**
+- 🔄 **Integração com Orquestrador** - Épico 13 define como Observer comunica com Orquestrador
+- 🔄 **Timeline visual** - Eventos de clarification na timeline
+
+**Módulos:**
+```
+agents/observer/
+├── clarification.py          # Funções principais
+├── clarification_prompts.py  # Prompts especializados
+agents/models/
+├── clarification.py          # Modelos Pydantic
+utils/
+├── event_models.py           # Eventos de clarification
+├── event_bus/publishers.py   # Métodos publish_*
+```
+
+**Exemplo de uso:**
+```python
+from agents.observer import (
+    identify_clarification_needs,
+    should_ask_clarification,
+    generate_contradiction_question
+)
+
+# 1. Identificar necessidade
+need = identify_clarification_needs(cognitive_model, turn_number=5)
+
+if need.needs_clarification:
+    # 2. Decidir timing
+    decision = should_ask_clarification(need, turn_history, current_turn=5)
+
+    if decision.should_ask:
+        # 3. Gerar pergunta
+        if need.clarification_type == "contradiction":
+            suggestion = generate_contradiction_question(
+                contradiction, propositions, context
+            )
+            # suggestion.question_text = "Você mencionou X e Y.
+            #   Eles se aplicam em situações diferentes?"
+```
+
 ### Épico 13: Catálogo de Conceitos (Interface)
 - ✅ Página `/catalogo` (busca, filtros, analytics)
 - ✅ Preview na página da ideia
@@ -570,7 +653,7 @@ User Input → Orchestrator → Response
 
 ---
 
-**Versão:** 2.3
-**Data:** 08/12/2025
-**Status:** ✅ Épico 10 Completo (POC) | ✅ Épico 11.4 Completo (Migração Proposições) | Próximo: Épico 12
+**Versão:** 3.0
+**Data:** 09/12/2025
+**Status:** ✅ Épico 10-12 Completos | 🔄 Épico 14 Base (Consultas Inteligentes) | Pendente: Integração com Orquestrador (Épico 13)
 
