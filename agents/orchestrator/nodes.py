@@ -51,12 +51,6 @@ from agents.models.proposition import Proposicao
 from agents.persistence import create_snapshot_if_mature
 from utils.structured_logger import StructuredLogger
 
-# Observer imports (Épico 13.3)
-from agents.observer.extractors import (
-    evaluate_conversation_clarity,
-    detect_variation
-)
-
 logger = logging.getLogger(__name__)
 
 
@@ -403,6 +397,12 @@ def _consult_observer(
         ...     # Orquestrador decide como intervir
         ...     suggestion = result['clarity_evaluation']['suggestion']
     """
+    # Import lazy para evitar dependência circular com chromadb (Épico 13.3)
+    from agents.observer.extractors import (
+        evaluate_conversation_clarity,
+        detect_variation
+    )
+
     logger.info("🔍 Consultando Observer para análise contextual...")
 
     result = {

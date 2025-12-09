@@ -59,7 +59,7 @@ class TestConsultObserverFunction:
             "suggestion": None
         }
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity
 
             result = _consult_observer(
@@ -90,7 +90,7 @@ class TestConsultObserverFunction:
             "suggestion": None
         }
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity_result
 
             result = _consult_observer(
@@ -117,7 +117,7 @@ class TestConsultObserverFunction:
             "reasoning": "Apenas refinamento"
         }
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "clara",
                 "clarity_score": 4,
@@ -126,7 +126,7 @@ class TestConsultObserverFunction:
                 "suggestion": None
             }
 
-            with patch('agents.orchestrator.nodes.detect_variation') as mock_detect:
+            with patch('agents.observer.extractors.detect_variation') as mock_detect:
                 mock_detect.return_value = mock_variation_result
 
                 result = _consult_observer(
@@ -158,7 +158,7 @@ class TestConsultObserverFunction:
             "suggestion": "Definir melhor o objetivo"
         }
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity_result
 
             result = _consult_observer(
@@ -193,10 +193,10 @@ class TestConsultObserverFunction:
             "reasoning": "Usuario mudou de assunto"
         }
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity_result
 
-            with patch('agents.orchestrator.nodes.detect_variation') as mock_detect:
+            with patch('agents.observer.extractors.detect_variation') as mock_detect:
                 mock_detect.return_value = mock_variation_result
 
                 result = _consult_observer(
@@ -233,7 +233,7 @@ class TestConsultObserverFunction:
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "teste"}
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.side_effect = Exception("LLM timeout")
 
             # Nao deve levantar excecao
@@ -303,7 +303,7 @@ class TestCheckpointContextual:
             "suggestion": "Volte ao inicio e defina o objetivo"
         }
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity
 
             result = _consult_observer(
@@ -338,7 +338,7 @@ class TestCheckpointContextual:
             "suggestion": None
         }
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity
 
             result = _consult_observer(
@@ -375,7 +375,7 @@ class TestVariationDetectionIntegration:
             "reasoning": "OK"
         }
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "clara",
                 "clarity_score": 4,
@@ -384,7 +384,7 @@ class TestVariationDetectionIntegration:
                 "suggestion": None
             }
 
-            with patch('agents.orchestrator.nodes.detect_variation') as mock_detect:
+            with patch('agents.observer.extractors.detect_variation') as mock_detect:
                 mock_detect.return_value = mock_variation
 
                 result = _consult_observer(
@@ -410,7 +410,7 @@ class TestVariationDetectionIntegration:
 
         cognitive_model = {}  # Sem claim
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "clara",
                 "clarity_score": 4,
@@ -419,7 +419,7 @@ class TestVariationDetectionIntegration:
                 "suggestion": None
             }
 
-            with patch('agents.orchestrator.nodes.detect_variation') as mock_detect:
+            with patch('agents.observer.extractors.detect_variation') as mock_detect:
                 result = _consult_observer(
                     state=state,
                     user_input="Primeiro input",
@@ -440,7 +440,7 @@ class TestClarityLevelMappings:
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "cristalina",
                 "clarity_score": 5,
@@ -463,7 +463,7 @@ class TestClarityLevelMappings:
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "clara",
                 "clarity_score": 4,
@@ -486,7 +486,7 @@ class TestClarityLevelMappings:
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "nebulosa",
                 "clarity_score": 3,
@@ -510,7 +510,7 @@ class TestClarityLevelMappings:
 
         state = {"user_input": "???", "messages": [], "focal_argument": None}
 
-        with patch('agents.orchestrator.nodes.evaluate_conversation_clarity') as mock_eval:
+        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "confusa",
                 "clarity_score": 1,
