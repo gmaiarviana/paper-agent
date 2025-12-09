@@ -28,6 +28,7 @@ from .prompts import (
     DETECT_CONTRADICTIONS_PROMPT,
     IDENTIFY_GAPS_PROMPT,
     VARIATION_DETECTION_PROMPT,
+    CONFUSION_EVALUATION_PROMPT,
     RECOMMENDED_MODEL,
     EXTRACTION_TEMPERATURE,
     MAX_EXTRACTION_TOKENS,
@@ -655,4 +656,176 @@ def detect_variation(
             "shared_concepts": [],
             "new_concepts": [],
             "reasoning": "Fallback devido a erro - assumindo variacao"
+        }
+
+
+def calculate_confusion_level(
+    cognitive_model: Dict[str, Any],
+    conversation_history: Optional[List[Dict[str, Any]]] = None,
+    llm: Optional[ChatAnthropic] = None
+) -> Dict[str, Any]:
+    """
+    Avalia qualitativamente o nivel de confusao no raciocinio (Epico 13.2).
+
+    Esta funcao analisa o CognitiveModel completo para identificar tensoes,
+    inconsistencias ou areas que podem precisar de esclarecimento.
+
+    IMPORTANTE: Avaliacao QUALITATIVA, nao numerica. Retorna descricoes
+    em linguagem natural, sem scores ou porcentagens.
+
+    Filosofia (Epico 13):
+    - Analise 100% contextual via LLM
+    - Sem thresholds numericos
+    - Observer avalia; Orchestrator decide se/como intervir
+
+    Args:
+        cognitive_model: CognitiveModel atual com claim, proposicoes,
+            contradictions, open_questions, concepts_detected.
+        conversation_history: Historico recente da conversa (opcional).
+        llm: Instancia do LLM (opcional, cria se nao fornecido).
+
+    Returns:
+        Dict com avaliacao qualitativa:
+        - confusion_detected: bool - Se ha confusao significativa
+        - description: str - Descricao natural do estado
+        - affected_areas: List[str] - Areas afetadas pela confusao
+        - sources: List[str] - Fontes/causas da confusao
+        - recommendation: str|None - Recomendacao para o Orquestrador
+        - intervention_suggestion: str|None - Como intervir naturalmente
+        - severity_qualitative: str - "leve", "moderada" ou "significativa"
+
+    Example:
+        >>> result = calculate_confusion_level(
+        ...     cognitive_model={
+        ...         "claim": "LLMs aumentam produtividade",
+        ...         "contradictions": [{"description": "Conflito sobre metricas"}],
+        ...         "open_questions": ["Como medir produtividade?"]
+        ...     }
+        ... )
+        >>> print(result['confusion_detected'])
+        True
+        >>> print(result['description'])
+        'Ha tensao entre o claim principal e uma questao aberta sobre metricas'
+
+    Notes:
+        - Versao 1.0 (Epico 13.2): Implementacao inicial
+        - Prefere falsos negativos a falsos positivos
+        - Observer avalia APENAS; NAO decide interromper
+    """
+    if llm is None:
+        llm = _get_llm()
+
+    # Extrair dados do CognitiveModel
+    claim = cognitive_model.get("claim", "")
+    proposicoes = cognitive_model.get("proposicoes", [])
+    contradictions = cognitive_model.get("contradictions", [])
+    open_questions = cognitive_model.get("open_questions", [])
+    concepts = cognitive_model.get("concepts_detected", [])
+
+    # Formatar proposicoes para o prompt
+    props_str = "(nenhuma)"
+    if proposicoes:
+        props_lines = []
+        for i, p in enumerate(proposicoes[:5], 1):  # Limitar a 5
+            if isinstance(p, dict):
+                texto = p.get("texto", "")
+                solidez = p.get("solidez")
+                solidez_str = f" (solidez: {solidez:.0%})" if solidez is not None else " (solidez: nao avaliada)"
+                props_lines.append(f"{i}. {texto}{solidez_str}")
+            else:
+                props_lines.append(f"{i}. {str(p)}")
+        props_str = "\n".join(props_lines)
+
+    # Formatar contradicoes
+    contradictions_str = "(nenhuma)"
+    if contradictions:
+        contr_lines = []
+        for i, c in enumerate(contradictions[:3], 1):  # Limitar a 3
+            desc = c.get("description", str(c)) if isinstance(c, dict) else str(c)
+            contr_lines.append(f"{i}. {desc}")
+        contradictions_str = "\n".join(contr_lines)
+
+    # Formatar questoes abertas
+    questions_str = "(nenhuma)"
+    if open_questions:
+        questions_str = "\n".join(f"{i}. {q}" for i, q in enumerate(open_questions[:5], 1))
+
+    # Formatar conceitos
+    concepts_str = ", ".join(concepts[:7]) if concepts else "(nenhum)"
+
+    # Formatar historico recente
+    history_str = "(sem historico)"
+    if conversation_history:
+        recent = conversation_history[-4:]  # Ultimas 4 mensagens
+        history_lines = []
+        for msg in recent:
+            role = msg.get("role", "unknown")
+            content = msg.get("content", "")[:200]  # Truncar
+            history_lines.append(f"[{role}]: {content}")
+        history_str = "\n".join(history_lines)
+
+    # Construir prompt
+    prompt = CONFUSION_EVALUATION_PROMPT.format(
+        claim=claim or "(nenhum claim definido)",
+        proposicoes=props_str,
+        contradictions=contradictions_str,
+        open_questions=questions_str,
+        concepts=concepts_str,
+        recent_history=history_str
+    )
+
+    try:
+        messages = [HumanMessage(content=prompt)]
+        response = invoke_with_retry(
+            llm=llm,
+            messages=messages,
+            agent_name="observer_confusion_evaluation"
+        )
+
+        # Parse JSON
+        data = extract_json_from_llm_response(response.content)
+
+        # Validar e normalizar campos
+        result = {
+            "confusion_detected": bool(data.get("confusion_detected", False)),
+            "description": data.get("description", "Analise nao disponivel"),
+            "affected_areas": data.get("affected_areas", []),
+            "sources": data.get("sources", []),
+            "recommendation": data.get("recommendation"),
+            "intervention_suggestion": data.get("intervention_suggestion"),
+            "severity_qualitative": data.get("severity_qualitative", "leve")
+        }
+
+        # Garantir que severity seja valido
+        valid_severities = ("leve", "moderada", "significativa")
+        if result["severity_qualitative"] not in valid_severities:
+            result["severity_qualitative"] = "leve"
+
+        # Garantir consistencia: se nao ha confusao, limpar campos relacionados
+        if not result["confusion_detected"]:
+            result["affected_areas"] = []
+            result["sources"] = []
+            result["recommendation"] = None
+            result["intervention_suggestion"] = None
+            result["severity_qualitative"] = "leve"
+
+        logger.info(
+            f"Confusao avaliada: detected={result['confusion_detected']}, "
+            f"severity={result['severity_qualitative']}, "
+            f"areas={len(result['affected_areas'])}"
+        )
+
+        return result
+
+    except Exception as e:
+        logger.warning(f"Erro ao avaliar confusao: {e}")
+        # Fallback conservador: assume que NAO ha confusao
+        return {
+            "confusion_detected": False,
+            "description": f"Erro na analise: {str(e)}",
+            "affected_areas": [],
+            "sources": [],
+            "recommendation": None,
+            "intervention_suggestion": None,
+            "severity_qualitative": "leve"
         }

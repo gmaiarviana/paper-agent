@@ -408,6 +408,92 @@ IMPORTANTE:
 - Esta analise e DESCRITIVA - o Orquestrador decidira como agir"""
 
 # =============================================================================
+# PROMPT: AVALIACAO QUALITATIVA DE CONFUSAO (Epico 13.2)
+# =============================================================================
+
+CONFUSION_EVALUATION_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
+
+TAREFA:
+Avalie qualitativamente o nivel de "confusao" no raciocinio atual da conversa.
+Confusao indica tensoes, inconsistencias ou areas nebulosas que podem precisar esclarecimento.
+
+IMPORTANTE: Esta avaliacao e QUALITATIVA, nao numerica. Nao use scores ou porcentagens.
+
+COGNITIVE MODEL ATUAL:
+Claim central: {claim}
+
+Proposicoes (fundamentos):
+{proposicoes}
+
+Contradicoes detectadas:
+{contradictions}
+
+Questoes abertas:
+{open_questions}
+
+Conceitos detectados:
+{concepts}
+
+HISTORICO RECENTE:
+{recent_history}
+
+ANALISE QUALITATIVA:
+Considere os SINAIS DE CONFUSAO:
+1. Contradicoes nao resolvidas entre claims/proposicoes
+2. Questoes abertas criticas que afetam o argumento central
+3. Proposicoes frageis (solidez baixa) em posicoes importantes
+4. Mudancas de direcao sem fechamento do tema anterior
+5. Conceitos usados de forma inconsistente
+
+Considere tambem SINAIS DE CLAREZA:
+1. Argumento coerente e bem estruturado
+2. Contradicoes ja esclarecidas ou resolvidas
+3. Questoes abertas exploratórias (nao bloqueadoras)
+4. Evolucao natural e logica do raciocinio
+
+RETORNE APENAS JSON:
+{{
+    "confusion_detected": true ou false,
+    "description": "Descricao natural do estado da conversa (sem jargoes tecnicos)",
+    "affected_areas": ["area afetada 1", "area afetada 2"],
+    "sources": ["fonte de confusao 1", "fonte de confusao 2"],
+    "recommendation": "Recomendacao para o Orquestrador (ou null se nao houver)",
+    "intervention_suggestion": "Sugestao de como intervir naturalmente (ou null)",
+    "severity_qualitative": "leve", "moderada" ou "significativa"
+}}
+
+EXEMPLOS DE SAIDA:
+
+Se HOUVER confusao:
+{{
+    "confusion_detected": true,
+    "description": "Dois claims sobre causalidade parecem conflitar e ainda nao foram reconciliados",
+    "affected_areas": ["relacao causa-efeito", "definicao de metricas"],
+    "sources": ["contradicao entre claims 1 e 3", "questao aberta sobre contexto"],
+    "recommendation": "Perguntar sobre os contextos - podem se aplicar a cenarios diferentes",
+    "intervention_suggestion": "Explorar se os dois casos se referem a situacoes distintas",
+    "severity_qualitative": "moderada"
+}}
+
+Se NAO houver confusao:
+{{
+    "confusion_detected": false,
+    "description": "Raciocinio esta fluindo de forma coerente, sem tensoes significativas",
+    "affected_areas": [],
+    "sources": [],
+    "recommendation": null,
+    "intervention_suggestion": null,
+    "severity_qualitative": "leve"
+}}
+
+IMPORTANTE:
+- NUNCA use porcentagens, scores ou thresholds
+- A descricao deve ser em LINGUAGEM NATURAL (como um colega explicaria)
+- O Orquestrador usara esta analise para decidir SE e COMO intervir
+- Preferir falsos negativos (nao reportar confusao) a falsos positivos
+- Esta analise e DESCRITIVA - o Orquestrador decidira como agir"""
+
+# =============================================================================
 # CONSTANTES DE CONFIGURACAO
 # =============================================================================
 
