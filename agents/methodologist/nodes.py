@@ -27,7 +27,7 @@ from .state import MethodologistState
 from .tools import ask_user
 from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
-from utils.config import get_anthropic_model, invoke_with_retry
+from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
@@ -94,7 +94,7 @@ Se faltam detalhes ESSENCIAIS (população, variáveis, métricas, condições),
 Se a hipótese é claramente boa ou ruim com o contexto atual, marque true."""
 
     # Chamar LLM
-    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
+    llm = create_anthropic_client(model=get_anthropic_model(), temperature=0)
     messages = [HumanMessage(content=analysis_prompt)]
     response = invoke_with_retry(llm=llm, messages=messages, agent_name="methodologist-analyze")
 
@@ -181,7 +181,7 @@ Foque em aspectos metodológicos críticos:
 RESPONDA APENAS COM A PERGUNTA (sem preâmbulo ou explicação)."""
 
     # Chamar LLM para gerar pergunta
-    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
+    llm = create_anthropic_client(model=get_anthropic_model(), temperature=0)
     response = invoke_with_retry(
         llm=llm,
         messages=[HumanMessage(content=question_prompt)],
@@ -275,7 +275,7 @@ RESPONDA EM JSON:
 }}"""
 
     # Chamar LLM para decisão
-    llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
+    llm = create_anthropic_client(model=get_anthropic_model(), temperature=0)
     response = invoke_with_retry(
         llm=llm,
         messages=[HumanMessage(content=decision_prompt)],
@@ -435,7 +435,7 @@ QUESTÃO DE PESQUISA A AVALIAR:
 Avalie esta questão e retorne APENAS o JSON com status, justification e improvements."""
 
         # Chamar LLM usando modelo do config
-        llm = ChatAnthropic(model=model_name, temperature=0)
+        llm = create_anthropic_client(model=model_name, temperature=0)
         response = invoke_with_retry(
             llm=llm,
             messages=[HumanMessage(content=full_prompt)],

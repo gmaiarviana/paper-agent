@@ -42,7 +42,7 @@ from pydantic import ValidationError
 
 from .state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
-from utils.config import get_anthropic_model, invoke_with_retry
+from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
@@ -595,7 +595,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         logger.warning(f"Config YAML não disponível. Usando fallback: {model_name}")
 
     try:
-        llm = ChatAnthropic(model=model_name, temperature=0)
+        llm = create_anthropic_client(model=model_name, temperature=0)
         messages = [HumanMessage(content=conversational_prompt)]
         response = invoke_with_retry(llm=llm, messages=messages, agent_name="orchestrator")
 

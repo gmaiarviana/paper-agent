@@ -105,19 +105,27 @@ def get_anthropic_api_key() -> Optional[str]:
     return os.getenv("ANTHROPIC_API_KEY")
 
 
-def create_anthropic_client(model: Optional[str] = None, temperature: float = 0) -> ChatAnthropic:
+def create_anthropic_client(
+    model: Optional[str] = None,
+    temperature: float = 0,
+    max_tokens: Optional[int] = None
+) -> ChatAnthropic:
     """
     Cria instância de ChatAnthropic usando configuração centralizada.
 
     Args:
         model: Nome do modelo. Se None, usa get_anthropic_model().
         temperature: Temperatura a ser usada nas chamadas.
+        max_tokens: Número máximo de tokens na resposta. Se None, usa padrão da API.
 
     Returns:
         ChatAnthropic configurado.
     """
     model_name = model or get_anthropic_model()
-    return ChatAnthropic(model=model_name, temperature=temperature)
+    kwargs = {"model": model_name, "temperature": temperature}
+    if max_tokens is not None:
+        kwargs["max_tokens"] = max_tokens
+    return ChatAnthropic(**kwargs)
 
 
 def invoke_with_retry(
