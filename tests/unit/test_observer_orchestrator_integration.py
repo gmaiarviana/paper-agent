@@ -260,7 +260,7 @@ class TestStateHasObserverFields:
             '..', '..', 'agents', 'orchestrator', 'state.py'
         )
 
-        with open(state_path, 'r') as f:
+        with open(state_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
         assert "clarity_evaluation" in content
@@ -274,7 +274,7 @@ class TestStateHasObserverFields:
             '..', '..', 'agents', 'orchestrator', 'state.py'
         )
 
-        with open(state_path, 'r') as f:
+        with open(state_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
         assert "variation_analysis" in content
