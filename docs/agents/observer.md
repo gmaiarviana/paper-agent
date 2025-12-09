@@ -510,14 +510,47 @@ def create_snapshot(idea_id: UUID):
   - 22 testes unitários em `tests/unit/test_observer.py`
   - Cobertura: ConceptCatalog, Pipeline, Embeddings, Deduplicação
   - Mocks para LLM, vetores fixos para busca semântica
-- ❌ NÃO integrado ao grafo ainda (chamada manual - Epic 12)
+### ✅ Épico 12: Observador Integrado ao Fluxo - COMPLETO
 
-### Épico 12: Observador Integrado ao Fluxo
-- ✅ Integração ao grafo (paralelo ou callback)
-- ✅ Interface de consulta (não-determinística)
-- ✅ Visualização nos Bastidores (timeline + painel)
-- ✅ Detecção de variations automática
-- ✅ Orquestrador usa insights para decisões
+Observer integrado ao grafo multi-agente via callback assíncrono.
+
+**Implementação:**
+- ✅ **12.1 Callback Assíncrono** - IMPLEMENTADO
+  - `_create_observer_callback()` em `agents/multi_agent_graph.py`
+  - Thread daemon após `orchestrator_node` (não bloqueia shutdown)
+  - Atualiza `state["cognitive_model"]` com análise semântica
+  - Tempo de processamento: <3s em background
+  - Publica `CognitiveModelUpdatedEvent` via EventBus
+
+- ✅ **12.2 CognitiveModel no Prompt** - IMPLEMENTADO
+  - `_build_cognitive_model_context()` em `agents/orchestrator/nodes.py`
+  - Formata claim, proposições (top 5 por solidez), conceitos (max 10)
+  - Inclui contradições (max 3), questões abertas (max 5), métricas
+  - Orquestrador usa naturalmente via prompt context
+
+- ✅ **12.3 Timeline Visual** - IMPLEMENTADO
+  - `render_observer_section()` em `app/components/backstage/timeline.py`
+  - Seção colapsável "👁️ Observador" com últimos turnos
+  - Métricas: conceitos, proposições, solidez, maturidade
+  - Modal "👁️ Análise do Observador" com histórico completo
+
+- ✅ **12.4 Testes** - IMPLEMENTADO
+  - 9 testes em `tests/unit/test_observer_callback.py`
+  - 19 testes em `tests/unit/agents/orchestrator/test_cognitive_context.py`
+  - Script `scripts/validate_observer_integration.py`
+
+**Fluxo de integração:**
+```
+User Input → Orchestrator → Response
+                  ↓
+           [Background]
+                  ↓
+             Observer → cognitive_model
+                  ↓
+         EventBus → Timeline
+```
+
+**Detalhes:** Ver `docs/epics/epic-12-observer-integration.md`
 
 ### Épico 13: Catálogo de Conceitos (Interface)
 - ✅ Página `/catalogo` (busca, filtros, analytics)
