@@ -15,6 +15,7 @@ Responsabilidades do Observador:
 - Calcular metricas (solidez, completude)
 - Responder consultas do Orquestrador (insights, nao comandos)
 - Publicar eventos para Dashboard (silencioso)
+- Identificar necessidades de esclarecimento e sugerir perguntas (Epico 14)
 
 O que o Observador NAO faz:
 - Decidir next_step (quem decide: Orquestrador)
@@ -32,9 +33,11 @@ Modulos:
 - catalog: ConceptCatalog - Persistencia ChromaDB + SQLite (10.3)
 - embeddings: Geracao de embeddings semanticos (10.3)
 - concept_pipeline: Pipeline de deteccao e persistencia de conceitos (10.4)
+- clarification: Consultas inteligentes e perguntas de esclarecimento (14)
+- clarification_prompts: Prompts para esclarecimento (14)
 
-Versao: 2.2 (Epico 10.4 - Pipeline de Conceitos)
-Data: 07/12/2025
+Versao: 3.0 (Epico 14 - Consultas Inteligentes)
+Data: 09/12/2025
 
 Example:
     >>> from agents.observer import ObservadorAPI
@@ -93,6 +96,15 @@ from .concept_pipeline import (
     persist_concepts_batch,
     ConceptPersistResult
 )
+from .clarification import (
+    identify_clarification_needs,
+    generate_contradiction_question,
+    suggest_question_for_gap,
+    should_ask_clarification,
+    analyze_clarification_response,
+    update_clarification_persistence,
+    get_clarification_summary_for_timeline,
+)
 
 __all__ = [
     # API principal
@@ -140,7 +152,16 @@ __all__ = [
     "persist_concepts",
     "persist_concepts_batch",
     "ConceptPersistResult",
+
+    # Clarification - Consultas Inteligentes (14)
+    "identify_clarification_needs",
+    "generate_contradiction_question",
+    "suggest_question_for_gap",
+    "should_ask_clarification",
+    "analyze_clarification_response",
+    "update_clarification_persistence",
+    "get_clarification_summary_for_timeline",
 ]
 
-__version__ = "2.2.0"
+__version__ = "3.0.0"
 __author__ = "Paper Agent Team"

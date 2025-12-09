@@ -15,7 +15,9 @@ from utils.event_models import (
     AgentErrorEvent,
     SessionStartedEvent,
     SessionCompletedEvent,
-    CognitiveModelUpdatedEvent
+    CognitiveModelUpdatedEvent,
+    ClarificationRequestedEvent,
+    ClarificationResolvedEvent,
 )
 
 logger = logging.getLogger(__name__)
@@ -272,6 +274,97 @@ class EventBusPublishers:
             open_questions_count=open_questions_count,
             contradictions_count=contradictions_count,
             is_mature=is_mature,
+            metadata=metadata or {}
+        )
+        self.publish_event(event)
+
+    def publish_clarification_requested(
+        self,
+        session_id: str,
+        turn_number: int,
+        clarification_type: str,
+        question: str,
+        priority: str = "medium",
+        related_context: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Publica evento de pergunta de esclarecimento (Epico 14).
+
+        Este evento e publicado quando o Orquestrador faz uma pergunta
+        de esclarecimento ao usuario baseado em analise do Observer.
+
+        Args:
+            session_id (str): ID da sessao
+            turn_number (int): Numero do turno atual
+            clarification_type (str): Tipo (contradiction, gap, confusion)
+            question (str): Pergunta feita ao usuario
+            priority (str): Prioridade (high, medium, low)
+            related_context (dict): Contexto relacionado
+            metadata (dict): Metadados adicionais
+
+        Example:
+            >>> bus = EventBus()
+            >>> bus.publish_clarification_requested(
+            ...     "session-1",
+            ...     turn_number=5,
+            ...     clarification_type="contradiction",
+            ...     question="Voce mencionou X e Y. Se aplicam em contextos diferentes?"
+            ... )
+        """
+        event = ClarificationRequestedEvent(
+            session_id=session_id,
+            turn_number=turn_number,
+            clarification_type=clarification_type,
+            question=question,
+            priority=priority,
+            related_context=related_context or {},
+            metadata=metadata or {}
+        )
+        self.publish_event(event)
+
+    def publish_clarification_resolved(
+        self,
+        session_id: str,
+        turn_number: int,
+        clarification_type: str,
+        resolution_status: str,
+        summary: str,
+        updates_made: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Publica evento de esclarecimento obtido (Epico 14).
+
+        Este evento e publicado apos usuario responder pergunta de esclarecimento
+        e Observer analisar a resposta.
+
+        Args:
+            session_id (str): ID da sessao
+            turn_number (int): Numero do turno atual
+            clarification_type (str): Tipo de esclarecimento original
+            resolution_status (str): Status (resolved, partially_resolved, unresolved)
+            summary (str): Resumo do que foi esclarecido
+            updates_made (dict): Atualizacoes feitas no CognitiveModel
+            metadata (dict): Metadados adicionais
+
+        Example:
+            >>> bus = EventBus()
+            >>> bus.publish_clarification_resolved(
+            ...     "session-1",
+            ...     turn_number=6,
+            ...     clarification_type="contradiction",
+            ...     resolution_status="resolved",
+            ...     summary="Usuario esclareceu que X e Y se aplicam em contextos diferentes"
+            ... )
+        """
+        event = ClarificationResolvedEvent(
+            session_id=session_id,
+            turn_number=turn_number,
+            clarification_type=clarification_type,
+            resolution_status=resolution_status,
+            summary=summary,
+            updates_made=updates_made or {},
             metadata=metadata or {}
         )
         self.publish_event(event)
