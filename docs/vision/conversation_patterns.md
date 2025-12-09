@@ -419,7 +419,96 @@ Sistema: "Você já escolheu hipótese empírica. Não posso mudar agora.
 
 ---
 
-## 8. Checklist de Qualidade de Conversa
+## 8. Conversação Natural: Grau de Confusão
+
+### Princípio Central
+
+**Boa conversa = confusão baixa.** Sistema analisa silenciosamente e intervém quando há confusão. Não checa o tempo todo (pessoas mudam palavras naturalmente).
+
+### Quando Intervir (contextual, não regras fixas)
+
+**A. Variations (silencioso):**
+```
+Usuário (turno 1): "LLMs aumentam produtividade"
+Usuário (turno 3): "Language models são eficientes"
+
+Sistema: [Observador detecta variation via embeddings]
+         [Não interrompe fluxo - continua conversa naturalmente]
+```
+
+**B. Mudança Real (confirma):**
+```
+Usuário (turno 1): "Quero testar hipótese sobre LLMs"
+Usuário (turno 5): "Na verdade, quero fazer revisão de literatura"
+
+Sistema: "Entendi que você quer mudar de testar hipótese para revisão. 
+         Vamos adaptar?"
+         
+[Reconhece quebra de raciocínio/expectativa]
+```
+
+**C. Contradições (contextual):**
+```
+Usuário (turno 2): "Claude Code aumenta produtividade"
+Usuário (turno 6): "Mas Claude Code aumenta bugs"
+
+Sistema: [Observador detecta tensão entre proposições]
+         [Sistema vê sentido na conversa - não espera reativamente]
+         "Fiquei com dúvidas, me parece que existem dois focos. 
+          Como você vê essa relação? São métricas separadas ou 
+          produtividade inclui qualidade?"
+```
+
+### Linguagem: Humana vs Robótica
+
+**✅ Humana (preferir):**
+- "Fiquei com dúvidas, me parece que existem dois focos..."
+- "Você mencionou X antes de forma diferente. Como você vê isso agora?"
+- "Hmm, percebi mudança. Deixa eu verificar contexto..."
+
+**❌ Robótica (evitar):**
+- "Detectei mudança de direção de X para Y"
+- "Classificado como variation"
+- "Contradição detectada com 85% de confiança"
+
+### Evitar Overhead Determinístico
+
+**Princípio:** Claude já identifica naturalmente. Não criar regras fixas excessivas.
+
+**Evitar:**
+- ❌ Métricas fixas de "grau de confusão" (0-1)
+- ❌ Thresholds determinísticos de quando intervir
+- ❌ Regras "se X então Y" rígidas
+
+**Preferir:**
+- ✅ Sensibilidade contextual do LLM
+- ✅ Gatilhos naturais (não automáticos)
+- ✅ Decisões baseadas em contexto, não em números
+
+### Filosofia Epistemológica (Tensões, não Contradições)
+
+**Quando Observador detecta "contradição", o sistema deve:**
+
+- **❌ Não dizer:** "Há contradição" (implica que uma está errada)
+- **✅ Dizer:** "Há tensão entre proposições" (neutro, mapeia contextos)
+- **✅ Perguntar:** "Essas proposições se aplicam em contextos diferentes?" (explora pontos de observação)
+
+**Exemplo:**
+```
+Proposições detectadas:
+- "Claude Code aumenta produtividade" (contexto: tempo de sprint)
+- "Claude Code aumenta bugs" (contexto: qualidade de código)
+
+Sistema: "Notei uma tensão: produtividade vs bugs. Como você vê isso?
+         São métricas separadas ou produtividade inclui qualidade?
+         Em que contextos cada proposição se aplica?"
+```
+
+**Referência:** Ver `docs/vision/epistemology.md` - "Boa-fé epistemológica: todos falam a verdade baseado em seus pontos de observação."
+
+---
+
+## 9. Checklist de Qualidade de Conversa
 
 Antes de implementar uma interação, verificar:
 
@@ -436,7 +525,7 @@ Antes de implementar uma interação, verificar:
 
 ---
 
-## 9. Argumento Focal (Conceito para Épico 8)
+## 10. Argumento Focal (Conceito para Épico 8)
 
 ### O que é Argumento Focal?
 
@@ -528,6 +617,14 @@ comparison = llm.compare(current_focal, new_input)
 # Sistema adapta
 new_focal = "Usuário quer fazer revisão de literatura sobre método X"
 ```
+
+---
+
+## Referências
+
+- `docs/vision/epistemology.md` - Base filosófica (proposições, solidez, contextos)
+- `docs/agents/observer.md` - Observador detecta variations/contradições silenciosamente
+- `docs/agents/overview.md` - Orquestrador fala com usuário de forma humana
 
 ---
 
