@@ -199,6 +199,37 @@ class MultiAgentState(TypedDict):
         Calculado via CostTracker baseado nos tokens.
         Usado por instrument_node para publicar métricas no EventBus.
 
+    === SEÇÃO 2.6: OBSERVER - ANÁLISE DE CLAREZA E VARIAÇÃO (Épico 13.3) ===
+
+    clarity_evaluation (Optional[dict]):
+        Resultado da avaliação de clareza da conversa pelo Observer.
+        Estrutura:
+        {
+            "clarity_level": str,       # "cristalina", "clara", "nebulosa" ou "confusa"
+            "clarity_score": int,       # 1 a 5 (5=cristalina, 1=confusa)
+            "description": str,         # Descrição de como a conversa está fluindo
+            "needs_checkpoint": bool,   # Se precisa parar e esclarecer
+            "factors": {
+                "claim_definition": str,    # "bem definido", "parcial" ou "vago"
+                "coherence": str,           # "alta", "media" ou "baixa"
+                "direction_stability": str  # "estavel", "algumas mudancas" ou "instavel"
+            },
+            "suggestion": str|None      # Sugestão para melhorar clareza
+        }
+
+    variation_analysis (Optional[dict]):
+        Resultado da detecção de variação vs mudança real pelo Observer.
+        Estrutura:
+        {
+            "classification": str,      # "variation" ou "real_change"
+            "analysis": str,            # Explicação da relação entre textos
+            "essence_previous": str,    # Núcleo semântico anterior
+            "essence_new": str,         # Núcleo semântico novo
+            "shared_concepts": list,    # Conceitos mantidos
+            "new_concepts": list,       # Conceitos novos
+            "reasoning": str            # Justificativa da classificação
+        }
+
     === SEÇÃO 3: MENSAGENS (LangGraph) ===
 
     messages (Annotated[list, add_messages]):
@@ -241,6 +272,10 @@ class MultiAgentState(TypedDict):
     last_agent_tokens_input: Optional[int]
     last_agent_tokens_output: Optional[int]
     last_agent_cost: Optional[float]
+
+    # === OBSERVER: ANÁLISE DE CLAREZA E VARIAÇÃO (Épico 13.3) ===
+    clarity_evaluation: Optional[dict]  # Resultado de evaluate_conversation_clarity()
+    variation_analysis: Optional[dict]  # Resultado de detect_variation()
 
     # === MENSAGENS (LangGraph) ===
     messages: Annotated[list, add_messages]
@@ -304,6 +339,10 @@ def create_initial_multi_agent_state(user_input: str, session_id: Optional[str] 
         last_agent_tokens_input=None,
         last_agent_tokens_output=None,
         last_agent_cost=None,
+
+        # Observer: Análise de clareza e variação (Épico 13.3)
+        clarity_evaluation=None,
+        variation_analysis=None,
 
         # Mensagens LangGraph (BUGFIX: adicionar HumanMessage para persistência)
         messages=[HumanMessage(content=user_input)]

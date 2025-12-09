@@ -51,6 +51,12 @@ from agents.models.proposition import Proposicao
 from agents.persistence import create_snapshot_if_mature
 from utils.structured_logger import StructuredLogger
 
+# Observer imports (Épico 13.3)
+from agents.observer.extractors import (
+    evaluate_conversation_clarity,
+    detect_variation
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -359,6 +365,125 @@ def _build_cognitive_model_context(cognitive_model: Dict[str, Any]) -> str:
     return "\n".join(parts)
 
 
+def _consult_observer(
+    state: MultiAgentState,
+    user_input: str,
+    cognitive_model: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Consulta o Observer para análise de clareza e variação (Épico 13.3).
+
+    Esta função encapsula as chamadas ao Observer para:
+    1. Avaliar clareza da conversa atual
+    2. Detectar se houve variação ou mudança real (se houver claim anterior)
+
+    O Observer é consultivo - fornece insights que o Orquestrador usa
+    para tomar decisões. O Observer NÃO decide interromper a conversa.
+
+    Filosofia (Épico 13):
+    - Observer detecta; Orchestrator decide
+    - Análise 100% contextual via LLM
+    - Sem thresholds fixos
+
+    Args:
+        state: Estado atual do sistema.
+        user_input: Input atual do usuário.
+        cognitive_model: CognitiveModel atual (pode ser None no início).
+
+    Returns:
+        Dict com análises do Observer:
+        - clarity_evaluation: Avaliação de clareza da conversa
+        - variation_analysis: Análise de variação (se houver claim anterior)
+        - needs_checkpoint: bool indicando se precisa checkpoint
+        - checkpoint_reason: Razão do checkpoint (se aplicável)
+
+    Example:
+        >>> result = _consult_observer(state, "novo input", cognitive_model)
+        >>> if result['needs_checkpoint']:
+        ...     # Orquestrador decide como intervir
+        ...     suggestion = result['clarity_evaluation']['suggestion']
+    """
+    logger.info("🔍 Consultando Observer para análise contextual...")
+
+    result = {
+        "clarity_evaluation": None,
+        "variation_analysis": None,
+        "needs_checkpoint": False,
+        "checkpoint_reason": None
+    }
+
+    # 1. Avaliar clareza da conversa
+    if cognitive_model:
+        try:
+            # Preparar histórico de conversação
+            messages = state.get("messages", [])
+            conversation_history = []
+            for msg in messages[-6:]:  # Últimas 6 mensagens
+                if hasattr(msg, 'content'):
+                    role = "user" if msg.__class__.__name__ == "HumanMessage" else "assistant"
+                    conversation_history.append({
+                        "role": role,
+                        "content": msg.content[:500]  # Truncar
+                    })
+
+            clarity_result = evaluate_conversation_clarity(
+                cognitive_model=cognitive_model,
+                conversation_history=conversation_history
+            )
+
+            result["clarity_evaluation"] = clarity_result
+
+            # Checkpoint se clareza baixa
+            if clarity_result.get("needs_checkpoint"):
+                result["needs_checkpoint"] = True
+                result["checkpoint_reason"] = f"Clareza '{clarity_result.get('clarity_level')}': {clarity_result.get('description', '')}"
+
+            logger.info(
+                f"📊 Clareza: {clarity_result.get('clarity_level')} "
+                f"(score={clarity_result.get('clarity_score')}, checkpoint={clarity_result.get('needs_checkpoint')})"
+            )
+
+        except Exception as e:
+            logger.warning(f"⚠️ Erro ao avaliar clareza: {e}")
+
+    # 2. Detectar variação vs mudança real (se houver claim anterior)
+    previous_claim = None
+    if cognitive_model and cognitive_model.get("claim"):
+        previous_claim = cognitive_model.get("claim")
+    else:
+        focal = state.get("focal_argument")
+        if focal and isinstance(focal, dict) and focal.get("subject"):
+            previous_claim = focal.get("subject")
+
+    if previous_claim and user_input:
+        try:
+            variation_result = detect_variation(
+                previous_text=previous_claim,
+                new_text=user_input,
+                cognitive_model=cognitive_model
+            )
+
+            result["variation_analysis"] = variation_result
+
+            # Se mudança real detectada, adicionar ao checkpoint reason
+            if variation_result.get("classification") == "real_change":
+                logger.info(f"🔄 Mudança real detectada: {variation_result.get('reasoning', '')[:100]}")
+                if not result["needs_checkpoint"]:
+                    result["needs_checkpoint"] = True
+                    result["checkpoint_reason"] = f"Mudança de direção detectada: {variation_result.get('analysis', '')[:150]}"
+
+            logger.info(
+                f"🎯 Variação: {variation_result.get('classification')} "
+                f"(shared={len(variation_result.get('shared_concepts', []))}, "
+                f"new={len(variation_result.get('new_concepts', []))})"
+            )
+
+        except Exception as e:
+            logger.warning(f"⚠️ Erro ao detectar variação: {e}")
+
+    return result
+
+
 def _build_context(state: MultiAgentState) -> str:
     """
     Constrói contexto completo para o Orquestrador, incluindo outputs de agentes.
@@ -517,6 +642,8 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
             - agent_suggestion: Sugestão de agente com justificativa (se next_step="suggest_agent")
             - reflection_prompt: Provocação de reflexão (se lacuna detectada)
             - stage_suggestion: Sugestão de mudança de estágio (se evolução detectada)
+            - clarity_evaluation: Avaliação de clareza da conversa pelo Observer (Épico 13.3)
+            - variation_analysis: Análise de variação vs mudança real (Épico 13.3)
             - messages: Mensagem conversacional adicionada ao histórico
 
     Example:
@@ -742,6 +869,30 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         if stage_suggestion:
             logger.info(f"🎯 Sugestão de estágio: {stage_suggestion.get('from_stage')} → {stage_suggestion.get('to_stage')}")
 
+        # === CONSULTA AO OBSERVER (Épico 13.3) ===
+        # Observer fornece insights; Orquestrador decide como agir
+        observer_analysis = _consult_observer(
+            state=state,
+            user_input=state["user_input"],
+            cognitive_model=cognitive_model_dict
+        )
+
+        clarity_evaluation = observer_analysis.get("clarity_evaluation")
+        variation_analysis = observer_analysis.get("variation_analysis")
+
+        # Checkpoint contextual (Épico 13.4)
+        # Se Observer detectou que precisa checkpoint, ajustar resposta
+        if observer_analysis.get("needs_checkpoint"):
+            checkpoint_reason = observer_analysis.get("checkpoint_reason", "")
+            logger.info(f"⚠️ Checkpoint sugerido: {checkpoint_reason[:100]}...")
+
+            # Se clarity_evaluation tem sugestão, incluir na mensagem
+            if clarity_evaluation and clarity_evaluation.get("suggestion"):
+                # Ajustar next_step para clarify se ainda não era
+                if next_step != "clarify":
+                    logger.info("📋 Ajustando next_step para 'clarify' devido ao checkpoint")
+                    next_step = "clarify"
+
     except json.JSONDecodeError as e:
         logger.error(f"Falha ao parsear JSON do orquestrador: {e}")
         logger.error(f"Resposta recebida: {response.content[:300]}...")
@@ -776,6 +927,9 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         agent_suggestion = None
         reflection_prompt = None
         stage_suggestion = None
+        # Fallback para Observer (Épico 13.3)
+        clarity_evaluation = None
+        variation_analysis = None
 
     # Extrair tokens e custo da resposta (Épico 8.3)
     try:
@@ -835,6 +989,10 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         "agent_suggestion": agent_suggestion,
         "reflection_prompt": reflection_prompt,
         "stage_suggestion": stage_suggestion,
+        # Observer analysis (Épico 13.3)
+        "clarity_evaluation": clarity_evaluation,
+        "variation_analysis": variation_analysis,
+        # Métricas
         "last_agent_tokens_input": metrics["tokens_input"],
         "last_agent_tokens_output": metrics["tokens_output"],
         "last_agent_cost": metrics["cost"],
