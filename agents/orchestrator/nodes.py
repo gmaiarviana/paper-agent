@@ -365,19 +365,21 @@ def _consult_observer(
     cognitive_model: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Consulta o Observer para análise de clareza e variação (Épico 13.3).
+    Consulta o Observer para análise de clareza, variação e esclarecimento (Épico 13.3 + 14.2).
 
     Esta função encapsula as chamadas ao Observer para:
-    1. Avaliar clareza da conversa atual
-    2. Detectar se houve variação ou mudança real (se houver claim anterior)
+    1. Avaliar clareza da conversa atual (Épico 13.2)
+    2. Detectar se houve variação ou mudança real (Épico 13.1)
+    3. Identificar necessidades de esclarecimento e gerar perguntas (Épico 14.2)
 
     O Observer é consultivo - fornece insights que o Orquestrador usa
     para tomar decisões. O Observer NÃO decide interromper a conversa.
 
-    Filosofia (Épico 13):
+    Filosofia (Épico 13 + 14):
     - Observer detecta; Orchestrator decide
     - Análise 100% contextual via LLM
     - Sem thresholds fixos
+    - Perguntas naturais baseadas em contradições e gaps
 
     Args:
         state: Estado atual do sistema.
@@ -388,6 +390,8 @@ def _consult_observer(
         Dict com análises do Observer:
         - clarity_evaluation: Avaliação de clareza da conversa
         - variation_analysis: Análise de variação (se houver claim anterior)
+        - clarification_need: Necessidade de esclarecimento identificada (14.1)
+        - clarification_question: Pergunta de esclarecimento gerada (14.3/14.4)
         - needs_checkpoint: bool indicando se precisa checkpoint
         - checkpoint_reason: Razão do checkpoint (se aplicável)
 
@@ -396,11 +400,21 @@ def _consult_observer(
         >>> if result['needs_checkpoint']:
         ...     # Orquestrador decide como intervir
         ...     suggestion = result['clarity_evaluation']['suggestion']
+        >>> if result['clarification_question']:
+        ...     # Incluir pergunta na resposta
+        ...     question = result['clarification_question'].question_text
     """
     # Import lazy para evitar dependência circular com chromadb (Épico 13.3)
     from agents.observer.extractors import (
         evaluate_conversation_clarity,
         detect_variation
+    )
+    # Imports de clarification (Épico 14.2)
+    from agents.observer.clarification import (
+        identify_clarification_needs,
+        should_ask_clarification,
+        generate_contradiction_question,
+        suggest_question_for_gap
     )
 
     logger.info("🔍 Consultando Observer para análise contextual...")
@@ -408,6 +422,8 @@ def _consult_observer(
     result = {
         "clarity_evaluation": None,
         "variation_analysis": None,
+        "clarification_need": None,
+        "clarification_question": None,
         "needs_checkpoint": False,
         "checkpoint_reason": None
     }
@@ -480,6 +496,66 @@ def _consult_observer(
 
         except Exception as e:
             logger.warning(f"⚠️ Erro ao detectar variação: {e}")
+
+    # 3. Identificar necessidades de esclarecimento (Épico 14.2)
+    # Observer detecta contradições, gaps, confusões que podem beneficiar de pergunta
+    if cognitive_model:
+        try:
+            turn_count = state.get("turn_count", 0)
+
+            # Identificar se há necessidade de esclarecimento
+            clarification_need = identify_clarification_needs(
+                cognitive_model=cognitive_model,
+                turn_number=turn_count
+            )
+
+            result["clarification_need"] = clarification_need
+
+            if clarification_need and clarification_need.needs_clarification:
+                # Calcular turnos desde última pergunta (simplificado)
+                turns_since_question = turn_count  # Placeholder
+
+                # Decidir se é hora de perguntar
+                timing_decision = should_ask_clarification(
+                    clarification_need=clarification_need,
+                    turn_history=[],  # Simplificado por enquanto
+                    current_turn=turn_count,
+                    turns_since_last_question=turns_since_question
+                )
+
+                if timing_decision.should_ask:
+                    # Gerar pergunta contextual
+                    question_suggestion = None
+
+                    if clarification_need.clarification_type == "contradiction":
+                        # Usar primeira contradição do modelo
+                        contradictions = cognitive_model.get("contradictions", [])
+                        if contradictions:
+                            question_suggestion = generate_contradiction_question(
+                                contradiction=contradictions[0],
+                                propositions=cognitive_model.get("proposicoes", []),
+                                conversation_context=cognitive_model.get("claim", "")
+                            )
+                    elif clarification_need.clarification_type == "gap":
+                        question_suggestion = suggest_question_for_gap(
+                            cognitive_model=cognitive_model
+                        )
+
+                    if question_suggestion:
+                        result["clarification_question"] = question_suggestion
+                        # Adicionar ao checkpoint se ainda não havia
+                        if not result["needs_checkpoint"]:
+                            result["needs_checkpoint"] = True
+                            result["checkpoint_reason"] = f"Esclarecimento sugerido: {clarification_need.description[:100]}"
+
+                        logger.info(
+                            f"❓ Pergunta de esclarecimento gerada: "
+                            f"tipo={clarification_need.clarification_type}, "
+                            f"prioridade={clarification_need.priority}"
+                        )
+
+        except Exception as e:
+            logger.warning(f"⚠️ Erro ao identificar necessidades de esclarecimento: {e}")
 
     return result
 
@@ -879,6 +955,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
 
         clarity_evaluation = observer_analysis.get("clarity_evaluation")
         variation_analysis = observer_analysis.get("variation_analysis")
+        clarification_question = observer_analysis.get("clarification_question")
 
         # Checkpoint contextual (Épico 13.4)
         # Se Observer detectou que precisa checkpoint, ajustar resposta
@@ -892,6 +969,18 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
                 if next_step != "clarify":
                     logger.info("📋 Ajustando next_step para 'clarify' devido ao checkpoint")
                     next_step = "clarify"
+
+            # Se há pergunta de esclarecimento (Épico 14.2), incluir na mensagem
+            if clarification_question and hasattr(clarification_question, 'question_text'):
+                question_text = clarification_question.question_text
+                # Adicionar pergunta de forma natural à mensagem
+                if not message.strip().endswith("?"):
+                    message = f"{message}\n\n{question_text}"
+                else:
+                    # Se já termina com pergunta, adicionar como alternativa
+                    message = f"{message}\n\nAliás, {question_text.lower()}"
+
+                logger.info(f"❓ Pergunta de esclarecimento incluída: {question_text[:80]}...")
 
     except json.JSONDecodeError as e:
         logger.error(f"Falha ao parsear JSON do orquestrador: {e}")
@@ -927,9 +1016,10 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         agent_suggestion = None
         reflection_prompt = None
         stage_suggestion = None
-        # Fallback para Observer (Épico 13.3)
+        # Fallback para Observer (Épico 13.3 + 14.2)
         clarity_evaluation = None
         variation_analysis = None
+        clarification_question = None
 
     # Extrair tokens e custo da resposta (Épico 8.3)
     try:

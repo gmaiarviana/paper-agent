@@ -27,7 +27,9 @@
 
 ### 🟡 Épicos Em Andamento
 - **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística) - Features 13.1-13.4 implementadas (66 testes), pendente: 13.5 Timeline Visual, 13.6 Testes E2E
-- **ÉPICO 14**: Observer - Consultas Inteligentes - Base implementada (14.1-14.3), Observer identifica pontos de esclarecimento e sugere abordagens
+
+### ✅ Recém Concluídos
+- **ÉPICO 14**: Observer - Consultas Inteligentes - Sistema faz perguntas contextuais para esclarecer contradições e gaps. Integrado ao Orquestrador via `_consult_observer()`. Timeline visual com seção de esclarecimentos. 40+ testes.
 
 ### ⏳ Épicos Planejados
 
@@ -169,7 +171,7 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
 
 **Objetivo:** Quando Observer detecta confusão, sistema faz perguntas contextuais para esclarecer, ao invés de apenas apontar problemas.
 
-**Status:** 🟡 Em Andamento - Base implementada (14.1-14.3)
+**Status:** ✅ Implementado - Todas as funcionalidades (14.1-14.7) concluídas
 
 **Dependências:**
 - Épico 13 (detecção de variations e confusão)
@@ -182,18 +184,20 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
 
 ### Funcionalidades:
 
-#### 14.1 Identificação de Pontos que Precisam Esclarecimento
+#### 14.1 Identificação de Pontos que Precisam Esclarecimento (✅ Implementado)
 
 - **Descrição:** Observer analisa CognitiveModel e identifica especificamente o que está confuso ou precisa ser esclarecido.
+- **Implementação:** `identify_clarification_needs()` em `agents/observer/clarification.py`
 - **Critérios de Aceite:**
-  - Método `identify_clarification_needs() -> dict` retorna: descrição textual do que precisa esclarecimento, contexto relevante (quais proposições, contradições, etc), sugestão de como perguntar
+  - Método `identify_clarification_needs() -> ClarificationNeed` retorna: descrição textual do que precisa esclarecimento, contexto relevante (quais proposições, contradições, etc), sugestão de como perguntar
   - LLM analisa: contradições, open_questions, proposições frágeis, mudanças de claim
   - Resposta natural (não lista estruturada fixa)
   - Foca em avançar conversa, não apenas apontar problemas
 
-#### 14.2 Geração de Perguntas Contextuais
+#### 14.2 Geração de Perguntas Contextuais (✅ Implementado)
 
 - **Descrição:** Orquestrador usa análise do Observer para formular perguntas naturais e contextuais.
+- **Implementação:** Integração em `_consult_observer()` no `agents/orchestrator/nodes.py`
 - **Critérios de Aceite:**
   - Quando Observer identifica necessidade de esclarecimento, Orquestrador lê sugestão do Observer
   - Formula pergunta em linguagem natural (não copia texto do Observer)
@@ -202,9 +206,10 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Exemplos de boas perguntas: "Você mencionou que LLMs aumentam produtividade, mas também aumentam bugs. Esses dois pontos se aplicam em contextos diferentes?"
   - Evita perguntas robóticas ou vagas
 
-#### 14.3 Perguntas sobre Contradições (Tensões, não Erros)
+#### 14.3 Perguntas sobre Contradições (Tensões, não Erros) (✅ Implementado)
 
 - **Descrição:** Quando Observer detecta contradições, sistema pergunta sobre contextos diferentes ao invés de apontar erro.
+- **Implementação:** `generate_contradiction_question()` em `agents/observer/clarification.py`
 - **Critérios de Aceite:**
   - Observer identifica contradições (já existe no Épico 12)
   - Orquestrador formula pergunta explorando possíveis contextos: "Esses dois pontos se aplicam em situações diferentes?"
@@ -212,28 +217,31 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Permite usuário esclarecer contexto sem sentir que "errou"
   - Referência a `docs/vision/epistemology.md` (boa-fé epistemológica)
 
-#### 14.4 Perguntas sobre Open Questions
+#### 14.4 Perguntas sobre Open Questions (✅ Implementado)
 
 - **Descrição:** Observer sugere perguntas para preencher gaps naturais na conversa.
+- **Implementação:** `suggest_question_for_gap()` em `agents/observer/clarification.py`
 - **Critérios de Aceite:**
   - Observer identifica open_questions (já existe)
-  - Método `suggest_question_for_gap() -> Optional[str]` sugere pergunta para preencher gap
+  - Método `suggest_question_for_gap() -> Optional[QuestionSuggestion]` sugere pergunta para preencher gap
   - Orquestrador decide quando fazer pergunta (não automático)
   - Perguntas focam em avançar claim, não apenas coletar info
   - Exemplo: se claim é "LLMs aumentam produtividade" e falta evidência: "Você tem algum dado ou experiência que mostre esse aumento de produtividade?"
 
-#### 14.5 Timing de Intervenção (Quando Perguntar)
+#### 14.5 Timing de Intervenção (Quando Perguntar) (✅ Implementado)
 
 - **Descrição:** Sistema decide quando fazer perguntas de esclarecimento sem interromper fluxo natural.
+- **Implementação:** `should_ask_clarification()` em `agents/observer/clarification.py`
 - **Critérios de Aceite:**
   - Orquestrador NÃO pergunta imediatamente após cada input
   - Pergunta quando: confusão se acumula (múltiplos sinais), usuário pausa ou muda tópico abruptamente, contradição aparece e persiste por 2+ turns, open question importante fica sem resposta
   - NÃO pergunta quando: usuário está fluindo bem (adicionando proposições consistentes), variation simples detectada, gap menor que não impacta claim
   - Observer sugere timing, Orquestrador decide
 
-#### 14.6 Feedback Loop (Aprender com Respostas)
+#### 14.6 Feedback Loop (Aprender com Respostas) (✅ Implementado)
 
 - **Descrição:** Observer analisa resposta do usuário a pergunta de esclarecimento e atualiza CognitiveModel.
+- **Implementação:** `analyze_clarification_response()` e `get_clarification_summary_for_timeline()` em `agents/observer/clarification.py`
 - **Critérios de Aceite:**
   - Após usuário responder pergunta de esclarecimento, Observer analisa resposta
   - Atualiza proposições, contradictions, ou open_questions
@@ -242,9 +250,10 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Se resposta não esclarece: Observer identifica necessidade de nova pergunta
   - Ciclo continua até confusão resolver
 
-#### 14.7 Testes de Integração
+#### 14.7 Testes de Integração (✅ Implementado)
 
 - **Descrição:** Validação de perguntas contextuais em cenários reais.
+- **Implementação:** `scripts/validate_clarification_questions.py` e `tests/unit/test_clarification.py`
 - **Critérios de Aceite:**
   - Testes multi-turn com contradições, gaps, mudanças
   - Validação: perguntas são contextuais (mencionam conceitos específicos)
@@ -252,6 +261,14 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Validação: tom é de parceiro, não fiscalizador
   - Validação: timing apropriado (não interrompe fluxo)
   - Script: `scripts/validate_clarification_questions.py`
+
+**Artefatos:**
+- `agents/observer/clarification.py` - Funções principais
+- `agents/observer/clarification_prompts.py` - Prompts LLM
+- `agents/models/clarification.py` - Modelos Pydantic
+- `utils/event_models.py` - Eventos ClarificationRequestedEvent, ClarificationResolvedEvent
+- `app/components/backstage/timeline.py` - Seção de Esclarecimentos na Timeline
+- `tests/unit/test_clarification.py` - 40+ testes unitários
 
 ---
 
