@@ -37,10 +37,8 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
 
@@ -71,10 +69,8 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
 
@@ -106,10 +102,8 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
 
@@ -135,10 +129,8 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 80, "output_tokens": 40}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
 
@@ -157,10 +149,8 @@ class TestOrchestratorNode:
         mock_response.content = "Resposta sem JSON válido"
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 50, "output_tokens": 10}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
 
@@ -185,10 +175,8 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 50, "output_tokens": 20}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
 
@@ -221,14 +209,11 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 200, "output_tokens": 80}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
 
         assert result['next_step'] == "suggest_agent"
         assert result['agent_suggestion']['agent'] == "structurer"
         assert "PICO/SPIDER" in result['agent_suggestion']['justification']
-

@@ -32,7 +32,7 @@ from .prompts import (
     METRICS_TEMPERATURE,
     MAX_METRICS_TOKENS
 )
-from utils.config import invoke_with_retry
+from utils.config import invoke_with_retry, create_anthropic_client
 from utils.json_parser import extract_json_from_llm_response
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ def _get_metrics_llm() -> ChatAnthropic:
     Usa temperature > 0 para permitir variacao contextual
     (nao-determinismo controlado).
     """
-    return ChatAnthropic(
+    return create_anthropic_client(
         model=RECOMMENDED_MODEL,
         temperature=METRICS_TEMPERATURE,
         max_tokens=MAX_METRICS_TOKENS

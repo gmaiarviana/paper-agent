@@ -200,10 +200,8 @@ class TestOrchestratorReturnsCognitiveModel:
         })
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
 
@@ -238,14 +236,11 @@ class TestOrchestratorReturnsCognitiveModel:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
 
         assert "cognitive_model" in result
         assert result["cognitive_model"]["claim"] == "Minha observação"
         assert len(result["cognitive_model"]["open_questions"]) >= 1
-

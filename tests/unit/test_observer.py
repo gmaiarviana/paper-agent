@@ -15,6 +15,9 @@ import sqlite3
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
+# Skip entire module if chromadb not installed (CI uses requirements-test.txt)
+pytest.importorskip("chromadb", reason="chromadb not installed - skipping observer tests")
+
 from agents.observer import (
     ConceptCatalog,
     Concept,

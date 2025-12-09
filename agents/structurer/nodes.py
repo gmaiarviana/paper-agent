@@ -24,6 +24,7 @@ from agents.memory.config_loader import get_agent_prompt, get_agent_model, Confi
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
 from utils.structured_logger import StructuredLogger
+from utils.config import create_anthropic_client
 
 logger = logging.getLogger(__name__)
 
@@ -223,7 +224,7 @@ RESPONDA EM JSON:
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
 
     # Chamar LLM para estruturação usando modelo do config
-    llm = ChatAnthropic(model=model_name, temperature=0)
+    llm = create_anthropic_client(model=model_name, temperature=0)
     messages = [HumanMessage(content=structuring_prompt)]
     response = llm.invoke(messages)
 
@@ -401,7 +402,7 @@ Gere uma versão REFINADA (V{current_version}) que endereça TODOS os gaps lista
 Retorne APENAS JSON com: context, problem, contribution, structured_question, addressed_gaps."""
 
     # Chamar LLM usando modelo do config
-    llm = ChatAnthropic(model=model_name, temperature=0)
+    llm = create_anthropic_client(model=model_name, temperature=0)
     response = llm.invoke([HumanMessage(content=refinement_prompt)])
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")

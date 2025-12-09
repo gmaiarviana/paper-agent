@@ -19,6 +19,24 @@ env_path = project_root / ".env"
 load_dotenv(dotenv_path=env_path)
 
 
+@pytest.fixture(autouse=True)
+def reset_anthropic_circuit_breaker():
+    """
+    Reset circuit breaker antes de cada teste.
+
+    O circuit breaker é um singleton global que persiste entre testes.
+    Sem esse reset, um teste que falha pode abrir o circuit breaker
+    e causar falhas em cascata em todos os testes subsequentes.
+    """
+    from utils.config import _anthropic_circuit_breaker
+    _anthropic_circuit_breaker._consecutive_failures = 0
+    _anthropic_circuit_breaker._is_open = False
+    yield
+    # Reset também após o teste (cleanup)
+    _anthropic_circuit_breaker._consecutive_failures = 0
+    _anthropic_circuit_breaker._is_open = False
+
+
 # Import condicional: multi-agent graph requer langgraph
 # Se langgraph não estiver instalado, fixtures não estarão disponíveis
 # mas testes unitários (Observer, etc) continuam funcionando

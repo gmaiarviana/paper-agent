@@ -189,6 +189,44 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - ✅ **Épico 9.3:** Integrar SnapshotManager no fluxo conversacional (persistência automática)
 - ✅ **Épico 9.4:** Indicador de solidez no painel Contexto (`calculate_solidez()`)
 
+## Integração Observer (Épico 12)
+
+Observer integrado ao grafo multi-agente via callback assíncrono após execução do Orchestrator.
+
+**Arquitetura:**
+- **Callback em background:** Observer processa cada turno em thread daemon após `orchestrator_node` completar
+- **Não bloqueante:** Latência do usuário não aumenta (Observer roda em paralelo, <3s)
+- **Atualização de state:** `state["cognitive_model"]` atualizado com análise semântica
+- **Publicação de eventos:** `CognitiveModelUpdatedEvent` via EventBus para Timeline
+
+**Componentes:**
+- **Callback:** `_create_observer_callback()` em `agents/multi_agent_graph.py`
+- **Contexto:** `_build_cognitive_model_context()` em `agents/orchestrator/nodes.py`
+- **Timeline:** `render_observer_section()` em `app/components/backstage/timeline.py`
+
+**Fluxo:**
+```
+User Input → Orchestrator → Response ao usuário
+                  ↓
+            [Background Thread]
+                  ↓
+              Observer
+                  ↓
+         cognitive_model atualizado
+                  ↓
+         Evento publicado (EventBus)
+                  ↓
+         Timeline atualizada (próximo render)
+```
+
+**Status (Épico 12):** ✅ Concluído
+- ✅ **12.1:** Callback assíncrono via threading (daemon)
+- ✅ **12.2:** CognitiveModel no prompt do Orquestrador
+- ✅ **12.3:** Timeline visual com seção "👁️ Observador"
+- ✅ **12.4:** 28 testes passando (unit + integration)
+
+**Detalhes:** Ver `docs/epics/epic-12-observer-integration.md`
+
 ## Stack Técnico
 
 > **Nota:** Para detalhes completos, consulte `docs/architecture/tech_stack.md`.

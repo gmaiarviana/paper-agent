@@ -32,7 +32,7 @@ from .prompts import (
     MAX_EXTRACTION_TOKENS,
     CONTRADICTION_CONFIDENCE_THRESHOLD
 )
-from utils.config import invoke_with_retry
+from utils.config import invoke_with_retry, create_anthropic_client
 from utils.json_parser import extract_json_from_llm_response
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 def _get_llm() -> ChatAnthropic:
     """Retorna instancia do LLM para extracao."""
-    return ChatAnthropic(
+    return create_anthropic_client(
         model=RECOMMENDED_MODEL,
         temperature=EXTRACTION_TEMPERATURE,
         max_tokens=MAX_EXTRACTION_TOKENS

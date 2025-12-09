@@ -23,6 +23,7 @@
 - **ÉPICO 9**: Integração Backend↔Frontend - Persistência silenciosa e feedback visual de progresso completos
 - **ÉPICO 10**: Observador - Mente Analítica (POC) - ChromaDB + SQLite para catálogo de conceitos, pipeline de persistência, busca semântica e 22 testes unitários
 - **ÉPICO 11**: Alinhamento de Ontologia - Migração completa de premises/assumptions para Proposições unificadas com solidez. Sistema usa `proposicoes` em todas as camadas (modelo, orquestrador, observador, interface). Schema SQLite atualizado, testes migrados, documentação alinhada.
+- **ÉPICO 12**: Observer - Integração Básica (MVP) - Observer integrado ao fluxo multi-agente via callback assíncrono. Processa turnos em background após Orchestrator, publica eventos cognitive_model_updated, e exibe atividade na Timeline. Orquestrador acessa cognitive_model via prompt context. 28 testes passando.
 
 ### 🟡 Épicos Em Andamento
 
@@ -31,7 +32,6 @@
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
 #### Refinados (prontos para implementação)
-- **ÉPICO 12**: Observer - Integração Básica (MVP) - Próximo candidato
 - **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística)
 - **ÉPICO 14**: Observer - Consultas Inteligentes
 - **ÉPICO 15**: Observer - Painel Visual Dedicado
