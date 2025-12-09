@@ -355,6 +355,59 @@ CRITERIOS DE MATURIDADE (contextuais, nao rigidos):
 """
 
 # =============================================================================
+# PROMPT: DETECCAO DE VARIACAO VS MUDANCA REAL (Epico 13.1)
+# =============================================================================
+
+VARIATION_DETECTION_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
+
+TAREFA:
+Analise se a mudanca entre o texto anterior e o novo texto representa uma VARIACAO (mesma essencia, formulacao diferente) ou uma MUDANCA REAL (essencia diferente, novo foco).
+
+DEFINICOES:
+- VARIACAO: Reformulacao, refinamento ou elaboracao da MESMA ideia central
+  Exemplo: "LLMs aumentam produtividade" → "LLMs aumentam produtividade em 30%"
+  (mesma essencia: LLMs + produtividade, apenas mais especifico)
+
+- MUDANCA REAL: Transicao para um foco ou argumento DIFERENTE
+  Exemplo: "LLMs aumentam produtividade" → "Bugs sao causados por falta de testes"
+  (essencia diferente: saiu de LLMs/produtividade para bugs/testes)
+
+TEXTO ANTERIOR:
+{previous_text}
+
+TEXTO NOVO:
+{new_text}
+
+COGNITIVE MODEL ATUAL (contexto):
+{cognitive_model}
+
+ANALISE CONTEXTUAL:
+Considere:
+1. O nucleo semantico (essencia) permanece o mesmo?
+2. O novo texto desenvolve/refina a ideia anterior ou introduz algo novo?
+3. Os conceitos centrais sao mantidos ou substituidos?
+4. Ha continuidade logica ou ruptura argumentativa?
+5. O usuario esta aprofundando ou redirecionando?
+
+RETORNE APENAS JSON:
+{{
+    "analysis": "Explicacao natural de como as afirmacoes se relacionam",
+    "classification": "variation" ou "real_change",
+    "essence_previous": "Nucleo semantico do texto anterior",
+    "essence_new": "Nucleo semantico do texto novo",
+    "shared_concepts": ["conceitos mantidos entre os textos"],
+    "new_concepts": ["conceitos novos introduzidos"],
+    "reasoning": "Justificativa da classificacao baseada na essencia"
+}}
+
+IMPORTANTE:
+- NAO use thresholds numericos para decidir
+- Baseie-se na ESSENCIA semantica, nao em palavras superficiais
+- Uma variacao pode ter palavras totalmente diferentes mas mesma essencia
+- Uma mudanca real pode ter palavras similares mas essencia diferente
+- Esta analise e DESCRITIVA - o Orquestrador decidira como agir"""
+
+# =============================================================================
 # CONSTANTES DE CONFIGURACAO
 # =============================================================================
 

@@ -27,6 +27,7 @@ from .prompts import (
     EXTRACT_CONCEPTS_PROMPT,
     DETECT_CONTRADICTIONS_PROMPT,
     IDENTIFY_GAPS_PROMPT,
+    VARIATION_DETECTION_PROMPT,
     RECOMMENDED_MODEL,
     EXTRACTION_TEMPERATURE,
     MAX_EXTRACTION_TOKENS,
@@ -521,4 +522,137 @@ REGRAS:
             "proposicoes": [],
             "contradictions": [],
             "open_questions": []
+        }
+
+
+def detect_variation(
+    previous_text: str,
+    new_text: str,
+    cognitive_model: Optional[Dict[str, Any]] = None,
+    llm: Optional[ChatAnthropic] = None
+) -> Dict[str, Any]:
+    """
+    Detecta se mudanca entre textos e variacao ou mudanca real (Epico 13.1).
+
+    Esta funcao analisa contextualmente dois textos para determinar se
+    representam a mesma essencia (variacao) ou uma mudanca de foco real.
+
+    IMPORTANTE: Esta funcao e DESCRITIVA - retorna analise contextual
+    sem thresholds fixos. O Orquestrador decide como agir baseado na analise.
+
+    Filosofia (Epico 13):
+    - Analise 100% contextual via LLM
+    - Sem thresholds numericos (0.8, 0.3, etc.)
+    - Observer detecta; Orchestrator decide
+
+    Args:
+        previous_text: Texto/claim anterior.
+        new_text: Texto/claim novo.
+        cognitive_model: CognitiveModel atual para contexto (opcional).
+        llm: Instancia do LLM (opcional, cria se nao fornecido).
+
+    Returns:
+        Dict com analise contextual:
+        - analysis: Explicacao natural da relacao entre textos
+        - classification: "variation" ou "real_change"
+        - essence_previous: Nucleo semantico do texto anterior
+        - essence_new: Nucleo semantico do texto novo
+        - shared_concepts: Conceitos mantidos
+        - new_concepts: Conceitos novos introduzidos
+        - reasoning: Justificativa da classificacao
+
+    Example:
+        >>> result = detect_variation(
+        ...     previous_text="LLMs aumentam produtividade",
+        ...     new_text="LLMs aumentam produtividade em 30%",
+        ...     cognitive_model={}
+        ... )
+        >>> print(result['classification'])
+        'variation'
+        >>> print(result['analysis'])
+        'Ambos focam em LLMs e produtividade, novo texto apenas quantifica'
+
+        >>> result = detect_variation(
+        ...     previous_text="LLMs aumentam produtividade",
+        ...     new_text="Bugs sao causados por falta de testes"
+        ... )
+        >>> print(result['classification'])
+        'real_change'
+
+    Notes:
+        - Versao 1.0 (Epico 13.1): Implementacao inicial
+        - Observer detecta APENAS; NAO decide interromper
+    """
+    if llm is None:
+        llm = _get_llm()
+
+    # Preparar cognitive_model como string para o prompt
+    cm_str = "(modelo vazio)"
+    if cognitive_model:
+        cm_parts = []
+        if cognitive_model.get("claim"):
+            cm_parts.append(f"Claim atual: {cognitive_model['claim']}")
+        if cognitive_model.get("proposicoes"):
+            props = cognitive_model["proposicoes"][:3]  # Limitar a 3
+            props_text = [
+                p.get("texto", "") if isinstance(p, dict) else str(p)
+                for p in props
+            ]
+            cm_parts.append(f"Proposicoes: {props_text}")
+        if cognitive_model.get("concepts_detected"):
+            concepts = cognitive_model["concepts_detected"][:5]
+            cm_parts.append(f"Conceitos: {concepts}")
+        cm_str = "\n".join(cm_parts) if cm_parts else "(modelo vazio)"
+
+    # Construir prompt
+    prompt = VARIATION_DETECTION_PROMPT.format(
+        previous_text=previous_text,
+        new_text=new_text,
+        cognitive_model=cm_str
+    )
+
+    try:
+        messages = [HumanMessage(content=prompt)]
+        response = invoke_with_retry(
+            llm=llm,
+            messages=messages,
+            agent_name="observer_variation_detection"
+        )
+
+        # Parse JSON
+        data = extract_json_from_llm_response(response.content)
+
+        # Validar campos obrigatorios
+        result = {
+            "analysis": data.get("analysis", "Analise nao disponivel"),
+            "classification": data.get("classification", "variation"),
+            "essence_previous": data.get("essence_previous", previous_text[:100]),
+            "essence_new": data.get("essence_new", new_text[:100]),
+            "shared_concepts": data.get("shared_concepts", []),
+            "new_concepts": data.get("new_concepts", []),
+            "reasoning": data.get("reasoning", "")
+        }
+
+        # Garantir que classification seja um dos valores validos
+        if result["classification"] not in ("variation", "real_change"):
+            result["classification"] = "variation"
+
+        logger.info(
+            f"Variacao detectada: {result['classification']} - "
+            f"shared={len(result['shared_concepts'])}, new={len(result['new_concepts'])}"
+        )
+
+        return result
+
+    except Exception as e:
+        logger.warning(f"Erro ao detectar variacao: {e}")
+        # Fallback conservador: assume variacao em caso de erro
+        return {
+            "analysis": f"Erro na analise: {str(e)}",
+            "classification": "variation",
+            "essence_previous": previous_text[:100] if previous_text else "",
+            "essence_new": new_text[:100] if new_text else "",
+            "shared_concepts": [],
+            "new_concepts": [],
+            "reasoning": "Fallback devido a erro - assumindo variacao"
         }
