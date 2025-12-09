@@ -32,11 +32,11 @@
 
 #### Refinados (prontos para implementação)
 - **ÉPICO 12**: Observer - Integração Básica (MVP) - Próximo candidato
+- **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística)
+- **ÉPICO 14**: Observer - Consultas Inteligentes
+- **ÉPICO 15**: Observer - Painel Visual Dedicado
 
 #### Planejados (não refinados)
-- **ÉPICO 13**: Observer - Consultas Inteligentes (não refinado)
-- **ÉPICO 14**: Observer - Detecção de Mudanças (não refinado)
-- **ÉPICO 15**: Observer - Painel Dedicado (não refinado)
 - **ÉPICO 16**: Catálogo de Conceitos - Interface Web (não refinado)
 - **ÉPICO 17**: Pesquisador (não refinado)
 - **ÉPICO 18**: Escritor (não refinado)
@@ -139,62 +139,257 @@ Migração completa de premises/assumptions (strings separadas) para Proposiçõ
 
 ---
 
-## ÉPICO 13: Observer - Consultas Inteligentes
+## ÉPICO 13: Observer - Detecção de Mudanças (Não-Determinística)
 
-**Objetivo:** Orquestrador pode fazer perguntas pontuais ao Observador para decisões contextuais.
+**Objetivo:** Sistema detecta automaticamente variations vs mudanças reais usando análise contextual do LLM, sem métricas fixas ou thresholds.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ✅ Refinado (pronto para implementação)
 
 **Dependências:**
-- Épico 12
+- Épico 12 (Observer integrado ao grafo)
 
-**Entregas:**
-- API `what_do_you_see()` melhorada (LLM-based)
-- Consultas otimizadas (`has_contradiction()`, `get_maturity()`, `get_dominant_concept()`)
-- Orquestrador usa API em momentos estratégicos
+**Filosofia:**
+- LLM analisa contexto completo e decide se é variation ou mudança real
+- Sem thresholds (0.8, 0.3, etc) - decisão 100% contextual
+- Observador detecta silenciosamente, Orquestrador decide quando intervir
+- "Grau de confusão" é avaliação qualitativa, não número
 
-**Estimativa:** ~400 linhas, 1.5h
-**Risco:** Baixo
+### Funcionalidades:
+
+#### 13.1 Detecção de Variations vs Mudanças Reais
+
+- **Descrição:** Observador detecta se mudança de texto é variation (mesma essência) ou mudança real (essência diferente), consultando LLM com contexto completo.
+- **Critérios de Aceite:**
+  - Quando subject/claim muda, Observador consulta LLM passando texto anterior, novo texto, e CognitiveModel completo
+  - LLM analisa: "são variations do mesmo conceito ou mudança real?"
+  - LLM responde naturalmente (sem forçar estrutura fixa)
+  - Resultado disponível via `detect_variation(prev_text, new_text) -> dict`
+  - Retorna análise do LLM (não booleano simples)
+  - Observador NÃO decide automaticamente se interromper - apenas detecta
+
+#### 13.2 Análise de Grau de Confusão (Qualitativa)
+
+- **Descrição:** Observador analisa CognitiveModel e retorna avaliação contextual de "como está a conversa" via LLM.
+- **Critérios de Aceite:**
+  - Método `calculate_confusion_level() -> dict` retorna avaliação textual
+  - LLM analisa: contradições, open_questions, mudanças de claim, proposições frágeis
+  - Resposta natural do LLM (não estrutura fixa ou número)
+  - Inclui: tem confusão? fontes? recomenda intervenção? como intervir?
+  - Orquestrador lê essa análise e decide (não é automático)
+
+#### 13.3 Detecção Aprimorada de Mudança de Direção
+
+- **Descrição:** Orquestrador consulta Observador quando percebe mudança potencial, sem análise multi-dimensional automática.
+- **Critérios de Aceite:**
+  - Quando intent muda OU subject muda OU claim evolui significativamente, Orquestrador consulta `detect_variation()` do Observador
+  - Observador retorna análise contextual (não classificação automática)
+  - Orquestrador lê análise e decide se confirmar com usuário
+  - Não calcula "severidade" automaticamente
+  - Logs informativos mostram detecção, mas não classificação rígida
+
+#### 13.4 Integração com Orquestrador (Conversação Natural)
+
+- **Descrição:** Orquestrador usa análises do Observador para decidir quando intervir, com linguagem humana.
+- **Critérios de Aceite:**
+  - Variation: Orquestrador continua sem mencionar
+  - Mudança real: Orquestrador confirma naturalmente ("Entendi que você quer mudar o foco. Vamos por esse caminho?")
+  - Confusão: Orquestrador pergunta naturalmente ("Fiquei com dúvidas sobre esses pontos. Poderia esclarecer?")
+  - NUNCA diz: "Detectei", "Classificado como", "Severidade major"
+  - Usa insights sem expor terminologia técnica
+
+#### 13.5 Timeline Visual de Mudanças
+
+- **Descrição:** Timeline registra mudanças detectadas de forma discreta.
+- **Critérios de Aceite:**
+  - Eventos aparecem na timeline (colapsada por padrão): "🔄 Mudança de foco confirmada com usuário", "↪️ Variation identificada (não interrompeu fluxo)", "⚠️ Tensões detectadas, esclarecimento solicitado"
+  - Variations: registro discreto (sem alerta)
+  - Mudanças confirmadas: destaque suave
+  - Não mostra métricas ou thresholds
+
+#### 13.6 Testes de Integração
+
+- **Descrição:** Validação em cenários reais de conversa.
+- **Critérios de Aceite:**
+  - Testes multi-turn com variations e mudanças
+  - Validação: Orquestrador intervém naturalmente (não roboticamente)
+  - Validação: variations não interrompem
+  - Validação: confusão gera perguntas contextuais
+  - Script: `scripts/validate_direction_change.py`
 
 ---
 
-## ÉPICO 14: Observer - Detecção de Mudanças
+## ÉPICO 14: Observer - Consultas Inteligentes
 
-**Objetivo:** Sistema detecta quando usuário mudou de ideia significativamente.
+**Objetivo:** Quando Observer detecta confusão, sistema faz perguntas contextuais para esclarecer, ao invés de apenas apontar problemas.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ✅ Refinado (pronto para implementação)
 
 **Dependências:**
-- Épico 12
+- Épico 13 (detecção de variations e confusão)
 
-**Entregas:**
-- Algoritmo de detecção de variations
-- Threshold configurável (>0.90)
-- Orquestrador reage a variations
-- Timeline marca variations visualmente
+**Filosofia:**
+- Observer identifica o que precisa ser esclarecido
+- Orquestrador formula perguntas naturais (não robóticas)
+- Perguntas ajudam a avançar, não apenas apontam problemas
+- Sistema age como parceiro pensante, não como fiscalizador
 
-**Estimativa:** ~500 linhas, 2h
-**Risco:** Médio
+### Funcionalidades:
+
+#### 14.1 Identificação de Pontos que Precisam Esclarecimento
+
+- **Descrição:** Observer analisa CognitiveModel e identifica especificamente o que está confuso ou precisa ser esclarecido.
+- **Critérios de Aceite:**
+  - Método `identify_clarification_needs() -> dict` retorna: descrição textual do que precisa esclarecimento, contexto relevante (quais proposições, contradições, etc), sugestão de como perguntar
+  - LLM analisa: contradições, open_questions, proposições frágeis, mudanças de claim
+  - Resposta natural (não lista estruturada fixa)
+  - Foca em avançar conversa, não apenas apontar problemas
+
+#### 14.2 Geração de Perguntas Contextuais
+
+- **Descrição:** Orquestrador usa análise do Observer para formular perguntas naturais e contextuais.
+- **Critérios de Aceite:**
+  - Quando Observer identifica necessidade de esclarecimento, Orquestrador lê sugestão do Observer
+  - Formula pergunta em linguagem natural (não copia texto do Observer)
+  - Pergunta é específica ao contexto (menciona conceitos da conversa)
+  - Pergunta ajuda a avançar (não apenas aponta problema)
+  - Exemplos de boas perguntas: "Você mencionou que LLMs aumentam produtividade, mas também aumentam bugs. Esses dois pontos se aplicam em contextos diferentes?"
+  - Evita perguntas robóticas ou vagas
+
+#### 14.3 Perguntas sobre Contradições (Tensões, não Erros)
+
+- **Descrição:** Quando Observer detecta contradições, sistema pergunta sobre contextos diferentes ao invés de apontar erro.
+- **Critérios de Aceite:**
+  - Observer identifica contradições (já existe no Épico 12)
+  - Orquestrador formula pergunta explorando possíveis contextos: "Esses dois pontos se aplicam em situações diferentes?"
+  - Tom epistemológico: tensão entre proposições, não erro lógico
+  - Permite usuário esclarecer contexto sem sentir que "errou"
+  - Referência a `docs/vision/epistemology.md` (boa-fé epistemológica)
+
+#### 14.4 Perguntas sobre Open Questions
+
+- **Descrição:** Observer sugere perguntas para preencher gaps naturais na conversa.
+- **Critérios de Aceite:**
+  - Observer identifica open_questions (já existe)
+  - Método `suggest_question_for_gap() -> Optional[str]` sugere pergunta para preencher gap
+  - Orquestrador decide quando fazer pergunta (não automático)
+  - Perguntas focam em avançar claim, não apenas coletar info
+  - Exemplo: se claim é "LLMs aumentam produtividade" e falta evidência: "Você tem algum dado ou experiência que mostre esse aumento de produtividade?"
+
+#### 14.5 Timing de Intervenção (Quando Perguntar)
+
+- **Descrição:** Sistema decide quando fazer perguntas de esclarecimento sem interromper fluxo natural.
+- **Critérios de Aceite:**
+  - Orquestrador NÃO pergunta imediatamente após cada input
+  - Pergunta quando: confusão se acumula (múltiplos sinais), usuário pausa ou muda tópico abruptamente, contradição aparece e persiste por 2+ turns, open question importante fica sem resposta
+  - NÃO pergunta quando: usuário está fluindo bem (adicionando proposições consistentes), variation simples detectada, gap menor que não impacta claim
+  - Observer sugere timing, Orquestrador decide
+
+#### 14.6 Feedback Loop (Aprender com Respostas)
+
+- **Descrição:** Observer analisa resposta do usuário a pergunta de esclarecimento e atualiza CognitiveModel.
+- **Critérios de Aceite:**
+  - Após usuário responder pergunta de esclarecimento, Observer analisa resposta
+  - Atualiza proposições, contradictions, ou open_questions
+  - Marca esclarecimento como "resolvido" ou "parcialmente resolvido"
+  - Timeline mostra: "✅ Esclarecimento obtido: [resumo]"
+  - Se resposta não esclarece: Observer identifica necessidade de nova pergunta
+  - Ciclo continua até confusão resolver
+
+#### 14.7 Testes de Integração
+
+- **Descrição:** Validação de perguntas contextuais em cenários reais.
+- **Critérios de Aceite:**
+  - Testes multi-turn com contradições, gaps, mudanças
+  - Validação: perguntas são contextuais (mencionam conceitos específicos)
+  - Validação: perguntas ajudam a avançar (não apenas apontam problemas)
+  - Validação: tom é de parceiro, não fiscalizador
+  - Validação: timing apropriado (não interrompe fluxo)
+  - Script: `scripts/validate_clarification_questions.py`
 
 ---
 
-## ÉPICO 15: Observer - Painel Dedicado
+## ÉPICO 15: Observer - Painel Visual Dedicado
 
-**Objetivo:** Interface visual completa para explorar cognitive_model.
+**Objetivo:** Interface visual mostrando estado do Observer de forma transparente e não-intrusiva.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ✅ Refinado (pronto para implementação)
 
 **Dependências:**
-- Épico 12
+- Épico 13 (detecção de mudanças)
+- Épico 14 (consultas inteligentes)
 
-**Entregas:**
-- Painel colapsável "👁️ Observador"
-- Seções: Afirmação, Fundamentos, Conceitos, Contradições, Lacunas
-- Métricas visuais (barras de progresso)
-- Reasoning colapsável (debug)
+**Filosofia:**
+- Transparência: usuário vê como sistema pensa
+- Não-intrusivo: painel colapsado por padrão
+- Útil: mostra informação acionável, não apenas diagnóstico
+- Educativo: ajuda usuário entender conversa melhor
 
-**Estimativa:** ~400 linhas, 1.5h
-**Risco:** Baixo
+### Funcionalidades:
+
+#### 15.1 Painel Principal (Colapsável)
+
+- **Descrição:** Seção dedicada "Observer" nos Bastidores, entre "Contexto" e "Raciocínio".
+- **Critérios de Aceite:**
+  - Nova seção "🔍 Observer" em `app/components/backstage/`
+  - Localização: entre `st.expander("Contexto")` e `st.expander("Bastidores")`
+  - Padrão: colapsado (`st.expander(default_expanded=False)`)
+  - Ao expandir: mostra estado atual do CognitiveModel
+  - Design consistente com outras seções dos Bastidores
+  - Componente: `app/components/backstage/observer_panel.py`
+
+#### 15.2 Métricas Visuais (Qualitativas)
+
+- **Descrição:** Visualização do estado da conversa sem números fixos.
+- **Critérios de Aceite:**
+  - Grid com indicadores: solidez da conversa (barra de progresso verde/amarelo/vermelho), completude do argumento (barra de progresso), tensões identificadas (contador + badge ⚠️ se > 0), gaps abertos (contador + badge)
+  - Barras são visuais (não mostram percentual exato)
+  - Cores indicam saúde geral (verde = bem, amarelo = atenção, vermelho = problemas)
+  - Badge "🟢 Madura" ou "🟡 Em desenvolvimento" baseado em análise qualitativa
+
+#### 15.3 Claim Atual e Proposições
+
+- **Descrição:** Visualização clara do claim e principais proposições.
+- **Critérios de Aceite:**
+  - Claim atual em destaque (`st.info` ou `st.markdown` com fundo)
+  - Lista de proposições principais (top 5 por solidez)
+  - Cada proposição mostra: texto da proposição, indicador visual de solidez (emoji: 🟢 sólida, 🟡 moderada, 🔴 frágil)
+  - NÃO mostra número exato
+  - Proposições ordenadas por relevância (solidez)
+
+#### 15.4 Tensões e Open Questions
+
+- **Descrição:** Visualização de contradições (tensões) e gaps identificados.
+- **Critérios de Aceite:**
+  - Seção "⚠️ Tensões" (se existirem): lista contradições identificadas, não usa linguagem de "erro" (usa "tensão entre proposições"), mostra contexto (quais proposições estão em tensão)
+  - Seção "❓ Gaps Abertos" (se existirem): lista open_questions, indica se são gaps críticos ou menores
+  - Se não há tensões/gaps: mensagem positiva "✅ Nenhuma tensão identificada"
+
+#### 15.5 Modal Detalhado (3 Abas)
+
+- **Descrição:** Botão "Ver detalhes" abre modal com visão completa do Observer.
+- **Critérios de Aceite:**
+  - Botão no painel principal: "Ver detalhes completos"
+  - Modal com 3 abas (padrão dos Bastidores): Aba 1 - Estado Atual (claim completo, todas proposições, todas tensões e gaps, análise de confusão), Aba 2 - Evolução (timeline visual de mudanças no claim, gráfico de solidez/completude ao longo do tempo (Plotly), eventos importantes), Aba 3 - JSON (CognitiveModel completo em JSON formatado, permite usuário copiar/exportar)
+  - Modal usa `st.dialog` (API Streamlit 1.31+)
+
+#### 15.6 Integração com EventBus
+
+- **Descrição:** Painel Observer consome eventos e atualiza em tempo real.
+- **Critérios de Aceite:**
+  - Observer publica eventos: `COGNITIVE_MODEL_UPDATED`, `VARIATION_DETECTED`, `DIRECTION_CHANGE`, `CLARIFICATION_REQUESTED`
+  - Painel consome eventos via EventBus (já existe)
+  - Atualização automática sem refresh manual
+  - Segue padrão de `app/components/backstage/reasoning.py`
+
+#### 15.7 Testes de Interface
+
+- **Descrição:** Validação da UI do painel Observer.
+- **Critérios de Aceite:**
+  - Testes visuais: painel renderiza corretamente
+  - Testes de interação: modal abre/fecha
+  - Testes de eventos: painel atualiza com novos eventos
+  - Testes de responsividade: funciona em diferentes tamanhos de tela
+  - Script: `scripts/test_observer_panel_ui.py`
 
 ---
 
