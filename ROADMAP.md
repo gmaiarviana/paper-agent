@@ -73,69 +73,14 @@ Migração completa de premises/assumptions (strings separadas) para Proposiçõ
 
 ---
 
-## ÉPICO 12: Observer - Integração Básica (MVP)
+## ✅ ÉPICO 12: Observer - Integração Básica (MVP)
 
-**Objetivo:** Integrar Observer ao grafo principal. CognitiveModel disponível no estado para uso pelo orquestrador. Timeline mostra ações do Observer.
-
-**Status:** ✅ Refinado (pronto para implementação)
-
-**Dependências:**
-- Épicos 10-11
-
-> **Decisão Técnica:** Após spikes de validação (2025-12-08), confirmado que LangGraph não suporta paralelismo nativo via `add_edge(START, [list])`. Implementação usará callback assíncrono. Claude demonstrou uso natural do CognitiveModel via prompt (80% score), validando que tool explícita não é necessária no MVP.
+Observer integrado ao fluxo multi-agente via callback assíncrono em background thread. Processa turnos após Orchestrator sem aumentar latência, atualiza cognitive_model no estado, publica eventos cognitive_model_updated no EventBus, e exibe atividade na Timeline. Orquestrador acessa cognitive_model via prompt context com seção "COGNITIVE MODEL DISPONÍVEL". 28 testes passando.
 
 **Consulte:**
-- `docs/epics/epic-12-observer-integration.md` - **Especificação técnica completa**
+- `docs/epics/epic-12-observer-integration.md` - Especificação técnica completa
 - `docs/agents/observer.md` - Comunicação Observador ↔ Orquestrador
 - `docs/architecture/observer_architecture.md` - Integração com grafo
-
-### Funcionalidades:
-
-#### 12.1 Callback Assíncrono Observer
-
-- **Descrição:** Observer roda automaticamente após cada turno do Orquestrador em background thread
-- **Critérios de Aceite:**
-  - Observer dispara após `orchestrator_node` completar
-  - Execução em thread daemon (não bloqueia shutdown)
-  - Latência do usuário não aumenta (Observer <3s em background)
-  - CognitiveModel atualizado no `state["cognitive_model"]`
-  - Evento `cognitive_model_updated` publicado no EventBus
-  - Erros não quebram fluxo principal (try/except completo)
-
-#### 12.2 CognitiveModel no Estado e Prompt do Orquestrador
-
-- **Descrição:** Orquestrador acessa cognitive_model via prompt e usa naturalmente
-- **Critérios de Aceite:**
-  - Campo `cognitive_model` existe em `MultiAgentState` (já existe)
-  - Prompt do Orquestrador inclui seção "COGNITIVE MODEL DISPONÍVEL" quando disponível
-  - Formato inclui: afirmação, fundamentos (com solidez), conceitos, contradições, questões abertas, métricas
-  - Claude menciona cognitive_model no reasoning (validado por spike - 80% score)
-  - Limites de conteúdo (5 fundamentos, 3 contradições, 5 questões) para não sobrecarregar prompt
-
-#### 12.3 Timeline Visual
-
-- **Descrição:** Timeline mostra quando Observer processou turno
-- **Critérios de Aceite:**
-  - Eventos `cognitive_model_updated` aparecem na timeline
-  - Formato: "👁️ Turno X processado" com métricas (conceitos, solidez)
-  - Integrado com timeline existente (não quebra UX)
-  - Mostra últimos 3-5 eventos do Observer
-  - Opcional: Seção colapsável separada "👁️ Observador"
-
-#### 12.4 Testes de Integração
-
-- **Descrição:** Validação completa da integração
-- **Critérios de Aceite:**
-  - Testes unitários: callback disparado, state atualizado, eventos publicados
-  - Testes de integração: cenários multi-turn com Observer ativo
-  - Validação: Observer não interfere no fluxo principal
-  - Validação: cognitive_model disponível no próximo turno do Orquestrador
-  - Script de validação: `scripts/validate_observer_integration.py`
-
-**Estimativas:**
-- LOC: ~600 linhas
-- Tempo: 2h
-- Risco: Baixo
 
 ---
 
