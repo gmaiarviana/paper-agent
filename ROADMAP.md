@@ -26,13 +26,13 @@
 - **ÉPICO 12**: Observer - Integração Básica (MVP) - Observer integrado ao fluxo multi-agente via callback assíncrono. Processa turnos em background após Orchestrator, publica eventos cognitive_model_updated, e exibe atividade na Timeline. Orquestrador acessa cognitive_model via prompt context. 28 testes passando.
 
 ### 🟡 Épicos Em Andamento
+- **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística) - Features 13.1-13.4 implementadas (66 testes), pendente: 13.5 Timeline Visual, 13.6 Testes E2E
 
 ### ⏳ Épicos Planejados
 
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
 #### Refinados (prontos para implementação)
-- **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística)
 - **ÉPICO 14**: Observer - Consultas Inteligentes
 - **ÉPICO 15**: Observer - Painel Visual Dedicado
 
@@ -101,9 +101,10 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
 
 ### Funcionalidades:
 
-#### 13.1 Detecção de Variations vs Mudanças Reais
+#### 13.1 Detecção de Variations vs Mudanças Reais (✅ Implementado)
 
 - **Descrição:** Observador detecta se mudança de texto é variation (mesma essência) ou mudança real (essência diferente), consultando LLM com contexto completo.
+- **Implementação:** `detect_variation()` em `agents/observer/extractors.py`
 - **Critérios de Aceite:**
   - Quando subject/claim muda, Observador consulta LLM passando texto anterior, novo texto, e CognitiveModel completo
   - LLM analisa: "são variations do mesmo conceito ou mudança real?"
@@ -112,35 +113,36 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Retorna análise do LLM (não booleano simples)
   - Observador NÃO decide automaticamente se interromper - apenas detecta
 
-#### 13.2 Análise de Grau de Confusão (Qualitativa)
+#### 13.2 Avaliação de Clareza da Conversa (✅ Implementado)
 
-- **Descrição:** Observador analisa CognitiveModel e retorna avaliação contextual de "como está a conversa" via LLM.
+- **Descrição:** Observador analisa CognitiveModel e retorna avaliação de clareza da conversa via LLM.
 - **Critérios de Aceite:**
-  - Método `calculate_confusion_level() -> dict` retorna avaliação textual
-  - LLM analisa: contradições, open_questions, mudanças de claim, proposições frágeis
-  - Resposta natural do LLM (não estrutura fixa ou número)
-  - Inclui: tem confusão? fontes? recomenda intervenção? como intervir?
+  - Escala qualitativa: "cristalina" → "clara" → "nebulosa" → "confusa"
+  - Score numérico 1-5 para parametrização
+  - Flag `needs_checkpoint` para controle de fluxo
+  - Factors: claim_definition, coherence, direction_stability
   - Orquestrador lê essa análise e decide (não é automático)
+- **Implementação:** `evaluate_conversation_clarity()` em `agents/observer/extractors.py`
 
-#### 13.3 Detecção Aprimorada de Mudança de Direção
+#### 13.3 Detecção Aprimorada de Mudança de Direção (✅ Implementado)
 
 - **Descrição:** Orquestrador consulta Observador quando percebe mudança potencial, sem análise multi-dimensional automática.
+- **Implementação:** `_consult_observer()` em `agents/orchestrator/nodes.py`
 - **Critérios de Aceite:**
-  - Quando intent muda OU subject muda OU claim evolui significativamente, Orquestrador consulta `detect_variation()` do Observador
-  - Observador retorna análise contextual (não classificação automática)
-  - Orquestrador lê análise e decide se confirmar com usuário
-  - Não calcula "severidade" automaticamente
-  - Logs informativos mostram detecção, mas não classificação rígida
+  - Orquestrador consulta `detect_variation()` do Observador a cada turno
+  - Observador retorna análise contextual (classification: "variation" ou "real_change")
+  - Orquestrador lê análise e decide se ajustar next_step
+  - Logs informativos mostram detecção sem classificação rígida
 
-#### 13.4 Integração com Orquestrador (Conversação Natural)
+#### 13.4 Checkpoints Contextuais (✅ Implementado)
 
-- **Descrição:** Orquestrador usa análises do Observador para decidir quando intervir, com linguagem humana.
+- **Descrição:** Orquestrador usa análises do Observador para decidir quando solicitar esclarecimentos.
+- **Implementação:** Campos `clarity_evaluation` e `variation_analysis` no state
 - **Critérios de Aceite:**
-  - Variation: Orquestrador continua sem mencionar
-  - Mudança real: Orquestrador confirma naturalmente ("Entendi que você quer mudar o foco. Vamos por esse caminho?")
-  - Confusão: Orquestrador pergunta naturalmente ("Fiquei com dúvidas sobre esses pontos. Poderia esclarecer?")
-  - NUNCA diz: "Detectei", "Classificado como", "Severidade major"
-  - Usa insights sem expor terminologia técnica
+  - Se `needs_checkpoint=True`, Orquestrador ajusta `next_step` para "clarify"
+  - Clareza "cristalina"/"clara": continua sem intervenção
+  - Clareza "nebulosa"/"confusa": sugere checkpoint
+  - Mudança real detectada: trigger checkpoint para confirmação
 
 #### 13.5 Timeline Visual de Mudanças
 
