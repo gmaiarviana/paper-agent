@@ -16,6 +16,7 @@ from datetime import datetime
 from utils.event_bus import get_event_bus
 from utils.currency import format_currency, format_currency_precise
 from agents.database.manager import get_database_manager
+from utils.config import DEFAULT_MODEL
 from .constants import AGENT_EMOJIS
 
 logger = logging.getLogger(__name__)
@@ -106,7 +107,7 @@ def _get_session_events_details(session_id: str) -> List[Dict[str, Any]]:
                 "tokens_total": event.get("tokens_total", 0),
                 "duration": event.get("duration", 0.0),
                 "timestamp": event.get("timestamp", ""),
-                "model": event.get("model", "claude-3-5-sonnet")
+                "model": event.get("model", DEFAULT_MODEL)
             })
 
         return details

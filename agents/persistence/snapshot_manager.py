@@ -111,7 +111,8 @@ class SnapshotManager:
                         Se None, usa singleton global via get_database_manager()
         """
         self.db = db_manager or get_database_manager()
-        self.llm = create_anthropic_client("claude-3-5-haiku-20241022")  # Haiku para custo-benefício
+        from utils.config import DEFAULT_MODEL
+        self.llm = create_anthropic_client(DEFAULT_MODEL)  # Haiku para custo-benefício
 
     def assess_maturity(
         self,

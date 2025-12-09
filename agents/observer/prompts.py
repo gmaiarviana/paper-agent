@@ -17,6 +17,8 @@ Notes:
     - Modelo recomendado: claude-3-5-haiku-20241022 (custo-efetivo)
 """
 
+from utils.config import DEFAULT_MODEL
+
 # =============================================================================
 # PROMPT: EXTRACAO DE CLAIMS
 # =============================================================================
@@ -535,7 +537,7 @@ IMPORTANTE:
 # =============================================================================
 
 # Modelo recomendado para extracao (custo-efetivo e rapido)
-RECOMMENDED_MODEL = "claude-3-5-haiku-20241022"
+RECOMMENDED_MODEL = DEFAULT_MODEL
 
 # Temperature para extracao (deterministica)
 EXTRACTION_TEMPERATURE = 0

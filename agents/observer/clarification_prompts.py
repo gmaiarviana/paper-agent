@@ -18,6 +18,8 @@ Epico 14: Observer - Consultas Inteligentes
 Data: 2025-12-09
 """
 
+from utils.config import DEFAULT_MODEL
+
 # =============================================================================
 # PROMPT: IDENTIFICAR NECESSIDADES DE ESCLARECIMENTO
 # =============================================================================
@@ -293,7 +295,7 @@ REGRAS DE TIMING:
 # =============================================================================
 
 # Modelo recomendado para clarification (precisa de nuance)
-CLARIFICATION_MODEL = "claude-3-5-haiku-20241022"
+CLARIFICATION_MODEL = DEFAULT_MODEL
 
 # Temperature para identificacao (balanceada)
 IDENTIFICATION_TEMPERATURE = 0.3

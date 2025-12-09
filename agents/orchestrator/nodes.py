@@ -42,7 +42,7 @@ from pydantic import ValidationError
 
 from .state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
-from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client
+from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client, DEFAULT_MODEL
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
@@ -718,7 +718,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         logger.info(f"Usando modelo do YAML: {model_name}")
     except ConfigLoadError:
         # Fallback: modelo padrão Haiku (mais econômico e sempre disponível)
-        model_name = "claude-3-5-haiku-20241022"
+        model_name = DEFAULT_MODEL
         logger.warning(f"Config YAML não disponível. Usando fallback: {model_name}")
 
     try:

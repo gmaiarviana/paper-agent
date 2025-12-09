@@ -27,7 +27,7 @@ from .state import MethodologistState
 from .tools import ask_user
 from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
-from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client
+from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client, DEFAULT_MODEL
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
@@ -372,7 +372,7 @@ def decide_collaborative(state: dict, config: Optional[RunnableConfig] = None) -
         logger.warning("⚠️ Usando prompt e modelo padrão (fallback)")
         # Fallback: usar prompt da utils.prompts
         system_prompt = METHODOLOGIST_DECIDE_PROMPT_V2
-        model_name = "claude-sonnet-4-20250514"
+        model_name = DEFAULT_MODEL
     
     # Obter questão estruturada para metadata inicial
     structurer_output = state.get('structurer_output')

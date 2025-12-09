@@ -24,7 +24,7 @@ from agents.memory.config_loader import get_agent_prompt, get_agent_model, Confi
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
 from utils.structured_logger import StructuredLogger
-from utils.config import create_anthropic_client
+from utils.config import create_anthropic_client, DEFAULT_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ Você pode operar em dois modos:
 2. REFINAMENTO: Recebe feedback do Metodologista e gera versão refinada (V2/V3)
 
 IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensamento do usuário."""
-        model_name = "claude-3-5-haiku-20241022"
+        model_name = DEFAULT_MODEL
 
     # Extrair trace_id do config para logging estruturado
     trace_id = "unknown"
