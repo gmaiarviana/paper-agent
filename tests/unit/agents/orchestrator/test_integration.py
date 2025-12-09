@@ -5,11 +5,39 @@ Cobre:
 - Integração com active_idea_id do config (Épico 9.2)
 - Criação automática de snapshots (Épico 9.3)
 - Tratamento de falhas silenciosas
+
+IMPORTANTE (Épico 13.3):
+- orchestrator_node() agora chama _consult_observer() que faz chamadas LLM
+- Testes DEVEM mockar _consult_observer para evitar dependência de API key
+- Sem mock, fallback retorna needs_checkpoint=True, mudando next_step para "clarify"
 """
 
+import pytest
 from unittest.mock import Mock, patch
 from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.orchestrator.nodes import orchestrator_node
+
+
+# Fixture para mock padrão do Observer (Épico 13.3)
+# Retorna resultado neutro que não interfere no fluxo normal do teste
+MOCK_OBSERVER_RESULT = {
+    "clarity_evaluation": None,
+    "variation_analysis": None,
+    "needs_checkpoint": False,
+    "checkpoint_reason": None
+}
+
+
+@pytest.fixture(autouse=True)
+def mock_consult_observer():
+    """Mock automático de _consult_observer para todos os testes deste módulo.
+
+    Épico 13.3: orchestrator_node() agora consulta o Observer para análise
+    de clareza e variação. Sem mock, testes falham no CI (sem API key).
+    """
+    with patch('agents.orchestrator.nodes._consult_observer') as mock:
+        mock.return_value = MOCK_OBSERVER_RESULT
+        yield mock
 
 
 class TestActiveIdeaIdFromConfig:
