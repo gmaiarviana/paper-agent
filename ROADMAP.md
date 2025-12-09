@@ -27,13 +27,13 @@
 
 ### 🟡 Épicos Em Andamento
 - **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística) - Features 13.1-13.4 implementadas (66 testes), pendente: 13.5 Timeline Visual, 13.6 Testes E2E
+- **ÉPICO 14**: Observer - Consultas Inteligentes - Base implementada (14.1-14.3), Observer identifica pontos de esclarecimento e sugere abordagens
 
 ### ⏳ Épicos Planejados
 
 > **Nota:** Épicos foram renumerados. O antigo "ÉPICO 6: Qualidade de Testes" foi dividido em 3 épicos refinados (6, 7, 8). Épicos antigos 7-11 foram renumerados para 9-13.
 
 #### Refinados (prontos para implementação)
-- **ÉPICO 14**: Observer - Consultas Inteligentes
 - **ÉPICO 15**: Observer - Painel Visual Dedicado
 
 #### Planejados (não refinados)
@@ -169,7 +169,7 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
 
 **Objetivo:** Quando Observer detecta confusão, sistema faz perguntas contextuais para esclarecer, ao invés de apenas apontar problemas.
 
-**Status:** ✅ Refinado (pronto para implementação)
+**Status:** 🟡 Em Andamento - Base implementada (14.1-14.3)
 
 **Dependências:**
 - Épico 13 (detecção de variations e confusão)
