@@ -253,10 +253,14 @@ class TestStateHasObserverFields:
 
     def test_state_has_clarity_evaluation_field(self):
         """Valida que MultiAgentState tem campo clarity_evaluation."""
-        # Importar diretamente o arquivo para pegar as annotations
-        import ast
+        import os
+        # Usar caminho relativo ao projeto
+        state_path = os.path.join(
+            os.path.dirname(__file__),
+            '..', '..', 'agents', 'orchestrator', 'state.py'
+        )
 
-        with open('/home/user/paper-agent/agents/orchestrator/state.py', 'r') as f:
+        with open(state_path, 'r') as f:
             content = f.read()
 
         assert "clarity_evaluation" in content
@@ -264,7 +268,13 @@ class TestStateHasObserverFields:
 
     def test_state_has_variation_analysis_field(self):
         """Valida que MultiAgentState tem campo variation_analysis."""
-        with open('/home/user/paper-agent/agents/orchestrator/state.py', 'r') as f:
+        import os
+        state_path = os.path.join(
+            os.path.dirname(__file__),
+            '..', '..', 'agents', 'orchestrator', 'state.py'
+        )
+
+        with open(state_path, 'r') as f:
             content = f.read()
 
         assert "variation_analysis" in content
