@@ -43,11 +43,11 @@ class TestStructurerNode:
             "structured_question": "Como ferramentas de IA como Claude Code impactam a produtividade no desenvolvimento de software?"
         }''')
 
-        # Act - Mock do ChatAnthropic com configuração completa
-        with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
+        # Act - Mock do create_anthropic_client
+        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm_instance
+            mock_create_client.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -88,10 +88,10 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
+        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm_instance
+            mock_create_client.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -113,10 +113,10 @@ class TestStructurerNode:
         mock_response = create_mock_llm_response("Resposta sem JSON válido")
 
         # Act
-        with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
+        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm_instance
+            mock_create_client.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -145,10 +145,10 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
+        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm_instance
+            mock_create_client.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -177,10 +177,10 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
+        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm_instance
+            mock_create_client.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -206,10 +206,10 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
+        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm_instance
+            mock_create_client.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -242,10 +242,10 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
+        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm_instance
+            mock_create_client.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -276,10 +276,10 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
+        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm_instance
+            mock_create_client.return_value = mock_llm_instance
 
             result = structurer_node(state)
 

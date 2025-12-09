@@ -10,6 +10,10 @@ import threading
 from unittest.mock import MagicMock, patch, ANY
 from langchain_core.messages import HumanMessage, AIMessage
 
+# Skip entire module if chromadb not installed (CI uses requirements-test.txt)
+# multi_agent_graph imports observer which requires chromadb
+pytest.importorskip("chromadb", reason="chromadb not installed - skipping observer callback tests")
+
 
 class TestObserverCallback:
     """Testes para _create_observer_callback()"""
