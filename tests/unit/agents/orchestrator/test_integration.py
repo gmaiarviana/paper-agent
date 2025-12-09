@@ -51,10 +51,8 @@ class TestActiveIdeaIdFromConfig:
         # Config SEM active_idea_id
         config = {"configurable": {"thread_id": "test-thread"}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             # Não deve lançar exceção
             result = orchestrator_node(state, config=config)
@@ -102,10 +100,8 @@ class TestActiveIdeaIdFromConfig:
             }
         }
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state, config=config)
 
@@ -152,10 +148,8 @@ class TestActiveIdeaIdFromConfig:
             }
         }
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state, config=config)
 
@@ -188,8 +182,8 @@ class TestSnapshotCreation:
   "cognitive_model": {
     "claim": "LLMs aumentam produtividade",
     "proposicoes": [
-      {"texto": "Premissa 1", "solidez": None},
-      {"texto": "Premissa 2", "solidez": None}
+      {"texto": "Premissa 1", "solidez": null},
+      {"texto": "Premissa 2", "solidez": null}
     ],
     "open_questions": [],
     "contradictions": [],
@@ -208,11 +202,9 @@ class TestSnapshotCreation:
             }
         }
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class, \
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke, \
              patch('agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_invoke.return_value = mock_response
             mock_snapshot.return_value = None  # Argumento não maduro
 
             result = orchestrator_node(state, config=config)
@@ -261,11 +253,9 @@ class TestSnapshotCreation:
         # Config SEM active_idea_id
         config = {"configurable": {"thread_id": "test-thread"}}
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class, \
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke, \
              patch('agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state, config=config)
 
@@ -314,11 +304,9 @@ class TestSnapshotCreation:
             }
         }
 
-        with patch('agents.orchestrator.nodes.ChatAnthropic') as mock_llm_class, \
+        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke, \
              patch('agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_invoke.return_value = mock_response
             # Simula falha no snapshot
             mock_snapshot.side_effect = Exception("Database error")
 
@@ -328,4 +316,3 @@ class TestSnapshotCreation:
         # Orchestrator continua funcionando normalmente
         assert result["next_step"] == "explore"
         assert "cognitive_model" in result
-

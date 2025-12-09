@@ -6,16 +6,23 @@ Testa os componentes do Épico 3, Funcionalidade 3.2:
 
 Estes testes usam MOCKS para a API da Anthropic (rápidos, sem custo).
 
-Versão: 1.0
-Data: 11/11/2025
+Versão: 1.1
+Data: 09/12/2025
 """
 
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
 from langchain_core.messages import AIMessage
 
 from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
 from agents.structurer.nodes import structurer_node
+
+
+def create_mock_llm_response(content):
+    """Helper para criar mock response do LLM."""
+    mock_response = Mock()
+    mock_response.content = content
+    return mock_response
 
 
 class TestStructurerNode:
@@ -29,20 +36,18 @@ class TestStructurerNode:
             session_id="test-session-1",
         )
 
-        # Mock da resposta do LLM
-        mock_response = Mock()
-        mock_response.content = '''{
+        mock_response = create_mock_llm_response('''{
             "context": "Desenvolvimento de software com IA",
             "problem": "Falta de métodos para medir produtividade com ferramentas de IA",
             "contribution": "Método para avaliar eficácia de ferramentas de IA no desenvolvimento",
             "structured_question": "Como ferramentas de IA como Claude Code impactam a produtividade no desenvolvimento de software?"
-        }'''
+        }''')
 
-        # Act
+        # Act - Mock do ChatAnthropic com configuração completa
         with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_llm_instance = MagicMock()
+            mock_llm_instance.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -75,20 +80,18 @@ class TestStructurerNode:
             session_id="test-session-1",
         )
 
-        # Mock com todos os campos preenchidos
-        mock_response = Mock()
-        mock_response.content = '''{
+        mock_response = create_mock_llm_response('''{
             "context": "Educação online",
             "problem": "Baixo engajamento em aulas tradicionais",
             "contribution": "Framework de design instrucional para aulas interativas",
             "structured_question": "Qual o impacto de elementos interativos no engajamento de alunos em educação online?"
-        }'''
+        }''')
 
         # Act
         with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_llm_instance = MagicMock()
+            mock_llm_instance.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -107,15 +110,13 @@ class TestStructurerNode:
             session_id="test-session-1",
         )
 
-        # Mock com JSON inválido
-        mock_response = Mock()
-        mock_response.content = "Resposta sem JSON válido"
+        mock_response = create_mock_llm_response("Resposta sem JSON válido")
 
         # Act
         with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_llm_instance = MagicMock()
+            mock_llm_instance.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -138,18 +139,16 @@ class TestStructurerNode:
             session_id="test-session-1",
         )
 
-        # Mock com JSON parcial (faltando alguns campos)
-        mock_response = Mock()
-        mock_response.content = '''{
+        mock_response = create_mock_llm_response('''{
             "context": "Contexto identificado",
             "structured_question": "Questão estruturada?"
-        }'''
+        }''')
 
         # Act
         with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_llm_instance = MagicMock()
+            mock_llm_instance.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -170,20 +169,18 @@ class TestStructurerNode:
             session_id="test-session-1",
         )
 
-        # Mock
-        mock_response = Mock()
-        mock_response.content = '''{
+        mock_response = create_mock_llm_response('''{
             "context": "Teste contexto",
             "problem": "Teste problema",
             "contribution": "Teste contribuição",
             "structured_question": "Teste questão?"
-        }'''
+        }''')
 
         # Act
         with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_llm_instance = MagicMock()
+            mock_llm_instance.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -201,20 +198,18 @@ class TestStructurerNode:
             session_id="test-session-1",
         )
 
-        # Mock
-        mock_response = Mock()
-        mock_response.content = '''{
+        mock_response = create_mock_llm_response('''{
             "context": "Ctx",
             "problem": "Prb",
             "contribution": "Cnt",
             "structured_question": "Questão?"
-        }'''
+        }''')
 
         # Act
         with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_llm_instance = MagicMock()
+            mock_llm_instance.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -239,19 +234,18 @@ class TestStructurerNode:
         )
 
         # Mock - LLM deve tentar estruturar mesmo input vago
-        mock_response = Mock()
-        mock_response.content = '''{
+        mock_response = create_mock_llm_response('''{
             "context": "Observação geral",
             "problem": "Falta especificidade na observação",
             "contribution": "Exploração de padrões interessantes",
             "structured_question": "Quais aspectos das 'coisas' são considerados interessantes e por quê?"
-        }'''
+        }''')
 
         # Act
         with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_llm_instance = MagicMock()
+            mock_llm_instance.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
@@ -274,20 +268,18 @@ class TestStructurerNode:
             session_id="test-session-1",
         )
 
-        # Mock
-        mock_response = Mock()
-        mock_response.content = '''{
+        mock_response = create_mock_llm_response('''{
             "context": "Metodologias de trabalho",
             "problem": "Comparação de eficácia entre métodos",
             "contribution": "Critérios para seleção de métodos",
             "structured_question": "Em que contextos o Método X demonstra maior eficácia comparado a alternativas?"
-        }'''
+        }''')
 
         # Act
         with patch('agents.structurer.nodes.ChatAnthropic') as mock_llm_class:
-            mock_llm = Mock()
-            mock_llm.invoke.return_value = mock_response
-            mock_llm_class.return_value = mock_llm
+            mock_llm_instance = MagicMock()
+            mock_llm_instance.invoke.return_value = mock_response
+            mock_llm_class.return_value = mock_llm_instance
 
             result = structurer_node(state)
 
