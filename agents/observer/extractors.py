@@ -28,7 +28,7 @@ from .prompts import (
     DETECT_CONTRADICTIONS_PROMPT,
     IDENTIFY_GAPS_PROMPT,
     VARIATION_DETECTION_PROMPT,
-    CONFUSION_EVALUATION_PROMPT,
+    CLARITY_EVALUATION_PROMPT,
     RECOMMENDED_MODEL,
     EXTRACTION_TEMPERATURE,
     MAX_EXTRACTION_TOKENS,
@@ -659,23 +659,26 @@ def detect_variation(
         }
 
 
-def calculate_confusion_level(
+def evaluate_conversation_clarity(
     cognitive_model: Dict[str, Any],
     conversation_history: Optional[List[Dict[str, Any]]] = None,
     llm: Optional[ChatAnthropic] = None
 ) -> Dict[str, Any]:
     """
-    Avalia qualitativamente o nivel de confusao no raciocinio (Epico 13.2).
+    Avalia a clareza da conversa atual (Epico 13.2).
 
-    Esta funcao analisa o CognitiveModel completo para identificar tensoes,
-    inconsistencias ou areas que podem precisar de esclarecimento.
+    Esta funcao analisa o CognitiveModel e historico para determinar
+    se a conversa esta fluindo bem ou precisa de um checkpoint.
 
-    IMPORTANTE: Avaliacao QUALITATIVA, nao numerica. Retorna descricoes
-    em linguagem natural, sem scores ou porcentagens.
+    Escala de clareza (do melhor ao pior):
+    - "cristalina": Conversa excepcional, claim bem definido, coerente
+    - "clara": Conversa boa, pode continuar
+    - "nebulosa": Ha pontos que merecem esclarecimento
+    - "confusa": Precisa parar e clarificar
 
     Filosofia (Epico 13):
-    - Analise 100% contextual via LLM
-    - Sem thresholds numericos
+    - Analise contextual via LLM
+    - Indice numerico (1-5) para parametrizacao
     - Observer avalia; Orchestrator decide se/como intervir
 
     Args:
@@ -685,31 +688,40 @@ def calculate_confusion_level(
         llm: Instancia do LLM (opcional, cria se nao fornecido).
 
     Returns:
-        Dict com avaliacao qualitativa:
-        - confusion_detected: bool - Se ha confusao significativa
-        - description: str - Descricao natural do estado
-        - affected_areas: List[str] - Areas afetadas pela confusao
-        - sources: List[str] - Fontes/causas da confusao
-        - recommendation: str|None - Recomendacao para o Orquestrador
-        - intervention_suggestion: str|None - Como intervir naturalmente
-        - severity_qualitative: str - "leve", "moderada" ou "significativa"
+        Dict com avaliacao de clareza:
+        - clarity_level: str - "cristalina", "clara", "nebulosa" ou "confusa"
+        - clarity_score: int - 1 a 5 (5=cristalina, 1=confusa)
+        - description: str - Descricao de como a conversa esta fluindo
+        - needs_checkpoint: bool - Se precisa parar e esclarecer
+        - factors: dict - Fatores que influenciam a clareza
+            - claim_definition: "bem definido", "parcial" ou "vago"
+            - coherence: "alta", "media" ou "baixa"
+            - direction_stability: "estavel", "algumas mudancas" ou "instavel"
+        - suggestion: str|None - Sugestao para melhorar clareza
 
     Example:
-        >>> result = calculate_confusion_level(
+        >>> result = evaluate_conversation_clarity(
         ...     cognitive_model={
-        ...         "claim": "LLMs aumentam produtividade",
-        ...         "contradictions": [{"description": "Conflito sobre metricas"}],
-        ...         "open_questions": ["Como medir produtividade?"]
+        ...         "claim": "LLMs aumentam produtividade em 30%",
+        ...         "proposicoes": [{"texto": "Estudos mostram ganho", "solidez": 0.8}]
         ...     }
         ... )
-        >>> print(result['confusion_detected'])
+        >>> print(result['clarity_level'])
+        'clara'
+        >>> print(result['needs_checkpoint'])
+        False
+
+        >>> result = evaluate_conversation_clarity(
+        ...     cognitive_model={"claim": "", "proposicoes": []}
+        ... )
+        >>> print(result['clarity_level'])
+        'confusa'
+        >>> print(result['needs_checkpoint'])
         True
-        >>> print(result['description'])
-        'Ha tensao entre o claim principal e uma questao aberta sobre metricas'
 
     Notes:
-        - Versao 1.0 (Epico 13.2): Implementacao inicial
-        - Prefere falsos negativos a falsos positivos
+        - Versao 2.0 (Epico 13.2): Substituiu calculate_confusion_level
+        - Foco em "clareza" ao inves de "confusao"
         - Observer avalia APENAS; NAO decide interromper
     """
     if llm is None:
@@ -765,7 +777,7 @@ def calculate_confusion_level(
         history_str = "\n".join(history_lines)
 
     # Construir prompt
-    prompt = CONFUSION_EVALUATION_PROMPT.format(
+    prompt = CLARITY_EVALUATION_PROMPT.format(
         claim=claim or "(nenhum claim definido)",
         proposicoes=props_str,
         contradictions=contradictions_str,
@@ -779,53 +791,81 @@ def calculate_confusion_level(
         response = invoke_with_retry(
             llm=llm,
             messages=messages,
-            agent_name="observer_confusion_evaluation"
+            agent_name="observer_clarity_evaluation"
         )
 
         # Parse JSON
         data = extract_json_from_llm_response(response.content)
 
-        # Validar e normalizar campos
+        # Extrair e validar clarity_level
+        clarity_level = data.get("clarity_level", "nebulosa")
+        valid_levels = ("cristalina", "clara", "nebulosa", "confusa")
+        if clarity_level not in valid_levels:
+            clarity_level = "nebulosa"
+
+        # Extrair e validar clarity_score
+        clarity_score = data.get("clarity_score", 3)
+        if not isinstance(clarity_score, int) or clarity_score < 1 or clarity_score > 5:
+            # Inferir score do level
+            score_map = {"cristalina": 5, "clara": 4, "nebulosa": 3, "confusa": 1}
+            clarity_score = score_map.get(clarity_level, 3)
+
+        # Extrair needs_checkpoint
+        needs_checkpoint = data.get("needs_checkpoint", clarity_level in ("nebulosa", "confusa"))
+
+        # Extrair factors com defaults
+        factors = data.get("factors", {})
+        default_factors = {
+            "claim_definition": "parcial",
+            "coherence": "media",
+            "direction_stability": "algumas mudancas"
+        }
+        for key, default_value in default_factors.items():
+            if key not in factors:
+                factors[key] = default_value
+
+        # Validar valores dos factors
+        valid_claim_def = ("bem definido", "parcial", "vago")
+        valid_coherence = ("alta", "media", "baixa")
+        valid_stability = ("estavel", "algumas mudancas", "instavel")
+
+        if factors.get("claim_definition") not in valid_claim_def:
+            factors["claim_definition"] = "parcial"
+        if factors.get("coherence") not in valid_coherence:
+            factors["coherence"] = "media"
+        if factors.get("direction_stability") not in valid_stability:
+            factors["direction_stability"] = "algumas mudancas"
+
+        # Construir resultado
         result = {
-            "confusion_detected": bool(data.get("confusion_detected", False)),
-            "description": data.get("description", "Analise nao disponivel"),
-            "affected_areas": data.get("affected_areas", []),
-            "sources": data.get("sources", []),
-            "recommendation": data.get("recommendation"),
-            "intervention_suggestion": data.get("intervention_suggestion"),
-            "severity_qualitative": data.get("severity_qualitative", "leve")
+            "clarity_level": clarity_level,
+            "clarity_score": clarity_score,
+            "description": data.get("description", "Avaliacao de clareza nao disponivel"),
+            "needs_checkpoint": bool(needs_checkpoint),
+            "factors": factors,
+            "suggestion": data.get("suggestion")
         }
 
-        # Garantir que severity seja valido
-        valid_severities = ("leve", "moderada", "significativa")
-        if result["severity_qualitative"] not in valid_severities:
-            result["severity_qualitative"] = "leve"
-
-        # Garantir consistencia: se nao ha confusao, limpar campos relacionados
-        if not result["confusion_detected"]:
-            result["affected_areas"] = []
-            result["sources"] = []
-            result["recommendation"] = None
-            result["intervention_suggestion"] = None
-            result["severity_qualitative"] = "leve"
-
         logger.info(
-            f"Confusao avaliada: detected={result['confusion_detected']}, "
-            f"severity={result['severity_qualitative']}, "
-            f"areas={len(result['affected_areas'])}"
+            f"Clareza avaliada: level={result['clarity_level']}, "
+            f"score={result['clarity_score']}, "
+            f"checkpoint={result['needs_checkpoint']}"
         )
 
         return result
 
     except Exception as e:
-        logger.warning(f"Erro ao avaliar confusao: {e}")
-        # Fallback conservador: assume que NAO ha confusao
+        logger.warning(f"Erro ao avaliar clareza: {e}")
+        # Fallback: assume clareza media (nebulosa)
         return {
-            "confusion_detected": False,
+            "clarity_level": "nebulosa",
+            "clarity_score": 3,
             "description": f"Erro na analise: {str(e)}",
-            "affected_areas": [],
-            "sources": [],
-            "recommendation": None,
-            "intervention_suggestion": None,
-            "severity_qualitative": "leve"
+            "needs_checkpoint": True,
+            "factors": {
+                "claim_definition": "parcial",
+                "coherence": "media",
+                "direction_stability": "algumas mudancas"
+            },
+            "suggestion": "Verificar se ha pontos a esclarecer"
         }

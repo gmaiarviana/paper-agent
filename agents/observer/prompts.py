@@ -408,16 +408,20 @@ IMPORTANTE:
 - Esta analise e DESCRITIVA - o Orquestrador decidira como agir"""
 
 # =============================================================================
-# PROMPT: AVALIACAO QUALITATIVA DE CONFUSAO (Epico 13.2)
+# PROMPT: AVALIACAO DE CLAREZA DA CONVERSA (Epico 13.2)
 # =============================================================================
 
-CONFUSION_EVALUATION_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
+CLARITY_EVALUATION_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
 
 TAREFA:
-Avalie qualitativamente o nivel de "confusao" no raciocinio atual da conversa.
-Confusao indica tensoes, inconsistencias ou areas nebulosas que podem precisar esclarecimento.
+Avalie a CLAREZA da conversa atual. Determine se o dialogo esta fluindo bem
+e pode continuar, ou se precisa de um checkpoint para esclarecimentos.
 
-IMPORTANTE: Esta avaliacao e QUALITATIVA, nao numerica. Nao use scores ou porcentagens.
+ESCALA DE CLAREZA (do melhor ao pior):
+- "cristalina": Conversa excepcional. Claim bem definido, raciocinio coerente, direcao clara.
+- "clara": Conversa boa. Alguns pontos podem ser refinados, mas flui bem.
+- "nebulosa": Conversa com ambiguidades. Ha pontos que merecem esclarecimento.
+- "confusa": Conversa dificil. Claims vagos, mudancas de direcao, precisa parar e clarificar.
 
 COGNITIVE MODEL ATUAL:
 Claim central: {claim}
@@ -437,60 +441,93 @@ Conceitos detectados:
 HISTORICO RECENTE:
 {recent_history}
 
-ANALISE QUALITATIVA:
-Considere os SINAIS DE CONFUSAO:
-1. Contradicoes nao resolvidas entre claims/proposicoes
-2. Questoes abertas criticas que afetam o argumento central
-3. Proposicoes frageis (solidez baixa) em posicoes importantes
-4. Mudancas de direcao sem fechamento do tema anterior
-5. Conceitos usados de forma inconsistente
+CRITERIOS DE AVALIACAO:
 
-Considere tambem SINAIS DE CLAREZA:
-1. Argumento coerente e bem estruturado
-2. Contradicoes ja esclarecidas ou resolvidas
-3. Questoes abertas exploratórias (nao bloqueadoras)
-4. Evolucao natural e logica do raciocinio
+Para CLAREZA ALTA (cristalina/clara):
+- Claim bem definido e especifico
+- Proposicoes coerentes entre si
+- Evolucao logica do raciocinio
+- Direcao estavel (sem mudancas bruscas)
+- Facil de acompanhar o fio condutor
+
+Para CLAREZA BAIXA (nebulosa/confusa):
+- Claims vagos ou mal definidos
+- Ambiguidades nao resolvidas
+- Mudancas de direcao frequentes
+- Contradicoes nao endereçadas
+- Dificil entender para onde a conversa vai
 
 RETORNE APENAS JSON:
 {{
-    "confusion_detected": true ou false,
-    "description": "Descricao natural do estado da conversa (sem jargoes tecnicos)",
-    "affected_areas": ["area afetada 1", "area afetada 2"],
-    "sources": ["fonte de confusao 1", "fonte de confusao 2"],
-    "recommendation": "Recomendacao para o Orquestrador (ou null se nao houver)",
-    "intervention_suggestion": "Sugestao de como intervir naturalmente (ou null)",
-    "severity_qualitative": "leve", "moderada" ou "significativa"
+    "clarity_level": "cristalina" ou "clara" ou "nebulosa" ou "confusa",
+    "clarity_score": 1 a 5,
+    "description": "Descricao natural de como a conversa esta fluindo",
+    "needs_checkpoint": true ou false,
+    "factors": {{
+        "claim_definition": "bem definido" ou "parcial" ou "vago",
+        "coherence": "alta" ou "media" ou "baixa",
+        "direction_stability": "estavel" ou "algumas mudancas" ou "instavel"
+    }},
+    "suggestion": "Sugestao para melhorar clareza (ou null se desnecessario)"
 }}
 
-EXEMPLOS DE SAIDA:
+MAPEAMENTO CLAREZA → SCORE:
+- cristalina = 5
+- clara = 4
+- nebulosa = 2-3
+- confusa = 1
 
-Se HOUVER confusao:
+MAPEAMENTO CLAREZA → CHECKPOINT:
+- cristalina/clara = needs_checkpoint: false (pode continuar)
+- nebulosa/confusa = needs_checkpoint: true (precisa esclarecer)
+
+EXEMPLOS:
+
+Conversa CRISTALINA:
 {{
-    "confusion_detected": true,
-    "description": "Dois claims sobre causalidade parecem conflitar e ainda nao foram reconciliados",
-    "affected_areas": ["relacao causa-efeito", "definicao de metricas"],
-    "sources": ["contradicao entre claims 1 e 3", "questao aberta sobre contexto"],
-    "recommendation": "Perguntar sobre os contextos - podem se aplicar a cenarios diferentes",
-    "intervention_suggestion": "Explorar se os dois casos se referem a situacoes distintas",
-    "severity_qualitative": "moderada"
+    "clarity_level": "cristalina",
+    "clarity_score": 5,
+    "description": "A conversa esta fluindo muito bem. O usuario tem um claim claro sobre LLMs e produtividade, com fundamentos coerentes.",
+    "needs_checkpoint": false,
+    "factors": {{
+        "claim_definition": "bem definido",
+        "coherence": "alta",
+        "direction_stability": "estavel"
+    }},
+    "suggestion": null
 }}
 
-Se NAO houver confusao:
+Conversa NEBULOSA:
 {{
-    "confusion_detected": false,
-    "description": "Raciocinio esta fluindo de forma coerente, sem tensoes significativas",
-    "affected_areas": [],
-    "sources": [],
-    "recommendation": null,
-    "intervention_suggestion": null,
-    "severity_qualitative": "leve"
+    "clarity_level": "nebulosa",
+    "clarity_score": 3,
+    "description": "Ha alguns pontos que merecem esclarecimento. O claim sobre produtividade esta definido, mas as metricas ainda estao vagas.",
+    "needs_checkpoint": true,
+    "factors": {{
+        "claim_definition": "parcial",
+        "coherence": "media",
+        "direction_stability": "algumas mudancas"
+    }},
+    "suggestion": "Esclarecer como a produtividade sera medida antes de continuar"
+}}
+
+Conversa CONFUSA:
+{{
+    "clarity_level": "confusa",
+    "clarity_score": 1,
+    "description": "A conversa esta dificil de acompanhar. O usuario mudou de assunto varias vezes e os claims estao vagos.",
+    "needs_checkpoint": true,
+    "factors": {{
+        "claim_definition": "vago",
+        "coherence": "baixa",
+        "direction_stability": "instavel"
+    }},
+    "suggestion": "Pausar e perguntar: qual e o foco principal que voce quer explorar?"
 }}
 
 IMPORTANTE:
-- NUNCA use porcentagens, scores ou thresholds
-- A descricao deve ser em LINGUAGEM NATURAL (como um colega explicaria)
-- O Orquestrador usara esta analise para decidir SE e COMO intervir
-- Preferir falsos negativos (nao reportar confusao) a falsos positivos
+- Avalie como um colega avaliaria: "esta facil ou dificil de acompanhar?"
+- O objetivo e determinar se a conversa pode FLUIR ou precisa de PAUSA
 - Esta analise e DESCRITIVA - o Orquestrador decidira como agir"""
 
 # =============================================================================
