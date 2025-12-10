@@ -182,9 +182,7 @@ def validate_execution_tracker():
     print("\n8. Testando cálculo de custos para diferentes modelos...")
     models_to_test = [
         "claude-3-5-haiku-20241022",
-        "claude-3-5-sonnet-20241022",
-        "claude-sonnet-4-20250514",
-        "claude-3-opus-20240229"
+        "claude-3-opus-20240229"  # Apenas Haiku e Opus (sem Sonnet)
     ]
 
     for model in models_to_test:

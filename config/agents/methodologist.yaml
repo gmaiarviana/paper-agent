@@ -65,7 +65,7 @@ context_limits:
   max_output_tokens: 2000     # Máximo de tokens de saída
   max_total_tokens: 10000     # Máximo total por chamada
 
-# Modelo LLM (Haiku para economia)
+# Modelo LLM (Haiku para economia de custos)
 model: claude-3-5-haiku-20241022
 
 # Metadados

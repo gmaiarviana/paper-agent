@@ -15,18 +15,11 @@ class CostTracker:
     """
 
     # Pricing in USD per 1M tokens (as of January 2025)
+    # Sistema sempre usa Haiku - outros modelos mantidos apenas para referência
     PRICING = {
         "claude-3-5-haiku-20241022": {
             "input": 0.80,   # $0.80 per 1M input tokens
             "output": 4.00,  # $4.00 per 1M output tokens
-        },
-        "claude-3-5-sonnet-20241022": {
-            "input": 3.00,   # $3.00 per 1M input tokens
-            "output": 15.00, # $15.00 per 1M output tokens
-        },
-        "claude-sonnet-4-20250514": {
-            "input": 3.00,   # $3.00 per 1M input tokens (same as 3.5 Sonnet)
-            "output": 15.00, # $15.00 per 1M output tokens (same as 3.5 Sonnet)
         },
         "claude-3-opus-20240229": {
             "input": 15.00,  # $15.00 per 1M input tokens

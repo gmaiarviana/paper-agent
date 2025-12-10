@@ -2,8 +2,11 @@
 Nós do grafo do agente Estruturador.
 
 Este módulo implementa o nó principal do Estruturador:
-- structurer_node: Organiza ideias vagas em questões de pesquisa estruturadas
-- Suporta refinamento baseado em feedback do Metodologista
+- structurer_node: Organiza ideias vagas em questões de pesquisa estruturadas (Épico 3)
+- Suporta refinamento baseado em feedback do Metodologista (Épico 4)
+
+Versão: 3.0 (Épico 6, Funcionalidade 6.1 - Config externa)
+Data: 13/11/2025
 """
 
 import logging
@@ -21,9 +24,10 @@ from agents.memory.config_loader import get_agent_prompt, get_agent_model, Confi
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
 from utils.structured_logger import StructuredLogger
-from utils.config import create_anthropic_client, DEFAULT_MODEL
+from utils.config import create_anthropic_client, get_anthropic_model
 
 logger = logging.getLogger(__name__)
+
 
 def structurer_node(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> dict:
     """
@@ -31,11 +35,11 @@ def structurer_node(state: MultiAgentState, config: Optional[RunnableConfig] = N
 
     Este nó opera em dois modos:
 
-    1. ESTRUTURAÇÃO INICIAL:
+    1. ESTRUTURAÇÃO INICIAL (Épico 3):
        - Recebe observação vaga do usuário
        - Gera questão de pesquisa estruturada (V1)
 
-    2. REFINAMENTO:
+    2. REFINAMENTO (Épico 4):
        - Recebe feedback do Metodologista (needs_refinement)
        - Gera versão refinada endereçando gaps específicos (V2, V3)
 
@@ -43,7 +47,7 @@ def structurer_node(state: MultiAgentState, config: Optional[RunnableConfig] = N
     - NÃO rejeita ideias
     - NÃO valida rigor científico (isso é responsabilidade do Metodologista)
     - Apenas organiza e estrutura o pensamento do usuário
-    - Registra execução no MemoryManager (se configurado)
+    - Registra execução no MemoryManager (se configurado - Épico 6.2)
 
     Args:
         state (MultiAgentState): Estado atual do sistema multi-agente.
@@ -71,7 +75,7 @@ def structurer_node(state: MultiAgentState, config: Optional[RunnableConfig] = N
         >>> result['refinement_iteration']
         1
     """
-    # Carregar prompt e modelo do YAML
+    # Carregar prompt e modelo do YAML (Épico 6, Funcionalidade 6.1)
     try:
         system_prompt = get_agent_prompt("structurer")
         model_name = get_agent_model("structurer")
@@ -88,7 +92,7 @@ Você pode operar em dois modos:
 2. REFINAMENTO: Recebe feedback do Metodologista e gera versão refinada (V2/V3)
 
 IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensamento do usuário."""
-        model_name = DEFAULT_MODEL
+        model_name = get_anthropic_model()  # Fallback usa modelo centralizado
 
     # Extrair trace_id do config para logging estruturado
     trace_id = "unknown"
@@ -178,6 +182,7 @@ IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensa
         )
         raise
 
+
 def _structure_initial_question(state: MultiAgentState, config: dict) -> dict:
     """
     Modo estruturação inicial: primeira vez, gera questão V1.
@@ -225,7 +230,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
 
     logger.info(f"Resposta do LLM: {response.content}")
 
-    # Registrar execução no MemoryManager
+    # Registrar execução no MemoryManager (Épico 6.2)
     langgraph_config = config.get("langgraph_config")
     if langgraph_config:
         memory_manager = langgraph_config.get("configurable", {}).get("memory_manager")
@@ -291,7 +296,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
             },
         }
 
-    # Extrair tokens e custo da resposta
+    # Extrair tokens e custo da resposta (Épico 8.3)
     try:
         logger.debug(f"[TOKEN EXTRACTION] Tentando extrair tokens de response (tipo: {type(response)})")
         metrics = extract_tokens_and_cost(response, model_name)
@@ -346,9 +351,10 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
         "messages": [ai_message]
     }
 
+
 def _refine_question(state: MultiAgentState, methodologist_feedback: dict, config: dict) -> dict:
     """
-    Modo refinamento: gera versão refinada endereçando gaps do Metodologista.
+    Modo refinamento: gera versão refinada endereçando gaps do Metodologista (Épico 4).
 
     Args:
         state (MultiAgentState): Estado do sistema.
@@ -401,7 +407,7 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
 
     logger.info(f"Resposta do LLM: {response.content[:200]}...")
 
-    # Registrar execução no MemoryManager
+    # Registrar execução no MemoryManager (Épico 6.2)
     langgraph_config = config.get("langgraph_config")
     if langgraph_config:
         memory_manager = langgraph_config.get("configurable", {}).get("memory_manager")
@@ -459,7 +465,7 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
         "addressed_gaps": addressed_gaps
     }
 
-    # Extrair tokens e custo da resposta
+    # Extrair tokens e custo da resposta (Épico 8.3)
     try:
         logger.debug(f"[TOKEN EXTRACTION] Tentando extrair tokens de response (tipo: {type(response)})")
         metrics = extract_tokens_and_cost(response, model_name)

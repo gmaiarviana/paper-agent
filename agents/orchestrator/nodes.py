@@ -27,6 +27,8 @@ NOTA: Na versao atual (10.1), o Orquestrador ainda gera cognitive_model
 diretamente. Em versoes futuras (10.2+), o Observador assumira essa
 responsabilidade e o Orquestrador apenas consultara.
 
+Versao: 5.4 (Epico 10.1 - Mitose do Orquestrador)
+Data: 05/12/2025
 """
 
 import logging
@@ -40,7 +42,7 @@ from pydantic import ValidationError
 
 from .state import MultiAgentState
 from utils.json_parser import extract_json_from_llm_response
-from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client, DEFAULT_MODEL
+from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
@@ -51,6 +53,7 @@ from agents.persistence import create_snapshot_if_mature
 from utils.structured_logger import StructuredLogger
 
 logger = logging.getLogger(__name__)
+
 
 def _create_fallback_cognitive_model(state: MultiAgentState) -> Dict[str, Any]:
     """
@@ -74,6 +77,7 @@ def _create_fallback_cognitive_model(state: MultiAgentState) -> Dict[str, Any]:
         "solid_grounds": [],
         "context": {}
     }
+
 
 def _validate_cognitive_model(
     cognitive_model_raw: Optional[Dict[str, Any]],
@@ -123,7 +127,7 @@ def _validate_cognitive_model(
                         "suggested_resolution": c.get("suggested_resolution")
                     })
 
-        # Processar proposições
+        # Processar proposições (Épico 11.5)
         # LLM pode retornar proposicoes como lista de objetos ou lista de strings (legado)
         proposicoes_raw = cognitive_model_raw.get("proposicoes", [])
         validated_proposicoes = []
@@ -164,6 +168,7 @@ def _validate_cognitive_model(
     except Exception as e:
         logger.error(f"❌ Erro inesperado ao validar cognitive_model: {e}")
         return _create_fallback_cognitive_model(state)
+
 
 def _merge_focal_argument(previous_focal: Optional[dict], new_focal: dict) -> dict:
     """
@@ -225,6 +230,7 @@ def _merge_focal_argument(previous_focal: Optional[dict], new_focal: dict) -> di
                 merged[field] = 'not specified'
 
     return merged
+
 
 def _build_cognitive_model_context(cognitive_model: Dict[str, Any]) -> str:
     """
@@ -354,27 +360,26 @@ def _build_cognitive_model_context(cognitive_model: Dict[str, Any]) -> str:
 
     return "\n".join(parts)
 
+
 def _consult_observer(
     state: MultiAgentState,
     user_input: str,
     cognitive_model: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Consulta o Observer para análise de clareza, variação e esclarecimento.
+    Consulta o Observer para análise de clareza e variação (Épico 13.3).
 
     Esta função encapsula as chamadas ao Observer para:
     1. Avaliar clareza da conversa atual
-    2. Detectar se houve variação ou mudança real
-    3. Identificar necessidades de esclarecimento e gerar perguntas
+    2. Detectar se houve variação ou mudança real (se houver claim anterior)
 
     O Observer é consultivo - fornece insights que o Orquestrador usa
     para tomar decisões. O Observer NÃO decide interromper a conversa.
 
-    Filosofia (Épico 13 + 14):
+    Filosofia (Épico 13):
     - Observer detecta; Orchestrator decide
     - Análise 100% contextual via LLM
     - Sem thresholds fixos
-    - Perguntas naturais baseadas em contradições e gaps
 
     Args:
         state: Estado atual do sistema.
@@ -385,8 +390,6 @@ def _consult_observer(
         Dict com análises do Observer:
         - clarity_evaluation: Avaliação de clareza da conversa
         - variation_analysis: Análise de variação (se houver claim anterior)
-        - clarification_need: Necessidade de esclarecimento identificada (14.1)
-        - clarification_question: Pergunta de esclarecimento gerada (14.3/14.4)
         - needs_checkpoint: bool indicando se precisa checkpoint
         - checkpoint_reason: Razão do checkpoint (se aplicável)
 
@@ -395,21 +398,11 @@ def _consult_observer(
         >>> if result['needs_checkpoint']:
         ...     # Orquestrador decide como intervir
         ...     suggestion = result['clarity_evaluation']['suggestion']
-        >>> if result['clarification_question']:
-        ...     # Incluir pergunta na resposta
-        ...     question = result['clarification_question'].question_text
     """
-    # Import lazy para evitar dependência circular com chromadb
+    # Import lazy para evitar dependência circular com chromadb (Épico 13.3)
     from agents.observer.extractors import (
         evaluate_conversation_clarity,
         detect_variation
-    )
-    # Imports de clarification
-    from agents.observer.clarification import (
-        identify_clarification_needs,
-        should_ask_clarification,
-        generate_contradiction_question,
-        suggest_question_for_gap
     )
 
     logger.info("🔍 Consultando Observer para análise contextual...")
@@ -417,8 +410,6 @@ def _consult_observer(
     result = {
         "clarity_evaluation": None,
         "variation_analysis": None,
-        "clarification_need": None,
-        "clarification_question": None,
         "needs_checkpoint": False,
         "checkpoint_reason": None
     }
@@ -544,67 +535,8 @@ def _consult_observer(
         except Exception as e:
             logger.warning(f"⚠️ Erro ao detectar variação: {e}")
 
-    # 3. Identificar necessidades de esclarecimento
-    # Observer detecta contradições, gaps, confusões que podem beneficiar de pergunta
-    if cognitive_model:
-        try:
-            turn_count = state.get("turn_count", 0)
-
-            # Identificar se há necessidade de esclarecimento
-            clarification_need = identify_clarification_needs(
-                cognitive_model=cognitive_model,
-                turn_number=turn_count
-            )
-
-            result["clarification_need"] = clarification_need
-
-            if clarification_need and clarification_need.needs_clarification:
-                # Calcular turnos desde última pergunta (simplificado)
-                turns_since_question = turn_count  # Placeholder
-
-                # Decidir se é hora de perguntar
-                timing_decision = should_ask_clarification(
-                    clarification_need=clarification_need,
-                    turn_history=[],  # Simplificado por enquanto
-                    current_turn=turn_count,
-                    turns_since_last_question=turns_since_question
-                )
-
-                if timing_decision.should_ask:
-                    # Gerar pergunta contextual
-                    question_suggestion = None
-
-                    if clarification_need.clarification_type == "contradiction":
-                        # Usar primeira contradição do modelo
-                        contradictions = cognitive_model.get("contradictions", [])
-                        if contradictions:
-                            question_suggestion = generate_contradiction_question(
-                                contradiction=contradictions[0],
-                                propositions=cognitive_model.get("proposicoes", []),
-                                conversation_context=cognitive_model.get("claim", "")
-                            )
-                    elif clarification_need.clarification_type == "gap":
-                        question_suggestion = suggest_question_for_gap(
-                            cognitive_model=cognitive_model
-                        )
-
-                    if question_suggestion:
-                        result["clarification_question"] = question_suggestion
-                        # Adicionar ao checkpoint se ainda não havia
-                        if not result["needs_checkpoint"]:
-                            result["needs_checkpoint"] = True
-                            result["checkpoint_reason"] = f"Esclarecimento sugerido: {clarification_need.description[:100]}"
-
-                        logger.info(
-                            f"❓ Pergunta de esclarecimento gerada: "
-                            f"tipo={clarification_need.clarification_type}, "
-                            f"prioridade={clarification_need.priority}"
-                        )
-
-        except Exception as e:
-            logger.warning(f"⚠️ Erro ao identificar necessidades de esclarecimento: {e}")
-
     return result
+
 
 def _build_context(state: MultiAgentState) -> str:
     """
@@ -688,21 +620,21 @@ def _build_context(state: MultiAgentState) -> str:
 
         context_parts.append("")  # linha em branco final
 
-    # Cognitive Model do Observer (se existir)
+    # Cognitive Model do Observer (se existir - Épico 12.2)
     # Disponibiliza análise semântica do Observador para o Orquestrador
     cognitive_model = state.get("cognitive_model")
     if cognitive_model and (cognitive_model.get("claim") or cognitive_model.get("proposicoes")):
         context_parts.append(_build_cognitive_model_context(cognitive_model))
         context_parts.append("")
 
-    # Output do Estruturador (se existir - para curadoria)
+    # Output do Estruturador (se existir - Épico 1.1 Curadoria)
     structurer_output = state.get("structurer_output")
     if structurer_output:
         context_parts.append("RESULTADO DO ESTRUTURADOR (você deve fazer curadoria):")
         context_parts.append(json.dumps(structurer_output, indent=2, ensure_ascii=False))
         context_parts.append("")
 
-    # Output do Metodologista (se existir - para curadoria)
+    # Output do Metodologista (se existir - Épico 1.1 Curadoria)
     methodologist_output = state.get("methodologist_output")
     if methodologist_output:
         context_parts.append("RESULTADO DO METODOLOGISTA (você deve fazer curadoria):")
@@ -710,6 +642,7 @@ def _build_context(state: MultiAgentState) -> str:
         context_parts.append("")
 
     return "\n".join(context_parts)
+
 
 def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> dict:
     """
@@ -724,10 +657,10 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
     6. Sugere proximos passos com justificativas claras
     7. Negocia com o usuario antes de chamar agentes
     8. Detecta mudancas de direcao comparando focal_argument (7.8)
-    9. Registra execucao no MemoryManager (se configurado)
-    10. Cria snapshot automatico quando argumento amadurece
+    9. Registra execucao no MemoryManager (se configurado - Epico 6.2)
+    10. Cria snapshot automatico quando argumento amadurece (Epico 9.3)
 
-    === SEPARACAO DE RESPONSABILIDADES ===
+    === SEPARACAO DE RESPONSABILIDADES (Epico 10.1) ===
 
     ORQUESTRADOR (este no):
     - Facilitar conversa (perguntas abertas, negociacao)
@@ -802,7 +735,7 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
     if previous_focal:
         logger.info(f"Argumento focal anterior: intent={previous_focal.get('intent')}, subject={previous_focal.get('subject')}")
 
-    # Usar prompt socrático
+    # Usar prompt socrático do Épico 10
     from utils.prompts import ORCHESTRATOR_SOCRATIC_PROMPT_V1
 
     # Construir contexto completo (histórico + input atual)
@@ -829,7 +762,7 @@ CONTEXTO DA CONVERSA:
 Analise o contexto completo acima e responda APENAS com JSON estruturado conforme especificado."""
 
     # Chamar LLM para análise conversacional
-    # DECISÃO: Tentar usar modelo mais potente para raciocínio complexo
+    # DECISÃO: Tentar usar modelo mais potente para raciocínio complexo (Épico 7)
     # Fallback: Se não disponível, usa modelo do YAML (config/agents/orchestrator.yaml)
     # Razão: Análise contextual complexa requer raciocínio avançado
     #        (detecção de mudança de direção, reconstrução de argumento focal)
@@ -838,8 +771,8 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         model_name = get_agent_model("orchestrator")
         logger.info(f"Usando modelo do YAML: {model_name}")
     except ConfigLoadError:
-        # Fallback: modelo padrão Haiku (mais econômico e sempre disponível)
-        model_name = DEFAULT_MODEL
+        # Fallback: modelo padrão centralizado (mais econômico e sempre disponível)
+        model_name = get_anthropic_model()
         logger.warning(f"Config YAML não disponível. Usando fallback: {model_name}")
 
     try:
@@ -859,7 +792,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         )
         raise
 
-    # Registrar execução no MemoryManager
+    # Registrar execução no MemoryManager (Épico 6.2)
     if config:
         memory_manager = config.get("configurable", {}).get("memory_manager")
         if memory_manager:
@@ -883,8 +816,8 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
                 }
             )
 
-    # Extrair active_idea_id do config
-    # Usado pelo SnapshotManager para persistência
+    # Extrair active_idea_id do config (Épico 9.2)
+    # Usado pelo SnapshotManager para persistência (Épico 9.3)
     active_idea_id = None
     if config:
         active_idea_id = config.get("configurable", {}).get("active_idea_id")
@@ -930,7 +863,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
             metadata=decision_metadata
         )
 
-        # Validar e processar cognitive_model (OBRIGATÓRIO)
+        # Validar e processar cognitive_model (Épico 9.1 - OBRIGATÓRIO)
         cognitive_model_dict = _validate_cognitive_model(cognitive_model_raw, state)
 
         # Validar focal_argument (OBRIGATÓRIO no MVP)
@@ -990,7 +923,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         if stage_suggestion:
             logger.info(f"🎯 Sugestão de estágio: {stage_suggestion.get('from_stage')} → {stage_suggestion.get('to_stage')}")
 
-        # === CONSULTA AO OBSERVER ===
+        # === CONSULTA AO OBSERVER (Épico 13.3) ===
         # Observer fornece insights; Orquestrador decide como agir
         observer_analysis = _consult_observer(
             state=state,
@@ -1000,9 +933,8 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
 
         clarity_evaluation = observer_analysis.get("clarity_evaluation")
         variation_analysis = observer_analysis.get("variation_analysis")
-        clarification_question = observer_analysis.get("clarification_question")
 
-        # Checkpoint contextual
+        # Checkpoint contextual (Épico 13.4)
         # Se Observer detectou que precisa checkpoint, ajustar resposta
         if observer_analysis.get("needs_checkpoint"):
             checkpoint_reason = observer_analysis.get("checkpoint_reason", "")
@@ -1014,18 +946,6 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
                 if next_step != "clarify":
                     logger.info("📋 Ajustando next_step para 'clarify' devido ao checkpoint")
                     next_step = "clarify"
-
-            # Se há pergunta de esclarecimento, incluir na mensagem
-            if clarification_question and hasattr(clarification_question, 'question_text'):
-                question_text = clarification_question.question_text
-                # Adicionar pergunta de forma natural à mensagem
-                if not message.strip().endswith("?"):
-                    message = f"{message}\n\n{question_text}"
-                else:
-                    # Se já termina com pergunta, adicionar como alternativa
-                    message = f"{message}\n\nAliás, {question_text.lower()}"
-
-                logger.info(f"❓ Pergunta de esclarecimento incluída: {question_text[:80]}...")
 
     except json.JSONDecodeError as e:
         logger.error(f"Falha ao parsear JSON do orquestrador: {e}")
@@ -1054,19 +974,18 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
                 "metrics": "not specified",
                 "article_type": "unclear"
             }
-        # Fallback para cognitive_model
+        # Fallback para cognitive_model (Épico 9.1)
         cognitive_model_dict = _create_fallback_cognitive_model(state)
         next_step = "explore"
         message = "Desculpe, tive dificuldade em processar. Pode reformular sua ideia?"
         agent_suggestion = None
         reflection_prompt = None
         stage_suggestion = None
-        # Fallback para Observer
+        # Fallback para Observer (Épico 13.3)
         clarity_evaluation = None
         variation_analysis = None
-        clarification_question = None
 
-    # Extrair tokens e custo da resposta
+    # Extrair tokens e custo da resposta (Épico 8.3)
     try:
         logger.debug(f"[TOKEN EXTRACTION] Tentando extrair tokens de response (tipo: {type(response)})")
         metrics = extract_tokens_and_cost(response, model_name)
@@ -1100,7 +1019,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
     # Criar AIMessage com a mensagem conversacional para histórico
     ai_message = AIMessage(content=message)
 
-    # Criar snapshot se argumento maduro
+    # Criar snapshot se argumento maduro (Épico 9.3)
     # Silencioso: não notifica usuário, apenas log interno
     if active_idea_id and cognitive_model_dict:
         try:
@@ -1124,7 +1043,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         "agent_suggestion": agent_suggestion,
         "reflection_prompt": reflection_prompt,
         "stage_suggestion": stage_suggestion,
-        # Observer analysis
+        # Observer analysis (Épico 13.3)
         "clarity_evaluation": clarity_evaluation,
         "variation_analysis": variation_analysis,
         # Métricas

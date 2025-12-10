@@ -8,13 +8,16 @@ informacoes semanticas de cada turno da conversa:
 - Contradicoes (inconsistencias logicas)
 - Open questions (lacunas)
 
+Versao: 1.0 (Epico 10.1 - Placeholders)
+Data: 05/12/2025
+
 Notes:
-    - Prompts podem ser refinados conforme necessário
+    - Prompts serao refinados em 10.2 quando processamento via LLM for implementado
     - Formato de saida esperado: JSON estruturado
-    - Modelo recomendado: claude-3-5-haiku-20241022 (custo-efetivo)
+    - Modelo recomendado: Usa get_anthropic_model() (centralizado)
 """
 
-from utils.config import DEFAULT_MODEL
+from utils.config import get_anthropic_model
 
 # =============================================================================
 # PROMPT: EXTRACAO DE CLAIMS
@@ -354,7 +357,7 @@ CRITERIOS DE MATURIDADE (contextuais, nao rigidos):
 """
 
 # =============================================================================
-# PROMPT: DETECCAO DE VARIACAO VS MUDANCA REAL
+# PROMPT: DETECCAO DE VARIACAO VS MUDANCA REAL (Epico 13.1)
 # =============================================================================
 
 VARIATION_DETECTION_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
@@ -407,7 +410,7 @@ IMPORTANTE:
 - Esta analise e DESCRITIVA - o Orquestrador decidira como agir"""
 
 # =============================================================================
-# PROMPT: AVALIACAO DE CLAREZA DA CONVERSA
+# PROMPT: AVALIACAO DE CLAREZA DA CONVERSA (Epico 13.2)
 # =============================================================================
 
 CLARITY_EVALUATION_PROMPT = """Voce e o Observador (Mente Analitica) do sistema Paper Agent.
@@ -534,7 +537,7 @@ IMPORTANTE:
 # =============================================================================
 
 # Modelo recomendado para extracao (custo-efetivo e rapido)
-RECOMMENDED_MODEL = DEFAULT_MODEL
+RECOMMENDED_MODEL = get_anthropic_model()
 
 # Temperature para extracao (deterministica)
 EXTRACTION_TEMPERATURE = 0
