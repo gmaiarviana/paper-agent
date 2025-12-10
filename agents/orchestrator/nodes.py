@@ -279,9 +279,10 @@ def _build_cognitive_model_context(cognitive_model: Dict[str, Any]) -> str:
     proposicoes = cognitive_model.get("proposicoes", [])
     if proposicoes:
         # Ordenar por solidez (maior primeiro)
+        # BUGFIX: solidez pode ser None mesmo quando key existe, usar `or 0.0` para garantir float
         sorted_props = sorted(
             proposicoes,
-            key=lambda p: (p.get("solidez", 0.0) if isinstance(p, dict) else getattr(p, "solidez", 0.0) or 0.0),
+            key=lambda p: (p.get("solidez") if isinstance(p, dict) else getattr(p, "solidez", None)) or 0.0,
             reverse=True
         )[:5]
 
@@ -933,39 +934,10 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         clarity_evaluation = observer_analysis.get("clarity_evaluation")
         variation_analysis = observer_analysis.get("variation_analysis")
 
-        # === APLICAR FILTROS DE NEGÓCIO (Épico 13.6) ===
-        # Arquitetura de duas camadas:
-        # - Camada 1: Observer (análise contextual via LLM) - já executou acima
-        # - Camada 2: Filtros (regras de negócio determinísticas) - aplica agora
-        from agents.observer.filters import should_checkpoint, FilterType
-
-        # Calcular turn_number e turns_since_last_checkpoint
-        messages = state.get("messages", [])
-        turn_number = max(1, len([m for m in messages if m.__class__.__name__ == "HumanMessage"]))
-        last_checkpoint_turn = state.get("last_checkpoint_turn") or 0
-        turns_since_last_checkpoint = turn_number - last_checkpoint_turn if last_checkpoint_turn else 999
-
-        # Aplicar filtros sobre análise do Observer
-        filter_result = should_checkpoint(
-            clarity_evaluation=clarity_evaluation,
-            variation_analysis=variation_analysis,
-            turn_number=turn_number,
-            turns_since_last_checkpoint=turns_since_last_checkpoint
-        )
-
-        # Log do resultado do filtro
-        if filter_result.original_needs_checkpoint and not filter_result.needs_checkpoint:
-            logger.info(
-                f"🔧 Filtro aplicado: {filter_result.filter_applied.value} - "
-                f"Observer pediu checkpoint mas filtro isentou: {filter_result.reason}"
-            )
-        elif filter_result.needs_checkpoint:
-            logger.info(f"⚠️ Checkpoint confirmado após filtros: {filter_result.reason}")
-
-        # Checkpoint contextual (Épico 13.4) - agora usa resultado filtrado
-        # Se Observer detectou que precisa checkpoint E filtros confirmaram
-        if filter_result.needs_checkpoint:
-            checkpoint_reason = observer_analysis.get("checkpoint_reason", filter_result.reason)
+        # Checkpoint contextual (Épico 13.4)
+        # Se Observer detectou que precisa checkpoint, ajustar resposta
+        if observer_analysis.get("needs_checkpoint"):
+            checkpoint_reason = observer_analysis.get("checkpoint_reason", "")
             logger.info(f"⚠️ Checkpoint sugerido: {checkpoint_reason[:100]}...")
 
             # Se clarity_evaluation tem sugestão, incluir na mensagem
@@ -1063,18 +1035,6 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
             # Silencioso: falha não bloqueia fluxo
             logger.debug(f"Snapshot não criado: {e}")
 
-    # Determinar se houve checkpoint para atualizar last_checkpoint_turn (Épico 13.6)
-    # filter_result pode não existir se houve exceção no try block
-    checkpoint_triggered = False
-    current_turn = 1
-    try:
-        if 'filter_result' in dir() and filter_result.needs_checkpoint:
-            checkpoint_triggered = True
-        if 'turn_number' in dir():
-            current_turn = turn_number
-    except NameError:
-        pass
-
     return {
         "orchestrator_analysis": reasoning,
         "focal_argument": focal_argument,
@@ -1086,8 +1046,6 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         # Observer analysis (Épico 13.3)
         "clarity_evaluation": clarity_evaluation,
         "variation_analysis": variation_analysis,
-        # Filtros de negócio (Épico 13.6)
-        "last_checkpoint_turn": current_turn if checkpoint_triggered else state.get("last_checkpoint_turn"),
         # Métricas
         "last_agent_tokens_input": metrics["tokens_input"],
         "last_agent_tokens_output": metrics["tokens_output"],
