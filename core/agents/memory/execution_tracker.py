@@ -9,7 +9,7 @@ LLM (LangChain AIMessage), calcular custos e registrar no MemoryManager.
 """
 
 from typing import Optional, Dict, Any
-from agents.memory.memory_manager import MemoryManager, AgentExecution
+from core.agents.memory.memory_manager import MemoryManager, AgentExecution
 from core.utils.cost_tracker import CostTracker
 
 def register_execution(

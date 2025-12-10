@@ -502,9 +502,9 @@ Get-ChildItem -Recurse -Include *.py | Select-String "from agents.checklist\." |
 #### Fase 3.1: Mover `agents/memory/` → `core/agents/memory/`
 
 **Cursor (rápido):**
-- [ ] `git mv agents/memory core/agents/memory`
-- [ ] Find/Replace: `from agents.memory.` → `from core.agents.memory.`
-- [ ] Validar: 0 matches de `from agents.memory\.`
+- [x] `git mv agents/memory core/agents/memory`
+- [x] Find/Replace: `from agents.memory.` → `from core.agents.memory.`
+- [x] Validar: 0 matches de `from agents.memory\.`
 
 **Comandos:**
 ```powershell
@@ -531,9 +531,9 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 #### Fase 3.2: Mover `agents/persistence/` → `core/agents/persistence/`
 
 **Cursor (rápido):**
-- [ ] `git mv agents/persistence core/agents/persistence`
-- [ ] Find/Replace: `from agents.persistence.` → `from core.agents.persistence.`
-- [ ] Validar: 0 matches de `from agents.persistence\.`
+- [x] `git mv agents/persistence core/agents/persistence`
+- [x] Find/Replace: `from agents.persistence.` → `from core.agents.persistence.`
+- [x] Validar: 0 matches de `from agents.persistence\.`
 
 **Comandos:**
 ```powershell
@@ -1502,9 +1502,9 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [ ] Testes passando
 
 ### Fase 3: Core - Memória
-- [ ] memory/ movido
-- [ ] persistence/ movido
-- [ ] Imports ajustados
+- [x] memory/ movido
+- [x] persistence/ movido
+- [x] Imports ajustados
 - [ ] Testes passando
 
 ### Fase 4: Core - Agentes

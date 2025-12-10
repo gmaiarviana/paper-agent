@@ -6,7 +6,7 @@ Valida gerenciamento de histórico e metadados por agente.
 """
 
 import pytest
-from agents.memory.memory_manager import MemoryManager, AgentExecution
+from core.agents.memory.memory_manager import MemoryManager, AgentExecution
 
 class TestMemoryManagerBasics:
     """Testes básicos de adição de execuções (lógica de negócio)."""

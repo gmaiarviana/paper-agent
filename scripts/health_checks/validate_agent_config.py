@@ -23,7 +23,7 @@ from scripts.common import setup_project_path
 
 project_root = setup_project_path()
 
-from agents.memory.config_loader import (
+from core.agents.memory.config_loader import (
     load_agent_config,
     load_all_agent_configs,
     list_available_agents,
@@ -32,12 +32,12 @@ from agents.memory.config_loader import (
     get_agent_model,
     ConfigLoadError
 )
-from agents.memory.config_validator import (
+from core.agents.memory.config_validator import (
     validate_agent_config_schema,
     ConfigValidationError,
     get_schema_documentation
 )
-from agents.memory.memory_manager import MemoryManager
+from core.agents.memory.memory_manager import MemoryManager
 
 def validate_directory_structure():
     """Valida que estrutura de diretórios foi criada corretamente."""
