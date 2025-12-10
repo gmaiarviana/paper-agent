@@ -24,9 +24,9 @@
 - **ÉPICO 10**: Observador - Mente Analítica (POC) - ChromaDB + SQLite para catálogo de conceitos, pipeline de persistência, busca semântica e 22 testes unitários
 - **ÉPICO 11**: Alinhamento de Ontologia - Migração completa de premises/assumptions para Proposições unificadas com solidez. Sistema usa `proposicoes` em todas as camadas (modelo, orquestrador, observador, interface). Schema SQLite atualizado, testes migrados, documentação alinhada.
 - **ÉPICO 12**: Observer - Integração Básica (MVP) - Observer integrado ao fluxo multi-agente via callback assíncrono. Processa turnos em background após Orchestrator, publica eventos cognitive_model_updated, e exibe atividade na Timeline. Orquestrador acessa cognitive_model via prompt context. 28 testes passando.
+- **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística) - Todas as 6 features implementadas (13.1-13.6). Sistema detecta variações vs mudanças reais via LLM contextual, avalia clareza de conversa, publica eventos na Timeline, e inclui testes E2E completos. 66+ testes unitários.
 
 ### 🟡 Épicos Em Andamento
-- **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística) - Features 13.1-13.5 implementadas (66+ testes), pendente: 13.6 Testes E2E
 - **ÉPICO 14**: Observer - Consultas Inteligentes - Base implementada (14.1-14.3), Observer identifica pontos de esclarecimento e sugere abordagens
 
 ### ⏳ Épicos Planejados
@@ -172,9 +172,10 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Exibir eventos com emojis discretos, seção colapsada
 - [x] **13.5.5** Testes unitários em `tests/unit/utils/test_event_bus_observer.py`
 
-#### 13.6 Testes de Integração
+#### 13.6 Testes de Integração (✅ Implementado)
 
 - **Descrição:** Validação em cenários reais de conversa.
+- **Implementação:** `tests/integration/e2e/test_direction_change.py`, `scripts/validate_direction_change.py`, `utils/test_executor.py`
 - **Critérios de Aceite:**
   - Testes multi-turn com variations e mudanças
   - Validação: Orquestrador intervém naturalmente (não roboticamente)
@@ -183,21 +184,21 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Script: `scripts/validate_direction_change.py`
 
 **Sub-tarefas:**
-- [ ] **13.6.1** Criar cenários de teste em `tests/integration/e2e/test_direction_change.py`:
+- [x] **13.6.1** Criar cenários de teste em `tests/integration/e2e/test_direction_change.py`:
   - Cenário A: Variação simples (não interrompe fluxo)
   - Cenário B: Mudança real (checkpoint solicitado)
   - Cenário C: Clareza nebulosa (needs_checkpoint=True)
   - Cenário D: Conversa clara (needs_checkpoint=False)
-- [ ] **13.6.2** Criar script `scripts/validate_direction_change.py`:
+- [x] **13.6.2** Criar script `scripts/validate_direction_change.py`:
   - Executa cenários A-D automaticamente
   - Gera relatório com eventos publicados e decisões
   - Modo verbose para debug
-- [ ] **13.6.3** Implementar testes específicos:
+- [x] **13.6.3** Implementar testes específicos:
   - `test_variation_does_not_interrupt_flow()`
   - `test_real_change_triggers_checkpoint()`
   - `test_confusion_triggers_clarification()`
   - `test_orchestrator_intervention_is_natural()`
-- [ ] **13.6.4** Integrar validação em `utils/test_executor.py`:
+- [x] **13.6.4** Integrar validação em `utils/test_executor.py`:
   - Método `validate_observer_detections(scenario_result)`
 
 ---
