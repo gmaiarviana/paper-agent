@@ -20,7 +20,8 @@ import argparse
 from pathlib import Path
 
 # Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent
+# Caminho: core/tools/cli/chat.py -> parent.parent.parent.parent = project root
+project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from core.agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state

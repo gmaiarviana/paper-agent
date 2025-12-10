@@ -30,11 +30,12 @@ import sys
 from pathlib import Path
 
 # Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent
+# Caminho: products/revelar/app/chat.py -> parent.parent.parent.parent = project root
+project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import streamlit as st
-from app.components import (
+from products.revelar.app.components import (
     render_chat_input,
     render_chat_history,
     render_right_panel,

@@ -18,7 +18,9 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 # Caminho do banco de dados (mesmo usado no LangGraph)
-DB_PATH = "data/checkpoints.db"
+# Caminho: products/revelar/app/components/ -> parent.parent.parent.parent.parent = project root
+_PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent
+DB_PATH = str(_PROJECT_ROOT / "data" / "checkpoints.db")
 
 def list_sessions(limit: int = 10) -> List[Dict[str, str]]:
     """

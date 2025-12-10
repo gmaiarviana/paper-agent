@@ -16,18 +16,19 @@ import sys
 from pathlib import Path
 
 # Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent.parent
+# Caminho: products/revelar/app/pages/*.py -> parent.parent.parent.parent.parent = project root
+project_root = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import streamlit as st
 from typing import List, Dict, Any
 
-from app.components.conversation_helpers import (
+from products.revelar.app.components.conversation_helpers import (
     list_recent_conversations,
     get_relative_timestamp,
     restore_conversation_context
 )
-from app.components.sidebar import render_sidebar
+from products.revelar.app.components.sidebar import render_sidebar
 
 # === CONFIGURAÇÃO ===
 

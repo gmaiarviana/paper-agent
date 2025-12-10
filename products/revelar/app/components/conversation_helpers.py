@@ -193,7 +193,9 @@ def list_recent_conversations(limit: int = 10) -> List[Dict[str, Any]]:
         from pathlib import Path
 
         # Caminho do banco SqliteSaver (mesmo usado no LangGraph)
-        db_path = Path(__file__).parent.parent.parent / "data" / "checkpoints.db"
+        # Caminho: products/revelar/app/components/ -> parent.parent.parent.parent.parent = project root
+        project_root = Path(__file__).parent.parent.parent.parent.parent
+        db_path = project_root / "data" / "checkpoints.db"
 
         if not db_path.exists():
             logger.warning(f"Banco checkpoints.db não encontrado em {db_path}")
