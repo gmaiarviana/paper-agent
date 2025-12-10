@@ -736,7 +736,7 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
         logger.info(f"Argumento focal anterior: intent={previous_focal.get('intent')}, subject={previous_focal.get('subject')}")
 
     # Usar prompt socrático do Épico 10
-    from core.utils.prompts import ORCHESTRATOR_SOCRATIC_PROMPT_V1
+    from core.prompts import ORCHESTRATOR_SOCRATIC_PROMPT_V1
 
     # Construir contexto completo (histórico + input atual)
     full_context = _build_context(state)

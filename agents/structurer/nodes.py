@@ -19,7 +19,7 @@ from langchain_anthropic import ChatAnthropic
 
 from agents.orchestrator.state import MultiAgentState, StructurerOutputModel
 from core.utils.json_parser import extract_json_from_llm_response
-from core.utils.prompts import STRUCTURER_REFINEMENT_PROMPT_V1
+from core.prompts import STRUCTURER_REFINEMENT_PROMPT_V1
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from core.utils.token_extractor import extract_tokens_and_cost
