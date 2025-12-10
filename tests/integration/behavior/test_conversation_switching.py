@@ -30,7 +30,7 @@ sys.path.insert(0, str(project_root))
 load_dotenv()
 
 from agents.multi_agent_graph import create_multi_agent_graph
-from agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.orchestrator.state import create_initial_multi_agent_state
 from langchain_core.messages import HumanMessage, AIMessage
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")

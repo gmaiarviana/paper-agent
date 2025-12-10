@@ -29,11 +29,11 @@ from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langchain_core.runnables import RunnableConfig
 
-from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
-from agents.orchestrator.nodes import orchestrator_node
-from agents.orchestrator.router import route_from_orchestrator
-from agents.structurer.nodes import structurer_node
-from agents.methodologist.nodes import decide_collaborative
+from core.agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
+from core.agents.orchestrator.nodes import orchestrator_node
+from core.agents.orchestrator.router import route_from_orchestrator
+from core.agents.structurer.nodes import structurer_node
+from core.agents.methodologist.nodes import decide_collaborative
 from agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
 
 # Import EventBus para emitir eventos (Épico 5.1)
@@ -45,7 +45,7 @@ except ImportError:
 
 # Import Observer para processamento em background (Épico 12.1)
 try:
-    from agents.observer.nodes import process_turn as observer_process_turn
+    from core.agents.observer.nodes import process_turn as observer_process_turn
     OBSERVER_AVAILABLE = True
 except ImportError:
     OBSERVER_AVAILABLE = False

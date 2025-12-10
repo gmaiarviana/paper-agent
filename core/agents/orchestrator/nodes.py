@@ -400,7 +400,7 @@ def _consult_observer(
         ...     suggestion = result['clarity_evaluation']['suggestion']
     """
     # Import lazy para evitar dependência circular com chromadb (Épico 13.3)
-    from agents.observer.extractors import (
+    from core.agents.observer.extractors import (
         evaluate_conversation_clarity,
         detect_variation
     )

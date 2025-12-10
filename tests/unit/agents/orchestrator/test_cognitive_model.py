@@ -11,8 +11,8 @@ Cobre:
 from unittest.mock import Mock, patch
 import json
 
-from agents.orchestrator.state import create_initial_multi_agent_state
-from agents.orchestrator.nodes import (
+from core.agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.orchestrator.nodes import (
     orchestrator_node,
     _validate_cognitive_model,
     _create_fallback_cognitive_model

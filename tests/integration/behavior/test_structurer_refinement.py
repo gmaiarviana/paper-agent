@@ -22,8 +22,8 @@ from scripts.common import setup_project_path
 
 setup_project_path()
 
-from agents.orchestrator.state import create_initial_multi_agent_state
-from agents.structurer.nodes import structurer_node
+from core.agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.structurer.nodes import structurer_node
 
 def validate_structurer_refinement():
     """Valida a implementação do refinamento no Estruturador."""

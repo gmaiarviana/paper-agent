@@ -32,7 +32,7 @@ from agents.memory.config_loader import get_agent_prompt, get_agent_model, Confi
 from agents.memory.execution_tracker import register_execution
 from core.utils.token_extractor import extract_tokens_and_cost
 from core.utils.structured_logger import StructuredLogger
-from agents.orchestrator.state import MethodologistOutputModel
+from core.agents.orchestrator.state import MethodologistOutputModel
 
 logger = logging.getLogger(__name__)
 

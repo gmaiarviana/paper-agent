@@ -36,11 +36,11 @@ setup_project_path()
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, AIMessage
 
-from agents.orchestrator.state import create_initial_multi_agent_state
-from agents.orchestrator.nodes import orchestrator_node
-from agents.orchestrator.router import route_from_orchestrator
-from agents.structurer.nodes import structurer_node
-from agents.methodologist.nodes import decide_collaborative
+from core.agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.orchestrator.nodes import orchestrator_node
+from core.agents.orchestrator.router import route_from_orchestrator
+from core.agents.structurer.nodes import structurer_node
+from core.agents.methodologist.nodes import decide_collaborative
 
 logging.basicConfig(
     level=logging.INFO,

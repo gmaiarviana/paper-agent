@@ -14,8 +14,8 @@ IMPORTANTE:
 
 import pytest
 from unittest.mock import Mock, patch
-from agents.orchestrator.state import create_initial_multi_agent_state
-from agents.orchestrator.nodes import orchestrator_node
+from core.agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.orchestrator.nodes import orchestrator_node
 
 # Fixture para mock padrão do Observer
 # Retorna resultado neutro que não interfere no fluxo normal do teste
