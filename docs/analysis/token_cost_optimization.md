@@ -1,7 +1,21 @@
 # Análise: Otimização de Custos de Tokens
 
-**Data:** 2025-01-XX  
-**Contexto:** Análise de oportunidades de economia de custos de tokens baseada na visão do produto
+**Data:** 2025-01-27  
+**Contexto:** Análise de oportunidades de economia de custos de tokens baseada na visão do produto  
+**Última atualização:** Revisão completa do código atual para identificar status de implementação
+
+---
+
+## 📋 Resumo Executivo
+
+**Oportunidades Críticas de Otimização:**
+
+1. ⚠️ **Histórico não truncado no Orquestrador** - Envia todas as mensagens a cada turno
+2. ⚠️ **max_tokens não aplicado** - Respostas podem ser mais longas que necessário
+3. ⚠️ **JSON indentado em contextos** - Adiciona ~30% de tokens desnecessários
+4. ⚠️ **Prompt muito longo** - ~615 linhas com exemplos redundantes
+
+**Economia Potencial:** 40-60% em conversas longas (>10 turnos) com implementação da Fase 1.
 
 ---
 
@@ -58,64 +72,33 @@ if messages:
 
 ---
 
-### 2. **Metodologista Usa Sonnet (5x Mais Caro)** ⚠️ ALTO IMPACTO
+### 2. **Prompt do Orquestrador é Muito Longo** 📝 MÉDIO IMPACTO
 
-**Situação atual:**
-```yaml
-# config/agents/methodologist.yaml:69
-model: claude-sonnet-4-20250514  # $3/$15 por 1M tokens
-```
-
-**Análise:**
-- Metodologista valida hipóteses (tarefa estruturada)
-- Haiku pode ser suficiente para validação estruturada
-- Sonnet só necessário se raciocínio muito complexo
-
-**Recomendação:**
-1. **Testar Haiku primeiro:** Validar se qualidade é suficiente
-2. **Fallback para Sonnet:** Apenas se Haiku falhar consistentemente
-3. **Híbrido:** Haiku para validação simples, Sonnet para casos complexos
-
-**Economia estimada:** 80% do custo do Metodologista (se migrar para Haiku)
-
----
-
-### 3. **Prompts Podem Ser Mais Concisos** 📝 MÉDIO IMPACTO
-
-**Exemplo atual:**
+**Problema atual:**
 ```python
-# utils/prompts/orchestrator.py:14
+# utils/prompts/orchestrator.py
 ORCHESTRATOR_SOCRATIC_PROMPT_V1 = """Você é o Orquestrador Socrático...
-[~600 linhas de prompt]
+[~615 linhas de prompt]
 """
 ```
 
+**Análise:**
+- Prompt tem ~615 linhas (~15k tokens)
+- Múltiplos exemplos (7 exemplos completos)
+- Instruções repetidas em diferentes seções
+- Formato com muitas linhas em branco
+
 **Oportunidades:**
-- Remover exemplos redundantes (manter apenas 1-2 melhores)
-- Consolidar instruções repetidas
-- Usar formato mais denso (menos linhas em branco)
+1. **Consolidar exemplos:** Manter apenas 2-3 melhores (reduzir ~40%)
+2. **Remover redundâncias:** Instruções repetidas sobre provocação socrática
+3. **Formato mais denso:** Reduzir linhas em branco desnecessárias
+4. **Seções opcionais:** Mover exemplos detalhados para referência externa
 
-**Economia estimada:** 10-15% em tokens de input
-
----
-
-### 4. **Limites de Cognitive Model Já Existem** ✅ BOM
-
-**Implementação atual:**
-```python
-# agents/orchestrator/nodes.py:243-247
-# Limites para evitar sobrecarga do prompt:
-# - Proposições: 5 primeiras (ordenadas por solidez)
-# - Conceitos: 10 primeiros
-# - Contradições: 3 primeiras
-# - Questões abertas: 5 primeiras
-```
-
-**Status:** ✅ Já otimizado. Manter como está.
+**Economia estimada:** 20-30% em tokens de input do prompt base (~3-4.5k tokens)
 
 ---
 
-### 5. **Outputs de Agentes em JSON Completo** 📊 MÉDIO IMPACTO
+### 3. **JSON Indentado em Contextos** 📊 MÉDIO IMPACTO
 
 **Problema atual:**
 ```python
@@ -132,20 +115,68 @@ context_parts.append(json.dumps(structurer_output, indent=2, ensure_ascii=False)
 
 ---
 
-### 6. **Respostas do Orquestrador Podem Ser Mais Curtas** 💬 ALTO IMPACTO
+### 4. **Respostas do Orquestrador Não Têm max_tokens** ⚠️ ALTO IMPACTO
 
-**Filosofia socrática:** Provocações devem ser curtas e diretas.
+**Problema atual:**
+```python
+# agents/orchestrator/nodes.py:778-780
+llm = create_anthropic_client(model=model_name, temperature=0)
+messages = [HumanMessage(content=conversational_prompt)]
+response = invoke_with_retry(llm=llm, messages=messages, agent_name="orchestrator")
+# ❌ max_tokens não está sendo passado, mesmo com limite definido no YAML
+```
 
-**Recomendação:**
-- Adicionar `max_tokens` explícito nas chamadas
-- Prompt: "Seja conciso. Provocações devem ter 1-2 frases."
-- Limitar output a 300-500 tokens (suficiente para provocação)
+**Análise:**
+- YAML define `max_output_tokens: 1500` mas não é aplicado
+- `create_anthropic_client()` suporta `max_tokens` mas não é usado
+- Respostas podem ser mais longas que necessário para provocações socráticas
+- Filosofia socrática: Provocações devem ser curtas e diretas (1-2 frases)
+
+**Solução:**
+```python
+# agents/orchestrator/nodes.py
+from agents.memory.config_loader import get_agent_context_limits
+
+limits = get_agent_context_limits("orchestrator")
+llm = create_anthropic_client(
+    model=model_name, 
+    temperature=0,
+    max_tokens=limits["max_output_tokens"]  # ✅ Aplicar limite do YAML
+)
+```
 
 **Economia estimada:** 20-30% em tokens de output (5x impacto = 100-150% equivalente)
 
 ---
 
-### 7. **Cache de Respostas Similares** 🔄 BAIXO IMPACTO (Futuro)
+**Problema atual:**
+```python
+# agents/orchestrator/nodes.py:633, 640, 750
+json.dumps(structurer_output, indent=2, ensure_ascii=False)
+json.dumps(methodologist_output, indent=2, ensure_ascii=False)
+json.dumps(previous_focal, indent=2, ensure_ascii=False)
+```
+
+**Análise:**
+- `indent=2` adiciona ~30% de tokens (espaços/linhas)
+- Usado em 3+ locais no código
+- Para curadoria, formato compacto é suficiente
+- Indent só necessário para logs/debugging
+
+**Solução:**
+```python
+# Para contexto (compacto):
+json.dumps(data, ensure_ascii=False)  # Sem indent
+
+# Para logs (legível):
+json.dumps(data, indent=2, ensure_ascii=False)  # Com indent
+```
+
+**Economia estimada:** 5-10% em tokens de input (acumulado)
+
+---
+
+### 5. **Cache de Respostas Similares** 🔄 BAIXO IMPACTO (Futuro)
 
 **Oportunidade:**
 - Se usuário faz pergunta similar a anterior, retornar resposta cached
@@ -159,21 +190,23 @@ context_parts.append(json.dumps(structurer_output, indent=2, ensure_ascii=False)
 ## 📊 Priorização de Implementação
 
 ### Fase 1: Quick Wins (Alto Impacto, Baixa Complexidade)
-1. ✅ **Truncar histórico de conversas** (últimas 10 mensagens + resumo)
-2. ✅ **Adicionar max_tokens nas respostas do Orquestrador** (300-500 tokens)
-3. ✅ **JSON compacto** (sem indent em contexto)
+1. **Truncar histórico de conversas no Orquestrador** (últimas 10 mensagens + resumo)
+2. **Aplicar max_tokens nas respostas do Orquestrador** (usar limite do YAML)
+3. **JSON compacto em contextos** (sem indent em 3 locais)
 
 **Economia estimada:** 40-60% em conversas longas
 
-### Fase 2: Testes de Modelo (Alto Impacto, Média Complexidade)
-4. ✅ **Testar Haiku no Metodologista** (validar qualidade)
-5. ✅ **Otimizar prompts** (remover redundâncias)
+### Fase 2: Otimizações de Prompt (Médio Impacto, Média Complexidade)
+4. **Otimizar prompt do Orquestrador** (reduzir de 615 para ~400 linhas)
+   - Consolidar exemplos (7 → 3)
+   - Remover redundâncias
+   - Formato mais denso
 
-**Economia estimada:** +20-30% adicional
+**Economia estimada:** +20-30% adicional em tokens de input
 
 ### Fase 3: Otimizações Avançadas (Médio Impacto, Alta Complexidade)
-6. ⏳ **Resumo incremental de histórico** (a cada 10 turnos)
-7. ⏳ **Cache de respostas** (futuro)
+5. **Resumo incremental de histórico** (a cada 10 turnos)
+6. **Cache de respostas** (futuro)
 
 ---
 
@@ -198,54 +231,83 @@ def _build_context(state: MultiAgentState, max_recent_messages: int = 10) -> str
         # ... código atual
 ```
 
-### 2. Limitar Output do Orquestrador
+### 2. Aplicar max_tokens no Orquestrador
 
 ```python
 # agents/orchestrator/nodes.py
-response = llm.invoke(
-    messages,
-    max_tokens=400  # Provocações curtas (socrático)
+from agents.memory.config_loader import get_agent_context_limits
+
+# Carregar limites do YAML
+limits = get_agent_context_limits("orchestrator")
+max_output_tokens = limits.get("max_output_tokens", 1500)
+
+# Aplicar na chamada
+llm = create_anthropic_client(
+    model=model_name, 
+    temperature=0,
+    max_tokens=max_output_tokens  # ✅ Usar limite do YAML
 )
 ```
 
-### 3. Testar Haiku no Metodologista
+### 3. JSON Compacto em Contextos
 
-```yaml
-# config/agents/methodologist.yaml
-model: claude-3-5-haiku-20241022  # Testar primeiro
-# Fallback para Sonnet apenas se necessário
+```python
+# agents/orchestrator/nodes.py
+# ❌ ANTES (indentado):
+context_parts.append(json.dumps(structurer_output, indent=2, ensure_ascii=False))
+
+# ✅ DEPOIS (compacto):
+context_parts.append(json.dumps(structurer_output, ensure_ascii=False))
+
+# Para logs (manter indent):
+logger.debug(f"Focal argument: {json.dumps(focal_argument, indent=2, ensure_ascii=False)}")
 ```
 
 ---
 
 ## 📈 Projeção de Economia
 
-**Cenário base (conversa de 20 turnos):**
+**Cenário base atual (conversa de 20 turnos):**
 - Input: ~15k tokens/turno × 20 = 300k tokens
-- Output: ~500 tokens/turno × 20 = 10k tokens
+  - Prompt base: ~15k tokens (ORCHESTRATOR_SOCRATIC_PROMPT_V1)
+  - Histórico completo: ~10k tokens (todos os turnos)
+  - JSON indentado: ~1k tokens
+- Output: ~500 tokens/turno × 20 = 10k tokens (sem limite)
 - **Custo (Haiku):** $0.24 + $0.04 = **$0.28**
 
 **Cenário otimizado (Fase 1 + 2):**
-- Input: ~8k tokens/turno × 20 = 160k tokens (truncamento + JSON compacto)
-- Output: ~300 tokens/turno × 20 = 6k tokens (max_tokens)
+- Input: ~8k tokens/turno × 20 = 160k tokens
+  - Prompt otimizado: ~10k tokens (redução de 33%)
+  - Histórico truncado: ~3k tokens (últimas 10 + resumo)
+  - JSON compacto: ~700 tokens (redução de 30%)
+- Output: ~300 tokens/turno × 20 = 6k tokens (max_tokens aplicado)
 - **Custo (Haiku):** $0.13 + $0.024 = **$0.154**
 
 **Economia:** ~45% por conversa longa
-
-**Se Metodologista migrar para Haiku:**
-- Economia adicional: ~80% do custo do Metodologista
-- **Total:** ~60-70% de economia em sessões completas
 
 ---
 
 ## ✅ Checklist de Implementação
 
-- [ ] Implementar truncamento de histórico (últimas 10 + resumo)
-- [ ] Adicionar max_tokens=500 nas respostas do Orquestrador
-- [ ] JSON compacto em contextos (sem indent)
-- [ ] Migrar Metodologista para Haiku
-- [ ] Otimizar prompts (remover redundâncias)
+### Crítico (Fase 1)
+- [ ] **Truncar histórico no Orquestrador** (`agents/orchestrator/nodes.py:600-620`)
+  - Implementar lógica similar ao Observer (últimas 10 mensagens)
+  - Adicionar resumo de mensagens antigas se > 10
+- [ ] **Aplicar max_tokens no Orquestrador** (`agents/orchestrator/nodes.py:778`)
+  - Carregar limite do YAML via `get_agent_context_limits("orchestrator")`
+  - Passar `max_tokens` para `create_anthropic_client()`
+- [ ] **JSON compacto em contextos** (`agents/orchestrator/nodes.py:633, 640, 750`)
+  - Remover `indent=2` de contextos (manter apenas em logs)
+
+### Importante (Fase 2)
+- [ ] **Otimizar prompt do Orquestrador** (`utils/prompts/orchestrator.py`)
+  - Reduzir exemplos de 7 para 3
+  - Consolidar instruções repetidas
+  - Formato mais denso (menos linhas em branco)
+
+### Monitoramento
 - [ ] Monitorar métricas de custo após mudanças
+- [ ] Validar qualidade das respostas após otimizações
 - [ ] Documentar trade-offs (qualidade vs custo)
 
 ---
