@@ -5,8 +5,8 @@ Este módulo implementa MultiTurnExecutor, que executa cenários de conversa
 multi-turn end-to-end, rastreando agentes chamados, preservando estado entre
 turnos e validando comportamento esperado vs observado.
 
-Versão: 1.0 (Épico 8.1)
-Data: 2025-12-05
+Versão: 1.1 (Épico 13.6 - Validação de Detecções do Observer)
+Data: 2025-12-10
 """
 
 from typing import Dict, List, Any, Callable
@@ -342,4 +342,168 @@ class MultiTurnExecutor:
                 return None
         
         return value
+
+    # ========================================================================
+    # Épico 13.6 - Validação de Detecções do Observer
+    # ========================================================================
+
+    def validate_observer_detections(
+        self,
+        session_id: str,
+        expected_events: List[str] = None,
+        expected_checkpoint: bool = None,
+        expected_classification: str = None
+    ) -> Dict[str, Any]:
+        """
+        Valida detecções do Observer para uma sessão (Épico 13.6).
+
+        Este método analisa os eventos publicados pelo Observer durante
+        a execução de um cenário e valida se correspondem às expectativas.
+
+        Tipos de eventos de detecção:
+        - variation_detected: Variação identificada (mesma essência)
+        - direction_change_confirmed: Mudança real de direção
+        - clarity_checkpoint: Checkpoint de clareza solicitado
+
+        Args:
+            session_id: ID da sessão a validar
+            expected_events: Lista de event_types esperados (opcional)
+            expected_checkpoint: Se espera checkpoint (opcional)
+            expected_classification: Classificação esperada (variation/real_change)
+
+        Returns:
+            Dict com resultado da validação:
+                - valid: bool - True se todas validações passaram
+                - errors: List[str] - Erros encontrados
+                - events_found: List[str] - Tipos de eventos encontrados
+                - checkpoint_found: bool - Se checkpoint foi detectado
+                - classification_found: str - Classificação encontrada
+
+        Example:
+            >>> result = executor.execute_scenario(scenario)
+            >>> validation = executor.validate_observer_detections(
+            ...     result["session_id"],
+            ...     expected_events=["variation_detected"],
+            ...     expected_checkpoint=False
+            ... )
+            >>> print(f"Valid: {validation['valid']}")
+            >>> if not validation['valid']:
+            ...     print(f"Errors: {validation['errors']}")
+        """
+        events = self._get_all_events(session_id)
+
+        # Filtrar apenas eventos de detecção do Observer
+        detection_events = [
+            e for e in events
+            if e.get("event_type") in [
+                "variation_detected",
+                "direction_change_confirmed",
+                "clarity_checkpoint"
+            ]
+        ]
+
+        # Extrair informações dos eventos
+        event_types = [e.get("event_type") for e in detection_events]
+
+        checkpoint_found = any(
+            et in ["direction_change_confirmed", "clarity_checkpoint"]
+            for et in event_types
+        )
+
+        classification_found = None
+        for e in detection_events:
+            if e.get("classification"):
+                classification_found = e.get("classification")
+                break
+
+        # Validações
+        errors = []
+
+        # Validar eventos esperados
+        if expected_events is not None:
+            for expected in expected_events:
+                if expected not in event_types:
+                    errors.append(
+                        f"Evento esperado '{expected}' não encontrado. "
+                        f"Eventos encontrados: {event_types}"
+                    )
+
+        # Validar checkpoint
+        if expected_checkpoint is not None:
+            if expected_checkpoint and not checkpoint_found:
+                errors.append(
+                    "Checkpoint esperado mas NÃO encontrado. "
+                    f"Eventos: {event_types}"
+                )
+            elif not expected_checkpoint and checkpoint_found:
+                errors.append(
+                    "Checkpoint NÃO esperado mas encontrado. "
+                    f"Eventos: {event_types}"
+                )
+
+        # Validar classificação
+        if expected_classification is not None and classification_found:
+            if expected_classification != classification_found:
+                errors.append(
+                    f"Classificação esperada '{expected_classification}', "
+                    f"obtida '{classification_found}'"
+                )
+
+        return {
+            "valid": len(errors) == 0,
+            "errors": errors,
+            "events_found": event_types,
+            "detection_events": detection_events,
+            "checkpoint_found": checkpoint_found,
+            "classification_found": classification_found
+        }
+
+    def get_detection_summary(self, session_id: str) -> Dict[str, Any]:
+        """
+        Retorna resumo das detecções do Observer para uma sessão.
+
+        Útil para debugging e relatórios de validação.
+
+        Args:
+            session_id: ID da sessão
+
+        Returns:
+            Dict com resumo:
+                - total_detections: int
+                - variations: int
+                - direction_changes: int
+                - clarity_checkpoints: int
+                - events: List[Dict] - Eventos detalhados
+        """
+        events = self._get_all_events(session_id)
+
+        detection_events = [
+            e for e in events
+            if e.get("event_type") in [
+                "variation_detected",
+                "direction_change_confirmed",
+                "clarity_checkpoint"
+            ]
+        ]
+
+        variations = len([
+            e for e in detection_events
+            if e.get("event_type") == "variation_detected"
+        ])
+        direction_changes = len([
+            e for e in detection_events
+            if e.get("event_type") == "direction_change_confirmed"
+        ])
+        clarity_checkpoints = len([
+            e for e in detection_events
+            if e.get("event_type") == "clarity_checkpoint"
+        ])
+
+        return {
+            "total_detections": len(detection_events),
+            "variations": variations,
+            "direction_changes": direction_changes,
+            "clarity_checkpoints": clarity_checkpoints,
+            "events": detection_events
+        }
 
