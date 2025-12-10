@@ -26,7 +26,7 @@
 - **ÉPICO 12**: Observer - Integração Básica (MVP) - Observer integrado ao fluxo multi-agente via callback assíncrono. Processa turnos em background após Orchestrator, publica eventos cognitive_model_updated, e exibe atividade na Timeline. Orquestrador acessa cognitive_model via prompt context. 28 testes passando.
 
 ### 🟡 Épicos Em Andamento
-- **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística) - Features 13.1-13.4 implementadas (66 testes), pendente: 13.5 Timeline Visual, 13.6 Testes E2E
+- **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística) - Features 13.1-13.5 implementadas (66+ testes), pendente: 13.6 Testes E2E
 - **ÉPICO 14**: Observer - Consultas Inteligentes - Base implementada (14.1-14.3), Observer identifica pontos de esclarecimento e sugere abordagens
 
 ### ⏳ Épicos Planejados
@@ -144,9 +144,10 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Clareza "nebulosa"/"confusa": sugere checkpoint
   - Mudança real detectada: trigger checkpoint para confirmação
 
-#### 13.5 Timeline Visual de Mudanças
+#### 13.5 Timeline Visual de Mudanças (✅ Implementado)
 
 - **Descrição:** Timeline registra mudanças detectadas de forma discreta.
+- **Implementação:** `utils/event_models.py`, `utils/event_bus/publishers.py`, `agents/orchestrator/nodes.py`, `app/components/backstage/timeline.py`
 - **Critérios de Aceite:**
   - Eventos aparecem na timeline (colapsada por padrão): "🔄 Mudança de foco confirmada com usuário", "↪️ Variation identificada (não interrompeu fluxo)", "⚠️ Tensões detectadas, esclarecimento solicitado"
   - Variations: registro discreto (sem alerta)
@@ -154,22 +155,22 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - Não mostra métricas ou thresholds
 
 **Sub-tarefas:**
-- [ ] **13.5.1** Criar modelos de eventos em `utils/event_models.py`:
+- [x] **13.5.1** Criar modelos de eventos em `utils/event_models.py`:
   - `VariationDetectedEvent` (classification, essence_previous, essence_new, shared_concepts, new_concepts)
   - `DirectionChangeConfirmedEvent` (classification, user_confirmed, previous_claim, new_claim)
   - `ClarityCheckpointEvent` (clarity_level, checkpoint_reason)
-- [ ] **13.5.2** Adicionar métodos publish em `utils/event_bus/publishers.py`:
+- [x] **13.5.2** Adicionar métodos publish em `utils/event_bus/publishers.py`:
   - `publish_variation_detected()`
   - `publish_direction_change_confirmed()`
   - `publish_clarity_checkpoint()`
-- [ ] **13.5.3** Publicar eventos em `agents/orchestrator/nodes.py`:
+- [x] **13.5.3** Publicar eventos em `agents/orchestrator/nodes.py`:
   - Publicar `VariationDetectedEvent` quando variação detectada
   - Publicar `DirectionChangeConfirmedEvent` quando mudança real
   - Publicar `ClarityCheckpointEvent` quando `needs_checkpoint=True`
-- [ ] **13.5.4** Renderizar eventos em `app/components/backstage/timeline.py`:
+- [x] **13.5.4** Renderizar eventos em `app/components/backstage/timeline.py`:
   - Nova função `render_observer_detection_events()`
   - Exibir eventos com emojis discretos, seção colapsada
-- [ ] **13.5.5** Testes unitários em `tests/unit/utils/test_event_bus_observer.py`
+- [x] **13.5.5** Testes unitários em `tests/unit/utils/test_event_bus_observer.py`
 
 #### 13.6 Testes de Integração
 
