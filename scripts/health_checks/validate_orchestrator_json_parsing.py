@@ -16,7 +16,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from utils.json_parser import (
+from core.utils.json_parser import (
     extract_orchestrator_response,
     OrchestratorValidationError,
     OrchestratorResponse

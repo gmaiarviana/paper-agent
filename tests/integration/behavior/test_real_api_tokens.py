@@ -13,7 +13,7 @@ sys.path.insert(0, str(project_root))
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
-from utils.token_extractor import extract_tokens_and_cost
+from core.utils.token_extractor import extract_tokens_and_cost
 import json
 
 def test_real_api_response():

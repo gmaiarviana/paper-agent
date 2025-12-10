@@ -108,7 +108,7 @@ class TestObserverEventPublishing:
 
     def test_cognitive_model_updated_event_structure(self):
         """Evento cognitive_model_updated tem estrutura correta."""
-        from utils.event_bus import get_event_bus
+        from core.utils.event_bus import get_event_bus
 
         bus = get_event_bus()
 
@@ -146,7 +146,7 @@ class TestObserverEventPublishing:
 
     def test_multiple_turn_events_accumulate(self):
         """Múltiplos turnos geram eventos acumulados."""
-        from utils.event_bus import get_event_bus
+        from core.utils.event_bus import get_event_bus
 
         bus = get_event_bus()
         session_id = f"test-multi-turn-{time.time()}"

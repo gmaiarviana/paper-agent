@@ -10,8 +10,8 @@ import tempfile
 import shutil
 from pathlib import Path
 
-from utils.event_bus import EventBus, get_event_bus
-from utils.event_models import AgentStartedEvent
+from core.utils.event_bus import EventBus, get_event_bus
+from core.utils.event_models import AgentStartedEvent
 
 class TestEventBus:
     """Testes para EventBus."""

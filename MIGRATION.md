@@ -264,10 +264,10 @@ Get-ChildItem -Recurse -Directory | Where-Object { $_.Name -match '^(core|produc
 Se fizer na ordem errada, `from utils.prompts.` vira `from core.utils.prompts.` (incorreto).
 
 **Cursor (rápido):**
-- [ ] `git mv utils core/utils` (exceto prompts/)
-- [ ] **PRIMEIRO:** Verificar se `from utils.prompts.` já foi convertido para `from core.prompts.`
-- [ ] **DEPOIS:** Find/Replace: `from utils.` → `from core.utils.` (excluir prompts/)
-- [ ] Validar: 0 matches de `from utils\.` (exceto prompts)
+- [x] `git mv utils core/utils` (exceto prompts/)
+- [x] **PRIMEIRO:** Verificar se `from utils.prompts.` já foi convertido para `from core.prompts.`
+- [x] **DEPOIS:** Find/Replace: `from utils.` → `from core.utils.` (excluir prompts/)
+- [x] Validar: 0 matches de `from utils\.` (exceto prompts)
 
 **Comandos:**
 ```powershell
@@ -1495,7 +1495,7 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [ ] Commit realizado
 
 ### Fase 2: Core - Folhas
-- [ ] utils/ movido (exceto prompts/)
+- [x] utils/ movido (exceto prompts/)
 - [ ] prompts/ movido
 - [ ] config/ movido
 - [ ] config_loader.py ajustado

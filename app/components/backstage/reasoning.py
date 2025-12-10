@@ -11,8 +11,8 @@ import streamlit as st
 import logging
 from typing import Dict, Any, Optional
 
-from utils.event_bus import get_event_bus
-from utils.currency import format_currency, format_currency_precise
+from core.utils.event_bus import get_event_bus
+from core.utils.currency import format_currency, format_currency_precise
 from .constants import AGENT_EMOJIS
 
 logger = logging.getLogger(__name__)

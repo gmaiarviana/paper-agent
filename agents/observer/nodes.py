@@ -308,7 +308,7 @@ def _publish_cognitive_model_event(
         turn_number: Numero do turno.
     """
     try:
-        from utils.event_bus import get_event_bus
+        from core.utils.event_bus import get_event_bus
         from .metrics import evaluate_maturity
 
         event_bus = get_event_bus()

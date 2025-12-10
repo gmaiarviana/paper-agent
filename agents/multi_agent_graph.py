@@ -38,7 +38,7 @@ from agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
 
 # Import EventBus para emitir eventos (Épico 5.1)
 try:
-    from utils.event_bus import get_event_bus
+    from core.utils.event_bus import get_event_bus
     EVENT_BUS_AVAILABLE = True
 except ImportError:
     EVENT_BUS_AVAILABLE = False

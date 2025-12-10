@@ -61,7 +61,7 @@ def validate_imports():
 
     # EventBus
     try:
-        from utils.event_bus import get_event_bus
+        from core.utils.event_bus import get_event_bus
         logger.info("  ✅ EventBus importado")
     except ImportError as e:
         errors.append(f"  ❌ Falha ao importar EventBus: {e}")
@@ -161,7 +161,7 @@ def validate_event_bus_integration():
     """Valida publicação de eventos no EventBus (12.1)."""
     logger.info("\n📡 Validando EventBus (12.1)...")
 
-    from utils.event_bus import get_event_bus
+    from core.utils.event_bus import get_event_bus
 
     bus = get_event_bus()
     test_session = f"validation-{time.time()}"

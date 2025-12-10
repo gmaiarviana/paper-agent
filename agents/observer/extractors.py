@@ -32,8 +32,8 @@ from .prompts import (
     MAX_EXTRACTION_TOKENS,
     CONTRADICTION_CONFIDENCE_THRESHOLD
 )
-from utils.config import invoke_with_retry, create_anthropic_client
-from utils.json_parser import extract_json_from_llm_response
+from core.utils.config import invoke_with_retry, create_anthropic_client
+from core.utils.json_parser import extract_json_from_llm_response
 
 logger = logging.getLogger(__name__)
 

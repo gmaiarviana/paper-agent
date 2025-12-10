@@ -17,8 +17,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from utils.structured_logger import StructuredLogger
-from utils.debug_reporter import DebugReporter
+from core.utils.structured_logger import StructuredLogger
+from core.utils.debug_reporter import DebugReporter
 
 def replay_session(trace_id: str, speed: str = "normal", start_turn: int = 1, export: str = None):
     """Reproduz sessão passo a passo."""

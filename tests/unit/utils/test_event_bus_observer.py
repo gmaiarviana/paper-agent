@@ -13,8 +13,8 @@ import tempfile
 import shutil
 from pathlib import Path
 
-from utils.event_bus import EventBus
-from utils.event_models import (
+from core.utils.event_bus import EventBus
+from core.utils.event_models import (
     VariationDetectedEvent,
     DirectionChangeConfirmedEvent,
     ClarityCheckpointEvent,

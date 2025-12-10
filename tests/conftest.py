@@ -26,7 +26,7 @@ def reset_anthropic_circuit_breaker():
     Sem esse reset, um teste que falha pode abrir o circuit breaker
     e causar falhas em cascata em todos os testes subsequentes.
     """
-    from utils.providers.anthropic import _circuit_breaker
+    from core.utils.providers.anthropic import _circuit_breaker
     _circuit_breaker._consecutive_failures = 0
     _circuit_breaker._is_open = False
     yield
@@ -39,7 +39,7 @@ def reset_anthropic_circuit_breaker():
 # mas testes unitários (Observer, etc) continuam funcionando
 try:
     from agents.multi_agent_graph import create_multi_agent_graph
-    from utils.test_executor import MultiTurnExecutor
+    from core.utils.test_executor import MultiTurnExecutor
     MULTI_AGENT_AVAILABLE = True
 except ImportError as e:
     MULTI_AGENT_AVAILABLE = False

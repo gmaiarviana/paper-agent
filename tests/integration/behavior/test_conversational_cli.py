@@ -20,7 +20,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
-from utils.event_bus import get_event_bus
+from core.utils.event_bus import get_event_bus
 
 def validate_conversational_cli():
     """

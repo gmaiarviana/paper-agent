@@ -13,8 +13,8 @@ import logging
 from typing import Dict, Any, List
 from datetime import datetime
 
-from utils.event_bus import get_event_bus
-from utils.currency import format_currency, format_currency_precise
+from core.utils.event_bus import get_event_bus
+from core.utils.currency import format_currency, format_currency_precise
 from agents.database.manager import get_database_manager
 from .constants import AGENT_EMOJIS
 

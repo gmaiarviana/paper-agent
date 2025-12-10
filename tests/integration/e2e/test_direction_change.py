@@ -24,7 +24,7 @@ from typing import Dict, Any, List
 
 from agents.multi_agent_graph import create_multi_agent_graph
 from agents.orchestrator.state import create_initial_multi_agent_state
-from utils.event_bus import get_event_bus
+from core.utils.event_bus import get_event_bus
 
 
 # ============================================================================

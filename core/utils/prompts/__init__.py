@@ -11,18 +11,18 @@ Estrutura modular:
 """
 
 # Re-exportar prompts do Metodologista
-from utils.prompts.methodologist import (
+from core.utils.prompts.methodologist import (
     METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1,
     METHODOLOGIST_DECIDE_PROMPT_V2,
 )
 
 # Re-exportar prompts do Orquestrador
-from utils.prompts.orchestrator import (
+from core.utils.prompts.orchestrator import (
     ORCHESTRATOR_SOCRATIC_PROMPT_V1,
 )
 
 # Re-exportar prompts do Estruturador
-from utils.prompts.structurer import (
+from core.utils.prompts.structurer import (
     STRUCTURER_REFINEMENT_PROMPT_V1,
 )
 

@@ -8,8 +8,8 @@ que não foram completamente testados no Épico 7.
 import pytest
 
 from agents.multi_agent_graph import create_multi_agent_graph
-from utils.test_executor import MultiTurnExecutor
-from utils.test_scenarios import ConversationScenario
+from core.utils.test_executor import MultiTurnExecutor
+from core.utils.test_scenarios import ConversationScenario
 
 @pytest.fixture
 def multi_turn_executor(multi_agent_graph):

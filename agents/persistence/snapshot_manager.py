@@ -19,7 +19,7 @@ from langchain_anthropic import ChatAnthropic
 
 from agents.models.cognitive_model import CognitiveModel
 from agents.database.manager import DatabaseManager, get_database_manager
-from utils.config import create_anthropic_client, get_anthropic_model
+from core.utils.config import create_anthropic_client, get_anthropic_model
 
 logger = logging.getLogger(__name__)
 

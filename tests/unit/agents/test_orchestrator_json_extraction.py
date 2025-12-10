@@ -8,7 +8,7 @@ respostas do Orquestrador no formato esperado pelo Épico 7 POC.
 
 import pytest
 import json
-from utils.json_parser import extract_orchestrator_response, OrchestratorValidationError
+from core.utils.json_parser import extract_orchestrator_response, OrchestratorValidationError
 
 class TestExtractOrchestratorResponse:
     """Testes da função extract_orchestrator_response."""
