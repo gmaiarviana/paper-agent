@@ -16,6 +16,35 @@ Observador = Testemunha silenciosa (vê tudo, cataloga, não interfere)
 
 ---
 
+## Filosofia de Design
+
+### Analogia: Sistema Límbico (Processamento Interno)
+
+O Observador funciona como o sistema límbico no cérebro:
+
+- **Sente padrões antes de verbalizá-los**
+- **Processa informações em silêncio**
+- **Sinaliza quando algo requer atenção**
+- **Não decide ações, apenas alerta**
+
+### Princípio: Leveza e Atenção
+
+⚡ **Observador deve ser LEVE:**
+
+- Mantém apenas CognitiveModel em memória ativa (~500 tokens)
+- NÃO mantém histórico completo de turnos
+- NÃO consulta Memory Agent diretamente
+- Processa rapidamente, sinaliza quando necessário
+
+🔍 **Observador é sempre ATENTO:**
+
+- Processa cada turno em tempo real
+- Detecta padrões, incongruências, mudanças de foco
+- Opera em silêncio (usuário não vê processamento)
+- Sinaliza Orquestrador quando detecta algo relevante
+
+---
+
 ## Mitose do Orquestrador
 
 ### Por Que Separar?
@@ -44,6 +73,92 @@ Observador = Testemunha silenciosa (vê tudo, cataloga, não interfere)
 
 ## Responsabilidades
 
+### 1. Manter CognitiveModel Atualizado (Memória Ativa)
+
+O Observador mantém apenas o CognitiveModel atual em memória:
+
+```python
+class Observador:
+    def __init__(self):
+        self.cognitive_model = CognitiveModel()  # Única coisa em memória
+        # NÃO mantém: histórico de turnos, mensagens antigas, contexto profundo
+```
+
+**Conteúdo do CognitiveModel:**
+- Claim atual (e sua solidez)
+- Proposições fundamentadoras
+- Conceitos identificados
+- Focal argument (direção da conversa)
+- Contexto essencial (baseline, população, métrica)
+
+**Tamanho típico**: ~500 tokens (leve, rápido de processar)
+
+### 2. Detectar Necessidade de Consulta a Memory
+
+O Observador não consulta Memory diretamente, mas sinaliza o Orquestrador quando detecta:
+
+**A) Incongruência (possível contradição):**
+```python
+# Turno atual: "Bugs aumentaram"
+# CognitiveModel: baseline_bugs = "estável"
+
+if observador.detecta_incongruencia():
+    observador.sinalizar_orquestrador({
+        "tipo": "incongruencia",
+        "contexto": {
+            "turno_atual": "bugs aumentaram",
+            "cognitive_model": "baseline_bugs=estável"
+        },
+        "sugestao": "consultar_memory",
+        "query_sugerida": "buscar menções a 'bugs' nos últimos 20 turnos"
+    })
+```
+
+**B) Referência a contexto ausente:**
+```python
+# Usuário menciona "aquela população" mas CognitiveModel não tem definição
+
+if "aquela população" in turno and not cognitive_model.tem("população"):
+    observador.sinalizar_orquestrador({
+        "tipo": "contexto_ausente",
+        "termo": "população",
+        "sugestao": "consultar_memory",
+        "query_sugerida": "buscar definição de 'população'"
+    })
+```
+
+**C) Mudança de foco (novo tópico):**
+```python
+# Foco atual: "bugs"
+# Usuário: "E aquela ideia de produtividade?"
+
+if observador.detecta_mudanca_foco():
+    observador.sinalizar_orquestrador({
+        "tipo": "mudanca_foco",
+        "foco_anterior": "bugs",
+        "foco_novo": "produtividade",
+        "sugestao": "consultar_memory",
+        "query_sugerida": "recuperar discussão sobre 'produtividade'"
+    })
+```
+
+**D) Validação de entendimento:**
+```python
+# Orquestrador vai perguntar sobre baseline
+# Mas usuário pode já ter definido
+
+if orquestrador.vai_perguntar("baseline"):
+    if not cognitive_model.tem("baseline"):
+        observador.sinalizar_orquestrador({
+            "tipo": "validacao",
+            "termo": "baseline",
+            "sugestao": "consultar_memory_primeiro",
+            "query_sugerida": "verificar se usuário já definiu 'baseline'"
+        })
+```
+
+**Importante**: Observador **apenas sinaliza**, não decide se consulta ou não. Decisão é do Orquestrador.
+
 ### O que FAZ
 
 - ✅ **Monitorar TODA conversa** (todo turno, não apenas snapshots)
@@ -68,6 +183,152 @@ Observador = Testemunha silenciosa (vê tudo, cataloga, não interfere)
 - ❌ Falar com usuário (quem fala: Orquestrador)
 - ❌ Negociar caminhos (quem negocia: Orquestrador)
 - ❌ Interromper fluxo conversacional
+- ❌ Consultar Memory Agent diretamente (apenas sinaliza necessidade)
+
+---
+
+## Fluxo de Comunicação com Orquestrador
+
+### Observador → Orquestrador (Sinalização)
+
+```
+Turno atual chega
+      ↓
+Observador processa
+      ↓
+Observador atualiza CognitiveModel
+      ↓
+Observador detecta padrão/incongruência?
+      ↓ SIM
+Observador SINALIZA Orquestrador
+{
+    "tipo": "incongruencia" | "contexto_ausente" | "mudanca_foco",
+    "contexto": {...},
+    "sugestao": "consultar_memory" | "perguntar_usuario",
+    "query_sugerida": "..."  # se sugestão for consultar_memory
+}
+      ↓
+Orquestrador DECIDE:
+├─ Consultar Memory? (usa query_sugerida)
+├─ Perguntar usuário?
+└─ Ignorar? (sinal era falso positivo)
+      ↓
+[Se consultou Memory]
+Memory retorna contexto
+      ↓
+Orquestrador envia contexto ao Observador
+      ↓
+Observador PROCESSA contexto
+      ↓
+Observador atualiza CognitiveModel (se necessário)
+      ↓
+Observador confirma: "Contexto integrado" ou "Incongruência resolvida"
+```
+
+### Exemplo Completo
+
+**Cenário:** Usuário diz "bugs aumentaram" mas CognitiveModel tinha "bugs estáveis"
+
+**1. Observador detecta incongruência:**
+```python
+observador.sinalizar_orquestrador({
+    "tipo": "incongruencia",
+    "contexto": {
+        "turno_atual": "bugs aumentaram",
+        "cognitive_model": "baseline_bugs='estável'"
+    },
+    "sugestao": "consultar_memory",
+    "query_sugerida": "buscar menções a 'bugs' nos últimos 20 turnos"
+})
+```
+
+**2. Orquestrador decide consultar Memory:**
+```python
+contexto = memory_agent.query("buscar menções a 'bugs' nos últimos 20 turnos")
+
+# Memory retorna:
+# Turno 3: "Bugs estão estáveis há 6 meses"
+# Turno 15: "Bugs aumentaram 20% no último mês"
+```
+
+**3. Orquestrador envia contexto ao Observador:**
+```python
+observador.processar_contexto_memory({
+    "turno_3": "Bugs estáveis há 6 meses",
+    "turno_15": "Bugs aumentaram 20% no último mês"
+})
+```
+
+**4. Observador processa e resolve:**
+```python
+# Observador analisa: não é contradição, são períodos diferentes
+observador.atualizar_cognitive_model({
+    "baseline_bugs_historico": "estável há 6 meses",
+    "baseline_bugs_recente": "aumentou 20% no último mês",
+    "nota": "Mudança temporal, não contradição"
+})
+
+observador.confirmar_orquestrador({
+    "status": "resolvido",
+    "conclusao": "Períodos diferentes, não há contradição"
+})
+```
+
+---
+
+## Limitações e Trade-offs
+
+### Por que Observador NÃO mantém histórico completo?
+
+**Problema com histórico completo:**
+```
+Conversa com 50 turnos:
+├─ Observador processa 10k tokens a cada turno
+├─ Latência: 2-3s por processamento
+├─ Custo: alto (reprocessar histórico sempre)
+└─ Não escala para conversas longas (100+ turnos)
+```
+
+**Solução: Observador leve + Memory Agent:**
+```
+Conversa com 50 turnos:
+├─ Observador processa apenas CognitiveModel (~500 tokens)
+├─ Latência: 200-300ms por processamento
+├─ Custo: baixo (apenas estado atual)
+├─ Memory consultado apenas quando necessário (5-10% dos turnos)
+└─ Escala para conversas infinitas
+```
+
+### O que acontece se Observador perder contexto?
+
+**Cenário**: Usuário menciona algo do passado que não está em CognitiveModel
+
+**Sem Memory Agent:**
+```
+❌ Observador não tem acesso → Orquestrador pergunta de novo ao usuário
+❌ Usuário frustrado: "Já falei isso antes!"
+```
+
+**Com Memory Agent:**
+```
+✅ Observador detecta contexto ausente → sinaliza Orquestrador
+✅ Orquestrador consulta Memory → recupera contexto
+✅ Observador integra contexto → continua processamento
+✅ Usuário nem percebe que sistema "esqueceu"
+```
+
+### Trade-off: Velocidade vs Contexto
+
+| Aspecto | Observador Leve | Observador Pesado |
+|---------|-----------------|-------------------|
+| **Memória ativa** | ~500 tokens | ~10k tokens |
+| **Latência** | 200-300ms | 2-3s |
+| **Custo por turno** | Baixo | Alto |
+| **Contexto imediato** | Limitado (CognitiveModel) | Completo (histórico) |
+| **Escalabilidade** | Alta (conversas infinitas) | Baixa (quebra em 100+ turnos) |
+| **Recuperação de contexto** | Via Memory Agent | Já tem tudo |
+
+**Decisão**: Observador Leve + Memory Agent = melhor trade-off
 
 ---
 
@@ -646,9 +907,11 @@ if need.needs_clarification:
 ## Referências
 
 - `docs/architecture/observer_architecture.md` - Arquitetura técnica
-- `docs/architecture/ontology.md` - CognitiveModel e Conceitos
+- `docs/architecture/ontology.md` - CognitiveModel e MemoryLayer
 - `docs/architecture/concept_model.md` - Schema de Concept
 - `docs/vision/cognitive_model/core.md` - Fundamentos epistemológicos
+- `docs/agents/memory_agent.md` - Consultado via Orquestrador quando necessário
+- `docs/agents/orchestrator.md` - Recebe sinalizações do Observador
 - `ROADMAP.md` - Épicos 10, 12, 13
 
 ---
