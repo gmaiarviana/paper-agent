@@ -1483,44 +1483,45 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [x] Análises de impacto criadas
 - [x] MIGRATION.md criado
 
-### Fase 1: Estrutura Base
+### Fase 1: Estrutura Base ✅
 - [x] Diretórios vazios criados
 - [x] `__init__.py` criados
 - [x] Testes continuam passando
-- [ ] Commit realizado
+- [x] Commit realizado
 
-### Fase 2: Core - Folhas
+### Fase 2: Core - Folhas ✅
 - [x] utils/ movido (exceto prompts/)
 - [x] prompts/ movido
 - [x] config/ movido
-- [x] config_loader.py ajustado
-- [ ] models/ movido
-- [ ] database/ movido
-- [ ] database/manager.py ajustado
-- [ ] checklist/ movido
-- [ ] Imports ajustados
-- [ ] Testes passando
+- [x] config_loader.py ajustado (caminho dinâmico + cache)
+- [x] models/ movido
+- [x] database/ movido
+- [x] database/manager.py ajustado (caminho dinâmico)
+- [x] checklist/ movido
+- [x] Imports ajustados
+- [x] Testes passando
 
-### Fase 3: Core - Memória
-- [ ] memory/ movido
-- [ ] persistence/ movido
-- [ ] Imports ajustados
-- [ ] Testes passando
+### Fase 3: Core - Memória ✅
+- [x] memory/ movido
+- [x] persistence/ movido
+- [x] Imports ajustados
+- [x] Testes passando
 
-### Fase 4: Core - Agentes
-- [ ] orchestrator/ movido
-- [ ] structurer/ movido
-- [ ] methodologist/ movido
-- [ ] observer/ movido
-- [ ] observer/catalog.py ajustado
-- [ ] Imports ajustados
-- [ ] Testes passando
+### Fase 4: Core - Agentes ✅
+- [x] orchestrator/ movido
+- [x] structurer/ movido
+- [x] methodologist/ movido
+- [x] observer/ movido
+- [x] observer/catalog.py ajustado (caminho dinâmico)
+- [x] Imports ajustados
+- [x] Testes passando
 
-### Fase 5: Core - Integração
-- [ ] multi_agent_graph.py movido
-- [ ] Imports ajustados
-- [ ] Suite completa passando
-- [ ] Commit realizado
+### Fase 5: Core - Integração ✅
+- [x] multi_agent_graph.py movido
+- [x] Imports ajustados
+- [x] checkpoints.db caminho dinâmico
+- [x] Suite completa passando (1 teste pré-existente falhando - não relacionado à migração)
+- [x] Commit realizado
 
 ### Fase 6: CLI
 - [ ] cli/ movido
