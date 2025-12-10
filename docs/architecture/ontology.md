@@ -37,6 +37,11 @@ O **Observador (Mente Analítica)** é o agente responsável por monitorar conve
 - ✅ Completo (processa todos os turnos)
 - ✅ Consultável (Orquestrador pode pedir insights)
 
+**Memória e Degradação:**
+- CognitiveModel atual = mantido em memória ativa (Observador)
+- CognitiveModel histórico = armazenado em MemoryLayer.intermediária como snapshots
+- CognitiveModel recente é rapidamente acessível, antigo requer consulta a Memory
+
 ### Estrutura do CognitiveModel
 
 ```python
@@ -262,6 +267,153 @@ Argumento:
     - Claim: "Reduz turnover em 20%"
     - Fundamentos: [Proposição: "Satisfação aumenta retenção"]
 
+### MemoryLayer (Camada de Memória)
+
+**O que é:** Representação temporal da memória de longo prazo. Inspirado na memória humana, onde informação recente é mais acessível que informação antiga.
+
+**Características:**
+- 3 tipos de camadas com diferentes características de acesso
+- Degradação temporal natural: informação mais antiga fica menos acessível
+- Permite busca eficiente priorizando recência sem perder histórico
+
+**Estrutura:**
+```python
+MemoryLayer:
+  id: UUID
+  layer_type: str                   # "superficial" | "intermediária" | "profunda"
+  turn_range: tuple[int, int]       # Intervalo de turnos cobertos (start, end)
+  timestamp: datetime               # Quando foi criada
+  accessibility: str                # Velocidade de busca: "rápida" | "moderada" | "lenta"
+  degradation_score: float          # Quão "fresca" está (1.0 = ontem, 0.1 = ano passado)
+  
+  # Conteúdo específico por tipo
+  content: dict                     # Varia conforme layer_type:
+                                    # - superficial: {key_phrases, concepts, context_summary}
+                                    # - intermediária: {cognitive_model_snapshot}
+                                    # - profunda: {messages: [{role, content, timestamp}]}
+```
+
+**Tipos de Camada:**
+
+**1. Superficial (recente):**
+- Resumos condensados (key_phrases, concepts, context_summary)
+- Busca rápida, últimos dias/semanas
+- Acesso imediato para contexto conversacional atual
+- Exemplo: "Resumo: usuário explorando produtividade com LLMs, conceitos chave: [LLMs, Produtividade, Métricas]"
+
+**2. Intermediária:**
+- Snapshots de CognitiveModel (evolução ao longo do tempo)
+- Acesso moderado, útil para revisar progresso
+- Captura estado do CognitiveModel em marcos importantes
+- Exemplo: Snapshot do turno 50 mostrando CognitiveModel com claims consolidados e solidez calculada
+
+**3. Profunda (antiga):**
+- Mensagens literais brutas (user/assistant messages)
+- Acesso mais lento, pode ser compactada periodicamente
+- Arquivo histórico completo preservado
+
+**Relações:**
+- MemoryLayer.superficial → contém resumo de múltiplos turnos
+- MemoryLayer.intermediária → contém snapshot de CognitiveModel
+- MemoryLayer.profunda → contém mensagens literais originais
+
+**Degradação temporal:**
+- Informação de ontem (degradation_score: 1.0) está mais acessível que de mês passado (0.5) ou ano passado (0.1)
+- Sistema prioriza recência sem perder rastreabilidade completa
+- Futuro: compactação/arquivamento periódico (ex: anual) para manter performance
+
+### BackstageContext (Contexto dos Bastidores)
+
+**O que é:** Rastreamento de decisões e processamento interno do sistema. Captura transparência sobre como decisões foram tomadas, alimentando a feature "Bastidores Transparentes".
+
+**Características:**
+- Registra ações e raciocínio de todos os agentes
+- Permite ao usuário entender origem de informações e decisões
+- Funcionalidade opt-in (não distrai por padrão, mas disponível para transparência)
+
+**Estrutura:**
+```python
+BackstageContext:
+  id: UUID
+  turn_id: UUID                     # Turno relacionado
+  agent: str                        # Qual agente executou: "Observador" | "Orquestrador" | "Memory"
+  action: str                       # O que foi feito:
+                                    # - "detectou_incongruencia"
+                                    # - "consultou_memory"
+                                    # - "decidiu_next_step"
+                                    # - "identificou_conceito"
+                                    # - "atualizou_cognitive_model"
+  input: dict                       # Contexto que levou à ação
+  output: dict                      # Resultado da ação
+  reasoning: str                    # Explicação em linguagem natural (legível para usuário)
+  timestamp: datetime               # Quando ocorreu
+```
+
+**Exemplos de ações:**
+
+**Observador:**
+```python
+BackstageContext(
+  agent: "Observador",
+  action: "detectou_incongruencia",
+  input: {
+    "turn_id": "abc123",
+    "claim_atual": "LLMs aumentam produtividade",
+    "claim_anterior": "Automação reduz qualidade"
+  },
+  output: {
+    "incongruencia": "Afirmação atual contradiz claim anterior sobre qualidade"
+  },
+  reasoning: "Sistema detectou possível contradição: usuário afirmou que automação reduz qualidade, mas agora sugere que LLMs (tipo de automação) aumentam produtividade. Isso pode indicar necessidade de clarificação sobre o contexto específico."
+)
+```
+
+**Memory:**
+```python
+BackstageContext(
+  agent: "Memory",
+  action: "consultou_memory",
+  input: {
+    "query": "produtividade com LLMs",
+    "turn_id": "xyz789"
+  },
+  output: {
+    "results": [
+      {"layer": "superficial", "matches": 3, "relevance": 0.85},
+      {"layer": "intermediária", "matches": 1, "relevance": 0.72}
+    ]
+  },
+  reasoning: "Buscou informações sobre produtividade com LLMs. Encontrou 3 resumos recentes (últimas 2 semanas) e 1 snapshot de CognitiveModel de conversa anterior que abordou tema similar."
+)
+```
+
+**Orquestrador:**
+```python
+BackstageContext(
+  agent: "Orquestrador",
+  action: "decidiu_next_step",
+  input: {
+    "cognitive_model": {"solidez": 0.45, "open_questions": 2},
+    "user_intent": "quero entender métricas"
+  },
+  output: {
+    "decision": "chamar_metodologista",
+    "justification": "Baixa solidez e questão sobre métricas sugere necessidade de validação metodológica"
+  },
+  reasoning: "Decisão: acionar Metodologista para validar rigor científico. O CognitiveModel mostra solidez baixa (0.45) e usuário está questionando métricas, indicando necessidade de fortalecimento metodológico antes de prosseguir."
+)
+```
+
+**Relações:**
+- BackstageContext → rastreia decisões de Observador
+- BackstageContext → rastreia consultas a Memory
+- BackstageContext → rastreia decisões de Orquestrador
+
+**Uso:**
+- Alimenta feature "Bastidores Transparentes" (opt-in para usuário)
+- Permite transparência sobre origem de informações e raciocínio do sistema
+- Formato legível (não JSON/técnico por padrão) para melhor UX
+
 ---
 
 ## Fluxo de Detecção de Conceitos
@@ -362,6 +514,23 @@ Biblioteca:
 - Proposição tem evidências que apoiam e evidências que refutam
 - Evidência pode apoiar ou refutar múltiplas proposições
 
+### CognitiveModel ↔ MemoryLayer (1:N)
+- CognitiveModel atual = mantido em memória ativa (Observador)
+- CognitiveModel histórico = armazenado em MemoryLayer.intermediária como snapshots
+- Múltiplos snapshots de CognitiveModel podem existir ao longo do tempo
+
+### MemoryLayer (Tipos de Relação)
+- MemoryLayer.superficial → contém resumo de múltiplos turnos
+- MemoryLayer.intermediária → contém snapshot de CognitiveModel
+- MemoryLayer.profunda → contém mensagens literais originais
+- Degradação temporal: superficial → intermediária → profunda
+
+### BackstageContext (Rastreamento)
+- BackstageContext → rastreia decisões de Observador
+- BackstageContext → rastreia consultas a Memory
+- BackstageContext → rastreia decisões de Orquestrador
+- BackstageContext → vinculado a turn_id específico
+
 ## Exemplo Completo: Sapiens (Harari)
 
 **Texto original:**
@@ -432,6 +601,119 @@ Turno 10: Novo snapshot → referencia conceitos novos
 - Snapshots não precisam reprocessar para detectar conceitos
 - Conceitos já estão catalogados pelo Observador
 - Snapshot apenas cria links (idea_concepts)
+
+## Fluxo de Memória em Camadas
+
+### Ciclo de Vida da Informação
+
+**Fluxo temporal da informação entre camadas:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ TURNO ATUAL                                                 │
+│                                                             │
+│ Usuário: "LLMs aumentam produtividade"                     │
+│     ↓                                                       │
+│ Observador processa (em paralelo, silencioso)              │
+│     ↓                                                       │
+│ Atualiza CognitiveModel (memória ativa)                    │
+│     ↓                                                       │
+│ Registra BackstageContext                                   │
+└─────────────────────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────────────────────┐
+│ CAMADA SUPERFICIAL (últimos dias/semanas)                  │
+│                                                             │
+│ • Resumos condensados (key_phrases, concepts)              │
+│ • Busca rápida para contexto conversacional                │
+│ • Degradação: 0.8-1.0 (informação fresca)                  │
+│                                                             │
+│ Exemplo:                                                    │
+│ {                                                           │
+│   "key_phrases": ["LLMs", "produtividade", "métricas"],    │
+│   "concepts": [uuid1, uuid2],                              │
+│   "context_summary": "Explorando impacto de LLMs..."       │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+                    ↓
+              [Periódico, a cada N turnos ou marcos]
+                    ↓
+┌─────────────────────────────────────────────────────────────┐
+│ CAMADA INTERMEDIÁRIA (semanas/meses)                       │
+│                                                             │
+│ • Snapshots de CognitiveModel                              │
+│ • Evolução da ideia ao longo do tempo                      │
+│ • Degradação: 0.3-0.7 (acesso moderado)                    │
+│                                                             │
+│ Exemplo:                                                    │
+│ {                                                           │
+│   "turn_id": 50,                                           │
+│   "cognitive_model": {                                     │
+│     "claims": ["LLMs aumentam produtividade em 30%"],     │
+│     "solidez_geral": 0.65,                                 │
+│     "conceitos": [uuid1, uuid2, uuid3]                     │
+│   }                                                         │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+                    ↓
+              [Após período estendido ou compactação]
+                    ↓
+┌─────────────────────────────────────────────────────────────┐
+│ CAMADA PROFUNDA (meses/anos)                               │
+│                                                             │
+│ • Mensagens literais brutas                                │
+│ • Arquivo histórico completo                               │
+│ • Degradação: 0.1-0.3 (acesso lento)                       │
+│                                                             │
+│ Exemplo:                                                    │
+│ {                                                           │
+│   "messages": [                                            │
+│     {"role": "user", "content": "LLMs aumentam...", ...}, │
+│     {"role": "assistant", "content": "Interessante!...",...}│
+│   ]                                                         │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+                    ↓
+              [Compactação/Arquivamento Anual]
+                    ↓
+         [Informação preservada, acesso arquivado]
+```
+
+### Processo de Degradação
+
+**Degradação temporal natural:**
+1. **Turno atual → Superficial:** Informação imediatamente disponível, busca instantânea
+2. **Superficial → Intermediária:** Após período (ex: 1-2 semanas), snapshot criado periodicamente
+3. **Intermediária → Profunda:** Após período estendido (ex: 1-2 meses), mensagens literais arquivadas
+4. **Profunda → Compactada:** Após período anual, pode ser compactada/arquivada
+
+**Degradação não significa perda:**
+- Informação nunca é perdida, apenas fica menos acessível
+- Sistema prioriza recência (busca superficial primeiro)
+- Consulta camadas mais profundas apenas quando necessário
+- Rastreabilidade completa mantida
+
+### Consulta a Memory
+
+**Quando sistema consulta memória:**
+
+```
+Usuário pergunta sobre tópico abordado anteriormente
+    ↓
+Memory busca em camadas (ordem de prioridade):
+    1. Superficial (rápida) → se encontrar relevante, retorna
+    2. Intermediária (moderada) → se necessário, busca snapshots
+    3. Profunda (lenta) → apenas se informação específica necessária
+    ↓
+Resultado agrega informações de múltiplas camadas
+    ↓
+BackstageContext registra consulta e resultados
+```
+
+**Eficiência:**
+- 90% das consultas resolvidas na camada superficial (acesso rápido)
+- 8% requerem camada intermediária (snapshots de CognitiveModel)
+- 2% requerem camada profunda (mensagens literais específicas)
 
 ---
 

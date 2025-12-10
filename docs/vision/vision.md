@@ -18,11 +18,14 @@ Paper Agent é guiado por uma epistemologia específica: não existe verdade abs
 Paper Agent não compete com LLMs generalistas. É um sistema especializado para **organização de pensamentos** e **construção de argumentos sólidos**.
 
 **O que fazemos:**
-- Lapidar UMA ideia por conversa (não responder curiosidades gerais)
+- Foco em uma coisa por vez (não responder curiosidades gerais)
 - Fortalecer argumentos identificando premissas e suposições ocultas
 - Provocar reflexão sobre aspectos não contemplados no primeiro momento
 - Conectar dúvidas com pesquisas direcionadas (quando Pesquisador estiver implementado)
 - Colocar à prova o que usuário acha que sabe
+
+**Sobre "foco em uma coisa por vez":**
+O usuário pode estar explorando uma ideia central, mas naturalmente diverge em sub-tópicos e depois converge novamente para aprofundar. O sistema ajuda a identificar quando há múltiplos tópicos simultâneos e sugere organizar, mas não força - respeita o ritmo do usuário. Preferência por trabalhar uma coisa de cada vez, mas sem rigidez. Metáfora: "Como lapidar um diamante - divergir para explorar facetas, convergir para aprofundar o corte"
 
 **O que NÃO fazemos:**
 - Responder curiosidades sobre conhecimento geral da internet
@@ -48,10 +51,46 @@ e POR QUÊ, não apenas o resultado final.
 (Sócrates, Aristóteles, Popper) com estilos de argumentação 
 personalizados. Ver: docs/vision/agent_personas.md
 
+### Visão Futura: Separação Comunicador/Orquestrador
+
+**Status:** Conceitual, para implementação futura.
+
+**Separação planejada (não implementada ainda):**
+
+- **Orquestrador:** coordenação lógica, decisões, sem linguagem natural. Trabalha com estruturas de dados, estados, fluxos. Neutro e técnico.
+- **Comunicador:** interface linguística, tradução para/de usuário, aplicação de personas. Responsável por toda interação em linguagem natural.
+
+**Benefícios:**
+- **Neutralidade:** Orquestrador não carrega vieses de comunicação, foca em lógica pura
+- **Customização:** Diferentes comunicadores podem aplicar diferentes estilos (Sócrates, Popper, etc.) sem mudar lógica de orquestração
+- **Rastreabilidade:** Decisões lógicas separadas de apresentação linguística, facilitando debug e validação
+
+**Relação com Épico 18:**
+Personas customizáveis serão implementadas no Comunicador, permitindo que usuários escolham estilos de argumentação sem afetar a coordenação interna do sistema.
+
+**Implementação futura:**
+Separação completa permitirá múltiplos canais de comunicação (web, CLI, API) todos consumindo o mesmo Orquestrador neutro.
+
 **Resultado esperado:**
 "Flecha penetrante" / "Ideia irresistível" - argumento sólido com respaldo bibliográfico, sem premissas frágeis, sem dúvidas não examinadas. Às vezes o usuário nem sabe onde quer chegar, mas ao elaborar, a clareza aparece.
 
 **Ver detalhes sobre evolução cognitiva em:** `docs/vision/cognitive_model/`
+
+### Memory em Camadas
+
+O sistema utiliza uma arquitetura de memória inspirada na memória humana, onde informação recente é mais acessível que informação antiga:
+
+**3 Camadas de Memória:**
+
+- **Superficial (recente):** resumos condensados, busca rápida, últimos dias/semanas. Acesso imediato para contexto conversacional atual.
+- **Intermediária:** snapshots de CognitiveModel, evolução da ideia ao longo do tempo. Acesso moderado, útil para revisar progresso.
+- **Profunda (antiga):** mensagens literais, acesso mais lento, pode ser compactada periodicamente. Arquivo histórico completo.
+
+**Degradação temporal natural:**
+Informação de ontem está mais acessível que de mês passado. O sistema prioriza recência sem perder histórico, seguindo padrão natural de memória humana.
+
+**Futuro:**
+Compactação/arquivamento periódico (ex: anual) para manter performance sem perder rastreabilidade completa.
 
 ### 1.2 Super-Sistema: Core Universal
 
@@ -372,6 +411,27 @@ Formatos possíveis:
 - Sistema mostra qual agente está ativo nos Bastidores
 - Cards de pensamento e timeline exibem raciocínio por agente
 - Diferencial: usuário entende QUE tipo de análise está sendo feita
+
+### Bastidores Transparentes
+
+**Diferencial do produto:** mostrar como o sistema pensa, não apenas o resultado final.
+
+**Funcionalidade opt-in:**
+- Por padrão, não distrai - chat limpo e focado
+- Usuário pode ativar visualização dos bastidores quando quiser entender o raciocínio
+
+**O que mostra:**
+- Detecções do Observador (conceitos identificados, conexões encontradas)
+- Consultas a Memory (quais informações foram recuperadas e por quê)
+- Decisões do Orquestrador (por que determinado agente foi acionado, que caminho foi escolhido)
+
+**Formato:**
+- Resumo legível por padrão (não JSON/técnico)
+- Opção para aprofundamento técnico quando necessário
+- Timeline visual de eventos e raciocínio
+
+**Objetivo:**
+Transparência sobre origem de informações e raciocínio do sistema, permitindo ao usuário entender e validar como o sistema chegou às suas conclusões.
 
 ### 5.3 CLI: Ferramenta de Desenvolvimento
 
