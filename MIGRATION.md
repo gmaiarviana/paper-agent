@@ -307,9 +307,9 @@ pytest tests/unit/ -k utils -v
 #### Fase 2.2: Mover `utils/prompts/` → `core/prompts/`
 
 **Cursor (rápido):**
-- [ ] `git mv utils/prompts core/prompts`
-- [ ] Find/Replace: `from utils.prompts.` → `from core.prompts.`
-- [ ] Validar: 0 matches de `from utils.prompts\.`
+- [x] `git mv core/utils/prompts/* core/prompts/` (arquivos movidos)
+- [x] Find/Replace: `from core.utils.prompts.` → `from core.prompts.`
+- [x] Validar: 0 matches de `from utils.prompts\.` e `from core.utils.prompts\.`
 
 **Comandos:**
 ```powershell
@@ -1491,7 +1491,7 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 
 ### Fase 2: Core - Folhas
 - [x] utils/ movido (exceto prompts/)
-- [ ] prompts/ movido
+- [x] prompts/ movido
 - [x] config/ movido
 - [x] config_loader.py ajustado
 - [ ] models/ movido
