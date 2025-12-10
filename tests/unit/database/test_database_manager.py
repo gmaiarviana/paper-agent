@@ -317,7 +317,7 @@ def temp_db_path():
 @pytest.fixture(autouse=True)
 def reset_db_singleton():
     """Reset singleton antes de cada teste em TestDatabaseManager."""
-    import agents.database.manager as manager_module
+    import core.agents.database.manager as manager_module
     # Fechar conexão existente se houver
     if manager_module._db_instance is not None:
         try:
