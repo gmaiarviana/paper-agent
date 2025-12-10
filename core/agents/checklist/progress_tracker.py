@@ -387,7 +387,7 @@ def evaluate_progress(
         List[ChecklistItem]: Checklist com status atualizado
 
     Example:
-        >>> from agents.checklist import evaluate_progress
+        >>> from core.agents.checklist import evaluate_progress
         >>> checklist = evaluate_progress(cognitive_model)
         >>> completed_count = sum(1 for item in checklist if item.status == "completed")
         >>> print(f"Progresso: {completed_count}/{len(checklist)}")

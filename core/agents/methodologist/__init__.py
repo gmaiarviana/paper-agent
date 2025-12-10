@@ -13,7 +13,7 @@ API Pública:
     - checkpointer: MemorySaver para persistência
 
 Exemplo de uso:
-    >>> from agents.methodologist import create_methodologist_graph, create_initial_state
+    >>> from core.agents.methodologist import create_methodologist_graph, create_initial_state
     >>>
     >>> graph = create_methodologist_graph()
     >>> state = create_initial_state("Café aumenta produtividade")

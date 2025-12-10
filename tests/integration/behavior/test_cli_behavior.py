@@ -25,7 +25,7 @@ from scripts.common import setup_project_path
 
 setup_project_path()
 
-from agents.methodologist import create_methodologist_graph, create_initial_state
+from core.agents.methodologist import create_methodologist_graph, create_initial_state
 from dotenv import load_dotenv
 from langgraph.types import Command
 

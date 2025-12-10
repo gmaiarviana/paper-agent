@@ -37,7 +37,7 @@ Modulos:
 - clarification_prompts: Prompts para esclarecimento
 
 Example:
-    >>> from agents.observer import ObservadorAPI
+    >>> from core.agents.observer import ObservadorAPI
     >>> api = ObservadorAPI(session_id="session-123")
     >>> # Processar turno via LLM
     >>> result = api.process_turn("LLMs aumentam produtividade em 30%")

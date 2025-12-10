@@ -16,7 +16,7 @@ from unittest.mock import patch, MagicMock
 # Skip entire module if chromadb not installed (CI uses requirements-test.txt)
 pytest.importorskip("chromadb", reason="chromadb not installed - skipping observer tests")
 
-from agents.observer import (
+from core.agents.observer import (
     ConceptCatalog,
     Concept,
     SimilarConcept,
@@ -353,7 +353,7 @@ class TestProcessTurnIntegration:
 
     def test_process_turn_signature(self):
         """Testa que process_turn aceita novos parametros."""
-        from agents.observer import process_turn
+        from core.agents.observer import process_turn
         import inspect
 
         sig = inspect.signature(process_turn)

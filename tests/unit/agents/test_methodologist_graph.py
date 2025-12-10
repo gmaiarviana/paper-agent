@@ -22,7 +22,7 @@ if PROJECT_ROOT_STR not in sys.path:
 from scripts.common import setup_project_path
 
 setup_project_path()
-from agents.methodologist import (
+from core.agents.methodologist import (
     create_methodologist_graph,
     create_initial_state,
     MethodologistState
