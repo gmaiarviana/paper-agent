@@ -79,7 +79,7 @@ except Exception as e:
 # Teste 5: Testar criação do super-grafo
 print("\n5. Testando criação do super-grafo...")
 try:
-    from agents.multi_agent_graph import create_multi_agent_graph
+    from core.agents.multi_agent_graph import create_multi_agent_graph
 
     graph = create_multi_agent_graph()
     print(f"   ✅ Super-grafo criado com sucesso")
@@ -92,7 +92,7 @@ except Exception as e:
 # Teste 6: Testar execução do super-grafo (CRÍTICO)
 print("\n6. Testando execução do super-grafo...")
 try:
-    from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
+    from core.agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
 
     graph = create_multi_agent_graph()
     state = create_initial_multi_agent_state("Teste de execução")

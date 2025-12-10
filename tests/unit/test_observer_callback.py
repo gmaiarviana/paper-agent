@@ -49,7 +49,7 @@ class TestObserverCallback:
                 "metrics": {"solidez": 0.5, "completude": 0.3}
             }
 
-            from agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
+            from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
 
             if not OBSERVER_AVAILABLE:
                 pytest.skip("Observer não disponível")
@@ -80,7 +80,7 @@ class TestObserverCallback:
                 "metrics": {"solidez": 0.5, "completude": 0.3}
             }
 
-            from agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
+            from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
 
             if not OBSERVER_AVAILABLE:
                 pytest.skip("Observer não disponível")
@@ -113,7 +113,7 @@ class TestObserverCallback:
                 "metrics": {"solidez": 0.65, "completude": 0.4}
             }
 
-            from agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
+            from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
 
             if not OBSERVER_AVAILABLE:
                 pytest.skip("Observer não disponível")
@@ -144,7 +144,7 @@ class TestObserverCallback:
                 mock_event_bus = MagicMock()
                 mock_bus.return_value = mock_event_bus
 
-                from agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
+                from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
 
                 if not OBSERVER_AVAILABLE:
                     pytest.skip("Observer não disponível")
@@ -168,7 +168,7 @@ class TestObserverCallback:
         with patch("agents.multi_agent_graph.observer_process_turn") as mock_process:
             mock_process.side_effect = Exception("Erro simulado")
 
-            from agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
+            from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
 
             if not OBSERVER_AVAILABLE:
                 pytest.skip("Observer não disponível")
@@ -183,7 +183,7 @@ class TestObserverCallback:
     def test_callback_skipped_when_observer_unavailable(self, mock_state, mock_result):
         """Callback é pulado se Observer não estiver disponível."""
         with patch("agents.multi_agent_graph.OBSERVER_AVAILABLE", False):
-            from agents.multi_agent_graph import _create_observer_callback
+            from core.agents.multi_agent_graph import _create_observer_callback
 
             # Não deve fazer nada (sem erro)
             _create_observer_callback(mock_state, mock_result)
@@ -196,7 +196,7 @@ class TestObserverCallback:
                 "metrics": {"solidez": 0.5, "completude": 0.3}
             }
 
-            from agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
+            from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
 
             if not OBSERVER_AVAILABLE:
                 pytest.skip("Observer não disponível")
@@ -224,7 +224,7 @@ class TestInstrumentNodeObserverIntegration:
         """instrument_node dispara Observer apenas para orchestrator."""
         with patch("agents.multi_agent_graph._create_observer_callback") as mock_callback:
             with patch("agents.multi_agent_graph.OBSERVER_AVAILABLE", True):
-                from agents.multi_agent_graph import instrument_node
+                from core.agents.multi_agent_graph import instrument_node
 
                 # Criar mock do nó
                 mock_node = MagicMock(return_value={"next_step": "explore"})
@@ -241,7 +241,7 @@ class TestInstrumentNodeObserverIntegration:
         """instrument_node não dispara Observer para outros agentes."""
         with patch("agents.multi_agent_graph._create_observer_callback") as mock_callback:
             with patch("agents.multi_agent_graph.OBSERVER_AVAILABLE", True):
-                from agents.multi_agent_graph import instrument_node
+                from core.agents.multi_agent_graph import instrument_node
 
                 # Criar mock do nó
                 mock_node = MagicMock(return_value={"status": "approved"})

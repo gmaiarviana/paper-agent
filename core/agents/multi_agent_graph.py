@@ -446,8 +446,27 @@ def _extract_reasoning(agent_name: str, state: MultiAgentState) -> str:
 # - Recuperação de histórico completo de conversas
 # MVP Épico 9.10-9.11
 
-# Garantir que diretório data/ existe
-db_path = Path("data/checkpoints.db")
+
+def _get_project_root() -> Path:
+    """
+    Retorna a raiz do projeto, suportando ambas as estruturas.
+
+    Detecta automaticamente se está em core/agents/ ou agents/
+    e retorna o caminho da raiz do projeto.
+    """
+    current_file = Path(__file__).resolve()
+    # De core/agents/ → subir 3 níveis → raiz
+    # De agents/ → subir 2 níveis → raiz
+
+    if current_file.parent.parent.name == "core":
+        return current_file.parent.parent.parent
+    else:
+        return current_file.parent.parent
+
+
+# Garantir que diretório data/ existe (usando caminho absoluto)
+_project_root = _get_project_root()
+db_path = _project_root / "data" / "checkpoints.db"
 db_path.parent.mkdir(parents=True, exist_ok=True)
 
 # Criar conexão SQLite (check_same_thread=False permite uso em threads múltiplas)

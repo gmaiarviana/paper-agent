@@ -22,18 +22,42 @@ from pathlib import Path
 
 import chromadb
 from chromadb.config import Settings
+from pathlib import Path
 
 from .embeddings import generate_embedding, calculate_similarity
 
 logger = logging.getLogger(__name__)
 
-# Calcular raiz do projeto a partir da localização deste arquivo
-# core/agents/observer/catalog.py -> raiz é 4 níveis acima
-_PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 
-# Paths padrao para persistencia (absolutos, baseados na raiz do projeto)
-DEFAULT_CHROMA_PATH = str(_PROJECT_ROOT / "data" / "chroma")
-DEFAULT_SQLITE_PATH = str(_PROJECT_ROOT / "data" / "concepts.db")
+def _get_project_root() -> Path:
+    """
+    Retorna a raiz do projeto, suportando ambas as estruturas.
+
+    Detecta automaticamente se está em core/agents/observer/ ou agents/observer/
+    e retorna o caminho da raiz do projeto.
+    """
+    current_file = Path(__file__).resolve()
+
+    # Se estamos em core/agents/observer/, subir 4 níveis para raiz
+    base_path = current_file.parent.parent.parent.parent
+
+    # Verificar se é a raiz do projeto (tem ARCHITECTURE.md ou pyproject.toml)
+    if (base_path / "ARCHITECTURE.md").exists() or (base_path / "pyproject.toml").exists():
+        return base_path
+
+    # Se estamos em agents/observer/, subir 3 níveis para raiz
+    base_path = current_file.parent.parent.parent
+    if (base_path / "ARCHITECTURE.md").exists() or (base_path / "pyproject.toml").exists():
+        return base_path
+
+    # Fallback: assumir 4 níveis (estrutura nova)
+    return current_file.parent.parent.parent.parent
+
+
+# Paths padrao para persistencia (calculados dinamicamente)
+_project_root = _get_project_root()
+DEFAULT_CHROMA_PATH = str(_project_root / "data" / "chroma")
+DEFAULT_SQLITE_PATH = str(_project_root / "data" / "concepts.db")
 
 # Thresholds de similaridade
 SIMILARITY_THRESHOLD_SAME = 0.80  # >= 0.80: mesmo conceito

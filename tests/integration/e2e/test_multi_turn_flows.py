@@ -7,7 +7,7 @@ que não foram completamente testados no Épico 7.
 
 import pytest
 
-from agents.multi_agent_graph import create_multi_agent_graph
+from core.agents.multi_agent_graph import create_multi_agent_graph
 from core.utils.test_executor import MultiTurnExecutor
 from core.utils.test_scenarios import ConversationScenario
 

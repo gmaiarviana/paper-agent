@@ -20,7 +20,7 @@ from datetime import datetime
 from typing import Optional
 
 # Imports do backend
-from agents.multi_agent_graph import create_multi_agent_graph
+from core.agents.multi_agent_graph import create_multi_agent_graph
 from core.agents.orchestrator.state import create_initial_multi_agent_state
 from core.utils.event_bus import get_event_bus
 

@@ -17,7 +17,7 @@ from datetime import datetime
 import streamlit as st
 from langchain_core.messages import HumanMessage, AIMessage
 
-from agents.multi_agent_graph import create_multi_agent_graph
+from core.agents.multi_agent_graph import create_multi_agent_graph
 
 logger = logging.getLogger(__name__)
 

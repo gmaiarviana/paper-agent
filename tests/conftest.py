@@ -38,7 +38,7 @@ def reset_anthropic_circuit_breaker():
 # Se langgraph não estiver instalado, fixtures não estarão disponíveis
 # mas testes unitários (Observer, etc) continuam funcionando
 try:
-    from agents.multi_agent_graph import create_multi_agent_graph
+    from core.agents.multi_agent_graph import create_multi_agent_graph
     from core.utils.test_executor import MultiTurnExecutor
     MULTI_AGENT_AVAILABLE = True
 except ImportError as e:
