@@ -277,6 +277,9 @@ class MultiAgentState(TypedDict):
     clarity_evaluation: Optional[dict]  # Resultado de evaluate_conversation_clarity()
     variation_analysis: Optional[dict]  # Resultado de detect_variation()
 
+    # === OBSERVER: FILTROS DE NEGÓCIO (Épico 13.6) ===
+    last_checkpoint_turn: Optional[int]  # Turno do último checkpoint (para cooldown)
+
     # === MENSAGENS (LangGraph) ===
     messages: Annotated[list, add_messages]
 
@@ -343,6 +346,9 @@ def create_initial_multi_agent_state(user_input: str, session_id: Optional[str] 
         # Observer: Análise de clareza e variação (Épico 13.3)
         clarity_evaluation=None,
         variation_analysis=None,
+
+        # Observer: Filtros de negócio (Épico 13.6)
+        last_checkpoint_turn=None,
 
         # Mensagens LangGraph (BUGFIX: adicionar HumanMessage para persistência)
         messages=[HumanMessage(content=user_input)]

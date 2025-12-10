@@ -4,13 +4,24 @@ Testes de integracao E2E para deteccao de mudancas do Observer (Epico 13.6).
 Estes testes validam cenarios reais de conversa multi-turn onde o Observer
 detecta variacoes, mudancas de direcao e checkpoints de clareza.
 
+ARQUITETURA DE DUAS CAMADAS:
+- Camada 1: Observer (analise contextual via LLM)
+- Camada 2: Filtros de negocio (regras deterministicas)
+
+O Observer pode ser conservador (pedir checkpoint mesmo quando nao necessario).
+Os filtros garantem previsibilidade aplicando regras como:
+- Cold start: turno 1 nunca gera checkpoint
+- Alta clareza: score >= 4 nao gera checkpoint
+- Variacao simples: classification="variation" nao gera checkpoint
+- Cooldown: respeita intervalo minimo entre checkpoints
+
 Cenarios:
 - A: Variacao simples (nao interrompe fluxo)
 - B: Mudanca real (checkpoint solicitado)
 - C: Clareza nebulosa (needs_checkpoint=True)
 - D: Conversa clara (needs_checkpoint=False)
 
-Versao: 1.0 (Epico 13.6)
+Versao: 2.0 (Epico 13.6 - Arquitetura Duas Camadas)
 Data: 10/12/2025
 """
 
@@ -19,6 +30,12 @@ from typing import Dict, Any, List
 
 from agents.multi_agent_graph import create_multi_agent_graph
 from agents.orchestrator.state import create_initial_multi_agent_state
+from agents.observer.filters import (
+    apply_business_rules,
+    should_checkpoint,
+    FilterType,
+    get_filter_config,
+)
 from utils.event_bus import get_event_bus
 
 
@@ -488,3 +505,170 @@ def validate_observer_detections(
         "events_found": event_types,
         "checkpoint_found": checkpoint_found
     }
+
+
+# ============================================================================
+# Testes de Arquitetura de Duas Camadas (Epico 13.6)
+# ============================================================================
+
+
+@pytest.mark.integration
+@pytest.mark.e2e
+class TestTwoLayerArchitecture:
+    """
+    Testes que validam a arquitetura de duas camadas.
+
+    Camada 1: Observer (LLM) - pode ser conservador
+    Camada 2: Filtros (codigo) - garante previsibilidade
+    """
+
+    def test_cold_start_exemption_in_integration(self, multi_agent_graph):
+        """
+        Turno 1 nunca gera checkpoint mesmo que Observer peca.
+
+        Este teste valida que o filtro COLD_START funciona no fluxo real.
+        """
+        session_id = "test-cold-start-integration"
+        event_bus = get_event_bus()
+        event_bus.clear_session(session_id)
+
+        # Input vago que poderia gerar checkpoint
+        state = create_initial_multi_agent_state(
+            user_input="Acho que talvez queira pesquisar algo sobre IA ou nao sei",
+            session_id=session_id
+        )
+        config = {"configurable": {"thread_id": session_id}}
+        result = multi_agent_graph.invoke(state, config)
+
+        # Mesmo com input vago, turno 1 NAO deve ter checkpoint
+        # devido ao filtro COLD_START
+        events = event_bus.get_session_events(session_id)
+        checkpoint_events = [
+            e for e in events
+            if e.get("event_type") in ["clarity_checkpoint", "direction_change_confirmed"]
+        ]
+
+        # Pode ter eventos de deteccao, mas next_step nao deve ser clarify no turno 1
+        # devido ao filtro (a menos que seja por outro motivo do Orquestrador)
+        assert result.get("next_step") != "clarify" or len(checkpoint_events) == 0, \
+            "Turno 1 nao deve gerar checkpoint de clareza"
+
+    def test_variation_exemption_prevents_interruption(self, multi_agent_graph):
+        """
+        Variacao simples nao interrompe mesmo que Observer seja conservador.
+
+        Este teste valida que o filtro VARIATION_ONLY funciona no fluxo real.
+        """
+        session_id = "test-variation-exemption"
+        event_bus = get_event_bus()
+        event_bus.clear_session(session_id)
+
+        # Turno 1
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade de desenvolvedores",
+            session_id=session_id
+        )
+        config = {"configurable": {"thread_id": session_id}}
+        state = multi_agent_graph.invoke(state, config)
+
+        # Turno 2: Variacao do mesmo conceito
+        state["user_input"] = "IA generativa melhora eficiencia de programadores"
+        result = multi_agent_graph.invoke(state, config)
+
+        # Variacao NAO deve gerar checkpoint (filtro VARIATION_ONLY)
+        events = event_bus.get_session_events(session_id)
+
+        # Pode ter variation_detected, mas NAO checkpoint
+        direction_change_events = [
+            e for e in events
+            if e.get("event_type") == "direction_change_confirmed"
+        ]
+
+        assert len(direction_change_events) == 0, \
+            "Variacao simples NAO deve gerar direction_change_confirmed"
+
+    def test_filter_config_accessible(self):
+        """
+        Configuracao dos filtros deve ser acessivel.
+
+        Permite ajuste fino em runtime se necessario.
+        """
+        config = get_filter_config()
+
+        assert "min_turn_for_checkpoint" in config
+        assert "min_clarity_score_for_exemption" in config
+        assert "min_turns_between_checkpoints" in config
+
+        # Valores default
+        assert config["min_turn_for_checkpoint"] >= 1
+        assert config["min_clarity_score_for_exemption"] >= 1
+        assert config["min_turns_between_checkpoints"] >= 1
+
+    def test_filter_layer_is_deterministic(self):
+        """
+        Camada de filtros deve ser 100% deterministica.
+
+        Dado o mesmo input, resultado deve ser sempre o mesmo.
+        """
+        observer_result = {
+            "needs_checkpoint": True,
+            "clarity_score": 2,
+            "clarity_level": "nebulosa",
+            "classification": "variation"
+        }
+
+        # Executar 10 vezes
+        results = []
+        for _ in range(10):
+            result = apply_business_rules(
+                observer_result=observer_result,
+                turn_number=5
+            )
+            results.append(result.filter_applied)
+
+        # Todos os resultados devem ser identicos
+        assert all(r == results[0] for r in results), \
+            "Filtros devem ser 100% deterministicos"
+
+        # E deve ser VARIATION_ONLY
+        assert results[0] == FilterType.VARIATION_ONLY
+
+    def test_two_layers_work_together(self, multi_agent_graph):
+        """
+        As duas camadas devem trabalhar juntas corretamente.
+
+        Observer detecta (conservador ok), Filtros modulam (previsivel).
+        """
+        session_id = "test-two-layers"
+        event_bus = get_event_bus()
+        event_bus.clear_session(session_id)
+
+        # Cenario: mudanca real no turno 2
+        # Turno 1
+        state = create_initial_multi_agent_state(
+            user_input="LLMs aumentam produtividade de desenvolvedores",
+            session_id=session_id
+        )
+        config = {"configurable": {"thread_id": session_id}}
+        state = multi_agent_graph.invoke(state, config)
+
+        # Turno 2: mudanca real
+        state["user_input"] = "Quero falar sobre blockchain e criptomoedas"
+        result = multi_agent_graph.invoke(state, config)
+
+        # Deve ter deteccao de mudanca (Observer) E checkpoint (filtros permitem)
+        events = event_bus.get_session_events(session_id)
+
+        # Pode ter variation_detected no turno 1 (comparando com vazio)
+        # E direction_change_confirmed no turno 2
+        event_types = [e.get("event_type") for e in events]
+
+        # Alguma forma de deteccao deve existir
+        has_detection = (
+            "direction_change_confirmed" in event_types or
+            "variation_detected" in event_types or
+            result.get("next_step") == "clarify"
+        )
+
+        assert has_detection, \
+            f"Sistema deve detectar algo. Events: {event_types}, next_step: {result.get('next_step')}"
