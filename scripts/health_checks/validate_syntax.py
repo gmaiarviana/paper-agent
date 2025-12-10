@@ -39,17 +39,17 @@ def main():
 
     # Módulos modificados
     results.append(test_import(
-        "agents.orchestrator.nodes",
+        "core.agents.orchestrator.nodes",
         "agents/orchestrator/nodes.py (Orquestrador)"
     ))
 
     results.append(test_import(
-        "agents.structurer.nodes",
+        "core.agents.structurer.nodes",
         "agents/structurer/nodes.py (Estruturador)"
     ))
 
     results.append(test_import(
-        "agents.methodologist.nodes",
+        "core.agents.methodologist.nodes",
         "agents/methodologist/nodes.py (Metodologista)"
     ))
 
@@ -59,12 +59,12 @@ def main():
     ))
 
     results.append(test_import(
-        "agents.memory.config_loader",
+        "core.agents.memory.config_loader",
         "agents/memory/config_loader.py (Config Loader)"
     ))
 
     results.append(test_import(
-        "agents.memory.config_validator",
+        "core.agents.memory.config_validator",
         "agents/memory/config_validator.py (Config Validator)"
     ))
 

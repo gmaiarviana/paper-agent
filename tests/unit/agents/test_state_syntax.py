@@ -11,7 +11,7 @@ import ast
 from pathlib import Path
 
 # Caminho do arquivo state.py
-STATE_FILE = Path(__file__).parent.parent.parent / "agents" / "orchestrator" / "state.py"
+STATE_FILE = Path(__file__).parent.parent.parent / "core" / "agents" / "orchestrator" / "state.py"
 
 def validate_state_syntax():
     """Valida sintaxe e estrutura do arquivo state.py."""
