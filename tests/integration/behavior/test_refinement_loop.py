@@ -34,9 +34,9 @@ setup_project_path()
 
 from dotenv import load_dotenv
 
-from agents.orchestrator.state import create_initial_multi_agent_state
-from agents.structurer.nodes import structurer_node
-from agents.methodologist.nodes import decide_collaborative
+from core.agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.structurer.nodes import structurer_node
+from core.agents.methodologist.nodes import decide_collaborative
 
 def print_separator(title: str):
     print("\n" + "=" * 80)

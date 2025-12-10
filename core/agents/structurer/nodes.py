@@ -17,7 +17,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_anthropic import ChatAnthropic
 
-from agents.orchestrator.state import MultiAgentState, StructurerOutputModel
+from core.agents.orchestrator.state import MultiAgentState, StructurerOutputModel
 from core.utils.json_parser import extract_json_from_llm_response
 from core.prompts import STRUCTURER_REFINEMENT_PROMPT_V1
 from core.agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError

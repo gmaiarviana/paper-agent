@@ -18,6 +18,7 @@ import os
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
+from pathlib import Path
 
 import chromadb
 from chromadb.config import Settings
@@ -26,9 +27,13 @@ from .embeddings import generate_embedding, calculate_similarity
 
 logger = logging.getLogger(__name__)
 
-# Paths padrao para persistencia
-DEFAULT_CHROMA_PATH = "./data/chroma"
-DEFAULT_SQLITE_PATH = "./data/concepts.db"
+# Calcular raiz do projeto a partir da localização deste arquivo
+# core/agents/observer/catalog.py -> raiz é 4 níveis acima
+_PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
+
+# Paths padrao para persistencia (absolutos, baseados na raiz do projeto)
+DEFAULT_CHROMA_PATH = str(_PROJECT_ROOT / "data" / "chroma")
+DEFAULT_SQLITE_PATH = str(_PROJECT_ROOT / "data" / "concepts.db")
 
 # Thresholds de similaridade
 SIMILARITY_THRESHOLD_SAME = 0.80  # >= 0.80: mesmo conceito

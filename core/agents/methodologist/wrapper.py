@@ -15,9 +15,9 @@ O wrapper é responsável por:
 import logging
 from langchain_core.messages import AIMessage
 
-from agents.orchestrator.state import MultiAgentState
-from agents.methodologist.state import create_initial_state
-from agents.methodologist.graph import create_methodologist_graph
+from core.agents.orchestrator.state import MultiAgentState
+from core.agents.methodologist.state import create_initial_state
+from core.agents.methodologist.graph import create_methodologist_graph
 
 logger = logging.getLogger(__name__)
 

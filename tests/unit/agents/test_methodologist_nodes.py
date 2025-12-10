@@ -18,7 +18,7 @@ from agents.methodologist import (
     MethodologistState,
     create_initial_state
 )
-from agents.methodologist.nodes import (
+from core.agents.methodologist.nodes import (
     analyze,
     ask_clarification,
     decide

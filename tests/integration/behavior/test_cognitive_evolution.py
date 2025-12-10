@@ -26,8 +26,8 @@ if str(PROJECT_ROOT) not in sys.path:
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, AIMessage
 
-from agents.orchestrator.state import create_initial_multi_agent_state
-from agents.orchestrator.nodes import orchestrator_node
+from core.agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.orchestrator.nodes import orchestrator_node
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 

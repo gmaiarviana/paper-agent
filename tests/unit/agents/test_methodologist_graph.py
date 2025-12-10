@@ -81,7 +81,7 @@ def validate_graph_execution_simulation():
     print("SIMULAÇÃO DE EXECUÇÃO (SEM API)")
     print("=" * 70)
 
-    from agents.methodologist.router import route_after_analyze
+    from core.agents.methodologist.router import route_after_analyze
 
     # Teste 5: Router - cenário 1 (precisa de clarificação, iterations < max)
     print("\n5. Testando router: needs_clarification=True, iterations=0/3...")

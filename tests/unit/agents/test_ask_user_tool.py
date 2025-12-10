@@ -5,7 +5,7 @@ Testes unitários para a tool ask_user do agente Metodologista.
 
 import pytest
 from unittest.mock import patch, MagicMock
-from agents.methodologist.tools import ask_user
+from core.agents.methodologist.tools import ask_user
 
 class TestAskUserTool:
     """Suite de testes para a tool ask_user."""

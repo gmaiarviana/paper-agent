@@ -14,7 +14,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
+from core.agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
 
 def validate_multi_agent_state():
     """Valida a estrutura e tipos do MultiAgentState após mudanças do Épico 7."""
