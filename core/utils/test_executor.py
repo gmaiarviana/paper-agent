@@ -15,7 +15,7 @@ from datetime import datetime
 from langchain_core.messages import HumanMessage, AIMessage
 
 # Imports do projeto
-from agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.orchestrator.state import create_initial_multi_agent_state
 from core.utils.test_scenarios import ConversationScenario
 from core.utils.event_bus.singleton import get_event_bus
 

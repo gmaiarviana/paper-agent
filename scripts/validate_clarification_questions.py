@@ -48,7 +48,7 @@ def validate_imports():
 
     # Funções de clarification
     try:
-        from agents.observer.clarification import (
+        from core.agents.observer.clarification import (
             identify_clarification_needs,
             generate_contradiction_question,
             suggest_question_for_gap,
@@ -63,7 +63,7 @@ def validate_imports():
 
     # Modelos Pydantic
     try:
-        from agents.models.clarification import (
+        from core.agents.models.clarification import (
             ClarificationNeed,
             ClarificationContext,
             ClarificationTimingDecision,
@@ -87,7 +87,7 @@ def validate_imports():
 
     # Prompts
     try:
-        from agents.observer.clarification_prompts import (
+        from core.agents.observer.clarification_prompts import (
             IDENTIFY_CLARIFICATION_NEEDS_PROMPT,
             CONTRADICTION_QUESTION_PROMPT,
             GAP_QUESTION_PROMPT,
@@ -108,7 +108,7 @@ def validate_models():
     """Valida criação e serialização dos modelos Pydantic."""
     logger.info("\n📋 Validando modelos Pydantic...")
 
-    from agents.models.clarification import (
+    from core.agents.models.clarification import (
         ClarificationNeed,
         ClarificationContext,
         ClarificationTimingDecision,
@@ -211,8 +211,8 @@ def validate_timing_logic():
     """Valida lógica de timing de intervenção (14.5)."""
     logger.info("\n⏱️ Validando lógica de timing (14.5)...")
 
-    from agents.observer.clarification import should_ask_clarification
-    from agents.models.clarification import ClarificationNeed
+    from core.agents.observer.clarification import should_ask_clarification
+    from core.agents.models.clarification import ClarificationNeed
 
     checks = []
 
@@ -290,8 +290,8 @@ def validate_persistence_update():
     """Valida atualização de persistência de necessidade (14.5)."""
     logger.info("\n🔄 Validando atualização de persistência...")
 
-    from agents.observer.clarification import update_clarification_persistence
-    from agents.models.clarification import ClarificationNeed
+    from core.agents.observer.clarification import update_clarification_persistence
+    from core.agents.models.clarification import ClarificationNeed
 
     checks = []
 
@@ -332,8 +332,8 @@ def validate_timeline_summary():
     """Valida geração de resumo para timeline (14.6)."""
     logger.info("\n📜 Validando resumo para timeline...")
 
-    from agents.observer.clarification import get_clarification_summary_for_timeline
-    from agents.models.clarification import ClarificationResponse, ClarificationUpdates
+    from core.agents.observer.clarification import get_clarification_summary_for_timeline
+    from core.agents.models.clarification import ClarificationResponse, ClarificationUpdates
 
     checks = []
 
@@ -428,13 +428,13 @@ def validate_events():
 
     return all_passed
 
-@patch('agents.observer.clarification.invoke_with_retry')
-@patch('agents.observer.clarification._get_llm')
+@patch('core.agents.observer.clarification.invoke_with_retry')
+@patch('core.agents.observer.clarification._get_llm')
 def validate_identify_needs_with_mock(mock_get_llm, mock_invoke):
     """Valida identify_clarification_needs com mock do LLM (14.1)."""
     logger.info("\n🔍 Validando identificação de necessidades com mock (14.1)...")
 
-    from agents.observer.clarification import identify_clarification_needs
+    from core.agents.observer.clarification import identify_clarification_needs
 
     checks = []
 
@@ -483,13 +483,13 @@ def validate_identify_needs_with_mock(mock_get_llm, mock_invoke):
 
     return all_passed
 
-@patch('agents.observer.clarification.invoke_with_retry')
-@patch('agents.observer.clarification._get_llm')
+@patch('core.agents.observer.clarification.invoke_with_retry')
+@patch('core.agents.observer.clarification._get_llm')
 def validate_contradiction_question_with_mock(mock_get_llm, mock_invoke):
     """Valida generate_contradiction_question com mock do LLM (14.3)."""
     logger.info("\n❓ Validando geração de pergunta sobre contradição com mock (14.3)...")
 
-    from agents.observer.clarification import generate_contradiction_question
+    from core.agents.observer.clarification import generate_contradiction_question
 
     checks = []
 
@@ -539,13 +539,13 @@ def validate_contradiction_question_with_mock(mock_get_llm, mock_invoke):
 
     return all_passed
 
-@patch('agents.observer.clarification.invoke_with_retry')
-@patch('agents.observer.clarification._get_llm')
+@patch('core.agents.observer.clarification.invoke_with_retry')
+@patch('core.agents.observer.clarification._get_llm')
 def validate_gap_question_with_mock(mock_get_llm, mock_invoke):
     """Valida suggest_question_for_gap com mock do LLM (14.4)."""
     logger.info("\n🕳️ Validando sugestão de pergunta sobre gap com mock (14.4)...")
 
-    from agents.observer.clarification import suggest_question_for_gap
+    from core.agents.observer.clarification import suggest_question_for_gap
 
     checks = []
 
@@ -587,14 +587,14 @@ def validate_gap_question_with_mock(mock_get_llm, mock_invoke):
 
     return all_passed
 
-@patch('agents.observer.clarification.invoke_with_retry')
-@patch('agents.observer.clarification._get_llm')
+@patch('core.agents.observer.clarification.invoke_with_retry')
+@patch('core.agents.observer.clarification._get_llm')
 def validate_analyze_response_with_mock(mock_get_llm, mock_invoke):
     """Valida analyze_clarification_response com mock do LLM (14.6)."""
     logger.info("\n📊 Validando análise de resposta com mock (14.6)...")
 
-    from agents.observer.clarification import analyze_clarification_response
-    from agents.models.clarification import ClarificationNeed
+    from core.agents.observer.clarification import analyze_clarification_response
+    from core.agents.models.clarification import ClarificationNeed
 
     checks = []
 

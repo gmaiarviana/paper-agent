@@ -18,15 +18,15 @@ sys.modules['chromadb'] = MagicMock()
 sys.modules['chromadb.config'] = MagicMock()
 
 # Import direto do modulo (evita __init__.py com dependencias pesadas)
-from agents.observer.extractors import detect_variation
-from agents.observer.prompts import VARIATION_DETECTION_PROMPT
+from core.agents.observer.extractors import detect_variation
+from core.agents.observer.prompts import VARIATION_DETECTION_PROMPT
 
 class TestDetectVariationBasic:
     """Testes basicos para detect_variation."""
 
     def test_function_exists(self):
         """Valida que funcao existe e e importavel."""
-        from agents.observer.extractors import detect_variation
+        from core.agents.observer.extractors import detect_variation
         assert callable(detect_variation)
 
     def test_function_signature(self):
@@ -53,7 +53,7 @@ class TestDetectVariationBasic:
             "reasoning": "justificativa"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -86,7 +86,7 @@ class TestDetectVariationClassification:
             "reasoning": "Mesma essencia, apenas mais especifico"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -111,7 +111,7 @@ class TestDetectVariationClassification:
             "reasoning": "Mudanca de foco de LLMs para qualidade de software"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -136,7 +136,7 @@ class TestDetectVariationClassification:
             "reasoning": ""
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -171,7 +171,7 @@ class TestDetectVariationWithCognitiveModel:
             "concepts_detected": ["LLMs", "produtividade", "equipes"]
         }
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -197,7 +197,7 @@ class TestDetectVariationWithCognitiveModel:
             "reasoning": ""
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -213,7 +213,7 @@ class TestDetectVariationErrorHandling:
 
     def test_handles_llm_error_gracefully(self):
         """Testa que erro no LLM retorna fallback."""
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.side_effect = Exception("LLM timeout")
 
             result = detect_variation(
@@ -231,9 +231,9 @@ class TestDetectVariationErrorHandling:
         mock_response = MagicMock()
         mock_response.content = "Resposta invalida sem JSON"
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
-            with patch('agents.observer.extractors.extract_json_from_llm_response') as mock_json:
+            with patch('core.agents.observer.extractors.extract_json_from_llm_response') as mock_json:
                 mock_json.side_effect = Exception("JSON parse error")
 
                 result = detect_variation(
@@ -257,7 +257,7 @@ class TestDetectVariationErrorHandling:
             "reasoning": "Sem conteudo para analisar"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -306,7 +306,7 @@ class TestDetectVariationScenarios:
             "reasoning": "Refinamento do mesmo argumento central"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -329,7 +329,7 @@ class TestDetectVariationScenarios:
             "reasoning": "Transicao para topico nao relacionado"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -352,7 +352,7 @@ class TestDetectVariationScenarios:
             "reasoning": "Exemplo suporta o mesmo argumento"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -380,7 +380,7 @@ class TestDetectVariationEdgeCases:
 
         long_text = "Texto muito longo " * 500
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -403,7 +403,7 @@ class TestDetectVariationEdgeCases:
             "reasoning": ""
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(
@@ -426,7 +426,7 @@ class TestDetectVariationEdgeCases:
             "reasoning": ""
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = detect_variation(

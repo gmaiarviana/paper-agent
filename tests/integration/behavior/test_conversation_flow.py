@@ -27,7 +27,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, AIMessage
 
-from agents.orchestrator import (
+from core.agents.orchestrator import (
     create_initial_multi_agent_state,
     orchestrator_node,
     route_from_orchestrator

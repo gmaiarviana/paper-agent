@@ -5,7 +5,7 @@ Testes unitários para _build_cognitive_model_context() do Orquestrador.
 """
 
 import pytest
-from agents.orchestrator.nodes import _build_cognitive_model_context
+from core.agents.orchestrator.nodes import _build_cognitive_model_context
 
 class TestBuildCognitiveModelContext:
     """Testes para _build_cognitive_model_context()"""

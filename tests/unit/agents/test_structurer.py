@@ -12,8 +12,8 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 from langchain_core.messages import AIMessage
 
-from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
-from agents.structurer.nodes import structurer_node
+from core.agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
+from core.agents.structurer.nodes import structurer_node
 
 def create_mock_llm_response(content):
     """Helper para criar mock response do LLM."""
@@ -40,7 +40,7 @@ class TestStructurerNode:
         }''')
 
         # Act - Mock do create_anthropic_client
-        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
+        with patch('core.agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
             mock_create_client.return_value = mock_llm_instance
@@ -84,7 +84,7 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
+        with patch('core.agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
             mock_create_client.return_value = mock_llm_instance
@@ -109,7 +109,7 @@ class TestStructurerNode:
         mock_response = create_mock_llm_response("Resposta sem JSON válido")
 
         # Act
-        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
+        with patch('core.agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
             mock_create_client.return_value = mock_llm_instance
@@ -141,7 +141,7 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
+        with patch('core.agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
             mock_create_client.return_value = mock_llm_instance
@@ -173,7 +173,7 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
+        with patch('core.agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
             mock_create_client.return_value = mock_llm_instance
@@ -202,7 +202,7 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
+        with patch('core.agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
             mock_create_client.return_value = mock_llm_instance
@@ -238,7 +238,7 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
+        with patch('core.agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
             mock_create_client.return_value = mock_llm_instance
@@ -272,7 +272,7 @@ class TestStructurerNode:
         }''')
 
         # Act
-        with patch('agents.structurer.nodes.create_anthropic_client') as mock_create_client:
+        with patch('core.agents.structurer.nodes.create_anthropic_client') as mock_create_client:
             mock_llm_instance = MagicMock()
             mock_llm_instance.invoke.return_value = mock_response
             mock_create_client.return_value = mock_llm_instance

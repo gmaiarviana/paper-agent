@@ -16,7 +16,7 @@ from unittest.mock import patch, MagicMock
 # Skip entire module if chromadb not installed (CI uses requirements-test.txt)
 pytest.importorskip("chromadb", reason="chromadb not installed - skipping observer tests")
 
-from agents.observer import (
+from core.agents.observer import (
     ConceptCatalog,
     Concept,
     SimilarConcept,
@@ -128,7 +128,7 @@ class TestConceptCatalog:
         catalog.save_concept("C", "conceito C", [0.5] + [0.5] * 383)
 
         # Buscar similar a A
-        with patch('agents.observer.catalog.generate_embedding') as mock_embed:
+        with patch('core.agents.observer.catalog.generate_embedding') as mock_embed:
             mock_embed.return_value = [1.0] + [0.0] * 383
             results = catalog.find_similar_concepts("A", top_k=3, threshold=0.0)
 
@@ -222,7 +222,7 @@ class TestConceptPipeline:
 
     def test_persist_concepts_creates_new(self, catalog):
         """Testa que conceitos novos sao criados."""
-        with patch('agents.observer.concept_pipeline.generate_embedding') as mock_embed:
+        with patch('core.agents.observer.concept_pipeline.generate_embedding') as mock_embed:
             mock_embed.return_value = [0.1] * 384
 
             results = persist_concepts(
@@ -235,7 +235,7 @@ class TestConceptPipeline:
 
     def test_persist_concepts_with_idea_id(self, catalog):
         """Testa que conceitos sao linkados a idea quando fornecido."""
-        with patch('agents.observer.concept_pipeline.generate_embedding') as mock_embed:
+        with patch('core.agents.observer.concept_pipeline.generate_embedding') as mock_embed:
             mock_embed.return_value = [0.1] * 384
 
             results = persist_concepts(
@@ -250,7 +250,7 @@ class TestConceptPipeline:
 
     def test_persist_concepts_batch_returns_summary(self, catalog):
         """Testa que persist_concepts_batch retorna resumo correto."""
-        with patch('agents.observer.concept_pipeline.generate_embedding') as mock_embed:
+        with patch('core.agents.observer.concept_pipeline.generate_embedding') as mock_embed:
             mock_embed.return_value = [0.1] * 384
 
             result = persist_concepts_batch(
@@ -353,7 +353,7 @@ class TestProcessTurnIntegration:
 
     def test_process_turn_signature(self):
         """Testa que process_turn aceita novos parametros."""
-        from agents.observer import process_turn
+        from core.agents.observer import process_turn
         import inspect
 
         sig = inspect.signature(process_turn)

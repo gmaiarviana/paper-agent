@@ -100,7 +100,7 @@ class CognitiveModel(BaseModel):
     - Pesquisador (futuro): Preenche solid_grounds
 
     Example:
-        >>> from agents.models.proposition import Proposicao
+        >>> from core.agents.models.proposition import Proposicao
         >>> model = CognitiveModel(
         ...     claim="LLMs aumentam produtividade",
         ...     proposicoes=[

@@ -554,16 +554,18 @@ Get-ChildItem -Recurse -Include *.py | Select-String "from agents.persistence\."
 
 ---
 
-### Fase 4: Core - Agentes
+### Fase 4: Core - Agentes ✅
+
+**Status:** Concluída
 
 **Objetivo:** Mover agentes principais.
 
 #### Fase 4.1: Mover `agents/orchestrator/` → `core/agents/orchestrator/`
 
 **Cursor (rápido):**
-- [ ] `git mv agents/orchestrator core/agents/orchestrator`
-- [ ] Find/Replace: `from agents.orchestrator.` → `from core.agents.orchestrator.`
-- [ ] Validar: 0 matches de `from agents.orchestrator\.`
+- [x] `git mv agents/orchestrator core/agents/orchestrator`
+- [x] Find/Replace: `from agents.orchestrator.` → `from core.agents.orchestrator.`
+- [x] Validar: 0 matches de `from agents.orchestrator\.`
 
 **Comandos:**
 ```powershell
@@ -587,9 +589,9 @@ Get-ChildItem -Recurse -Include *.py | Select-String "from agents.orchestrator\.
 #### Fase 4.2: Mover `agents/structurer/` → `core/agents/structurer/`
 
 **Cursor (rápido):**
-- [ ] `git mv agents/structurer core/agents/structurer`
-- [ ] Find/Replace: `from agents.structurer.` → `from core.agents.structurer.`
-- [ ] Validar: 0 matches de `from agents.structurer\.`
+- [x] `git mv agents/structurer core/agents/structurer`
+- [x] Find/Replace: `from agents.structurer.` → `from core.agents.structurer.`
+- [x] Validar: 0 matches de `from agents.structurer\.`
 
 **Comandos:**
 ```powershell
@@ -613,9 +615,9 @@ Get-ChildItem -Recurse -Include *.py | Select-String "from agents.structurer\." 
 #### Fase 4.3: Mover `agents/methodologist/` → `core/agents/methodologist/`
 
 **Cursor (rápido):**
-- [ ] `git mv agents/methodologist core/agents/methodologist`
-- [ ] Find/Replace: `from agents.methodologist.` → `from core.agents.methodologist.`
-- [ ] Validar: 0 matches de `from agents.methodologist\.`
+- [x] `git mv agents/methodologist core/agents/methodologist`
+- [x] Find/Replace: `from agents.methodologist.` → `from core.agents.methodologist.`
+- [x] Validar: 0 matches de `from agents.methodologist\.`
 
 **Comandos:**
 ```powershell
@@ -639,9 +641,9 @@ Get-ChildItem -Recurse -Include *.py | Select-String "from agents.methodologist\
 #### Fase 4.4: Mover `agents/observer/` → `core/agents/observer/`
 
 **Cursor (rápido):**
-- [ ] `git mv agents/observer core/agents/observer`
-- [ ] Find/Replace: `from agents.observer.` → `from core.agents.observer.`
-- [ ] Validar: 0 matches de `from agents.observer\.`
+- [x] `git mv agents/observer core/agents/observer`
+- [x] Find/Replace: `from agents.observer.` → `from core.agents.observer.`
+- [x] Validar: 0 matches de `from agents.observer\.`
 
 **Comandos:**
 ```powershell
@@ -658,16 +660,16 @@ Get-ChildItem -Recurse -Include *.py | Select-String "from agents.observer\." | 
 # Esperado: 0 matches
 ```
 
-**Pausa Segura:** ✅ Sim (mas catalog.py ainda tem caminhos hardcoded)
+**Pausa Segura:** ✅ Sim
 
 ---
 
-#### Fase 4.5: Ajustar `agents/observer/catalog.py` (caminhos hardcoded)
+#### Fase 4.5: Ajustar `core/agents/observer/catalog.py` (caminhos hardcoded)
 
 **Claude Code (complexo):**
-- [ ] Ajustar linhas 30-31: `DEFAULT_CHROMA_PATH = "./data/chroma"`, `DEFAULT_SQLITE_PATH = "./data/concepts.db"`
-- [ ] Usar caminhos absolutos baseados em `__file__` ou raiz do projeto
-- [ ] Testar: Criar instância e verificar acesso aos dados
+- [x] Ajustar linhas 30-31: `DEFAULT_CHROMA_PATH = "./data/chroma"`, `DEFAULT_SQLITE_PATH = "./data/concepts.db"`
+- [x] Usar caminhos absolutos baseados em `__file__` ou raiz do projeto
+- [x] Testar: Criar instância e verificar acesso aos dados
 
 **Comando:**
 ```powershell

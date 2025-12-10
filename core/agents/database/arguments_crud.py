@@ -18,8 +18,8 @@ import logging
 from typing import Optional, List, Dict, Any
 from uuid import uuid4
 
-from agents.models.cognitive_model import CognitiveModel
-from agents.models.proposition import Proposicao
+from core.agents.models.cognitive_model import CognitiveModel
+from core.agents.models.proposition import Proposicao
 
 logger = logging.getLogger(__name__)
 

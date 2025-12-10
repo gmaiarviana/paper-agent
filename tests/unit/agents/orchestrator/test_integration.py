@@ -14,8 +14,8 @@ IMPORTANTE:
 
 import pytest
 from unittest.mock import Mock, patch
-from agents.orchestrator.state import create_initial_multi_agent_state
-from agents.orchestrator.nodes import orchestrator_node
+from core.agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.orchestrator.nodes import orchestrator_node
 
 # Fixture para mock padrão do Observer
 # Retorna resultado neutro que não interfere no fluxo normal do teste
@@ -33,7 +33,7 @@ def mock_consult_observer():
     orchestrator_node() agora consulta o Observer para análise
     de clareza e variação. Sem mock, testes falham no CI (sem API key).
     """
-    with patch('agents.orchestrator.nodes._consult_observer') as mock:
+    with patch('core.agents.orchestrator.nodes._consult_observer') as mock:
         mock.return_value = MOCK_OBSERVER_RESULT
         yield mock
 
@@ -76,7 +76,7 @@ class TestActiveIdeaIdFromConfig:
         # Config SEM active_idea_id
         config = {"configurable": {"thread_id": "test-thread"}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             # Não deve lançar exceção
@@ -125,7 +125,7 @@ class TestActiveIdeaIdFromConfig:
             }
         }
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state, config=config)
@@ -173,7 +173,7 @@ class TestActiveIdeaIdFromConfig:
             }
         }
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state, config=config)
@@ -226,8 +226,8 @@ class TestSnapshotCreation:
             }
         }
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke, \
-             patch('agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke, \
+             patch('core.agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
             mock_invoke.return_value = mock_response
             mock_snapshot.return_value = None  # Argumento não maduro
 
@@ -277,8 +277,8 @@ class TestSnapshotCreation:
         # Config SEM active_idea_id
         config = {"configurable": {"thread_id": "test-thread"}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke, \
-             patch('agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke, \
+             patch('core.agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state, config=config)
@@ -328,8 +328,8 @@ class TestSnapshotCreation:
             }
         }
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke, \
-             patch('agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke, \
+             patch('core.agents.orchestrator.nodes.create_snapshot_if_mature') as mock_snapshot:
             mock_invoke.return_value = mock_response
             # Simula falha no snapshot
             mock_snapshot.side_effect = Exception("Database error")

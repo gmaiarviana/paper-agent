@@ -40,8 +40,8 @@ class TestObserverIntegrationFlow:
 
     def test_orchestrator_includes_cognitive_model_in_context(self):
         """Orquestrador inclui cognitive_model no contexto quando disponível."""
-        from agents.orchestrator.nodes import _build_context, _build_cognitive_model_context
-        from agents.orchestrator.state import create_initial_multi_agent_state
+        from core.agents.orchestrator.nodes import _build_context, _build_cognitive_model_context
+        from core.agents.orchestrator.state import create_initial_multi_agent_state
 
         # Criar estado com cognitive_model
         state = create_initial_multi_agent_state(
@@ -66,8 +66,8 @@ class TestObserverIntegrationFlow:
 
     def test_context_excludes_empty_cognitive_model(self):
         """Contexto não inclui seção de cognitive_model se vazio."""
-        from agents.orchestrator.nodes import _build_context
-        from agents.orchestrator.state import create_initial_multi_agent_state
+        from core.agents.orchestrator.nodes import _build_context
+        from core.agents.orchestrator.state import create_initial_multi_agent_state
 
         # Criar estado sem cognitive_model
         state = create_initial_multi_agent_state(
@@ -84,8 +84,8 @@ class TestObserverIntegrationFlow:
 
     def test_context_excludes_cognitive_model_without_claim(self):
         """Contexto não inclui seção se cognitive_model não tem claim."""
-        from agents.orchestrator.nodes import _build_context
-        from agents.orchestrator.state import create_initial_multi_agent_state
+        from core.agents.orchestrator.nodes import _build_context
+        from core.agents.orchestrator.state import create_initial_multi_agent_state
 
         # Criar estado com cognitive_model vazio (sem claim)
         state = create_initial_multi_agent_state(
@@ -224,7 +224,7 @@ class TestObserverCognitiveModelContext:
 
     def test_proposicoes_are_sorted_by_solidez(self):
         """Proposições são ordenadas por solidez decrescente."""
-        from agents.orchestrator.nodes import _build_cognitive_model_context
+        from core.agents.orchestrator.nodes import _build_cognitive_model_context
 
         cm = {
             "proposicoes": [
@@ -245,7 +245,7 @@ class TestObserverCognitiveModelContext:
 
     def test_metrics_fallback_calculation(self):
         """Solidez é calculada como fallback se não fornecida."""
-        from agents.orchestrator.nodes import _build_cognitive_model_context
+        from core.agents.orchestrator.nodes import _build_cognitive_model_context
 
         cm = {
             "proposicoes": [
@@ -262,7 +262,7 @@ class TestObserverCognitiveModelContext:
 
     def test_all_sections_present_for_complete_model(self):
         """Todas as seções são incluídas para modelo completo."""
-        from agents.orchestrator.nodes import _build_cognitive_model_context
+        from core.agents.orchestrator.nodes import _build_cognitive_model_context
 
         cm = {
             "claim": "Afirmação central",

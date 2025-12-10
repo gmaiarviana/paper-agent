@@ -21,7 +21,7 @@ from scripts.common import setup_project_path
 
 setup_project_path()
 
-from agents.methodologist import create_initial_state, checkpointer
+from core.agents.methodologist import create_initial_state, checkpointer
 
 def format_state_for_display(state: dict) -> str:
     """Formata o estado para exibição legível."""

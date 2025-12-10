@@ -14,11 +14,11 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 from langchain_core.messages import AIMessage, HumanMessage
 
-from agents.methodologist import (
+from core.agents.methodologist import (
     MethodologistState,
     create_initial_state
 )
-from agents.methodologist.nodes import (
+from core.agents.methodologist.nodes import (
     analyze,
     ask_clarification,
     decide
@@ -38,7 +38,7 @@ class TestAnalyzeNode:
         # Mock da resposta do LLM indicando informação insuficiente
         mock_response = AIMessage(content='{"has_sufficient_info": false, "reasoning": "Faltam detalhes", "missing_info": "população e métricas"}')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = analyze(state)
@@ -54,7 +54,7 @@ class TestAnalyzeNode:
         # Mock da resposta do LLM indicando informação suficiente
         mock_response = AIMessage(content='{"has_sufficient_info": true, "reasoning": "Hipótese bem especificada"}')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = analyze(state)
@@ -69,7 +69,7 @@ class TestAnalyzeNode:
         # Mock da resposta do LLM com JSON inválido
         mock_response = AIMessage(content='Resposta sem JSON válido')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = analyze(state)
@@ -84,7 +84,7 @@ class TestAnalyzeNode:
 
         mock_response = AIMessage(content='{"has_sufficient_info": false, "reasoning": "Ainda faltam métricas"}')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = analyze(state)
@@ -96,7 +96,7 @@ class TestAnalyzeNode:
         state = create_initial_state("Café aumenta produtividade")
         mock_response = AIMessage(content='{"has_sufficient_info": false}')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             with caplog.at_level('INFO'):
@@ -122,8 +122,8 @@ class TestAskClarificationNode:
         # Mock da resposta do usuário
         mock_user_answer = "Adultos de 18-40 anos"
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke, \
-             patch('agents.methodologist.nodes.ask_user') as mock_ask_user:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke, \
+             patch('core.agents.methodologist.nodes.ask_user') as mock_ask_user:
 
             mock_invoke.return_value = mock_question_response
             mock_ask_user.invoke.return_value = mock_user_answer
@@ -152,8 +152,8 @@ class TestAskClarificationNode:
         mock_question_response = AIMessage(content="Quais são as variáveis dependentes?")
         mock_user_answer = "Tempo de reação"
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke, \
-             patch('agents.methodologist.nodes.ask_user') as mock_ask_user:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke, \
+             patch('core.agents.methodologist.nodes.ask_user') as mock_ask_user:
 
             mock_invoke.return_value = mock_question_response
             mock_ask_user.invoke.return_value = mock_user_answer
@@ -167,8 +167,8 @@ class TestAskClarificationNode:
         state = create_initial_state("Café aumenta produtividade", max_iterations=3)
         state['iterations'] = 3  # Já atingiu o limite
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke, \
-             patch('agents.methodologist.nodes.ask_user') as mock_ask_user:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke, \
+             patch('core.agents.methodologist.nodes.ask_user') as mock_ask_user:
 
             result = ask_clarification(state)
 
@@ -186,8 +186,8 @@ class TestAskClarificationNode:
 
         mock_question_response = AIMessage(content="Quais métricas serão usadas?")
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke, \
-             patch('agents.methodologist.nodes.ask_user') as mock_ask_user:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke, \
+             patch('core.agents.methodologist.nodes.ask_user') as mock_ask_user:
 
             mock_invoke.return_value = mock_question_response
             mock_ask_user.invoke.return_value = "Tempo de reação no teste PVT"
@@ -204,8 +204,8 @@ class TestAskClarificationNode:
         mock_question_response = AIMessage(content="Qual é a população?")
         mock_user_answer = "Adultos"
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke, \
-             patch('agents.methodologist.nodes.ask_user') as mock_ask_user:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke, \
+             patch('core.agents.methodologist.nodes.ask_user') as mock_ask_user:
 
             mock_invoke.return_value = mock_question_response
             mock_ask_user.invoke.return_value = mock_user_answer
@@ -228,7 +228,7 @@ class TestDecideNode:
 
         mock_response = AIMessage(content='{"decision": "approved", "justification": "Hipótese testável, falseável e específica"}')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = decide(state)
@@ -244,7 +244,7 @@ class TestDecideNode:
 
         mock_response = AIMessage(content='{"decision": "rejected", "justification": "Hipótese vaga, não-testável e sem métricas"}')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = decide(state)
@@ -264,7 +264,7 @@ class TestDecideNode:
 
         mock_response = AIMessage(content='{"decision": "approved", "justification": "Com as clarificações, a hipótese se tornou testável"}')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = decide(state)
@@ -277,7 +277,7 @@ class TestDecideNode:
 
         mock_response = AIMessage(content='Resposta sem JSON válido')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = decide(state)
@@ -293,7 +293,7 @@ class TestDecideNode:
         # Status inválido
         mock_response = AIMessage(content='{"decision": "maybe", "justification": "Não tenho certeza"}')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = decide(state)
@@ -307,7 +307,7 @@ class TestDecideNode:
 
         mock_response = AIMessage(content='{"decision": "approved", "justification": "Hipótese adequada"}')
 
-        with patch('agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.methodologist.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             with caplog.at_level('INFO'):

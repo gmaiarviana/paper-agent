@@ -12,7 +12,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.orchestrator.state import create_initial_multi_agent_state
 from langchain_core.messages import HumanMessage
 
 def test_initial_state_includes_human_message():

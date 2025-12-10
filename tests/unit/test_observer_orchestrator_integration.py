@@ -28,12 +28,12 @@ class TestConsultObserverFunction:
 
     def test_function_exists(self):
         """Valida que funcao existe e e importavel."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
         assert callable(_consult_observer)
 
     def test_returns_dict_with_required_fields(self):
         """Valida que retorno contem campos obrigatorios."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         # Mock state minimo
         state = {
@@ -56,7 +56,7 @@ class TestConsultObserverFunction:
             "suggestion": None
         }
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity
 
             result = _consult_observer(
@@ -73,7 +73,7 @@ class TestConsultObserverFunction:
 
     def test_calls_evaluate_clarity_when_cognitive_model_exists(self):
         """Testa que evaluate_conversation_clarity e chamado com cognitive_model."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "LLMs aumentam produtividade"}
@@ -87,7 +87,7 @@ class TestConsultObserverFunction:
             "suggestion": None
         }
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity_result
 
             result = _consult_observer(
@@ -101,7 +101,7 @@ class TestConsultObserverFunction:
 
     def test_calls_detect_variation_when_previous_claim_exists(self):
         """Testa que detect_variation e chamado quando ha claim anterior."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "novo input", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "LLMs aumentam produtividade"}
@@ -114,7 +114,7 @@ class TestConsultObserverFunction:
             "reasoning": "Apenas refinamento"
         }
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "clara",
                 "clarity_score": 4,
@@ -123,7 +123,7 @@ class TestConsultObserverFunction:
                 "suggestion": None
             }
 
-            with patch('agents.observer.extractors.detect_variation') as mock_detect:
+            with patch('core.agents.observer.extractors.detect_variation') as mock_detect:
                 mock_detect.return_value = mock_variation_result
 
                 result = _consult_observer(
@@ -137,7 +137,7 @@ class TestConsultObserverFunction:
 
     def test_sets_needs_checkpoint_when_clarity_low(self):
         """Testa que needs_checkpoint e True quando clareza e baixa."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "Algo vago"}
@@ -155,7 +155,7 @@ class TestConsultObserverFunction:
             "suggestion": "Definir melhor o objetivo"
         }
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity_result
 
             result = _consult_observer(
@@ -169,7 +169,7 @@ class TestConsultObserverFunction:
 
     def test_sets_needs_checkpoint_when_real_change_detected(self):
         """Testa que needs_checkpoint e True quando mudanca real detectada."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "LLMs aumentam produtividade"}
@@ -190,10 +190,10 @@ class TestConsultObserverFunction:
             "reasoning": "Usuario mudou de assunto"
         }
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity_result
 
-            with patch('agents.observer.extractors.detect_variation') as mock_detect:
+            with patch('core.agents.observer.extractors.detect_variation') as mock_detect:
                 mock_detect.return_value = mock_variation_result
 
                 result = _consult_observer(
@@ -208,7 +208,7 @@ class TestConsultObserverFunction:
 
     def test_handles_empty_cognitive_model(self):
         """Testa que funcao lida com cognitive_model vazio."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
@@ -225,12 +225,12 @@ class TestConsultObserverFunction:
 
     def test_handles_observer_errors_gracefully(self):
         """Testa que erros no Observer nao quebram a funcao."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "teste"}
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.side_effect = Exception("LLM timeout")
 
             # Nao deve levantar excecao
@@ -253,7 +253,7 @@ class TestStateHasObserverFields:
         # Usar caminho relativo ao projeto
         state_path = os.path.join(
             os.path.dirname(__file__),
-            '..', '..', 'agents', 'orchestrator', 'state.py'
+            '..', '..', 'core', 'agents', 'orchestrator', 'state.py'
         )
 
         with open(state_path, 'r', encoding='utf-8') as f:
@@ -267,7 +267,7 @@ class TestStateHasObserverFields:
         import os
         state_path = os.path.join(
             os.path.dirname(__file__),
-            '..', '..', 'agents', 'orchestrator', 'state.py'
+            '..', '..', 'core', 'agents', 'orchestrator', 'state.py'
         )
 
         with open(state_path, 'r', encoding='utf-8') as f:
@@ -280,7 +280,7 @@ class TestCheckpointContextual:
 
     def test_checkpoint_adjusts_next_step_to_clarify(self):
         """Testa que checkpoint ajusta next_step para clarify."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "???", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "Algo vago e confuso"}
@@ -298,7 +298,7 @@ class TestCheckpointContextual:
             "suggestion": "Volte ao inicio e defina o objetivo"
         }
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity
 
             result = _consult_observer(
@@ -313,7 +313,7 @@ class TestCheckpointContextual:
 
     def test_no_checkpoint_for_cristalina_clarity(self):
         """Testa que nao ha checkpoint quando clareza e cristalina."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {
@@ -333,7 +333,7 @@ class TestCheckpointContextual:
             "suggestion": None
         }
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = mock_clarity
 
             result = _consult_observer(
@@ -350,7 +350,7 @@ class TestVariationDetectionIntegration:
 
     def test_variation_uses_focal_argument_as_fallback(self):
         """Testa que usa focal_argument quando claim nao existe."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {
             "user_input": "teste",
@@ -369,7 +369,7 @@ class TestVariationDetectionIntegration:
             "reasoning": "OK"
         }
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "clara",
                 "clarity_score": 4,
@@ -378,7 +378,7 @@ class TestVariationDetectionIntegration:
                 "suggestion": None
             }
 
-            with patch('agents.observer.extractors.detect_variation') as mock_detect:
+            with patch('core.agents.observer.extractors.detect_variation') as mock_detect:
                 mock_detect.return_value = mock_variation
 
                 result = _consult_observer(
@@ -394,7 +394,7 @@ class TestVariationDetectionIntegration:
 
     def test_no_variation_detection_without_previous_claim(self):
         """Testa que nao detecta variacao sem claim anterior."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {
             "user_input": "teste",
@@ -404,7 +404,7 @@ class TestVariationDetectionIntegration:
 
         cognitive_model = {}  # Sem claim
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "clara",
                 "clarity_score": 4,
@@ -413,7 +413,7 @@ class TestVariationDetectionIntegration:
                 "suggestion": None
             }
 
-            with patch('agents.observer.extractors.detect_variation') as mock_detect:
+            with patch('core.agents.observer.extractors.detect_variation') as mock_detect:
                 result = _consult_observer(
                     state=state,
                     user_input="Primeiro input",
@@ -429,11 +429,11 @@ class TestClarityLevelMappings:
 
     def test_cristalina_no_checkpoint(self):
         """Cristalina nao precisa de checkpoint."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "cristalina",
                 "clarity_score": 5,
@@ -452,11 +452,11 @@ class TestClarityLevelMappings:
 
     def test_clara_no_checkpoint(self):
         """Clara nao precisa de checkpoint."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "clara",
                 "clarity_score": 4,
@@ -475,11 +475,11 @@ class TestClarityLevelMappings:
 
     def test_nebulosa_needs_checkpoint(self):
         """Nebulosa precisa de checkpoint."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "nebulosa",
                 "clarity_score": 3,
@@ -499,11 +499,11 @@ class TestClarityLevelMappings:
 
     def test_confusa_needs_checkpoint(self):
         """Confusa precisa de checkpoint."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "???", "messages": [], "focal_argument": None}
 
-        with patch('agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
+        with patch('core.agents.observer.extractors.evaluate_conversation_clarity') as mock_eval:
             mock_eval.return_value = {
                 "clarity_level": "confusa",
                 "clarity_score": 1,

@@ -17,8 +17,8 @@ import pytest
 from unittest.mock import Mock, patch
 from langchain_core.messages import AIMessage, HumanMessage
 
-from agents.orchestrator.state import create_initial_multi_agent_state
-from agents.orchestrator.nodes import orchestrator_node
+from core.agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.orchestrator.nodes import orchestrator_node
 
 # Fixture para mock padrão do Observer
 # Retorna resultado neutro que não interfere no fluxo normal do teste
@@ -36,7 +36,7 @@ def mock_consult_observer():
     orchestrator_node() agora consulta o Observer para análise
     de clareza e variação. Sem mock, testes falham no CI (sem API key).
     """
-    with patch('agents.orchestrator.nodes._consult_observer') as mock:
+    with patch('core.agents.orchestrator.nodes._consult_observer') as mock:
         mock.return_value = MOCK_OBSERVER_RESULT
         yield mock
 
@@ -61,7 +61,7 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
@@ -93,7 +93,7 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
@@ -126,7 +126,7 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
@@ -153,7 +153,7 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 80, "output_tokens": 40}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
@@ -173,7 +173,7 @@ class TestOrchestratorNode:
         mock_response.content = "Resposta sem JSON válido"
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 50, "output_tokens": 10}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
@@ -199,7 +199,7 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 50, "output_tokens": 20}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
@@ -233,7 +233,7 @@ class TestOrchestratorNode:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 200, "output_tokens": 80}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)

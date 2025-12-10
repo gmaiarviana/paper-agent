@@ -19,15 +19,15 @@ sys.modules['chromadb'] = MagicMock()
 sys.modules['chromadb.config'] = MagicMock()
 
 # Import direto do modulo (evita __init__.py com dependencias pesadas)
-from agents.observer.extractors import evaluate_conversation_clarity
-from agents.observer.prompts import CLARITY_EVALUATION_PROMPT
+from core.agents.observer.extractors import evaluate_conversation_clarity
+from core.agents.observer.prompts import CLARITY_EVALUATION_PROMPT
 
 class TestEvaluateClarityBasic:
     """Testes basicos para evaluate_conversation_clarity."""
 
     def test_function_exists(self):
         """Valida que funcao existe e e importavel."""
-        from agents.observer.extractors import evaluate_conversation_clarity
+        from core.agents.observer.extractors import evaluate_conversation_clarity
         assert callable(evaluate_conversation_clarity)
 
     def test_function_signature(self):
@@ -56,7 +56,7 @@ class TestEvaluateClarityBasic:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity(
@@ -90,7 +90,7 @@ class TestClarityLevels:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -115,7 +115,7 @@ class TestClarityLevels:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -140,7 +140,7 @@ class TestClarityLevels:
             "suggestion": "Esclarecer as metricas"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -166,7 +166,7 @@ class TestClarityLevels:
             "suggestion": "Pausar e perguntar qual o foco principal"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": ""})
@@ -190,7 +190,7 @@ class TestClarityScore:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -209,7 +209,7 @@ class TestClarityScore:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -232,7 +232,7 @@ class TestNeedsCheckpoint:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -251,7 +251,7 @@ class TestNeedsCheckpoint:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -270,7 +270,7 @@ class TestNeedsCheckpoint:
             "suggestion": "Esclarecer"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -289,7 +289,7 @@ class TestNeedsCheckpoint:
             "suggestion": "Pausar"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": ""})
@@ -315,7 +315,7 @@ class TestFactors:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -340,7 +340,7 @@ class TestFactors:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -362,7 +362,7 @@ class TestFactors:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -377,7 +377,7 @@ class TestErrorHandling:
 
     def test_handles_llm_error_gracefully(self):
         """Testa que erro no LLM retorna fallback nebulosa."""
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.side_effect = Exception("LLM timeout")
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -393,9 +393,9 @@ class TestErrorHandling:
         mock_response = MagicMock()
         mock_response.content = "Resposta invalida sem JSON"
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
-            with patch('agents.observer.extractors.extract_json_from_llm_response') as mock_json:
+            with patch('core.agents.observer.extractors.extract_json_from_llm_response') as mock_json:
                 mock_json.side_effect = Exception("JSON parse error")
 
                 result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -416,7 +416,7 @@ class TestErrorHandling:
             "suggestion": "Definir um claim"
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({})
@@ -435,7 +435,7 @@ class TestErrorHandling:
             "suggestion": null
         }'''
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity({"claim": "Teste"})
@@ -499,7 +499,7 @@ class TestScenarios:
             "open_questions": []
         }
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity(cognitive_model)
@@ -530,7 +530,7 @@ class TestScenarios:
             "open_questions": ["O que significa importante?", "Qual aspecto de IA?"]
         }
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity(cognitive_model)
@@ -565,7 +565,7 @@ class TestScenarios:
             "open_questions": ["Estamos falando de LLMs ou de testes?"]
         }
 
-        with patch('agents.observer.extractors.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.observer.extractors.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = evaluate_conversation_clarity(cognitive_model)

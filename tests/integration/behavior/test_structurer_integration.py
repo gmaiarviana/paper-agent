@@ -27,8 +27,8 @@ sys.path.insert(0, str(project_root))
 # Carregar variáveis de ambiente do .env
 load_dotenv()
 
-from agents.orchestrator.state import create_initial_multi_agent_state
-from agents.structurer.nodes import structurer_node
+from core.agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.structurer.nodes import structurer_node
 from langchain_core.messages import AIMessage
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")

@@ -8,7 +8,7 @@ especialmente os novos campos do Orquestrador Conversacional.
 
 import pytest
 
-from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
+from core.agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
 
 class TestMultiAgentStateStructure:
     """Testes de estrutura e validação do MultiAgentState."""

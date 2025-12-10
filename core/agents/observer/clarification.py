@@ -24,7 +24,7 @@ from typing import Dict, Any, Optional, List
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
 
-from agents.models.clarification import (
+from core.agents.models.clarification import (
     ClarificationNeed,
     ClarificationContext,
     ClarificationTimingDecision,
@@ -32,7 +32,7 @@ from agents.models.clarification import (
     ClarificationUpdates,
     QuestionSuggestion,
 )
-from agents.models.proposition import Proposicao
+from core.agents.models.proposition import Proposicao
 
 from .clarification_prompts import (
     IDENTIFY_CLARIFICATION_NEEDS_PROMPT,
