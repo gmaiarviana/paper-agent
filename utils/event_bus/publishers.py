@@ -18,6 +18,10 @@ from utils.event_models import (
     CognitiveModelUpdatedEvent,
     ClarificationRequestedEvent,
     ClarificationResolvedEvent,
+    # Epico 13.5 - Timeline Visual de Mudancas
+    VariationDetectedEvent,
+    DirectionChangeConfirmedEvent,
+    ClarityCheckpointEvent,
 )
 
 logger = logging.getLogger(__name__)
@@ -364,6 +368,159 @@ class EventBusPublishers:
             resolution_status=resolution_status,
             summary=summary,
             updates_made=updates_made or {},
+            metadata=metadata or {}
+        )
+        self.publish_event(event)
+
+    # ========================================================================
+    # Epico 13.5 - Timeline Visual de Mudancas
+    # ========================================================================
+
+    def publish_variation_detected(
+        self,
+        session_id: str,
+        turn_number: int,
+        essence_previous: str,
+        essence_new: str,
+        shared_concepts: Optional[list] = None,
+        new_concepts: Optional[list] = None,
+        analysis: str = "",
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Publica evento de variacao detectada (Epico 13.5).
+
+        Este evento e publicado discretamente quando o Observer identifica
+        que o input do usuario e uma variacao do conceito anterior (mesma
+        essencia), nao uma mudanca real de direcao. Nao interrompe o fluxo.
+
+        Args:
+            session_id (str): ID da sessao
+            turn_number (int): Numero do turno atual
+            essence_previous (str): Essencia semantica do texto anterior
+            essence_new (str): Essencia semantica do novo texto
+            shared_concepts (list): Conceitos mantidos entre os textos
+            new_concepts (list): Novos conceitos introduzidos
+            analysis (str): Analise textual do LLM
+            metadata (dict): Metadados adicionais
+
+        Example:
+            >>> bus = EventBus()
+            >>> bus.publish_variation_detected(
+            ...     "session-1",
+            ...     turn_number=3,
+            ...     essence_previous="LLMs aumentam produtividade",
+            ...     essence_new="IA generativa melhora eficiencia",
+            ...     shared_concepts=["produtividade", "IA"],
+            ...     analysis="Variacao do mesmo conceito"
+            ... )
+        """
+        event = VariationDetectedEvent(
+            session_id=session_id,
+            turn_number=turn_number,
+            essence_previous=essence_previous,
+            essence_new=essence_new,
+            shared_concepts=shared_concepts or [],
+            new_concepts=new_concepts or [],
+            analysis=analysis,
+            metadata=metadata or {}
+        )
+        self.publish_event(event)
+
+    def publish_direction_change_confirmed(
+        self,
+        session_id: str,
+        turn_number: int,
+        previous_claim: str,
+        new_claim: str,
+        user_confirmed: bool = False,
+        reasoning: str = "",
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Publica evento de mudanca real de direcao (Epico 13.5).
+
+        Este evento e publicado quando o Observer detecta que o usuario
+        mudou de foco para um topico fundamentalmente diferente.
+
+        Args:
+            session_id (str): ID da sessao
+            turn_number (int): Numero do turno atual
+            previous_claim (str): Claim/foco anterior da conversa
+            new_claim (str): Novo claim/foco identificado
+            user_confirmed (bool): Se usuario confirmou a mudanca
+            reasoning (str): Justificativa para classificacao
+            metadata (dict): Metadados adicionais
+
+        Example:
+            >>> bus = EventBus()
+            >>> bus.publish_direction_change_confirmed(
+            ...     "session-1",
+            ...     turn_number=5,
+            ...     previous_claim="LLMs aumentam produtividade",
+            ...     new_claim="Blockchain revoluciona financas",
+            ...     user_confirmed=True,
+            ...     reasoning="Topicos completamente distintos"
+            ... )
+        """
+        event = DirectionChangeConfirmedEvent(
+            session_id=session_id,
+            turn_number=turn_number,
+            previous_claim=previous_claim,
+            new_claim=new_claim,
+            user_confirmed=user_confirmed,
+            reasoning=reasoning,
+            metadata=metadata or {}
+        )
+        self.publish_event(event)
+
+    def publish_clarity_checkpoint(
+        self,
+        session_id: str,
+        turn_number: int,
+        clarity_level: str,
+        clarity_score: int,
+        checkpoint_reason: str,
+        factors: Optional[Dict[str, str]] = None,
+        suggestion: str = "",
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Publica evento de checkpoint de clareza (Epico 13.5).
+
+        Este evento e publicado quando o Observer detecta que a conversa
+        esta nebulosa ou confusa e o Orchestrator solicita esclarecimento.
+
+        Args:
+            session_id (str): ID da sessao
+            turn_number (int): Numero do turno atual
+            clarity_level (str): Nivel de clareza (cristalina, clara, nebulosa, confusa)
+            clarity_score (int): Score numerico de clareza (1-5)
+            checkpoint_reason (str): Razao para solicitar checkpoint
+            factors (dict): Fatores da avaliacao
+            suggestion (str): Sugestao de como esclarecer
+            metadata (dict): Metadados adicionais
+
+        Example:
+            >>> bus = EventBus()
+            >>> bus.publish_clarity_checkpoint(
+            ...     "session-1",
+            ...     turn_number=4,
+            ...     clarity_level="nebulosa",
+            ...     clarity_score=2,
+            ...     checkpoint_reason="Multiplos topicos sem conexao",
+            ...     factors={"coherence": "baixa"},
+            ...     suggestion="Qual topico explorar primeiro?"
+            ... )
+        """
+        event = ClarityCheckpointEvent(
+            session_id=session_id,
+            turn_number=turn_number,
+            clarity_level=clarity_level,
+            clarity_score=clarity_score,
+            checkpoint_reason=checkpoint_reason,
+            factors=factors or {},
+            suggestion=suggestion,
             metadata=metadata or {}
         )
         self.publish_event(event)

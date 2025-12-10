@@ -6,6 +6,7 @@ Responsável por:
 - Modal com histórico completo
 - Formatação de timestamps
 - Seção do Observador com métricas cognitivas (Épico 12.3)
+- Eventos de detecção de mudanças do Observer (Épico 13.5)
 - Seção de Esclarecimentos com perguntas e respostas (Épico 14)
 """
 
@@ -76,6 +77,19 @@ def render_agent_timeline(session_id: str) -> None:
         observer_events = [e for e in events if e.get("event_type") == "cognitive_model_updated"]
         if observer_events:
             render_observer_section(observer_events)
+
+        # Seção de Detecção de Mudanças (Épico 13.5)
+        # Mostra eventos de variação, mudança de direção e checkpoints de clareza
+        detection_events = [
+            e for e in events
+            if e.get("event_type") in [
+                "variation_detected",
+                "direction_change_confirmed",
+                "clarity_checkpoint"
+            ]
+        ]
+        if detection_events:
+            render_observer_detection_events(detection_events)
 
         # Seção de Esclarecimentos (Épico 14)
         # Mostra perguntas de esclarecimento e suas respostas
@@ -257,6 +271,67 @@ def _show_observer_modal(events: List[Dict[str, Any]]) -> None:
         # Status e tempo de processamento
         st.caption(f"{status_emoji} · Processado em {processing_time:.0f}ms")
         st.markdown("---")
+
+
+# ============================================================================
+# Épico 13.5 - Timeline Visual de Mudanças
+# ============================================================================
+
+
+def render_observer_detection_events(detection_events: List[Dict[str, Any]]) -> None:
+    """
+    Renderiza eventos de detecção de mudanças do Observer (Épico 13.5).
+
+    Mostra eventos de forma discreta e colapsada:
+    - Variações detectadas (não interrompem fluxo)
+    - Mudanças de direção confirmadas
+    - Checkpoints de clareza solicitados
+
+    Args:
+        detection_events: Lista de eventos de detecção
+            (variation_detected, direction_change_confirmed, clarity_checkpoint)
+    """
+    if not detection_events:
+        return
+
+    st.markdown("---")
+
+    # Seção colapsável de detecções (discreta por padrão)
+    with st.expander("🔍 **Detecções do Observer**", expanded=False):
+        # Mostrar últimos 5 eventos de detecção (mais recentes primeiro)
+        recent_events = list(reversed(detection_events))[:5]
+
+        for event in recent_events:
+            event_type = event.get("event_type", "")
+            turn_number = event.get("turn_number", 0)
+            timestamp = event.get("timestamp", "")
+            time_str = format_time(timestamp)
+
+            if event_type == "variation_detected":
+                shared = len(event.get("shared_concepts", []))
+                new = len(event.get("new_concepts", []))
+                st.markdown(f"↪️ **Turno {turn_number}** - Variação identificada")
+                st.caption(f"Conceitos mantidos: {shared} · Novos: {new} · {time_str}")
+
+            elif event_type == "direction_change_confirmed":
+                user_confirmed = event.get("user_confirmed", False)
+                status = "✅ confirmada" if user_confirmed else "⏳ pendente"
+                st.markdown(f"🔄 **Turno {turn_number}** - Mudança de foco ({status})")
+                st.caption(f"{time_str}")
+
+            elif event_type == "clarity_checkpoint":
+                clarity_level = event.get("clarity_level", "nebulosa")
+                clarity_score = event.get("clarity_score", 2)
+                st.markdown(f"⚠️ **Turno {turn_number}** - Checkpoint de clareza")
+                st.caption(f"Clareza: {clarity_level} (score {clarity_score}/5) · {time_str}")
+
+        # Resumo de detecções
+        variation_count = len([e for e in detection_events if e.get("event_type") == "variation_detected"])
+        change_count = len([e for e in detection_events if e.get("event_type") == "direction_change_confirmed"])
+        checkpoint_count = len([e for e in detection_events if e.get("event_type") == "clarity_checkpoint"])
+
+        st.caption(f"📊 {variation_count} variações · {change_count} mudanças · {checkpoint_count} checkpoints")
+
 
 def render_clarification_section(clarification_events: List[Dict[str, Any]]) -> None:
     """

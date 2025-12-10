@@ -6,6 +6,7 @@ from anthropic import Anthropic
 import os
 import json
 from dotenv import load_dotenv
+from utils.config import get_anthropic_model
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -73,6 +74,7 @@ Analise o Cognitive Model e o contexto. Decida o próximo passo:
 Explique seu raciocínio e decisão.
 """
 
+
 def test_natural_usage():
     """Testa se Claude usa cognitive_model naturalmente"""
     print("\n" + "="*60)
@@ -95,7 +97,7 @@ def test_natural_usage():
     print("📤 Enviando prompt para Claude...\n")
 
     response = client.messages.create(
-        model="claude-3-5-haiku-20241022",
+        model=get_anthropic_model(),  # Sempre Haiku
         max_tokens=1000,
         messages=[{
             "role": "user",
@@ -138,6 +140,7 @@ def test_natural_usage():
         print("\n❌ FALHA: Claude ignora cognitive_model")
         print("   Recomendação: Considerar tool explícito")
         return False
+
 
 if __name__ == "__main__":
     success = test_natural_usage()

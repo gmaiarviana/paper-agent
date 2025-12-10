@@ -24,12 +24,11 @@
 - **ÉPICO 10**: Observador - Mente Analítica (POC) - ChromaDB + SQLite para catálogo de conceitos, pipeline de persistência, busca semântica e 22 testes unitários
 - **ÉPICO 11**: Alinhamento de Ontologia - Migração completa de premises/assumptions para Proposições unificadas com solidez. Sistema usa `proposicoes` em todas as camadas (modelo, orquestrador, observador, interface). Schema SQLite atualizado, testes migrados, documentação alinhada.
 - **ÉPICO 12**: Observer - Integração Básica (MVP) - Observer integrado ao fluxo multi-agente via callback assíncrono. Processa turnos em background após Orchestrator, publica eventos cognitive_model_updated, e exibe atividade na Timeline. Orquestrador acessa cognitive_model via prompt context. 28 testes passando.
+- **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística) - Todas as 6 features implementadas (13.1-13.6). Sistema detecta variações vs mudanças reais via LLM contextual, avalia clareza de conversa, publica eventos na Timeline, e inclui testes E2E completos. 66+ testes unitários.
+- **ÉPICO 14**: Observer - Consultas Inteligentes - Sistema faz perguntas contextuais para esclarecer contradições e gaps. Integrado ao Orquestrador via `_consult_observer()`. Timeline visual com seção de esclarecimentos. 40+ testes.
 
 ### 🟡 Épicos Em Andamento
-- **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística) - Features 13.1-13.4 implementadas (66 testes), pendente: 13.5 Timeline Visual, 13.6 Testes E2E
-
-### ✅ Recém Concluídos
-- **ÉPICO 14**: Observer - Consultas Inteligentes - Sistema faz perguntas contextuais para esclarecer contradições e gaps. Integrado ao Orquestrador via `_consult_observer()`. Timeline visual com seção de esclarecimentos. 40+ testes.
+(Nenhum no momento)
 
 ### ⏳ Épicos Planejados
 
@@ -110,24 +109,62 @@
   - Clareza "nebulosa"/"confusa": sugere checkpoint
   - Mudança real detectada: trigger checkpoint para confirmação
 
-#### 13.5 Timeline Visual de Mudanças
+#### 13.5 Timeline Visual de Mudanças (✅ Implementado)
 
 - **Descrição:** Timeline registra mudanças detectadas de forma discreta.
+- **Implementação:** `utils/event_models.py`, `utils/event_bus/publishers.py`, `agents/orchestrator/nodes.py`, `app/components/backstage/timeline.py`
 - **Critérios de Aceite:**
   - Eventos aparecem na timeline (colapsada por padrão): "🔄 Mudança de foco confirmada com usuário", "↪️ Variation identificada (não interrompeu fluxo)", "⚠️ Tensões detectadas, esclarecimento solicitado"
   - Variations: registro discreto (sem alerta)
   - Mudanças confirmadas: destaque suave
   - Não mostra métricas ou thresholds
 
-#### 13.6 Testes de Integração
+**Sub-tarefas:**
+- [x] **13.5.1** Criar modelos de eventos em `utils/event_models.py`:
+  - `VariationDetectedEvent` (classification, essence_previous, essence_new, shared_concepts, new_concepts)
+  - `DirectionChangeConfirmedEvent` (classification, user_confirmed, previous_claim, new_claim)
+  - `ClarityCheckpointEvent` (clarity_level, checkpoint_reason)
+- [x] **13.5.2** Adicionar métodos publish em `utils/event_bus/publishers.py`:
+  - `publish_variation_detected()`
+  - `publish_direction_change_confirmed()`
+  - `publish_clarity_checkpoint()`
+- [x] **13.5.3** Publicar eventos em `agents/orchestrator/nodes.py`:
+  - Publicar `VariationDetectedEvent` quando variação detectada
+  - Publicar `DirectionChangeConfirmedEvent` quando mudança real
+  - Publicar `ClarityCheckpointEvent` quando `needs_checkpoint=True`
+- [x] **13.5.4** Renderizar eventos em `app/components/backstage/timeline.py`:
+  - Nova função `render_observer_detection_events()`
+  - Exibir eventos com emojis discretos, seção colapsada
+- [x] **13.5.5** Testes unitários em `tests/unit/utils/test_event_bus_observer.py`
+
+#### 13.6 Testes de Integração (✅ Implementado)
 
 - **Descrição:** Validação em cenários reais de conversa.
+- **Implementação:** `tests/integration/e2e/test_direction_change.py`, `scripts/validate_direction_change.py`, `utils/test_executor.py`
 - **Critérios de Aceite:**
   - Testes multi-turn com variations e mudanças
   - Validação: Orquestrador intervém naturalmente (não roboticamente)
   - Validação: variations não interrompem
   - Validação: confusão gera perguntas contextuais
   - Script: `scripts/validate_direction_change.py`
+
+**Sub-tarefas:**
+- [x] **13.6.1** Criar cenários de teste em `tests/integration/e2e/test_direction_change.py`:
+  - Cenário A: Variação simples (não interrompe fluxo)
+  - Cenário B: Mudança real (checkpoint solicitado)
+  - Cenário C: Clareza nebulosa (needs_checkpoint=True)
+  - Cenário D: Conversa clara (needs_checkpoint=False)
+- [x] **13.6.2** Criar script `scripts/validate_direction_change.py`:
+  - Executa cenários A-D automaticamente
+  - Gera relatório com eventos publicados e decisões
+  - Modo verbose para debug
+- [x] **13.6.3** Implementar testes específicos:
+  - `test_variation_does_not_interrupt_flow()`
+  - `test_real_change_triggers_checkpoint()`
+  - `test_confusion_triggers_clarification()`
+  - `test_orchestrator_intervention_is_natural()`
+- [x] **13.6.4** Integrar validação em `utils/test_executor.py`:
+  - Método `validate_observer_detections(scenario_result)`
 
 ---
 

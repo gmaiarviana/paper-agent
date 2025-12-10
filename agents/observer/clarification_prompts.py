@@ -15,10 +15,10 @@ Filosofia:
 - Perguntas ajudam a AVANCAR, nao apenas apontam problemas
 
 Epico 14: Observer - Consultas Inteligentes
-
+Data: 2025-12-09
 """
 
-from utils.config import DEFAULT_MODEL
+from utils.config import get_anthropic_model
 
 # =============================================================================
 # PROMPT: IDENTIFICAR NECESSIDADES DE ESCLARECIMENTO
@@ -295,7 +295,7 @@ REGRAS DE TIMING:
 # =============================================================================
 
 # Modelo recomendado para clarification (precisa de nuance)
-CLARIFICATION_MODEL = DEFAULT_MODEL
+CLARIFICATION_MODEL = get_anthropic_model()
 
 # Temperature para identificacao (balanceada)
 IDENTIFICATION_TEMPERATURE = 0.3

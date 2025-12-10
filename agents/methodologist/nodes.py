@@ -3,13 +3,16 @@ Nós do grafo do agente Metodologista.
 
 Este módulo implementa os nós do Metodologista:
 
-GRAFO INTERNO (MethodologistState):
+GRAFO INTERNO (MethodologistState - Épico 2):
 - analyze: Avalia a hipótese e decide se precisa de clarificações
 - ask_clarification: Solicita informações adicionais ao usuário
 - decide: Toma a decisão final (aprovar/rejeitar)
 
-MODO COLABORATIVO (MultiAgentState):
+MODO COLABORATIVO (MultiAgentState - Épico 4):
 - decide_collaborative: Decisão com 3 status (approved/needs_refinement/rejected)
+
+Versão: 3.0 (Épico 6, Funcionalidade 6.1 - Config externa)
+Data: 13/11/2025
 """
 
 import logging
@@ -24,7 +27,7 @@ from .state import MethodologistState
 from .tools import ask_user
 from utils.json_parser import extract_json_from_llm_response
 from utils.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
-from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client, DEFAULT_MODEL
+from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
@@ -32,6 +35,7 @@ from utils.structured_logger import StructuredLogger
 from agents.orchestrator.state import MethodologistOutputModel
 
 logger = logging.getLogger(__name__)
+
 
 def analyze(state: MethodologistState) -> dict:
     """
@@ -112,6 +116,7 @@ Se a hipótese é claramente boa ou ruim com o contexto atual, marque true."""
         "messages": [response],
         "needs_clarification": needs_clarification
     }
+
 
 def ask_clarification(state: MethodologistState) -> dict:
     """
@@ -207,6 +212,7 @@ RESPONDA APENAS COM A PERGUNTA (sem preâmbulo ou explicação)."""
         "iterations": new_iterations,
         "messages": [response, HumanMessage(content=answer)]
     }
+
 
 def decide(state: MethodologistState) -> dict:
     """
@@ -305,13 +311,14 @@ RESPONDA EM JSON:
         "messages": [response]
     }
 
+
 # ==============================================================================
-# MODO COLABORATIVO - Nós para MultiAgentState
+# MODO COLABORATIVO (Épico 4) - Nós para MultiAgentState
 # ==============================================================================
 
 def decide_collaborative(state: dict, config: Optional[RunnableConfig] = None) -> dict:
     """
-    Nó de decisão colaborativa do Metodologista.
+    Nó de decisão colaborativa do Metodologista (Épico 4).
 
     Opera no contexto do super-grafo (MultiAgentState).
     Retorna 3 status possíveis: approved, needs_refinement, rejected.
@@ -355,7 +362,7 @@ def decide_collaborative(state: dict, config: Optional[RunnableConfig] = None) -
     # Log de início
     start_time = time.time()
 
-    # Carregar prompt e modelo do YAML
+    # Carregar prompt e modelo do YAML (Épico 6, Funcionalidade 6.1)
     try:
         system_prompt = get_agent_prompt("methodologist")
         model_name = get_agent_model("methodologist")
@@ -365,7 +372,7 @@ def decide_collaborative(state: dict, config: Optional[RunnableConfig] = None) -
         logger.warning("⚠️ Usando prompt e modelo padrão (fallback)")
         # Fallback: usar prompt da utils.prompts
         system_prompt = METHODOLOGIST_DECIDE_PROMPT_V2
-        model_name = DEFAULT_MODEL
+        model_name = get_anthropic_model()  # Fallback para Haiku (sempre Haiku)
     
     # Obter questão estruturada para metadata inicial
     structurer_output = state.get('structurer_output')
@@ -594,6 +601,7 @@ Avalie esta questão e retorne APENAS o JSON com status, justification e improve
             error=e
         )
         raise
+
 
 def force_decision_collaborative(
     state: dict,
