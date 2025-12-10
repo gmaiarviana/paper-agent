@@ -335,7 +335,7 @@ def detect_argument_maturity(
         MaturityAssessment: Avaliação de maturidade
 
     Example:
-        >>> from agents.persistence import detect_argument_maturity
+        >>> from core.agents.persistence import detect_argument_maturity
         >>> assessment = detect_argument_maturity(cognitive_model)
         >>> if assessment.is_mature:
         ...     print("Pronto para snapshot!")
@@ -361,7 +361,7 @@ def create_snapshot_if_mature(
         str: UUID do snapshot criado, ou None se não maduro
 
     Example:
-        >>> from agents.persistence import create_snapshot_if_mature
+        >>> from core.agents.persistence import create_snapshot_if_mature
         >>> snapshot_id = create_snapshot_if_mature(idea_id, cognitive_model)
         >>> if snapshot_id:
         ...     print(f"Argumento amadureceu! Snapshot V{version} criado")

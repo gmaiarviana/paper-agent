@@ -8,7 +8,7 @@ Valida carregamento e validação de configurações YAML de agentes.
 import pytest
 from pathlib import Path
 
-from agents.memory.config_loader import (
+from core.agents.memory.config_loader import (
     load_agent_config,
     load_all_agent_configs,
     get_agent_prompt,
@@ -17,7 +17,7 @@ from agents.memory.config_loader import (
     list_available_agents,
     ConfigLoadError
 )
-from agents.memory.config_validator import ConfigValidationError
+from core.agents.memory.config_validator import ConfigValidationError
 
 class TestLoadAgentConfig:
     """Testes para load_agent_config()."""

@@ -17,8 +17,8 @@ from unittest.mock import Mock
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from agents.memory.execution_tracker import register_execution
-from agents.memory.memory_manager import MemoryManager
+from core.agents.memory.execution_tracker import register_execution
+from core.agents.memory.memory_manager import MemoryManager
 
 def validate_execution_tracker():
     """Valida a implementação do ExecutionTracker."""
