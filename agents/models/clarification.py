@@ -228,6 +228,49 @@ class ClarificationTimingDecision(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class ClarificationUpdates(BaseModel):
+    """
+    Atualizacoes a fazer no CognitiveModel apos esclarecimento.
+
+    Define quais proposicoes atualizar, contradicoes resolver,
+    e questoes abertas fechar.
+
+    Attributes:
+        proposicoes_to_add: Novas proposicoes a adicionar
+        proposicoes_to_update: Proposicoes existentes a atualizar (id -> novo texto/solidez)
+        contradictions_to_resolve: Indices de contradicoes resolvidas
+        open_questions_to_close: Indices de questoes abertas respondidas
+        context_to_add: Contexto adicional a incluir
+    """
+
+    proposicoes_to_add: List[str] = Field(
+        default_factory=list,
+        description="Textos de novas proposicoes a adicionar"
+    )
+
+    proposicoes_to_update: dict = Field(
+        default_factory=dict,
+        description="Proposicoes a atualizar (id -> {texto, solidez})"
+    )
+
+    contradictions_to_resolve: List[int] = Field(
+        default_factory=list,
+        description="Indices das contradicoes resolvidas"
+    )
+
+    open_questions_to_close: List[int] = Field(
+        default_factory=list,
+        description="Indices das questoes abertas respondidas"
+    )
+
+    context_to_add: dict = Field(
+        default_factory=dict,
+        description="Contexto adicional a incluir no CognitiveModel"
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+
 class ClarificationResponse(BaseModel):
     """
     Analise da resposta do usuario a uma pergunta de esclarecimento.
@@ -267,8 +310,8 @@ class ClarificationResponse(BaseModel):
         min_length=1
     )
 
-    updates: "ClarificationUpdates" = Field(
-        default_factory=lambda: ClarificationUpdates(),
+    updates: ClarificationUpdates = Field(
+        default_factory=ClarificationUpdates,
         description="Atualizacoes a fazer no CognitiveModel"
     )
 
@@ -280,49 +323,6 @@ class ClarificationResponse(BaseModel):
     followup_suggestion: Optional[str] = Field(
         default=None,
         description="Sugestao de pergunta de acompanhamento (se needs_followup=True)"
-    )
-
-    model_config = ConfigDict(extra="forbid")
-
-
-class ClarificationUpdates(BaseModel):
-    """
-    Atualizacoes a fazer no CognitiveModel apos esclarecimento.
-
-    Define quais proposicoes atualizar, contradicoes resolver,
-    e questoes abertas fechar.
-
-    Attributes:
-        proposicoes_to_add: Novas proposicoes a adicionar
-        proposicoes_to_update: Proposicoes existentes a atualizar (id -> novo texto/solidez)
-        contradictions_to_resolve: Indices de contradicoes resolvidas
-        open_questions_to_close: Indices de questoes abertas respondidas
-        context_to_add: Contexto adicional a incluir
-    """
-
-    proposicoes_to_add: List[str] = Field(
-        default_factory=list,
-        description="Textos de novas proposicoes a adicionar"
-    )
-
-    proposicoes_to_update: dict = Field(
-        default_factory=dict,
-        description="Proposicoes a atualizar (id -> {texto, solidez})"
-    )
-
-    contradictions_to_resolve: List[int] = Field(
-        default_factory=list,
-        description="Indices das contradicoes resolvidas"
-    )
-
-    open_questions_to_close: List[int] = Field(
-        default_factory=list,
-        description="Indices das questoes abertas respondidas"
-    )
-
-    context_to_add: dict = Field(
-        default_factory=dict,
-        description="Contexto adicional a incluir no CognitiveModel"
     )
 
     model_config = ConfigDict(extra="forbid")
