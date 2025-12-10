@@ -339,8 +339,8 @@ pytest tests/unit/ -k prompts -v
 #### Fase 2.3: Mover `config/` → `core/config/`
 
 **Cursor (rápido):**
-- [ ] `git mv config core/config`
-- [ ] Validar: Estrutura preservada
+- [x] `git mv config core/config`
+- [x] Validar: Estrutura preservada
 
 **Comandos:**
 ```powershell
@@ -348,7 +348,7 @@ git mv config core/config
 ```
 
 **Validação:**
-- [ ] Verificar: `core/config/agents/*.yaml` existe
+- [x] Verificar: `core/config/agents/*.yaml` existe
 
 **Pausa Segura:** ✅ Sim (mas config_loader.py ainda não funciona)
 
@@ -357,16 +357,11 @@ git mv config core/config
 #### Fase 2.4: Ajustar `agents/memory/config_loader.py` (caminho hardcoded + cache)
 
 **Claude Code (complexo):**
-- [ ] Ajustar linha 16: `CONFIG_DIR = Path(__file__).parent.parent.parent / "config" / "agents"`
-- [ ] **Caminho correto:** De `core/agents/memory/config_loader.py` → `core/config/agents/`:
-  - `Path(__file__).parent` = `core/agents/memory/`
-  - `Path(__file__).parent.parent` = `core/agents/`
-  - `Path(__file__).parent.parent.parent` = `core/`
-  - `Path(__file__).parent.parent.parent.parent` = raiz do projeto
-- [ ] **Solução:** `CONFIG_DIR = Path(__file__).parent.parent.parent.parent / "core" / "config" / "agents"`
-- [ ] **OU (mais seguro):** Usar caminho absoluto baseado na raiz do projeto
-- [ ] **Adicionar cache em memória:** `load_agent_config()` é chamado múltiplas vezes por turno (orchestrator, structurer, methodologist). Adicionar dict `_config_cache: Dict[str, Dict[str, Any]] = {}` e verificar cache antes de ler YAML do disco.
-- [ ] Testar: `python -c "from core.agents.memory.config_loader import load_agent_config; print(load_agent_config('orchestrator'))"`
+- [x] Ajustar linha 16: `CONFIG_DIR = Path(__file__).parent.parent.parent / "config" / "agents"`
+- [x] **Caminho correto:** Implementada função `_get_config_dir()` que detecta automaticamente a estrutura (antiga ou nova)
+- [x] **Solução:** Função detecta se está em `core/agents/memory/` ou `agents/memory/` e ajusta o caminho automaticamente
+- [x] **Adicionar cache em memória:** Implementado dict `_config_cache: Dict[str, Dict[str, Any]] = {}` que verifica cache antes de ler YAML do disco
+- [x] Testar: `python -c "from agents.memory.config_loader import load_agent_config; print(load_agent_config('orchestrator')['model'])"` ✅
 
 **Comando:**
 ```powershell
@@ -1497,8 +1492,8 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 ### Fase 2: Core - Folhas
 - [x] utils/ movido (exceto prompts/)
 - [ ] prompts/ movido
-- [ ] config/ movido
-- [ ] config_loader.py ajustado
+- [x] config/ movido
+- [x] config_loader.py ajustado
 - [ ] models/ movido
 - [ ] database/ movido
 - [ ] database/manager.py ajustado
