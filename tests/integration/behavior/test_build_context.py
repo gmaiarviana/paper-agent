@@ -31,7 +31,6 @@ from langchain_core.messages import HumanMessage, AIMessage
 from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.orchestrator.nodes import _build_context
 
-
 def print_separator(title=""):
     """Imprime separador visual."""
     if title:
@@ -40,7 +39,6 @@ def print_separator(title=""):
         print(f"{'='*80}\n")
     else:
         print(f"\n{'-'*80}\n")
-
 
 def test_build_context_only_initial_input():
     """Testa construção de contexto com apenas input inicial (sem histórico)."""
@@ -65,7 +63,6 @@ def test_build_context_only_initial_input():
     assert "HISTÓRICO DA CONVERSA:" not in context, "❌ Não deveria ter histórico (sem mensagens)"
 
     print("✅ TESTE 1 PASSOU: Contexto construído corretamente com apenas input inicial")
-
 
 def test_build_context_with_human_messages():
     """Testa construção de contexto com mensagens do usuário."""
@@ -95,7 +92,6 @@ def test_build_context_with_human_messages():
 
     print("✅ TESTE 2 PASSOU: Mensagens do usuário incluídas corretamente")
 
-
 def test_build_context_with_ai_messages():
     """Testa construção de contexto com mensagens do assistente."""
     print_separator("TESTE 3: CONTEXTO COM MENSAGENS DO ASSISTENTE")
@@ -123,7 +119,6 @@ def test_build_context_with_ai_messages():
     assert "[Assistente]: Você mediu isso de alguma forma?" in context, "❌ Faltou mensagem do AI 2"
 
     print("✅ TESTE 3 PASSOU: Mensagens do assistente incluídas corretamente")
-
 
 def test_build_context_with_mixed_messages():
     """Testa construção de contexto com mix de mensagens (usuário + assistente)."""
@@ -155,7 +150,6 @@ def test_build_context_with_mixed_messages():
     assert "[Usuário]: Tarefas que levavam 2h agora levam 30min" in context, "❌ Faltou Human msg 2"
 
     print("✅ TESTE 4 PASSOU: Mensagens mistas incluídas corretamente")
-
 
 def test_build_context_preserves_chronological_order():
     """Testa que contexto preserva ordem cronológica das mensagens."""
@@ -194,7 +188,6 @@ def test_build_context_preserves_chronological_order():
 
     print("✅ TESTE 5 PASSOU: Ordem cronológica preservada corretamente")
 
-
 def test_build_context_detects_change_in_direction():
     """
     Testa que contexto construído permite detecção de mudança de direção.
@@ -226,7 +219,6 @@ def test_build_context_detects_change_in_direction():
     assert "qualidade de código" in context, "❌ Faltou menção a 'qualidade de código'"
 
     print("✅ TESTE 6 PASSOU: Ambas direções presentes (LLM pode detectar mudança)")
-
 
 def validate_build_context():
     """Executa todos os testes de validação."""
@@ -270,7 +262,6 @@ IMPORTANTE: Testes locais (sem chamadas à API, sem custo)
         import traceback
         traceback.print_exc()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     validate_build_context()

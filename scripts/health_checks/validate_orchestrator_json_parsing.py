@@ -7,8 +7,6 @@ Valida que extract_orchestrator_response foi implementado corretamente com:
 - Validação de tipos e valores
 - Error handling apropriado
 
-Versão: 1.0
-Data: 14/11/2025
 """
 
 import sys
@@ -24,7 +22,6 @@ from utils.json_parser import (
     OrchestratorResponse
 )
 import json
-
 
 def validate_orchestrator_json_parsing():
     """Valida a implementação do parsing de JSON do Orquestrador."""
@@ -242,7 +239,6 @@ Isso conclui a análise.'''
     print("  ✅ Suporte a Unicode e mensagens multilinhas")
     print("\nFunção extract_orchestrator_response está pronta para uso! 🎉")
     print("=" * 70)
-
 
 if __name__ == "__main__":
     try:

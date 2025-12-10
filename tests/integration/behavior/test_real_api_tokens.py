@@ -2,7 +2,7 @@
 Teste para verificar formato real da resposta da API Anthropic.
 
 Este script chama a API real e inspeciona os metadados de tokens.
-Data: 16/11/2025
+
 """
 
 import sys
@@ -15,7 +15,6 @@ from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
 from utils.token_extractor import extract_tokens_and_cost
 import json
-
 
 def test_real_api_response():
     """Testa formato real da resposta da API Anthropic."""
@@ -87,7 +86,6 @@ def test_real_api_response():
     print("=" * 70)
     print("FIM DA INSPEÇÃO")
     print("=" * 70)
-
 
 if __name__ == "__main__":
     try:

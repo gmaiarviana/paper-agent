@@ -4,8 +4,6 @@ Tools do agente Metodologista.
 Este módulo define as ferramentas (tools) que o agente pode usar
 para interagir com o usuário durante a análise de hipóteses.
 
-Versão: 1.3
-Data: 10/11/2025
 """
 
 import logging
@@ -13,7 +11,6 @@ from langchain_core.tools import tool
 from langgraph.types import interrupt
 
 logger = logging.getLogger(__name__)
-
 
 @tool
 def ask_user(question: str) -> str:

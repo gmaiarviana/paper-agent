@@ -12,13 +12,12 @@ Filosofia:
 - Perguntas ajudam a AVANCAR, nao apenas apontam problemas
 
 Epico 14: Observer - Consultas Inteligentes
-Data: 2025-12-09
+
 """
 
 from typing import Optional, List, Literal
 from uuid import uuid4
 from pydantic import BaseModel, Field, ConfigDict
-
 
 class ClarificationContext(BaseModel):
     """
@@ -55,7 +54,6 @@ class ClarificationContext(BaseModel):
     )
 
     model_config = ConfigDict(extra="forbid")
-
 
 class ClarificationNeed(BaseModel):
     """
@@ -174,7 +172,6 @@ class ClarificationNeed(BaseModel):
         """Cria instancia a partir de dict."""
         return cls(**data)
 
-
 class ClarificationTimingDecision(BaseModel):
     """
     Decisao de timing para fazer pergunta de esclarecimento.
@@ -227,7 +224,6 @@ class ClarificationTimingDecision(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-
 class ClarificationUpdates(BaseModel):
     """
     Atualizacoes a fazer no CognitiveModel apos esclarecimento.
@@ -269,7 +265,6 @@ class ClarificationUpdates(BaseModel):
     )
 
     model_config = ConfigDict(extra="forbid")
-
 
 class ClarificationResponse(BaseModel):
     """
@@ -326,7 +321,6 @@ class ClarificationResponse(BaseModel):
     )
 
     model_config = ConfigDict(extra="forbid")
-
 
 class QuestionSuggestion(BaseModel):
     """

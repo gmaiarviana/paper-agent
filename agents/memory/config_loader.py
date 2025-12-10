@@ -4,8 +4,6 @@ Loader de configurações YAML de agentes (Épico 6).
 Este módulo carrega e valida configurações de agentes a partir de arquivos YAML
 no diretório config/agents/.
 
-Versão: 1.0
-Data: 12/11/2025
 """
 
 import yaml
@@ -14,15 +12,12 @@ from typing import Dict, Any, List
 
 from .config_validator import validate_agent_config_schema, ConfigValidationError
 
-
 # Diretório base de configurações
 CONFIG_DIR = Path(__file__).parent.parent.parent / "config" / "agents"
-
 
 class ConfigLoadError(Exception):
     """Exceção levantada quando não é possível carregar configuração."""
     pass
-
 
 def load_agent_config(agent_name: str) -> Dict[str, Any]:
     """
@@ -79,7 +74,6 @@ def load_agent_config(agent_name: str) -> Dict[str, Any]:
     validate_agent_config_schema(config, agent_name)
 
     return config
-
 
 def load_all_agent_configs() -> Dict[str, Dict[str, Any]]:
     """
@@ -139,7 +133,6 @@ def load_all_agent_configs() -> Dict[str, Dict[str, Any]]:
 
     return configs
 
-
 def get_agent_prompt(agent_name: str) -> str:
     """
     Obtém o system prompt de um agente.
@@ -160,7 +153,6 @@ def get_agent_prompt(agent_name: str) -> str:
     """
     config = load_agent_config(agent_name)
     return config["prompt"]
-
 
 def get_agent_context_limits(agent_name: str) -> Dict[str, int]:
     """
@@ -183,7 +175,6 @@ def get_agent_context_limits(agent_name: str) -> Dict[str, int]:
     config = load_agent_config(agent_name)
     return config["context_limits"]
 
-
 def get_agent_model(agent_name: str) -> str:
     """
     Obtém o modelo LLM de um agente.
@@ -204,7 +195,6 @@ def get_agent_model(agent_name: str) -> str:
     """
     config = load_agent_config(agent_name)
     return config["model"]
-
 
 def list_available_agents() -> List[str]:
     """

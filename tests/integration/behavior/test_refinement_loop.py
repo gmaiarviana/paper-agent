@@ -38,12 +38,10 @@ from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.structurer.nodes import structurer_node
 from agents.methodologist.nodes import decide_collaborative
 
-
 def print_separator(title: str):
     print("\n" + "=" * 80)
     print(f"  {title}")
     print("=" * 80 + "\n")
-
 
 def print_hypothesis_versions(state: dict):
     """Imprime histórico de versões."""
@@ -60,7 +58,6 @@ def print_hypothesis_versions(state: dict):
             print(f"      Gaps: {len(v['feedback']['improvements'])}")
             for imp in v['feedback']['improvements'][:2]:
                 print(f"         - {imp['aspect']}: {imp['gap'][:40]}...")
-
 
 def validate_scenario_1_initial_structuring():
     """
@@ -114,7 +111,6 @@ def validate_scenario_1_initial_structuring():
     
     print("\n✅ CENÁRIO 1 VALIDADO!")
     return {**state, **result_method}
-
 
 def validate_scenario_2_refinement_cycle():
     """
@@ -191,7 +187,6 @@ def validate_scenario_2_refinement_cycle():
     print("\n✅ CENÁRIO 2 VALIDADO!")
     return state
 
-
 def validate_scenario_3_rejection():
     """
     Cenário 3: Input sem base científica → Metodologista rejeita.
@@ -235,7 +230,6 @@ def validate_scenario_3_rejection():
     print("\n✅ CENÁRIO 3 VALIDADO!")
     return result_method
 
-
 def validate_scenario_4_version_tracking():
     """
     Cenário 4: Verificar que versões são corretamente rastreadas.
@@ -274,7 +268,6 @@ def validate_scenario_4_version_tracking():
     
     print("\n✅ CENÁRIO 4 VALIDADO!")
     return state
-
 
 def main():
     print("\n" + "=" * 80)
@@ -315,7 +308,6 @@ def main():
         import traceback
         traceback.print_exc()
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

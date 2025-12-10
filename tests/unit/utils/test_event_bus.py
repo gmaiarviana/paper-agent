@@ -3,8 +3,6 @@ Testes unitários para EventBus (Épico 5.1).
 
 Valida publicação, consumo e gerenciamento de eventos via arquivos JSON.
 
-Versão: 1.0
-Data: 13/11/2025
 """
 
 import pytest
@@ -14,7 +12,6 @@ from pathlib import Path
 
 from utils.event_bus import EventBus, get_event_bus
 from utils.event_models import AgentStartedEvent
-
 
 class TestEventBus:
     """Testes para EventBus."""
@@ -239,7 +236,6 @@ class TestEventBus:
 
         assert len(events) == 1
         assert events[0]["agent_name"] == "orchestrator"
-
 
 class TestEventBusSingleton:
     """Testes para função get_event_bus (singleton)."""

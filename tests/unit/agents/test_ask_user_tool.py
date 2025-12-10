@@ -1,14 +1,11 @@
 """
 Testes unitários para a tool ask_user do agente Metodologista.
 
-Versão: 1.0
-Data: 08/11/2025
 """
 
 import pytest
 from unittest.mock import patch, MagicMock
 from agents.methodologist.tools import ask_user
-
 
 class TestAskUserTool:
     """Suite de testes para a tool ask_user."""

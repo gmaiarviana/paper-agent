@@ -7,8 +7,6 @@ Este módulo fornece parsing robusto de JSON que lida com:
 - JSON com texto adicional
 - JSON com formatação e line breaks
 
-Versão: 1.1
-Data: 14/11/2025
 """
 
 import json
@@ -18,7 +16,6 @@ from typing import TypedDict, Optional, Literal
 
 logger = logging.getLogger(__name__)
 
-
 # ============================================================================
 # TIPOS PARA ORQUESTRADOR CONVERSACIONAL (Épico 7 POC)
 # ============================================================================
@@ -27,7 +24,6 @@ class AgentSuggestion(TypedDict):
     """Sugestão de agente retornada pelo Orquestrador."""
     agent: str
     justification: str
-
 
 class OrchestratorResponse(TypedDict):
     """
@@ -40,11 +36,9 @@ class OrchestratorResponse(TypedDict):
     message: str
     agent_suggestion: Optional[AgentSuggestion]
 
-
 class OrchestratorValidationError(ValueError):
     """Erro de validação de resposta do Orquestrador."""
     pass
-
 
 def extract_json_from_llm_response(content: str) -> dict:
     """
@@ -144,7 +138,6 @@ def extract_json_from_llm_response(content: str) -> dict:
         content,
         0
     )
-
 
 # ============================================================================
 # VALIDAÇÃO ESPECÍFICA DO ORQUESTRADOR

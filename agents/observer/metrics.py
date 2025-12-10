@@ -13,8 +13,6 @@ FILOSOFIA:
 - Proposicoes tem SOLIDEZ (nao sao "verdadeiras" ou "falsas")
 - Sistema mapeia SUSTENTACAO, nao julga verdade
 
-Versao: 3.0 (Epico 11.4 - Migracao para Proposicoes Unificadas)
-Data: 08/12/2025
 """
 
 import logging
@@ -37,7 +35,6 @@ from utils.json_parser import extract_json_from_llm_response
 
 logger = logging.getLogger(__name__)
 
-
 def _get_metrics_llm() -> ChatAnthropic:
     """
     Retorna instancia do LLM para avaliacao de metricas.
@@ -50,7 +47,6 @@ def _get_metrics_llm() -> ChatAnthropic:
         temperature=METRICS_TEMPERATURE,
         max_tokens=MAX_METRICS_TOKENS
     )
-
 
 def _extract_proposicoes_texts(proposicoes: List[Dict[str, Any]]) -> List[str]:
     """
@@ -73,7 +69,6 @@ def _extract_proposicoes_texts(proposicoes: List[Dict[str, Any]]) -> List[str]:
         else:
             texts.append(str(p))
     return texts
-
 
 def _extract_proposicoes_with_solidez(proposicoes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
@@ -104,7 +99,6 @@ def _extract_proposicoes_with_solidez(proposicoes: List[Dict[str, Any]]) -> List
             "solidez": solidez if solidez is not None else "nao avaliada"
         })
     return formatted
-
 
 def calculate_solidez(
     claim: str,
@@ -204,7 +198,6 @@ def calculate_solidez(
             "critical_gaps": ["Erro no processamento LLM"]
         }
 
-
 def calculate_completude(
     claims: List[str],
     proposicoes: List[Dict[str, Any]],
@@ -300,7 +293,6 @@ def calculate_completude(
             "next_steps_suggested": ["Resolver erro no processamento"]
         }
 
-
 def calculate_metrics(
     claim: str,
     claims: List[str],
@@ -374,7 +366,6 @@ def calculate_metrics(
         "solidez_details": solidez_result,
         "completude_details": completude_result
     }
-
 
 def evaluate_maturity(
     solidez: float,

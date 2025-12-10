@@ -6,8 +6,6 @@ Responsável por:
 - Extrair metadados de sessões (título, última atividade)
 - Integração com sidebar para navegação entre sessões
 
-Versão: 1.0
-Data: 16/11/2025
 Status: MVP completo
 """
 
@@ -21,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 # Caminho do banco de dados (mesmo usado no LangGraph)
 DB_PATH = "data/checkpoints.db"
-
 
 def list_sessions(limit: int = 10) -> List[Dict[str, str]]:
     """
@@ -106,7 +103,6 @@ def list_sessions(limit: int = 10) -> List[Dict[str, str]]:
         logger.error(f"Erro inesperado ao listar sessões: {e}", exc_info=True)
         return []
 
-
 def _generate_title_from_thread_id(thread_id: str) -> str:
     """
     Gera título amigável baseado no thread_id.
@@ -132,7 +128,6 @@ def _generate_title_from_thread_id(thread_id: str) -> str:
     else:
         return f"Conversa {thread_id}"
 
-
 def get_current_session_id() -> str:
     """
     Gera novo ID de sessão para "Nova conversa".
@@ -149,7 +144,6 @@ def get_current_session_id() -> str:
 
     logger.debug(f"Novo session_id gerado: {session_id}")
     return session_id
-
 
 def session_exists(thread_id: str) -> bool:
     """

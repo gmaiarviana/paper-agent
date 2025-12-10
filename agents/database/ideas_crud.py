@@ -10,7 +10,7 @@ Este módulo implementa operações de Create, Read, Update para Ideas:
 - list_ideas: Listar ideias com filtros
 
 Épico 11.2: Setup de Persistência e Schema SQLite
-Data: 2025-11-17
+
 Refatoração: Divisão de manager.py em CRUD separados
 """
 
@@ -20,7 +20,6 @@ from typing import Optional, List, Dict, Any
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
-
 
 class IdeasCRUD:
     """

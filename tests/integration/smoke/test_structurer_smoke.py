@@ -35,7 +35,6 @@ requires_anthropic = pytest.mark.skipif(
 # Todos os testes deste módulo são smoke tests de integração que usam API real
 pytestmark = [pytest.mark.smoke, pytest.mark.integration, requires_anthropic]
 
-
 @pytest.mark.smoke
 @requires_anthropic
 def test_vague_observation_tech():
@@ -59,7 +58,6 @@ def test_vague_observation_tech():
     assert result['current_stage'] == "validating", "current_stage deveria ser 'validating'"
     assert len(result['messages']) == 1, "Deveria ter 1 mensagem"
 
-
 @pytest.mark.smoke
 @requires_anthropic
 def test_vague_observation_education():
@@ -78,7 +76,6 @@ def test_vague_observation_education():
     assert len(output['structured_question']) > 10, "Questão muito curta"
     assert output['structured_question'] != user_input, "Questão igual ao input"
     assert result['current_stage'] == "validating", "Estágio incorreto"
-
 
 @pytest.mark.smoke
 @requires_anthropic
@@ -102,7 +99,6 @@ def test_very_vague_observation():
     message_content = result['messages'][0].content.lower()
     assert "rejeita" not in message_content, "Estruturador não deve rejeitar"
     assert "inválid" not in message_content, "Estruturador não deve invalidar"
-
 
 @pytest.mark.smoke
 @requires_anthropic

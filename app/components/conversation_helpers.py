@@ -7,8 +7,6 @@ Responsável por:
 - Listar conversas recentes do SqliteSaver
 - Alternar entre conversas preservando contexto
 
-Versão: 1.0
-Data: 19/11/2025
 Status: Épico 14.5 - Bugfix Crítico
 """
 
@@ -22,7 +20,6 @@ from langchain_core.messages import HumanMessage, AIMessage
 from agents.multi_agent_graph import create_multi_agent_graph
 
 logger = logging.getLogger(__name__)
-
 
 def restore_conversation_context(thread_id: str) -> bool:
     """
@@ -100,7 +97,6 @@ def restore_conversation_context(thread_id: str) -> bool:
         )
         return False
 
-
 def _convert_messages_to_streamlit_format(
     messages: List[Any]
 ) -> List[Dict[str, Any]]:
@@ -162,7 +158,6 @@ def _convert_messages_to_streamlit_format(
 
     logger.debug(f"Convertidas {len(streamlit_messages)} mensagens para formato Streamlit")
     return streamlit_messages
-
 
 def list_recent_conversations(limit: int = 10) -> List[Dict[str, Any]]:
     """
@@ -249,7 +244,6 @@ def list_recent_conversations(limit: int = 10) -> List[Dict[str, Any]]:
         logger.error(f"Erro ao listar conversas recentes: {e}", exc_info=True)
         return []
 
-
 def _infer_conversation_title(thread_id: str) -> str:
     """
     Infere título da conversa a partir da primeira mensagem do usuário.
@@ -290,7 +284,6 @@ def _infer_conversation_title(thread_id: str) -> str:
         logger.warning(f"Erro ao inferir título de {thread_id}: {e}")
         return _fallback_title_from_thread_id(thread_id)
 
-
 def _fallback_title_from_thread_id(thread_id: str) -> str:
     """
     Gera título fallback a partir do thread_id.
@@ -320,7 +313,6 @@ def _fallback_title_from_thread_id(thread_id: str) -> str:
 
     # Fallback final: ID curto
     return f"Conversa ({thread_id[:8]}...)"
-
 
 def _checkpoint_ns_to_iso(checkpoint_ns) -> str:
     """
@@ -358,7 +350,6 @@ def _checkpoint_ns_to_iso(checkpoint_ns) -> str:
     except Exception as e:
         logger.warning(f"Erro inesperado ao converter checkpoint_ns {checkpoint_ns}: {e}")
         return datetime.now().isoformat()
-
 
 def get_relative_timestamp(iso_timestamp: str) -> str:
     """

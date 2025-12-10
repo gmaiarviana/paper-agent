@@ -9,8 +9,6 @@ Valida que arquivos YAML de configuração foram implementados corretamente:
 - Config loader funcionando
 - MemoryManager funcionando
 
-Versão: 1.0
-Data: 12/11/2025
 """
 
 import sys
@@ -41,7 +39,6 @@ from agents.memory.config_validator import (
 )
 from agents.memory.memory_manager import MemoryManager
 
-
 def validate_directory_structure():
     """Valida que estrutura de diretórios foi criada corretamente."""
     print("=" * 70)
@@ -60,7 +57,6 @@ def validate_directory_structure():
     assert memory_dir.exists(), f"Diretório não encontrado: {memory_dir}"
     assert memory_dir.is_dir(), f"Não é um diretório: {memory_dir}"
     print("   ✅ agents/memory/ existe")
-
 
 def validate_yaml_files():
     """Valida que arquivos YAML foram criados para cada agente."""
@@ -82,7 +78,6 @@ def validate_yaml_files():
         file_size = yaml_file.stat().st_size
         assert file_size > 100, f"Arquivo muito pequeno (possivelmente vazio): {file_size} bytes"
         print(f"   ✅ Tamanho do arquivo: {file_size} bytes")
-
 
 def validate_config_loader():
     """Valida que config_loader está funcionando corretamente."""
@@ -135,7 +130,6 @@ def validate_config_loader():
     assert "claude" in model.lower()
     print("   ✅ get_agent_model() funciona")
 
-
 def validate_schema_validator():
     """Valida que validador de schema está funcionando."""
     print("\n" + "=" * 70)
@@ -162,7 +156,6 @@ def validate_schema_validator():
     assert len(doc) > 0
     assert "Schema de Configuração" in doc
     print("   ✅ Documentação do schema disponível")
-
 
 def validate_memory_manager():
     """Valida que MemoryManager está funcionando."""
@@ -230,7 +223,6 @@ def validate_memory_manager():
     assert "totals" in export
     print("   ✅ export_session_as_dict() funciona")
 
-
 def validate_integration():
     """Valida integração entre componentes."""
     print("\n" + "=" * 70)
@@ -260,7 +252,6 @@ def validate_integration():
     execution = manager.get_latest_execution("integration-test", "orchestrator")
     assert execution.metadata["model"] == config["model"]
     print("   ✅ Integração funcionando corretamente")
-
 
 def main():
     """Executa todas as validações."""
@@ -305,7 +296,6 @@ def main():
         import traceback
         traceback.print_exc()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

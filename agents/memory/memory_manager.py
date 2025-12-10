@@ -4,14 +4,11 @@ Gerenciador de memória dinâmica e contexto por agente (Épico 6).
 Este módulo gerencia histórico de execuções de agentes com metadados
 (tokens, summary, timestamp) de forma paralela ao MultiAgentState.
 
-Versão: 1.0
-Data: 12/11/2025
 """
 
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timezone
 from dataclasses import dataclass, field, asdict
-
 
 @dataclass
 class AgentExecution:
@@ -38,7 +35,6 @@ class AgentExecution:
     def to_dict(self) -> Dict[str, Any]:
         """Converte execução para dicionário."""
         return asdict(self)
-
 
 class MemoryManager:
     """

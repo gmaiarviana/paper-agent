@@ -3,13 +3,10 @@ Testes unitários para MemoryManager (Épico 6).
 
 Valida gerenciamento de histórico e metadados por agente.
 
-Versão: 1.0
-Data: 12/11/2025
 """
 
 import pytest
 from agents.memory.memory_manager import MemoryManager, AgentExecution
-
 
 class TestMemoryManagerBasics:
     """Testes básicos de adição de execuções (lógica de negócio)."""
@@ -27,9 +24,6 @@ class TestMemoryManagerBasics:
         )
 
         assert execution.tokens_total == 150  # Valida cálculo real
-
-
-
 
 class TestTokenTotals:
     """Testes para cálculo de totais de tokens."""
@@ -69,7 +63,6 @@ class TestTokenTotals:
 
         assert totals["total"] == 0
 
-
 class TestResetFunctionality:
     """Testes para funcionalidade de reset."""
 
@@ -106,9 +99,6 @@ class TestResetFunctionality:
 
         assert count == 3
         assert len(manager._memory) == 0
-
-
-
 
 class TestMultipleSessions:
     """Testes para isolamento entre sessões."""

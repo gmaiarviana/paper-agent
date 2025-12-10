@@ -12,8 +12,6 @@ Componentes:
     - router: route_from_orchestrator (lógica de roteamento)
     - graph: (Épico 3.3 - construção do super-grafo)
 
-Versão: 1.0 (Épico 3, Funcionalidade 3.1)
-Data: 11/11/2025
 """
 
 from .state import MultiAgentState, create_initial_multi_agent_state

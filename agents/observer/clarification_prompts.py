@@ -15,7 +15,7 @@ Filosofia:
 - Perguntas ajudam a AVANCAR, nao apenas apontam problemas
 
 Epico 14: Observer - Consultas Inteligentes
-Data: 2025-12-09
+
 """
 
 from utils.config import DEFAULT_MODEL

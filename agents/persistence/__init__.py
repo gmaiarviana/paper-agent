@@ -7,7 +7,7 @@ Este módulo contém helpers para:
 - Integração entre MultiAgentState e DatabaseManager
 
 Épico 11.5: Indicadores de Maturidade
-Data: 2025-11-17
+
 """
 
 from .snapshot_manager import (

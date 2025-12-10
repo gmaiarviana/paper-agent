@@ -11,7 +11,6 @@ import pytest
 from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.orchestrator.router import route_from_orchestrator
 
-
 class TestRouteFromOrchestrator:
     """Testes para route_from_orchestrator - decisão de próximo nó."""
 

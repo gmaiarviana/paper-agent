@@ -26,10 +26,8 @@ T = TypeVar("T")
 # Modelo padrão do sistema (Haiku para economia)
 DEFAULT_MODEL = "claude-3-5-haiku-20241022"
 
-
 # Re-exportar CircuitBreakerOpenError para compatibilidade
 # (agora vem de providers.anthropic)
-
 
 def get_default_model(override: Optional[str] = None) -> str:
     """
@@ -57,7 +55,6 @@ def get_default_model(override: Optional[str] = None) -> str:
     # Fallback padrão
     return DEFAULT_MODEL
 
-
 def get_anthropic_model(override: Optional[str] = None) -> str:
     """
     Retorna o modelo Anthropic a ser usado (função legada).
@@ -65,7 +62,6 @@ def get_anthropic_model(override: Optional[str] = None) -> str:
     Mantida para compatibilidade. Use get_default_model() para novos códigos.
     """
     return get_default_model(override)
-
 
 def get_anthropic_api_key() -> Optional[str]:
     """
@@ -75,7 +71,6 @@ def get_anthropic_api_key() -> Optional[str]:
         API key ou None se não configurada
     """
     return os.getenv("ANTHROPIC_API_KEY")
-
 
 def _detect_provider(model: str):
     """
@@ -98,7 +93,6 @@ def _detect_provider(model: str):
             f"Usando Anthropic como fallback."
         )
         return AnthropicProvider
-
 
 def create_llm_client(
     model: Optional[str] = None,
@@ -128,7 +122,6 @@ def create_llm_client(
     provider = _detect_provider(model_name)
     return provider.create_client(model_name, temperature, max_tokens)
 
-
 def create_anthropic_client(
     model: Optional[str] = None,
     temperature: float = 0,
@@ -141,7 +134,6 @@ def create_anthropic_client(
     """
     model_name = model or get_default_model()
     return AnthropicProvider.create_client(model_name, temperature, max_tokens)
-
 
 def invoke_with_retry(
     llm: Any,

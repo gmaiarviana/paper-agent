@@ -14,7 +14,6 @@ from pathlib import Path
 from utils.test_executor import MultiTurnExecutor
 from utils.event_bus.singleton import get_event_bus
 
-
 class DebugAnalyzer:
     """
     Analisa execução de cenário com logs detalhados para troubleshooting.

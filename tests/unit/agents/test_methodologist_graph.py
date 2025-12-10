@@ -32,7 +32,6 @@ from agents.methodologist import (
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
-
 def validate_graph_creation():
     """Valida a criação e estrutura do grafo."""
     print("=" * 70)
@@ -72,7 +71,6 @@ def validate_graph_creation():
     print("\n" + "=" * 70)
     print("VALIDAÇÃO ESTRUTURAL CONCLUÍDA COM SUCESSO! ✅")
     print("=" * 70)
-
 
 def validate_graph_execution_simulation():
     """
@@ -116,7 +114,6 @@ def validate_graph_execution_simulation():
     print("SIMULAÇÃO DE ROTEAMENTO CONCLUÍDA COM SUCESSO! ✅")
     print("=" * 70)
 
-
 def show_next_steps():
     """Mostra próximos passos para teste completo com API."""
     print("\n" + "=" * 70)
@@ -141,7 +138,6 @@ Observações:
 - Limite padrão: 3 iterações (perguntas ao usuário)
 - Router implementa lógica condicional: analyze → ask_clarification | decide
 """)
-
 
 if __name__ == "__main__":
     try:

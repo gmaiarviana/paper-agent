@@ -10,8 +10,6 @@ Este script testa o fluxo completo do CLI sem precisar de interação manual:
 
 Para teste manual interativo, use: python cli/chat.py
 
-Versão: 1.0
-Data: 10/11/2025
 """
 
 import sys
@@ -33,7 +31,6 @@ from langgraph.types import Command
 
 # Carregar variáveis de ambiente
 load_dotenv()
-
 
 def validate_cli_flow():
     """
@@ -170,7 +167,6 @@ def validate_cli_flow():
     print()
 
     return True
-
 
 if __name__ == "__main__":
     try:

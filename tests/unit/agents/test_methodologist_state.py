@@ -7,7 +7,6 @@ Valida a criação e inicialização correta do MethodologistState.
 import pytest
 from agents.methodologist import MethodologistState, create_initial_state
 
-
 class TestMethodologistState:
     """Testes para criação e validação do estado do Metodologista."""
 

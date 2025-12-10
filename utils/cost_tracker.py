@@ -7,7 +7,6 @@ Pricing information: https://www.anthropic.com/pricing
 
 from typing import Dict, Tuple
 
-
 class CostTracker:
     """
     Tracks and calculates costs for Anthropic API calls.

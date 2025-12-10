@@ -4,7 +4,6 @@ Teste de integração para extração de tokens via state (Épico 8.3).
 Valida que tokens e custos são extraídos corretamente do state
 retornado pelos nós, sem precisar chamar API real.
 
-Data: 16/11/2025
 """
 
 import sys
@@ -16,7 +15,6 @@ sys.path.insert(0, str(project_root))
 
 from utils.token_extractor import extract_tokens_and_cost
 
-
 class MockAIMessage:
     """Mock de AIMessage do LangChain com usage_metadata."""
 
@@ -26,7 +24,6 @@ class MockAIMessage:
             "output_tokens": tokens_output
         }
         self.content = "Mock response"
-
 
 def test_extract_tokens_and_cost_from_usage_metadata():
     """Valida extração de tokens de usage_metadata."""
@@ -45,7 +42,6 @@ def test_extract_tokens_and_cost_from_usage_metadata():
     print(f"✅ Tokens extraídos: input={metrics['tokens_input']}, output={metrics['tokens_output']}, total={metrics['tokens_total']}")
     print(f"✅ Custo calculado: ${metrics['cost']:.6f}")
 
-
 def test_extract_tokens_with_zero_values():
     """Valida que função lida com agentes sem tokens (não chamaram LLM)."""
     # Criar mock de resposta sem tokens
@@ -61,7 +57,6 @@ def test_extract_tokens_with_zero_values():
     assert metrics["cost"] == 0.0
 
     print(f"✅ Agente sem LLM call: tokens=0, cost=$0.00")
-
 
 def test_state_returns_metrics():
     """Valida que nós retornam métricas no state."""
@@ -94,7 +89,6 @@ def test_state_returns_metrics():
 
     print(f"✅ State retornado pelo nó: {tokens_total} tokens, ${cost:.6f}")
     print(f"✅ instrument_node consegue ler: input={tokens_input}, output={tokens_output}, cost=${cost:.6f}")
-
 
 if __name__ == "__main__":
     print("=" * 70)

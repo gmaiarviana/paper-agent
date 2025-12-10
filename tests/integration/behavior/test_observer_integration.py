@@ -10,7 +10,6 @@ import time
 from unittest.mock import MagicMock, patch
 from langchain_core.messages import HumanMessage, AIMessage
 
-
 class TestObserverIntegrationFlow:
     """Testes de integração do Observer no fluxo do sistema."""
 
@@ -104,7 +103,6 @@ class TestObserverIntegrationFlow:
         # Verificar que seção não está presente
         assert "COGNITIVE MODEL DISPONÍVEL" not in context
 
-
 class TestObserverEventPublishing:
     """Testes de publicação de eventos do Observer."""
 
@@ -178,7 +176,6 @@ class TestObserverEventPublishing:
         solidez_values = [e["solidez"] for e in cm_events]
         assert solidez_values == [0.4, 0.5, 0.6]  # 0.3+0.1, 0.3+0.2, 0.3+0.3
 
-
 class TestObserverTimelineIntegration:
     """Testes de integração do Observer com Timeline."""
 
@@ -221,7 +218,6 @@ class TestObserverTimelineIntegration:
 
                     # Não deve lançar exceção
                     render_observer_section(observer_events)
-
 
 class TestObserverCognitiveModelContext:
     """Testes de formatação do cognitive_model no contexto."""

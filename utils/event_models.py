@@ -1,18 +1,14 @@
 """
-Modelos de eventos para comunicação entre CLI/Graph e Dashboard (Épico 5.1).
+Modelos de eventos para comunicação entre CLI/Graph e Dashboard.
 
 Este módulo define os schemas dos eventos emitidos pelo sistema durante
 execução de agentes e sessões. Os eventos são usados pelo Dashboard Streamlit
 para exibir timeline em tempo real.
-
-Versão: 1.0
-Data: 13/11/2025
 """
 
 from typing import Literal, Optional, Any, Dict
 from datetime import datetime, timezone
 from pydantic import BaseModel, Field, ConfigDict
-
 
 class BaseEvent(BaseModel):
     """
@@ -40,7 +36,6 @@ class BaseEvent(BaseModel):
         }
     )
 
-
 class AgentStartedEvent(BaseEvent):
     """
     Evento emitido quando um agente inicia execução.
@@ -67,7 +62,6 @@ class AgentStartedEvent(BaseEvent):
             }
         }
     )
-
 
 class AgentCompletedEvent(BaseEvent):
     """
@@ -114,7 +108,6 @@ class AgentCompletedEvent(BaseEvent):
         }
     )
 
-
 class AgentErrorEvent(BaseEvent):
     """
     Evento emitido quando um agente falha durante execução.
@@ -148,7 +141,6 @@ class AgentErrorEvent(BaseEvent):
         }
     )
 
-
 class SessionStartedEvent(BaseEvent):
     """
     Evento emitido quando uma sessão inicia.
@@ -175,7 +167,6 @@ class SessionStartedEvent(BaseEvent):
             }
         }
     )
-
 
 class SessionCompletedEvent(BaseEvent):
     """
@@ -207,10 +198,9 @@ class SessionCompletedEvent(BaseEvent):
         }
     )
 
-
 class CognitiveModelUpdatedEvent(BaseEvent):
     """
-    Evento emitido quando o Observador atualiza o CognitiveModel (Epico 10.2).
+    Evento emitido quando o Observador atualiza o CognitiveModel.
 
     Este evento e publicado silenciosamente a cada turno processado
     pelo Observador. Permite ao Dashboard exibir evolucao do argumento.
@@ -262,10 +252,9 @@ class CognitiveModelUpdatedEvent(BaseEvent):
         }
     )
 
-
 class ClarificationRequestedEvent(BaseEvent):
     """
-    Evento emitido quando Orquestrador faz pergunta de esclarecimento (Epico 14).
+    Evento emitido quando Orquestrador faz pergunta de esclarecimento.
 
     Este evento e publicado quando o sistema detecta necessidade de
     esclarecimento e faz uma pergunta ao usuario.
@@ -311,10 +300,9 @@ class ClarificationRequestedEvent(BaseEvent):
         }
     )
 
-
 class ClarificationResolvedEvent(BaseEvent):
     """
-    Evento emitido quando esclarecimento e obtido (Epico 14).
+    Evento emitido quando esclarecimento e obtido.
 
     Este evento e publicado apos usuario responder pergunta de esclarecimento
     e Observer analisar a resposta.
@@ -359,7 +347,6 @@ class ClarificationResolvedEvent(BaseEvent):
             }
         }
     )
-
 
 # Union type para deserializacao automatica
 EventType = (

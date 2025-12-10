@@ -7,15 +7,12 @@ do sistema (Orquestrador, Estruturador, Metodologista).
 O estado é híbrido: possui campos compartilhados (todos os agentes leem/escrevem)
 e campos específicos por agente (apenas o agente responsável escreve).
 
-Versão: 4.0 (Épico 11 - Modelagem Cognitiva)
-Data: 17/11/2025
 """
 
 from typing import TypedDict, Optional, Annotated, Literal, List
 from langgraph.graph.message import add_messages
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field, ConfigDict
-
 
 class MultiAgentState(TypedDict):
     """
@@ -44,7 +41,6 @@ class MultiAgentState(TypedDict):
         - "structuring": Estruturador está organizando ideia vaga
         - "validating": Metodologista está validando hipótese
         - "done": Processamento concluído
-
 
     hypothesis_versions (list):
         Histórico de versões da hipótese/questão de pesquisa (Épico 4).
@@ -280,7 +276,6 @@ class MultiAgentState(TypedDict):
     # === MENSAGENS (LangGraph) ===
     messages: Annotated[list, add_messages]
 
-
 def create_initial_multi_agent_state(user_input: str, session_id: Optional[str] = None) -> MultiAgentState:
     """
     Cria o estado inicial do sistema multi-agente com valores padrão.
@@ -348,11 +343,9 @@ def create_initial_multi_agent_state(user_input: str, session_id: Optional[str] 
         messages=[HumanMessage(content=user_input)]
     )
 
-
 # ============================================================================
 # MODELOS Pydantic PARA OUTPUTS DOS AGENTES
 # ============================================================================
-
 
 class StructurerElementsModel(BaseModel):
     """Elementos estruturados retornados pelo Estruturador."""
@@ -360,7 +353,6 @@ class StructurerElementsModel(BaseModel):
     context: str = Field(..., description="Contexto da observação")
     problem: str = Field(..., description="Problema ou gap identificado")
     contribution: str = Field(..., description="Possível contribuição acadêmica ou prática")
-
 
 class StructurerOutputModel(BaseModel):
     """
@@ -374,13 +366,11 @@ class StructurerOutputModel(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
-
 class MethodologistImprovementModel(BaseModel):
     """Gap identificado pelo Metodologista em modo colaborativo."""
 
     aspect: str = Field(..., description="Aspecto a ser melhorado (ex: população, métricas)")
     gap: str = Field(..., description="Descrição do gap identificado")
-
 
 class MethodologistOutputModel(BaseModel):
     """

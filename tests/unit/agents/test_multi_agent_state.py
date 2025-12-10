@@ -4,14 +4,11 @@ Testes unitários para MultiAgentState (Épico 7, Task 7.1.5).
 Valida estrutura e tipos dos campos do estado compartilhado entre agentes,
 especialmente os novos campos do Orquestrador Conversacional.
 
-Versão: 1.0
-Data: 14/11/2025
 """
 
 import pytest
 
 from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
-
 
 class TestMultiAgentStateStructure:
     """Testes de estrutura e validação do MultiAgentState."""
@@ -140,7 +137,6 @@ class TestMultiAgentStateStructure:
         assert len(state["conversation_history"]) == 2
         assert state["conversation_history"][1] == "Orquestrador: Explorando contexto"
 
-
 class TestMultiAgentStateMetrics:
     """Testes dos campos de métricas (Épico 8.3)."""
 
@@ -186,5 +182,4 @@ class TestMultiAgentStateMetrics:
         assert state["last_agent_tokens_input"] == 0
         assert state["last_agent_tokens_output"] == 0
         assert state["last_agent_cost"] == 0.0
-
 

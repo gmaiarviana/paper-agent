@@ -16,14 +16,13 @@ Ver docs/vision/cognitive_model/core.md para detalhes completos.
 
 Épico 11.1: Schema Explícito de CognitiveModel
 Épico 11.3: Migração para proposicoes unificadas
-Data: 2025-12-08
+
 """
 
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 from .proposition import Proposicao
-
 
 class Contradiction(BaseModel):
     """
@@ -51,7 +50,6 @@ class Contradiction(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-
 class SolidGround(BaseModel):
     """
     Argumento fundamentado com evidência bibliográfica.
@@ -77,7 +75,6 @@ class SolidGround(BaseModel):
     )
 
     model_config = ConfigDict(extra="forbid")
-
 
 class CognitiveModel(BaseModel):
     """

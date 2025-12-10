@@ -25,7 +25,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
-
 def validate_imports():
     """Valida que todos os módulos podem ser importados."""
     logger.info("\n📦 Validando imports...")
@@ -73,7 +72,6 @@ def validate_imports():
         return False
 
     return True
-
 
 def validate_cognitive_model_context():
     """Valida formatação do cognitive_model no contexto (12.2)."""
@@ -124,7 +122,6 @@ def validate_cognitive_model_context():
 
     return all_passed
 
-
 def validate_context_integration():
     """Valida integração do cognitive_model no _build_context (12.2)."""
     logger.info("\n📝 Validando integração no _build_context (12.2)...")
@@ -159,7 +156,6 @@ def validate_context_integration():
             all_passed = False
 
     return all_passed
-
 
 def validate_event_bus_integration():
     """Valida publicação de eventos no EventBus (12.1)."""
@@ -207,7 +203,6 @@ def validate_event_bus_integration():
 
     return all_passed
 
-
 def validate_observer_callback():
     """Valida callback do Observer (12.1)."""
     logger.info("\n👁️ Validando callback do Observer (12.1)...")
@@ -244,7 +239,6 @@ def validate_observer_callback():
         logger.error(f"  ❌ Callback falhou: {e}")
         return False
 
-
 def validate_timeline_section():
     """Valida seção do Observer na timeline (12.3)."""
     logger.info("\n📊 Validando seção da Timeline (12.3)...")
@@ -275,7 +269,6 @@ def validate_timeline_section():
 
     return all_passed
 
-
 def run_unit_tests():
     """Executa testes unitários relacionados ao Épico 12."""
     logger.info("\n🧪 Executando testes unitários...")
@@ -305,7 +298,6 @@ def run_unit_tests():
             logger.warning(f"  ⚠️ {test_file} não encontrado")
 
     return all_passed
-
 
 def main():
     """Executa todas as validações."""
@@ -347,7 +339,6 @@ def main():
     else:
         logger.error(f"⚠️ FALHA: {total - passed} de {total} testes falharam")
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

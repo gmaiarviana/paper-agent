@@ -4,12 +4,9 @@ Validador de schema para arquivos de configuração de agentes (Épico 6).
 Este módulo valida que arquivos YAML de configuração de agentes
 seguem o schema esperado com todos os campos obrigatórios.
 
-Versão: 1.0
-Data: 12/11/2025
 """
 
 from typing import Dict, Any, List, Optional
-
 
 # Schema esperado para configurações de agentes
 AGENT_CONFIG_SCHEMA = {
@@ -33,11 +30,9 @@ AGENT_CONFIG_SCHEMA = {
     ]
 }
 
-
 class ConfigValidationError(Exception):
     """Exceção levantada quando configuração de agente é inválida."""
     pass
-
 
 def validate_agent_config_schema(config: Dict[str, Any], agent_name: str) -> None:
     """
@@ -155,7 +150,6 @@ def validate_agent_config_schema(config: Dict[str, Any], agent_name: str) -> Non
                 f"Configuração do agente '{agent_name}' inválida: "
                 f"campo 'metadata.{field}' deve ser uma string não-vazia"
             )
-
 
 def get_schema_documentation() -> str:
     """

@@ -4,8 +4,6 @@ Script de validação de sintaxe para MultiAgentState (Épico 7, Task 7.1.5).
 Valida a estrutura do arquivo state.py sem importar as dependências.
 Útil para ambientes sem venv configurado.
 
-Versão: 1.0
-Data: 14/11/2025
 """
 
 import sys
@@ -14,7 +12,6 @@ from pathlib import Path
 
 # Caminho do arquivo state.py
 STATE_FILE = Path(__file__).parent.parent.parent / "agents" / "orchestrator" / "state.py"
-
 
 def validate_state_syntax():
     """Valida sintaxe e estrutura do arquivo state.py."""
@@ -159,7 +156,6 @@ def validate_state_syntax():
     print("   ✅ Versão atualizada: 2.1 (Épico 7, Task 7.1.5)")
     print("   ✅ Estado pronto para Orquestrador Conversacional (Épico 7 POC)")
     print("=" * 70)
-
 
 if __name__ == "__main__":
     try:

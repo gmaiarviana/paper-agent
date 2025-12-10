@@ -31,13 +31,11 @@ from agents.orchestrator.nodes import orchestrator_node
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-
 def print_separator(title=""):
     if title:
         print(f"\n{'='*80}\n  {title}\n{'='*80}\n")
     else:
         print(f"\n{'-'*80}\n")
-
 
 def print_focal_argument(focal_argument):
     """Imprime argumento focal de forma legível."""
@@ -51,7 +49,6 @@ def print_focal_argument(focal_argument):
     print(f"    population: {focal_argument.get('population', 'N/A')}")
     print(f"    metrics: {focal_argument.get('metrics', 'N/A')}")
     print(f"    article_type: {focal_argument.get('article_type', 'N/A')}")
-
 
 # =============================================================================
 # TESTES DE EVOLUÇÃO COGNITIVA
@@ -86,7 +83,6 @@ def test_focal_argument_extraction():
         "❌ Subject deveria ser extraído"
     
     print("\n✅ Argumento focal extraído corretamente")
-
 
 def test_focal_argument_evolves():
     """
@@ -152,7 +148,6 @@ def test_focal_argument_evolves():
     
     print("\n✅ Argumento focal evoluiu corretamente")
 
-
 def test_reflection_prompt_generation():
     """
     BEHAVIOR: Provocação de reflexão sobre lacunas
@@ -189,7 +184,6 @@ def test_reflection_prompt_generation():
     else:
         print("\n⚠️ Provocação não detectada claramente")
         print("   (Pode estar implícita na exploração)")
-
 
 def test_stage_suggestion():
     """
@@ -230,7 +224,6 @@ def test_stage_suggestion():
     else:
         print("\n⚠️ Nenhuma sugestão de estágio gerada")
         print("   (Pode ser que sistema preferiu explorar mais)")
-
 
 def test_direction_change_updates_focal():
     """
@@ -279,7 +272,6 @@ def test_direction_change_updates_focal():
     else:
         print(f"\n⚠️ Intent não mudou claramente: {intent_1} → {intent_2}")
 
-
 # =============================================================================
 # MAIN
 # =============================================================================
@@ -317,7 +309,6 @@ def main():
         import traceback
         traceback.print_exc()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

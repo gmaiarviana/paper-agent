@@ -40,7 +40,6 @@ except ImportError:
     DEPS_AVAILABLE = False
     logger.warning("⚠️ Dependências não disponíveis. Executando validação estrutural apenas.")
 
-
 def validate_imports():
     """Valida que todos os módulos podem ser importados."""
     logger.info("\n📦 Validando imports...")
@@ -104,7 +103,6 @@ def validate_imports():
         return False
 
     return True
-
 
 def validate_models():
     """Valida criação e serialização dos modelos Pydantic."""
@@ -209,7 +207,6 @@ def validate_models():
 
     return True
 
-
 def validate_timing_logic():
     """Valida lógica de timing de intervenção (14.5)."""
     logger.info("\n⏱️ Validando lógica de timing (14.5)...")
@@ -289,7 +286,6 @@ def validate_timing_logic():
 
     return all_passed
 
-
 def validate_persistence_update():
     """Valida atualização de persistência de necessidade (14.5)."""
     logger.info("\n🔄 Validando atualização de persistência...")
@@ -331,7 +327,6 @@ def validate_persistence_update():
             all_passed = False
 
     return all_passed
-
 
 def validate_timeline_summary():
     """Valida geração de resumo para timeline (14.6)."""
@@ -383,7 +378,6 @@ def validate_timeline_summary():
 
     return all_passed
 
-
 def validate_events():
     """Valida criação de eventos de clarification."""
     logger.info("\n📡 Validando eventos de clarification...")
@@ -433,7 +427,6 @@ def validate_events():
             all_passed = False
 
     return all_passed
-
 
 @patch('agents.observer.clarification.invoke_with_retry')
 @patch('agents.observer.clarification._get_llm')
@@ -489,7 +482,6 @@ def validate_identify_needs_with_mock(mock_get_llm, mock_invoke):
             all_passed = False
 
     return all_passed
-
 
 @patch('agents.observer.clarification.invoke_with_retry')
 @patch('agents.observer.clarification._get_llm')
@@ -547,7 +539,6 @@ def validate_contradiction_question_with_mock(mock_get_llm, mock_invoke):
 
     return all_passed
 
-
 @patch('agents.observer.clarification.invoke_with_retry')
 @patch('agents.observer.clarification._get_llm')
 def validate_gap_question_with_mock(mock_get_llm, mock_invoke):
@@ -595,7 +586,6 @@ def validate_gap_question_with_mock(mock_get_llm, mock_invoke):
             all_passed = False
 
     return all_passed
-
 
 @patch('agents.observer.clarification.invoke_with_retry')
 @patch('agents.observer.clarification._get_llm')
@@ -665,7 +655,6 @@ def validate_analyze_response_with_mock(mock_get_llm, mock_invoke):
 
     return all_passed
 
-
 def run_unit_tests():
     """Executa testes unitários relacionados ao Épico 14."""
     logger.info("\n🧪 Executando testes unitários...")
@@ -697,7 +686,6 @@ def run_unit_tests():
         logger.warning(f"  ⚠️ {test_file} não encontrado")
         return True  # Não falhar se arquivo não existe
 
-
 def validate_file_structure():
     """Valida que todos os arquivos necessários existem."""
     logger.info("\n📁 Validando estrutura de arquivos...")
@@ -723,7 +711,6 @@ def validate_file_structure():
             all_exist = False
 
     return all_exist
-
 
 def main():
     """Executa todas as validações."""
@@ -789,7 +776,6 @@ def main():
     else:
         logger.error(f"⚠️ FALHA: {total - passed} de {total} testes falharam")
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -7,7 +7,7 @@ Este módulo implementa:
 - Integração entre MultiAgentState e DatabaseManager
 
 Épico 11.5: Indicadores de Maturidade
-Data: 2025-11-17
+
 """
 
 import logging
@@ -22,7 +22,6 @@ from agents.database.manager import DatabaseManager, get_database_manager
 from utils.config import create_anthropic_client
 
 logger = logging.getLogger(__name__)
-
 
 class MaturityAssessment(BaseModel):
     """
@@ -54,7 +53,6 @@ class MaturityAssessment(BaseModel):
         description="Elementos que faltam para argumento amadurecer (se não maduro)"
     )
 
-
 MATURITY_DETECTION_PROMPT = """
 Você é um avaliador de maturidade de argumentos científicos.
 
@@ -84,7 +82,6 @@ RETORNE JSON:
     "missing_elements": ["lista de elementos faltando (se imaturo)"]
 }}
 """
-
 
 class SnapshotManager:
     """
@@ -316,7 +313,6 @@ class SnapshotManager:
             )
             return None
 
-
 # =========================================================================
 # FUNÇÕES HELPERS GLOBAIS
 # =========================================================================
@@ -343,7 +339,6 @@ def detect_argument_maturity(
     """
     manager = SnapshotManager()
     return manager.assess_maturity(cognitive_model, claim_history)
-
 
 def create_snapshot_if_mature(
     idea_id: str,

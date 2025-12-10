@@ -9,8 +9,6 @@ Este pacote contém componentes modulares para a interface de chat:
 - session_helpers: Helpers para gerenciar sessões do banco
 - conversation_helpers: Helpers para restauração de contexto (Épico 14.5)
 
-Versão: 4.0
-Data: 04/12/2025
 Épicos: 4 (Contexto) + 9 (POC → MVP) + 14 (Navegação em Três Espaços)
 """
 

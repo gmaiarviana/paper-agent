@@ -28,7 +28,6 @@ from dotenv import load_dotenv
 from anthropic import Anthropic
 from utils.cost_tracker import CostTracker
 
-
 def validate_api_connection():
     """
     Validate connection to Claude API with a simple test.
@@ -112,7 +111,6 @@ def validate_api_connection():
         print("  - API rate limits exceeded")
         print("  - Model not available")
         return False
-
 
 if __name__ == "__main__":
     success = validate_api_connection()

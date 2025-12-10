@@ -4,8 +4,6 @@ Lógica de roteamento do agente Orquestrador.
 Este módulo define funções de roteamento que decidem qual agente
 executar em seguida com base na análise conversacional do Orquestrador.
 
-Versão: 2.0 (Épico 7, Task 7.1.6 - Orquestrador Conversacional)
-Data: 14/11/2025
 """
 
 import logging
@@ -14,7 +12,6 @@ from typing import Literal, Union
 from .state import MultiAgentState
 
 logger = logging.getLogger(__name__)
-
 
 def route_from_orchestrator(state: MultiAgentState) -> Union[Literal["structurer", "methodologist", "user"], str]:
     """

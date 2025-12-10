@@ -11,8 +11,6 @@ Este script requer ANTHROPIC_API_KEY configurada no .env
 Uso:
     python scripts/interface/validate_conversation_switching.py
 
-Versão: 1.0
-Data: 19/11/2025
 Status: Épico 14.5 - Bugfix Crítico
 """
 
@@ -38,7 +36,6 @@ from app.components.conversation_helpers import (
     _convert_messages_to_streamlit_format
 )
 from langchain_core.messages import HumanMessage
-
 
 def validate_conversation_switching():
     """
@@ -234,7 +231,6 @@ def validate_conversation_switching():
     print(f"  ✅ Conversão para formato Streamlit funciona")
     print(f"  ✅ Listagem de conversas recentes funciona")
     print("\n🎉 Bugfix do Épico 14.5 validado com sucesso!")
-
 
 if __name__ == "__main__":
     try:

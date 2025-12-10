@@ -7,8 +7,6 @@ Valida que o execution_tracker foi implementado corretamente com:
 - Registro no MemoryManager
 - Suporte a metadados extras
 
-Versão: 1.0
-Data: 13/11/2025
 """
 
 import sys
@@ -21,7 +19,6 @@ sys.path.insert(0, str(project_root))
 
 from agents.memory.execution_tracker import register_execution
 from agents.memory.memory_manager import MemoryManager
-
 
 def validate_execution_tracker():
     """Valida a implementação do ExecutionTracker."""
@@ -214,7 +211,6 @@ def validate_execution_tracker():
     print("   - Metadados extras personalizados ✅")
     print("   - Compatibilidade com múltiplos modelos ✅")
     print("   - Agregação de totais por sessão ✅")
-
 
 if __name__ == "__main__":
     try:

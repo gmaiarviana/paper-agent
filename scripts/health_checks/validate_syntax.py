@@ -17,7 +17,6 @@ from scripts.common import setup_project_path
 
 setup_project_path()
 
-
 def test_import(module_path: str, description: str):
     """Tenta importar um módulo e reporta resultado."""
     try:
@@ -28,7 +27,6 @@ def test_import(module_path: str, description: str):
         print(f"❌ {description}: FALHOU")
         print(f"   Erro: {e}")
         return False
-
 
 def main():
     """Valida imports dos módulos modificados."""
@@ -84,7 +82,6 @@ def main():
         print(f"❌ {total - passed} de {total} módulos falharam")
         print("⚠️ Corrija os erros acima antes de continuar")
         return 1
-
 
 if __name__ == "__main__":
     exit_code = main()

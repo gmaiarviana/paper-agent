@@ -8,13 +8,12 @@ Testa:
 - Factory methods
 
 Épico 11.1: Schema Unificado (Camada Modelo)
-Data: 2025-12-08
+
 """
 
 import pytest
 from uuid import uuid4
 from agents.models.proposition import Proposicao, ProposicaoRef
-
 
 # =============================================================================
 # TESTES DE CRIAÇÃO DO MODELO
@@ -62,7 +61,6 @@ class TestProposicaoCreation:
         with pytest.raises(ValueError):
             Proposicao(texto="")
 
-
 # =============================================================================
 # TESTES DE VALIDAÇÃO DE SOLIDEZ
 # =============================================================================
@@ -91,7 +89,6 @@ class TestSolidezValidation:
         with pytest.raises(ValueError):
             Proposicao(texto="Teste", solidez=-0.1)
 
-
 # =============================================================================
 # TESTES DE is_evaluated()
 # =============================================================================
@@ -113,7 +110,6 @@ class TestIsEvaluated:
         """Solidez positiva = avaliada."""
         prop = Proposicao(texto="Teste", solidez=0.85)
         assert prop.is_evaluated() is True
-
 
 # =============================================================================
 # TESTES DE is_solid()
@@ -148,7 +144,6 @@ class TestIsSolid:
         assert prop.is_solid(threshold=0.9) is False
         assert prop.is_solid(threshold=0.7) is True
 
-
 # =============================================================================
 # TESTES DE is_fragile()
 # =============================================================================
@@ -181,7 +176,6 @@ class TestIsFragile:
         prop = Proposicao(texto="Teste", solidez=0.45)
         assert prop.is_fragile(threshold=0.4) is False
         assert prop.is_fragile(threshold=0.5) is True
-
 
 # =============================================================================
 # TESTES DE SERIALIZAÇÃO
@@ -245,7 +239,6 @@ class TestSerialization:
         assert restored.solidez == original.solidez
         assert restored.evidencias == original.evidencias
 
-
 # =============================================================================
 # TESTES DE FACTORY METHODS
 # =============================================================================
@@ -265,7 +258,6 @@ class TestFactoryMethods:
         prop = Proposicao.from_text("Tempo é mensurável", solidez=0.9)
         assert prop.texto == "Tempo é mensurável"
         assert prop.solidez == 0.9
-
 
 # =============================================================================
 # TESTES DE ProposicaoRef
@@ -304,7 +296,6 @@ class TestProposicaoRef:
         assert ref.id == "prop-original"
         assert ref.texto == "Texto original"
         assert ref.solidez == 0.95
-
 
 # =============================================================================
 # TESTES DE CENÁRIOS DE USO

@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 OBSERVER_EMOJI = "👁️"
 CLARIFICATION_EMOJI = "❓"
 
-
 def render_agent_timeline(session_id: str) -> None:
     """
     Renderiza histórico com últimos 2 agentes anteriores (Épico 3.3).
@@ -91,7 +90,6 @@ def render_agent_timeline(session_id: str) -> None:
         logger.error(f"Erro ao renderizar timeline: {e}", exc_info=True)
         st.error("Erro ao carregar timeline")
 
-
 @st.dialog("📜 Histórico Completo", width="large")
 def _show_timeline_modal(events: List[Dict[str, Any]]) -> None:
     """
@@ -122,7 +120,6 @@ def _show_timeline_modal(events: List[Dict[str, Any]]) -> None:
         st.caption(f"⏱️ {duration:.2f}s | 💰 {format_currency(cost)}")
         st.markdown("---")
 
-
 def format_time(timestamp: str) -> str:
     """
     Formata timestamp para exibição curta (HH:MM).
@@ -140,7 +137,6 @@ def format_time(timestamp: str) -> str:
         return dt.strftime("%H:%M")
     except Exception:
         return timestamp[:5] if len(timestamp) >= 5 else "—"
-
 
 def render_observer_section(observer_events: List[Dict[str, Any]]) -> None:
     """
@@ -198,7 +194,6 @@ def render_observer_section(observer_events: List[Dict[str, Any]]) -> None:
         if len(observer_events) > 3:
             if st.button("Ver análise completa", key="view_observer_details", type="secondary"):
                 _show_observer_modal(observer_events)
-
 
 @st.dialog("👁️ Análise do Observador", width="large")
 def _show_observer_modal(events: List[Dict[str, Any]]) -> None:
@@ -262,7 +257,6 @@ def _show_observer_modal(events: List[Dict[str, Any]]) -> None:
         # Status e tempo de processamento
         st.caption(f"{status_emoji} · Processado em {processing_time:.0f}ms")
         st.markdown("---")
-
 
 def render_clarification_section(clarification_events: List[Dict[str, Any]]) -> None:
     """
@@ -353,7 +347,6 @@ def render_clarification_section(clarification_events: List[Dict[str, Any]]) -> 
         if len(clarification_events) > 5:
             if st.button("Ver todos esclarecimentos", key="view_clarification_details", type="secondary"):
                 _show_clarification_modal(clarification_events)
-
 
 @st.dialog("❓ Esclarecimentos", width="large")
 def _show_clarification_modal(events: List[Dict[str, Any]]) -> None:

@@ -8,8 +8,6 @@ Este modulo implementa a persistencia de conceitos usando:
 Arquitetura hibrida permite busca semantica rapida (ChromaDB)
 com metadados ricos e relacionamentos (SQLite).
 
-Versao: 1.0 (Epico 10.3)
-Data: 07/12/2025
 """
 
 import logging
@@ -36,7 +34,6 @@ DEFAULT_SQLITE_PATH = "./data/concepts.db"
 SIMILARITY_THRESHOLD_SAME = 0.80  # >= 0.80: mesmo conceito
 SIMILARITY_THRESHOLD_AUTO = 0.90  # >= 0.90: adiciona variation automaticamente
 
-
 @dataclass
 class Concept:
     """Representa um conceito no catalogo."""
@@ -61,7 +58,6 @@ class Concept:
             "updated_at": self.updated_at
         }
 
-
 @dataclass
 class SimilarConcept:
     """Resultado de busca de conceito similar."""
@@ -75,7 +71,6 @@ class SimilarConcept:
             "concept": self.concept.to_dict(),
             "similarity": self.similarity
         }
-
 
 class ConceptCatalog:
     """
@@ -635,10 +630,8 @@ class ConceptCatalog:
             self._conn.close()
             logger.debug("SQLite connection fechada")
 
-
 # Singleton global para acesso facil
 _catalog_instance: Optional[ConceptCatalog] = None
-
 
 def get_concept_catalog(
     chroma_path: str = DEFAULT_CHROMA_PATH,

@@ -10,8 +10,6 @@ Valida que o CLI conversacional foi implementado corretamente com:
 - Detecção de fim conversacional vs fim de sessão
 - EventBus publicando eventos estruturados
 
-Versão: 2.0
-Data: 15/11/2025
 """
 
 import sys
@@ -23,7 +21,6 @@ sys.path.insert(0, str(project_root))
 
 from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
 from utils.event_bus import get_event_bus
-
 
 def validate_conversational_cli():
     """
@@ -149,7 +146,6 @@ def validate_conversational_cli():
     print()
     print("CLI Conversacional (Épico 7 Protótipo) está funcional! ✅")
     print()
-
 
 if __name__ == "__main__":
     try:

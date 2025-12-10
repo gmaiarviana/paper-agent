@@ -8,8 +8,6 @@ Este teste valida o fluxo completo do agente em um cenário real:
 
 Marcado como @pytest.mark.integration porque usa API real da Anthropic.
 
-Versão: 1.0
-Data: 10/11/2025
 """
 
 import os
@@ -37,7 +35,6 @@ requires_anthropic = pytest.mark.skipif(
     not ANTHROPIC_API_KEY,
     reason="Integration test skipped: ANTHROPIC_API_KEY not set (requires real API)",
 )
-
 
 @pytest.mark.smoke
 @pytest.mark.integration
@@ -159,7 +156,6 @@ def test_methodologist_complete_flow_with_clarifications():
     )
 
     print("\n✅ Teste de fumaça passou! Fluxo completo validado.")
-
 
 @pytest.mark.smoke
 @pytest.mark.integration

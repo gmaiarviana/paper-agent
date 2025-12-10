@@ -3,16 +3,13 @@ Nós do grafo do agente Metodologista.
 
 Este módulo implementa os nós do Metodologista:
 
-GRAFO INTERNO (MethodologistState - Épico 2):
+GRAFO INTERNO (MethodologistState):
 - analyze: Avalia a hipótese e decide se precisa de clarificações
 - ask_clarification: Solicita informações adicionais ao usuário
 - decide: Toma a decisão final (aprovar/rejeitar)
 
-MODO COLABORATIVO (MultiAgentState - Épico 4):
+MODO COLABORATIVO (MultiAgentState):
 - decide_collaborative: Decisão com 3 status (approved/needs_refinement/rejected)
-
-Versão: 3.0 (Épico 6, Funcionalidade 6.1 - Config externa)
-Data: 13/11/2025
 """
 
 import logging
@@ -35,7 +32,6 @@ from utils.structured_logger import StructuredLogger
 from agents.orchestrator.state import MethodologistOutputModel
 
 logger = logging.getLogger(__name__)
-
 
 def analyze(state: MethodologistState) -> dict:
     """
@@ -116,7 +112,6 @@ Se a hipótese é claramente boa ou ruim com o contexto atual, marque true."""
         "messages": [response],
         "needs_clarification": needs_clarification
     }
-
 
 def ask_clarification(state: MethodologistState) -> dict:
     """
@@ -212,7 +207,6 @@ RESPONDA APENAS COM A PERGUNTA (sem preâmbulo ou explicação)."""
         "iterations": new_iterations,
         "messages": [response, HumanMessage(content=answer)]
     }
-
 
 def decide(state: MethodologistState) -> dict:
     """
@@ -311,14 +305,13 @@ RESPONDA EM JSON:
         "messages": [response]
     }
 
-
 # ==============================================================================
-# MODO COLABORATIVO (Épico 4) - Nós para MultiAgentState
+# MODO COLABORATIVO - Nós para MultiAgentState
 # ==============================================================================
 
 def decide_collaborative(state: dict, config: Optional[RunnableConfig] = None) -> dict:
     """
-    Nó de decisão colaborativa do Metodologista (Épico 4).
+    Nó de decisão colaborativa do Metodologista.
 
     Opera no contexto do super-grafo (MultiAgentState).
     Retorna 3 status possíveis: approved, needs_refinement, rejected.
@@ -362,7 +355,7 @@ def decide_collaborative(state: dict, config: Optional[RunnableConfig] = None) -
     # Log de início
     start_time = time.time()
 
-    # Carregar prompt e modelo do YAML (Épico 6, Funcionalidade 6.1)
+    # Carregar prompt e modelo do YAML
     try:
         system_prompt = get_agent_prompt("methodologist")
         model_name = get_agent_model("methodologist")
@@ -601,7 +594,6 @@ Avalie esta questão e retorne APENAS o JSON com status, justification e improve
             error=e
         )
         raise
-
 
 def force_decision_collaborative(
     state: dict,

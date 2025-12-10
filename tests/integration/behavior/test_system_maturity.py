@@ -35,13 +35,11 @@ from agents.methodologist.nodes import decide_collaborative
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
-
 def print_separator(title=""):
     if title:
         print(f"\n{'='*80}\n  {title}\n{'='*80}\n")
     else:
         print(f"\n{'-'*80}\n")
-
 
 def print_response_quality(message: str, reflection: str = None):
     """Analisa qualidade da resposta."""
@@ -79,7 +77,6 @@ def print_response_quality(message: str, reflection: str = None):
     else:
         print("   ℹ️ Resposta neutra")
         return True
-
 
 # =============================================================================
 # TESTE 1: REASONING LOOP DO ORQUESTRADOR
@@ -145,7 +142,6 @@ def test_reasoning_loop():
     print(f"   {'✅' if all_fluent else '⚠️'} Todas respostas fluidas")
     
     return all_have_reasoning and all_have_focal
-
 
 # =============================================================================
 # TESTE 2: FLUXO MULTI-AGENTE COMPLETO
@@ -228,7 +224,6 @@ def test_multi_agent_flow():
     print("\n✅ Fluxo multi-agente executado com sucesso")
     return True
 
-
 # =============================================================================
 # TESTE 3: QUALIDADE DAS RESPOSTAS
 # =============================================================================
@@ -274,7 +269,6 @@ def test_response_quality():
     print(f"\n📋 RESUMO: {fluent_count}/{len(test_cases)} respostas fluidas")
     
     return fluent_count >= len(test_cases) * 0.7  # 70% threshold
-
 
 # =============================================================================
 # TESTE 4: DETECÇÃO DE MUDANÇA DE DIREÇÃO
@@ -329,7 +323,6 @@ def test_direction_change():
     
     return not is_questioning
 
-
 # =============================================================================
 # TESTE 5: ROUTER FUNCIONA CORRETAMENTE
 # =============================================================================
@@ -365,7 +358,6 @@ def test_router_decisions():
             all_passed = False
     
     return all_passed
-
 
 # =============================================================================
 # MAIN
@@ -421,7 +413,6 @@ def main():
         import traceback
         traceback.print_exc()
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -11,7 +11,6 @@ Testes:
 - test_orchestrator_handles_ambiguous_input_real_api: Input ambíguo → classifica como clarify
 - test_orchestrator_preserves_context_real_api: Preserva contexto do histórico
 
-Versão: 1.0 (Épico 6, Funcionalidade 6.2)
 Data: Dezembro 2025
 """
 
@@ -33,7 +32,6 @@ from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.orchestrator.nodes import orchestrator_node
 from langchain_core.messages import HumanMessage, AIMessage
 
-
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 requires_anthropic = pytest.mark.skipif(
@@ -43,7 +41,6 @@ requires_anthropic = pytest.mark.skipif(
 
 # Todos os testes deste módulo são de integração que usam API real
 pytestmark = [pytest.mark.integration, requires_anthropic]
-
 
 def test_orchestrator_classifies_vague_input_real_api():
     """
@@ -98,7 +95,6 @@ def test_orchestrator_classifies_vague_input_real_api():
     assert result["focal_argument"] is not None, \
         "focal_argument não deveria ser None"
 
-
 def test_orchestrator_classifies_semi_formed_input_real_api():
     """
     Testa classificação real de input semi-formado com API real.
@@ -148,7 +144,6 @@ def test_orchestrator_classifies_semi_formed_input_real_api():
     assert len(result["messages"]) == 1, \
         "Deveria ter 1 mensagem"
 
-
 def test_orchestrator_classifies_complete_hypothesis_real_api():
     """
     Testa classificação real de hipótese completa com API real.
@@ -193,7 +188,6 @@ def test_orchestrator_classifies_complete_hypothesis_real_api():
     assert len(analysis_lower) > 20, \
         "Análise deveria ter conteúdo substancial"
 
-
 def test_orchestrator_handles_ambiguous_input_real_api():
     """
     Testa classificação real de input ambíguo com API real.
@@ -229,7 +223,6 @@ def test_orchestrator_handles_ambiguous_input_real_api():
     # Input ambíguo não deve sugerir agente
     assert result["agent_suggestion"] is None, \
         "Input ambíguo não deveria sugerir agente diretamente"
-
 
 def test_orchestrator_preserves_context_real_api():
     """

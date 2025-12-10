@@ -2,11 +2,11 @@
 Testes de integração para funcionalidades avançadas do Orquestrador.
 
 Cobre:
-- Integração com active_idea_id do config (Épico 9.2)
-- Criação automática de snapshots (Épico 9.3)
+- Integração com active_idea_id do config
+- Criação automática de snapshots
 - Tratamento de falhas silenciosas
 
-IMPORTANTE (Épico 13.3):
+IMPORTANTE:
 - orchestrator_node() agora chama _consult_observer() que faz chamadas LLM
 - Testes DEVEM mockar _consult_observer para evitar dependência de API key
 - Sem mock, fallback retorna needs_checkpoint=True, mudando next_step para "clarify"
@@ -17,8 +17,7 @@ from unittest.mock import Mock, patch
 from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.orchestrator.nodes import orchestrator_node
 
-
-# Fixture para mock padrão do Observer (Épico 13.3)
+# Fixture para mock padrão do Observer
 # Retorna resultado neutro que não interfere no fluxo normal do teste
 MOCK_OBSERVER_RESULT = {
     "clarity_evaluation": None,
@@ -27,21 +26,19 @@ MOCK_OBSERVER_RESULT = {
     "checkpoint_reason": None
 }
 
-
 @pytest.fixture(autouse=True)
 def mock_consult_observer():
     """Mock automático de _consult_observer para todos os testes deste módulo.
 
-    Épico 13.3: orchestrator_node() agora consulta o Observer para análise
+    orchestrator_node() agora consulta o Observer para análise
     de clareza e variação. Sem mock, testes falham no CI (sem API key).
     """
     with patch('agents.orchestrator.nodes._consult_observer') as mock:
         mock.return_value = MOCK_OBSERVER_RESULT
         yield mock
 
-
 class TestActiveIdeaIdFromConfig:
-    """Testes para extração de active_idea_id do config (Épico 9.2)."""
+    """Testes para extração de active_idea_id do config."""
 
     def test_orchestrator_works_without_active_idea_id(self):
         """orchestrator_node funciona sem active_idea_id no config."""
@@ -183,9 +180,8 @@ class TestActiveIdeaIdFromConfig:
 
         assert result["next_step"] == "explore"
 
-
 class TestSnapshotCreation:
-    """Testes para criação automática de snapshot quando argumento amadurece (Épico 9.3)."""
+    """Testes para criação automática de snapshot quando argumento amadurece."""
 
     def test_snapshot_called_when_active_idea_and_cognitive_model(self):
         """create_snapshot_if_mature é chamado quando há active_idea_id e cognitive_model."""

@@ -12,7 +12,7 @@ Responsabilidades:
 - Manter interface compatível com código existente
 
 Épico 11.2: Setup de Persistência e Schema SQLite
-Data: 2025-11-17
+
 Refatoração: Divisão em CRUD separados (ideas_crud.py, arguments_crud.py)
 """
 
@@ -27,7 +27,6 @@ from .arguments_crud import ArgumentsCRUD
 from agents.models.cognitive_model import CognitiveModel
 
 logger = logging.getLogger(__name__)
-
 
 class DatabaseManager:
     """
@@ -344,13 +343,11 @@ class DatabaseManager:
         self.conn.close()
         logger.info("Conexão com banco de dados fechada")
 
-
 # =========================================================================
 # SINGLETON GLOBAL
 # =========================================================================
 
 _db_instance: Optional[DatabaseManager] = None
-
 
 def get_database_manager(db_path: str = "data/data.db") -> DatabaseManager:
     """

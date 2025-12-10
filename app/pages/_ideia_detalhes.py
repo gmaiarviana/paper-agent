@@ -12,8 +12,6 @@ Mostra detalhes completos de uma ideia:
 URL: /pensamentos?id={idea_id}
 Layout: Página única com seções
 
-Versão: 1.0
-Data: 19/11/2025
 Status: Épico 14.3 - Navegação em Três Espaços
 """
 
@@ -35,7 +33,6 @@ from app.components.sidebar import render_sidebar
 
 logger = logging.getLogger(__name__)
 
-
 # === CONFIGURAÇÃO ===
 
 st.set_page_config(
@@ -44,7 +41,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 
 # === FUNÇÕES AUXILIARES ===
 
@@ -56,7 +52,6 @@ def get_status_badge(status: str) -> str:
         "validated": "✅ Validada"
     }
     return badges.get(status, "❓ Desconhecido")
-
 
 def render_arguments_section(idea: dict, arguments: list, db):
     """
@@ -122,7 +117,6 @@ def render_arguments_section(idea: dict, arguments: list, db):
             else:
                 st.caption("_Nenhuma proposição definida_")
 
-
 def render_concepts_section():
     """
     Renderiza seção de conceitos (texto simples até Épico 13).
@@ -130,7 +124,6 @@ def render_concepts_section():
     st.subheader("🏷️ Conceitos")
     st.caption("_Funcionalidade de conceitos disponível no Épico 13_")
     st.info("ℹ️ A busca semântica de conceitos será implementada no próximo épico.")
-
 
 def format_thread_timestamp(thread_id: str) -> str:
     """
@@ -159,7 +152,6 @@ def format_thread_timestamp(thread_id: str) -> str:
         logger.warning(f"Erro ao formatar timestamp de {thread_id}: {e}")
     
     return "data desconhecida"
-
 
 def get_thread_timestamp_from_checkpoint(thread_id: str) -> str:
     """
@@ -222,7 +214,6 @@ def get_thread_timestamp_from_checkpoint(thread_id: str) -> str:
         logger.warning(f"Erro ao buscar timestamp do checkpoint: {e}")
         return None
 
-
 def render_conversations_section(idea: dict):
     """
     Renderiza seção de conversas relacionadas (Épico 14.3).
@@ -261,7 +252,6 @@ def render_conversations_section(idea: dict):
         st.caption("_Esta ideia foi cristalizada durante a conversa acima_")
     else:
         st.caption("_Nenhuma conversa vinculada_")
-
 
 # === APLICAÇÃO PRINCIPAL ===
 
@@ -370,7 +360,6 @@ def main():
         st.error(f"❌ Erro ao carregar detalhes da ideia: {e}")
         import traceback
         st.code(traceback.format_exc())
-
 
 if __name__ == "__main__":
     main()

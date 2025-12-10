@@ -10,13 +10,10 @@ com outros agentes. O output do Observador e comunicado via:
 - Eventos publicados no EventBus
 - API de consulta (ObservadorAPI)
 
-Versao: 1.0 (Epico 10.1 - Mitose do Orquestrador)
-Data: 05/12/2025
 """
 
 from typing import TypedDict, Optional, List, Dict, Any
 from dataclasses import dataclass
-
 
 class ObserverState(TypedDict):
     """
@@ -110,7 +107,6 @@ class ObserverState(TypedDict):
     turn_number: int
     processing_timestamp: Optional[str]
 
-
 def create_initial_observer_state(
     user_input: str,
     conversation_history: List[Dict[str, Any]],
@@ -163,7 +159,6 @@ def create_initial_observer_state(
         turn_number=turn_number,
         processing_timestamp=datetime.now(timezone.utc).isoformat()
     )
-
 
 @dataclass
 class ObserverInsight:

@@ -5,8 +5,6 @@ Este módulo implementa MultiTurnExecutor, que executa cenários de conversa
 multi-turn end-to-end, rastreando agentes chamados, preservando estado entre
 turnos e validando comportamento esperado vs observado.
 
-Versão: 1.0 (Épico 8.1)
-Data: 2025-12-05
 """
 
 from typing import Dict, List, Any, Callable
@@ -18,7 +16,6 @@ from langchain_core.messages import HumanMessage, AIMessage
 from agents.orchestrator.state import create_initial_multi_agent_state
 from utils.test_scenarios import ConversationScenario
 from utils.event_bus.singleton import get_event_bus
-
 
 class MultiTurnExecutor:
     """

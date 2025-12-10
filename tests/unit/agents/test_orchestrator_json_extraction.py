@@ -4,14 +4,11 @@ Testes unitários para extração e validação de JSON do Orquestrador Conversa
 Valida que extract_orchestrator_response consegue parsear e validar
 respostas do Orquestrador no formato esperado pelo Épico 7 POC.
 
-Versão: 1.0
-Data: 14/11/2025
 """
 
 import pytest
 import json
 from utils.json_parser import extract_orchestrator_response, OrchestratorValidationError
-
 
 class TestExtractOrchestratorResponse:
     """Testes da função extract_orchestrator_response."""

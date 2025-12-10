@@ -4,8 +4,6 @@ Script de validação simples para integração de configs YAML (Épico 6, Funci
 
 Valida carregamento de configs sem executar o grafo completo.
 
-Versão: 1.0
-Data: 13/11/2025
 """
 
 import sys
@@ -29,20 +27,17 @@ from agents.memory.config_loader import (
     ConfigLoadError
 )
 
-
 def print_header(title: str):
     """Imprime cabeçalho formatado."""
     print("\n" + "=" * 80)
     print(f"  {title}")
     print("=" * 80)
 
-
 def print_section(title: str):
     """Imprime seção formatada."""
     print("\n" + "-" * 80)
     print(f"  {title}")
     print("-" * 80)
-
 
 def validate_config_loading():
     """Valida que todas as configs podem ser carregadas."""
@@ -66,7 +61,6 @@ def validate_config_loading():
     except ConfigLoadError as e:
         print(f"❌ FALHA ao carregar configs: {e}")
         return False
-
 
 def validate_individual_loaders():
     """Valida funções individuais de carregamento."""
@@ -93,7 +87,6 @@ def validate_individual_loaders():
 
     return all_ok
 
-
 def validate_list_agents():
     """Valida listagem de agentes disponíveis."""
     print_section("3. LISTAGEM DE AGENTES DISPONÍVEIS")
@@ -119,7 +112,6 @@ def validate_list_agents():
         print(f"❌ FALHA ao listar agentes: {e}")
         return False
 
-
 def validate_fallback_behavior():
     """Valida comportamento de fallback quando YAML não existe."""
     print_section("4. VALIDAÇÃO DE FALLBACK")
@@ -142,7 +134,6 @@ def validate_fallback_behavior():
         else:
             print("⚠️ Mensagem de erro não está completamente em PT-BR")
             return True  # Não é crítico
-
 
 def validate_yaml_structure():
     """Valida estrutura dos YAMLs."""
@@ -190,7 +181,6 @@ def validate_yaml_structure():
     except ConfigLoadError as e:
         print(f"❌ FALHA na validação: {e}")
         return False
-
 
 def main():
     """Executa todas as validações."""
@@ -241,7 +231,6 @@ def main():
         print("❌ Verifique os erros acima e corrija antes de continuar")
         print("=" * 80)
         return 1
-
 
 if __name__ == "__main__":
     try:

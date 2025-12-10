@@ -17,10 +17,8 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-
 class CircuitBreakerOpenError(RuntimeError):
     """Erro lançado quando o circuit breaker da API Anthropic está aberto."""
-
 
 class _AnthropicCircuitBreaker:
     """
@@ -63,9 +61,7 @@ class _AnthropicCircuitBreaker:
                 self._consecutive_failures,
             )
 
-
 _circuit_breaker = _AnthropicCircuitBreaker()
-
 
 class AnthropicProvider:
     """Provider para modelos Anthropic (Claude)."""

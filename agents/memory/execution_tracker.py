@@ -6,14 +6,11 @@ LLM (LangChain AIMessage), calcular custos e registrar no MemoryManager.
 
 Épico 6.2: Registro de Memória com Metadados
 
-Versão: 1.0
-Data: 13/11/2025
 """
 
 from typing import Optional, Dict, Any
 from agents.memory.memory_manager import MemoryManager, AgentExecution
 from utils.cost_tracker import CostTracker
-
 
 def register_execution(
     memory_manager: Optional[MemoryManager],

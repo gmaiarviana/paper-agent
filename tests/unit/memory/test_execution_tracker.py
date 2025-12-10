@@ -3,15 +3,12 @@ Testes unitários para ExecutionTracker (Épico 6.2).
 
 Valida captura de tokens de AIMessage e registro no MemoryManager.
 
-Versão: 1.0
-Data: 13/11/2025
 """
 
 import pytest
 from unittest.mock import Mock, patch
 from agents.memory.execution_tracker import register_execution
 from agents.memory.memory_manager import MemoryManager
-
 
 class TestExecutionTracker:
     """Testes para a função register_execution."""

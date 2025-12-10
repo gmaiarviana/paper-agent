@@ -35,13 +35,11 @@ from agents.orchestrator import (
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-
 def print_separator(title=""):
     if title:
         print(f"\n{'='*80}\n  {title}\n{'='*80}\n")
     else:
         print(f"\n{'-'*80}\n")
-
 
 def print_result(result):
     """Imprime resultado do orquestrador de forma formatada."""
@@ -51,7 +49,6 @@ def print_result(result):
         print(f"  message: {result['messages'][0].content[:100]}...")
     if result.get('agent_suggestion'):
         print(f"  suggestion: {result['agent_suggestion']}")
-
 
 # =============================================================================
 # TESTES DE COMPORTAMENTO
@@ -90,7 +87,6 @@ def test_exploration_vague_input():
     
     print("\n✅ Sistema explorou corretamente (não classificou)")
 
-
 def test_multi_turn_context_preserved():
     """
     BEHAVIOR: Contexto preservado entre múltiplos turnos
@@ -127,7 +123,6 @@ def test_multi_turn_context_preserved():
     print(f"  Mensagens após turno 2: {len(state['messages']) + len(result_2.get('messages', []))}")
     
     print("\n✅ Contexto preservado entre turnos")
-
 
 def test_agent_suggestion_with_justification():
     """
@@ -175,7 +170,6 @@ def test_agent_suggestion_with_justification():
         print(f"\n⚠️ Sistema preferiu explorar mais (next_step='{result['next_step']}')")
         print("   Isso é aceitável - orquestrador pode ser conservador")
 
-
 def test_direction_change_detection():
     """
     BEHAVIOR: Detecção de mudança de direção
@@ -212,7 +206,6 @@ def test_direction_change_detection():
     else:
         print("\n⚠️ Sistema questionou mudança (não ideal)")
 
-
 def test_router_fallback_safety():
     """
     BEHAVIOR: Router com fallback seguro
@@ -243,7 +236,6 @@ def test_router_fallback_safety():
     print("  ✅ Fallback para 'user'")
     
     print("\n✅ Router é seguro com estados inválidos")
-
 
 def test_curation_with_structurer_output():
     """
@@ -301,7 +293,6 @@ def test_curation_with_structurer_output():
     else:
         print("⚠️ Curadoria pode melhorar: faltou confirmação de entendimento")
 
-
 def test_automatic_transition_to_agent():
     """
     BEHAVIOR: Transição automática para agente (Épico 1.1)
@@ -351,7 +342,6 @@ def test_automatic_transition_to_agent():
     else:
         print("⚠️ Pode melhorar: faltou anunciar ação diretamente")
 
-
 # =============================================================================
 # MAIN
 # =============================================================================
@@ -393,7 +383,6 @@ def main():
         import traceback
         traceback.print_exc()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

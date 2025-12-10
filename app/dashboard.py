@@ -7,8 +7,6 @@ Este módulo implementa interface web que exibe:
 - Status visual dos agentes (executando, concluído, erro)
 - Auto-refresh automático
 
-Versão: 1.0
-Data: 13/11/2025
 """
 
 import sys
@@ -25,12 +23,10 @@ import streamlit as st
 from utils.event_bus import get_event_bus
 from utils.currency import format_currency
 
-
 # === CONFIGURAÇÃO ===
 
 # Intervalo de auto-refresh em segundos (default: 1s - Épico 8.3)
 AUTO_REFRESH_INTERVAL = 1
-
 
 # === CONFIGURAÇÃO DO STREAMLIT ===
 
@@ -40,7 +36,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 
 # === UTILITÁRIOS ===
 
@@ -59,7 +54,6 @@ def format_timestamp(timestamp_str: str) -> str:
         return dt.strftime("%H:%M:%S")
     except (ValueError, AttributeError):
         return timestamp_str
-
 
 def get_status_icon(event_type: str) -> str:
     """
@@ -80,7 +74,6 @@ def get_status_icon(event_type: str) -> str:
     }
     return icons.get(event_type, "📍")
 
-
 def get_agent_color(agent_name: str) -> str:
     """
     Retorna cor para cada agente.
@@ -98,7 +91,6 @@ def get_agent_color(agent_name: str) -> str:
     }
     return colors.get(agent_name, "#9B9B9B")
 
-
 # === COMPONENTES DA UI ===
 
 def render_header():
@@ -106,7 +98,6 @@ def render_header():
     st.title("📊 Paper Agent Dashboard")
     st.markdown("**Visualização em tempo real de sessões e eventos**")
     st.divider()
-
 
 def render_session_selector(sessions: List[str]) -> Optional[str]:
     """
@@ -156,7 +147,6 @@ def render_session_selector(sessions: List[str]) -> Optional[str]:
     )
 
     return selected_session
-
 
 def render_session_summary(summary: Dict[str, Any]):
     """
@@ -225,7 +215,6 @@ def render_session_summary(summary: Dict[str, Any]):
                 st.markdown(f"**Próximo passo:** {next_step_label}")
 
             st.caption("O argumento focal é reconstruído implicitamente do histórico da conversa no POC do Épico 7.")
-
 
 def render_timeline(events: List[Dict[str, Any]]):
     """
@@ -318,7 +307,6 @@ def render_timeline(events: List[Dict[str, Any]]):
 
             st.divider()
 
-
 def render_event_stats(events: List[Dict[str, Any]]):
     """
     Renderiza estatísticas dos eventos.
@@ -360,7 +348,6 @@ def render_event_stats(events: List[Dict[str, Any]]):
 
     if total_tokens > 0:
         st.metric("🔢 Total de tokens", total_tokens)
-
 
 def render_consolidated_metrics(events: List[Dict[str, Any]]):
     """
@@ -429,7 +416,6 @@ def render_consolidated_metrics(events: List[Dict[str, Any]]):
         st.metric("💰 Total Custo", format_currency(total_cost))
     with col3:
         st.metric("⏱️ Total Tempo", f"{total_duration:.2f}s")
-
 
 # === MAIN ===
 
@@ -526,7 +512,6 @@ def main():
             st.session_state.last_refresh_time = current_time
             time.sleep(0.1)  # Small delay para evitar CPU usage alto
             st.rerun()
-
 
 if __name__ == "__main__":
     main()

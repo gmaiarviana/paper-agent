@@ -20,7 +20,6 @@ sys.path.insert(0, str(project_root))
 from utils.structured_logger import StructuredLogger
 from utils.debug_reporter import DebugReporter
 
-
 def replay_session(trace_id: str, speed: str = "normal", start_turn: int = 1, export: str = None):
     """Reproduz sessão passo a passo."""
     
@@ -129,7 +128,6 @@ def replay_session(trace_id: str, speed: str = "normal", start_turn: int = 1, ex
         export_path.write_text(report, encoding="utf-8")
         print(f"\n✅ Report exportado: {export_path}")
 
-
 def main():
     parser = argparse.ArgumentParser(
         description="Reproduz sessão passo a passo a partir de logs estruturados",
@@ -172,7 +170,6 @@ Exemplos:
     
     args = parser.parse_args()
     replay_session(args.trace_id, args.speed, args.turn, args.export)
-
 
 if __name__ == "__main__":
     main()

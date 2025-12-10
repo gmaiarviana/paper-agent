@@ -10,7 +10,6 @@ Testes:
 - test_structurer_generates_meaningful_question_real_api: Questão estruturada faz sentido
 - test_structurer_is_collaborative_real_api: Não rejeita ideias vagas, tenta estruturar
 
-Versão: 1.0 (Épico 6, Funcionalidade 6.2)
 Data: Dezembro 2025
 """
 
@@ -32,7 +31,6 @@ from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.structurer.nodes import structurer_node
 from langchain_core.messages import AIMessage
 
-
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 requires_anthropic = pytest.mark.skipif(
@@ -42,7 +40,6 @@ requires_anthropic = pytest.mark.skipif(
 
 # Todos os testes deste módulo são de integração que usam API real
 pytestmark = [pytest.mark.integration, requires_anthropic]
-
 
 def test_structurer_structures_vague_observation_real_api():
     """
@@ -128,7 +125,6 @@ def test_structurer_structures_vague_observation_real_api():
     assert len(message_content) > 20, \
         "Mensagem deveria ter conteúdo substancial"
 
-
 def test_structurer_extracts_all_elements_real_api():
     """
     Testa que estruturador extrai todos os elementos corretamente com API real.
@@ -182,7 +178,6 @@ def test_structurer_extracts_all_elements_real_api():
     assert len(structured_question) > 10, \
         "Questão estruturada deveria ter conteúdo substancial"
 
-
 def test_structurer_generates_meaningful_question_real_api():
     """
     Testa que estruturador gera questão estruturada que faz sentido com API real.
@@ -222,7 +217,6 @@ def test_structurer_generates_meaningful_question_real_api():
     # Não validar palavras exatas, mas validar que questão existe e tem conteúdo
     assert len(structured_question.split()) > 3, \
         "Questão estruturada deveria ter múltiplas palavras"
-
 
 def test_structurer_is_collaborative_real_api():
     """

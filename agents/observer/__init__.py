@@ -15,7 +15,7 @@ Responsabilidades do Observador:
 - Calcular metricas (solidez, completude)
 - Responder consultas do Orquestrador (insights, nao comandos)
 - Publicar eventos para Dashboard (silencioso)
-- Identificar necessidades de esclarecimento e sugerir perguntas (Epico 14)
+- Identificar necessidades de esclarecimento e sugerir perguntas
 
 O que o Observador NAO faz:
 - Decidir next_step (quem decide: Orquestrador)
@@ -30,14 +30,11 @@ Modulos:
 - extractors: Extratores semanticos via LLM
 - metrics: Calculo de solidez e completude
 - prompts: Prompts de extracao via LLM
-- catalog: ConceptCatalog - Persistencia ChromaDB + SQLite (10.3)
-- embeddings: Geracao de embeddings semanticos (10.3)
-- concept_pipeline: Pipeline de deteccao e persistencia de conceitos (10.4)
-- clarification: Consultas inteligentes e perguntas de esclarecimento (14)
-- clarification_prompts: Prompts para esclarecimento (14)
-
-Versao: 3.0 (Epico 14 - Consultas Inteligentes)
-Data: 09/12/2025
+- catalog: ConceptCatalog - Persistencia ChromaDB + SQLite
+- embeddings: Geracao de embeddings semanticos
+- concept_pipeline: Pipeline de deteccao e persistencia de conceitos
+- clarification: Consultas inteligentes e perguntas de esclarecimento
+- clarification_prompts: Prompts para esclarecimento
 
 Example:
     >>> from agents.observer import ObservadorAPI
@@ -115,17 +112,17 @@ __all__ = [
     "ObserverInsight",
     "create_initial_observer_state",
 
-    # Processamento (10.2)
+    # Processamento
     "process_turn",
     "ObserverProcessor",
 
-    # Metricas (10.2)
+    # Metricas
     "calculate_solidez",
     "calculate_completude",
     "calculate_metrics",
     "evaluate_maturity",
 
-    # Extratores (10.2)
+    # Extratores
     "extract_claims",
     "extract_concepts",
     "extract_fundamentos",
@@ -133,7 +130,7 @@ __all__ = [
     "identify_open_questions",
     "extract_all",
 
-    # Catalogo de Conceitos (10.3)
+    # Catalogo de Conceitos
     "ConceptCatalog",
     "Concept",
     "SimilarConcept",
@@ -141,19 +138,19 @@ __all__ = [
     "SIMILARITY_THRESHOLD_SAME",
     "SIMILARITY_THRESHOLD_AUTO",
 
-    # Embeddings (10.3)
+    # Embeddings
     "generate_embedding",
     "generate_embeddings_batch",
     "calculate_similarity",
     "get_embedding_dimensions",
     "get_model_name",
 
-    # Pipeline de Conceitos (10.4)
+    # Pipeline de Conceitos
     "persist_concepts",
     "persist_concepts_batch",
     "ConceptPersistResult",
 
-    # Clarification - Consultas Inteligentes (14)
+    # Clarification - Consultas Inteligentes
     "identify_clarification_needs",
     "generate_contradiction_question",
     "suggest_question_for_gap",

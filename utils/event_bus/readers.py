@@ -12,7 +12,6 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
-
 class EventBusReaders:
     """
     Mixin com métodos de leitura de eventos.

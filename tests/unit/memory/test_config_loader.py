@@ -3,8 +3,6 @@ Testes unitários para config_loader (Épico 6).
 
 Valida carregamento e validação de configurações YAML de agentes.
 
-Versão: 1.0
-Data: 12/11/2025
 """
 
 import pytest
@@ -21,7 +19,6 @@ from agents.memory.config_loader import (
 )
 from agents.memory.config_validator import ConfigValidationError
 
-
 class TestLoadAgentConfig:
     """Testes para load_agent_config()."""
 
@@ -31,7 +28,6 @@ class TestLoadAgentConfig:
             load_agent_config("nonexistent_agent")
 
         assert "não encontrado" in str(exc_info.value)
-
 
 class TestContextLimits:
     """Testes para validação de limites de contexto (lógica de negócio)."""

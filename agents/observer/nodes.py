@@ -7,8 +7,6 @@ Este modulo implementa o no principal do Observador:
 O Observador trabalha SILENCIOSAMENTE em paralelo ao Orquestrador,
 monitorando a conversa e catalogando a evolucao do raciocinio.
 
-Versao: 2.0 (Epico 11.4 - Migracao para Proposicoes)
-Data: 08/12/2025
 """
 
 import logging
@@ -24,7 +22,6 @@ from .concept_pipeline import persist_concepts_batch
 from agents.models.proposition import Proposicao
 
 logger = logging.getLogger(__name__)
-
 
 def process_turn(
     user_input: str,
@@ -117,7 +114,7 @@ def process_turn(
         logger.info(f"Etapas puladas (Agentic RAG): {skipped}")
 
     # 1. Extrair informacoes semanticas via LLM
-    # TODO (Epic 12): Usar flags para chamar extratores individuais
+    # TODO: Usar flags para chamar extratores individuais
     logger.info("Extraindo informacoes semanticas...")
     extracted = extract_all(
         user_input=user_input,
@@ -198,7 +195,6 @@ def process_turn(
         "skipped": skipped,  # Etapas puladas (para Agentic RAG)
         "persisted_concepts": persisted_concepts  # Resumo da persistencia (Epic 10.4)
     }
-
 
 def _merge_cognitive_model(
     previous: Optional[Dict[str, Any]],
@@ -294,7 +290,6 @@ def _merge_cognitive_model(
 
     return merged
 
-
 def _publish_cognitive_model_event(
     session_id: str,
     cognitive_model: Dict[str, Any],
@@ -352,7 +347,6 @@ def _publish_cognitive_model_event(
     except Exception as e:
         # Silencioso - nao bloqueia fluxo se evento falhar
         logger.debug(f"Nao foi possivel publicar evento: {e}")
-
 
 class ObserverProcessor:
     """

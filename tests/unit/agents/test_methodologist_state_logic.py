@@ -23,11 +23,9 @@ setup_project_path()
 
 from agents.methodologist import create_initial_state, checkpointer
 
-
 def format_state_for_display(state: dict) -> str:
     """Formata o estado para exibição legível."""
     return json.dumps(state, indent=2, ensure_ascii=False)
-
 
 def main():
     """Executa validação manual do estado."""
@@ -95,7 +93,6 @@ def main():
     print("  - Valores padrão corretos: ✅ OK")
     print("  - Customização max_iterations: ✅ OK")
     print()
-
 
 if __name__ == "__main__":
     main()

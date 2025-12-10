@@ -10,7 +10,6 @@ Cobre:
 Estes testes usam SQLite em memória (sem persistência real).
 Seguem a estratégia: unit tests rápidos, sem dependências externas.
 
-Versão: 1.0
 Data: 2025-12-XX
 """
 
@@ -26,7 +25,6 @@ from agents.database.arguments_crud import ArgumentsCRUD
 from agents.models.cognitive_model import CognitiveModel
 from agents.models.proposition import Proposicao
 
-
 # =============================================================================
 # FIXTURES
 # =============================================================================
@@ -39,7 +37,6 @@ def temp_db():
     yield conn
     conn.close()
 
-
 @pytest.fixture
 def initialized_db(temp_db):
     """Banco inicializado com schema completo."""
@@ -47,18 +44,15 @@ def initialized_db(temp_db):
     temp_db.executescript(SCHEMA_SQL)
     return temp_db
 
-
 @pytest.fixture
 def ideas_crud(initialized_db):
     """IdeasCRUD com banco inicializado."""
     return IdeasCRUD(initialized_db)
 
-
 @pytest.fixture
 def arguments_crud(initialized_db):
     """ArgumentsCRUD com banco inicializado."""
     return ArgumentsCRUD(initialized_db)
-
 
 @pytest.fixture
 def sample_cognitive_model():
@@ -75,7 +69,6 @@ def sample_cognitive_model():
         solid_grounds=[],
         context={"domain": "software", "technology": "LLMs"}
     )
-
 
 # =============================================================================
 # TESTES: IDEASCRUD
@@ -209,7 +202,6 @@ class TestIdeasCRUD:
         updated_dates = [idea["updated_at"] for idea in all_ideas]
         assert updated_dates == sorted(updated_dates, reverse=True)
 
-
 # =============================================================================
 # TESTES: ARGUMENTSCRUD
 # =============================================================================
@@ -304,7 +296,6 @@ class TestArgumentsCRUD:
         latest = arguments_crud.get_latest_argument_version(idea_id)
         assert latest is None
 
-
 # =============================================================================
 # TESTES: DATABASEMANAGER
 # =============================================================================
@@ -322,7 +313,6 @@ def temp_db_path():
         Path(db_path).unlink(missing_ok=True)
     except PermissionError:
         pass
-
 
 @pytest.fixture(autouse=True)
 def reset_db_singleton():
@@ -343,7 +333,6 @@ def reset_db_singleton():
         except Exception:
             pass
         manager_module._db_instance = None
-
 
 class TestDatabaseManager:
     """Testes para DatabaseManager (orquestrador)."""

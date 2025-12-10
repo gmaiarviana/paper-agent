@@ -4,8 +4,6 @@ Testes unitarios para Clarification (Epico 14).
 Valida modelos Pydantic e funcoes de clarification de forma isolada,
 sem chamadas LLM reais. Usa mocks para extratores.
 
-Versao: 1.0
-Data: 09/12/2025
 """
 
 import pytest
@@ -19,7 +17,6 @@ from agents.models.clarification import (
     ClarificationUpdates,
     QuestionSuggestion,
 )
-
 
 class TestClarificationModels:
     """Testes para modelos Pydantic de clarification."""
@@ -203,7 +200,6 @@ class TestClarificationModels:
         assert need.turn_detected == 5
         assert need.turns_persisted == 2
 
-
 class TestShouldAskClarification:
     """Testes para funcao should_ask_clarification."""
 
@@ -318,7 +314,6 @@ class TestShouldAskClarification:
         assert decision.should_ask is False
         assert decision.delay_turns > 0
 
-
 class TestUpdateClarificationPersistence:
     """Testes para funcao update_clarification_persistence."""
 
@@ -355,7 +350,6 @@ class TestUpdateClarificationPersistence:
 
         assert updated.turns_persisted == 0
         assert updated.needs_clarification is False
-
 
 class TestClarificationSummaryForTimeline:
     """Testes para funcao get_clarification_summary_for_timeline."""
@@ -400,7 +394,6 @@ class TestClarificationSummaryForTimeline:
 
         assert "pendente" in summary.lower()
 
-
 class TestClarificationEventsModels:
     """Testes para modelos de eventos de clarification."""
 
@@ -438,7 +431,6 @@ class TestClarificationEventsModels:
         assert event.event_type == "clarification_resolved"
         assert event.resolution_status == "resolved"
         assert event.updates_made["contradictions_resolved"] == 1
-
 
 class TestIdentifyClarificationNeedsWithMock:
     """Testes para identify_clarification_needs com mock do LLM."""
@@ -517,7 +509,6 @@ class TestIdentifyClarificationNeedsWithMock:
 
         assert need.needs_clarification is False
 
-
 class TestGenerateContradictionQuestion:
     """Testes para generate_contradiction_question com mock do LLM."""
 
@@ -577,7 +568,6 @@ class TestGenerateContradictionQuestion:
         assert suggestion.question_text is not None
         assert suggestion.target_type == "contradiction"
 
-
 class TestSuggestQuestionForGap:
     """Testes para suggest_question_for_gap com mock do LLM."""
 
@@ -628,7 +618,6 @@ class TestSuggestQuestionForGap:
         suggestion = suggest_question_for_gap(cognitive_model)
 
         assert suggestion is None
-
 
 class TestAnalyzeClarificationResponse:
     """Testes para analyze_clarification_response com mock do LLM."""
@@ -712,7 +701,6 @@ class TestAnalyzeClarificationResponse:
         assert response.needs_followup is True
         assert response.followup_suggestion is not None
 
-
 class TestClarificationTypes:
     """Testes para diferentes tipos de clarification."""
 
@@ -751,7 +739,6 @@ class TestClarificationTypes:
                 summary="Teste"
             )
             assert response.resolution_status == status
-
 
 class TestClarificationUpdates:
     """Testes para ClarificationUpdates."""

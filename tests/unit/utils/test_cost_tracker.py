@@ -7,7 +7,6 @@ Tests cost calculation logic without making actual API calls.
 import pytest
 from utils.cost_tracker import CostTracker
 
-
 class TestCostTracker:
     """Test suite for CostTracker class."""
 

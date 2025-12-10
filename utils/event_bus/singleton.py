@@ -14,7 +14,6 @@ from .readers import EventBusReaders
 
 logger = logging.getLogger(__name__)
 
-
 # Classe EventBus completa combinando todos os mixins
 class EventBus(EventBusCore, EventBusPublishers, EventBusReaders):
     r"""
@@ -55,10 +54,8 @@ class EventBus(EventBusCore, EventBusPublishers, EventBusReaders):
 
     pass  # Herda todos os métodos dos mixins
 
-
 # Instância global do EventBus (singleton pattern)
 _event_bus_instance: Optional[EventBus] = None
-
 
 def get_event_bus() -> EventBus:
     """

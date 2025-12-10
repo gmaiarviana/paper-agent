@@ -17,8 +17,6 @@ Fluxo do sistema (Épico 7 - Orquestrador Conversacional):
 4. Metodologista (se chamado): Valida rigor científico (3 status: approved, needs_refinement, rejected)
 5. Router 2: Metodologista sempre retorna para Orquestrador (apresenta feedback ao usuário)
 
-Versão: 4.0 (Épico 7 POC - Orquestrador Conversacional + integração com Épico 5.1/6)
-Data: 14/11/2025
 """
 
 import logging
@@ -56,7 +54,6 @@ logger = logging.getLogger(__name__)
 
 # Timeout para processamento do Observer em background (Épico 12.1)
 OBSERVER_TIMEOUT_SECONDS = 5.0
-
 
 # === OBSERVER CALLBACK ASSÍNCRONO (Épico 12.1) ===
 
@@ -183,7 +180,6 @@ def _create_observer_callback(state: MultiAgentState, result: Dict[str, Any]) ->
     thread.start()
     logger.debug(f"👁️ Observer thread iniciada (session: {session_id}, turno: {turn_count})")
 
-
 # === INSTRUMENTAÇÃO COM EVENTBUS (Épico 5.1) ===
 
 def _get_session_id_from_config(config: Any) -> str:
@@ -212,7 +208,6 @@ def _get_session_id_from_config(config: Any) -> str:
     logger.debug(f"_get_session_id_from_config: fallback para thread_id = {thread_id}")
     return thread_id
 
-
 def instrument_node(node_func: Callable, agent_name: str) -> Callable:
     """
     Instrumenta um nó do grafo para emitir eventos via EventBus (Épico 5.1).
@@ -235,7 +230,7 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
     """
     def wrapper(state: MultiAgentState, config: Optional[RunnableConfig] = None) -> MultiAgentState:
         """Wrapper instrumentado que emite eventos."""
-        # Extrair session_id do state (método confiável - Épico 5.1)
+        # Extrair session_id do state (método confiável)
         # Config não é passado aos nodes pelo LangGraph, então usamos state
         session_id = state.get("session_id", "unknown-session")
         logger.debug(f"Wrapper {agent_name}: session_id do state = {session_id}")
@@ -340,7 +335,6 @@ def instrument_node(node_func: Callable, agent_name: str) -> Callable:
 
     return wrapper
 
-
 def _extract_summary(agent_name: str, state: MultiAgentState) -> str:
     """
     Extrai resumo da ação do agente baseado no resultado.
@@ -371,7 +365,6 @@ def _extract_summary(agent_name: str, state: MultiAgentState) -> str:
 
     else:
         return f"Executou {agent_name}"
-
 
 def _extract_reasoning(agent_name: str, state: MultiAgentState) -> str:
     """
@@ -446,7 +439,6 @@ def _extract_reasoning(agent_name: str, state: MultiAgentState) -> str:
     else:
         return f"Processamento do agente {agent_name}"
 
-
 # SqliteSaver: Checkpointer persistente do LangGraph usando SQLite.
 # Salva estado do grafo em banco de dados, permitindo:
 # - Persistência entre reinicializações do servidor
@@ -463,7 +455,6 @@ db_conn = sqlite3.connect(str(db_path), check_same_thread=False)
 
 # Instanciar SqliteSaver com conexão
 checkpointer = SqliteSaver(db_conn)
-
 
 def route_after_methodologist(state: MultiAgentState) -> str:
     """
@@ -488,7 +479,6 @@ def route_after_methodologist(state: MultiAgentState) -> str:
         logger.warning("methodologist_output não encontrado. Retornando para Orquestrador.")
     
     return "orchestrator"
-
 
 def create_multi_agent_graph():
     """
@@ -595,7 +585,7 @@ def create_multi_agent_graph():
     graph.set_entry_point("orchestrator")
     logger.info("Entry point: orchestrator")
 
-    # ROUTER 1: Orquestrador → Estruturador | Metodologista | User (Épico 7)
+    # ROUTER 1: Orquestrador → Estruturador | Metodologista | User
     # Épico 7 POC: Orquestrador conversacional pode retornar "user" quando precisa explorar mais
     graph.add_conditional_edges(
         "orchestrator",
@@ -636,7 +626,6 @@ def create_multi_agent_graph():
     logger.info("")
 
     return compiled_graph
-
 
 # Exportar função helper para criar estado inicial
 __all__ = ['create_multi_agent_graph', 'create_initial_multi_agent_state']

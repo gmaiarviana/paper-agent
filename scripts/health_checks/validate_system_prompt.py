@@ -22,7 +22,6 @@ setup_project_path()
 
 from utils.prompts import METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1
 
-
 def validate_system_prompt():
     """Valida a implementação do system prompt."""
     print("=" * 70)
@@ -84,7 +83,6 @@ def validate_system_prompt():
     print("  ✅ Define output JSON: {\"status\": \"approved|rejected\", \"justification\": \"...\"}")
     print(f"  ✅ Linguagem direta, <= 500 palavras ({word_count}/500)")
     print("\n🎉 Funcionalidade 2.6 implementada com sucesso!")
-
 
 if __name__ == "__main__":
     try:

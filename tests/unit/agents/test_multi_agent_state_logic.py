@@ -5,8 +5,6 @@ Valida que as mudanças na estrutura do estado foram implementadas corretamente:
 - Novos campos adicionados: orchestrator_analysis, next_step, agent_suggestion
 - Campos obsoletos removidos: orchestrator_classification, orchestrator_reasoning
 
-Versão: 1.0
-Data: 14/11/2025
 """
 
 import sys
@@ -17,7 +15,6 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
-
 
 def validate_multi_agent_state():
     """Valida a estrutura e tipos do MultiAgentState após mudanças do Épico 7."""
@@ -163,7 +160,6 @@ def validate_multi_agent_state():
     print("   ✅ Removidos: orchestrator_classification, orchestrator_reasoning")
     print("   ✅ Estado pronto para Orquestrador Conversacional (Épico 7 POC)")
     print("=" * 70)
-
 
 if __name__ == "__main__":
     try:

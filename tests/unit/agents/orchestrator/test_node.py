@@ -7,7 +7,7 @@ Cobre comportamento do nó principal do Orquestrador:
 - Fallbacks e tratamento de erros
 - Integração com histórico de conversa
 
-IMPORTANTE (Épico 13.3):
+IMPORTANTE:
 - orchestrator_node() agora chama _consult_observer() que faz chamadas LLM
 - Testes DEVEM mockar _consult_observer para evitar dependência de API key
 - Sem mock, fallback retorna needs_checkpoint=True, mudando next_step para "clarify"
@@ -20,8 +20,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.orchestrator.nodes import orchestrator_node
 
-
-# Fixture para mock padrão do Observer (Épico 13.3)
+# Fixture para mock padrão do Observer
 # Retorna resultado neutro que não interfere no fluxo normal do teste
 MOCK_OBSERVER_RESULT = {
     "clarity_evaluation": None,
@@ -30,18 +29,16 @@ MOCK_OBSERVER_RESULT = {
     "checkpoint_reason": None
 }
 
-
 @pytest.fixture(autouse=True)
 def mock_consult_observer():
     """Mock automático de _consult_observer para todos os testes desta classe.
 
-    Épico 13.3: orchestrator_node() agora consulta o Observer para análise
+    orchestrator_node() agora consulta o Observer para análise
     de clareza e variação. Sem mock, testes falham no CI (sem API key).
     """
     with patch('agents.orchestrator.nodes._consult_observer') as mock:
         mock.return_value = MOCK_OBSERVER_RESULT
         yield mock
-
 
 class TestOrchestratorNode:
     """Testes para orchestrator_node - classificação e análise de input."""

@@ -22,7 +22,6 @@ from utils.event_models import (
 
 logger = logging.getLogger(__name__)
 
-
 class EventBusPublishers:
     """
     Mixin com métodos de publicação de eventos.
@@ -233,7 +232,7 @@ class EventBusPublishers:
         metadata: Optional[Dict[str, Any]] = None
     ) -> None:
         """
-        Publica evento de atualizacao do CognitiveModel (Epico 10.2).
+        Publica evento de atualizacao do CognitiveModel.
 
         Este evento e publicado pelo Observador a cada turno processado.
         Permite ao Dashboard exibir a evolucao do argumento em tempo real.
@@ -289,7 +288,7 @@ class EventBusPublishers:
         metadata: Optional[Dict[str, Any]] = None
     ) -> None:
         """
-        Publica evento de pergunta de esclarecimento (Epico 14).
+        Publica evento de pergunta de esclarecimento.
 
         Este evento e publicado quando o Orquestrador faz uma pergunta
         de esclarecimento ao usuario baseado em analise do Observer.
@@ -334,7 +333,7 @@ class EventBusPublishers:
         metadata: Optional[Dict[str, Any]] = None
     ) -> None:
         """
-        Publica evento de esclarecimento obtido (Epico 14).
+        Publica evento de esclarecimento obtido.
 
         Este evento e publicado apos usuario responder pergunta de esclarecimento
         e Observer analisar a resposta.
