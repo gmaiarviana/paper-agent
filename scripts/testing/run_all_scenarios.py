@@ -20,7 +20,6 @@ from agents.multi_agent_graph import create_multi_agent_graph
 from utils.test_executor import MultiTurnExecutor
 from utils.test_scenarios import ConversationScenario
 
-
 def main():
     parser = argparse.ArgumentParser(
         description="Executa todos os cenários de validação multi-turn"
@@ -135,7 +134,6 @@ def main():
     
     # Exit code baseado em sucesso total
     sys.exit(0 if total_success == total_scenarios else 1)
-
 
 if __name__ == "__main__":
     main()

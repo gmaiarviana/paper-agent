@@ -9,8 +9,6 @@ semanticas de cada turno da conversa:
 - Contradicoes (inconsistencias logicas)
 - Open questions (lacunas)
 
-Versao: 2.0 (Epico 11.4 - Migracao para Proposicoes)
-Data: 08/12/2025
 """
 
 import logging
@@ -39,7 +37,6 @@ from utils.json_parser import extract_json_from_llm_response
 
 logger = logging.getLogger(__name__)
 
-
 def _get_llm() -> ChatAnthropic:
     """Retorna instancia do LLM para extracao."""
     return create_anthropic_client(
@@ -47,7 +44,6 @@ def _get_llm() -> ChatAnthropic:
         temperature=EXTRACTION_TEMPERATURE,
         max_tokens=MAX_EXTRACTION_TOKENS
     )
-
 
 def extract_claims(
     user_input: str,
@@ -107,7 +103,6 @@ def extract_claims(
         logger.warning(f"Erro ao extrair claims: {e}")
         return []
 
-
 def extract_concepts(
     user_input: str,
     llm: Optional[ChatAnthropic] = None
@@ -148,7 +143,6 @@ def extract_concepts(
     except Exception as e:
         logger.warning(f"Erro ao extrair conceitos: {e}")
         return []
-
 
 def extract_fundamentos(
     claims: List[str],
@@ -245,7 +239,6 @@ REGRAS:
         logger.warning(f"Erro ao extrair fundamentos: {e}")
         return []
 
-
 def detect_contradictions(
     claims: List[str],
     fundamentos: Optional[List[str]] = None,
@@ -311,7 +304,6 @@ def detect_contradictions(
     except Exception as e:
         logger.warning(f"Erro ao detectar contradicoes: {e}")
         return []
-
 
 def identify_open_questions(
     claims: List[str],
@@ -380,7 +372,6 @@ def identify_open_questions(
     except Exception as e:
         logger.warning(f"Erro ao identificar open questions: {e}")
         return []
-
 
 def extract_all(
     user_input: str,
@@ -525,7 +516,6 @@ REGRAS:
             "open_questions": []
         }
 
-
 def detect_variation(
     previous_text: str,
     new_text: str,
@@ -657,7 +647,6 @@ def detect_variation(
             "new_concepts": [],
             "reasoning": "Fallback devido a erro - assumindo variacao"
         }
-
 
 def evaluate_conversation_clarity(
     cognitive_model: Dict[str, Any],

@@ -18,7 +18,6 @@ Usage:
 import os
 from typing import Optional
 
-
 def get_currency_config() -> tuple[str, float]:
     """
     Get currency configuration from environment variables.
@@ -37,7 +36,6 @@ def get_currency_config() -> tuple[str, float]:
         rate = 5.5
 
     return currency, rate
-
 
 def format_currency(
     cost_usd: float,
@@ -81,7 +79,6 @@ def format_currency(
         # Default: USD format
         return f"${cost_usd:.{decimals}f}"
 
-
 def format_currency_short(cost_usd: float) -> str:
     """
     Format cost for compact display (2 decimal places).
@@ -97,7 +94,6 @@ def format_currency_short(cost_usd: float) -> str:
         'R$ 0,11'
     """
     return format_currency(cost_usd, decimals=2)
-
 
 def format_currency_precise(cost_usd: float) -> str:
     """

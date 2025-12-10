@@ -24,7 +24,6 @@ sys.path.insert(0, str(project_root))
 from agents.database.manager import get_database_manager
 from agents.database.schema import DATABASE_VERSION
 
-
 def check_database_status(db_path: str = "data/data.db") -> Dict[str, Any]:
     """
     Verifica status do banco de dados.
@@ -85,7 +84,6 @@ def check_database_status(db_path: str = "data/data.db") -> Dict[str, Any]:
     
     return result
 
-
 def get_database_stats(db_path: str = "data/data.db") -> Dict[str, Any]:
     """
     Obtém estatísticas do banco de dados.
@@ -135,7 +133,6 @@ def get_database_stats(db_path: str = "data/data.db") -> Dict[str, Any]:
     
     return stats
 
-
 def list_all_data(db_path: str = "data/data.db") -> None:
     """Lista todos os dados do banco de dados."""
     try:
@@ -172,7 +169,6 @@ def list_all_data(db_path: str = "data/data.db") -> None:
         
     except Exception as e:
         print(f"❌ Erro ao listar dados: {e}")
-
 
 def clean_database(db_path: str = "data/data.db", confirm: bool = False) -> None:
     """
@@ -211,7 +207,6 @@ def clean_database(db_path: str = "data/data.db", confirm: bool = False) -> None
         
     except sqlite3.Error as e:
         print(f"❌ Erro ao limpar banco: {e}")
-
 
 def check_checkpoints_db() -> Dict[str, Any]:
     """Verifica status do banco de checkpoints (LangGraph)."""
@@ -257,7 +252,6 @@ def check_checkpoints_db() -> Dict[str, Any]:
         pass
     
     return result
-
 
 def main():
     parser = argparse.ArgumentParser(description="Inspecionar banco de dados do Paper Agent")
@@ -340,7 +334,6 @@ def main():
     print("\n" + "="*80)
     print("✅ Inspeção concluída")
     print("="*80)
-
 
 if __name__ == "__main__":
     main()

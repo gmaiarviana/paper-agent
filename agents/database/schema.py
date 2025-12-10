@@ -12,7 +12,7 @@ responsabilidades distintas:
 
 Épico 11.1: Schema Unificado - premises/assumptions migrados para proposicoes
 Épico 11.2: Setup de Persistência e Schema SQLite
-Data: 2025-12-08
+
 """
 
 # Versão do schema (para migrations futuras)

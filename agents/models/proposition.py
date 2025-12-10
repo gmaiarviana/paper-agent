@@ -14,13 +14,12 @@ Ver docs/architecture/ontology.md para ontologia completa.
 Ver docs/vision/epistemology.md para base filosófica.
 
 Épico 11.1: Schema Unificado (Camada Modelo)
-Data: 2025-12-08
+
 """
 
 from typing import Optional, List
 from uuid import uuid4
 from pydantic import BaseModel, Field, ConfigDict
-
 
 class Proposicao(BaseModel):
     """
@@ -196,7 +195,6 @@ class Proposicao(BaseModel):
             True
         """
         return cls(texto=texto, solidez=solidez)
-
 
 class ProposicaoRef(BaseModel):
     """

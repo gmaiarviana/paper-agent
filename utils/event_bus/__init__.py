@@ -1,5 +1,5 @@
 """
-EventBus para comunicação entre CLI/Graph e Dashboard (Épico 5.1).
+EventBus para comunicação entre CLI/Graph e Dashboard.
 
 Este módulo gerencia publicação e consumo de eventos usando arquivos JSON
 temporários. Fornece canal de comunicação entre processo principal (CLI/Graph)
@@ -11,7 +11,6 @@ Estrutura modular:
 - readers.py: Métodos get_* e list_* (EventBusReaders)
 - singleton.py: Classe EventBus completa e função get_event_bus()
 
-Versão: 2.0 (Refatoração modular)
 Data: 2025-12-XX
 """
 

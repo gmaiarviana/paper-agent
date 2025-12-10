@@ -7,7 +7,6 @@ Testes unitários para _build_cognitive_model_context() do Orquestrador.
 import pytest
 from agents.orchestrator.nodes import _build_cognitive_model_context
 
-
 class TestBuildCognitiveModelContext:
     """Testes para _build_cognitive_model_context()"""
 
@@ -207,7 +206,6 @@ class TestBuildCognitiveModelContext:
         assert "Conflito entre estudos" in result
         assert "Qual o contexto?" in result
         assert "65%" in result
-
 
 class TestBuildCognitiveModelContextEdgeCases:
     """Testes de casos extremos."""

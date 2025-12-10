@@ -10,8 +10,6 @@ Mostra grid de cards com ideias cristalizadas durante conversas:
 URL: /pensamentos
 Layout: Grid 2 colunas (responsivo)
 
-Versão: 1.0
-Data: 19/11/2025
 Status: Épico 14.2 - Navegação em Três Espaços
 """
 
@@ -29,7 +27,6 @@ from agents.database.manager import get_database_manager
 from app.components.conversation_helpers import get_relative_timestamp
 from app.components.sidebar import render_sidebar
 
-
 # === CONFIGURAÇÃO ===
 
 st.set_page_config(
@@ -38,7 +35,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 
 # === FUNÇÕES AUXILIARES ===
 
@@ -50,7 +46,6 @@ def get_status_badge(status: str) -> str:
         "validated": "✅ Validada"
     }
     return badges.get(status, "❓ Desconhecido")
-
 
 def render_idea_card(idea: dict, db):
     """
@@ -117,7 +112,6 @@ def render_idea_card(idea: dict, db):
             st.query_params["id"] = idea_id
             # Redirecionar para página de detalhes
             st.switch_page("pages/_ideia_detalhes.py")
-
 
 # === APLICAÇÃO PRINCIPAL ===
 
@@ -191,7 +185,6 @@ def main():
         st.error(f"❌ Erro ao carregar ideias: {e}")
         import traceback
         st.code(traceback.format_exc())
-
 
 if __name__ == "__main__":
     main()

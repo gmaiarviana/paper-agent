@@ -4,13 +4,10 @@ Definição do estado do agente Metodologista.
 Este módulo define o schema do estado gerenciado pelo LangGraph,
 incluindo todos os campos necessários para rastrear a análise de hipóteses.
 
-Versão: 1.3
-Data: 10/11/2025
 """
 
 from typing import TypedDict, Annotated, Literal
 from langgraph.graph.message import add_messages
-
 
 class MethodologistState(TypedDict):
     """
@@ -55,7 +52,6 @@ class MethodologistState(TypedDict):
     max_iterations: int
     justification: str
     needs_clarification: bool
-
 
 def create_initial_state(hypothesis: str, max_iterations: int = 3) -> MethodologistState:
     """

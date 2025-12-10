@@ -5,13 +5,10 @@ Este módulo define ConversationScenario, uma estrutura de dados para representa
 cenários de conversa multi-turn que serão usados para validação no Épico 8.1
 (Multi-Turn Executor).
 
-Versão: 1.0 (Épico 8.1)
-Data: 2025-12-05
 """
 
 from dataclasses import dataclass
 from typing import List, Tuple, Dict, Any
-
 
 @dataclass
 class ConversationScenario:

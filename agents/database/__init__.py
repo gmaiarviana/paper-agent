@@ -8,7 +8,7 @@ Este módulo contém:
 - Helpers para versionamento e snapshots
 
 Épico 11.2: Setup de Persistência e Schema SQLite
-Data: 2025-11-17
+
 Refatoração: Divisão em CRUD separados (ideas_crud.py, arguments_crud.py)
 """
 

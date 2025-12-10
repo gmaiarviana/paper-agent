@@ -4,8 +4,6 @@ Agente Metodologista: Avalia rigor científico de hipóteses e constatações.
 Este pacote implementa o agente Metodologista usando LangGraph,
 responsável por validar hipóteses do ponto de vista metodológico.
 
-Versão: 1.3
-Data: 10/11/2025
 Status: Módulo reorganizado e modularizado
 
 API Pública:

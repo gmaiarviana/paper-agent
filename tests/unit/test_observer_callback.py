@@ -14,7 +14,6 @@ from langchain_core.messages import HumanMessage, AIMessage
 # multi_agent_graph imports observer which requires chromadb
 pytest.importorskip("chromadb", reason="chromadb not installed - skipping observer callback tests")
 
-
 class TestObserverCallback:
     """Testes para _create_observer_callback()"""
 
@@ -217,7 +216,6 @@ class TestObserverCallback:
             assert history[0]["content"] == "Olá"
             assert history[1]["role"] == "assistant"
             assert history[1]["content"] == "Como posso ajudar?"
-
 
 class TestInstrumentNodeObserverIntegration:
     """Testes de integração do instrument_node com Observer."""

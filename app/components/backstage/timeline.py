@@ -7,6 +7,7 @@ Responsável por:
 - Formatação de timestamps
 - Seção do Observador com métricas cognitivas (Épico 12.3)
 - Eventos de detecção de mudanças do Observer (Épico 13.5)
+- Seção de Esclarecimentos com perguntas e respostas (Épico 14)
 """
 
 import streamlit as st
@@ -20,9 +21,9 @@ from .constants import AGENT_EMOJIS
 
 logger = logging.getLogger(__name__)
 
-# Emoji do Observer (não está em AGENT_EMOJIS por ser agente especial)
+# Emojis especiais (não estão em AGENT_EMOJIS)
 OBSERVER_EMOJI = "👁️"
-
+CLARIFICATION_EMOJI = "❓"
 
 def render_agent_timeline(session_id: str) -> None:
     """
@@ -90,10 +91,18 @@ def render_agent_timeline(session_id: str) -> None:
         if detection_events:
             render_observer_detection_events(detection_events)
 
+        # Seção de Esclarecimentos (Épico 14)
+        # Mostra perguntas de esclarecimento e suas respostas
+        clarification_events = [
+            e for e in events
+            if e.get("event_type") in ("clarification_requested", "clarification_resolved")
+        ]
+        if clarification_events:
+            render_clarification_section(clarification_events)
+
     except Exception as e:
         logger.error(f"Erro ao renderizar timeline: {e}", exc_info=True)
         st.error("Erro ao carregar timeline")
-
 
 @st.dialog("📜 Histórico Completo", width="large")
 def _show_timeline_modal(events: List[Dict[str, Any]]) -> None:
@@ -125,7 +134,6 @@ def _show_timeline_modal(events: List[Dict[str, Any]]) -> None:
         st.caption(f"⏱️ {duration:.2f}s | 💰 {format_currency(cost)}")
         st.markdown("---")
 
-
 def format_time(timestamp: str) -> str:
     """
     Formata timestamp para exibição curta (HH:MM).
@@ -143,7 +151,6 @@ def format_time(timestamp: str) -> str:
         return dt.strftime("%H:%M")
     except Exception:
         return timestamp[:5] if len(timestamp) >= 5 else "—"
-
 
 def render_observer_section(observer_events: List[Dict[str, Any]]) -> None:
     """
@@ -201,7 +208,6 @@ def render_observer_section(observer_events: List[Dict[str, Any]]) -> None:
         if len(observer_events) > 3:
             if st.button("Ver análise completa", key="view_observer_details", type="secondary"):
                 _show_observer_modal(observer_events)
-
 
 @st.dialog("👁️ Análise do Observador", width="large")
 def _show_observer_modal(events: List[Dict[str, Any]]) -> None:
@@ -284,11 +290,6 @@ def render_observer_detection_events(detection_events: List[Dict[str, Any]]) -> 
     Args:
         detection_events: Lista de eventos de detecção
             (variation_detected, direction_change_confirmed, clarity_checkpoint)
-
-    Example:
-        >>> events = [{"event_type": "variation_detected", "turn_number": 3, ...}]
-        >>> render_observer_detection_events(events)
-        # Renderiza: 🔍 Detecções (seção colapsável)
     """
     if not detection_events:
         return
@@ -307,141 +308,223 @@ def render_observer_detection_events(detection_events: List[Dict[str, Any]]) -> 
             time_str = format_time(timestamp)
 
             if event_type == "variation_detected":
-                # ↪️ Variação identificada (não interrompeu fluxo)
                 shared = len(event.get("shared_concepts", []))
                 new = len(event.get("new_concepts", []))
                 st.markdown(f"↪️ **Turno {turn_number}** - Variação identificada")
-                st.caption(
-                    f"Conceitos mantidos: {shared} · "
-                    f"Novos: {new} · "
-                    f"{time_str}"
-                )
+                st.caption(f"Conceitos mantidos: {shared} · Novos: {new} · {time_str}")
 
             elif event_type == "direction_change_confirmed":
-                # 🔄 Mudança de foco confirmada
                 user_confirmed = event.get("user_confirmed", False)
                 status = "✅ confirmada" if user_confirmed else "⏳ pendente"
-                previous = event.get("previous_claim", "")[:50]
-                new_claim = event.get("new_claim", "")[:50]
                 st.markdown(f"🔄 **Turno {turn_number}** - Mudança de foco ({status})")
-                st.caption(
-                    f"De: \"{previous}...\" → Para: \"{new_claim}...\" · "
-                    f"{time_str}"
-                )
+                st.caption(f"{time_str}")
 
             elif event_type == "clarity_checkpoint":
-                # ⚠️ Checkpoint de clareza solicitado
                 clarity_level = event.get("clarity_level", "nebulosa")
                 clarity_score = event.get("clarity_score", 2)
-                suggestion = event.get("suggestion", "")[:80]
                 st.markdown(f"⚠️ **Turno {turn_number}** - Checkpoint de clareza")
-                st.caption(
-                    f"Clareza: {clarity_level} (score {clarity_score}/5) · "
-                    f"{time_str}"
-                )
-                if suggestion:
-                    st.caption(f"💡 {suggestion}...")
+                st.caption(f"Clareza: {clarity_level} (score {clarity_score}/5) · {time_str}")
 
         # Resumo de detecções
         variation_count = len([e for e in detection_events if e.get("event_type") == "variation_detected"])
         change_count = len([e for e in detection_events if e.get("event_type") == "direction_change_confirmed"])
         checkpoint_count = len([e for e in detection_events if e.get("event_type") == "clarity_checkpoint"])
 
-        st.caption(
-            f"📊 {variation_count} variações · "
-            f"{change_count} mudanças · "
-            f"{checkpoint_count} checkpoints"
-        )
-
-        # Botão para ver detalhes completos (se muitos eventos)
-        if len(detection_events) > 5:
-            if st.button("Ver todas detecções", key="view_detection_details", type="secondary"):
-                _show_detection_modal(detection_events)
+        st.caption(f"📊 {variation_count} variações · {change_count} mudanças · {checkpoint_count} checkpoints")
 
 
-@st.dialog("🔍 Detecções do Observer", width="large")
-def _show_detection_modal(events: List[Dict[str, Any]]) -> None:
+def render_clarification_section(clarification_events: List[Dict[str, Any]]) -> None:
     """
-    Modal para exibir histórico completo de detecções (Épico 13.5).
+    Renderiza seção de esclarecimentos na timeline (Épico 14).
 
-    Mostra todos os eventos de detecção com detalhes completos:
-    - Variações detectadas
-    - Mudanças de direção
-    - Checkpoints de clareza
+    Mostra perguntas de esclarecimento feitas e suas resoluções em seção colapsável:
+    - Perguntas feitas (clarification_requested)
+    - Status de resolução (clarification_resolved)
+    - Resumo do que foi esclarecido
 
     Args:
-        events: Lista de eventos de detecção
+        clarification_events: Lista de eventos 'clarification_requested' e 'clarification_resolved'
+
+    Example:
+        >>> events = [{"event_type": "clarification_requested", "turn_number": 5, ...}]
+        >>> render_clarification_section(events)
+        # Renderiza: ❓ Esclarecimentos (seção colapsável)
     """
-    st.markdown("### Histórico de Detecções")
-    st.caption(f"O Observer registrou {len(events)} detecções nesta sessão")
-
-    # Contadores por tipo
-    variation_count = len([e for e in events if e.get("event_type") == "variation_detected"])
-    change_count = len([e for e in events if e.get("event_type") == "direction_change_confirmed"])
-    checkpoint_count = len([e for e in events if e.get("event_type") == "clarity_checkpoint"])
-
-    # Resumo em colunas
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("↪️ Variações", variation_count)
-    with col2:
-        st.metric("🔄 Mudanças", change_count)
-    with col3:
-        st.metric("⚠️ Checkpoints", checkpoint_count)
+    if not clarification_events:
+        return
 
     st.markdown("---")
 
-    # Mostrar eventos em ordem cronológica reversa
-    for event in reversed(events):
-        event_type = event.get("event_type", "")
-        turn_number = event.get("turn_number", 0)
-        timestamp = event.get("timestamp", "")
-        time_str = format_time(timestamp)
+    # Contar perguntas e resoluções
+    requested = [e for e in clarification_events if e.get("event_type") == "clarification_requested"]
+    resolved = [e for e in clarification_events if e.get("event_type") == "clarification_resolved"]
 
-        if event_type == "variation_detected":
-            st.markdown(f"**↪️ Turno {turn_number}** - Variação detectada - {time_str}")
-            essence_prev = event.get("essence_previous", "")[:100]
-            essence_new = event.get("essence_new", "")[:100]
-            analysis = event.get("analysis", "")
-            shared = event.get("shared_concepts", [])
-            new = event.get("new_concepts", [])
+    # Calcular estatísticas
+    total_requested = len(requested)
+    total_resolved = len([r for r in resolved if r.get("resolution_status") == "resolved"])
+    total_partial = len([r for r in resolved if r.get("resolution_status") == "partially_resolved"])
 
-            st.caption(f"📝 Essência anterior: \"{essence_prev}...\"")
-            st.caption(f"📝 Nova essência: \"{essence_new}...\"")
-            if shared:
-                st.caption(f"🔗 Conceitos mantidos: {', '.join(shared[:5])}")
-            if new:
-                st.caption(f"✨ Novos conceitos: {', '.join(new[:5])}")
-            if analysis:
-                st.caption(f"💬 {analysis[:150]}...")
+    # Seção colapsável
+    with st.expander(f"{CLARIFICATION_EMOJI} **Esclarecimentos** ({total_resolved}/{total_requested})", expanded=False):
+        # Mostrar últimos 3 eventos (mais recentes primeiro)
+        recent_events = list(reversed(clarification_events))[:5]
 
-        elif event_type == "direction_change_confirmed":
-            user_confirmed = event.get("user_confirmed", False)
-            status = "✅ Confirmada pelo usuário" if user_confirmed else "⏳ Aguardando confirmação"
-            st.markdown(f"**🔄 Turno {turn_number}** - Mudança de direção - {time_str}")
-            st.caption(f"Status: {status}")
-            st.caption(f"📝 Claim anterior: \"{event.get('previous_claim', '')[:100]}...\"")
-            st.caption(f"📝 Novo claim: \"{event.get('new_claim', '')[:100]}...\"")
-            reasoning = event.get("reasoning", "")
-            if reasoning:
-                st.caption(f"💬 Razão: {reasoning[:150]}...")
+        for event in recent_events:
+            event_type = event.get("event_type", "")
+            turn_number = event.get("turn_number", 0)
+            timestamp = event.get("timestamp", "")
+            time_str = format_time(timestamp)
+            clarification_type = event.get("clarification_type", "")
 
-        elif event_type == "clarity_checkpoint":
-            st.markdown(f"**⚠️ Turno {turn_number}** - Checkpoint de clareza - {time_str}")
-            clarity_level = event.get("clarity_level", "nebulosa")
-            clarity_score = event.get("clarity_score", 2)
-            checkpoint_reason = event.get("checkpoint_reason", "")
-            factors = event.get("factors", {})
-            suggestion = event.get("suggestion", "")
+            # Mapear tipo para label amigável
+            type_labels = {
+                "contradiction": "Tensão",
+                "gap": "Lacuna",
+                "confusion": "Confusão",
+                "direction_change": "Mudança de direção"
+            }
+            type_label = type_labels.get(clarification_type, clarification_type.title())
 
-            st.caption(f"📊 Clareza: {clarity_level} (score {clarity_score}/5)")
-            if checkpoint_reason:
-                st.caption(f"📝 Razão: {checkpoint_reason[:150]}...")
-            if factors:
-                factors_str = ", ".join([f"{k}: {v}" for k, v in factors.items()])
-                st.caption(f"🔍 Fatores: {factors_str}")
-            if suggestion:
-                st.caption(f"💡 Sugestão: {suggestion}")
+            if event_type == "clarification_requested":
+                priority = event.get("priority", "medium")
+                question = event.get("question", "")[:100]
+                priority_emoji = {"high": "🔴", "medium": "🟡", "low": "🟢"}.get(priority, "")
+
+                st.markdown(f"**{CLARIFICATION_EMOJI} Turno {turn_number}** - {type_label} {priority_emoji}")
+                st.caption(f"📝 \"{question}...\"" if len(question) == 100 else f"📝 \"{question}\"")
+                st.caption(f"{time_str}")
+
+            elif event_type == "clarification_resolved":
+                resolution_status = event.get("resolution_status", "")
+                summary = event.get("summary", "")[:80]
+
+                status_emoji = {
+                    "resolved": "✅",
+                    "partially_resolved": "🔶",
+                    "unresolved": "❓"
+                }.get(resolution_status, "")
+
+                status_label = {
+                    "resolved": "Esclarecido",
+                    "partially_resolved": "Parcial",
+                    "unresolved": "Pendente"
+                }.get(resolution_status, resolution_status)
+
+                st.markdown(f"**{status_emoji} Turno {turn_number}** - {type_label} {status_label}")
+                if summary:
+                    st.caption(f"📋 {summary}")
+                st.caption(f"{time_str}")
+
+        # Estatísticas gerais
+        st.caption(f"📊 {total_requested} perguntas · {total_resolved} resolvidas · {total_partial} parciais")
+
+        # Botão para ver detalhes completos
+        if len(clarification_events) > 5:
+            if st.button("Ver todos esclarecimentos", key="view_clarification_details", type="secondary"):
+                _show_clarification_modal(clarification_events)
+
+@st.dialog("❓ Esclarecimentos", width="large")
+def _show_clarification_modal(events: List[Dict[str, Any]]) -> None:
+    """
+    Modal para exibir histórico completo de esclarecimentos (Épico 14).
+
+    Mostra todas as perguntas de esclarecimento feitas e suas resoluções:
+    - Tipo de esclarecimento (contradição, gap, confusão)
+    - Pergunta feita
+    - Resposta e status de resolução
+    - Atualizações feitas no CognitiveModel
+
+    Args:
+        events: Lista de eventos de clarification
+    """
+    st.markdown("### Histórico de Esclarecimentos")
+
+    # Separar eventos por tipo
+    requested = [e for e in events if e.get("event_type") == "clarification_requested"]
+    resolved = [e for e in events if e.get("event_type") == "clarification_resolved"]
+
+    st.caption(f"{len(requested)} perguntas feitas · {len(resolved)} respostas analisadas")
+
+    # Mapear tipo para label amigável
+    type_labels = {
+        "contradiction": "Tensão entre proposições",
+        "gap": "Lacuna no argumento",
+        "confusion": "Confusão detectada",
+        "direction_change": "Mudança de direção"
+    }
+
+    # Agrupar por turno para mostrar pergunta + resposta juntas
+    events_by_turn = {}
+    for event in events:
+        turn = event.get("turn_number", 0)
+        if turn not in events_by_turn:
+            events_by_turn[turn] = []
+        events_by_turn[turn].append(event)
+
+    # Mostrar em ordem reversa (mais recente primeiro)
+    for turn in sorted(events_by_turn.keys(), reverse=True):
+        turn_events = events_by_turn[turn]
+
+        st.markdown(f"#### Turno {turn}")
+
+        for event in turn_events:
+            event_type = event.get("event_type", "")
+            timestamp = event.get("timestamp", "")
+            time_str = format_time(timestamp)
+            clarification_type = event.get("clarification_type", "")
+            type_label = type_labels.get(clarification_type, clarification_type.title())
+
+            if event_type == "clarification_requested":
+                priority = event.get("priority", "medium")
+                question = event.get("question", "")
+                related_context = event.get("related_context", {})
+
+                priority_emoji = {"high": "🔴 Alta", "medium": "🟡 Média", "low": "🟢 Baixa"}.get(priority, "")
+
+                st.markdown(f"**{CLARIFICATION_EMOJI} Pergunta de Esclarecimento** - {time_str}")
+                st.caption(f"Tipo: {type_label} · Prioridade: {priority_emoji}")
+                st.info(f"📝 {question}")
+
+                # Contexto relacionado (se disponível)
+                if related_context:
+                    proposicoes = related_context.get("proposicoes", [])
+                    if proposicoes:
+                        with st.expander("Proposições relacionadas", expanded=False):
+                            for p in proposicoes[:3]:
+                                st.caption(f"• {p}")
+
+            elif event_type == "clarification_resolved":
+                resolution_status = event.get("resolution_status", "")
+                summary = event.get("summary", "")
+                updates_made = event.get("updates_made", {})
+
+                status_config = {
+                    "resolved": ("✅", "success", "Esclarecido"),
+                    "partially_resolved": ("🔶", "warning", "Parcialmente esclarecido"),
+                    "unresolved": ("❓", "error", "Não esclarecido")
+                }
+                emoji, color, label = status_config.get(resolution_status, ("", "info", resolution_status))
+
+                st.markdown(f"**{emoji} Resolução** - {time_str}")
+
+                if color == "success":
+                    st.success(f"{label}: {summary}")
+                elif color == "warning":
+                    st.warning(f"{label}: {summary}")
+                elif color == "error":
+                    st.error(f"{label}: {summary}")
+                else:
+                    st.info(f"{label}: {summary}")
+
+                # Atualizações feitas (se disponível)
+                if updates_made:
+                    with st.expander("Atualizações no modelo", expanded=False):
+                        if updates_made.get("contradictions_resolved"):
+                            st.caption(f"• {updates_made['contradictions_resolved']} contradição(ões) resolvida(s)")
+                        if updates_made.get("proposicoes_added"):
+                            st.caption(f"• {updates_made['proposicoes_added']} proposição(ões) adicionada(s)")
+                        if updates_made.get("questions_closed"):
+                            st.caption(f"• {updates_made['questions_closed']} questão(ões) fechada(s)")
 
         st.markdown("---")
 

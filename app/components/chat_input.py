@@ -11,8 +11,6 @@ Responsável por:
   - Barra inline "Sistema pensando..." com texto dinâmico
   - Texto muda conforme agente ativo
 
-Versão: 4.0
-Data: 19/11/2025
 Status: Épico 14.4 - Feedback Visual Forte
 """
 
@@ -27,7 +25,6 @@ from agents.orchestrator.state import create_initial_multi_agent_state
 from utils.event_bus import get_event_bus
 
 logger = logging.getLogger(__name__)
-
 
 def render_chat_input(session_id: str) -> None:
     """
@@ -103,7 +100,6 @@ def render_chat_input(session_id: str) -> None:
         st.session_state.pending_session_id = session_id
         st.rerun()
 
-
 def _apply_processing_styles() -> None:
     """
     Aplica CSS customizado para feedback visual durante processamento (Épico 14.4).
@@ -142,7 +138,6 @@ def _apply_processing_styles() -> None:
         }
         </style>
     """, unsafe_allow_html=True)
-
 
 def _render_processing_feedback(session_id: str) -> None:
     """
@@ -188,7 +183,6 @@ def _render_processing_feedback(session_id: str) -> None:
         unsafe_allow_html=True
     )
 
-
 def _get_active_agent(session_id: str) -> str:
     """
     Determina qual agente está ativo atualmente baseado no EventBus.
@@ -216,7 +210,6 @@ def _get_active_agent(session_id: str) -> str:
     except Exception as e:
         logger.debug(f"Erro ao determinar agente ativo: {e}")
         return "default"
-
 
 def _process_user_message(user_input: str, session_id: str) -> None:
     """
@@ -306,7 +299,6 @@ def _process_user_message(user_input: str, session_id: str) -> None:
     # Re-renderizar interface (force update)
     st.rerun()
 
-
 def _invoke_langgraph(user_input: str, session_id: str) -> dict:
     """
     Invoca LangGraph e retorna resultado.
@@ -352,7 +344,6 @@ def _invoke_langgraph(user_input: str, session_id: str) -> dict:
     logger.debug(f"LangGraph executado. Next step: {result.get('next_step')}")
 
     return result
-
 
 def _get_latest_metrics(session_id: str) -> dict:
     """

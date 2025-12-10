@@ -9,8 +9,6 @@ Mostra lista de conversas passadas com preview:
 URL: /historico
 Layout: Lista simples
 
-Versão: 1.0
-Data: 04/12/2025
 Status: Épico 2.1 - Sidebar com Links de Navegação
 """
 
@@ -31,7 +29,6 @@ from app.components.conversation_helpers import (
 )
 from app.components.sidebar import render_sidebar
 
-
 # === CONFIGURAÇÃO ===
 
 st.set_page_config(
@@ -40,7 +37,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 
 # === FUNÇÕES AUXILIARES ===
 
@@ -56,7 +52,6 @@ def switch_to_conversation(thread_id: str) -> None:
         st.switch_page("chat.py")
     else:
         st.error("❌ Erro ao carregar conversa")
-
 
 def render_conversation_card(conv: Dict[str, Any]) -> None:
     """
@@ -85,7 +80,6 @@ def render_conversation_card(conv: Dict[str, Any]) -> None:
                 switch_to_conversation(thread_id)
 
         st.markdown("---")
-
 
 # === APLICAÇÃO PRINCIPAL ===
 
@@ -122,7 +116,6 @@ def main():
         st.error(f"❌ Erro ao carregar conversas: {e}")
         import traceback
         st.code(traceback.format_exc())
-
 
 if __name__ == "__main__":
     main()

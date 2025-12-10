@@ -23,8 +23,6 @@ Progressão:
 - ✅ Épico 3: Bastidores reorganizados (seção colapsável, cards, histórico)
 - ✅ Épico 4: Seção de contexto colapsável acima dos bastidores
 
-Versão: 4.0
-Data: 04/12/2025
 Status: Épico 3 + 4 implementados
 """
 
@@ -43,7 +41,6 @@ from app.components import (
     render_sidebar,
 )
 
-
 # === CONFIGURAÇÃO ===
 
 st.set_page_config(
@@ -52,7 +49,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 
 # === ESTILOS CUSTOMIZADOS ===
 
@@ -91,7 +87,6 @@ def apply_custom_styles():
         </style>
     """, unsafe_allow_html=True)
 
-
 # === APLICAÇÃO PRINCIPAL ===
 
 def main():
@@ -104,7 +99,7 @@ def main():
     3. Chat: histórico + input
     4. Bastidores: reasoning collapsible
 
-    TODO (após Épico 8.2/8.3):
+    TODO:
         - Integrar com LangGraph para processamento
         - Consumir eventos do EventBus via polling (1s)
         - Exibir métricas reais (tokens, custo, tempo)
@@ -138,7 +133,6 @@ def main():
         f"Sessão: `{session_id[:20]}...` | "
         "Chat + SqliteSaver + Sidebar integrados"
     )
-
 
 if __name__ == "__main__":
     main()

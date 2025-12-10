@@ -15,8 +15,6 @@ Quando usar:
 - Incerteza sobre profundidade do argumento
 - Checagem de completude antes de sugerir agente
 
-Versao: 2.0 (Epico 10.2 - Processamento via LLM)
-Data: 05/12/2025
 """
 
 import logging
@@ -28,7 +26,6 @@ if TYPE_CHECKING:
     from agents.models.cognitive_model import CognitiveModel
 
 logger = logging.getLogger(__name__)
-
 
 class ObservadorAPI:
     """

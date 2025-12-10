@@ -48,12 +48,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 def print_separator(title: str):
     print("\n" + "=" * 80)
     print(f"  {title}")
     print("=" * 80 + "\n")
-
 
 def print_result(result: dict):
     """Imprime resultado de forma estruturada."""
@@ -72,7 +70,6 @@ def print_result(result: dict):
         focal = result['focal_argument']
         print(f"Focal Argument: intent={focal.get('intent')}, subject={focal.get('subject')}")
     print(f"{'─' * 60}")
-
 
 def validate_scenario_1_exploration():
     """
@@ -123,7 +120,6 @@ def validate_scenario_1_exploration():
     print("\n✅ CENÁRIO 1 VALIDADO!")
     return result
 
-
 def validate_scenario_2_context_accumulation():
     """
     Cenário 2: Múltiplos turnos → Contexto preservado e acumulado.
@@ -173,7 +169,6 @@ def validate_scenario_2_context_accumulation():
     
     print("\n✅ CENÁRIO 2 VALIDADO!")
     return result_2
-
 
 def validate_scenario_3_full_flow():
     """
@@ -236,7 +231,6 @@ def validate_scenario_3_full_flow():
     print("\n✅ CENÁRIO 3 VALIDADO!")
     return result_method
 
-
 def validate_scenario_4_router():
     """
     Cenário 4: Router roteia corretamente baseado em next_step.
@@ -270,7 +264,6 @@ def validate_scenario_4_router():
     assert all_passed, "❌ Algumas rotas falharam"
     print("\n✅ CENÁRIO 4 VALIDADO!")
     return all_passed
-
 
 def main():
     print("\n" + "=" * 80)
@@ -309,7 +302,6 @@ def main():
         import traceback
         traceback.print_exc()
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -8,8 +8,6 @@ Escala de clareza: cristalina -> clara -> nebulosa -> confusa
 
 Usa mocks para LLM - nao faz chamadas reais.
 
-Versao: 2.0
-Data: 09/12/2025
 """
 
 import pytest
@@ -23,7 +21,6 @@ sys.modules['chromadb.config'] = MagicMock()
 # Import direto do modulo (evita __init__.py com dependencias pesadas)
 from agents.observer.extractors import evaluate_conversation_clarity
 from agents.observer.prompts import CLARITY_EVALUATION_PROMPT
-
 
 class TestEvaluateClarityBasic:
     """Testes basicos para evaluate_conversation_clarity."""
@@ -73,7 +70,6 @@ class TestEvaluateClarityBasic:
         assert "needs_checkpoint" in result
         assert "factors" in result
         assert "suggestion" in result
-
 
 class TestClarityLevels:
     """Testes para os niveis de clareza."""
@@ -179,7 +175,6 @@ class TestClarityLevels:
         assert result["clarity_score"] == 1
         assert result["needs_checkpoint"] is True
 
-
 class TestClarityScore:
     """Testes para o score numerico."""
 
@@ -221,7 +216,6 @@ class TestClarityScore:
 
         # Score invalido (99) deve ser corrigido para 5 (cristalina)
         assert result["clarity_score"] == 5
-
 
 class TestNeedsCheckpoint:
     """Testes para o campo needs_checkpoint."""
@@ -302,7 +296,6 @@ class TestNeedsCheckpoint:
 
         assert result["needs_checkpoint"] is True
 
-
 class TestFactors:
     """Testes para os fatores de clareza."""
 
@@ -379,7 +372,6 @@ class TestFactors:
         assert result["factors"]["coherence"] == "media"
         assert result["factors"]["direction_stability"] == "algumas mudancas"
 
-
 class TestErrorHandling:
     """Testes para tratamento de erros."""
 
@@ -450,7 +442,6 @@ class TestErrorHandling:
 
         assert result["clarity_level"] == "nebulosa"
 
-
 class TestPrompt:
     """Testes para o prompt de avaliacao de clareza."""
 
@@ -478,7 +469,6 @@ class TestPrompt:
     def test_prompt_mentions_checkpoint(self):
         """Valida que prompt menciona checkpoint."""
         assert "checkpoint" in CLARITY_EVALUATION_PROMPT.lower()
-
 
 class TestScenarios:
     """Testes de cenarios reais de uso."""

@@ -9,7 +9,5 @@ Estrutura modular organizada por responsabilidade:
 - test_cognitive_model.py: Testes de validação e fallback do cognitive_model
 - test_integration.py: Testes de integração (active_idea_id, snapshots)
 
-Versão: 2.0 (Refatorado - modularizado)
-Data: 14/12/2025
 """
 

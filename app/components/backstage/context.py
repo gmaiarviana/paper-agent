@@ -16,10 +16,10 @@ from datetime import datetime
 from utils.event_bus import get_event_bus
 from utils.currency import format_currency, format_currency_precise
 from agents.database.manager import get_database_manager
+from utils.config import DEFAULT_MODEL
 from .constants import AGENT_EMOJIS
 
 logger = logging.getLogger(__name__)
-
 
 def render_context_section(session_id: str) -> None:
     """
@@ -39,7 +39,6 @@ def render_context_section(session_id: str) -> None:
         _render_idea_status(session_id)
         _render_session_solidez(session_id)  # Épico 9.4: solidez da sessão atual
         _render_accumulated_cost(session_id)
-
 
 def _get_session_accumulated_cost(session_id: str) -> Dict[str, Any]:
     """
@@ -75,10 +74,9 @@ def _get_session_accumulated_cost(session_id: str) -> Dict[str, Any]:
         logger.error(f"Erro ao calcular custo acumulado: {e}", exc_info=True)
         return {"cost": 0.0, "tokens": 0, "num_events": 0}
 
-
 def _get_session_events_details(session_id: str) -> List[Dict[str, Any]]:
     """
-    Busca detalhes de todos os eventos da sessão para o modal (Épico 4.4).
+    Busca detalhes de todos os eventos da sessão para o modal.
 
     Args:
         session_id: ID da sessão ativa
@@ -106,7 +104,7 @@ def _get_session_events_details(session_id: str) -> List[Dict[str, Any]]:
                 "tokens_total": event.get("tokens_total", 0),
                 "duration": event.get("duration", 0.0),
                 "timestamp": event.get("timestamp", ""),
-                "model": event.get("model", "claude-3-5-sonnet")
+                "model": event.get("model", DEFAULT_MODEL)
             })
 
         return details
@@ -114,7 +112,6 @@ def _get_session_events_details(session_id: str) -> List[Dict[str, Any]]:
     except Exception as e:
         logger.error(f"Erro ao buscar detalhes de eventos: {e}", exc_info=True)
         return []
-
 
 @st.dialog("📊 Detalhes da Conversa", width="large")
 def _show_context_details_modal(session_id: str, accumulated: Dict[str, Any]) -> None:
@@ -214,7 +211,6 @@ def _show_context_details_modal(session_id: str, accumulated: Dict[str, Any]) ->
                 st.markdown("---")
                 st.caption(f"🤖 Modelo: {model}")
 
-
 def _render_accumulated_cost(session_id: str) -> None:
     """
     Renderiza custo acumulado da conversa (Épico 4.3 + 4.4).
@@ -249,7 +245,6 @@ def _render_accumulated_cost(session_id: str) -> None:
     with col2:
         if st.button("📊", key="btn_details", help="Ver detalhes"):
             _show_context_details_modal(session_id, accumulated)
-
 
 def _infer_status_from_argument(argument: Dict[str, Any]) -> str:
     """
@@ -290,7 +285,6 @@ def _infer_status_from_argument(argument: Dict[str, Any]) -> str:
 
     # Padrão: explorando (inicial)
     return "exploring"
-
 
 def _render_session_solidez(session_id: str) -> None:
     """
@@ -359,7 +353,6 @@ def _render_session_solidez(session_id: str) -> None:
         )
     except Exception as e:
         logger.debug(f"Não foi possível calcular solidez da sessão: {e}")
-
 
 def _render_idea_status(session_id: str) -> None:
     """

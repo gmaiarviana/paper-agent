@@ -7,8 +7,6 @@ Responsável por:
 - Alternar entre ideias
 - Renderizar lista de ideias e argumentos
 
-Versão: 1.0
-Data: 19/11/2025
 Status: Épico 12 - Sistema de Ideias
 """
 
@@ -22,7 +20,6 @@ from app.components.conversation_helpers import restore_conversation_context
 from agents.database.manager import get_database_manager
 
 logger = logging.getLogger(__name__)
-
 
 def create_new_idea() -> None:
     """
@@ -66,7 +63,6 @@ def create_new_idea() -> None:
     except Exception as e:
         logger.error(f"Erro ao criar nova ideia: {e}", exc_info=True)
         st.error(f"❌ Erro ao criar nova ideia: {e}")
-
 
 def get_recent_ideas(
     search_query: str = "",
@@ -122,7 +118,6 @@ def get_recent_ideas(
     except Exception as e:
         logger.error(f"Erro ao carregar ideias: {e}", exc_info=True)
         return []
-
 
 def switch_idea(idea_id: str) -> None:
     """
@@ -181,7 +176,6 @@ def switch_idea(idea_id: str) -> None:
     except Exception as e:
         logger.error(f"Erro ao alternar ideia: {e}", exc_info=True)
         st.error(f"❌ Erro ao alternar ideia: {e}")
-
 
 def render_idea_list(ideas: List[Dict[str, Any]]) -> None:
     """
@@ -249,7 +243,6 @@ def render_idea_list(ideas: List[Dict[str, Any]]) -> None:
             with st.expander(f"📂 Ver {num_args} argumento(s)", expanded=False):
                 render_argument_list(idea, arguments)
 
-
 def render_argument_list(idea: Dict[str, Any], arguments: List[Dict[str, Any]]) -> None:
     """
     Renderiza lista de argumentos versionados (Épico 12.5).
@@ -295,7 +288,6 @@ def render_argument_list(idea: Dict[str, Any], arguments: List[Dict[str, Any]]) 
             use_container_width=True
         ):
             show_argument_details(arg)
-
 
 @st.dialog("🧠 Detalhes do Argumento", width="large")
 def show_argument_details(argument: Dict[str, Any]) -> None:

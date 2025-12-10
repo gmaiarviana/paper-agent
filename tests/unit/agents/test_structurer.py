@@ -6,8 +6,6 @@ Testa os componentes do Épico 3, Funcionalidade 3.2:
 
 Estes testes usam MOCKS para a API da Anthropic (rápidos, sem custo).
 
-Versão: 1.1
-Data: 09/12/2025
 """
 
 import pytest
@@ -17,13 +15,11 @@ from langchain_core.messages import AIMessage
 from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
 from agents.structurer.nodes import structurer_node
 
-
 def create_mock_llm_response(content):
     """Helper para criar mock response do LLM."""
     mock_response = Mock()
     mock_response.content = content
     return mock_response
-
 
 class TestStructurerNode:
     """Testes para o nó structurer_node."""

@@ -10,8 +10,6 @@ Modelo: all-MiniLM-L6-v2
 - Performance: ~50ms por texto
 - Gratuito e local (nao requer API)
 
-Versao: 1.0 (Epico 10.3)
-Data: 07/12/2025
 """
 
 import logging
@@ -25,7 +23,6 @@ DEFAULT_MODEL = "all-MiniLM-L6-v2"
 
 # Cache para o modelo (carrega apenas uma vez)
 _embedding_model = None
-
 
 def _get_model():
     """
@@ -43,7 +40,6 @@ def _get_model():
         logger.info(f"Modelo carregado: {DEFAULT_MODEL} (384 dimensoes)")
 
     return _embedding_model
-
 
 def generate_embedding(text: str) -> List[float]:
     """
@@ -69,7 +65,6 @@ def generate_embedding(text: str) -> List[float]:
 
     # Converter para lista de floats (compativel com ChromaDB)
     return embedding.tolist()
-
 
 def generate_embeddings_batch(texts: List[str]) -> List[List[float]]:
     """
@@ -100,7 +95,6 @@ def generate_embeddings_batch(texts: List[str]) -> List[List[float]]:
 
     # Converter para lista de listas
     return [emb.tolist() for emb in embeddings]
-
 
 def calculate_similarity(embedding1: List[float], embedding2: List[float]) -> float:
     """
@@ -138,7 +132,6 @@ def calculate_similarity(embedding1: List[float], embedding2: List[float]) -> fl
 
     return float(similarity)
 
-
 def get_embedding_dimensions() -> int:
     """
     Retorna numero de dimensoes do modelo de embeddings.
@@ -147,7 +140,6 @@ def get_embedding_dimensions() -> int:
         Numero de dimensoes (384 para all-MiniLM-L6-v2).
     """
     return 384
-
 
 def get_model_name() -> str:
     """

@@ -10,8 +10,6 @@ Testes:
 - test_complete_hypothesis_flow: Hipótese completa → Metodologista direto
 - test_context_preservation: Contexto preservado entre agentes
 
-Versão: 1.0 (Épico 3, Funcionalidade 3.3)
-Data: 11/11/2025
 """
 
 import os
@@ -30,7 +28,6 @@ load_dotenv()
 
 from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
 
-
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 requires_anthropic = pytest.mark.skipif(
@@ -40,7 +37,6 @@ requires_anthropic = pytest.mark.skipif(
 
 # Todos os testes deste módulo são smoke tests de integração que usam API real
 pytestmark = [pytest.mark.smoke, pytest.mark.integration, requires_anthropic]
-
 
 def test_vague_idea_full_flow(multi_agent_graph):
     """
@@ -92,7 +88,6 @@ def test_vague_idea_full_flow(multi_agent_graph):
     # current_stage pode variar no fluxo conversacional; validamos apenas que existe
     assert result["current_stage"] in ["classifying", "structuring", "validating", "done"]
 
-
 def test_semi_formed_direct_flow(multi_agent_graph):
     """
     Testa fluxo direto: Hipótese semi-formada → Metodologista.
@@ -125,7 +120,6 @@ def test_semi_formed_direct_flow(multi_agent_graph):
             "Metodologista deveria ter status válido (approved, rejected, pending ou needs_refinement)"
 
     assert result["current_stage"] in ["classifying", "structuring", "validating", "done"]
-
 
 def test_complete_hypothesis_flow(multi_agent_graph):
     """
@@ -161,7 +155,6 @@ def test_complete_hypothesis_flow(multi_agent_graph):
             "Metodologista deveria ter status válido (approved, rejected, pending ou needs_refinement)"
 
     assert result["current_stage"] in ["classifying", "structuring", "validating", "done"]
-
 
 def test_context_preservation(multi_agent_graph):
     """
@@ -214,7 +207,6 @@ def test_context_preservation(multi_agent_graph):
     # Validar mensagens LangGraph
     assert result['messages'], \
         "Histórico de mensagens LLM deveria existir"
-
 
 def test_state_fields_structure(multi_agent_graph):
     """

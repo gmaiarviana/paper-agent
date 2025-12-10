@@ -7,8 +7,6 @@ entre textos sao variacoes (mesma essencia) ou mudancas reais
 
 Usa mocks para LLM - nao faz chamadas reais.
 
-Versao: 1.0
-Data: 09/12/2025
 """
 
 import pytest
@@ -22,7 +20,6 @@ sys.modules['chromadb.config'] = MagicMock()
 # Import direto do modulo (evita __init__.py com dependencias pesadas)
 from agents.observer.extractors import detect_variation
 from agents.observer.prompts import VARIATION_DETECTION_PROMPT
-
 
 class TestDetectVariationBasic:
     """Testes basicos para detect_variation."""
@@ -72,7 +69,6 @@ class TestDetectVariationBasic:
         assert "shared_concepts" in result
         assert "new_concepts" in result
         assert "reasoning" in result
-
 
 class TestDetectVariationClassification:
     """Testes para classificacao de variacao vs mudanca real."""
@@ -151,7 +147,6 @@ class TestDetectVariationClassification:
         # Deve fazer fallback para variation (conservador)
         assert result["classification"] == "variation"
 
-
 class TestDetectVariationWithCognitiveModel:
     """Testes com CognitiveModel fornecido."""
 
@@ -213,7 +208,6 @@ class TestDetectVariationWithCognitiveModel:
 
         assert "analysis" in result
 
-
 class TestDetectVariationErrorHandling:
     """Testes para tratamento de erros."""
 
@@ -273,7 +267,6 @@ class TestDetectVariationErrorHandling:
 
         assert "analysis" in result
 
-
 class TestDetectVariationPrompt:
     """Testes para o prompt de deteccao."""
 
@@ -296,7 +289,6 @@ class TestDetectVariationPrompt:
     def test_prompt_is_descriptive_not_prescriptive(self):
         """Valida que prompt e descritivo."""
         assert "DESCRITIVA" in VARIATION_DETECTION_PROMPT or "descritiva" in VARIATION_DETECTION_PROMPT
-
 
 class TestDetectVariationScenarios:
     """Testes de cenarios reais de uso."""
@@ -369,7 +361,6 @@ class TestDetectVariationScenarios:
             )
 
         assert result["classification"] == "variation"
-
 
 class TestDetectVariationEdgeCases:
     """Testes de casos extremos."""

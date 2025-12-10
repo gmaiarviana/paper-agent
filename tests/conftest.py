@@ -12,12 +12,10 @@ from pathlib import Path
 import pytest
 from dotenv import load_dotenv
 
-
 # Carregar variáveis de ambiente do .env na raiz do projeto (se existir)
 project_root = Path(__file__).parent.parent
 env_path = project_root / ".env"
 load_dotenv(dotenv_path=env_path)
-
 
 @pytest.fixture(autouse=True)
 def reset_anthropic_circuit_breaker():
@@ -28,14 +26,13 @@ def reset_anthropic_circuit_breaker():
     Sem esse reset, um teste que falha pode abrir o circuit breaker
     e causar falhas em cascata em todos os testes subsequentes.
     """
-    from utils.config import _anthropic_circuit_breaker
-    _anthropic_circuit_breaker._consecutive_failures = 0
-    _anthropic_circuit_breaker._is_open = False
+    from utils.providers.anthropic import _circuit_breaker
+    _circuit_breaker._consecutive_failures = 0
+    _circuit_breaker._is_open = False
     yield
     # Reset também após o teste (cleanup)
-    _anthropic_circuit_breaker._consecutive_failures = 0
-    _anthropic_circuit_breaker._is_open = False
-
+    _circuit_breaker._consecutive_failures = 0
+    _circuit_breaker._is_open = False
 
 # Import condicional: multi-agent graph requer langgraph
 # Se langgraph não estiver instalado, fixtures não estarão disponíveis
@@ -49,7 +46,6 @@ except ImportError as e:
     import logging
     logging.debug(f"Multi-agent fixtures não disponíveis: {e}")
 
-
 @pytest.fixture
 def multi_agent_graph():
     """Fixture que cria o super-grafo multi-agente para testes."""
@@ -57,12 +53,10 @@ def multi_agent_graph():
         pytest.skip("langgraph não instalado - fixture multi_agent_graph indisponível")
     return create_multi_agent_graph()
 
-
 @pytest.fixture
 def multi_turn_executor(multi_agent_graph):
     """Fixture que cria executor multi-turn para testes."""
     if not MULTI_AGENT_AVAILABLE:
         pytest.skip("langgraph não instalado - fixture multi_turn_executor indisponível")
     return MultiTurnExecutor(multi_agent_graph)
-
 

@@ -10,8 +10,6 @@ O wrapper é responsável por:
 3. Executar o grafo do Metodologista
 4. Converter o resultado de volta para MultiAgentState
 
-Versão: 1.0 (Épico 3, Funcionalidade 3.3)
-Data: 11/11/2025
 """
 
 import logging
@@ -22,7 +20,6 @@ from agents.methodologist.state import create_initial_state
 from agents.methodologist.graph import create_methodologist_graph
 
 logger = logging.getLogger(__name__)
-
 
 def methodologist_wrapper_node(state: MultiAgentState) -> dict:
     """

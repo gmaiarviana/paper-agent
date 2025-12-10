@@ -65,8 +65,8 @@ context_limits:
   max_output_tokens: 2000     # Máximo de tokens de saída
   max_total_tokens: 10000     # Máximo total por chamada
 
-# Modelo LLM (Sonnet para maior confiabilidade)
-model: claude-sonnet-4-20250514
+# Modelo LLM (Haiku para economia)
+model: claude-3-5-haiku-20241022
 
 # Metadados
 metadata:

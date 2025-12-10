@@ -27,7 +27,6 @@ sys.path.insert(0, str(project_root))
 
 import tempfile
 
-
 def get_events_file_path(session_id: str) -> Path:
     """
     Retorna caminho do arquivo de eventos do EventBus.
@@ -41,7 +40,6 @@ def get_events_file_path(session_id: str) -> Path:
     system_temp = Path(tempfile.gettempdir())
     events_dir = system_temp / "paper-agent-events"
     return events_dir / f"events-{session_id}.json"
-
 
 def copy_eventbus_json(session_id: str, dest_dir: Path) -> bool:
     """
@@ -68,7 +66,6 @@ def copy_eventbus_json(session_id: str, dest_dir: Path) -> bool:
     except (IOError, PermissionError) as e:
         print(f"❌ Erro ao copiar EventBus JSON: {e}")
         return False
-
 
 def extract_state_from_checkpoints(session_id: str, dest_dir: Path) -> bool:
     """
@@ -173,7 +170,6 @@ def extract_state_from_checkpoints(session_id: str, dest_dir: Path) -> bool:
         print(f"⚠️  Erro inesperado ao extrair estado: {e}")
         return False
 
-
 def create_metadata(
     session_id: str,
     scenario: str,
@@ -230,7 +226,6 @@ Próximos Passos:
         print(f"✅ Metadata criado: {metadata_file}")
     except IOError as e:
         print(f"❌ Erro ao criar metadata: {e}")
-
 
 def main():
     """Função principal do script."""
@@ -333,7 +328,6 @@ Exemplo de uso:
         sys.exit(1)
     
     print("✅ Coleta concluída com sucesso!")
-
 
 if __name__ == "__main__":
     main()

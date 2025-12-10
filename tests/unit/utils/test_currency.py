@@ -12,7 +12,6 @@ from utils.currency import (
     get_currency_config
 )
 
-
 class TestCurrencyFormatting:
     """Test suite for currency formatting functions."""
 
@@ -73,7 +72,6 @@ class TestCurrencyFormatting:
         result = format_currency(0.10, decimals=2, currency="BRL", rate=5.5)
         assert result == "R$ 0,55"
 
-
 class TestCurrencyHelpers:
     """Test suite for currency helper functions."""
 
@@ -90,7 +88,6 @@ class TestCurrencyHelpers:
         # Result depends on env, but format should be consistent
         decimals_part = result.replace("R$ ", "").replace("$", "").replace(",", ".")
         assert len(decimals_part.split(".")[-1]) == 6
-
 
 class TestCurrencyConfig:
     """Test suite for currency configuration."""
@@ -136,7 +133,6 @@ class TestCurrencyConfig:
         monkeypatch.setenv("USD_TO_BRL_RATE", "invalid")
         _, rate = get_currency_config()
         assert rate == 5.5
-
 
 class TestBRLIntegration:
     """Integration tests for BRL formatting with env vars."""

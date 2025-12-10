@@ -4,8 +4,6 @@ Construção e configuração do grafo LangGraph do agente Metodologista.
 Este módulo cria o StateGraph completo, conectando todos os nós
 e configurando o fluxo de execução com checkpointer para persistência.
 
-Versão: 1.3
-Data: 10/11/2025
 """
 
 import logging
@@ -22,7 +20,6 @@ logger = logging.getLogger(__name__)
 # Permite que o estado do grafo seja salvo e recuperado durante a execução,
 # essencial para handling de interrupções (interrupt) e continuação da conversa.
 checkpointer = MemorySaver()
-
 
 def create_methodologist_graph():
     """

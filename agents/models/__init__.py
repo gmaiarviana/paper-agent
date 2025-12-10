@@ -11,7 +11,7 @@ Este módulo contém schemas validados para as entidades principais do sistema:
 Épico 11: Modelagem Cognitiva
 Épico 11.1: Schema Unificado (Camada Modelo)
 Épico 14: Observer - Consultas Inteligentes
-Data: 2025-12-09
+
 """
 
 from .cognitive_model import CognitiveModel, Contradiction, SolidGround

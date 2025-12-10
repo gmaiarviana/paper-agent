@@ -11,12 +11,10 @@ from agents.multi_agent_graph import create_multi_agent_graph
 from utils.test_executor import MultiTurnExecutor
 from utils.test_scenarios import ConversationScenario
 
-
 @pytest.fixture
 def multi_turn_executor(multi_agent_graph):
     """Fixture para executor multi-turn."""
     return MultiTurnExecutor(multi_agent_graph)
-
 
 @pytest.mark.integration
 def test_cenario_3_refinement_flow(multi_turn_executor):
@@ -45,7 +43,6 @@ def test_cenario_3_refinement_flow(multi_turn_executor):
     assert methodologist_output.get("status") == "needs_refinement", \
         f"Status esperado: needs_refinement, obtido: {methodologist_output.get('status')}"
 
-
 @pytest.mark.integration
 def test_cenario_6_reasoning_loop(multi_turn_executor):
     """
@@ -70,7 +67,6 @@ def test_cenario_6_reasoning_loop(multi_turn_executor):
     # Validar que loop funcionou (múltiplas chamadas ao Methodologist)
     # EventBus deve ter > 1 evento agent_started para methodologist
     # (não validamos aqui pois _get_agents_from_events não diferencia múltiplas chamadas)
-
 
 @pytest.mark.integration
 def test_cenario_7_context_preservation(multi_turn_executor):

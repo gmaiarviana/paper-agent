@@ -24,7 +24,6 @@ from agents.methodologist.nodes import (
     decide
 )
 
-
 # ==============================================================================
 # TESTES DO NÓ ANALYZE
 # ==============================================================================
@@ -105,7 +104,6 @@ class TestAnalyzeNode:
 
             # Verificar que logs foram registrados
             assert "NÓ ANALYZE: Iniciando análise" in caplog.text
-
 
 # ==============================================================================
 # TESTES DO NÓ ASK_CLARIFICATION
@@ -216,7 +214,6 @@ class TestAskClarificationNode:
                 ask_clarification(state)
 
             assert "NÓ ASK_CLARIFICATION: Solicitando clarificação" in caplog.text
-
 
 # ==============================================================================
 # TESTES DO NÓ DECIDE

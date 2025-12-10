@@ -1,7 +1,6 @@
 from typing import List, Dict, Any
 from datetime import datetime
 
-
 class DebugReporter:
     """Gera relatórios de debug formatados."""
     

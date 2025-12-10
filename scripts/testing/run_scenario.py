@@ -22,7 +22,6 @@ from agents.multi_agent_graph import create_multi_agent_graph
 from utils.test_executor import MultiTurnExecutor
 from utils.test_scenarios import ConversationScenario
 
-
 def format_result_for_terminal(result: dict) -> str:
     """
     Formata resultado para exibição no terminal.
@@ -78,7 +77,6 @@ def format_result_for_terminal(result: dict) -> str:
     
     return "\n".join(lines)
 
-
 def save_result_to_file(result: dict, output_dir: Path):
     """
     Salva resultado em arquivo JSON com timestamp.
@@ -109,7 +107,6 @@ def save_result_to_file(result: dict, output_dir: Path):
         json.dump(serializable_result, f, indent=2, ensure_ascii=False)
     
     print(f"\n💾 Resultado salvo: {filepath}")
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -159,7 +156,6 @@ def main():
     
     # Exit code baseado em sucesso
     sys.exit(0 if result['success'] else 1)
-
 
 if __name__ == "__main__":
     main()

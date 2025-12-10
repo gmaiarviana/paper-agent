@@ -6,8 +6,6 @@ Responsável por:
 - Botão de nova conversa
 - Links para páginas dedicadas
 
-Versão: 2.0
-Data: 04/12/2025
 Status: Épico 2.1 - Sidebar com Links de Navegação
 """
 
@@ -17,7 +15,6 @@ import logging
 from app.components.session_helpers import get_current_session_id
 
 logger = logging.getLogger(__name__)
-
 
 def get_active_session_id() -> str:
     """
@@ -35,7 +32,6 @@ def get_active_session_id() -> str:
         logger.debug(f"Nova sessão ativa criada: {st.session_state.active_session_id}")
 
     return st.session_state.active_session_id
-
 
 def create_new_conversation() -> None:
     """
@@ -63,7 +59,6 @@ def create_new_conversation() -> None:
     except Exception as e:
         logger.error(f"Erro ao criar nova conversa: {e}", exc_info=True)
         st.error(f"❌ Erro ao criar nova conversa: {e}")
-
 
 def render_sidebar() -> str:
     """

@@ -13,7 +13,6 @@ from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
-
 class EventBusCore:
     """
     Classe base do EventBus com funcionalidades de persistência.

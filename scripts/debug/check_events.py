@@ -17,7 +17,6 @@ from utils.event_bus import get_event_bus
 import json
 import tempfile
 
-
 def main():
     print("=" * 70)
     print("DIAGNÓSTICO DE EVENTOS - EventBus")
@@ -116,7 +115,6 @@ def main():
     print("=" * 70)
     print("FIM DO DIAGNÓSTICO")
     print("=" * 70)
-
 
 if __name__ == "__main__":
     main()

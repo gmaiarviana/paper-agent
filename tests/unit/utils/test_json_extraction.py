@@ -9,7 +9,6 @@ import pytest
 import json
 from utils.json_parser import extract_json_from_llm_response
 
-
 class TestExtractJsonFromLLMResponse:
     """Testes da função extract_json_from_llm_response."""
 

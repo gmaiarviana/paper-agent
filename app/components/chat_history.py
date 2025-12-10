@@ -7,8 +7,6 @@ Responsável por:
 - Scroll automático para última mensagem
 - Formatação diferenciada para usuário vs sistema
 
-Versão: 2.0
-Data: 16/11/2025
 Status: Protótipo completo (com localStorage - Épico 9.9)
 """
 
@@ -19,7 +17,6 @@ import logging
 from utils.currency import format_currency
 
 logger = logging.getLogger(__name__)
-
 
 def render_chat_history(session_id: str) -> None:
     """
@@ -43,9 +40,9 @@ def render_chat_history(session_id: str) -> None:
             "timestamp": str (ISO)
         }
 
-    TODO (após Épico 8.2/8.3):
+    TODO:
         - Consumir métricas reais do EventBus
-        - Sincronizar com localStorage (9.9)
+        - Sincronizar com localStorage
         - Auto-scroll para última mensagem
     """
     # Inicializar histórico se não existir
@@ -65,7 +62,6 @@ def render_chat_history(session_id: str) -> None:
     # Renderizar mensagens
     for message in st.session_state.messages:
         _render_message(message)
-
 
 def _render_message(message: Dict[str, Any]) -> None:
     """
@@ -91,7 +87,6 @@ def _render_message(message: Dict[str, Any]) -> None:
         if tokens or cost or duration:
             _render_inline_metrics(tokens, cost, duration)
 
-
 def _render_inline_metrics(
     tokens: Dict[str, int] | None,
     cost: float | None,
@@ -100,7 +95,7 @@ def _render_inline_metrics(
     """
     Renderiza métricas inline discretas.
 
-    TODO (após Épico 8.3):
+    TODO:
         - Integrar com métricas consolidadas do EventBus
         - Formatação compacta e discreta
 
@@ -128,7 +123,6 @@ def _render_inline_metrics(
     if metrics_parts:
         metrics_text = " · ".join(metrics_parts)
         st.caption(metrics_text)
-
 
 def clear_history() -> None:
     """

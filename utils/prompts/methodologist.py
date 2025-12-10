@@ -54,7 +54,7 @@ INSTRUÇÕES CRÍTICAS:
 - Justifique decisões citando critérios específicos e evidências da hipótese
 - Seja rigoroso mas construtivo"""
 
-# METODOLOGISTA V2 - Modo Colaborativo (Épico 4) - PROMPT ATUAL
+# METODOLOGISTA V2 - Modo Colaborativo - PROMPT ATUAL
 METHODOLOGIST_DECIDE_PROMPT_V2 = """Você é um Metodologista científico em MODO COLABORATIVO.
 
 SEU PAPEL:

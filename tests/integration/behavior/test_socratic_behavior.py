@@ -32,13 +32,11 @@ from agents.orchestrator.nodes import orchestrator_node
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-
 def print_separator(title=""):
     if title:
         print(f"\n{'='*80}\n  {title}\n{'='*80}\n")
     else:
         print(f"\n{'-'*80}\n")
-
 
 # =============================================================================
 # HELPERS
@@ -87,7 +85,6 @@ def is_provocative_question(message, reflection_prompt=None):
     
     return provocative_score > bureaucratic_score
 
-
 def extract_assumption_category(result):
     """Identifica categoria de assumption da provocação."""
     reflection = result.get('reflection_prompt', '')
@@ -106,7 +103,6 @@ def extract_assumption_category(result):
         return 'generalização'
     return None
 
-
 def has_provocation(result):
     """Verifica se houve provocação no resultado."""
     reflection = result.get('reflection_prompt')
@@ -119,7 +115,6 @@ def has_provocation(result):
         return True
     
     return False
-
 
 # =============================================================================
 # TESTES DE COMPORTAMENTO SOCRÁTICO
@@ -155,7 +150,6 @@ def test_provocation_on_vague_metric():
         print("\n⚠️ Sistema coletou dados (não provocou)")
     
     assert is_prov, "❌ Sistema deveria provocar sobre métrica vaga"
-
 
 def test_provocation_criteria_in_3_turns():
     """
@@ -219,7 +213,6 @@ def test_provocation_criteria_in_3_turns():
     
     print("\n✅ Critério de provocação atendido")
 
-
 def test_timing_emergente():
     """
     BEHAVIOR: Timing emergente (não regras fixas)
@@ -279,7 +272,6 @@ def test_timing_emergente():
     
     print(f"\n✅ Timing emergente: {provocations_23} provocação(ões) nos turnos 2-3")
 
-
 def test_no_infinite_insistence():
     """
     BEHAVIOR: Parada inteligente (não insiste infinitamente)
@@ -336,7 +328,6 @@ def test_no_infinite_insistence():
         f"❌ Sistema insistiu em métrica em todos os turnos (deveria parar)"
     
     print(f"\n✅ Sistema parou de insistir após {len(metric_provocations)} tentativas")
-
 
 def test_no_repetition():
     """
@@ -400,7 +391,6 @@ def test_no_repetition():
     
     print("\n✅ Não-repetição verificada")
 
-
 # =============================================================================
 # MAIN
 # =============================================================================
@@ -438,7 +428,6 @@ def main():
         import traceback
         traceback.print_exc()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

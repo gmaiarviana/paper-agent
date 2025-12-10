@@ -17,7 +17,6 @@ from .constants import AGENT_EMOJIS
 
 logger = logging.getLogger(__name__)
 
-
 def render_backstage(session_id: str) -> None:
     """
     Renderiza seção "📊 Bastidores" colapsável com reasoning dos agentes (Épico 3).
@@ -58,7 +57,6 @@ def render_backstage(session_id: str) -> None:
             # Histórico de agentes anteriores
             from .timeline import render_agent_timeline
             render_agent_timeline(session_id)
-
 
 def _get_latest_reasoning(session_id: str) -> Optional[Dict[str, Any]]:
     """
@@ -125,7 +123,6 @@ def _get_latest_reasoning(session_id: str) -> Optional[Dict[str, Any]]:
     except Exception as e:
         logger.error(f"Erro ao buscar reasoning do EventBus: {e}", exc_info=True)
         return None
-
 
 @st.dialog("🧠 Raciocínio Completo do Agente", width="large")
 def _show_reasoning_modal(reasoning: Dict[str, Any]) -> None:
@@ -214,7 +211,6 @@ def _show_reasoning_modal(reasoning: Dict[str, Any]) -> None:
             json_str = json.dumps(reasoning["full_event"], indent=2, ensure_ascii=False)
             st.code(json_str, language="json")
             st.success("✅ JSON exibido acima. Copie manualmente.")
-
 
 def _render_active_agent(reasoning: Dict[str, Any]) -> None:
     """

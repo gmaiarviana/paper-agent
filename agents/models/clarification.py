@@ -12,13 +12,12 @@ Filosofia:
 - Perguntas ajudam a AVANCAR, nao apenas apontam problemas
 
 Epico 14: Observer - Consultas Inteligentes
-Data: 2025-12-09
+
 """
 
 from typing import Optional, List, Literal
 from uuid import uuid4
 from pydantic import BaseModel, Field, ConfigDict
-
 
 class ClarificationContext(BaseModel):
     """
@@ -55,7 +54,6 @@ class ClarificationContext(BaseModel):
     )
 
     model_config = ConfigDict(extra="forbid")
-
 
 class ClarificationNeed(BaseModel):
     """
@@ -174,7 +172,6 @@ class ClarificationNeed(BaseModel):
         """Cria instancia a partir de dict."""
         return cls(**data)
 
-
 class ClarificationTimingDecision(BaseModel):
     """
     Decisao de timing para fazer pergunta de esclarecimento.
@@ -227,64 +224,6 @@ class ClarificationTimingDecision(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-
-class ClarificationResponse(BaseModel):
-    """
-    Analise da resposta do usuario a uma pergunta de esclarecimento.
-
-    Apos o usuario responder uma pergunta de esclarecimento, o Observer
-    analisa se a confusao foi resolvida e que atualizacoes fazer.
-
-    Attributes:
-        resolution_status: Estado da resolucao
-        summary: Resumo do que foi esclarecido
-        updates: Atualizacoes a fazer no CognitiveModel
-        needs_followup: Se precisa pergunta de acompanhamento
-        followup_suggestion: Sugestao de pergunta de acompanhamento
-
-    Resolution Status:
-        - resolved: Esclarecimento completo
-        - partially_resolved: Algumas duvidas permanecem
-        - unresolved: Resposta nao esclareceu
-
-    Example:
-        >>> response = ClarificationResponse(
-        ...     resolution_status="resolved",
-        ...     summary="Usuario esclareceu que produtividade aumenta em tarefas simples, "
-        ...             "bugs aumentam em tarefas complexas",
-        ...     needs_followup=False
-        ... )
-    """
-
-    resolution_status: Literal["resolved", "partially_resolved", "unresolved"] = Field(
-        ...,
-        description="Estado da resolucao do esclarecimento"
-    )
-
-    summary: str = Field(
-        ...,
-        description="Resumo do que foi esclarecido",
-        min_length=1
-    )
-
-    updates: "ClarificationUpdates" = Field(
-        default_factory=lambda: ClarificationUpdates(),
-        description="Atualizacoes a fazer no CognitiveModel"
-    )
-
-    needs_followup: bool = Field(
-        default=False,
-        description="Se precisa pergunta de acompanhamento"
-    )
-
-    followup_suggestion: Optional[str] = Field(
-        default=None,
-        description="Sugestao de pergunta de acompanhamento (se needs_followup=True)"
-    )
-
-    model_config = ConfigDict(extra="forbid")
-
-
 class ClarificationUpdates(BaseModel):
     """
     Atualizacoes a fazer no CognitiveModel apos esclarecimento.
@@ -327,6 +266,61 @@ class ClarificationUpdates(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+class ClarificationResponse(BaseModel):
+    """
+    Analise da resposta do usuario a uma pergunta de esclarecimento.
+
+    Apos o usuario responder uma pergunta de esclarecimento, o Observer
+    analisa se a confusao foi resolvida e que atualizacoes fazer.
+
+    Attributes:
+        resolution_status: Estado da resolucao
+        summary: Resumo do que foi esclarecido
+        updates: Atualizacoes a fazer no CognitiveModel
+        needs_followup: Se precisa pergunta de acompanhamento
+        followup_suggestion: Sugestao de pergunta de acompanhamento
+
+    Resolution Status:
+        - resolved: Esclarecimento completo
+        - partially_resolved: Algumas duvidas permanecem
+        - unresolved: Resposta nao esclareceu
+
+    Example:
+        >>> response = ClarificationResponse(
+        ...     resolution_status="resolved",
+        ...     summary="Usuario esclareceu que produtividade aumenta em tarefas simples, "
+        ...             "bugs aumentam em tarefas complexas",
+        ...     needs_followup=False
+        ... )
+    """
+
+    resolution_status: Literal["resolved", "partially_resolved", "unresolved"] = Field(
+        ...,
+        description="Estado da resolucao do esclarecimento"
+    )
+
+    summary: str = Field(
+        ...,
+        description="Resumo do que foi esclarecido",
+        min_length=1
+    )
+
+    updates: ClarificationUpdates = Field(
+        default_factory=ClarificationUpdates,
+        description="Atualizacoes a fazer no CognitiveModel"
+    )
+
+    needs_followup: bool = Field(
+        default=False,
+        description="Se precisa pergunta de acompanhamento"
+    )
+
+    followup_suggestion: Optional[str] = Field(
+        default=None,
+        description="Sugestao de pergunta de acompanhamento (se needs_followup=True)"
+    )
+
+    model_config = ConfigDict(extra="forbid")
 
 class QuestionSuggestion(BaseModel):
     """

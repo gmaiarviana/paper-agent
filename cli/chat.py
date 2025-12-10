@@ -10,8 +10,6 @@ Este script implementa um chat contínuo que:
 5. Exibe transparência nos bastidores (quais agentes trabalharam)
 6. Curadoria unificada pelo Orquestrador
 
-Versão: 5.0 (Épico 1.1 - Transição Fluida + Curadoria)
-Data: 04/12/2025
 """
 
 import os
@@ -47,7 +45,6 @@ memory_manager = MemoryManager()
 # Instância global do EventBus (Épico 5.1)
 event_bus = get_event_bus()
 
-
 def parse_args():
     """
     Parse dos argumentos da linha de comando.
@@ -74,7 +71,6 @@ Exemplos de uso:
 
     return parser.parse_args()
 
-
 def print_header(verbose_mode=False):
     """
     Exibe o cabeçalho do CLI.
@@ -93,11 +89,9 @@ def print_header(verbose_mode=False):
 
     print("Digite 'exit' a qualquer momento para sair.\n")
 
-
 def print_separator():
     """Exibe separador visual."""
     print("-" * 70)
-
 
 def run_cli(verbose=False):
     """
@@ -112,7 +106,6 @@ def run_cli(verbose=False):
     Args:
         verbose (bool): Se True, exibe raciocínio do orquestrador inline
 
-    Versão: 3.0 (Épico 7 Protótipo - CLI Conversacional)
     """
     print_header(verbose_mode=verbose)
 
@@ -367,7 +360,6 @@ def run_cli(verbose=False):
             logger.exception("Erro detalhado:")
             print("Sistema: Desculpe, ocorreu um erro. Pode tentar novamente?\n")
             continue
-
 
 if __name__ == "__main__":
     try:

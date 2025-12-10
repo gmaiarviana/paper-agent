@@ -4,8 +4,6 @@ Testes unitarios para Clarification (Epico 14).
 Valida modelos Pydantic e funcoes de clarification de forma isolada,
 sem chamadas LLM reais. Usa mocks para extratores.
 
-Versao: 1.0
-Data: 09/12/2025
 """
 
 import pytest
@@ -19,7 +17,6 @@ from agents.models.clarification import (
     ClarificationUpdates,
     QuestionSuggestion,
 )
-
 
 class TestClarificationModels:
     """Testes para modelos Pydantic de clarification."""
@@ -203,7 +200,6 @@ class TestClarificationModels:
         assert need.turn_detected == 5
         assert need.turns_persisted == 2
 
-
 class TestShouldAskClarification:
     """Testes para funcao should_ask_clarification."""
 
@@ -318,7 +314,6 @@ class TestShouldAskClarification:
         assert decision.should_ask is False
         assert decision.delay_turns > 0
 
-
 class TestUpdateClarificationPersistence:
     """Testes para funcao update_clarification_persistence."""
 
@@ -355,7 +350,6 @@ class TestUpdateClarificationPersistence:
 
         assert updated.turns_persisted == 0
         assert updated.needs_clarification is False
-
 
 class TestClarificationSummaryForTimeline:
     """Testes para funcao get_clarification_summary_for_timeline."""
@@ -400,7 +394,6 @@ class TestClarificationSummaryForTimeline:
 
         assert "pendente" in summary.lower()
 
-
 class TestClarificationEventsModels:
     """Testes para modelos de eventos de clarification."""
 
@@ -438,7 +431,6 @@ class TestClarificationEventsModels:
         assert event.event_type == "clarification_resolved"
         assert event.resolution_status == "resolved"
         assert event.updates_made["contradictions_resolved"] == 1
-
 
 class TestIdentifyClarificationNeedsWithMock:
     """Testes para identify_clarification_needs com mock do LLM."""
@@ -516,3 +508,263 @@ class TestIdentifyClarificationNeedsWithMock:
         need = identify_clarification_needs(cognitive_model, turn_number=3)
 
         assert need.needs_clarification is False
+
+class TestGenerateContradictionQuestion:
+    """Testes para generate_contradiction_question com mock do LLM."""
+
+    @patch('agents.observer.clarification.invoke_with_retry')
+    @patch('agents.observer.clarification._get_llm')
+    def test_generates_contextual_question(self, mock_get_llm, mock_invoke):
+        """Testa que gera pergunta contextual sobre contradicao."""
+        from agents.observer.clarification import generate_contradiction_question
+
+        mock_response = MagicMock()
+        mock_response.content = '''```json
+        {
+            "question": "Voce mencionou que LLMs aumentam produtividade e tambem aumentam bugs. Esses efeitos acontecem em contextos diferentes?",
+            "expected_outcomes": [
+                "Esclarecimento sobre contextos especificos",
+                "Diferenciacao de cenarios"
+            ],
+            "tone_check": "Curiosidade genuina, sem julgamento"
+        }
+        ```'''
+        mock_invoke.return_value = mock_response
+
+        contradiction = {
+            "description": "LLMs aumentam produtividade vs LLMs aumentam bugs",
+            "confidence": 0.85
+        }
+        propositions = [
+            {"texto": "LLMs aumentam produtividade em 30%", "solidez": 0.7},
+            {"texto": "LLMs aumentam quantidade de bugs", "solidez": 0.6}
+        ]
+
+        suggestion = generate_contradiction_question(
+            contradiction, propositions, "Usuario discutindo impacto de LLMs"
+        )
+
+        assert suggestion.question_text is not None
+        assert len(suggestion.question_text) > 0
+        assert suggestion.target_type == "contradiction"
+        assert "Curiosidade" in suggestion.tone_guidance
+
+    @patch('agents.observer.clarification.invoke_with_retry')
+    @patch('agents.observer.clarification._get_llm')
+    def test_fallback_on_error(self, mock_get_llm, mock_invoke):
+        """Testa fallback quando LLM falha."""
+        from agents.observer.clarification import generate_contradiction_question
+
+        mock_invoke.side_effect = Exception("LLM error")
+
+        contradiction = {"description": "Teste"}
+        propositions = []
+
+        suggestion = generate_contradiction_question(
+            contradiction, propositions, "contexto"
+        )
+
+        # Deve retornar fallback generico
+        assert suggestion.question_text is not None
+        assert suggestion.target_type == "contradiction"
+
+class TestSuggestQuestionForGap:
+    """Testes para suggest_question_for_gap com mock do LLM."""
+
+    @patch('agents.observer.clarification.invoke_with_retry')
+    @patch('agents.observer.clarification._get_llm')
+    def test_suggests_question_for_gap(self, mock_get_llm, mock_invoke):
+        """Testa sugestao de pergunta para gap."""
+        from agents.observer.clarification import suggest_question_for_gap
+
+        mock_response = MagicMock()
+        mock_response.content = '''```json
+        {
+            "question": "Voce tem algum dado ou experiencia que demonstre esse aumento de produtividade?",
+            "connection_to_claim": "Evidencia empirica fortaleceria o argumento central"
+        }
+        ```'''
+        mock_invoke.return_value = mock_response
+
+        cognitive_model = {
+            "claim": "LLMs aumentam produtividade em 30%",
+            "proposicoes": [{"texto": "Equipes de tech usam LLMs", "solidez": 0.6}],
+            "open_questions": [
+                "Qual baseline de comparacao?",
+                "Qual a metodologia de medicao?"
+            ],
+            "contradictions": []
+        }
+
+        suggestion = suggest_question_for_gap(
+            cognitive_model, gap_index=0, conversation_context="Discussao sobre impacto"
+        )
+
+        assert suggestion is not None
+        assert suggestion.question_text is not None
+        assert suggestion.target_type == "gap"
+
+    def test_returns_none_when_no_gaps(self):
+        """Testa que retorna None quando nao ha gaps."""
+        from agents.observer.clarification import suggest_question_for_gap
+
+        cognitive_model = {
+            "claim": "LLMs aumentam produtividade",
+            "proposicoes": [],
+            "open_questions": [],  # Sem gaps
+            "contradictions": []
+        }
+
+        suggestion = suggest_question_for_gap(cognitive_model)
+
+        assert suggestion is None
+
+class TestAnalyzeClarificationResponse:
+    """Testes para analyze_clarification_response com mock do LLM."""
+
+    @patch('agents.observer.clarification.invoke_with_retry')
+    @patch('agents.observer.clarification._get_llm')
+    def test_analyzes_resolved_response(self, mock_get_llm, mock_invoke):
+        """Testa analise de resposta que resolve esclarecimento."""
+        from agents.observer.clarification import analyze_clarification_response
+
+        mock_response = MagicMock()
+        mock_response.content = '''```json
+        {
+            "resolution_status": "resolved",
+            "summary": "Usuario esclareceu que produtividade aumenta em tarefas simples",
+            "updates": {
+                "proposicoes_to_add": ["Produtividade aumenta em tarefas simples"],
+                "contradictions_to_resolve": [0]
+            },
+            "needs_followup": false
+        }
+        ```'''
+        mock_invoke.return_value = mock_response
+
+        original_need = ClarificationNeed(
+            needs_clarification=True,
+            clarification_type="contradiction",
+            description="Produtividade vs bugs"
+        )
+
+        cognitive_model = {
+            "claim": "LLMs impactam desenvolvimento",
+            "proposicoes": [],
+            "contradictions": [{"description": "Produtividade vs bugs"}],
+            "open_questions": []
+        }
+
+        response = analyze_clarification_response(
+            user_response="Produtividade aumenta em tarefas simples, bugs em tarefas complexas",
+            question_asked="Esses efeitos acontecem em contextos diferentes?",
+            original_need=original_need,
+            cognitive_model=cognitive_model
+        )
+
+        assert response.resolution_status == "resolved"
+        assert response.needs_followup is False
+        assert len(response.updates.proposicoes_to_add) > 0
+
+    @patch('agents.observer.clarification.invoke_with_retry')
+    @patch('agents.observer.clarification._get_llm')
+    def test_analyzes_partial_response(self, mock_get_llm, mock_invoke):
+        """Testa analise de resposta parcialmente resolvida."""
+        from agents.observer.clarification import analyze_clarification_response
+
+        mock_response = MagicMock()
+        mock_response.content = '''```json
+        {
+            "resolution_status": "partially_resolved",
+            "summary": "Usuario deu alguma clareza mas duvidas permanecem",
+            "updates": {},
+            "needs_followup": true,
+            "followup_suggestion": "Perguntar sobre contexto especifico de tarefas complexas"
+        }
+        ```'''
+        mock_invoke.return_value = mock_response
+
+        original_need = ClarificationNeed(
+            needs_clarification=True,
+            clarification_type="gap",
+            description="Falta evidencia"
+        )
+
+        response = analyze_clarification_response(
+            user_response="Acho que sim, mas nao tenho certeza",
+            question_asked="Voce tem dados?",
+            original_need=original_need,
+            cognitive_model={"claim": "", "proposicoes": [], "contradictions": [], "open_questions": []}
+        )
+
+        assert response.resolution_status == "partially_resolved"
+        assert response.needs_followup is True
+        assert response.followup_suggestion is not None
+
+class TestClarificationTypes:
+    """Testes para diferentes tipos de clarification."""
+
+    def test_all_clarification_types_valid(self):
+        """Testa que todos os tipos de clarification sao validos."""
+        valid_types = ["contradiction", "gap", "confusion", "direction_change"]
+
+        for ctype in valid_types:
+            need = ClarificationNeed(
+                needs_clarification=True,
+                clarification_type=ctype,
+                description=f"Teste {ctype}"
+            )
+            assert need.clarification_type == ctype
+
+    def test_all_priority_levels_valid(self):
+        """Testa que todos os niveis de prioridade sao validos."""
+        valid_priorities = ["high", "medium", "low"]
+
+        for priority in valid_priorities:
+            need = ClarificationNeed(
+                needs_clarification=True,
+                clarification_type="gap",
+                description="Teste",
+                priority=priority
+            )
+            assert need.priority == priority
+
+    def test_all_resolution_statuses_valid(self):
+        """Testa que todos os status de resolucao sao validos."""
+        valid_statuses = ["resolved", "partially_resolved", "unresolved"]
+
+        for status in valid_statuses:
+            response = ClarificationResponse(
+                resolution_status=status,
+                summary="Teste"
+            )
+            assert response.resolution_status == status
+
+class TestClarificationUpdates:
+    """Testes para ClarificationUpdates."""
+
+    def test_empty_updates(self):
+        """Testa ClarificationUpdates vazio."""
+        updates = ClarificationUpdates()
+
+        assert updates.proposicoes_to_add == []
+        assert updates.proposicoes_to_update == {}
+        assert updates.contradictions_to_resolve == []
+        assert updates.open_questions_to_close == []
+        assert updates.context_to_add == {}
+
+    def test_full_updates(self):
+        """Testa ClarificationUpdates com todos os campos."""
+        updates = ClarificationUpdates(
+            proposicoes_to_add=["Nova proposicao 1", "Nova proposicao 2"],
+            proposicoes_to_update={"id1": {"texto": "Atualizado", "solidez": 0.9}},
+            contradictions_to_resolve=[0, 1],
+            open_questions_to_close=[2],
+            context_to_add={"domain": "tecnologia"}
+        )
+
+        assert len(updates.proposicoes_to_add) == 2
+        assert "id1" in updates.proposicoes_to_update
+        assert updates.contradictions_to_resolve == [0, 1]
+        assert updates.open_questions_to_close == [2]
+        assert updates.context_to_add["domain"] == "tecnologia"

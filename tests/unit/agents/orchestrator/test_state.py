@@ -10,7 +10,6 @@ Cobre:
 from langchain_core.messages import HumanMessage
 from agents.orchestrator.state import create_initial_multi_agent_state
 
-
 class TestMultiAgentState:
     """Testes para MultiAgentState e create_initial_multi_agent_state."""
 

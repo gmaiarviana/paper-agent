@@ -3,8 +3,6 @@ Teste unitário simples para validar que HumanMessage está sendo adicionada ao 
 
 Este teste não requer ANTHROPIC_API_KEY.
 
-Versão: 1.0
-Data: 19/11/2025
 """
 
 import sys
@@ -16,7 +14,6 @@ sys.path.insert(0, str(project_root))
 
 from agents.orchestrator.state import create_initial_multi_agent_state
 from langchain_core.messages import HumanMessage
-
 
 def test_initial_state_includes_human_message():
     """
@@ -47,7 +44,6 @@ def test_initial_state_includes_human_message():
         f"Conteúdo da mensagem deveria ser '{user_input}', mas é '{first_msg.content}'"
 
     print("✅ Teste passou! HumanMessage está sendo adicionada corretamente ao estado inicial.")
-
 
 if __name__ == "__main__":
     try:

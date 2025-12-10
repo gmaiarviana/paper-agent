@@ -19,7 +19,6 @@ from agents.orchestrator.state import create_initial_multi_agent_state
 from utils.test_scenarios import ConversationScenario
 from utils.event_bus.singleton import get_event_bus
 
-
 class MultiTurnExecutor:
     """
     Executa cenários multi-turn e rastreia comportamento do sistema.

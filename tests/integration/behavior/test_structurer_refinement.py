@@ -25,7 +25,6 @@ setup_project_path()
 from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.structurer.nodes import structurer_node
 
-
 def validate_structurer_refinement():
     """Valida a implementação do refinamento no Estruturador."""
     print("=" * 70)
@@ -148,7 +147,6 @@ def validate_structurer_refinement():
     print("=" * 70)
     print("\n📋 Checkpoint 3 (Estruturador com Refinamento) está funcionando!")
     print("🔄 Próximo: Checkpoint 4 (Router + Loop no super-grafo)")
-
 
 if __name__ == "__main__":
     try:

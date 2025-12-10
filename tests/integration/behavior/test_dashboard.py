@@ -7,8 +7,6 @@ Valida que o fluxo completo de eventos foi implementado corretamente:
 - Eventos são salvos em arquivos temporários
 - Dashboard pode consumir eventos
 
-Versão: 1.0
-Data: 13/11/2025
 """
 
 import sys
@@ -22,14 +20,12 @@ sys.path.insert(0, str(project_root))
 from utils.event_bus import EventBus
 from datetime import datetime
 
-
 def print_header():
     """Exibe cabeçalho do script."""
     print("=" * 70)
     print("VALIDAÇÃO DO DASHBOARD STREAMLIT (Épico 5.1)")
     print("=" * 70)
     print()
-
 
 def validate_event_bus():
     """Valida publicação básica de eventos."""
@@ -75,7 +71,6 @@ def validate_event_bus():
 
     return session_id, bus
 
-
 def validate_session_summary(session_id, bus):
     """Valida resumo de sessão."""
     print("2. Testando resumo de sessão...")
@@ -94,7 +89,6 @@ def validate_session_summary(session_id, bus):
     print(f"   ✅ Resultado final: {summary['final_status']}")
     print(f"   ✅ Total de eventos: {summary['total_events']}\n")
 
-
 def validate_active_sessions(bus):
     """Valida listagem de sessões ativas."""
     print("3. Testando listagem de sessões ativas...")
@@ -108,7 +102,6 @@ def validate_active_sessions(bus):
         print(f"   📋 {sess_id}")
 
     print()
-
 
 def validate_event_types(session_id, bus):
     """Valida que todos os tipos de evento foram criados."""
@@ -133,7 +126,6 @@ def validate_event_types(session_id, bus):
 
     print()
 
-
 def validate_timeline_ordering(session_id, bus):
     """Valida que eventos estão em ordem cronológica."""
     print("5. Testando ordenação da timeline...")
@@ -149,7 +141,6 @@ def validate_timeline_ordering(session_id, bus):
     print("   ✅ Eventos em ordem cronológica correta")
     print(f"   ✅ Primeiro: {timestamps[0]}")
     print(f"   ✅ Último: {timestamps[-1]}\n")
-
 
 def validate_file_persistence(session_id, bus):
     """Valida que eventos persistem em arquivo."""
@@ -169,7 +160,6 @@ def validate_file_persistence(session_id, bus):
 
     print("   ✅ Eventos persistem entre instâncias do EventBus\n")
 
-
 def validate_dashboard_integration():
     """Valida que Dashboard pode ser importado."""
     print("7. Testando importação do Dashboard...")
@@ -182,7 +172,6 @@ def validate_dashboard_integration():
     except ImportError as e:
         print(f"   ❌ Erro ao importar Dashboard: {e}\n")
         raise
-
 
 def print_summary():
     """Exibe resumo final."""
@@ -205,7 +194,6 @@ def print_summary():
     print("   3. Veja os eventos aparecerem em tempo real no Dashboard!")
     print()
     print("=" * 70)
-
 
 def main():
     """Função principal de validação."""
@@ -230,7 +218,6 @@ def main():
         import traceback
         traceback.print_exc()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

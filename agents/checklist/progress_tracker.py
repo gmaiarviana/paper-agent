@@ -5,7 +5,7 @@ Este módulo detecta status de progresso baseado no modelo cognitivo,
 adaptando checklist conforme tipo de artigo (empírico, revisão, teórico).
 
 Épico 11.6: Checklist de Progresso (Backend)
-Data: 2025-11-17
+
 """
 
 import logging
@@ -16,10 +16,8 @@ from agents.models.cognitive_model import CognitiveModel
 
 logger = logging.getLogger(__name__)
 
-
 # Tipos de status de item do checklist
 ChecklistStatus = Literal["pending", "in_progress", "completed"]
-
 
 class ChecklistItem(BaseModel):
     """
@@ -39,7 +37,6 @@ class ChecklistItem(BaseModel):
         default=None,
         description="Descrição do que o item verifica"
     )
-
 
 # =========================================================================
 # DEFINIÇÃO DE CHECKLISTS POR TIPO DE ARTIGO
@@ -160,7 +157,6 @@ CHECKLIST_GENERIC = [
         description="Open_questions vazias ou poucas (<= 1)"
     ),
 ]
-
 
 # =========================================================================
 # LÓGICA DE DETECÇÃO DE STATUS
@@ -348,7 +344,6 @@ class ProgressTracker:
             elif item.id == "questions_answered":
                 item.status = "completed" if len(model.open_questions) <= 1 else "in_progress"
 
-
 # =========================================================================
 # FUNÇÕES HELPERS GLOBAIS
 # =========================================================================
@@ -376,7 +371,6 @@ def get_checklist_for_article_type(article_type: str) -> List[ChecklistItem]:
     }
 
     return checklists.get(article_type, CHECKLIST_GENERIC)
-
 
 def evaluate_progress(
     cognitive_model: CognitiveModel,

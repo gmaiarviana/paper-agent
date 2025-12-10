@@ -20,14 +20,11 @@ Estrutura:
 │ └─ Histórico         │
 └──────────────────────┘
 
-Versão: 4.2 (Refatorado - modularizado)
-Data: 14/12/2025
 Status: Épico 3 + 4 implementados
 """
 
 from .context import render_context_section
 from .reasoning import render_backstage
-
 
 def render_right_panel(session_id: str) -> None:
     """
@@ -48,7 +45,6 @@ def render_right_panel(session_id: str) -> None:
 
     # Seção 2: Bastidores (abaixo)
     render_backstage(session_id)
-
 
 __all__ = [
     "render_right_panel",

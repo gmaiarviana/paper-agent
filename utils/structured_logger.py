@@ -3,7 +3,6 @@ from pathlib import Path
 import json
 from typing import Optional, Dict, Any, List
 
-
 class StructuredLogger:
     """Logger estruturado em JSON para debugging."""
     

@@ -12,8 +12,6 @@ Solução:
 - Restaurar mensagens do estado do LangGraph (graph.get_state(config))
 - Converter mensagens do formato LangChain para formato Streamlit
 
-Versão: 1.0
-Data: 19/11/2025
 Status: Épico 14.5 - Bugfix Crítico
 """
 
@@ -35,7 +33,6 @@ from agents.multi_agent_graph import create_multi_agent_graph
 from agents.orchestrator.state import create_initial_multi_agent_state
 from langchain_core.messages import HumanMessage, AIMessage
 
-
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 requires_anthropic = pytest.mark.skipif(
@@ -45,7 +42,6 @@ requires_anthropic = pytest.mark.skipif(
 
 # Todos os testes deste módulo são de integração que usam API real
 pytestmark = [pytest.mark.integration, requires_anthropic]
-
 
 def test_conversation_switching_restores_messages(multi_agent_graph):
     """
@@ -157,7 +153,6 @@ def test_conversation_switching_restores_messages(multi_agent_graph):
     assert user_input_b1 in user_messages_b[0].content, \
         "Primeira mensagem de B deveria ser diferente de A"
 
-
 def test_convert_messages_to_streamlit_format(multi_agent_graph):
     """
     Testa conversão de mensagens do LangGraph para formato do Streamlit.
@@ -257,7 +252,6 @@ def test_convert_messages_to_streamlit_format(multi_agent_graph):
         assert "duration" in msg, "Mensagem deveria ter campo 'duration'"
         assert msg["role"] in ["user", "assistant"], \
             f"Role deveria ser 'user' ou 'assistant', não '{msg['role']}'"
-
 
 def test_empty_conversation_switching(multi_agent_graph):
     """

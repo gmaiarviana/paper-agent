@@ -11,8 +11,6 @@ Fluxo:
    - Salva no catálogo (com deduplicação automática)
    - Opcionalmente linka a uma Idea
 
-Versão: 1.0 (Épico 10.4)
-Data: 07/12/2025
 """
 
 import logging
@@ -27,7 +25,6 @@ from .catalog import (
 )
 
 logger = logging.getLogger(__name__)
-
 
 @dataclass
 class ConceptPersistResult:
@@ -48,7 +45,6 @@ class ConceptPersistResult:
             "similarity": self.similarity,
             "merged_with": self.merged_with
         }
-
 
 def persist_concepts(
     concepts: List[str],
@@ -109,7 +105,6 @@ def persist_concepts(
 
     return results
 
-
 def _persist_single_concept(
     concept_label: str,
     idea_id: Optional[str],
@@ -168,7 +163,6 @@ def _persist_single_concept(
         similarity=similarity,
         merged_with=merged_with
     )
-
 
 def persist_concepts_batch(
     concepts: List[str],

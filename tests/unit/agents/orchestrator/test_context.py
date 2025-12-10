@@ -12,7 +12,6 @@ from langchain_core.messages import AIMessage, HumanMessage
 from agents.orchestrator.state import create_initial_multi_agent_state
 from agents.orchestrator.nodes import _build_context
 
-
 class TestBuildContext:
     """Testes para _build_context - construção de contexto para LLM."""
 

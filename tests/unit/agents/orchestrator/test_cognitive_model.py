@@ -18,7 +18,6 @@ from agents.orchestrator.nodes import (
     _create_fallback_cognitive_model
 )
 
-
 class TestCognitiveModelValidation:
     """Testes para validação e fallback do cognitive_model."""
 
@@ -128,7 +127,6 @@ class TestCognitiveModelValidation:
         assert result["context"]["technology"] == "LLMs"
         assert result["context"]["article_type"] is None
 
-
 class TestCognitiveModelFallback:
     """Testes para _create_fallback_cognitive_model."""
 
@@ -160,7 +158,6 @@ class TestCognitiveModelFallback:
         result = _create_fallback_cognitive_model(state)
 
         assert result["claim"] == ""
-
 
 class TestOrchestratorReturnsCognitiveModel:
     """Testes para verificar que orchestrator_node retorna cognitive_model."""

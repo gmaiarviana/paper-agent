@@ -25,9 +25,10 @@
 - **ÉPICO 11**: Alinhamento de Ontologia - Migração completa de premises/assumptions para Proposições unificadas com solidez. Sistema usa `proposicoes` em todas as camadas (modelo, orquestrador, observador, interface). Schema SQLite atualizado, testes migrados, documentação alinhada.
 - **ÉPICO 12**: Observer - Integração Básica (MVP) - Observer integrado ao fluxo multi-agente via callback assíncrono. Processa turnos em background após Orchestrator, publica eventos cognitive_model_updated, e exibe atividade na Timeline. Orquestrador acessa cognitive_model via prompt context. 28 testes passando.
 - **ÉPICO 13**: Observer - Detecção de Mudanças (Não-Determinística) - Todas as 6 features implementadas (13.1-13.6). Sistema detecta variações vs mudanças reais via LLM contextual, avalia clareza de conversa, publica eventos na Timeline, e inclui testes E2E completos. 66+ testes unitários.
+- **ÉPICO 14**: Observer - Consultas Inteligentes - Sistema faz perguntas contextuais para esclarecer contradições e gaps. Integrado ao Orquestrador via `_consult_observer()`. Timeline visual com seção de esclarecimentos. 40+ testes.
 
 ### 🟡 Épicos Em Andamento
-- **ÉPICO 14**: Observer - Consultas Inteligentes - Base implementada (14.1-14.3), Observer identifica pontos de esclarecimento e sugere abordagens
+(Nenhum no momento)
 
 ### ⏳ Épicos Planejados
 
@@ -45,42 +46,6 @@
 **Regra**: Claude Code só trabalha em funcionalidades de épicos refinados.
 
 > Para fluxo completo de planejamento, consulte `planning_guidelines.md`.
-
----
-
-## ✅ ÉPICO 8: Análise Assistida de Qualidade
-
-Ferramentas para execução multi-turn, relatórios estruturados, sistema de observabilidade completo e migração da estrutura de testes. Implementado: Multi-Turn Executor (8.1), Debug Mode (8.2), logging estruturado (JSONL), debug reports, session replay e reorganização completa dos testes em estrutura modular (unit/smoke/behavior/e2e). Resultado: 226 unit tests e 11 smoke tests passando, 0 falhas.
-
----
-
-## ✅ ÉPICO 10: Observador - Mente Analítica (POC)
-
-Observador implementado com ChromaDB + SQLite para catálogo de conceitos. Inclui pipeline de persistência com deduplicação automática (threshold 0.80), busca semântica via embeddings (all-MiniLM-L6-v2), e 22 testes unitários. Preparado para Agentic RAG (Epic 12) com parâmetros opcionais em `process_turn()`.
-
-**Consulte:** `docs/agents/observer.md` - Documentação completa do Observador
-
----
-
-## ✅ ÉPICO 11: Alinhamento de Ontologia
-
-Migração completa de premises/assumptions (strings separadas) para Proposições unificadas com solidez. Sistema usa `proposicoes` em todas as camadas: modelo (Proposicao Pydantic), orquestrador (validação e fallbacks), observador (extração e mesclagem), interface (renderização com indicadores de solidez). Schema SQLite atualizado, testes migrados (377 testes Proposicao, 330 testes CognitiveModel), documentação técnica alinhada.
-
-**Consulte:**
-- `docs/architecture/ontology.md` - Nova ontologia (Proposição)
-- `docs/vision/epistemology.md` - Base filosófica
-- `docs/vision/cognitive_model/core.md` - Evolução de solidez
-
----
-
-## ✅ ÉPICO 12: Observer - Integração Básica (MVP)
-
-Observer integrado ao fluxo multi-agente via callback assíncrono em background thread. Processa turnos após Orchestrator sem aumentar latência, atualiza cognitive_model no estado, publica eventos cognitive_model_updated no EventBus, e exibe atividade na Timeline. Orquestrador acessa cognitive_model via prompt context com seção "COGNITIVE MODEL DISPONÍVEL". 28 testes passando.
-
-**Consulte:**
-- `docs/epics/epic-12-observer-integration.md` - Especificação técnica completa
-- `docs/agents/observer.md` - Comunicação Observador ↔ Orquestrador
-- `docs/architecture/observer_architecture.md` - Integração com grafo
 
 ---
 
@@ -200,96 +165,6 @@ Observer integrado ao fluxo multi-agente via callback assíncrono em background 
   - `test_orchestrator_intervention_is_natural()`
 - [x] **13.6.4** Integrar validação em `utils/test_executor.py`:
   - Método `validate_observer_detections(scenario_result)`
-
----
-
-## ÉPICO 14: Observer - Consultas Inteligentes
-
-**Objetivo:** Quando Observer detecta confusão, sistema faz perguntas contextuais para esclarecer, ao invés de apenas apontar problemas.
-
-**Status:** 🟡 Em Andamento - Base implementada (14.1-14.3)
-
-**Dependências:**
-- Épico 13 (detecção de variations e confusão)
-
-**Filosofia:**
-- Observer identifica o que precisa ser esclarecido
-- Orquestrador formula perguntas naturais (não robóticas)
-- Perguntas ajudam a avançar, não apenas apontam problemas
-- Sistema age como parceiro pensante, não como fiscalizador
-
-### Funcionalidades:
-
-#### 14.1 Identificação de Pontos que Precisam Esclarecimento
-
-- **Descrição:** Observer analisa CognitiveModel e identifica especificamente o que está confuso ou precisa ser esclarecido.
-- **Critérios de Aceite:**
-  - Método `identify_clarification_needs() -> dict` retorna: descrição textual do que precisa esclarecimento, contexto relevante (quais proposições, contradições, etc), sugestão de como perguntar
-  - LLM analisa: contradições, open_questions, proposições frágeis, mudanças de claim
-  - Resposta natural (não lista estruturada fixa)
-  - Foca em avançar conversa, não apenas apontar problemas
-
-#### 14.2 Geração de Perguntas Contextuais
-
-- **Descrição:** Orquestrador usa análise do Observer para formular perguntas naturais e contextuais.
-- **Critérios de Aceite:**
-  - Quando Observer identifica necessidade de esclarecimento, Orquestrador lê sugestão do Observer
-  - Formula pergunta em linguagem natural (não copia texto do Observer)
-  - Pergunta é específica ao contexto (menciona conceitos da conversa)
-  - Pergunta ajuda a avançar (não apenas aponta problema)
-  - Exemplos de boas perguntas: "Você mencionou que LLMs aumentam produtividade, mas também aumentam bugs. Esses dois pontos se aplicam em contextos diferentes?"
-  - Evita perguntas robóticas ou vagas
-
-#### 14.3 Perguntas sobre Contradições (Tensões, não Erros)
-
-- **Descrição:** Quando Observer detecta contradições, sistema pergunta sobre contextos diferentes ao invés de apontar erro.
-- **Critérios de Aceite:**
-  - Observer identifica contradições (já existe no Épico 12)
-  - Orquestrador formula pergunta explorando possíveis contextos: "Esses dois pontos se aplicam em situações diferentes?"
-  - Tom epistemológico: tensão entre proposições, não erro lógico
-  - Permite usuário esclarecer contexto sem sentir que "errou"
-  - Referência a `docs/vision/epistemology.md` (boa-fé epistemológica)
-
-#### 14.4 Perguntas sobre Open Questions
-
-- **Descrição:** Observer sugere perguntas para preencher gaps naturais na conversa.
-- **Critérios de Aceite:**
-  - Observer identifica open_questions (já existe)
-  - Método `suggest_question_for_gap() -> Optional[str]` sugere pergunta para preencher gap
-  - Orquestrador decide quando fazer pergunta (não automático)
-  - Perguntas focam em avançar claim, não apenas coletar info
-  - Exemplo: se claim é "LLMs aumentam produtividade" e falta evidência: "Você tem algum dado ou experiência que mostre esse aumento de produtividade?"
-
-#### 14.5 Timing de Intervenção (Quando Perguntar)
-
-- **Descrição:** Sistema decide quando fazer perguntas de esclarecimento sem interromper fluxo natural.
-- **Critérios de Aceite:**
-  - Orquestrador NÃO pergunta imediatamente após cada input
-  - Pergunta quando: confusão se acumula (múltiplos sinais), usuário pausa ou muda tópico abruptamente, contradição aparece e persiste por 2+ turns, open question importante fica sem resposta
-  - NÃO pergunta quando: usuário está fluindo bem (adicionando proposições consistentes), variation simples detectada, gap menor que não impacta claim
-  - Observer sugere timing, Orquestrador decide
-
-#### 14.6 Feedback Loop (Aprender com Respostas)
-
-- **Descrição:** Observer analisa resposta do usuário a pergunta de esclarecimento e atualiza CognitiveModel.
-- **Critérios de Aceite:**
-  - Após usuário responder pergunta de esclarecimento, Observer analisa resposta
-  - Atualiza proposições, contradictions, ou open_questions
-  - Marca esclarecimento como "resolvido" ou "parcialmente resolvido"
-  - Timeline mostra: "✅ Esclarecimento obtido: [resumo]"
-  - Se resposta não esclarece: Observer identifica necessidade de nova pergunta
-  - Ciclo continua até confusão resolver
-
-#### 14.7 Testes de Integração
-
-- **Descrição:** Validação de perguntas contextuais em cenários reais.
-- **Critérios de Aceite:**
-  - Testes multi-turn com contradições, gaps, mudanças
-  - Validação: perguntas são contextuais (mencionam conceitos específicos)
-  - Validação: perguntas ajudam a avançar (não apenas apontam problemas)
-  - Validação: tom é de parceiro, não fiscalizador
-  - Validação: timing apropriado (não interrompe fluxo)
-  - Script: `scripts/validate_clarification_questions.py`
 
 ---
 

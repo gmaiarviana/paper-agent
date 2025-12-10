@@ -7,13 +7,12 @@ Testa:
 - Método calculate_solidez()
 
 Épico 11.3: Migração para proposicoes unificadas
-Data: 2025-12-08
+
 """
 
 import pytest
 from agents.models.cognitive_model import CognitiveModel, Contradiction, SolidGround
 from agents.models.proposition import Proposicao
-
 
 # =============================================================================
 # TESTES DE CRIAÇÃO DO MODELO
@@ -60,7 +59,6 @@ class TestCognitiveModelCreation:
         )
         assert len(model.proposicoes) == 2
         assert isinstance(model.proposicoes[0], Proposicao)
-
 
 # =============================================================================
 # TESTES DE is_mature()
@@ -111,7 +109,6 @@ class TestIsMature:
             contradictions=[]
         )
         assert model.is_mature() is False  # < 2 proposições
-
 
 # =============================================================================
 # TESTES DE calculate_solidez()
@@ -274,7 +271,6 @@ class TestCalculateSolidez:
         # Solidez deve aumentar ao longo dos turnos
         assert turno1.calculate_solidez() < turno3.calculate_solidez()
         assert turno3.calculate_solidez() < turno5.calculate_solidez()
-
 
 # =============================================================================
 # TESTES DE MÉTODOS AUXILIARES

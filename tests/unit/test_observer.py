@@ -4,8 +4,6 @@ Testes unitarios para Observador POC (Epico 10.6).
 Valida o Observador de forma isolada, sem chamadas LLM reais.
 Usa mocks para extratores e vetores fixos para busca semantica.
 
-Versao: 1.0
-Data: 07/12/2025
 """
 
 import pytest
@@ -30,7 +28,6 @@ from agents.observer import (
     SIMILARITY_THRESHOLD_SAME,
     SIMILARITY_THRESHOLD_AUTO
 )
-
 
 class TestConceptCatalog:
     """Testes para ConceptCatalog (ChromaDB + SQLite)."""
@@ -199,7 +196,6 @@ class TestConceptCatalog:
         concept = catalog.get_concept_by_id(concept_id)
         assert concept is None
 
-
 class TestConceptPipeline:
     """Testes para pipeline de persistencia de conceitos."""
 
@@ -268,7 +264,6 @@ class TestConceptPipeline:
         assert "total" in result
         assert result["total"] == 3
 
-
 class TestEmbeddings:
     """Testes para funcoes de embedding."""
 
@@ -309,7 +304,6 @@ class TestEmbeddings:
         similarity = calculate_similarity(emb1, emb2)
 
         assert similarity > 0.5  # Conceitos relacionados
-
 
 class TestDeduplication:
     """Testes especificos para logica de deduplicacao."""
@@ -353,7 +347,6 @@ class TestDeduplication:
         concept = catalog.get_concept_by_id(id1)
         # Label original deve ser mantido
         assert concept.label == "cooperacao"
-
 
 class TestProcessTurnIntegration:
     """Testes de integracao leve para process_turn (com mocks de LLM)."""

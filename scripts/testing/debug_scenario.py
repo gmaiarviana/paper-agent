@@ -24,7 +24,6 @@ from utils.test_scenarios import ConversationScenario
 from utils.structured_logger import StructuredLogger
 from utils.debug_reporter import DebugReporter
 
-
 def main():
     parser = argparse.ArgumentParser(
         description="Debug detalhado de cenário multi-turn"
@@ -131,7 +130,6 @@ def main():
         
         filepath.write_text(analyzer_report, encoding="utf-8")
         print(f"✅ Relatório do analyzer salvo em: {filepath}")
-
 
 if __name__ == "__main__":
     main()

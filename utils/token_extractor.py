@@ -5,7 +5,7 @@ Este módulo fornece função reutilizável para extrair métricas de uso de tok
 de respostas AIMessage do LangChain e calcular custos via CostTracker.
 
 Épico 8.3: Métricas consolidadas (tokens, custo, tempo)
-Data: 16/11/2025
+
 """
 
 from typing import Dict, Any
@@ -13,7 +13,6 @@ from utils.cost_tracker import CostTracker
 import logging
 
 logger = logging.getLogger(__name__)
-
 
 def extract_tokens_and_cost(response: Any, model_name: str) -> Dict[str, Any]:
     """

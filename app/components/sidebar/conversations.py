@@ -7,8 +7,6 @@ Responsável por:
 - Alternar entre conversas
 - Renderizar lista de conversas
 
-Versão: 1.0
-Data: 19/11/2025
 Status: Épico 14.1 - Navegação em Três Espaços
 """
 
@@ -24,7 +22,6 @@ from app.components.conversation_helpers import (
 )
 
 logger = logging.getLogger(__name__)
-
 
 def create_new_conversation() -> None:
     """
@@ -64,7 +61,6 @@ def create_new_conversation() -> None:
         logger.error(f"Erro ao criar nova conversa: {e}", exc_info=True)
         st.error(f"❌ Erro ao criar nova conversa: {e}")
 
-
 def switch_conversation(thread_id: str) -> None:
     """
     Alterna para outra conversa (Épico 14.1 + 14.5).
@@ -99,7 +95,6 @@ def switch_conversation(thread_id: str) -> None:
     except Exception as e:
         logger.error(f"Erro ao alternar conversa: {e}", exc_info=True)
         st.error(f"❌ Erro ao alternar conversa: {e}")
-
 
 def render_conversation_list(conversations: List[Dict[str, Any]]) -> None:
     """

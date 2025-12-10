@@ -9,8 +9,6 @@ Responsável por:
   - 🏷️ Catálogo → /catalogo (desabilitado)
   - 💬 Conversas → /historico
 
-Versão: 2.0
-Data: 04/12/2025
 Status: Épico 2.1 - Sidebar com Links de Navegação
 """
 

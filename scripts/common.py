@@ -11,7 +11,6 @@ For automated tests, see tests/unit/ and tests/integration/.
 import sys
 from pathlib import Path
 
-
 def setup_project_path():
     """
     Add project root to Python path for imports.

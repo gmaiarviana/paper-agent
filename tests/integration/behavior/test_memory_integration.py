@@ -7,8 +7,6 @@ Valida que o sistema multi-agente completo registra execuções corretamente:
 - Metodologista valida rigor
 - Todos registram tokens e custos no MemoryManager
 
-Versão: 1.0
-Data: 13/11/2025
 """
 
 import sys
@@ -21,7 +19,6 @@ sys.path.insert(0, str(project_root))
 from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
 from agents.memory.memory_manager import MemoryManager
 from utils.cost_tracker import CostTracker
-
 
 def validate_memory_integration():
     """Valida integração completa do MemoryManager com o super-grafo."""
@@ -204,7 +201,6 @@ def validate_memory_integration():
     print("   - MemoryManager exposto via config do super-grafo")
     print("   - Integração com CostTracker validada")
     print("   - Métricas de tokens e custos disponíveis por agente")
-
 
 if __name__ == "__main__":
     try:

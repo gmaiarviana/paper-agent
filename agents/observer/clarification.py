@@ -14,7 +14,7 @@ Filosofia:
 - Perguntas ajudam a AVANCAR, nao apenas apontam problemas
 
 Epico 14: Observer - Consultas Inteligentes
-Data: 2025-12-09
+
 """
 
 import logging
@@ -55,7 +55,6 @@ from utils.json_parser import extract_json_from_llm_response
 
 logger = logging.getLogger(__name__)
 
-
 def _get_llm(
     temperature: float = IDENTIFICATION_TEMPERATURE,
     max_tokens: int = MAX_IDENTIFICATION_TOKENS
@@ -66,7 +65,6 @@ def _get_llm(
         temperature=temperature,
         max_tokens=max_tokens
     )
-
 
 def _format_proposicoes(proposicoes: List[Any]) -> str:
     """Formata lista de proposicoes para incluir no prompt."""
@@ -90,7 +88,6 @@ def _format_proposicoes(proposicoes: List[Any]) -> str:
 
     return "\n".join(lines)
 
-
 def _format_contradictions(contradictions: List[Dict[str, Any]]) -> str:
     """Formata lista de contradicoes para incluir no prompt."""
     if not contradictions:
@@ -104,14 +101,12 @@ def _format_contradictions(contradictions: List[Dict[str, Any]]) -> str:
 
     return "\n".join(lines)
 
-
 def _format_open_questions(open_questions: List[str]) -> str:
     """Formata lista de questoes abertas para incluir no prompt."""
     if not open_questions:
         return "(nenhuma questao aberta)"
 
     return "\n".join(f"{i}. {q}" for i, q in enumerate(open_questions, 1))
-
 
 def _format_history(conversation_history: List[Dict[str, Any]], limit: int = 5) -> str:
     """Formata historico recente para incluir no prompt."""
@@ -125,7 +120,6 @@ def _format_history(conversation_history: List[Dict[str, Any]], limit: int = 5) 
         lines.append(f"[{role}]: {content}")
 
     return "\n".join(lines)
-
 
 # =============================================================================
 # 14.1 - IDENTIFICAR NECESSIDADES DE ESCLARECIMENTO
@@ -245,7 +239,6 @@ def identify_clarification_needs(
             turn_detected=turn_number
         )
 
-
 # =============================================================================
 # 14.3 - PERGUNTA SOBRE CONTRADICAO (TENSAO EPISTEMOLOGICA)
 # =============================================================================
@@ -334,7 +327,6 @@ def generate_contradiction_question(
             tone_guidance="Curiosidade genuina"
         )
 
-
 # =============================================================================
 # 14.4 - PERGUNTA SOBRE GAP (LACUNA)
 # =============================================================================
@@ -420,7 +412,6 @@ def suggest_question_for_gap(
     except Exception as e:
         logger.warning(f"Erro ao gerar pergunta sobre gap: {e}")
         return None
-
 
 # =============================================================================
 # 14.5 - DECISAO DE TIMING (QUANDO PERGUNTAR)
@@ -531,7 +522,6 @@ def should_ask_clarification(
         delay_turns=3,
         urgency="low"
     )
-
 
 # =============================================================================
 # 14.6 - ANALISAR RESPOSTA DE ESCLARECIMENTO
@@ -644,7 +634,6 @@ def analyze_clarification_response(
             needs_followup=False
         )
 
-
 # =============================================================================
 # FUNCOES AUXILIARES
 # =============================================================================
@@ -689,7 +678,6 @@ def update_clarification_persistence(
         turn_detected=clarification_need.turn_detected,
         turns_persisted=clarification_need.turns_persisted + 1
     )
-
 
 def get_clarification_summary_for_timeline(
     clarification_response: ClarificationResponse,

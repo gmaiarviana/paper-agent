@@ -9,7 +9,7 @@ Este módulo implementa operações de Create, Read para Arguments:
 
 Épico 11.1: Schema Unificado - proposicoes (substitui premises/assumptions)
 Épico 11.3: Migração CognitiveModel para proposicoes
-Data: 2025-12-08
+
 """
 
 import sqlite3
@@ -22,7 +22,6 @@ from agents.models.cognitive_model import CognitiveModel
 from agents.models.proposition import Proposicao
 
 logger = logging.getLogger(__name__)
-
 
 class ArgumentsCRUD:
     """

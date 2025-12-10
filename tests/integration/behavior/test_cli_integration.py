@@ -7,8 +7,6 @@ Este script simula uma execução do CLI para verificar que:
 2. EventBus persiste eventos em arquivo
 3. Dashboard pode consumir eventos
 
-Versão: 1.0
-Data: 13/11/2025
 """
 
 import sys
@@ -21,14 +19,12 @@ sys.path.insert(0, str(project_root))
 from utils.event_bus import get_event_bus
 import time
 
-
 def print_header():
     """Exibe cabeçalho do script."""
     print("=" * 70)
     print("TESTE DE INTEGRAÇÃO: CLI → EventBus → Dashboard")
     print("=" * 70)
     print()
-
 
 def simulate_cli_execution():
     """
@@ -106,7 +102,6 @@ def simulate_cli_execution():
     print("\n✅ Simulação concluída!\n")
     return session_id, bus
 
-
 def validate_events(session_id, bus):
     """
     Valida que todos os eventos foram publicados corretamente.
@@ -150,7 +145,6 @@ def validate_events(session_id, bus):
 
     print()
 
-
 def display_dashboard_instructions(session_id):
     """
     Exibe instruções para visualizar eventos no Dashboard.
@@ -171,7 +165,6 @@ def display_dashboard_instructions(session_id):
     print("           Os eventos aparecem em tempo real enquanto o CLI executa")
     print()
 
-
 def print_summary():
     """Exibe resumo final do teste."""
     print("=" * 70)
@@ -188,7 +181,6 @@ def print_summary():
     print("🎉 A funcionalidade 5.1 está COMPLETA e funcionando!")
     print()
     print("=" * 70)
-
 
 def main():
     """Função principal do teste."""
@@ -215,7 +207,6 @@ def main():
         import traceback
         traceback.print_exc()
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

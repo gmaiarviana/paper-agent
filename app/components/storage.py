@@ -12,8 +12,6 @@ Características:
 - Implementação: JavaScript via st.components.v1.html (~20 linhas)
 - Migração: Será substituído por SqliteSaver no MVP (9.10)
 
-Versão: 1.0
-Data: 16/11/2025
 Status: Funcional (Épico 9.9 - Protótipo)
 """
 
@@ -21,7 +19,6 @@ import json
 import streamlit.components.v1 as components
 from typing import Any, Optional, Dict, List
 from datetime import datetime
-
 
 # === FUNÇÕES PÚBLICAS ===
 
@@ -59,7 +56,6 @@ def save_to_localstorage(key: str, data: Any) -> None:
 
     # Renderizar (altura 0 = invisível)
     components.html(js_code, height=0)
-
 
 def load_from_localstorage(key: str, default: Any = None) -> Any:
     """
@@ -130,7 +126,6 @@ def load_from_localstorage(key: str, default: Any = None) -> Any:
 
     return result if result is not None else default
 
-
 def remove_from_localstorage(key: str) -> None:
     """
     Remove dados do localStorage.
@@ -154,7 +149,6 @@ def remove_from_localstorage(key: str) -> None:
 
     components.html(js_code, height=0)
 
-
 def clear_all_localstorage() -> None:
     """
     Limpa TODOS os dados do localStorage (use com cuidado!).
@@ -176,7 +170,6 @@ def clear_all_localstorage() -> None:
 
     components.html(js_code, height=0)
 
-
 # === FUNÇÕES AUXILIARES ===
 
 def save_session_messages(session_id: str, messages: List[Dict[str, Any]]) -> None:
@@ -197,7 +190,6 @@ def save_session_messages(session_id: str, messages: List[Dict[str, Any]]) -> No
     key = f"messages_{session_id}"
     save_to_localstorage(key, messages)
 
-
 def load_session_messages(session_id: str) -> List[Dict[str, Any]]:
     """
     Carrega histórico de mensagens de uma sessão.
@@ -215,7 +207,6 @@ def load_session_messages(session_id: str) -> List[Dict[str, Any]]:
     """
     key = f"messages_{session_id}"
     return load_from_localstorage(key, default=[])
-
 
 def save_session_metadata(session_id: str, metadata: Dict[str, Any]) -> None:
     """
@@ -243,7 +234,6 @@ def save_session_metadata(session_id: str, metadata: Dict[str, Any]) -> None:
     key = f"metadata_{session_id}"
     save_to_localstorage(key, metadata)
 
-
 def load_session_metadata(session_id: str) -> Optional[Dict[str, Any]]:
     """
     Carrega metadados de uma sessão.
@@ -256,7 +246,6 @@ def load_session_metadata(session_id: str) -> Optional[Dict[str, Any]]:
     """
     key = f"metadata_{session_id}"
     return load_from_localstorage(key, default=None)
-
 
 def list_all_sessions() -> List[str]:
     """
@@ -276,7 +265,6 @@ def list_all_sessions() -> List[str]:
     """
     return load_from_localstorage("sessions_list", default=[])
 
-
 def add_session_to_list(session_id: str) -> None:
     """
     Adiciona sessão à lista de sessões armazenadas.
@@ -292,7 +280,6 @@ def add_session_to_list(session_id: str) -> None:
     if session_id not in sessions:
         sessions.append(session_id)
         save_to_localstorage("sessions_list", sessions)
-
 
 def remove_session_from_list(session_id: str) -> None:
     """
@@ -317,5 +304,4 @@ def remove_session_from_list(session_id: str) -> None:
     remove_from_localstorage(f"messages_{session_id}")
     remove_from_localstorage(f"metadata_{session_id}")
     remove_from_localstorage(f"timeline_{session_id}")
-
 

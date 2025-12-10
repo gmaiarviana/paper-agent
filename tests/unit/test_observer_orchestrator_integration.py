@@ -8,8 +8,6 @@ Valida a integracao entre o Observer e o Orchestrator:
 
 Usa mocks para LLM - nao faz chamadas reais.
 
-Versao: 1.0
-Data: 09/12/2025
 """
 
 import pytest
@@ -24,7 +22,6 @@ sys.modules['langgraph'] = MagicMock()
 sys.modules['langgraph.graph'] = MagicMock()
 sys.modules['langgraph.graph.message'] = MagicMock()
 sys.modules['langgraph.graph.message'].add_messages = lambda x: x
-
 
 class TestConsultObserverFunction:
     """Testes para a funcao _consult_observer."""
@@ -247,7 +244,6 @@ class TestConsultObserverFunction:
         assert "clarity_evaluation" in result
         assert "needs_checkpoint" in result
 
-
 class TestStateHasObserverFields:
     """Testes para validar que state tem os novos campos do Observer."""
 
@@ -278,7 +274,6 @@ class TestStateHasObserverFields:
             content = f.read()
 
         assert "variation_analysis" in content
-
 
 class TestCheckpointContextual:
     """Testes para checkpoints contextuais (Epico 13.4)."""
@@ -349,7 +344,6 @@ class TestCheckpointContextual:
 
         assert result["needs_checkpoint"] is False
         assert result["checkpoint_reason"] is None
-
 
 class TestVariationDetectionIntegration:
     """Testes para integracao da deteccao de variacao."""
@@ -429,7 +423,6 @@ class TestVariationDetectionIntegration:
         # Nao deve ter chamado detect_variation
         mock_detect.assert_not_called()
         assert result["variation_analysis"] is None
-
 
 class TestClarityLevelMappings:
     """Testes para validar mapeamento de niveis de clareza."""

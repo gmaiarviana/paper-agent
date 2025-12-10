@@ -145,7 +145,6 @@ SCENARIOS = {
     }
 }
 
-
 def extract_final_message(result: Dict[str, Any]) -> str:
     """
     Extrai mensagem final do sistema do resultado.
@@ -174,7 +173,6 @@ def extract_final_message(result: Dict[str, Any]) -> str:
     
     return "[Nenhuma mensagem encontrada no resultado]"
 
-
 def list_agents_called(events: List[Dict[str, Any]]) -> List[str]:
     """
     Lista agentes que foram chamados baseado nos eventos.
@@ -193,7 +191,6 @@ def list_agents_called(events: List[Dict[str, Any]]) -> List[str]:
                 agents.add(agent_name)
     
     return sorted(list(agents))
-
 
 def detect_issues(execution: Dict[str, Any]) -> List[str]:
     """
@@ -246,7 +243,6 @@ def detect_issues(execution: Dict[str, Any]) -> List[str]:
     
     return issues
 
-
 def format_checklist(items: List[str]) -> str:
     """
     Formata lista de itens como checklist markdown.
@@ -258,7 +254,6 @@ def format_checklist(items: List[str]) -> str:
         str: Checklist formatado
     """
     return "\n".join([f"- [ ] {item}" for item in items])
-
 
 def format_report(execution: Dict[str, Any]) -> str:
     """
@@ -380,7 +375,6 @@ def format_report(execution: Dict[str, Any]) -> str:
     
     return report
 
-
 def execute_scenario(scenario_num: int) -> Dict[str, Any]:
     """
     Executa cenário e retorna resultados.
@@ -496,7 +490,6 @@ def execute_scenario(scenario_num: int) -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat()
     }
 
-
 def main():
     """Função principal do script."""
     parser = argparse.ArgumentParser(
@@ -581,7 +574,6 @@ Exemplo de uso:
     print(f"✅ Relatório salvo em: {output_file}")
     print("📋 Copie o relatório acima e cole para análise")
     print("=" * 70)
-
 
 if __name__ == "__main__":
     main()
