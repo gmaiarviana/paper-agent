@@ -28,13 +28,13 @@ def reset_anthropic_circuit_breaker():
     Sem esse reset, um teste que falha pode abrir o circuit breaker
     e causar falhas em cascata em todos os testes subsequentes.
     """
-    from utils.config import _anthropic_circuit_breaker
-    _anthropic_circuit_breaker._consecutive_failures = 0
-    _anthropic_circuit_breaker._is_open = False
+    from utils.providers.anthropic import _circuit_breaker
+    _circuit_breaker._consecutive_failures = 0
+    _circuit_breaker._is_open = False
     yield
     # Reset também após o teste (cleanup)
-    _anthropic_circuit_breaker._consecutive_failures = 0
-    _anthropic_circuit_breaker._is_open = False
+    _circuit_breaker._consecutive_failures = 0
+    _circuit_breaker._is_open = False
 
 
 # Import condicional: multi-agent graph requer langgraph
