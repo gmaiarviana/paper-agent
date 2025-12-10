@@ -34,7 +34,7 @@ from agents.orchestrator.nodes import orchestrator_node
 from agents.orchestrator.router import route_from_orchestrator
 from agents.structurer.nodes import structurer_node
 from agents.methodologist.nodes import decide_collaborative
-from agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
+from core.agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
 
 # Import EventBus para emitir eventos (Épico 5.1)
 try:
@@ -521,7 +521,7 @@ def create_multi_agent_graph():
     Registro de Memória (Épico 6.2):
         Para habilitar registro de tokens e custos, passe MemoryManager no config:
 
-        >>> from agents.memory.memory_manager import MemoryManager
+        >>> from core.agents.memory.memory_manager import MemoryManager
         >>> memory_manager = MemoryManager()
         >>> config = {
         ...     "configurable": {

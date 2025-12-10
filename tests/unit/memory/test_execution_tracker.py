@@ -7,8 +7,8 @@ Valida captura de tokens de AIMessage e registro no MemoryManager.
 
 import pytest
 from unittest.mock import Mock, patch
-from agents.memory.execution_tracker import register_execution
-from agents.memory.memory_manager import MemoryManager
+from core.agents.memory.execution_tracker import register_execution
+from core.agents.memory.memory_manager import MemoryManager
 
 class TestExecutionTracker:
     """Testes para a função register_execution."""
