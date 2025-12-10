@@ -5,7 +5,7 @@ Tests currency conversion and formatting without external dependencies.
 """
 
 import pytest
-from utils.currency import (
+from core.utils.currency import (
     format_currency,
     format_currency_short,
     format_currency_precise,

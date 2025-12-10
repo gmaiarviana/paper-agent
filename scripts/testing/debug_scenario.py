@@ -19,10 +19,10 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from agents.multi_agent_graph import create_multi_agent_graph
-from utils.debug_analyzer import DebugAnalyzer
-from utils.test_scenarios import ConversationScenario
-from utils.structured_logger import StructuredLogger
-from utils.debug_reporter import DebugReporter
+from core.utils.debug_analyzer import DebugAnalyzer
+from core.utils.test_scenarios import ConversationScenario
+from core.utils.structured_logger import StructuredLogger
+from core.utils.debug_reporter import DebugReporter
 
 def main():
     parser = argparse.ArgumentParser(

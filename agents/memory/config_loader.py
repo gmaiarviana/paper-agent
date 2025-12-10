@@ -12,8 +12,35 @@ from typing import Dict, Any, List
 
 from .config_validator import validate_agent_config_schema, ConfigValidationError
 
+# Cache em memória para configurações carregadas
+# Evita múltiplas leituras do disco (load_agent_config é chamado 3+ vezes por turno)
+_config_cache: Dict[str, Dict[str, Any]] = {}
+
 # Diretório base de configurações
-CONFIG_DIR = Path(__file__).parent.parent.parent / "config" / "agents"
+# Suporta tanto a estrutura antiga (agents/memory/) quanto a nova (core/agents/memory/)
+# Quando em core/agents/memory/: Path(__file__).parent.parent.parent = core/
+# Quando em agents/memory/: Path(__file__).parent.parent.parent = raiz/
+def _get_config_dir() -> Path:
+    """Retorna o diretório de configurações, suportando ambas as estruturas."""
+    current_file = Path(__file__).resolve()
+    base_path = current_file.parent.parent.parent
+    
+    # Se estamos em core/agents/memory/, base_path = core/
+    # Então config está em: core/config/agents/
+    new_path = base_path / "config" / "agents"
+    if new_path.exists():
+        return new_path
+    
+    # Se estamos em agents/memory/, base_path = raiz/
+    # Então config está em: raiz/core/config/agents/
+    old_path = base_path / "core" / "config" / "agents"
+    if old_path.exists():
+        return old_path
+    
+    # Se nenhum existe, retornar o caminho novo (assumindo migração futura)
+    return new_path
+
+CONFIG_DIR = _get_config_dir()
 
 class ConfigLoadError(Exception):
     """Exceção levantada quando não é possível carregar configuração."""
@@ -22,6 +49,9 @@ class ConfigLoadError(Exception):
 def load_agent_config(agent_name: str) -> Dict[str, Any]:
     """
     Carrega configuração de um agente específico do arquivo YAML.
+    
+    Utiliza cache em memória para evitar múltiplas leituras do disco
+    (esta função é chamada 3+ vezes por turno em diferentes agentes).
 
     Args:
         agent_name (str): Nome do agente (ex: "orchestrator", "structurer", "methodologist")
@@ -40,6 +70,10 @@ def load_agent_config(agent_name: str) -> Dict[str, Any]:
         >>> print(config["context_limits"]["max_input_tokens"])
         4000
     """
+    # Verificar cache primeiro
+    if agent_name in _config_cache:
+        return _config_cache[agent_name]
+    
     # Construir caminho do arquivo
     config_file = CONFIG_DIR / f"{agent_name}.yaml"
 
@@ -72,6 +106,9 @@ def load_agent_config(agent_name: str) -> Dict[str, Any]:
 
     # Validar schema
     validate_agent_config_schema(config, agent_name)
+
+    # Armazenar no cache
+    _config_cache[agent_name] = config
 
     return config
 

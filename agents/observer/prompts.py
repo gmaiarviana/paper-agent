@@ -17,7 +17,7 @@ Notes:
     - Modelo recomendado: Usa get_anthropic_model() (centralizado)
 """
 
-from utils.config import get_anthropic_model
+from core.utils.config import get_anthropic_model
 
 # =============================================================================
 # PROMPT: EXTRACAO DE CLAIMS

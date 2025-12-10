@@ -26,7 +26,7 @@ setup_project_path()
 
 from dotenv import load_dotenv
 from anthropic import Anthropic
-from utils.cost_tracker import CostTracker
+from core.utils.cost_tracker import CostTracker
 
 def validate_api_connection():
     """

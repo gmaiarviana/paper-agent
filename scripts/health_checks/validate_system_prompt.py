@@ -20,7 +20,7 @@ from scripts.common import setup_project_path
 
 setup_project_path()
 
-from utils.prompts import METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1
+from core.prompts import METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1
 
 def validate_system_prompt():
     """Valida a implementação do system prompt."""

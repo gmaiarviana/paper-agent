@@ -14,7 +14,7 @@ import streamlit as st
 from typing import List, Dict, Any
 import logging
 
-from utils.currency import format_currency
+from core.utils.currency import format_currency
 
 logger = logging.getLogger(__name__)
 

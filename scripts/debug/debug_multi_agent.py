@@ -38,7 +38,7 @@ print("\n2. Testando LLM diretamente...")
 try:
     from langchain_anthropic import ChatAnthropic
     from langchain_core.messages import HumanMessage
-    from utils.config import get_anthropic_model
+    from core.utils.config import get_anthropic_model
 
     llm = ChatAnthropic(model=get_anthropic_model(), temperature=0)
     response = llm.invoke([HumanMessage(content="Responda apenas: OK")])

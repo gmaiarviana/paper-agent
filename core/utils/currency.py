@@ -9,7 +9,7 @@ Environment Variables:
     USD_TO_BRL_RATE: Exchange rate for USD to BRL conversion. Default: 5.5
 
 Usage:
-    from utils.currency import format_currency
+    from core.utils.currency import format_currency
 
     cost_usd = 0.0012
     formatted = format_currency(cost_usd)  # Returns "$0.0012" or "R$ 0,01"

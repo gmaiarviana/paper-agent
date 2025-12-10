@@ -9,7 +9,7 @@ de respostas AIMessage do LangChain e calcular custos via CostTracker.
 """
 
 from typing import Dict, Any
-from utils.cost_tracker import CostTracker
+from core.utils.cost_tracker import CostTracker
 import logging
 
 logger = logging.getLogger(__name__)

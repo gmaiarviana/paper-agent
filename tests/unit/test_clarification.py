@@ -399,7 +399,7 @@ class TestClarificationEventsModels:
 
     def test_clarification_requested_event(self):
         """Testa ClarificationRequestedEvent."""
-        from utils.event_models import ClarificationRequestedEvent
+        from core.utils.event_models import ClarificationRequestedEvent
 
         event = ClarificationRequestedEvent(
             session_id="session-123",
@@ -417,7 +417,7 @@ class TestClarificationEventsModels:
 
     def test_clarification_resolved_event(self):
         """Testa ClarificationResolvedEvent."""
-        from utils.event_models import ClarificationResolvedEvent
+        from core.utils.event_models import ClarificationResolvedEvent
 
         event = ClarificationResolvedEvent(
             session_id="session-123",

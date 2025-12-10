@@ -174,30 +174,30 @@ paper-agent-monorepo/
 #### Fase 1.1: Criar Diretórios Principais
 
 **Cursor (rápido):**
-- [ ] Criar `core/`
-- [ ] Criar `core/agents/`
-- [ ] Criar `core/prompts/`
-- [ ] Criar `core/utils/`
-- [ ] Criar `core/config/`
-- [ ] Criar `core/tools/`
-- [ ] Criar `core/tools/cli/`
-- [ ] Criar `products/`
-- [ ] Criar `products/revelar/`
-- [ ] Criar `products/revelar/app/`
-- [ ] Criar `tests/core/`
-- [ ] Criar `tests/core/unit/`
-- [ ] Criar `tests/core/integration/`
-- [ ] Criar `tests/core/integration/smoke/`
-- [ ] Criar `tests/core/integration/behavior/`
-- [ ] Criar `tests/core/integration/e2e/`
-- [ ] Criar `tests/products/`
-- [ ] Criar `tests/products/revelar/`
-- [ ] Criar `tests/products/revelar/integration/`
-- [ ] Criar `scripts/core/`
-- [ ] Criar `scripts/revelar/`
-- [ ] Criar `docs/core/`
-- [ ] Criar `docs/products/`
-- [ ] Criar `docs/products/revelar/`
+- [x] Criar `core/`
+- [x] Criar `core/agents/`
+- [x] Criar `core/prompts/`
+- [x] Criar `core/utils/`
+- [x] Criar `core/config/`
+- [x] Criar `core/tools/`
+- [x] Criar `core/tools/cli/`
+- [x] Criar `products/`
+- [x] Criar `products/revelar/`
+- [x] Criar `products/revelar/app/`
+- [x] Criar `tests/core/`
+- [x] Criar `tests/core/unit/`
+- [x] Criar `tests/core/integration/`
+- [x] Criar `tests/core/integration/smoke/`
+- [x] Criar `tests/core/integration/behavior/`
+- [x] Criar `tests/core/integration/e2e/`
+- [x] Criar `tests/products/`
+- [x] Criar `tests/products/revelar/`
+- [x] Criar `tests/products/revelar/integration/`
+- [x] Criar `scripts/core/`
+- [x] Criar `scripts/revelar/`
+- [x] Criar `docs/core/`
+- [x] Criar `docs/products/`
+- [x] Criar `docs/products/revelar/`
 
 **Comandos:**
 ```powershell
@@ -213,27 +213,27 @@ New-Item -ItemType Directory -Force -Path docs/core, docs/products/revelar
 #### Fase 1.2: Criar `__init__.py` Necessários
 
 **Cursor (rápido):**
-- [ ] Criar `core/__init__.py`
-- [ ] Criar `core/agents/__init__.py`
-- [ ] Criar `core/prompts/__init__.py`
-- [ ] Criar `core/utils/__init__.py`
-- [ ] Criar `core/config/__init__.py`
-- [ ] Criar `core/tools/__init__.py`
-- [ ] Criar `core/tools/cli/__init__.py`
-- [ ] Criar `products/__init__.py`
-- [ ] Criar `products/revelar/__init__.py`
-- [ ] Criar `products/revelar/app/__init__.py`
-- [ ] Criar `tests/core/__init__.py`
-- [ ] Criar `tests/core/unit/__init__.py`
-- [ ] Criar `tests/core/integration/__init__.py`
-- [ ] Criar `tests/core/integration/smoke/__init__.py`
-- [ ] Criar `tests/core/integration/behavior/__init__.py`
-- [ ] Criar `tests/core/integration/e2e/__init__.py`
-- [ ] Criar `tests/products/__init__.py`
-- [ ] Criar `tests/products/revelar/__init__.py`
-- [ ] Criar `tests/products/revelar/integration/__init__.py`
-- [ ] Criar `scripts/core/__init__.py`
-- [ ] Criar `scripts/revelar/__init__.py`
+- [x] Criar `core/__init__.py`
+- [x] Criar `core/agents/__init__.py`
+- [x] Criar `core/prompts/__init__.py`
+- [x] Criar `core/utils/__init__.py`
+- [x] Criar `core/config/__init__.py`
+- [x] Criar `core/tools/__init__.py`
+- [x] Criar `core/tools/cli/__init__.py`
+- [x] Criar `products/__init__.py`
+- [x] Criar `products/revelar/__init__.py`
+- [x] Criar `products/revelar/app/__init__.py`
+- [x] Criar `tests/core/__init__.py`
+- [x] Criar `tests/core/unit/__init__.py`
+- [x] Criar `tests/core/integration/__init__.py`
+- [x] Criar `tests/core/integration/smoke/__init__.py`
+- [x] Criar `tests/core/integration/behavior/__init__.py`
+- [x] Criar `tests/core/integration/e2e/__init__.py`
+- [x] Criar `tests/products/__init__.py`
+- [x] Criar `tests/products/revelar/__init__.py`
+- [x] Criar `tests/products/revelar/integration/__init__.py`
+- [x] Criar `scripts/core/__init__.py`
+- [x] Criar `scripts/revelar/__init__.py`
 
 **Comandos:**
 ```powershell
@@ -242,8 +242,8 @@ Get-ChildItem -Recurse -Directory | Where-Object { $_.Name -match '^(core|produc
 ```
 
 **Validação:**
-- [ ] Verificar: Testes continuam passando (nada mudou)
-- [ ] Verificar: Estrutura de diretórios criada corretamente
+- [x] Verificar: Testes continuam passando (nada mudou)
+- [x] Verificar: Estrutura de diretórios criada corretamente
 
 **Commit:** `refactor(migration): create monorepo directory structure`
 
@@ -264,10 +264,10 @@ Get-ChildItem -Recurse -Directory | Where-Object { $_.Name -match '^(core|produc
 Se fizer na ordem errada, `from utils.prompts.` vira `from core.utils.prompts.` (incorreto).
 
 **Cursor (rápido):**
-- [ ] `git mv utils core/utils` (exceto prompts/)
-- [ ] **PRIMEIRO:** Verificar se `from utils.prompts.` já foi convertido para `from core.prompts.`
-- [ ] **DEPOIS:** Find/Replace: `from utils.` → `from core.utils.` (excluir prompts/)
-- [ ] Validar: 0 matches de `from utils\.` (exceto prompts)
+- [x] `git mv utils core/utils` (exceto prompts/)
+- [x] **PRIMEIRO:** Verificar se `from utils.prompts.` já foi convertido para `from core.prompts.`
+- [x] **DEPOIS:** Find/Replace: `from utils.` → `from core.utils.` (excluir prompts/)
+- [x] Validar: 0 matches de `from utils\.` (exceto prompts)
 
 **Comandos:**
 ```powershell
@@ -307,9 +307,9 @@ pytest tests/unit/ -k utils -v
 #### Fase 2.2: Mover `utils/prompts/` → `core/prompts/`
 
 **Cursor (rápido):**
-- [ ] `git mv utils/prompts core/prompts`
-- [ ] Find/Replace: `from utils.prompts.` → `from core.prompts.`
-- [ ] Validar: 0 matches de `from utils.prompts\.`
+- [x] `git mv core/utils/prompts/* core/prompts/` (arquivos movidos)
+- [x] Find/Replace: `from core.utils.prompts.` → `from core.prompts.`
+- [x] Validar: 0 matches de `from utils.prompts\.` e `from core.utils.prompts\.`
 
 **Comandos:**
 ```powershell
@@ -339,8 +339,8 @@ pytest tests/unit/ -k prompts -v
 #### Fase 2.3: Mover `config/` → `core/config/`
 
 **Cursor (rápido):**
-- [ ] `git mv config core/config`
-- [ ] Validar: Estrutura preservada
+- [x] `git mv config core/config`
+- [x] Validar: Estrutura preservada
 
 **Comandos:**
 ```powershell
@@ -348,7 +348,7 @@ git mv config core/config
 ```
 
 **Validação:**
-- [ ] Verificar: `core/config/agents/*.yaml` existe
+- [x] Verificar: `core/config/agents/*.yaml` existe
 
 **Pausa Segura:** ✅ Sim (mas config_loader.py ainda não funciona)
 
@@ -357,16 +357,11 @@ git mv config core/config
 #### Fase 2.4: Ajustar `agents/memory/config_loader.py` (caminho hardcoded + cache)
 
 **Claude Code (complexo):**
-- [ ] Ajustar linha 16: `CONFIG_DIR = Path(__file__).parent.parent.parent / "config" / "agents"`
-- [ ] **Caminho correto:** De `core/agents/memory/config_loader.py` → `core/config/agents/`:
-  - `Path(__file__).parent` = `core/agents/memory/`
-  - `Path(__file__).parent.parent` = `core/agents/`
-  - `Path(__file__).parent.parent.parent` = `core/`
-  - `Path(__file__).parent.parent.parent.parent` = raiz do projeto
-- [ ] **Solução:** `CONFIG_DIR = Path(__file__).parent.parent.parent.parent / "core" / "config" / "agents"`
-- [ ] **OU (mais seguro):** Usar caminho absoluto baseado na raiz do projeto
-- [ ] **Adicionar cache em memória:** `load_agent_config()` é chamado múltiplas vezes por turno (orchestrator, structurer, methodologist). Adicionar dict `_config_cache: Dict[str, Dict[str, Any]] = {}` e verificar cache antes de ler YAML do disco.
-- [ ] Testar: `python -c "from core.agents.memory.config_loader import load_agent_config; print(load_agent_config('orchestrator'))"`
+- [x] Ajustar linha 16: `CONFIG_DIR = Path(__file__).parent.parent.parent / "config" / "agents"`
+- [x] **Caminho correto:** Implementada função `_get_config_dir()` que detecta automaticamente a estrutura (antiga ou nova)
+- [x] **Solução:** Função detecta se está em `core/agents/memory/` ou `agents/memory/` e ajusta o caminho automaticamente
+- [x] **Adicionar cache em memória:** Implementado dict `_config_cache: Dict[str, Dict[str, Any]] = {}` que verifica cache antes de ler YAML do disco
+- [x] Testar: `python -c "from agents.memory.config_loader import load_agent_config; print(load_agent_config('orchestrator')['model'])"` ✅
 
 **Comando:**
 ```powershell
@@ -1489,16 +1484,16 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [x] MIGRATION.md criado
 
 ### Fase 1: Estrutura Base
-- [ ] Diretórios vazios criados
-- [ ] `__init__.py` criados
-- [ ] Testes continuam passando
+- [x] Diretórios vazios criados
+- [x] `__init__.py` criados
+- [x] Testes continuam passando
 - [ ] Commit realizado
 
 ### Fase 2: Core - Folhas
-- [ ] utils/ movido (exceto prompts/)
-- [ ] prompts/ movido
-- [ ] config/ movido
-- [ ] config_loader.py ajustado
+- [x] utils/ movido (exceto prompts/)
+- [x] prompts/ movido
+- [x] config/ movido
+- [x] config_loader.py ajustado
 - [ ] models/ movido
 - [ ] database/ movido
 - [ ] database/manager.py ajustado

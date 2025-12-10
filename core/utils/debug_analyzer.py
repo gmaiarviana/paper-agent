@@ -11,8 +11,8 @@ Mostra:
 from typing import Dict, List, Any
 from pathlib import Path
 
-from utils.test_executor import MultiTurnExecutor
-from utils.event_bus.singleton import get_event_bus
+from core.utils.test_executor import MultiTurnExecutor
+from core.utils.event_bus.singleton import get_event_bus
 
 class DebugAnalyzer:
     """
@@ -20,7 +20,7 @@ class DebugAnalyzer:
     
     Example:
         >>> from agents.multi_agent_graph import create_multi_agent_graph
-        >>> from utils.test_scenarios import ConversationScenario
+        >>> from core.utils.test_scenarios import ConversationScenario
         >>> 
         >>> graph = create_multi_agent_graph()
         >>> analyzer = DebugAnalyzer(graph)

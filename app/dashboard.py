@@ -20,8 +20,8 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 import streamlit as st
-from utils.event_bus import get_event_bus
-from utils.currency import format_currency
+from core.utils.event_bus import get_event_bus
+from core.utils.currency import format_currency
 
 # === CONFIGURAÇÃO ===
 

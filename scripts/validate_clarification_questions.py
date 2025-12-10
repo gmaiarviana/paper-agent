@@ -77,7 +77,7 @@ def validate_imports():
 
     # Eventos
     try:
-        from utils.event_models import (
+        from core.utils.event_models import (
             ClarificationRequestedEvent,
             ClarificationResolvedEvent
         )
@@ -382,7 +382,7 @@ def validate_events():
     """Valida criação de eventos de clarification."""
     logger.info("\n📡 Validando eventos de clarification...")
 
-    from utils.event_models import ClarificationRequestedEvent, ClarificationResolvedEvent
+    from core.utils.event_models import ClarificationRequestedEvent, ClarificationResolvedEvent
 
     checks = []
 

@@ -18,7 +18,7 @@ Epico 14: Observer - Consultas Inteligentes
 Data: 2025-12-09
 """
 
-from utils.config import get_anthropic_model
+from core.utils.config import get_anthropic_model
 
 # =============================================================================
 # PROMPT: IDENTIFICAR NECESSIDADES DE ESCLARECIMENTO

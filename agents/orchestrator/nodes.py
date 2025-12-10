@@ -41,16 +41,16 @@ from langchain_anthropic import ChatAnthropic
 from pydantic import ValidationError
 
 from .state import MultiAgentState
-from utils.json_parser import extract_json_from_llm_response
-from utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client
+from core.utils.json_parser import extract_json_from_llm_response
+from core.utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
-from utils.token_extractor import extract_tokens_and_cost
+from core.utils.token_extractor import extract_tokens_and_cost
 from agents.models.cognitive_model import CognitiveModel
 from agents.models.proposition import Proposicao
-from utils.event_bus import get_event_bus
+from core.utils.event_bus import get_event_bus
 from agents.persistence import create_snapshot_if_mature
-from utils.structured_logger import StructuredLogger
+from core.utils.structured_logger import StructuredLogger
 
 logger = logging.getLogger(__name__)
 
@@ -736,7 +736,7 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
         logger.info(f"Argumento focal anterior: intent={previous_focal.get('intent')}, subject={previous_focal.get('subject')}")
 
     # Usar prompt socrático do Épico 10
-    from utils.prompts import ORCHESTRATOR_SOCRATIC_PROMPT_V1
+    from core.prompts import ORCHESTRATOR_SOCRATIC_PROMPT_V1
 
     # Construir contexto completo (histórico + input atual)
     full_context = _build_context(state)

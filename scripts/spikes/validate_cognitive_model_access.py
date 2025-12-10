@@ -6,7 +6,7 @@ from anthropic import Anthropic
 import os
 import json
 from dotenv import load_dotenv
-from utils.config import get_anthropic_model
+from core.utils.config import get_anthropic_model
 
 # Carregar variáveis de ambiente
 load_dotenv()

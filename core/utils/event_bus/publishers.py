@@ -8,7 +8,7 @@ no barramento de eventos.
 import logging
 from typing import Optional, Dict, Any
 
-from utils.event_models import (
+from core.utils.event_models import (
     EventType,
     AgentStartedEvent,
     AgentCompletedEvent,
