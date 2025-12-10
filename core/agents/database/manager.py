@@ -24,9 +24,31 @@ from typing import Optional, List, Dict, Any
 from .schema import SCHEMA_SQL, DATABASE_VERSION, CREATE_METADATA_TABLE
 from .ideas_crud import IdeasCRUD
 from .arguments_crud import ArgumentsCRUD
-from agents.models.cognitive_model import CognitiveModel
+from core.agents.models.cognitive_model import CognitiveModel
 
 logger = logging.getLogger(__name__)
+
+
+def _get_default_db_path() -> str:
+    """
+    Retorna o caminho padrão do banco de dados, suportando ambas as estruturas.
+
+    Detecta automaticamente se está em core/agents/database/ ou agents/database/
+    e ajusta o caminho para data/data.db na raiz do projeto.
+    """
+    current_file = Path(__file__).resolve()
+    # Subir até encontrar a raiz do projeto (onde data/ deve estar)
+    # De core/agents/database/ → subir 4 níveis → raiz
+    # De agents/database/ → subir 3 níveis → raiz
+
+    # Verificar se estamos em core/agents/database/
+    if current_file.parent.parent.parent.name == "core":
+        project_root = current_file.parent.parent.parent.parent
+    else:
+        # Estamos em agents/database/
+        project_root = current_file.parent.parent.parent
+
+    return str(project_root / "data" / "data.db")
 
 class DatabaseManager:
     """
@@ -45,12 +67,12 @@ class DatabaseManager:
         >>> idea = db.get_idea(idea_id)
     """
 
-    def __init__(self, db_path: str = "data/data.db"):
+    def __init__(self, db_path: Optional[str] = None):
         """
         Inicializa DatabaseManager com conexão SQLite.
 
         Args:
-            db_path: Caminho para arquivo SQLite (padrão: data/data.db)
+            db_path: Caminho para arquivo SQLite (padrão: data/data.db na raiz do projeto)
 
         Notes:
             - Cria diretório data/ se não existir
@@ -58,6 +80,8 @@ class DatabaseManager:
             - Habilita foreign keys (SQLite default é desabilitado)
             - Cria instâncias de CRUDs especializados
         """
+        if db_path is None:
+            db_path = _get_default_db_path()
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 

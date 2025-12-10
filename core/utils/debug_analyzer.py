@@ -19,7 +19,7 @@ class DebugAnalyzer:
     Analisa execução de cenário com logs detalhados para troubleshooting.
     
     Example:
-        >>> from agents.multi_agent_graph import create_multi_agent_graph
+        >>> from core.agents.multi_agent_graph import create_multi_agent_graph
         >>> from core.utils.test_scenarios import ConversationScenario
         >>> 
         >>> graph = create_multi_agent_graph()

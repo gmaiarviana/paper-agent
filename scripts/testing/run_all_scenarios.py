@@ -16,7 +16,7 @@ from datetime import datetime
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from agents.multi_agent_graph import create_multi_agent_graph
+from core.agents.multi_agent_graph import create_multi_agent_graph
 from core.utils.test_executor import MultiTurnExecutor
 from core.utils.test_scenarios import ConversationScenario
 

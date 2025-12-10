@@ -18,15 +18,15 @@ sys.modules['chromadb'] = MagicMock()
 sys.modules['chromadb.config'] = MagicMock()
 
 # Import direto do modulo (evita __init__.py com dependencias pesadas)
-from agents.observer.extractors import detect_variation
-from agents.observer.prompts import VARIATION_DETECTION_PROMPT
+from core.agents.observer.extractors import detect_variation
+from core.agents.observer.prompts import VARIATION_DETECTION_PROMPT
 
 class TestDetectVariationBasic:
     """Testes basicos para detect_variation."""
 
     def test_function_exists(self):
         """Valida que funcao existe e e importavel."""
-        from agents.observer.extractors import detect_variation
+        from core.agents.observer.extractors import detect_variation
         assert callable(detect_variation)
 
     def test_function_signature(self):

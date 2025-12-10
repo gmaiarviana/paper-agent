@@ -19,15 +19,15 @@ sys.modules['chromadb'] = MagicMock()
 sys.modules['chromadb.config'] = MagicMock()
 
 # Import direto do modulo (evita __init__.py com dependencias pesadas)
-from agents.observer.extractors import evaluate_conversation_clarity
-from agents.observer.prompts import CLARITY_EVALUATION_PROMPT
+from core.agents.observer.extractors import evaluate_conversation_clarity
+from core.agents.observer.prompts import CLARITY_EVALUATION_PROMPT
 
 class TestEvaluateClarityBasic:
     """Testes basicos para evaluate_conversation_clarity."""
 
     def test_function_exists(self):
         """Valida que funcao existe e e importavel."""
-        from agents.observer.extractors import evaluate_conversation_clarity
+        from core.agents.observer.extractors import evaluate_conversation_clarity
         assert callable(evaluate_conversation_clarity)
 
     def test_function_signature(self):

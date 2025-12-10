@@ -43,13 +43,13 @@ from pydantic import ValidationError
 from .state import MultiAgentState
 from core.utils.json_parser import extract_json_from_llm_response
 from core.utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client
-from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
-from agents.memory.execution_tracker import register_execution
+from core.agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
+from core.agents.memory.execution_tracker import register_execution
 from core.utils.token_extractor import extract_tokens_and_cost
-from agents.models.cognitive_model import CognitiveModel
-from agents.models.proposition import Proposicao
+from core.agents.models.cognitive_model import CognitiveModel
+from core.agents.models.proposition import Proposicao
 from core.utils.event_bus import get_event_bus
-from agents.persistence import create_snapshot_if_mature
+from core.agents.persistence import create_snapshot_if_mature
 from core.utils.structured_logger import StructuredLogger
 
 logger = logging.getLogger(__name__)
@@ -400,7 +400,7 @@ def _consult_observer(
         ...     suggestion = result['clarity_evaluation']['suggestion']
     """
     # Import lazy para evitar dependência circular com chromadb (Épico 13.3)
-    from agents.observer.extractors import (
+    from core.agents.observer.extractors import (
         evaluate_conversation_clarity,
         detect_variation
     )

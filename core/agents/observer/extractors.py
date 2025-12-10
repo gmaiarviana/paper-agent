@@ -18,7 +18,7 @@ from typing import List, Dict, Any, Optional
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
 
-from agents.models.proposition import Proposicao
+from core.agents.models.proposition import Proposicao
 
 from .prompts import (
     EXTRACT_CLAIMS_PROMPT,

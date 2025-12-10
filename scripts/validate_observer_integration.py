@@ -33,14 +33,14 @@ def validate_imports():
 
     # 12.1: Callback do Observer
     try:
-        from agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
+        from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
         logger.info(f"  ✅ _create_observer_callback importado (OBSERVER_AVAILABLE={OBSERVER_AVAILABLE})")
     except ImportError as e:
         errors.append(f"  ❌ Falha ao importar _create_observer_callback: {e}")
 
     # 12.2: Contexto do CognitiveModel
     try:
-        from agents.orchestrator.nodes import _build_cognitive_model_context
+        from core.agents.orchestrator.nodes import _build_cognitive_model_context
         logger.info("  ✅ _build_cognitive_model_context importado")
     except ImportError as e:
         errors.append(f"  ❌ Falha ao importar _build_cognitive_model_context: {e}")
@@ -54,7 +54,7 @@ def validate_imports():
 
     # Observer nodes
     try:
-        from agents.observer.nodes import process_turn
+        from core.agents.observer.nodes import process_turn
         logger.info("  ✅ process_turn (Observer) importado")
     except ImportError as e:
         errors.append(f"  ❌ Falha ao importar process_turn: {e}")
@@ -77,7 +77,7 @@ def validate_cognitive_model_context():
     """Valida formatação do cognitive_model no contexto (12.2)."""
     logger.info("\n🧠 Validando contexto do CognitiveModel (12.2)...")
 
-    from agents.orchestrator.nodes import _build_cognitive_model_context
+    from core.agents.orchestrator.nodes import _build_cognitive_model_context
 
     test_cm = {
         "claim": "LLMs aumentam produtividade em 30%",
@@ -126,8 +126,8 @@ def validate_context_integration():
     """Valida integração do cognitive_model no _build_context (12.2)."""
     logger.info("\n📝 Validando integração no _build_context (12.2)...")
 
-    from agents.orchestrator.nodes import _build_context
-    from agents.orchestrator.state import create_initial_multi_agent_state
+    from core.agents.orchestrator.nodes import _build_context
+    from core.agents.orchestrator.state import create_initial_multi_agent_state
 
     # Criar estado com cognitive_model
     state = create_initial_multi_agent_state(
@@ -207,7 +207,7 @@ def validate_observer_callback():
     """Valida callback do Observer (12.1)."""
     logger.info("\n👁️ Validando callback do Observer (12.1)...")
 
-    from agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
+    from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
     from langchain_core.messages import HumanMessage, AIMessage
 
     if not OBSERVER_AVAILABLE:

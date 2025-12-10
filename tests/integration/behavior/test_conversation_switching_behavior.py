@@ -27,8 +27,8 @@ from dotenv import load_dotenv
 # Carregar variáveis de ambiente
 load_dotenv()
 
-from agents.multi_agent_graph import create_multi_agent_graph
-from agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.multi_agent_graph import create_multi_agent_graph
+from core.agents.orchestrator.state import create_initial_multi_agent_state
 from app.components.conversation_helpers import (
     restore_conversation_context,
     list_recent_conversations,

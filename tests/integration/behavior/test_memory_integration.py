@@ -16,8 +16,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
-from agents.memory.memory_manager import MemoryManager
+from core.agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
+from core.agents.memory.memory_manager import MemoryManager
 from core.utils.cost_tracker import CostTracker
 
 def validate_memory_integration():

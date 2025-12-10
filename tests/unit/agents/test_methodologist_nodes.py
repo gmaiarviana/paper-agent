@@ -14,11 +14,11 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 from langchain_core.messages import AIMessage, HumanMessage
 
-from agents.methodologist import (
+from core.agents.methodologist import (
     MethodologistState,
     create_initial_state
 )
-from agents.methodologist.nodes import (
+from core.agents.methodologist.nodes import (
     analyze,
     ask_clarification,
     decide

@@ -28,12 +28,12 @@ class TestConsultObserverFunction:
 
     def test_function_exists(self):
         """Valida que funcao existe e e importavel."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
         assert callable(_consult_observer)
 
     def test_returns_dict_with_required_fields(self):
         """Valida que retorno contem campos obrigatorios."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         # Mock state minimo
         state = {
@@ -73,7 +73,7 @@ class TestConsultObserverFunction:
 
     def test_calls_evaluate_clarity_when_cognitive_model_exists(self):
         """Testa que evaluate_conversation_clarity e chamado com cognitive_model."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "LLMs aumentam produtividade"}
@@ -101,7 +101,7 @@ class TestConsultObserverFunction:
 
     def test_calls_detect_variation_when_previous_claim_exists(self):
         """Testa que detect_variation e chamado quando ha claim anterior."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "novo input", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "LLMs aumentam produtividade"}
@@ -137,7 +137,7 @@ class TestConsultObserverFunction:
 
     def test_sets_needs_checkpoint_when_clarity_low(self):
         """Testa que needs_checkpoint e True quando clareza e baixa."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "Algo vago"}
@@ -169,7 +169,7 @@ class TestConsultObserverFunction:
 
     def test_sets_needs_checkpoint_when_real_change_detected(self):
         """Testa que needs_checkpoint e True quando mudanca real detectada."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "LLMs aumentam produtividade"}
@@ -208,7 +208,7 @@ class TestConsultObserverFunction:
 
     def test_handles_empty_cognitive_model(self):
         """Testa que funcao lida com cognitive_model vazio."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
@@ -225,7 +225,7 @@ class TestConsultObserverFunction:
 
     def test_handles_observer_errors_gracefully(self):
         """Testa que erros no Observer nao quebram a funcao."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "teste"}
@@ -280,7 +280,7 @@ class TestCheckpointContextual:
 
     def test_checkpoint_adjusts_next_step_to_clarify(self):
         """Testa que checkpoint ajusta next_step para clarify."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "???", "messages": [], "focal_argument": None}
         cognitive_model = {"claim": "Algo vago e confuso"}
@@ -313,7 +313,7 @@ class TestCheckpointContextual:
 
     def test_no_checkpoint_for_cristalina_clarity(self):
         """Testa que nao ha checkpoint quando clareza e cristalina."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
         cognitive_model = {
@@ -350,7 +350,7 @@ class TestVariationDetectionIntegration:
 
     def test_variation_uses_focal_argument_as_fallback(self):
         """Testa que usa focal_argument quando claim nao existe."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {
             "user_input": "teste",
@@ -394,7 +394,7 @@ class TestVariationDetectionIntegration:
 
     def test_no_variation_detection_without_previous_claim(self):
         """Testa que nao detecta variacao sem claim anterior."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {
             "user_input": "teste",
@@ -429,7 +429,7 @@ class TestClarityLevelMappings:
 
     def test_cristalina_no_checkpoint(self):
         """Cristalina nao precisa de checkpoint."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
@@ -452,7 +452,7 @@ class TestClarityLevelMappings:
 
     def test_clara_no_checkpoint(self):
         """Clara nao precisa de checkpoint."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
@@ -475,7 +475,7 @@ class TestClarityLevelMappings:
 
     def test_nebulosa_needs_checkpoint(self):
         """Nebulosa precisa de checkpoint."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "teste", "messages": [], "focal_argument": None}
 
@@ -499,7 +499,7 @@ class TestClarityLevelMappings:
 
     def test_confusa_needs_checkpoint(self):
         """Confusa precisa de checkpoint."""
-        from agents.orchestrator.nodes import _consult_observer
+        from core.agents.orchestrator.nodes import _consult_observer
 
         state = {"user_input": "???", "messages": [], "focal_argument": None}
 

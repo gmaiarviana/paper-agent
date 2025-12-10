@@ -28,8 +28,8 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from langchain_core.messages import HumanMessage, AIMessage
-from agents.orchestrator.state import create_initial_multi_agent_state
-from agents.orchestrator.nodes import _build_context
+from core.agents.orchestrator.state import create_initial_multi_agent_state
+from core.agents.orchestrator.nodes import _build_context
 
 def print_separator(title=""):
     """Imprime separador visual."""

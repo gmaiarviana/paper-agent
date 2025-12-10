@@ -26,7 +26,7 @@ sys.path.insert(0, str(project_root))
 # Carregar variáveis de ambiente do .env
 load_dotenv()
 
-from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
+from core.agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 

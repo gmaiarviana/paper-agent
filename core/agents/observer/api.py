@@ -23,7 +23,7 @@ from typing import Optional, Dict, Any, List, TYPE_CHECKING
 from .state import ObserverInsight
 
 if TYPE_CHECKING:
-    from agents.models.cognitive_model import CognitiveModel
+    from core.agents.models.cognitive_model import CognitiveModel
 
 logger = logging.getLogger(__name__)
 

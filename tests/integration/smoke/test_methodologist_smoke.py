@@ -18,7 +18,7 @@ import pytest
 from dotenv import load_dotenv
 from langgraph.types import Command
 
-from agents.methodologist import (
+from core.agents.methodologist import (
     create_methodologist_graph,
     create_initial_state,
 )

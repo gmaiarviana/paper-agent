@@ -19,7 +19,7 @@ from .extractors import extract_all
 from .metrics import calculate_metrics, evaluate_maturity
 from .concept_pipeline import persist_concepts_batch
 
-from agents.models.proposition import Proposicao
+from core.agents.models.proposition import Proposicao
 
 logger = logging.getLogger(__name__)
 

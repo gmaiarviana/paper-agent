@@ -50,8 +50,8 @@ except Exception as e:
 # Teste 3: Testar orchestrator_node isolado
 print("\n3. Testando orchestrator_node isolado...")
 try:
-    from agents.orchestrator.state import create_initial_multi_agent_state
-    from agents.orchestrator.nodes import orchestrator_node
+    from core.agents.orchestrator.state import create_initial_multi_agent_state
+    from core.agents.orchestrator.nodes import orchestrator_node
 
     state = create_initial_multi_agent_state("Teste simples")
     result = orchestrator_node(state)
@@ -65,7 +65,7 @@ except Exception as e:
 # Teste 4: Testar structurer_node isolado
 print("\n4. Testando structurer_node isolado...")
 try:
-    from agents.structurer.nodes import structurer_node
+    from core.agents.structurer.nodes import structurer_node
 
     state = create_initial_multi_agent_state("Observei algo interessante")
     result = structurer_node(state)
@@ -79,7 +79,7 @@ except Exception as e:
 # Teste 5: Testar criação do super-grafo
 print("\n5. Testando criação do super-grafo...")
 try:
-    from agents.multi_agent_graph import create_multi_agent_graph
+    from core.agents.multi_agent_graph import create_multi_agent_graph
 
     graph = create_multi_agent_graph()
     print(f"   ✅ Super-grafo criado com sucesso")
@@ -92,7 +92,7 @@ except Exception as e:
 # Teste 6: Testar execução do super-grafo (CRÍTICO)
 print("\n6. Testando execução do super-grafo...")
 try:
-    from agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
+    from core.agents.multi_agent_graph import create_multi_agent_graph, create_initial_multi_agent_state
 
     graph = create_multi_agent_graph()
     state = create_initial_multi_agent_state("Teste de execução")

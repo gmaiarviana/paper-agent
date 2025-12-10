@@ -18,7 +18,7 @@ from scripts.common import setup_project_path
 
 setup_project_path()
 
-from agents.memory.config_loader import (
+from core.agents.memory.config_loader import (
     load_all_agent_configs,
     get_agent_prompt,
     get_agent_model,

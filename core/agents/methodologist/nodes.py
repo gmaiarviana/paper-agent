@@ -28,11 +28,11 @@ from .tools import ask_user
 from core.utils.json_parser import extract_json_from_llm_response
 from core.prompts import METHODOLOGIST_DECIDE_PROMPT_V2
 from core.utils.config import get_anthropic_model, invoke_with_retry, create_anthropic_client
-from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
-from agents.memory.execution_tracker import register_execution
+from core.agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
+from core.agents.memory.execution_tracker import register_execution
 from core.utils.token_extractor import extract_tokens_and_cost
 from core.utils.structured_logger import StructuredLogger
-from agents.orchestrator.state import MethodologistOutputModel
+from core.agents.orchestrator.state import MethodologistOutputModel
 
 logger = logging.getLogger(__name__)
 

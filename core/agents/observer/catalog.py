@@ -21,14 +21,34 @@ from dataclasses import dataclass
 
 import chromadb
 from chromadb.config import Settings
+from pathlib import Path
 
 from .embeddings import generate_embedding, calculate_similarity
 
 logger = logging.getLogger(__name__)
 
-# Paths padrao para persistencia
-DEFAULT_CHROMA_PATH = "./data/chroma"
-DEFAULT_SQLITE_PATH = "./data/concepts.db"
+
+def _get_project_root() -> Path:
+    """
+    Retorna a raiz do projeto, suportando ambas as estruturas.
+
+    Detecta automaticamente se está em core/agents/observer/ ou agents/observer/
+    e retorna o caminho da raiz do projeto.
+    """
+    current_file = Path(__file__).resolve()
+    # De core/agents/observer/ → subir 4 níveis → raiz
+    # De agents/observer/ → subir 3 níveis → raiz
+
+    if current_file.parent.parent.parent.name == "core":
+        return current_file.parent.parent.parent.parent
+    else:
+        return current_file.parent.parent.parent
+
+
+# Paths padrao para persistencia (calculados dinamicamente)
+_project_root = _get_project_root()
+DEFAULT_CHROMA_PATH = str(_project_root / "data" / "chroma")
+DEFAULT_SQLITE_PATH = str(_project_root / "data" / "concepts.db")
 
 # Thresholds de similaridade
 SIMILARITY_THRESHOLD_SAME = 0.80  # >= 0.80: mesmo conceito

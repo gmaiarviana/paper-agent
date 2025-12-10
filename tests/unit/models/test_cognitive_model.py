@@ -11,8 +11,8 @@ Testa:
 """
 
 import pytest
-from agents.models.cognitive_model import CognitiveModel, Contradiction, SolidGround
-from agents.models.proposition import Proposicao
+from core.agents.models.cognitive_model import CognitiveModel, Contradiction, SolidGround
+from core.agents.models.proposition import Proposicao
 
 # =============================================================================
 # TESTES DE CRIAÇÃO DO MODELO

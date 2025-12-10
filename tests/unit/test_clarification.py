@@ -9,7 +9,7 @@ sem chamadas LLM reais. Usa mocks para extratores.
 import pytest
 from unittest.mock import patch, MagicMock
 
-from agents.models.clarification import (
+from core.agents.models.clarification import (
     ClarificationNeed,
     ClarificationContext,
     ClarificationTimingDecision,
@@ -205,7 +205,7 @@ class TestShouldAskClarification:
 
     def test_no_clarification_needed(self):
         """Testa quando nao precisa esclarecimento."""
-        from agents.observer.clarification import should_ask_clarification
+        from core.agents.observer.clarification import should_ask_clarification
 
         need = ClarificationNeed(
             needs_clarification=False,
@@ -225,7 +225,7 @@ class TestShouldAskClarification:
 
     def test_high_priority_always_asks(self):
         """Testa que prioridade alta sempre pergunta."""
-        from agents.observer.clarification import should_ask_clarification
+        from core.agents.observer.clarification import should_ask_clarification
 
         need = ClarificationNeed(
             needs_clarification=True,
@@ -247,7 +247,7 @@ class TestShouldAskClarification:
 
     def test_contradiction_persists_should_ask(self):
         """Testa que contradicao persistente deve perguntar."""
-        from agents.observer.clarification import should_ask_clarification
+        from core.agents.observer.clarification import should_ask_clarification
 
         need = ClarificationNeed(
             needs_clarification=True,
@@ -270,7 +270,7 @@ class TestShouldAskClarification:
 
     def test_user_flowing_should_not_interrupt(self):
         """Testa que usuario fluindo bem nao deve ser interrompido."""
-        from agents.observer.clarification import should_ask_clarification
+        from core.agents.observer.clarification import should_ask_clarification
 
         need = ClarificationNeed(
             needs_clarification=True,
@@ -294,7 +294,7 @@ class TestShouldAskClarification:
 
     def test_recent_question_should_wait(self):
         """Testa que deve esperar apos pergunta recente."""
-        from agents.observer.clarification import should_ask_clarification
+        from core.agents.observer.clarification import should_ask_clarification
 
         need = ClarificationNeed(
             needs_clarification=True,
@@ -319,7 +319,7 @@ class TestUpdateClarificationPersistence:
 
     def test_increment_persistence(self):
         """Testa incremento de turnos persistidos."""
-        from agents.observer.clarification import update_clarification_persistence
+        from core.agents.observer.clarification import update_clarification_persistence
 
         need = ClarificationNeed(
             needs_clarification=True,
@@ -336,7 +336,7 @@ class TestUpdateClarificationPersistence:
 
     def test_reset_when_not_relevant(self):
         """Testa reset quando nao e mais relevante."""
-        from agents.observer.clarification import update_clarification_persistence
+        from core.agents.observer.clarification import update_clarification_persistence
 
         need = ClarificationNeed(
             needs_clarification=True,
@@ -356,7 +356,7 @@ class TestClarificationSummaryForTimeline:
 
     def test_resolved_summary(self):
         """Testa resumo para esclarecimento resolvido."""
-        from agents.observer.clarification import get_clarification_summary_for_timeline
+        from core.agents.observer.clarification import get_clarification_summary_for_timeline
 
         response = ClarificationResponse(
             resolution_status="resolved",
@@ -370,7 +370,7 @@ class TestClarificationSummaryForTimeline:
 
     def test_partially_resolved_summary(self):
         """Testa resumo para esclarecimento parcial."""
-        from agents.observer.clarification import get_clarification_summary_for_timeline
+        from core.agents.observer.clarification import get_clarification_summary_for_timeline
 
         response = ClarificationResponse(
             resolution_status="partially_resolved",
@@ -383,7 +383,7 @@ class TestClarificationSummaryForTimeline:
 
     def test_unresolved_summary(self):
         """Testa resumo para esclarecimento nao resolvido."""
-        from agents.observer.clarification import get_clarification_summary_for_timeline
+        from core.agents.observer.clarification import get_clarification_summary_for_timeline
 
         response = ClarificationResponse(
             resolution_status="unresolved",
@@ -439,7 +439,7 @@ class TestIdentifyClarificationNeedsWithMock:
     @patch('agents.observer.clarification._get_llm')
     def test_identifies_contradiction(self, mock_get_llm, mock_invoke):
         """Testa identificacao de contradicao com mock."""
-        from agents.observer.clarification import identify_clarification_needs
+        from core.agents.observer.clarification import identify_clarification_needs
 
         # Mock da resposta do LLM
         mock_response = MagicMock()
@@ -480,7 +480,7 @@ class TestIdentifyClarificationNeedsWithMock:
     @patch('agents.observer.clarification._get_llm')
     def test_no_clarification_when_flowing(self, mock_get_llm, mock_invoke):
         """Testa que nao identifica necessidade quando conversa flui bem."""
-        from agents.observer.clarification import identify_clarification_needs
+        from core.agents.observer.clarification import identify_clarification_needs
 
         mock_response = MagicMock()
         mock_response.content = '''```json
@@ -516,7 +516,7 @@ class TestGenerateContradictionQuestion:
     @patch('agents.observer.clarification._get_llm')
     def test_generates_contextual_question(self, mock_get_llm, mock_invoke):
         """Testa que gera pergunta contextual sobre contradicao."""
-        from agents.observer.clarification import generate_contradiction_question
+        from core.agents.observer.clarification import generate_contradiction_question
 
         mock_response = MagicMock()
         mock_response.content = '''```json
@@ -553,7 +553,7 @@ class TestGenerateContradictionQuestion:
     @patch('agents.observer.clarification._get_llm')
     def test_fallback_on_error(self, mock_get_llm, mock_invoke):
         """Testa fallback quando LLM falha."""
-        from agents.observer.clarification import generate_contradiction_question
+        from core.agents.observer.clarification import generate_contradiction_question
 
         mock_invoke.side_effect = Exception("LLM error")
 
@@ -575,7 +575,7 @@ class TestSuggestQuestionForGap:
     @patch('agents.observer.clarification._get_llm')
     def test_suggests_question_for_gap(self, mock_get_llm, mock_invoke):
         """Testa sugestao de pergunta para gap."""
-        from agents.observer.clarification import suggest_question_for_gap
+        from core.agents.observer.clarification import suggest_question_for_gap
 
         mock_response = MagicMock()
         mock_response.content = '''```json
@@ -606,7 +606,7 @@ class TestSuggestQuestionForGap:
 
     def test_returns_none_when_no_gaps(self):
         """Testa que retorna None quando nao ha gaps."""
-        from agents.observer.clarification import suggest_question_for_gap
+        from core.agents.observer.clarification import suggest_question_for_gap
 
         cognitive_model = {
             "claim": "LLMs aumentam produtividade",
@@ -626,7 +626,7 @@ class TestAnalyzeClarificationResponse:
     @patch('agents.observer.clarification._get_llm')
     def test_analyzes_resolved_response(self, mock_get_llm, mock_invoke):
         """Testa analise de resposta que resolve esclarecimento."""
-        from agents.observer.clarification import analyze_clarification_response
+        from core.agents.observer.clarification import analyze_clarification_response
 
         mock_response = MagicMock()
         mock_response.content = '''```json
@@ -670,7 +670,7 @@ class TestAnalyzeClarificationResponse:
     @patch('agents.observer.clarification._get_llm')
     def test_analyzes_partial_response(self, mock_get_llm, mock_invoke):
         """Testa analise de resposta parcialmente resolvida."""
-        from agents.observer.clarification import analyze_clarification_response
+        from core.agents.observer.clarification import analyze_clarification_response
 
         mock_response = MagicMock()
         mock_response.content = '''```json

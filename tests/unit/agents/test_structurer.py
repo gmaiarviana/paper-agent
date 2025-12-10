@@ -12,8 +12,8 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 from langchain_core.messages import AIMessage
 
-from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
-from agents.structurer.nodes import structurer_node
+from core.agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
+from core.agents.structurer.nodes import structurer_node
 
 def create_mock_llm_response(content):
     """Helper para criar mock response do LLM."""

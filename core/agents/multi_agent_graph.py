@@ -29,12 +29,12 @@ from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langchain_core.runnables import RunnableConfig
 
-from agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
-from agents.orchestrator.nodes import orchestrator_node
-from agents.orchestrator.router import route_from_orchestrator
-from agents.structurer.nodes import structurer_node
-from agents.methodologist.nodes import decide_collaborative
-from agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
+from core.agents.orchestrator.state import MultiAgentState, create_initial_multi_agent_state
+from core.agents.orchestrator.nodes import orchestrator_node
+from core.agents.orchestrator.router import route_from_orchestrator
+from core.agents.structurer.nodes import structurer_node
+from core.agents.methodologist.nodes import decide_collaborative
+from core.agents.memory.config_loader import load_all_agent_configs, ConfigLoadError
 
 # Import EventBus para emitir eventos (Épico 5.1)
 try:
@@ -45,7 +45,7 @@ except ImportError:
 
 # Import Observer para processamento em background (Épico 12.1)
 try:
-    from agents.observer.nodes import process_turn as observer_process_turn
+    from core.agents.observer.nodes import process_turn as observer_process_turn
     OBSERVER_AVAILABLE = True
 except ImportError:
     OBSERVER_AVAILABLE = False
@@ -446,8 +446,27 @@ def _extract_reasoning(agent_name: str, state: MultiAgentState) -> str:
 # - Recuperação de histórico completo de conversas
 # MVP Épico 9.10-9.11
 
-# Garantir que diretório data/ existe
-db_path = Path("data/checkpoints.db")
+
+def _get_project_root() -> Path:
+    """
+    Retorna a raiz do projeto, suportando ambas as estruturas.
+
+    Detecta automaticamente se está em core/agents/ ou agents/
+    e retorna o caminho da raiz do projeto.
+    """
+    current_file = Path(__file__).resolve()
+    # De core/agents/ → subir 3 níveis → raiz
+    # De agents/ → subir 2 níveis → raiz
+
+    if current_file.parent.parent.name == "core":
+        return current_file.parent.parent.parent
+    else:
+        return current_file.parent.parent
+
+
+# Garantir que diretório data/ existe (usando caminho absoluto)
+_project_root = _get_project_root()
+db_path = _project_root / "data" / "checkpoints.db"
 db_path.parent.mkdir(parents=True, exist_ok=True)
 
 # Criar conexão SQLite (check_same_thread=False permite uso em threads múltiplas)
@@ -521,7 +540,7 @@ def create_multi_agent_graph():
     Registro de Memória (Épico 6.2):
         Para habilitar registro de tokens e custos, passe MemoryManager no config:
 
-        >>> from agents.memory.memory_manager import MemoryManager
+        >>> from core.agents.memory.memory_manager import MemoryManager
         >>> memory_manager = MemoryManager()
         >>> config = {
         ...     "configurable": {
