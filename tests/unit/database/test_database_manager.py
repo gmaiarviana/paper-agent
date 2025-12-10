@@ -19,11 +19,11 @@ import tempfile
 from pathlib import Path
 from uuid import uuid4
 
-from agents.database.manager import DatabaseManager, get_database_manager
-from agents.database.ideas_crud import IdeasCRUD
-from agents.database.arguments_crud import ArgumentsCRUD
-from agents.models.cognitive_model import CognitiveModel
-from agents.models.proposition import Proposicao
+from core.agents.database.manager import DatabaseManager, get_database_manager
+from core.agents.database.ideas_crud import IdeasCRUD
+from core.agents.database.arguments_crud import ArgumentsCRUD
+from core.agents.models.cognitive_model import CognitiveModel
+from core.agents.models.proposition import Proposicao
 
 # =============================================================================
 # FIXTURES
@@ -40,7 +40,7 @@ def temp_db():
 @pytest.fixture
 def initialized_db(temp_db):
     """Banco inicializado com schema completo."""
-    from agents.database.schema import SCHEMA_SQL
+    from core.agents.database.schema import SCHEMA_SQL
     temp_db.executescript(SCHEMA_SQL)
     return temp_db
 

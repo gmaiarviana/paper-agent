@@ -21,8 +21,8 @@ from datetime import datetime
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from agents.database.manager import get_database_manager
-from agents.database.schema import DATABASE_VERSION
+from core.agents.database.manager import get_database_manager
+from core.agents.database.schema import DATABASE_VERSION
 
 def check_database_status(db_path: str = "data/data.db") -> Dict[str, Any]:
     """

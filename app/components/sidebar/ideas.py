@@ -17,7 +17,7 @@ import logging
 
 from app.components.session_helpers import get_current_session_id
 from app.components.conversation_helpers import restore_conversation_context
-from agents.database.manager import get_database_manager
+from core.agents.database.manager import get_database_manager
 
 logger = logging.getLogger(__name__)
 

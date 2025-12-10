@@ -13,7 +13,7 @@ Testa:
 
 import pytest
 from uuid import uuid4
-from agents.models.proposition import Proposicao, ProposicaoRef
+from core.agents.models.proposition import Proposicao, ProposicaoRef
 
 # =============================================================================
 # TESTES DE CRIAÇÃO DO MODELO

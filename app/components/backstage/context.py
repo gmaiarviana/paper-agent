@@ -15,7 +15,7 @@ from datetime import datetime
 
 from core.utils.event_bus import get_event_bus
 from core.utils.currency import format_currency, format_currency_precise
-from agents.database.manager import get_database_manager
+from core.agents.database.manager import get_database_manager
 from .constants import AGENT_EMOJIS
 
 logger = logging.getLogger(__name__)
@@ -328,8 +328,8 @@ def _render_session_solidez(session_id: str) -> None:
         return
 
     try:
-        from agents.models.cognitive_model import CognitiveModel
-        from agents.models.proposition import Proposicao
+        from core.agents.models.cognitive_model import CognitiveModel
+        from core.agents.models.proposition import Proposicao
 
         # Reconstruir proposições da sessão
         proposicoes_raw = cognitive_model_dict.get("proposicoes", [])
@@ -422,8 +422,8 @@ def _render_idea_status(session_id: str) -> None:
 
         # Indicador de Solidez (Épico 9.4)
         if focal_arg:
-            from agents.models.cognitive_model import CognitiveModel
-            from agents.models.proposition import Proposicao
+            from core.agents.models.cognitive_model import CognitiveModel
+            from core.agents.models.proposition import Proposicao
 
             # Reconstruir modelo cognitivo do argumento persistido
             try:

@@ -24,9 +24,41 @@ from typing import Optional, List, Dict, Any
 from .schema import SCHEMA_SQL, DATABASE_VERSION, CREATE_METADATA_TABLE
 from .ideas_crud import IdeasCRUD
 from .arguments_crud import ArgumentsCRUD
-from agents.models.cognitive_model import CognitiveModel
+from core.agents.models.cognitive_model import CognitiveModel
 
 logger = logging.getLogger(__name__)
+
+
+def _get_project_root() -> Path:
+    """
+    Retorna o diretório raiz do projeto, suportando ambas as estruturas.
+
+    Quando em core/agents/database/: Path(__file__).parent.parent.parent.parent = raiz/
+    Quando em agents/database/: Path(__file__).parent.parent.parent = raiz/
+    """
+    current_file = Path(__file__).resolve()
+
+    # Se estamos em core/agents/database/, subir 4 níveis para raiz
+    # core/agents/database/manager.py -> core/agents/database -> core/agents -> core -> raiz
+    base_path = current_file.parent.parent.parent.parent
+
+    # Verificar se é a raiz do projeto (tem ARCHITECTURE.md ou pyproject.toml)
+    if (base_path / "ARCHITECTURE.md").exists() or (base_path / "pyproject.toml").exists():
+        return base_path
+
+    # Se estamos em agents/database/, subir 3 níveis para raiz
+    base_path = current_file.parent.parent.parent
+    if (base_path / "ARCHITECTURE.md").exists() or (base_path / "pyproject.toml").exists():
+        return base_path
+
+    # Fallback: assumir 4 níveis (estrutura nova)
+    return current_file.parent.parent.parent.parent
+
+
+def _get_default_db_path() -> str:
+    """Retorna o caminho padrão para o banco de dados."""
+    project_root = _get_project_root()
+    return str(project_root / "data" / "data.db")
 
 class DatabaseManager:
     """
@@ -45,12 +77,12 @@ class DatabaseManager:
         >>> idea = db.get_idea(idea_id)
     """
 
-    def __init__(self, db_path: str = "data/data.db"):
+    def __init__(self, db_path: Optional[str] = None):
         """
         Inicializa DatabaseManager com conexão SQLite.
 
         Args:
-            db_path: Caminho para arquivo SQLite (padrão: data/data.db)
+            db_path: Caminho para arquivo SQLite (padrão: data/data.db na raiz do projeto)
 
         Notes:
             - Cria diretório data/ se não existir
@@ -58,6 +90,8 @@ class DatabaseManager:
             - Habilita foreign keys (SQLite default é desabilitado)
             - Cria instâncias de CRUDs especializados
         """
+        if db_path is None:
+            db_path = _get_default_db_path()
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -349,14 +383,14 @@ class DatabaseManager:
 
 _db_instance: Optional[DatabaseManager] = None
 
-def get_database_manager(db_path: str = "data/data.db") -> DatabaseManager:
+def get_database_manager(db_path: Optional[str] = None) -> DatabaseManager:
     """
     Obtém instância singleton de DatabaseManager.
 
     Garante que apenas uma conexão SQLite existe durante execução.
 
     Args:
-        db_path: Caminho para banco de dados (padrão: data/data.db)
+        db_path: Caminho para banco de dados (padrão: data/data.db na raiz do projeto)
 
     Returns:
         DatabaseManager: Instância singleton

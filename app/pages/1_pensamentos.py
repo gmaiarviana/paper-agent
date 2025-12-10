@@ -23,7 +23,7 @@ sys.path.insert(0, str(project_root))
 import streamlit as st
 from datetime import datetime
 
-from agents.database.manager import get_database_manager
+from core.agents.database.manager import get_database_manager
 from app.components.conversation_helpers import get_relative_timestamp
 from app.components.sidebar import render_sidebar
 

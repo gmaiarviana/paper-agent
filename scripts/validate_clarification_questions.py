@@ -63,7 +63,7 @@ def validate_imports():
 
     # Modelos Pydantic
     try:
-        from agents.models.clarification import (
+        from core.agents.models.clarification import (
             ClarificationNeed,
             ClarificationContext,
             ClarificationTimingDecision,
@@ -108,7 +108,7 @@ def validate_models():
     """Valida criação e serialização dos modelos Pydantic."""
     logger.info("\n📋 Validando modelos Pydantic...")
 
-    from agents.models.clarification import (
+    from core.agents.models.clarification import (
         ClarificationNeed,
         ClarificationContext,
         ClarificationTimingDecision,
@@ -212,7 +212,7 @@ def validate_timing_logic():
     logger.info("\n⏱️ Validando lógica de timing (14.5)...")
 
     from agents.observer.clarification import should_ask_clarification
-    from agents.models.clarification import ClarificationNeed
+    from core.agents.models.clarification import ClarificationNeed
 
     checks = []
 
@@ -291,7 +291,7 @@ def validate_persistence_update():
     logger.info("\n🔄 Validando atualização de persistência...")
 
     from agents.observer.clarification import update_clarification_persistence
-    from agents.models.clarification import ClarificationNeed
+    from core.agents.models.clarification import ClarificationNeed
 
     checks = []
 
@@ -333,7 +333,7 @@ def validate_timeline_summary():
     logger.info("\n📜 Validando resumo para timeline...")
 
     from agents.observer.clarification import get_clarification_summary_for_timeline
-    from agents.models.clarification import ClarificationResponse, ClarificationUpdates
+    from core.agents.models.clarification import ClarificationResponse, ClarificationUpdates
 
     checks = []
 
@@ -594,7 +594,7 @@ def validate_analyze_response_with_mock(mock_get_llm, mock_invoke):
     logger.info("\n📊 Validando análise de resposta com mock (14.6)...")
 
     from agents.observer.clarification import analyze_clarification_response
-    from agents.models.clarification import ClarificationNeed
+    from core.agents.models.clarification import ClarificationNeed
 
     checks = []
 

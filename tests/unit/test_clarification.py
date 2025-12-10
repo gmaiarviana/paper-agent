@@ -9,7 +9,7 @@ sem chamadas LLM reais. Usa mocks para extratores.
 import pytest
 from unittest.mock import patch, MagicMock
 
-from agents.models.clarification import (
+from core.agents.models.clarification import (
     ClarificationNeed,
     ClarificationContext,
     ClarificationTimingDecision,

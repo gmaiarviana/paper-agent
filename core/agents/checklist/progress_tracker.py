@@ -12,7 +12,7 @@ import logging
 from typing import List, Literal, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
-from agents.models.cognitive_model import CognitiveModel
+from core.agents.models.cognitive_model import CognitiveModel
 
 logger = logging.getLogger(__name__)
 

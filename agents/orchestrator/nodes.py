@@ -46,8 +46,8 @@ from core.utils.config import get_anthropic_model, invoke_with_retry, create_ant
 from agents.memory.config_loader import get_agent_prompt, get_agent_model, ConfigLoadError
 from agents.memory.execution_tracker import register_execution
 from core.utils.token_extractor import extract_tokens_and_cost
-from agents.models.cognitive_model import CognitiveModel
-from agents.models.proposition import Proposicao
+from core.agents.models.cognitive_model import CognitiveModel
+from core.agents.models.proposition import Proposicao
 from core.utils.event_bus import get_event_bus
 from agents.persistence import create_snapshot_if_mature
 from core.utils.structured_logger import StructuredLogger
