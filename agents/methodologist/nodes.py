@@ -372,7 +372,7 @@ def decide_collaborative(state: dict, config: Optional[RunnableConfig] = None) -
         logger.warning("⚠️ Usando prompt e modelo padrão (fallback)")
         # Fallback: usar prompt da utils.prompts
         system_prompt = METHODOLOGIST_DECIDE_PROMPT_V2
-        model_name = "claude-sonnet-4-20250514"
+        model_name = get_anthropic_model()  # Fallback para Haiku (sempre Haiku)
     
     # Obter questão estruturada para metadata inicial
     structurer_output = state.get('structurer_output')

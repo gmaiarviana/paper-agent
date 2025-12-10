@@ -14,8 +14,10 @@ Data: 05/12/2025
 Notes:
     - Prompts serao refinados em 10.2 quando processamento via LLM for implementado
     - Formato de saida esperado: JSON estruturado
-    - Modelo recomendado: claude-3-5-haiku-20241022 (custo-efetivo)
+    - Modelo recomendado: Usa get_anthropic_model() (centralizado)
 """
+
+from utils.config import get_anthropic_model
 
 # =============================================================================
 # PROMPT: EXTRACAO DE CLAIMS
@@ -535,7 +537,7 @@ IMPORTANTE:
 # =============================================================================
 
 # Modelo recomendado para extracao (custo-efetivo e rapido)
-RECOMMENDED_MODEL = "claude-3-5-haiku-20241022"
+RECOMMENDED_MODEL = get_anthropic_model()
 
 # Temperature para extracao (deterministica)
 EXTRACTION_TEMPERATURE = 0

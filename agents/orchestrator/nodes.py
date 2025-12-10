@@ -771,8 +771,8 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         model_name = get_agent_model("orchestrator")
         logger.info(f"Usando modelo do YAML: {model_name}")
     except ConfigLoadError:
-        # Fallback: modelo padrão Haiku (mais econômico e sempre disponível)
-        model_name = "claude-3-5-haiku-20241022"
+        # Fallback: modelo padrão centralizado (mais econômico e sempre disponível)
+        model_name = get_anthropic_model()
         logger.warning(f"Config YAML não disponível. Usando fallback: {model_name}")
 
     try:

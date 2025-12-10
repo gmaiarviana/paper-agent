@@ -19,7 +19,7 @@ from langchain_anthropic import ChatAnthropic
 
 from agents.models.cognitive_model import CognitiveModel
 from agents.database.manager import DatabaseManager, get_database_manager
-from utils.config import create_anthropic_client
+from utils.config import create_anthropic_client, get_anthropic_model
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +111,7 @@ class SnapshotManager:
                         Se None, usa singleton global via get_database_manager()
         """
         self.db = db_manager or get_database_manager()
-        self.llm = create_anthropic_client("claude-3-5-haiku-20241022")  # Haiku para custo-benefício
+        self.llm = create_anthropic_client(get_anthropic_model())  # Modelo centralizado
 
     def assess_maturity(
         self,

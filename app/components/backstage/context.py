@@ -106,7 +106,7 @@ def _get_session_events_details(session_id: str) -> List[Dict[str, Any]]:
                 "tokens_total": event.get("tokens_total", 0),
                 "duration": event.get("duration", 0.0),
                 "timestamp": event.get("timestamp", ""),
-                "model": event.get("model", "claude-3-5-sonnet")
+                "model": event.get("model", "claude-3-5-haiku-20241022")
             })
 
         return details

@@ -6,6 +6,7 @@ from anthropic import Anthropic
 import os
 import json
 from dotenv import load_dotenv
+from utils.config import get_anthropic_model
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -96,7 +97,7 @@ def test_natural_usage():
     print("📤 Enviando prompt para Claude...\n")
 
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model=get_anthropic_model(),  # Sempre Haiku
         max_tokens=1000,
         messages=[{
             "role": "user",

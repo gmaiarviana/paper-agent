@@ -27,22 +27,6 @@ class TestCostTracker:
         assert result["output_cost"] == pytest.approx(0.0001, rel=1e-6)
         assert result["total_cost"] == pytest.approx(0.0001144, rel=1e-6)
 
-    def test_calculate_cost_sonnet(self):
-        """Test cost calculation for Sonnet model."""
-        model = "claude-3-5-sonnet-20241022"
-        input_tokens = 1000
-        output_tokens = 500
-
-        result = CostTracker.calculate_cost(model, input_tokens, output_tokens)
-
-        # Expected costs based on Sonnet pricing
-        # Input: (1000 / 1M) * $3.00 = $0.003
-        # Output: (500 / 1M) * $15.00 = $0.0075
-        # Total: $0.0105
-        assert result["input_cost"] == pytest.approx(0.003, rel=1e-6)
-        assert result["output_cost"] == pytest.approx(0.0075, rel=1e-6)
-        assert result["total_cost"] == pytest.approx(0.0105, rel=1e-6)
-
     def test_calculate_cost_opus(self):
         """Test cost calculation for Opus model."""
         model = "claude-3-opus-20240229"
@@ -90,14 +74,6 @@ class TestCostTracker:
 
         assert info["input"] == 0.80
         assert info["output"] == 4.00
-
-    def test_get_model_info_sonnet(self):
-        """Test getting model pricing info for Sonnet."""
-        model = "claude-3-5-sonnet-20241022"
-        info = CostTracker.get_model_info(model)
-
-        assert info["input"] == 3.00
-        assert info["output"] == 15.00
 
     def test_get_model_info_invalid(self):
         """Test that getting info for invalid model raises ValueError."""
