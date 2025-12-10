@@ -354,7 +354,7 @@ git mv config core/config
 
 ---
 
-#### Fase 2.4: Ajustar `agents/memory/config_loader.py` (caminho hardcoded)
+#### Fase 2.4: Ajustar `agents/memory/config_loader.py` (caminho hardcoded + cache)
 
 **Claude Code (complexo):**
 - [ ] Ajustar linha 16: `CONFIG_DIR = Path(__file__).parent.parent.parent / "config" / "agents"`
@@ -365,6 +365,7 @@ git mv config core/config
   - `Path(__file__).parent.parent.parent.parent` = raiz do projeto
 - [ ] **Solução:** `CONFIG_DIR = Path(__file__).parent.parent.parent.parent / "core" / "config" / "agents"`
 - [ ] **OU (mais seguro):** Usar caminho absoluto baseado na raiz do projeto
+- [ ] **Adicionar cache em memória:** `load_agent_config()` é chamado múltiplas vezes por turno (orchestrator, structurer, methodologist). Adicionar dict `_config_cache: Dict[str, Dict[str, Any]] = {}` e verificar cache antes de ler YAML do disco.
 - [ ] Testar: `python -c "from core.agents.memory.config_loader import load_agent_config; print(load_agent_config('orchestrator'))"`
 
 **Comando:**
@@ -379,6 +380,12 @@ git mv config core/config
 # DEPOIS (opção 2 - mais seguro):
 #   project_root = Path(__file__).parent.parent.parent.parent
 #   CONFIG_DIR = project_root / "core" / "config" / "agents"
+#
+# Também adicionar cache em memória:
+# - Criar dict _config_cache: Dict[str, Dict[str, Any]] = {} no módulo
+# - Em load_agent_config(), verificar cache antes de ler YAML do disco
+# - Se não estiver em cache, carregar do disco e armazenar no cache
+# - Benefício: elimina I/O repetido (config é carregado 3+ vezes por turno)
 ```
 
 **Validação:**
