@@ -197,7 +197,7 @@ class TestOrchestratorReturnsCognitiveModel:
         })
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)
@@ -233,7 +233,7 @@ class TestOrchestratorReturnsCognitiveModel:
 """
         mock_response.response_metadata = {"usage_metadata": {"input_tokens": 100, "output_tokens": 50}}
 
-        with patch('agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
             mock_invoke.return_value = mock_response
 
             result = orchestrator_node(state)

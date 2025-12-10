@@ -435,8 +435,8 @@ class TestClarificationEventsModels:
 class TestIdentifyClarificationNeedsWithMock:
     """Testes para identify_clarification_needs com mock do LLM."""
 
-    @patch('agents.observer.clarification.invoke_with_retry')
-    @patch('agents.observer.clarification._get_llm')
+    @patch('core.agents.observer.clarification.invoke_with_retry')
+    @patch('core.agents.observer.clarification._get_llm')
     def test_identifies_contradiction(self, mock_get_llm, mock_invoke):
         """Testa identificacao de contradicao com mock."""
         from core.agents.observer.clarification import identify_clarification_needs
@@ -476,8 +476,8 @@ class TestIdentifyClarificationNeedsWithMock:
         assert need.priority == "high"
         assert need.turn_detected == 5
 
-    @patch('agents.observer.clarification.invoke_with_retry')
-    @patch('agents.observer.clarification._get_llm')
+    @patch('core.agents.observer.clarification.invoke_with_retry')
+    @patch('core.agents.observer.clarification._get_llm')
     def test_no_clarification_when_flowing(self, mock_get_llm, mock_invoke):
         """Testa que nao identifica necessidade quando conversa flui bem."""
         from core.agents.observer.clarification import identify_clarification_needs
@@ -512,8 +512,8 @@ class TestIdentifyClarificationNeedsWithMock:
 class TestGenerateContradictionQuestion:
     """Testes para generate_contradiction_question com mock do LLM."""
 
-    @patch('agents.observer.clarification.invoke_with_retry')
-    @patch('agents.observer.clarification._get_llm')
+    @patch('core.agents.observer.clarification.invoke_with_retry')
+    @patch('core.agents.observer.clarification._get_llm')
     def test_generates_contextual_question(self, mock_get_llm, mock_invoke):
         """Testa que gera pergunta contextual sobre contradicao."""
         from core.agents.observer.clarification import generate_contradiction_question
@@ -549,8 +549,8 @@ class TestGenerateContradictionQuestion:
         assert suggestion.target_type == "contradiction"
         assert "Curiosidade" in suggestion.tone_guidance
 
-    @patch('agents.observer.clarification.invoke_with_retry')
-    @patch('agents.observer.clarification._get_llm')
+    @patch('core.agents.observer.clarification.invoke_with_retry')
+    @patch('core.agents.observer.clarification._get_llm')
     def test_fallback_on_error(self, mock_get_llm, mock_invoke):
         """Testa fallback quando LLM falha."""
         from core.agents.observer.clarification import generate_contradiction_question
@@ -571,8 +571,8 @@ class TestGenerateContradictionQuestion:
 class TestSuggestQuestionForGap:
     """Testes para suggest_question_for_gap com mock do LLM."""
 
-    @patch('agents.observer.clarification.invoke_with_retry')
-    @patch('agents.observer.clarification._get_llm')
+    @patch('core.agents.observer.clarification.invoke_with_retry')
+    @patch('core.agents.observer.clarification._get_llm')
     def test_suggests_question_for_gap(self, mock_get_llm, mock_invoke):
         """Testa sugestao de pergunta para gap."""
         from core.agents.observer.clarification import suggest_question_for_gap
@@ -622,8 +622,8 @@ class TestSuggestQuestionForGap:
 class TestAnalyzeClarificationResponse:
     """Testes para analyze_clarification_response com mock do LLM."""
 
-    @patch('agents.observer.clarification.invoke_with_retry')
-    @patch('agents.observer.clarification._get_llm')
+    @patch('core.agents.observer.clarification.invoke_with_retry')
+    @patch('core.agents.observer.clarification._get_llm')
     def test_analyzes_resolved_response(self, mock_get_llm, mock_invoke):
         """Testa analise de resposta que resolve esclarecimento."""
         from core.agents.observer.clarification import analyze_clarification_response
@@ -666,8 +666,8 @@ class TestAnalyzeClarificationResponse:
         assert response.needs_followup is False
         assert len(response.updates.proposicoes_to_add) > 0
 
-    @patch('agents.observer.clarification.invoke_with_retry')
-    @patch('agents.observer.clarification._get_llm')
+    @patch('core.agents.observer.clarification.invoke_with_retry')
+    @patch('core.agents.observer.clarification._get_llm')
     def test_analyzes_partial_response(self, mock_get_llm, mock_invoke):
         """Testa analise de resposta parcialmente resolvida."""
         from core.agents.observer.clarification import analyze_clarification_response

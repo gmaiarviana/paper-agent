@@ -428,8 +428,8 @@ def validate_events():
 
     return all_passed
 
-@patch('agents.observer.clarification.invoke_with_retry')
-@patch('agents.observer.clarification._get_llm')
+@patch('core.agents.observer.clarification.invoke_with_retry')
+@patch('core.agents.observer.clarification._get_llm')
 def validate_identify_needs_with_mock(mock_get_llm, mock_invoke):
     """Valida identify_clarification_needs com mock do LLM (14.1)."""
     logger.info("\n🔍 Validando identificação de necessidades com mock (14.1)...")
@@ -483,8 +483,8 @@ def validate_identify_needs_with_mock(mock_get_llm, mock_invoke):
 
     return all_passed
 
-@patch('agents.observer.clarification.invoke_with_retry')
-@patch('agents.observer.clarification._get_llm')
+@patch('core.agents.observer.clarification.invoke_with_retry')
+@patch('core.agents.observer.clarification._get_llm')
 def validate_contradiction_question_with_mock(mock_get_llm, mock_invoke):
     """Valida generate_contradiction_question com mock do LLM (14.3)."""
     logger.info("\n❓ Validando geração de pergunta sobre contradição com mock (14.3)...")
@@ -539,8 +539,8 @@ def validate_contradiction_question_with_mock(mock_get_llm, mock_invoke):
 
     return all_passed
 
-@patch('agents.observer.clarification.invoke_with_retry')
-@patch('agents.observer.clarification._get_llm')
+@patch('core.agents.observer.clarification.invoke_with_retry')
+@patch('core.agents.observer.clarification._get_llm')
 def validate_gap_question_with_mock(mock_get_llm, mock_invoke):
     """Valida suggest_question_for_gap com mock do LLM (14.4)."""
     logger.info("\n🕳️ Validando sugestão de pergunta sobre gap com mock (14.4)...")
@@ -587,8 +587,8 @@ def validate_gap_question_with_mock(mock_get_llm, mock_invoke):
 
     return all_passed
 
-@patch('agents.observer.clarification.invoke_with_retry')
-@patch('agents.observer.clarification._get_llm')
+@patch('core.agents.observer.clarification.invoke_with_retry')
+@patch('core.agents.observer.clarification._get_llm')
 def validate_analyze_response_with_mock(mock_get_llm, mock_invoke):
     """Valida analyze_clarification_response com mock do LLM (14.6)."""
     logger.info("\n📊 Validando análise de resposta com mock (14.6)...")

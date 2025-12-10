@@ -29,25 +29,35 @@ from core.agents.models.cognitive_model import CognitiveModel
 logger = logging.getLogger(__name__)
 
 
-def _get_default_db_path() -> str:
+def _get_project_root() -> Path:
     """
-    Retorna o caminho padrão do banco de dados, suportando ambas as estruturas.
+    Retorna o diretório raiz do projeto, suportando ambas as estruturas.
 
-    Detecta automaticamente se está em core/agents/database/ ou agents/database/
-    e ajusta o caminho para data/data.db na raiz do projeto.
+    Quando em core/agents/database/: Path(__file__).parent.parent.parent.parent = raiz/
+    Quando em agents/database/: Path(__file__).parent.parent.parent = raiz/
     """
     current_file = Path(__file__).resolve()
-    # Subir até encontrar a raiz do projeto (onde data/ deve estar)
-    # De core/agents/database/ → subir 4 níveis → raiz
-    # De agents/database/ → subir 3 níveis → raiz
 
-    # Verificar se estamos em core/agents/database/
-    if current_file.parent.parent.parent.name == "core":
-        project_root = current_file.parent.parent.parent.parent
-    else:
-        # Estamos em agents/database/
-        project_root = current_file.parent.parent.parent
+    # Se estamos em core/agents/database/, subir 4 níveis para raiz
+    # core/agents/database/manager.py -> core/agents/database -> core/agents -> core -> raiz
+    base_path = current_file.parent.parent.parent.parent
 
+    # Verificar se é a raiz do projeto (tem ARCHITECTURE.md ou pyproject.toml)
+    if (base_path / "ARCHITECTURE.md").exists() or (base_path / "pyproject.toml").exists():
+        return base_path
+
+    # Se estamos em agents/database/, subir 3 níveis para raiz
+    base_path = current_file.parent.parent.parent
+    if (base_path / "ARCHITECTURE.md").exists() or (base_path / "pyproject.toml").exists():
+        return base_path
+
+    # Fallback: assumir 4 níveis (estrutura nova)
+    return current_file.parent.parent.parent.parent
+
+
+def _get_default_db_path() -> str:
+    """Retorna o caminho padrão para o banco de dados."""
+    project_root = _get_project_root()
     return str(project_root / "data" / "data.db")
 
 class DatabaseManager:
@@ -373,14 +383,14 @@ class DatabaseManager:
 
 _db_instance: Optional[DatabaseManager] = None
 
-def get_database_manager(db_path: str = "data/data.db") -> DatabaseManager:
+def get_database_manager(db_path: Optional[str] = None) -> DatabaseManager:
     """
     Obtém instância singleton de DatabaseManager.
 
     Garante que apenas uma conexão SQLite existe durante execução.
 
     Args:
-        db_path: Caminho para banco de dados (padrão: data/data.db)
+        db_path: Caminho para banco de dados (padrão: data/data.db na raiz do projeto)
 
     Returns:
         DatabaseManager: Instância singleton

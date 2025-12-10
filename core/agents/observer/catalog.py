@@ -18,6 +18,7 @@ import os
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
+from pathlib import Path
 
 import chromadb
 from chromadb.config import Settings
@@ -36,13 +37,21 @@ def _get_project_root() -> Path:
     e retorna o caminho da raiz do projeto.
     """
     current_file = Path(__file__).resolve()
-    # De core/agents/observer/ → subir 4 níveis → raiz
-    # De agents/observer/ → subir 3 níveis → raiz
 
-    if current_file.parent.parent.parent.name == "core":
-        return current_file.parent.parent.parent.parent
-    else:
-        return current_file.parent.parent.parent
+    # Se estamos em core/agents/observer/, subir 4 níveis para raiz
+    base_path = current_file.parent.parent.parent.parent
+
+    # Verificar se é a raiz do projeto (tem ARCHITECTURE.md ou pyproject.toml)
+    if (base_path / "ARCHITECTURE.md").exists() or (base_path / "pyproject.toml").exists():
+        return base_path
+
+    # Se estamos em agents/observer/, subir 3 níveis para raiz
+    base_path = current_file.parent.parent.parent
+    if (base_path / "ARCHITECTURE.md").exists() or (base_path / "pyproject.toml").exists():
+        return base_path
+
+    # Fallback: assumir 4 níveis (estrutura nova)
+    return current_file.parent.parent.parent.parent
 
 
 # Paths padrao para persistencia (calculados dinamicamente)
