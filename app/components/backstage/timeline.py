@@ -6,6 +6,7 @@ Responsável por:
 - Modal com histórico completo
 - Formatação de timestamps
 - Seção do Observador com métricas cognitivas (Épico 12.3)
+- Eventos de detecção de mudanças do Observer (Épico 13.5)
 """
 
 import streamlit as st
@@ -75,6 +76,19 @@ def render_agent_timeline(session_id: str) -> None:
         observer_events = [e for e in events if e.get("event_type") == "cognitive_model_updated"]
         if observer_events:
             render_observer_section(observer_events)
+
+        # Seção de Detecção de Mudanças (Épico 13.5)
+        # Mostra eventos de variação, mudança de direção e checkpoints de clareza
+        detection_events = [
+            e for e in events
+            if e.get("event_type") in [
+                "variation_detected",
+                "direction_change_confirmed",
+                "clarity_checkpoint"
+            ]
+        ]
+        if detection_events:
+            render_observer_detection_events(detection_events)
 
     except Exception as e:
         logger.error(f"Erro ao renderizar timeline: {e}", exc_info=True)
@@ -250,5 +264,184 @@ def _show_observer_modal(events: List[Dict[str, Any]]) -> None:
 
         # Status e tempo de processamento
         st.caption(f"{status_emoji} · Processado em {processing_time:.0f}ms")
+        st.markdown("---")
+
+
+# ============================================================================
+# Épico 13.5 - Timeline Visual de Mudanças
+# ============================================================================
+
+
+def render_observer_detection_events(detection_events: List[Dict[str, Any]]) -> None:
+    """
+    Renderiza eventos de detecção de mudanças do Observer (Épico 13.5).
+
+    Mostra eventos de forma discreta e colapsada:
+    - Variações detectadas (não interrompem fluxo)
+    - Mudanças de direção confirmadas
+    - Checkpoints de clareza solicitados
+
+    Args:
+        detection_events: Lista de eventos de detecção
+            (variation_detected, direction_change_confirmed, clarity_checkpoint)
+
+    Example:
+        >>> events = [{"event_type": "variation_detected", "turn_number": 3, ...}]
+        >>> render_observer_detection_events(events)
+        # Renderiza: 🔍 Detecções (seção colapsável)
+    """
+    if not detection_events:
+        return
+
+    st.markdown("---")
+
+    # Seção colapsável de detecções (discreta por padrão)
+    with st.expander("🔍 **Detecções do Observer**", expanded=False):
+        # Mostrar últimos 5 eventos de detecção (mais recentes primeiro)
+        recent_events = list(reversed(detection_events))[:5]
+
+        for event in recent_events:
+            event_type = event.get("event_type", "")
+            turn_number = event.get("turn_number", 0)
+            timestamp = event.get("timestamp", "")
+            time_str = format_time(timestamp)
+
+            if event_type == "variation_detected":
+                # ↪️ Variação identificada (não interrompeu fluxo)
+                shared = len(event.get("shared_concepts", []))
+                new = len(event.get("new_concepts", []))
+                st.markdown(f"↪️ **Turno {turn_number}** - Variação identificada")
+                st.caption(
+                    f"Conceitos mantidos: {shared} · "
+                    f"Novos: {new} · "
+                    f"{time_str}"
+                )
+
+            elif event_type == "direction_change_confirmed":
+                # 🔄 Mudança de foco confirmada
+                user_confirmed = event.get("user_confirmed", False)
+                status = "✅ confirmada" if user_confirmed else "⏳ pendente"
+                previous = event.get("previous_claim", "")[:50]
+                new_claim = event.get("new_claim", "")[:50]
+                st.markdown(f"🔄 **Turno {turn_number}** - Mudança de foco ({status})")
+                st.caption(
+                    f"De: \"{previous}...\" → Para: \"{new_claim}...\" · "
+                    f"{time_str}"
+                )
+
+            elif event_type == "clarity_checkpoint":
+                # ⚠️ Checkpoint de clareza solicitado
+                clarity_level = event.get("clarity_level", "nebulosa")
+                clarity_score = event.get("clarity_score", 2)
+                suggestion = event.get("suggestion", "")[:80]
+                st.markdown(f"⚠️ **Turno {turn_number}** - Checkpoint de clareza")
+                st.caption(
+                    f"Clareza: {clarity_level} (score {clarity_score}/5) · "
+                    f"{time_str}"
+                )
+                if suggestion:
+                    st.caption(f"💡 {suggestion}...")
+
+        # Resumo de detecções
+        variation_count = len([e for e in detection_events if e.get("event_type") == "variation_detected"])
+        change_count = len([e for e in detection_events if e.get("event_type") == "direction_change_confirmed"])
+        checkpoint_count = len([e for e in detection_events if e.get("event_type") == "clarity_checkpoint"])
+
+        st.caption(
+            f"📊 {variation_count} variações · "
+            f"{change_count} mudanças · "
+            f"{checkpoint_count} checkpoints"
+        )
+
+        # Botão para ver detalhes completos (se muitos eventos)
+        if len(detection_events) > 5:
+            if st.button("Ver todas detecções", key="view_detection_details", type="secondary"):
+                _show_detection_modal(detection_events)
+
+
+@st.dialog("🔍 Detecções do Observer", width="large")
+def _show_detection_modal(events: List[Dict[str, Any]]) -> None:
+    """
+    Modal para exibir histórico completo de detecções (Épico 13.5).
+
+    Mostra todos os eventos de detecção com detalhes completos:
+    - Variações detectadas
+    - Mudanças de direção
+    - Checkpoints de clareza
+
+    Args:
+        events: Lista de eventos de detecção
+    """
+    st.markdown("### Histórico de Detecções")
+    st.caption(f"O Observer registrou {len(events)} detecções nesta sessão")
+
+    # Contadores por tipo
+    variation_count = len([e for e in events if e.get("event_type") == "variation_detected"])
+    change_count = len([e for e in events if e.get("event_type") == "direction_change_confirmed"])
+    checkpoint_count = len([e for e in events if e.get("event_type") == "clarity_checkpoint"])
+
+    # Resumo em colunas
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("↪️ Variações", variation_count)
+    with col2:
+        st.metric("🔄 Mudanças", change_count)
+    with col3:
+        st.metric("⚠️ Checkpoints", checkpoint_count)
+
+    st.markdown("---")
+
+    # Mostrar eventos em ordem cronológica reversa
+    for event in reversed(events):
+        event_type = event.get("event_type", "")
+        turn_number = event.get("turn_number", 0)
+        timestamp = event.get("timestamp", "")
+        time_str = format_time(timestamp)
+
+        if event_type == "variation_detected":
+            st.markdown(f"**↪️ Turno {turn_number}** - Variação detectada - {time_str}")
+            essence_prev = event.get("essence_previous", "")[:100]
+            essence_new = event.get("essence_new", "")[:100]
+            analysis = event.get("analysis", "")
+            shared = event.get("shared_concepts", [])
+            new = event.get("new_concepts", [])
+
+            st.caption(f"📝 Essência anterior: \"{essence_prev}...\"")
+            st.caption(f"📝 Nova essência: \"{essence_new}...\"")
+            if shared:
+                st.caption(f"🔗 Conceitos mantidos: {', '.join(shared[:5])}")
+            if new:
+                st.caption(f"✨ Novos conceitos: {', '.join(new[:5])}")
+            if analysis:
+                st.caption(f"💬 {analysis[:150]}...")
+
+        elif event_type == "direction_change_confirmed":
+            user_confirmed = event.get("user_confirmed", False)
+            status = "✅ Confirmada pelo usuário" if user_confirmed else "⏳ Aguardando confirmação"
+            st.markdown(f"**🔄 Turno {turn_number}** - Mudança de direção - {time_str}")
+            st.caption(f"Status: {status}")
+            st.caption(f"📝 Claim anterior: \"{event.get('previous_claim', '')[:100]}...\"")
+            st.caption(f"📝 Novo claim: \"{event.get('new_claim', '')[:100]}...\"")
+            reasoning = event.get("reasoning", "")
+            if reasoning:
+                st.caption(f"💬 Razão: {reasoning[:150]}...")
+
+        elif event_type == "clarity_checkpoint":
+            st.markdown(f"**⚠️ Turno {turn_number}** - Checkpoint de clareza - {time_str}")
+            clarity_level = event.get("clarity_level", "nebulosa")
+            clarity_score = event.get("clarity_score", 2)
+            checkpoint_reason = event.get("checkpoint_reason", "")
+            factors = event.get("factors", {})
+            suggestion = event.get("suggestion", "")
+
+            st.caption(f"📊 Clareza: {clarity_level} (score {clarity_score}/5)")
+            if checkpoint_reason:
+                st.caption(f"📝 Razão: {checkpoint_reason[:150]}...")
+            if factors:
+                factors_str = ", ".join([f"{k}: {v}" for k, v in factors.items()])
+                st.caption(f"🔍 Fatores: {factors_str}")
+            if suggestion:
+                st.caption(f"💡 Sugestão: {suggestion}")
+
         st.markdown("---")
 

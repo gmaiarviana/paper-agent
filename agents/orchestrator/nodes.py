@@ -48,6 +48,7 @@ from agents.memory.execution_tracker import register_execution
 from utils.token_extractor import extract_tokens_and_cost
 from agents.models.cognitive_model import CognitiveModel
 from agents.models.proposition import Proposicao
+from utils.event_bus import get_event_bus
 from agents.persistence import create_snapshot_if_mature
 from utils.structured_logger import StructuredLogger
 
@@ -412,11 +413,15 @@ def _consult_observer(
         "checkpoint_reason": None
     }
 
+    # Obter session_id e calcular turn_number para publicação de eventos (Épico 13.5)
+    session_id = state.get("session_id", "unknown-session")
+    messages = state.get("messages", [])
+    turn_number = max(1, len([m for m in messages if m.__class__.__name__ == "HumanMessage"]))
+
     # 1. Avaliar clareza da conversa
     if cognitive_model:
         try:
             # Preparar histórico de conversação
-            messages = state.get("messages", [])
             conversation_history = []
             for msg in messages[-6:]:  # Últimas 6 mensagens
                 if hasattr(msg, 'content'):
@@ -437,6 +442,22 @@ def _consult_observer(
             if clarity_result.get("needs_checkpoint"):
                 result["needs_checkpoint"] = True
                 result["checkpoint_reason"] = f"Clareza '{clarity_result.get('clarity_level')}': {clarity_result.get('description', '')}"
+
+                # === PUBLICAR EVENTO: ClarityCheckpoint (Épico 13.5) ===
+                try:
+                    event_bus = get_event_bus()
+                    event_bus.publish_clarity_checkpoint(
+                        session_id=session_id,
+                        turn_number=turn_number,
+                        clarity_level=clarity_result.get("clarity_level", "nebulosa"),
+                        clarity_score=clarity_result.get("clarity_score", 2),
+                        checkpoint_reason=result["checkpoint_reason"],
+                        factors=clarity_result.get("factors", {}),
+                        suggestion=clarity_result.get("suggestion", "")
+                    )
+                    logger.debug(f"⚠️ Evento clarity_checkpoint publicado para turno {turn_number}")
+                except Exception as pub_err:
+                    logger.warning(f"Erro ao publicar clarity_checkpoint: {pub_err}")
 
             logger.info(
                 f"📊 Clareza: {clarity_result.get('clarity_level')} "
@@ -471,6 +492,38 @@ def _consult_observer(
                 if not result["needs_checkpoint"]:
                     result["needs_checkpoint"] = True
                     result["checkpoint_reason"] = f"Mudança de direção detectada: {variation_result.get('analysis', '')[:150]}"
+
+                # === PUBLICAR EVENTO: DirectionChangeConfirmed (Épico 13.5) ===
+                try:
+                    event_bus = get_event_bus()
+                    event_bus.publish_direction_change_confirmed(
+                        session_id=session_id,
+                        turn_number=turn_number,
+                        previous_claim=previous_claim,
+                        new_claim=user_input[:200],  # Truncar para evitar eventos muito grandes
+                        user_confirmed=False,  # Será True após confirmação do usuário
+                        reasoning=variation_result.get("reasoning", "")
+                    )
+                    logger.debug(f"🔄 Evento direction_change_confirmed publicado para turno {turn_number}")
+                except Exception as pub_err:
+                    logger.warning(f"Erro ao publicar direction_change_confirmed: {pub_err}")
+
+            elif variation_result.get("classification") == "variation":
+                # === PUBLICAR EVENTO: VariationDetected (Épico 13.5) ===
+                try:
+                    event_bus = get_event_bus()
+                    event_bus.publish_variation_detected(
+                        session_id=session_id,
+                        turn_number=turn_number,
+                        essence_previous=variation_result.get("essence_previous", previous_claim[:100]),
+                        essence_new=variation_result.get("essence_new", user_input[:100]),
+                        shared_concepts=variation_result.get("shared_concepts", []),
+                        new_concepts=variation_result.get("new_concepts", []),
+                        analysis=variation_result.get("analysis", "")
+                    )
+                    logger.debug(f"↪️ Evento variation_detected publicado para turno {turn_number}")
+                except Exception as pub_err:
+                    logger.warning(f"Erro ao publicar variation_detected: {pub_err}")
 
             logger.info(
                 f"🎯 Variação: {variation_result.get('classification')} "

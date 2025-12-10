@@ -361,6 +361,185 @@ class ClarificationResolvedEvent(BaseEvent):
     )
 
 
+# ============================================================================
+# Eventos do Epico 13.5 - Timeline Visual de Mudancas
+# ============================================================================
+
+
+class VariationDetectedEvent(BaseEvent):
+    """
+    Evento emitido quando Observer detecta variacao (nao mudanca real) (Epico 13.5).
+
+    Este evento e publicado discretamente quando o Observer identifica que
+    o input do usuario e uma variacao do conceito anterior (mesma essencia),
+    nao uma mudanca real de direcao. Nao interrompe o fluxo da conversa.
+
+    Attributes:
+        turn_number (int): Numero do turno atual
+        classification (str): Sempre "variation" para este evento
+        essence_previous (str): Essencia semantica do texto anterior
+        essence_new (str): Essencia semantica do novo texto
+        shared_concepts (list): Conceitos mantidos entre os textos
+        new_concepts (list): Novos conceitos introduzidos
+        analysis (str): Analise textual do LLM
+        metadata (dict): Metadados adicionais opcionais
+    """
+    event_type: Literal["variation_detected"] = "variation_detected"
+    turn_number: int = Field(..., ge=1, description="Numero do turno atual")
+    classification: Literal["variation"] = Field(
+        "variation",
+        description="Classificacao da deteccao (sempre 'variation')"
+    )
+    essence_previous: str = Field(..., description="Essencia semantica do texto anterior")
+    essence_new: str = Field(..., description="Essencia semantica do novo texto")
+    shared_concepts: list = Field(
+        default_factory=list,
+        description="Conceitos mantidos entre os textos"
+    )
+    new_concepts: list = Field(
+        default_factory=list,
+        description="Novos conceitos introduzidos"
+    )
+    analysis: str = Field("", description="Analise textual do LLM")
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Metadados adicionais opcionais"
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "session_id": "cli-session-abc123",
+                "timestamp": "2025-12-10T10:30:00Z",
+                "event_type": "variation_detected",
+                "turn_number": 3,
+                "classification": "variation",
+                "essence_previous": "LLMs aumentam produtividade de desenvolvedores",
+                "essence_new": "IA generativa melhora eficiencia no desenvolvimento",
+                "shared_concepts": ["produtividade", "desenvolvimento", "IA"],
+                "new_concepts": ["eficiencia"],
+                "analysis": "Ambos textos tratam do impacto positivo de IA/LLMs na produtividade",
+                "metadata": {}
+            }
+        }
+    )
+
+
+class DirectionChangeConfirmedEvent(BaseEvent):
+    """
+    Evento emitido quando mudanca real de direcao e detectada/confirmada (Epico 13.5).
+
+    Este evento e publicado quando o Observer detecta que o usuario mudou
+    de foco para um topico fundamentalmente diferente. Pode incluir
+    confirmacao do usuario se o Orchestrator solicitou checkpoint.
+
+    Attributes:
+        turn_number (int): Numero do turno atual
+        classification (str): Sempre "real_change" para este evento
+        previous_claim (str): Claim/foco anterior da conversa
+        new_claim (str): Novo claim/foco identificado
+        user_confirmed (bool): Se usuario confirmou a mudanca (via checkpoint)
+        reasoning (str): Justificativa para classificacao como mudanca real
+        metadata (dict): Metadados adicionais opcionais
+    """
+    event_type: Literal["direction_change_confirmed"] = "direction_change_confirmed"
+    turn_number: int = Field(..., ge=1, description="Numero do turno atual")
+    classification: Literal["real_change"] = Field(
+        "real_change",
+        description="Classificacao da deteccao (sempre 'real_change')"
+    )
+    previous_claim: str = Field(..., description="Claim/foco anterior da conversa")
+    new_claim: str = Field(..., description="Novo claim/foco identificado")
+    user_confirmed: bool = Field(
+        False,
+        description="Se usuario confirmou a mudanca (via checkpoint)"
+    )
+    reasoning: str = Field("", description="Justificativa para classificacao")
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Metadados adicionais opcionais"
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "session_id": "cli-session-abc123",
+                "timestamp": "2025-12-10T10:35:00Z",
+                "event_type": "direction_change_confirmed",
+                "turn_number": 5,
+                "classification": "real_change",
+                "previous_claim": "LLMs aumentam produtividade de desenvolvedores",
+                "new_claim": "Blockchain revoluciona transacoes financeiras",
+                "user_confirmed": True,
+                "reasoning": "Topicos completamente distintos sem conexao semantica",
+                "metadata": {}
+            }
+        }
+    )
+
+
+class ClarityCheckpointEvent(BaseEvent):
+    """
+    Evento emitido quando checkpoint de clareza e solicitado (Epico 13.5).
+
+    Este evento e publicado quando o Observer detecta que a conversa
+    esta nebulosa ou confusa e o Orchestrator decide solicitar
+    esclarecimento ao usuario.
+
+    Attributes:
+        turn_number (int): Numero do turno atual
+        clarity_level (str): Nivel de clareza detectado (nebulosa, confusa)
+        clarity_score (int): Score numerico de clareza (1-5)
+        checkpoint_reason (str): Razao para solicitar checkpoint
+        factors (dict): Fatores que contribuiram para avaliacao
+        suggestion (str): Sugestao de como esclarecer
+        metadata (dict): Metadados adicionais opcionais
+    """
+    event_type: Literal["clarity_checkpoint"] = "clarity_checkpoint"
+    turn_number: int = Field(..., ge=1, description="Numero do turno atual")
+    clarity_level: str = Field(
+        ...,
+        description="Nivel de clareza (cristalina, clara, nebulosa, confusa)"
+    )
+    clarity_score: int = Field(
+        ...,
+        ge=1,
+        le=5,
+        description="Score numerico de clareza (1=confusa, 5=cristalina)"
+    )
+    checkpoint_reason: str = Field(..., description="Razao para solicitar checkpoint")
+    factors: Dict[str, str] = Field(
+        default_factory=dict,
+        description="Fatores da avaliacao (claim_definition, coherence, direction_stability)"
+    )
+    suggestion: str = Field("", description="Sugestao de como esclarecer")
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Metadados adicionais opcionais"
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "session_id": "cli-session-abc123",
+                "timestamp": "2025-12-10T10:40:00Z",
+                "event_type": "clarity_checkpoint",
+                "turn_number": 4,
+                "clarity_level": "nebulosa",
+                "clarity_score": 2,
+                "checkpoint_reason": "Multiplos topicos mencionados sem conexao clara",
+                "factors": {
+                    "claim_definition": "vago",
+                    "coherence": "baixa",
+                    "direction_stability": "instavel"
+                },
+                "suggestion": "Qual desses topicos voce gostaria de explorar primeiro?",
+                "metadata": {}
+            }
+        }
+    )
+
+
 # Union type para deserializacao automatica
 EventType = (
     AgentStartedEvent |
@@ -370,5 +549,9 @@ EventType = (
     SessionCompletedEvent |
     CognitiveModelUpdatedEvent |
     ClarificationRequestedEvent |
-    ClarificationResolvedEvent
+    ClarificationResolvedEvent |
+    # Epico 13.5 - Timeline Visual de Mudancas
+    VariationDetectedEvent |
+    DirectionChangeConfirmedEvent |
+    ClarityCheckpointEvent
 )
