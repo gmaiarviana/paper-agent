@@ -39,7 +39,7 @@ class TestExecutionTracker:
         summary = "Classificação: vague"
 
         # Act
-        with patch('agents.memory.execution_tracker.CostTracker.calculate_cost') as mock_cost:
+        with patch('core.agents.memory.execution_tracker.CostTracker.calculate_cost') as mock_cost:
             mock_cost.return_value = {
                 "input_cost": 0.00012,
                 "output_cost": 0.0003,
@@ -116,7 +116,7 @@ class TestExecutionTracker:
         config = {"configurable": {"thread_id": session_id}}
 
         # Act
-        with patch('agents.memory.execution_tracker.CostTracker.calculate_cost') as mock_cost:
+        with patch('core.agents.memory.execution_tracker.CostTracker.calculate_cost') as mock_cost:
             mock_cost.return_value = {
                 "input_cost": 0.0,
                 "output_cost": 0.0,
@@ -155,7 +155,7 @@ class TestExecutionTracker:
         config = {"configurable": {"thread_id": session_id}}
 
         # Act
-        with patch('agents.memory.execution_tracker.CostTracker.calculate_cost') as mock_cost:
+        with patch('core.agents.memory.execution_tracker.CostTracker.calculate_cost') as mock_cost:
             mock_cost.return_value = {
                 "input_cost": 0.00024,
                 "output_cost": 0.0006,
@@ -198,7 +198,7 @@ class TestExecutionTracker:
         }
 
         # Act
-        with patch('agents.memory.execution_tracker.CostTracker.calculate_cost') as mock_cost:
+        with patch('core.agents.memory.execution_tracker.CostTracker.calculate_cost') as mock_cost:
             mock_cost.return_value = {
                 "input_cost": 0.0001,
                 "output_cost": 0.0002,
