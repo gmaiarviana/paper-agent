@@ -104,10 +104,10 @@ Arquivos que usam `Path(__file__).parent.parent` (2 níveis) para acessar raiz d
     - **Ação**: Revisar após migração
 
 ### CLI
-16. **`cli/chat.py:23`**
-    - Uso: `Path(__file__).parent.parent` + `sys.path.insert`
-    - Risco: Arquivo CLI - será movido para `core/tools/cli/`
-    - **Ação**: Revisar após migração
+16. **`core/tools/cli/chat.py:24`** (migrado)
+    - Uso: `Path(__file__).parent.parent.parent.parent` + `sys.path.insert`
+    - Risco: Baixo - caminho ajustado para nova estrutura
+    - **Status**: MIGRADO na Fase 6
 
 ---
 
