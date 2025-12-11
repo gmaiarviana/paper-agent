@@ -129,7 +129,7 @@ Quando uma ideia atinge clareza suficiente:
 
 **Navegação: Ideias como Centro**
 
-> **Nota:** Para filosofia completa de navegação, consulte `docs/interface/navigation_philosophy.md`.
+> **Nota:** Para filosofia completa de navegação, consulte `products/revelar/docs/interface/navigation_philosophy.md`.
 
 **Estrutura principal:**
 - **Minhas Ideias** = navegação principal (destaque)
@@ -220,7 +220,7 @@ Transparência sobre origem de informações e raciocínio do sistema, permitind
 - ✅ Scripts de automação
 - ❌ Uso interativo por usuários finais (usar web)
 
-**Documentação:** Ver `docs/interface/cli.md` e `docs/interface/web/` (overview.md, components.md, flows.md)
+**Documentação:** Ver `docs/core/tools/cli.md` e `docs/products/revelar/interface/` (overview.md, components.md, flows.md)
 
 ## 6. Casos de Uso Principais (Revelar)
 

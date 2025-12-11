@@ -424,7 +424,7 @@ memory_config = {
 - `../architecture/vision/super_system.md` - Configuração por produto
 - `docs/agents/orchestrator.md` - Quem consulta Memory
 - `docs/agents/observer.md` - Quem detecta necessidade de consulta
-- `docs/features/transparent_backstage.md` - Rastreamento de consultas
+- `core/docs/features/transparent_backstage.md` - Rastreamento de consultas
 
 ---
 
