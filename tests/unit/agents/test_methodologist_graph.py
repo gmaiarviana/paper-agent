@@ -130,7 +130,7 @@ Para testar a execução completa com chamadas à API real:
 
 3. Ou teste manualmente via CLI (Funcionalidade 2.7):
 
-   python cli/chat.py
+   python -m core.tools.cli.chat
 
 Observações:
 - O grafo foi construído com modelo: claude-3-5-haiku-20241022

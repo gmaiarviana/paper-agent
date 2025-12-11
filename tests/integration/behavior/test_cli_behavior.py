@@ -8,7 +8,7 @@ Este script testa o fluxo completo do CLI sem precisar de interação manual:
 3. Simula respostas a perguntas do agente
 4. Valida que o resultado final é gerado corretamente
 
-Para teste manual interativo, use: python cli/chat.py
+Para teste manual interativo, use: python -m core.tools.cli.chat
 
 """
 
@@ -161,7 +161,7 @@ def validate_cli_flow():
     print("VALIDAÇÃO CONCLUÍDA COM SUCESSO! ✅")
     print("=" * 70)
     print("\n📝 Próximos passos:")
-    print("   1. Para testar interativamente: python cli/chat.py")
+    print("   1. Para testar interativamente: python -m core.tools.cli.chat")
     print("   2. Para executar testes unitários: python -m pytest tests/unit/ -v")
     print("   3. Para executar testes de integração: python -m pytest tests/integration/ -v")
     print()

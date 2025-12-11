@@ -190,7 +190,7 @@ def print_summary():
     print()
     print("🚀 Próximos passos:")
     print("   1. Execute o Dashboard: streamlit run app/dashboard.py")
-    print("   2. Execute o CLI em outro terminal: python cli/chat.py")
+    print("   2. Execute o CLI em outro terminal: python -m core.tools.cli.chat")
     print("   3. Veja os eventos aparecerem em tempo real no Dashboard!")
     print()
     print("=" * 70)

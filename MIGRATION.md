@@ -742,44 +742,35 @@ python -c "from core.agents.multi_agent_graph import create_multi_agent_graph; p
 
 ---
 
-### Fase 6: CLI
+### Fase 6: CLI ✅
+
+**Status:** Concluida
 
 **Objetivo:** Mover CLI para ferramentas do core.
 
 #### Fase 6.1: Mover `cli/` → `core/tools/cli/`
 
-**Cursor (rápido):**
-- [ ] `git mv cli core/tools/cli`
-- [ ] Validar: Estrutura preservada
+**Cursor (rapido):**
+- [x] `git mv cli/chat.py core/tools/cli/chat.py`
+- [x] Atualizar `__init__.py`
+- [x] Remover diretorio `cli/` antigo
+- [x] Validar: Estrutura preservada
 
-**Comandos:**
-```powershell
-git mv cli core/tools/cli
-```
-
-**Pausa Segura:** ❌ Não (imports ainda quebrados)
-
----
-
-#### Fase 6.2: Ajustar imports em CLI
+#### Fase 6.2: Ajustar PYTHONPATH e referencias
 
 **Claude Code (complexo):**
-- [ ] Ajustar imports de `from agents.` → `from core.agents.`
-- [ ] Ajustar imports de `from utils.` → `from core.utils.`
-- [ ] Testar: `python -m core.tools.cli.chat`
+- [x] Ajustar PYTHONPATH em chat.py (linha 24): `parent.parent` -> `parent.parent.parent.parent`
+- [x] Imports ja estavam corretos (core.agents, core.utils) - Fase 5 ja ajustou
+- [x] Atualizar exemplos de uso no argparse
+- [x] Atualizar referencias em README.md, ARCHITECTURE.md, .claudecode.md
+- [x] Atualizar referencias em testes e docs
 
-**Comando:**
+**Validacao:**
 ```powershell
-# Pedir ao Claude Code:
-# "Ajuste todos os imports em core/tools/cli/ para usar core.agents e core.utils"
-```
-
-**Validação:**
-```powershell
-# Testar CLI
+# Testar CLI (PowerShell Windows)
 python -m core.tools.cli.chat --help
 
-# Testar integração
+# Testar integracao
 pytest tests/integration/behavior/test_cli_integration.py -v
 ```
 
@@ -1527,7 +1518,7 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 
 ### Fase 6: CLI ✅
 - [x] cli/ movido para core/tools/cli/
-- [x] Imports ajustados (project_root path corrigido)
+- [x] Imports ajustados (project_root path corrigido - 4 níveis para raiz)
 - [x] Testes passando (imports validados)
 - [x] Commit realizado
 

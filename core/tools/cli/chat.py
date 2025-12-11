@@ -20,7 +20,7 @@ import argparse
 from pathlib import Path
 
 # Adicionar o diretório raiz ao PYTHONPATH
-# Caminho: core/tools/cli/chat.py -> parent.parent.parent.parent = project root
+# Caminho: core/tools/cli/chat.py -> parent.parent.parent.parent = project root (4 níveis)
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -58,9 +58,9 @@ def parse_args():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Exemplos de uso:
-  python cli/chat.py              # Modo padrão (CLI limpa)
-  python cli/chat.py --verbose    # Exibe raciocínio do orquestrador
-  python cli/chat.py -v           # Atalho para --verbose
+  python -m core.tools.cli.chat              # Modo padrão (CLI limpa)
+  python -m core.tools.cli.chat --verbose    # Exibe raciocínio do orquestrador
+  python -m core.tools.cli.chat -v           # Atalho para --verbose
         """
     )
 

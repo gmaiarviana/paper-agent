@@ -126,8 +126,8 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 ### TEMA: CLI e Automação
 
-**Código:**
-- `cli/chat.py` - CLI conversacional
+**Codigo:**
+- `core/tools/cli/chat.py` - CLI conversacional
 
 **Documentação:**
 - `docs/interface/cli.md` - CLI básico

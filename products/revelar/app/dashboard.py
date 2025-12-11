@@ -114,10 +114,10 @@ def render_session_selector(sessions: List[str]) -> Optional[str]:
     if not sessions:
         st.sidebar.info("Nenhuma sessão ativa encontrada.")
         st.sidebar.markdown("""
-        **💡 Como iniciar uma sessão:**
-        1. Execute o CLI: `python cli/chat.py`
-        2. Digite uma hipótese para análise
-        3. A sessão aparecerá aqui automaticamente
+        **Como iniciar uma sessao:**
+        1. Execute o CLI: `python -m core.tools.cli.chat`
+        2. Digite uma hipotese para analise
+        3. A sessao aparecera aqui automaticamente
         """)
         return None
 

@@ -79,7 +79,7 @@ def criar_grafo_metodologista():  # ❌ Nome de função em PT
 
 ### Mensagens ao Usuário
 
-**CLI (cli/chat.py):**
+**CLI (core/tools/cli/chat.py):**
 ```python
 print("=" * 70)
 print("CLI MINIMALISTA - AGENTE METODOLOGISTA")  # ✅ PT-BR

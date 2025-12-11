@@ -144,11 +144,11 @@ Navegador abre em `http://localhost:8501` (mesma porta, app diferente).
 
 Interface de linha de comando mantida para desenvolvimento e automação (não para uso interativo):
 ```bash
-# Modo padrão
-python cli/chat.py
+# Modo padrao
+python -m core.tools.cli.chat
 
-# Modo verbose (exibe raciocínio)
-python cli/chat.py --verbose
+# Modo verbose (exibe raciocinio)
+python -m core.tools.cli.chat --verbose
 ```
 
 **Quando usar CLI:**
