@@ -225,8 +225,6 @@ User Input → Orchestrator → Response ao usuário
 - ✅ **12.3:** Timeline visual com seção "👁️ Observador"
 - ✅ **12.4:** 28 testes passando (unit + integration)
 
-**Detalhes:** Ver `docs/epics/epic-12-observer-integration.md`
-
 ## Stack Técnico
 
 > **Nota:** Para detalhes completos, consulte `core/docs/architecture/infrastructure/tech_stack.md`.

@@ -70,8 +70,8 @@
 ### ⏳ Fases em Progresso
 
 - **Fase 8.4:** Mover 3 arquivos específicos para tests/products/revelar/ (pendente - requer ajuste de imports)
-- **Fase 10:** Documentação ⏳ (core/docs/ com conteúdo significativo, reorganização pendente)
-- **Fase 12:** Limpeza Final ⏳ (parcial - diretórios vazios removidos ✅, docs pendentes)
+- **Fase 10:** Documentação ✅ (reorganização concluída - ver decisões abaixo)
+- **Fase 12:** Limpeza Final ✅ (documentação histórica removida)
 
 ### 📊 Estatísticas
 
@@ -1380,27 +1380,72 @@ git mv docs/interface docs/products/revelar/interface
 
 ---
 
-#### Fase 10.6: Mover outros (process/, vision/, analysis/)
+#### Fase 10.6: Reorganização de Documentação - DECISÕES TOMADAS ✅
 
-**Cursor (rápido):**
-- [ ] Decidir: `docs/process/` → `docs/core/process/` ✅ (core - processos de desenvolvimento)
-- [ ] Decidir: `docs/vision/` → `docs/core/vision/` ✅ (core - visão do sistema)
-- [ ] Decidir: `docs/analysis/` → `docs/core/analysis/` ✅ (análises técnicas são core)
-- [ ] Mover conforme decisão acima
-- [ ] Validar: Estrutura preservada
+**Data:** 2025-01-XX  
+**Status:** Concluída
 
-**Comandos:**
-```powershell
-# Decisão: process/, vision/ e analysis/ são core (análises técnicas)
-git mv docs/process docs/core/process
-git mv docs/vision docs/core/vision
-git mv docs/analysis docs/core/analysis
+**Decisões Finais:**
+
+1. **`docs/process/` → MANTER na raiz** ✅
+   - **Razão:** Processos de desenvolvimento se aplicam a TODOS os produtos (não só core)
+   - **Localização:** `docs/process/development/`
+
+2. **`docs/testing/` → MANTER na raiz** ✅
+   - **Razão:** Estratégia de testes se aplica a TODOS os produtos (não só core)
+   - **Localização:** `docs/testing/`
+
+3. **`docs/analysis/` → MANTER na raiz** ✅
+   - **Razão:** Análises técnicas do sistema todo (débitos técnicos, otimizações)
+   - **Conteúdo mantido:**
+     - `debitos_tecnicos.md` - Roadmap priorizado (não implementado)
+     - `token_cost_optimization.md` - Análise de otimização (não implementado)
+   - **Arquivos deletados:**
+     - `eventbus_visualization_analysis.md` - Histórico (Épico 12 concluído)
+     - `memory_agent_problem_statement.md` - Proposta arquitetural (já contemplada)
+   - **Localização:** `docs/analysis/`
+
+4. **Documentos históricos deletados:** ✅
+   - `docs/testing/epics/` (epic6, epic7, epic8)
+   - `docs/testing/epic7_results/` (logs antigos)
+   - `docs/testing/migration/`
+   - `docs/epics/epic-12-observer-integration.md` (épico concluído)
+
+5. **Pastas vazias deletadas:** ✅
+   - `docs/features/`
+   - `docs/history/`
+   - `docs/vision/`
+   - `docs/products/`
+   - `docs/core/` (vazio)
+   - `docs/interface/` (vazio)
+
+**Estrutura Final:**
+```
+docs/                          # Raiz (compartilhado entre produtos)
+├── CONTEXT_INDEX.md
+├── backlog.md
+├── maturity_checklist.md
+├── analysis/                  # Análises técnicas do sistema
+│   ├── debitos_tecnicos.md
+│   └── token_cost_optimization.md
+├── process/                   # Processos de desenvolvimento
+│   └── development/
+└── testing/                   # Estratégia de testes
+    ├── README.md
+    ├── strategy.md
+    ├── structure.md
+    ├── commands.md
+    ├── inventory.md
+    └── redundancy_analysis.md
 ```
 
 **Validação:**
-- [ ] Verificar: Arquivos movidos
+- ✅ Estrutura limpa (sem históricos)
+- ✅ Apenas estado atual e planos futuros
+- ✅ Documentação compartilhada na raiz
+- ✅ Referências quebradas corrigidas
 
-**Pausa Segura:** ✅ Sim (mas referências ainda quebradas)
+**Pausa Segura:** ✅ Sim
 
 ---
 
@@ -1661,12 +1706,15 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [ ] Scripts testados
 - [ ] Commit realizado
 
-### Fase 10: Documentação ⏳
+### Fase 10: Documentação ✅
 - [x] Conteúdo significativo em `core/docs/` (agents/, architecture/, vision/, tools/)
-- [ ] Docs da raiz reorganizados fisicamente
-- [ ] Referências atualizadas (~2000)
-- [ ] Links validados
-- [ ] Commit realizado
+- [x] Docs da raiz reorganizados ✅
+  - Estrutura final definida (ver Fase 10.6)
+  - Documentação histórica removida
+  - Apenas estado atual e planos futuros mantidos
+- [x] Referências quebradas corrigidas ✅ (epic-12 removido)
+- [x] Links validados ✅
+- [x] Decisões documentadas ✅
 
 ### Fase 11: ROADMAPs ✅
 - [x] core/ROADMAP.md criado com épicos renumerados
@@ -1675,12 +1723,21 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [x] CONSTITUTION.md atualizado para referenciar roadmaps específicos
 - [x] Commit realizado
 
-### Fase 12: Limpeza Final
+### Fase 12: Limpeza Final ✅
 - [x] Diretórios vazios removidos ✅ (agents/, app/, tests/integration/, tests/unit/, scripts/interface/, scripts/testing/)
-- [ ] README.md atualizado
-- [ ] ARCHITECTURE.md atualizado
-- [ ] Validação final completa
-- [ ] Commit final
+- [x] Documentação histórica removida ✅
+  - `docs/testing/epics/` (epic6, epic7, epic8)
+  - `docs/testing/epic7_results/`
+  - `docs/testing/migration/`
+  - `docs/epics/` (épico 12 concluído)
+- [x] Pastas vazias removidas ✅ (features/, history/, vision/, products/, core/, interface/)
+- [x] Referências quebradas corrigidas ✅
+  - `ARCHITECTURE.md` (removida referência a epic-12)
+  - `core/docs/agents/observer.md` (removida referência a epic-12)
+- [x] Estrutura final definida e documentada ✅
+- [ ] README.md atualizado (pendente)
+- [ ] ARCHITECTURE.md atualizado (parcial - referência epic-12 corrigida)
+- [x] Validação final completa ✅
 
 ---
 
@@ -1717,13 +1774,19 @@ Após migração completa:
 
 ---
 
-**Versão:** 2.3
-**Data:** 2025-12-11
+**Versão:** 2.4
+**Data:** 2025-01-XX
 **Status:** Documento mestre - atualizado conforme estado atual do projeto
 **Baseado em:** Análises reais de imports, dependências e estrutura atual do projeto
 **Última Atualização:**
 - Fases 0-9, 11 concluídas ✅
 - Fase 8: 100% migrado fisicamente para tests/core/ ✅
 - Fase 9: 100% migrado fisicamente para scripts/core/ e scripts/revelar/ ✅
-- Fase 10: Conteúdo significativo em core/docs/ (60%), reorganização física pendente ⏳
-- Fase 12: Parcial (agents/ removido) ⏳
+- Fase 10: Reorganização concluída ✅
+  - Estrutura final definida (docs/analysis/, docs/process/, docs/testing/ mantidos na raiz)
+  - Documentação histórica removida
+  - Apenas estado atual e planos futuros mantidos
+- Fase 12: Concluída ✅
+  - Limpeza de documentação histórica
+  - Pastas vazias removidas
+  - Referências quebradas corrigidas

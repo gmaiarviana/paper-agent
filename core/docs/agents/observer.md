@@ -813,8 +813,6 @@ User Input → Orchestrator → Response
          EventBus → Timeline
 ```
 
-**Detalhes:** Ver `docs/epics/epic-12-observer-integration.md`
-
 ### 🔄 Épico 14: Observer - Consultas Inteligentes (Base Implementada)
 
 Sistema de consultas inteligentes que identifica quando o argumento precisa de esclarecimento e sugere perguntas contextuais.
