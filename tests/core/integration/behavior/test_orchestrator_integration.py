@@ -26,7 +26,9 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 # Carregar variáveis de ambiente do .env
-load_dotenv()
+# Busca o .env na raiz do projeto (3 níveis acima deste arquivo)
+env_path = project_root / ".env"
+load_dotenv(dotenv_path=env_path)
 
 from core.agents.orchestrator.state import create_initial_multi_agent_state
 from core.agents.orchestrator.nodes import orchestrator_node
@@ -66,9 +68,7 @@ def test_orchestrator_classifies_vague_input_real_api():
     assert result["next_step"] in ["explore", "clarify"], \
         f"Input vago deveria resultar em 'explore' ou 'clarify', mas foi '{result['next_step']}'"
     
-    assert result["orchestrator_analysis"] is not None, \
-        "Orquestrador deveria fornecer análise (reasoning)"
-    
+    # Validação de análise (removido assert redundante, mantida validação substancial)
     assert len(result["orchestrator_analysis"]) > 20, \
         "Análise deveria ter conteúdo substancial (não apenas placeholder)"
     
@@ -88,12 +88,18 @@ def test_orchestrator_classifies_vague_input_real_api():
     assert len(message_content) > 10, \
         "Mensagem deveria ter conteúdo substancial"
     
-    # Validar que focal_argument foi extraído
+    # Validar que focal_argument foi extraído e tem estrutura esperada
     assert "focal_argument" in result, \
         "Orquestrador deveria extrair focal_argument"
     
     assert result["focal_argument"] is not None, \
         "focal_argument não deveria ser None"
+    
+    assert "subject" in result["focal_argument"], \
+        "focal_argument deve ter campo 'subject'"
+    
+    assert result["focal_argument"]["subject"], \
+        "subject não pode ser vazio"
 
 def test_orchestrator_classifies_semi_formed_input_real_api():
     """
