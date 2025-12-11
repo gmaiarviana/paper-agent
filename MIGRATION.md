@@ -29,18 +29,98 @@
 
 ---
 
-## 2. Estado Atual (Antes da Migração)
+## 2. Resumo do Progresso
+
+### ✅ Fases Concluídas (0-7, 11)
+
+- **Fase 0:** Preparação ✅
+- **Fase 1:** Estrutura Base ✅
+- **Fase 2:** Core - Folhas ✅
+- **Fase 3:** Core - Memória ✅
+- **Fase 4:** Core - Agentes ✅
+- **Fase 5:** Core - Integração ✅
+- **Fase 6:** CLI ✅
+- **Fase 7:** Produto Revelar ✅
+- **Fase 11:** ROADMAPs ✅
+
+### ⏳ Fases em Progresso
+
+- **Fase 8:** Testes ⏳ (estrutura criada, arquivos ainda na raiz)
+- **Fase 9:** Scripts ⏳ (não iniciado)
+- **Fase 10:** Documentação ⏳ (parcial - core/docs/vision/ existe)
+- **Fase 12:** Limpeza Final ⏳ (pendente)
+
+### 📊 Estatísticas
+
+- **Core:** 100% migrado ✅
+- **Produto Revelar:** 100% migrado ✅
+- **Testes:** 0% migrado (estrutura criada) ⏳
+- **Scripts:** 0% migrado ⏳
+- **Documentação:** ~5% migrado (core/docs/vision/) ⏳
+
+---
+
+## 3. Estado Atual da Migração
+
+### ✅ Estrutura Já Migrada
 
 ```
 paper-agent/
-├── agents/          # Core + produto misturado
-├── app/             # Interface web (produto Revelar)
-├── cli/             # Interface CLI (ferramenta dev)
-├── utils/           # Core + produto misturado
-├── config/          # Core
-├── tests/           # Core + produto misturado
-├── scripts/         # Core + produto misturado
-└── docs/            # Core + produto misturado
+├── core/                    # ✅ COMPLETO
+│   ├── agents/              # ✅ Todos os agentes migrados
+│   ├── prompts/             # ✅ Migrado
+│   ├── utils/               # ✅ Migrado
+│   ├── config/              # ✅ Migrado
+│   ├── tools/cli/           # ✅ CLI migrado
+│   ├── docs/vision/        # ✅ Parcial (alguns docs)
+│   ├── README.md           # ✅ Existe
+│   └── ROADMAP.md          # ✅ Existe
+│
+├── products/
+│   └── revelar/            # ✅ PRODUTO MIGRADO
+│       ├── app/            # ✅ App migrado
+│       ├── docs/          # ✅ Existe
+│       ├── README.md      # ✅ Existe
+│       └── ROADMAP.md     # ✅ Existe
+│
+└── tests/
+    ├── core/              # ⏳ Estrutura criada (vazia)
+    │   ├── unit/          # ⏳ Aguardando migração
+    │   └── integration/   # ⏳ Aguardando migração
+    ├── products/revelar/  # ⏳ Estrutura criada (vazia)
+    ├── unit/              # ⚠️ AINDA NA RAIZ
+    └── integration/       # ⚠️ AINDA NA RAIZ
+```
+
+### ⚠️ Ainda na Raiz (Pendente)
+
+```
+paper-agent/
+├── agents/          # ⚠️ Vazio (apenas __pycache__) - pode remover após Fase 8
+├── app/             # ⚠️ Vazio (apenas __pycache__) - pode remover após Fase 8
+├── tests/
+│   ├── unit/        # ⚠️ 43 arquivos - mover para tests/core/unit/ (Fase 8.1)
+│   └── integration/ # ⚠️ 32 arquivos - mover para tests/core/integration/ (Fase 8.2-8.5)
+│       ├── smoke/   # ⚠️ 3 arquivos
+│       ├── behavior/ # ⚠️ 29 arquivos (3 vão para products/revelar/)
+│       └── e2e/      # ⚠️ 2 arquivos
+├── scripts/         # ⚠️ Não organizado - mover para scripts/core/ e scripts/revelar/ (Fase 9)
+│   ├── health_checks/ # ⚠️ 8 arquivos → scripts/core/
+│   ├── debug/        # ⚠️ 3 arquivos → scripts/core/
+│   ├── testing/      # ⚠️ 7 arquivos → scripts/core/
+│   ├── spikes/       # ⚠️ 2 arquivos → scripts/core/
+│   ├── flows/        # ⚠️ 1 arquivo → scripts/revelar/
+│   ├── state_introspection/ # ⚠️ 1 arquivo → scripts/core/
+│   └── [7 arquivos na raiz] # ⚠️ → scripts/core/
+└── docs/            # ⚠️ Não organizado - mover para docs/core/ e docs/products/revelar/ (Fase 10)
+    ├── architecture/ # ⚠️ → docs/core/architecture/
+    ├── agents/      # ⚠️ → docs/core/agents/
+    ├── testing/     # ⚠️ → docs/core/testing/
+    ├── orchestration/ # ⚠️ → docs/core/orchestration/
+    ├── interface/   # ⚠️ → docs/products/revelar/interface/
+    ├── process/     # ⚠️ → docs/core/process/
+    ├── vision/      # ⚠️ → docs/core/vision/ (parcial já em core/docs/vision/)
+    └── analysis/    # ⚠️ → docs/core/analysis/
 ```
 
 ### Dados Reais das Análises
@@ -72,50 +152,68 @@ paper-agent/
 
 ---
 
-## 3. Estado Desejado (Depois da Migração)
+## 4. Estado Final Desejado (Meta da Migração)
 
 ```
-paper-agent-monorepo/
-├── core/
-│   ├── agents/
-│   ├── prompts/
-│   ├── utils/
-│   ├── config/
-│   ├── tools/cli/
-│   └── ROADMAP.md
+paper-agent/
+├── core/                    # ✅ COMPLETO
+│   ├── agents/              # ✅
+│   ├── prompts/             # ✅
+│   ├── utils/               # ✅
+│   ├── config/              # ✅
+│   ├── tools/cli/           # ✅
+│   ├── docs/                # ⏳ Parcial (faltam: architecture/, agents/, testing/, etc)
+│   ├── README.md            # ✅
+│   └── ROADMAP.md           # ✅
 │
 ├── products/
-│   └── revelar/
-│       ├── app/
-│       └── ROADMAP.md
+│   └── revelar/             # ✅ COMPLETO
+│       ├── app/             # ✅
+│       ├── docs/            # ✅
+│       ├── README.md        # ✅
+│       └── ROADMAP.md       # ✅
 │
 ├── tests/
-│   ├── core/
-│   │   ├── unit/
-│   │   └── integration/
-│   │       ├── smoke/
-│   │       ├── behavior/
-│   │       └── e2e/
+│   ├── core/                # ⏳ Estrutura criada, aguardando migração
+│   │   ├── unit/            # ⏳ Mover tests/unit/ → tests/core/unit/
+│   │   └── integration/     # ⏳ Mover tests/integration/ → tests/core/integration/
+│   │       ├── smoke/       # ⏳
+│   │       ├── behavior/    # ⏳
+│   │       └── e2e/         # ⏳
 │   └── products/
 │       └── revelar/
-│           └── integration/
+│           └── integration/ # ⏳ Mover 3 arquivos específicos
 │
 ├── scripts/
-│   ├── core/
-│   └── revelar/
+│   ├── core/                # ⏳ Mover scripts genéricos
+│   │   ├── health_checks/   # ⏳
+│   │   ├── debug/           # ⏳
+│   │   ├── testing/         # ⏳
+│   │   ├── spikes/          # ⏳
+│   │   └── state_introspection/ # ⏳
+│   └── revelar/             # ⏳ Mover scripts específicos
+│       └── flows/           # ⏳
 │
 ├── docs/
-│   ├── core/
+│   ├── core/                # ⏳ Mover docs genéricos
+│   │   ├── architecture/   # ⏳
+│   │   ├── agents/          # ⏳
+│   │   ├── testing/         # ⏳
+│   │   ├── orchestration/   # ⏳
+│   │   ├── process/         # ⏳
+│   │   ├── vision/          # ⏳ (parcial já em core/docs/vision/)
+│   │   └── analysis/        # ⏳
 │   └── products/
 │       └── revelar/
+│           └── interface/    # ⏳
 │
-├── ROADMAP.md       # Índice
-└── MIGRATION.md     # Este arquivo
+├── ROADMAP.md               # ⏳ Atualizar como índice
+└── MIGRATION.md             # Este arquivo
 ```
 
 ---
 
-## 4. Riscos Críticos
+## 5. Riscos Críticos
 
 ### Arquivos de Alto Risco (revisão obrigatória)
 
@@ -152,7 +250,7 @@ paper-agent-monorepo/
 
 ---
 
-## 5. Fases da Migração
+## 6. Fases da Migração
 
 ### Fase 0: Preparação ✅
 
@@ -778,73 +876,45 @@ pytest tests/integration/behavior/test_cli_integration.py -v
 
 ---
 
-### Fase 7: Produto Revelar
+### Fase 7: Produto Revelar ✅
+
+**Status:** Concluída
 
 **Objetivo:** Mover app para `products/revelar/`.
 
-#### Fase 7.1: Mover `app/` → `products/revelar/app/`
+#### Fase 7.1: Mover `app/` → `products/revelar/app/` ✅
 
-**Cursor (rápido):**
-- [ ] `git mv app products/revelar/app`
-- [ ] Validar: Estrutura preservada
+**Status:** Concluída
+- [x] `git mv app products/revelar/app`
+- [x] Estrutura preservada
 
-**Comandos:**
-```powershell
-git mv app products/revelar/app
-```
+#### Fase 7.2: Ajustar imports em app/ ✅
 
-**Pausa Segura:** ❌ Não (imports ainda quebrados)
-
----
-
-#### Fase 7.2: Ajustar imports em app/
-
-**Claude Code (complexo):**
-- [ ] Ajustar imports de `from agents.` → `from core.agents.`
-- [ ] Ajustar imports de `from utils.` → `from core.utils.`
-- [ ] Ajustar imports de `from app.` → `from products.revelar.app.` (em testes)
-- [ ] **Ajustar caminhos de `checkpoints.db` em:**
-  - `products/revelar/app/components/conversation_helpers.py` (linha 196)
-  - `products/revelar/app/pages/_ideia_detalhes.py` (linha 171)
-- [ ] Usar caminho absoluto baseado na raiz do projeto ou variável de ambiente
-- [ ] Exemplo: `project_root / "data" / "checkpoints.db"`
-- [ ] Testar: `streamlit run products/revelar/app/chat.py`
-
-**Comando:**
-```powershell
-# Pedir ao Claude Code:
-# "Ajuste todos os imports em products/revelar/app/ para usar core.agents e core.utils.
-#  Também ajuste caminhos de checkpoints.db em:
-#  - products/revelar/app/components/conversation_helpers.py (linha 196)
-#  - products/revelar/app/pages/_ideia_detalhes.py (linha 171)
-#  Use caminho absoluto baseado na raiz do projeto"
-```
-
-**Validação:**
-```powershell
-# Testar Streamlit
-streamlit run products/revelar/app/chat.py
-
-# Testar imports
-python -c "from products.revelar.app.chat import main; print('OK')"
-
-# Testar acesso a checkpoints.db
-python -c "from pathlib import Path; from products.revelar.app.components.conversation_helpers import *; print('Checkpoints OK')"
-```
+**Status:** Concluída
+- [x] Imports ajustados: `from agents.` → `from core.agents.`
+- [x] Imports ajustados: `from utils.` → `from core.utils.`
+- [x] Imports ajustados: `from app.` → `from products.revelar.app.`
+- [x] Caminhos de `checkpoints.db` ajustados (project_root dinâmico)
+- [x] Testes de imports validados
+- [x] Commits realizados
 
 **Pausa Segura:** ✅ Sim (core e produto separados, testes ainda na raiz)
 
 ---
 
-### Fase 8: Testes
+### Fase 8: Testes ⏳
+
+**Status:** Em Progresso - Estrutura criada, aguardando migração de arquivos
 
 **Objetivo:** Reorganizar testes por core/produto.
+
+**Nota:** A estrutura de diretórios já foi criada na Fase 1, mas os arquivos ainda estão na raiz.
 
 #### Fase 8.1: Mover `tests/unit/` → `tests/core/unit/`
 
 **Cursor (rápido):**
 - [ ] `git mv tests/unit tests/core/unit`
-- [ ] Validar: Estrutura preservada
+- [ ] Validar: 43 arquivos movidos corretamente
 
 **Comandos:**
 ```powershell
@@ -852,7 +922,8 @@ git mv tests/unit tests/core/unit
 ```
 
 **Validação:**
-- [ ] Verificar: Arquivos movidos corretamente
+- [ ] Verificar: 43 arquivos movidos (42 *.py + 1 *.md)
+- [ ] Verificar: Estrutura preservada (agents/, database/, memory/, models/, utils/)
 
 **Pausa Segura:** ✅ Sim (imports já ajustados nas fases anteriores)
 
@@ -871,6 +942,7 @@ git mv tests/integration/smoke tests/core/integration/smoke
 
 **Validação:**
 - [ ] Verificar: 3 arquivos movidos (test_methodologist_smoke.py, test_multi_agent_smoke.py, test_structurer_smoke.py)
+- [ ] Verificar: README.md movido também
 
 **Pausa Segura:** ✅ Sim
 
@@ -888,7 +960,8 @@ git mv tests/integration/behavior tests/core/integration/behavior
 ```
 
 **Validação:**
-- [ ] Verificar: ~20 arquivos movidos
+- [ ] Verificar: ~20 arquivos movidos (29 *.py + 1 *.md)
+- [ ] Verificar: README.md movido também
 
 **Pausa Segura:** ❌ Não (3 arquivos específicos precisam ser movidos depois)
 
@@ -896,11 +969,12 @@ git mv tests/integration/behavior tests/core/integration/behavior
 
 #### Fase 8.4: Mover 3 arquivos específicos → `tests/products/revelar/integration/`
 
-**Cursor (rápido):**
+**Claude Code (complexo):**
 - [ ] `git mv tests/core/integration/behavior/test_cli_integration.py tests/products/revelar/integration/test_cli_integration.py`
 - [ ] `git mv tests/core/integration/behavior/test_dashboard.py tests/products/revelar/integration/test_dashboard.py`
 - [ ] `git mv tests/core/integration/behavior/test_conversation_switching_behavior.py tests/products/revelar/integration/test_conversation_switching_behavior.py`
-- [ ] Validar: Arquivos movidos
+- [ ] Ajustar imports: `from app.` → `from products.revelar.app.` nos 3 arquivos movidos
+- [ ] Validar: Arquivos movidos e imports ajustados
 
 **Comandos:**
 ```powershell
@@ -913,8 +987,9 @@ git mv tests/core/integration/behavior/test_conversation_switching_behavior.py t
 
 **Validação:**
 - [ ] Verificar: 3 arquivos em `tests/products/revelar/integration/`
-- [ ] Verificar: Imports de `app.` serão ajustados para `products.revelar.app.` nos arquivos movidos
+- [ ] Verificar: Imports de `app.` ajustados para `products.revelar.app.` nos arquivos movidos
 - [ ] Verificar: `test_system_maturity.py` permanece em `tests/core/integration/behavior/` (é genérico)
+- [ ] Testar: `pytest tests/products/revelar/integration/ -v`
 
 **Pausa Segura:** ✅ Sim
 
@@ -933,6 +1008,7 @@ git mv tests/integration/e2e tests/core/integration/e2e
 
 **Validação:**
 - [ ] Verificar: 2 arquivos movidos (test_direction_change.py, test_multi_turn_flows.py)
+- [ ] Verificar: README.md movido também
 
 **Pausa Segura:** ✅ Sim
 
@@ -961,9 +1037,13 @@ pytest tests/products/revelar/ -v
 
 ---
 
-### Fase 9: Scripts
+### Fase 9: Scripts ⏳
+
+**Status:** Pendente - Scripts ainda na raiz, não organizados
 
 **Objetivo:** Categorizar e mover scripts por core/produto.
+
+**Nota:** Estrutura `scripts/core/` e `scripts/revelar/` já foi criada na Fase 1.
 
 #### Fase 9.1: Categorizar scripts (core vs revelar)
 
@@ -1157,9 +1237,15 @@ python scripts/core/debug/debug_multi_agent.py
 
 ---
 
-### Fase 10: Documentação
+### Fase 10: Documentação ⏳
+
+**Status:** Pendente - Docs ainda na raiz, não organizados
 
 **Objetivo:** Reorganizar docs por core/produto.
+
+**Nota:** 
+- `core/docs/vision/` já existe (parcial)
+- `docs/core/` e `docs/products/revelar/` ainda não foram criados (estrutura da Fase 1)
 
 #### Fase 10.1: Mover `docs/architecture/` → `docs/core/architecture/`
 
@@ -1306,43 +1392,23 @@ Get-ChildItem -Recurse -Include *.md | Select-String "app/" | Select-Object -Fir
 
 ---
 
-### Fase 11: ROADMAPs
+### Fase 11: ROADMAPs ✅
+
+**Status:** Concluída
 
 **Objetivo:** Criar ROADMAPs separados.
 
-#### Fase 11.1: Criar `core/ROADMAP.md`
+#### Fase 11.1: Criar `core/ROADMAP.md` ✅
 
-**Claude Code (complexo):**
-- [ ] Extrair épicos relacionados ao core do `ROADMAP.md` raiz
-- [ ] Criar `core/ROADMAP.md` com épicos do core
-- [ ] Validar: Conteúdo relevante
+**Status:** Concluída
+- [x] `core/ROADMAP.md` criado
+- [x] Épicos do core extraídos
 
-**Comando:**
-```powershell
-# Pedir ao Claude Code:
-# "Criar core/ROADMAP.md extraindo épicos relacionados ao core
-#  do ROADMAP.md raiz"
-```
+#### Fase 11.2: Criar `products/revelar/ROADMAP.md` ✅
 
-**Pausa Segura:** ✅ Sim
-
----
-
-#### Fase 11.2: Criar `products/revelar/ROADMAP.md`
-
-**Claude Code (complexo):**
-- [ ] Extrair épicos relacionados ao produto Revelar do `ROADMAP.md` raiz
-- [ ] Criar `products/revelar/ROADMAP.md` com épicos do produto
-- [ ] Validar: Conteúdo relevante
-
-**Comando:**
-```powershell
-# Pedir ao Claude Code:
-# "Criar products/revelar/ROADMAP.md extraindo épicos relacionados
-#  ao produto Revelar do ROADMAP.md raiz"
-```
-
-**Pausa Segura:** ✅ Sim
+**Status:** Concluída
+- [x] `products/revelar/ROADMAP.md` criado
+- [x] Épicos do produto Revelar extraídos
 
 ---
 
@@ -1365,30 +1431,30 @@ Get-ChildItem -Recurse -Include *.md | Select-String "app/" | Select-Object -Fir
 
 ---
 
-### Fase 12: Limpeza Final
+### Fase 12: Limpeza Final ⏳
+
+**Status:** Pendente
 
 **Objetivo:** Remover diretórios vazios, ajustar configs finais.
 
 #### Fase 12.1: Remover diretórios vazios da raiz
 
 **Cursor (rápido):**
-- [ ] Verificar: `agents/` vazio (remover)
-- [ ] Verificar: `app/` vazio (remover)
-- [ ] Verificar: `cli/` vazio (remover)
-- [ ] Verificar: `utils/` vazio (remover)
-- [ ] Verificar: `config/` vazio (remover)
-- [ ] Verificar: `tests/integration/` vazio (remover)
+- [ ] Verificar: `agents/` vazio (apenas __pycache__) - remover
+- [ ] Verificar: `app/` vazio (apenas __pycache__) - remover
+- [ ] Verificar: `cli/` não existe mais (já removido na Fase 6)
+- [ ] Verificar: `utils/` não existe mais (já removido na Fase 2)
+- [ ] Verificar: `config/` não existe mais (já removido na Fase 2)
+- [ ] Verificar: `tests/integration/` vazio após migração - remover
 - [ ] Validar: Apenas diretórios vazios removidos
 
 **Comandos:**
 ```powershell
-# Verificar e remover diretórios vazios
-if ((Get-ChildItem agents -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) { Remove-Item agents }
-if ((Get-ChildItem app -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) { Remove-Item app }
-if ((Get-ChildItem cli -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) { Remove-Item cli }
-if ((Get-ChildItem utils -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) { Remove-Item utils }
-if ((Get-ChildItem config -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) { Remove-Item config }
-if ((Get-ChildItem tests/integration -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) { Remove-Item tests/integration }
+# Verificar e remover diretórios vazios (após migração completa)
+# Nota: Executar apenas após Fase 8 (testes migrados)
+if ((Get-ChildItem agents -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) { Remove-Item agents -Recurse -Force }
+if ((Get-ChildItem app -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) { Remove-Item app -Recurse -Force }
+if ((Get-ChildItem tests/integration -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) { Remove-Item tests/integration -Recurse -Force }
 ```
 
 **Pausa Segura:** ✅ Sim
@@ -1468,7 +1534,7 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 
 ---
 
-## 6. Checklist de Progresso
+## 7. Checklist de Progresso
 
 ### Fase 0: Preparação
 - [x] Branch criada
@@ -1529,12 +1595,12 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [x] Testes de imports ajustados
 - [x] Commits realizados
 
-### Fase 8: Testes
-- [ ] unit/ movido
-- [ ] integration/smoke/ movido
-- [ ] integration/behavior/ movido (maioria)
-- [ ] 3 arquivos específicos movidos para products/revelar/
-- [ ] integration/e2e/ movido
+### Fase 8: Testes ⏳
+- [ ] unit/ movido (43 arquivos)
+- [ ] integration/smoke/ movido (3 arquivos)
+- [ ] integration/behavior/ movido (29 arquivos)
+- [ ] 3 arquivos específicos movidos para products/revelar/ (com ajuste de imports)
+- [ ] integration/e2e/ movido (2 arquivos)
 - [ ] Todos passando
 - [ ] Commit realizado
 
@@ -1551,10 +1617,10 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [ ] Links validados
 - [ ] Commit realizado
 
-### Fase 11: ROADMAPs
-- [ ] core/ROADMAP.md criado
-- [ ] products/revelar/ROADMAP.md criado
-- [ ] ROADMAP.md raiz atualizado
+### Fase 11: ROADMAPs ✅
+- [x] core/ROADMAP.md criado
+- [x] products/revelar/ROADMAP.md criado
+- [ ] ROADMAP.md raiz atualizado (pendente)
 - [ ] Commit realizado
 
 ### Fase 12: Limpeza Final
@@ -1566,7 +1632,7 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 
 ---
 
-## 7. Troubleshooting
+## 8. Troubleshooting
 
 ### "Testes quebraram após mover agents/"
 - Verifique imports: `from agents.` → `from core.agents.`
@@ -1590,7 +1656,7 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 
 ---
 
-## 8. Próximos Passos
+## 9. Próximos Passos
 
 Após migração completa:
 1. Criar produto **Fichamento** em `products/fichamento/`
@@ -1599,7 +1665,8 @@ Após migração completa:
 
 ---
 
-**Versão:** 2.0
-**Data:** 2025-01-XX
-**Status:** Documento mestre - atualizar conforme progresso
-**Baseado em:** Análises reais de imports, dependências e estrutura
+**Versão:** 2.1
+**Data:** 2025-01-27
+**Status:** Documento mestre - reorganizado conforme estado atual do projeto
+**Baseado em:** Análises reais de imports, dependências e estrutura atual do projeto
+**Última Atualização:** Reorganização completa refletindo progresso real (Fases 0-7, 11 concluídas)
