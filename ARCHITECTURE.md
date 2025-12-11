@@ -122,10 +122,10 @@ O sistema oferece **duas interfaces web** com propósitos distintos:
 - Auto-refresh configurável (padrão: 2s)
 - **Porta:** :8501 (mesmo Streamlit, apps separados)
 
-### CLI (`cli/chat.py`) - Desenvolvimento
-- Interface de linha de comando para automação
+### CLI (`core/tools/cli/chat.py`) - Desenvolvimento
+- Interface de linha de comando para automacao
 - Backend compartilhado (LangGraph + EventBus)
-- Funcionalidade congelada (novas features → web)
+- Funcionalidade congelada (novas features -> web)
 - **Uso:** Testes, debugging, scripts
 
 **Backend Compartilhado:**
@@ -535,8 +535,8 @@ Interface web conversacional (Streamlit) como experiência principal do sistema.
 
 **Detalhes:** Ver `docs/interface/web/` (overview.md, components.md, flows.md)
 
-### CLI (`cli/chat.py`)
-Loop interativo minimalista para desenvolvimento e automação. Backend compartilhado com interface web.
+### CLI (`core/tools/cli/chat.py`)
+Loop interativo minimalista para desenvolvimento e automacao. Backend compartilhado com interface web.
 
 **Detalhes:** Ver `docs/interface/cli.md` e `docs/interface/conversational_cli.md`
 

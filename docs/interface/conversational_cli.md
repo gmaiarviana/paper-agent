@@ -175,11 +175,11 @@ Se precisa mais info: next_step = "explore"
 
 ## 8. Comandos de Execução
 ```bash
-# Modo padrão (CLI limpa)
-python cli/chat.py
+# Modo padrao (CLI limpa)
+python -m core.tools.cli.chat
 
 # Modo verbose (exibe reasoning)
-python cli/chat.py --verbose
+python -m core.tools.cli.chat --verbose
 
 # Dashboard (reasoning sempre visível)
 streamlit run app/dashboard.py
