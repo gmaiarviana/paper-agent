@@ -71,7 +71,7 @@
 
 - **Fase 8.4:** Mover 3 arquivos específicos para tests/products/revelar/ (pendente - requer ajuste de imports)
 - **Fase 10:** Documentação ⏳ (core/docs/ com conteúdo significativo, reorganização pendente)
-- **Fase 12:** Limpeza Final ⏳ (parcial - agents/ removido)
+- **Fase 12:** Limpeza Final ⏳ (parcial - diretórios vazios removidos ✅, docs pendentes)
 
 ### 📊 Estatísticas
 
@@ -188,7 +188,7 @@ paper-agent/
 │   ├── tools/cli/           # ✅
 │   ├── docs/                # ⏳ Parcial (agents/, architecture/, vision/, tools/ já existem)
 │   ├── README.md            # ✅
-│   └── ROADMAP.md           # ✅
+│   └── ROADMAP.md           # ✅ Removido - roadmaps por produto/core
 │
 ├── products/
 │   └── revelar/             # ✅ COMPLETO
@@ -231,7 +231,7 @@ paper-agent/
 │       └── revelar/
 │           └── interface/    # ⏳
 │
-├── ROADMAP.md               # ⏳ Atualizar como índice
+# ROADMAP.md raiz removido - roadmaps por produto/core
 └── MIGRATION.md             # Este arquivo
 ```
 
@@ -1455,20 +1455,18 @@ Get-ChildItem -Recurse -Include *.md | Select-String "app/" | Select-Object -Fir
 
 ---
 
-#### Fase 11.3: Atualizar root `ROADMAP.md` como índice
+#### Fase 11.3: Remover `ROADMAP.md` da raiz ✅
 
-**Claude Code (complexo):**
-- [ ] Transformar `ROADMAP.md` raiz em índice
-- [ ] Referenciar `core/ROADMAP.md` e `products/revelar/ROADMAP.md`
-- [ ] Manter apenas épicos gerais/super-sistema
-- [ ] Validar: Links funcionam
+**Status:** Concluída
 
-**Comando:**
-```powershell
-# Pedir ao Claude Code:
-# "Transformar ROADMAP.md raiz em índice que referencia
-#  core/ROADMAP.md e products/revelar/ROADMAP.md"
-```
+- [x] `ROADMAP.md` raiz removido (não necessário - roadmaps por produto/core)
+- [x] Épicos renumerados e distribuídos:
+  - ÉPICO 15 → Revelar ÉPICO 1 (Painel Observer)
+  - ÉPICO 16 → Revelar ÉPICO 2 (Catálogo)
+  - ÉPICO 17 → Core ÉPICO 1 (Pesquisador)
+  - ÉPICO 18 → Core ÉPICO 2 (Escritor)
+- [x] CONSTITUTION.md atualizado para referenciar roadmaps específicos
+- [x] README.md e outros docs atualizados
 
 **Pausa Segura:** ✅ Sim
 
@@ -1476,20 +1474,25 @@ Get-ChildItem -Recurse -Include *.md | Select-String "app/" | Select-Object -Fir
 
 ### Fase 12: Limpeza Final ⏳
 
-**Status:** Pendente
+**Status:** Em Progresso
 
 **Objetivo:** Remover diretórios vazios, ajustar configs finais.
 
-#### Fase 12.1: Remover diretórios vazios da raiz
+#### Fase 12.1: Remover diretórios vazios da raiz ✅
+
+**Status:** Concluída
 
 **Cursor (rápido):**
-- [ ] Verificar: `agents/` vazio (apenas __pycache__) - remover
-- [ ] Verificar: `app/` vazio (apenas __pycache__) - remover
-- [ ] Verificar: `cli/` não existe mais (já removido na Fase 6)
-- [ ] Verificar: `utils/` não existe mais (já removido na Fase 2)
-- [ ] Verificar: `config/` não existe mais (já removido na Fase 2)
-- [ ] Verificar: `tests/integration/` vazio após migração - remover
-- [ ] Validar: Apenas diretórios vazios removidos
+- [x] Verificar: `agents/` vazio (apenas __pycache__) - remover ✅
+- [x] Verificar: `app/` vazio (apenas __pycache__) - remover ✅
+- [x] Verificar: `cli/` não existe mais (já removido na Fase 6) ✅
+- [x] Verificar: `utils/` não existe mais (já removido na Fase 2) ✅
+- [x] Verificar: `config/` não existe mais (já removido na Fase 2) ✅
+- [x] Verificar: `tests/integration/` vazio após migração - remover ✅
+- [x] Verificar: `tests/unit/` vazio após migração - remover ✅
+- [x] Verificar: `scripts/interface/` vazio - remover ✅
+- [x] Verificar: `scripts/testing/` vazio - remover ✅
+- [x] Validar: Apenas diretórios vazios removidos ✅
 
 **Comandos:**
 ```powershell
@@ -1666,13 +1669,14 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [ ] Commit realizado
 
 ### Fase 11: ROADMAPs ✅
-- [x] core/ROADMAP.md criado
-- [x] products/revelar/ROADMAP.md criado
-- [ ] ROADMAP.md raiz atualizado (pendente)
-- [ ] Commit realizado
+- [x] core/ROADMAP.md criado com épicos renumerados
+- [x] products/revelar/ROADMAP.md criado com épicos renumerados
+- [x] ROADMAP.md raiz removido (não necessário - roadmaps por produto/core)
+- [x] CONSTITUTION.md atualizado para referenciar roadmaps específicos
+- [x] Commit realizado
 
 ### Fase 12: Limpeza Final
-- [ ] Diretórios vazios removidos
+- [x] Diretórios vazios removidos ✅ (agents/, app/, tests/integration/, tests/unit/, scripts/interface/, scripts/testing/)
 - [ ] README.md atualizado
 - [ ] ARCHITECTURE.md atualizado
 - [ ] Validação final completa

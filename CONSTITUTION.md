@@ -139,7 +139,7 @@ PROMPT 3: ARCHITECTURE.md
 
 | Se você quer... | Claude web consulta... | Gera prompts para... |
 |----------------|----------------------|---------------------|
-| **Refinar épico novo** | docs/product/vision.md + ROADMAP.md (épicos anteriores) + ARCHITECTURE.md | ROADMAP.md + docs/[spec técnica nova] |
+| **Refinar épico novo** | docs/product/vision.md + core/ROADMAP.md ou products/revelar/ROADMAP.md (épicos anteriores) + ARCHITECTURE.md | core/ROADMAP.md ou products/revelar/ROADMAP.md + docs/[spec técnica nova] |
 | **Discutir comportamento do orquestrador** | core/docs/architecture/agents/orchestrator/conversational/ + docs/product/conversation_patterns.md | conversational/README.md + ROADMAP.md + ARCHITECTURE.md |
 | **Discutir comportamento de agente** | docs/agents/[agente].md + core/docs/architecture/agents/multi_agent/ | [agente].md + ROADMAP.md + ARCHITECTURE.md |
 | **Ajustar fluxo de dados** | core/docs/architecture/agents/multi_agent/ + ARCHITECTURE.md | multi_agent/ + ARCHITECTURE.md |
@@ -177,13 +177,14 @@ PROMPT 3: ARCHITECTURE.md
 
 ### Sempre Enviados (raiz - arraste todos)
 1. **CONSTITUTION.md** - Princípios, responsabilidades, mapa, processo (este arquivo)
-2. **ROADMAP.md** - Épicos, funcionalidades, status
-3. **ARCHITECTURE.md** - Decisões técnicas consolidadas (enxuto ~300 linhas)
-4. **planning_guidelines.md** - Como refinar épicos, templates, governança
+2. **ARCHITECTURE.md** - Decisões técnicas consolidadas (enxuto ~300 linhas)
+3. **planning_guidelines.md** - Como refinar épicos, templates, governança
+4. **core/ROADMAP.md** - Épicos e melhorias do core
+5. **products/revelar/ROADMAP.md** - Épicos e melhorias do Revelar
 
-**Como enviar:** Selecione os 4 arquivos da raiz, arraste pro Claude web.
+**Como enviar:** Selecione os 5 arquivos acima, arraste pro Claude web.
 
-**Total:** ~1.000 linhas = ~4.500 tokens (vs 13.000 antes)
+**Total:** ~1.200 linhas = ~5.000 tokens
 
 ### Consultados Via Mapa (docs/ - sob demanda)
 
@@ -208,10 +209,16 @@ PROMPT 3: ARCHITECTURE.md
 ## 8. ESTRUTURA DO PROJETO (Resumida)
 paper-agent/
 ├── CONSTITUTION.md         # 🔴 ESSENCIAL - AI (este arquivo)
-├── ROADMAP.md              # 🔴 ESSENCIAL - Épicos/status
 ├── ARCHITECTURE.md         # 🔴 ESSENCIAL - Decisões técnicas
 ├── planning_guidelines.md  # 🔴 ESSENCIAL - Processo de refinamento
 ├── README.md               # 🟢 USUÁRIOS - Setup básico
+│
+├── core/
+│   └── ROADMAP.md          # 🔴 ESSENCIAL - Épicos/core
+│
+├── products/
+│   └── revelar/
+│       └── ROADMAP.md      # 🔴 ESSENCIAL - Épicos/revelar
 │
 ├── docs/
 │   ├── product/            # Estratégia
@@ -222,11 +229,14 @@ paper-agent/
 │   ├── testing/            # Testes
 │   └── backlog.md          # Ideias futuras
 │
-├── agents/                 # Código dos agentes
-├── cli/                    # Interface CLI
-├── app/                    # Interface Web
-├── tests/                  # Testes
-└── scripts/                # Validação
+├── core/                   # Código core compartilhado
+│   ├── agents/             # Agentes
+│   ├── utils/              # Utilitários
+│   └── tools/              # Ferramentas
+│
+└── products/
+    └── revelar/
+        └── app/            # Interface Web Revelar
 
 ---
 

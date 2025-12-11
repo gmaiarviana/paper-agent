@@ -167,13 +167,13 @@ Documentação
 ### Estrutura Geral
 
 - **Raiz**: Processo e visão geral
-  - `ROADMAP.md` - Visão geral e índice de épicos
+  - `core/ROADMAP.md` - Épicos e melhorias do core
   - `CONSTITUTION.md` - Princípios e processo de trabalho
   - `ARCHITECTURE.md` - Decisões arquiteturais
 
 - **Core**: Sistema universal
   - `core/README.md` - Visão geral do core
-  - `core/ROADMAP.md` - Épicos do core
+  - `products/revelar/ROADMAP.md` - Épicos e melhorias do Revelar
   - `core/docs/vision/` - Filosofia e princípios
   - `core/docs/architecture/` - Estrutura técnica
   - `core/docs/agents/` - Especificações dos agentes
@@ -196,7 +196,8 @@ Documentação
 
 Consulte os documentos essenciais na raiz:
 - **CONSTITUTION.md** - Princípios e processo de trabalho
-- **ROADMAP.md** - Épicos e funcionalidades
+- **core/ROADMAP.md** - Épicos e melhorias do core
+- **products/revelar/ROADMAP.md** - Épicos e melhorias do Revelar
 - **ARCHITECTURE.md** - Decisões técnicas
 - **planning_guidelines.md** - Processo de refinamento
 

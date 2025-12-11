@@ -367,7 +367,8 @@ paper-agent/
 ├── .env.example           # Template de variáveis de ambiente
 ├── requirements.txt       # Dependências Python
 ├── README.md              # Getting Started
-├── ROADMAP.md             # Status de épicos e funcionalidades
+├── core/ROADMAP.md        # Épicos e melhorias do core
+└── products/revelar/ROADMAP.md  # Épicos e melhorias do Revelar
 ├── ARCHITECTURE.md        # Visão arquitetural (este arquivo)
 ├── development_guidelines.md  # Regras para desenvolvimento com agentes
 │

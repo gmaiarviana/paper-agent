@@ -22,10 +22,10 @@ Este projeto usa Claude Web como consultor estratégico para refinar épicos e d
 Você fornece ao Claude Web:
 - Comportamento desejado OU problema existente
 - Contexto: épico novo, ajuste de funcionalidade, ou discussão arquitetural
-- 4 arquivos essenciais: CONSTITUTION, ROADMAP, ARCHITECTURE, planning_guidelines (este)
+- 5 arquivos essenciais: CONSTITUTION, core/ROADMAP.md, products/revelar/ROADMAP.md, ARCHITECTURE, planning_guidelines (este)
 
 ### Claude Web Deve
-1. **Análise Contextual:** Consultar vision.md, ROADMAP (épicos anteriores), specs técnicas via mapa
+1. **Análise Contextual:** Consultar vision.md, core/ROADMAP.md ou products/revelar/ROADMAP.md (épicos anteriores), specs técnicas via mapa
 2. **Clarificação:** Fazer perguntas específicas, validar entendimento, apontar trade-offs
 3. **Recomendação:** Oferecer opções + recomendação balizada por vision.md e guidelines
 4. **Gerar Prompts:** Múltiplos prompts (1 por arquivo), instruções enxutas, manter padrões
@@ -33,7 +33,7 @@ Você fornece ao Claude Web:
 
 ### Output Gerado
 Claude Web gera prompts separados para Cursor executar:
-- PROMPT 1: ROADMAP.md
+- PROMPT 1: core/ROADMAP.md ou products/revelar/ROADMAP.md (dependendo do épico)
 - PROMPT 2: docs/[spec técnica]
 - PROMPT 3: ARCHITECTURE.md (se necessário)
 
