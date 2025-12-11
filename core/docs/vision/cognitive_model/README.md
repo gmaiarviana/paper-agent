@@ -14,7 +14,7 @@ Este conjunto de documentos complementa `vision.md`, focando em **COMO** o pensa
 
 **Relacionamento com outros documentos:**
 - `products/produtor-cientifico/docs/vision.md`: O que é, para quem, jornada do usuário, tipos de artigo
-- `docs/architecture/argument_model.md`: Estrutura técnica (como Argumento é persistido)
-- `docs/architecture/ontology.md`: Definições filosóficas (o que é Argumento)
+- `../../architecture/data-models/argument_model.md`: Estrutura técnica (como Argumento é persistido)
+- `../../architecture/data-models/ontology.md`: Definições filosóficas (o que é Argumento)
 - `core/docs/vision/epistemology.md`: Base filosófica (proposições, solidez, evidências)
 

@@ -259,11 +259,11 @@ for concept in concepts:
 ## Referências
 
 - `agents/persistence/snapshot_manager.py` - Implementação técnica do SnapshotManager
-- `docs/architecture/persistence_foundation.md` - Fundação de persistência (SQLite, schema)
-- `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais do modelo cognitivo
-- `core/docs/vision/cognitive_model/evolution.md` - Evolução do pensamento e snapshots
-- `docs/architecture/argument_model.md` - Schema técnico de Argument
-- `docs/architecture/idea_model.md` - Schema de Idea (possui Arguments)
+- `../data-models/persistence.md` - Fundação de persistência (SQLite, schema)
+- `../../vision/cognitive_model/core.md` - Conceitos fundamentais do modelo cognitivo
+- `../../vision/cognitive_model/evolution.md` - Evolução do pensamento e snapshots
+- `../data-models/argument_model.md` - Schema técnico de Argument
+- `../data-models/idea_model.md` - Schema de Idea (possui Arguments)
 - `core/docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
 - `ROADMAP.md` - Épico 13 (Conceitos), Épico 15 (Integração de snapshots)
 

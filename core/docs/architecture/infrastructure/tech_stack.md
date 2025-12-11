@@ -305,7 +305,7 @@ python scripts/test_stack.py
 
 ## Referências
 
-- `docs/architecture/concept_model.md` - Como conceitos usam ChromaDB
+- `../data-models/concept_model.md` - Como conceitos usam ChromaDB
 - ChromaDB docs: https://docs.trychroma.com
 - Sentence-transformers: https://www.sbert.net
 

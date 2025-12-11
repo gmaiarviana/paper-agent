@@ -755,9 +755,9 @@ Quando uma proposição é identificada como frágil:
 ## Referências
 
 - `core/docs/vision/epistemology.md` - Fundamento filosófico da ontologia (proposições, solidez, evidências)
-- `docs/architecture/concept_model.md` - Schema detalhado de Concept
-- `docs/architecture/idea_model.md` - Estrutura de dados técnica de Ideia
-- `docs/architecture/argument_model.md` - Estrutura de dados técnica de Argumento
+- `concept_model.md` - Schema detalhado de Concept
+- `idea_model.md` - Estrutura de dados técnica de Ideia
+- `argument_model.md` - Estrutura de dados técnica de Argumento
 - `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, solidez)
 - `core/docs/vision/cognitive_model/evolution.md` - Como pensamento evolui e solidez é calculada
 - `docs/agents/observer.md` - Documentação completa do Observador

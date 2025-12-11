@@ -30,7 +30,7 @@ Compactação/arquivamento periódico (ex: anual) para manter performance sem pe
 
 ## Super-Sistema: Core Universal
 
-> **Nota:** Para arquitetura completa do super-sistema, consulte `docs/architecture/super_system_vision.md`.
+> **Nota:** Para arquitetura completa do super-sistema, consulte `../architecture/vision/super_system.md`.
 
 Paper Agent não é apenas um produto isolado. É a **primeira aplicação** de um super-sistema com core universal que serve múltiplos produtos.
 
@@ -84,6 +84,6 @@ Separação completa permitirá múltiplos canais de comunicação (web, CLI, AP
 ## Referências
 
 - `core/docs/vision/epistemology.md` - Base filosófica detalhada
-- `core/docs/architecture/super_system_vision.md` - Arquitetura do super-sistema
+- `../architecture/vision/super_system.md` - Arquitetura do super-sistema
 - `core/docs/vision/cognitive_model/` - Como pensamento evolui
 

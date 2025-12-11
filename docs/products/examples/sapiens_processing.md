@@ -1,7 +1,7 @@
 # Exemplo: Processamento de Sapiens (Harari)
 
 > **Nota:** Este documento ilustra como sistema processa texto estático.
-> Para ontologia (Conceito/Ideia/Argumento), consulte `docs/architecture/ontology.md`.
+> Para ontologia (Conceito/Ideia/Argumento), consulte `core/docs/architecture/data-models/ontology.md`.
 
 ## Trecho Original
 
@@ -327,8 +327,8 @@ Usuário participa da construção
 
 ## Referências
 
-- `docs/architecture/ontology.md` - Definições de Conceito/Ideia/Argumento
-- `docs/architecture/idea_model.md` - Estrutura técnica de Ideia
-- `docs/architecture/concept_model.md` - Vetores semânticos
+- `core/docs/architecture/data-models/ontology.md` - Definições de Conceito/Ideia/Argumento
+- `core/docs/architecture/data-models/idea_model.md` - Estrutura técnica de Ideia
+- `core/docs/architecture/data-models/concept_model.md` - Vetores semânticos
 - `docs/products/paper_agent.md` - Como fichamento usa esse processamento
 

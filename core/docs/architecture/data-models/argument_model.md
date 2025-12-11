@@ -1,6 +1,6 @@
 # Argument Model - Estrutura de Dados
 
-> **Nota:** Para entender o que é Argumento filosoficamente, consulte `docs/architecture/ontology.md`.
+> **Nota:** Para entender o que é Argumento filosoficamente, consulte `ontology.md`.
 > Para evolução cognitiva (claim → fundamentos), consulte `core/docs/vision/cognitive_model/evolution.md`.
 
 ## Visão Geral
@@ -45,7 +45,7 @@ fundamentos: [
 **Nota:** Não há mais distinção entre "premises" e "assumptions". Todas são Proposições com solidez variável:
 - Proposições de alta solidez (> 0.7) = equivalente ao antigo "premise"
 - Proposições de baixa solidez (< 0.4) = equivalente ao antigo "assumption"
-- Solidez é derivada automaticamente das evidências (ver `docs/architecture/ontology.md`)
+- Solidez é derivada automaticamente das evidências (ver `ontology.md`)
 
 **evidencias:**
 Lista de referências a Evidências diretas do argumento:
@@ -125,7 +125,7 @@ argumento = Argument(
 - Evidências que apoiam aumentam solidez da Proposição
 - Evidências que refutam diminuem solidez da Proposição
 - Solidez é recalculada automaticamente quando novas evidências são adicionadas
-- Ver `docs/architecture/ontology.md` para estrutura completa de Evidência
+- Ver `ontology.md` para estrutura completa de Evidência
 
 ## Conexão com Modelo Cognitivo
 
@@ -245,11 +245,11 @@ CREATE TABLE argument_concepts (
 );
 ```
 
-**Nota:** `fundamentos` e `evidencias` armazenam referências (UUIDs), não dados completos. As entidades Proposição e Evidência são armazenadas em tabelas separadas (ver `docs/architecture/ontology.md`).
+**Nota:** `fundamentos` e `evidencias` armazenam referências (UUIDs), não dados completos. As entidades Proposição e Evidência são armazenadas em tabelas separadas (ver `ontology.md`).
 
 ## Referências
 
-- `docs/architecture/ontology.md` - Estrutura de Proposição e Evidência
+- `ontology.md` - Estrutura de Proposição e Evidência
 - `core/docs/vision/epistemology.md` - Base filosófica (por que não há premises/assumptions)
 - `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais do modelo cognitivo
 - `core/docs/vision/cognitive_model/evolution.md` - Processo de evolução do pensamento

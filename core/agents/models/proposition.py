@@ -10,7 +10,7 @@ Na ontologia do Paper Agent:
 - Solidez é derivada de evidências, não definida manualmente
 - Proposições podem ser reutilizadas como fundamentos em múltiplos argumentos
 
-Ver docs/architecture/ontology.md para ontologia completa.
+Ver core/docs/architecture/data-models/ontology.md para ontologia completa.
 Ver docs/vision/epistemology.md para base filosófica.
 
 Épico 11.1: Schema Unificado (Camada Modelo)
@@ -51,7 +51,7 @@ class Proposicao(BaseModel):
         >>> prop.is_solid()
         True
 
-    Ver docs/architecture/ontology.md para definição filosófica completa.
+    Ver core/docs/architecture/data-models/ontology.md para definição filosófica completa.
     """
 
     id: str = Field(

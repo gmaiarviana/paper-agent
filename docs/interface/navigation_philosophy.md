@@ -165,6 +165,6 @@ Conversa (processo) → Ideia (cristalização) → Conceito (abstração)
 
 - `docs/interface/web/` - Implementação técnica (overview.md, components.md, flows.md)
 - `products/revelar/docs/vision.md` - Visão de produto
-- `docs/architecture/ontology.md` - Definição de Ideia vs Conceito
+- `core/docs/architecture/data-models/ontology.md` - Definição de Ideia vs Conceito
 - `core/docs/vision/epistemology.md` - Por que proposições têm solidez
 

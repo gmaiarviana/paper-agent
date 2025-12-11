@@ -1,8 +1,8 @@
 # Paper-Agent - Produto
 
 > **Nota:** Este documento descreve o produto paper-agent especificamente.
-> Para core universal compartilhado, consulte `docs/architecture/super_system_vision.md`.
-> Para ontologia base, consulte `docs/architecture/ontology.md`.
+> Para core universal compartilhado, consulte `core/docs/architecture/vision/super_system.md`.
+> Para ontologia base, consulte `core/docs/architecture/data-models/ontology.md`.
 
 ## Visão Geral
 
@@ -202,8 +202,8 @@ Sistema: "Resumo da sessão de hoje:
 
 ## Referências
 
-- `docs/architecture/super_system_vision.md` - Arquitetura core → produtos
-- `docs/architecture/idea_model.md` - Ideias que Article agrega
+- `core/docs/architecture/vision/super_system.md` - Arquitetura core → produtos
+- `core/docs/architecture/data-models/idea_model.md` - Ideias que Article agrega
 - `products/revelar/docs/vision.md` - Visão geral do produto
 - `docs/interface/web/` - Especificação técnica da interface (overview.md, components.md, flows.md)
 

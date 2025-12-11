@@ -189,8 +189,8 @@ Documentação
 - **Epistemologia**: `core/docs/vision/epistemology.md`
 - **Modelo Cognitivo**: `core/docs/vision/cognitive_model/`
 - **Conversação**: `core/docs/vision/conversation_mechanics.md`
-- **Ontologia**: `core/docs/architecture/ontology.md`
-- **Super-Sistema**: `core/docs/architecture/super_system_vision.md`
+- **Ontologia**: `core/docs/architecture/data-models/ontology.md`
+- **Super-Sistema**: `core/docs/architecture/vision/super_system.md`
 
 ### Para AI Agents (Claude, Cursor, Claude Code)
 

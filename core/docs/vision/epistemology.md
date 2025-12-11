@@ -80,7 +80,7 @@ A epistemologia do sistema se materializa em decisões arquiteturais específica
 
 - **Não há tipos binários**: O sistema não classifica proposições como "premise" (verdadeira) ou "assumption" (hipotética). Todas são proposições com diferentes graus de solidez.
 
-- **Estrutura unificada**: Ver `docs/architecture/ontology.md` para estrutura de Proposição que unifica o que antes eram tipos distintos.
+- **Estrutura unificada**: Ver `../architecture/data-models/ontology.md` para estrutura de Proposição que unifica o que antes eram tipos distintos.
 
 ### Solidez Derivada de Evidências
 
@@ -126,6 +126,6 @@ A epistemologia do sistema se manifesta diretamente na experiência do usuário,
 
 ## Referências
 
-- `docs/architecture/ontology.md` - Estrutura de Proposição e como solidez é representada na ontologia
+- `../architecture/data-models/ontology.md` - Estrutura de Proposição e como solidez é representada na ontologia
 - `core/docs/vision/cognitive_model/evolution.md` - Como solidez evolui na conversa através de evidências acumuladas e refinamento progressivo
 

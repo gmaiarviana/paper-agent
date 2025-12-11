@@ -7,10 +7,10 @@ Plataforma colaborativa com agentes de IA para apoiar produção de artigos cien
 ## Entidade Central: Ideia
 
 > **Nota:** Para estrutura de dados completa e ontologia, consulte:
-> - `docs/architecture/ontology.md` - O que é Conceito, Ideia, Argumento
-> - `docs/architecture/idea_model.md` - Schema técnico de Ideia
-> - `docs/architecture/concept_model.md` - Schema técnico de Conceito
-> - `docs/architecture/argument_model.md` - Schema técnico de Argumento
+> - `core/docs/architecture/data-models/ontology.md` - O que é Conceito, Ideia, Argumento
+> - `core/docs/architecture/data-models/idea_model.md` - Schema técnico de Ideia
+> - `core/docs/architecture/data-models/concept_model.md` - Schema técnico de Conceito
+> - `core/docs/architecture/data-models/argument_model.md` - Schema técnico de Argumento
 
 O sistema trabalha com a entidade **Ideia**, que representa pensamento articulado que evolui até se tornar argumento sólido.
 
@@ -54,13 +54,13 @@ Sistema gerencia ideias cristalizadas durante conversas com navegação em três
 
 **Filosofia:** Conversas = processo (volátil), Ideias = cristalização (permanente), Conceitos = abstração (biblioteca).
 
-**Persistência Silenciosa:** Sistema avalia a cada mensagem se deve criar/atualizar snapshot do argumento. Para estratégia detalhada, ver `docs/architecture/snapshot_strategy.md`.
+**Persistência Silenciosa:** Sistema avalia a cada mensagem se deve criar/atualizar snapshot do argumento. Para estratégia detalhada, ver `core/docs/architecture/patterns/snapshots.md`.
 
 Ver: `docs/interface/navigation_philosophy.md` para filosofia completa.
 
 ## Super-Sistema: Core → Produtos
 
-> **Nota:** Para arquitetura completa, consulte `docs/architecture/super_system_vision.md`.
+> **Nota:** Para arquitetura completa, consulte `core/docs/architecture/vision/super_system.md`.
 
 Paper-agent é primeira aplicação de um **super-sistema** com core universal:
 ```
@@ -177,7 +177,7 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - **Schema Pydantic:** `agents/models/cognitive_model.py` - CognitiveModel, Contradiction, SolidGround
 - **Persistência SQLite:** `agents/database/` - DatabaseManager com tabelas ideas e arguments
 - **Versionamento:** Auto-incremento de versões (V1, V2, V3...) por idea
-- **Maturidade:** `agents/persistence/snapshot_manager.py` - Detecção via LLM e snapshots automáticos (ver `docs/architecture/snapshot_strategy.md`)
+- **Maturidade:** `agents/persistence/snapshot_manager.py` - Detecção via LLM e snapshots automáticos (ver `core/docs/architecture/patterns/snapshots.md`)
 - **Checklist:** `agents/checklist/progress_tracker.py` - Rastreamento adaptativo por tipo de artigo
 - **Banco de dados:** `data/data.db` - Separado de checkpoints.db (LangGraph)
 
@@ -229,7 +229,7 @@ User Input → Orchestrator → Response ao usuário
 
 ## Stack Técnico
 
-> **Nota:** Para detalhes completos, consulte `docs/architecture/tech_stack.md`.
+> **Nota:** Para detalhes completos, consulte `core/docs/architecture/infrastructure/tech_stack.md`.
 
 **Resumo:**
 - **Runtime:** Python 3.11+
@@ -258,7 +258,7 @@ User Input → Orchestrator → Response ao usuário
 **Futuro (MVP/Produção):**
 - **PostgreSQL:** Migração quando escalar
 - **Schema compatível:** Mesmas queries funcionam em ambos
-- **Estratégia documentada:** Ver `docs/architecture/persistence_foundation.md`
+- **Estratégia documentada:** Ver `core/docs/architecture/data-models/persistence.md`
 
 **Decisão:** Começar simples (SQLite) e migrar quando necessário. Evitar over-engineering prematuro.
 
@@ -561,13 +561,13 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 ## Referências
 
 **Arquitetura:**
-- `docs/architecture/ontology.md` - Ontologia (Conceito/Ideia/Argumento)
-- `docs/architecture/super_system_vision.md` - Super-sistema: Core → Produtos
-- `docs/architecture/idea_model.md` - Estrutura de dados Ideia
-- `docs/architecture/concept_model.md` - Estrutura de dados Conceito
-- `docs/architecture/argument_model.md` - Estrutura de dados Argumento
-- `docs/architecture/tech_stack.md` - ChromaDB, SQLite, embeddings
-- `docs/architecture/snapshot_strategy.md` - Estratégia de persistência de snapshots
+- `core/docs/architecture/data-models/ontology.md` - Ontologia (Conceito/Ideia/Argumento)
+- `core/docs/architecture/vision/super_system.md` - Super-sistema: Core → Produtos
+- `core/docs/architecture/data-models/idea_model.md` - Estrutura de dados Ideia
+- `core/docs/architecture/data-models/concept_model.md` - Estrutura de dados Conceito
+- `core/docs/architecture/data-models/argument_model.md` - Estrutura de dados Argumento
+- `core/docs/architecture/infrastructure/tech_stack.md` - ChromaDB, SQLite, embeddings
+- `core/docs/architecture/patterns/snapshots.md` - Estratégia de persistência de snapshots
 
 **Visão de Produto:**
 - `products/produtor-cientifico/docs/vision.md` - Visão de produto, tipos de artigo

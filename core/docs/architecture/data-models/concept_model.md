@@ -1,6 +1,6 @@
 # Concept Model - Estrutura de Dados
 
-> **Nota:** Para entender o que é Conceito filosoficamente, consulte `docs/architecture/ontology.md`.
+> **Nota:** Para entender o que é Conceito filosoficamente, consulte `ontology.md`.
 
 ## Visão Geral
 
@@ -280,7 +280,7 @@ concept.used_in_ideas = [idea_id_1, idea_id_2, ...]
 
 ## Implementação Técnica
 
-> **Nota:** Para detalhes de stack técnico (ChromaDB, embeddings), consulte `docs/architecture/tech_stack.md`.
+> **Nota:** Para detalhes de stack técnico (ChromaDB, embeddings), consulte `../infrastructure/tech_stack.md`.
 
 ## Storage
 
@@ -447,7 +447,7 @@ def find_similar_concepts(query_text, top_k=5, threshold=0.80):
 
 ## Referências
 
-- `docs/architecture/ontology.md` - Definição filosófica de Conceito
-- `docs/architecture/idea_model.md` - Como Ideias referenciam Conceitos
-- `docs/architecture/tech_stack.md` - ChromaDB e sentence-transformers
+- `ontology.md` - Definição filosófica de Conceito
+- `idea_model.md` - Como Ideias referenciam Conceitos
+- `../infrastructure/tech_stack.md` - ChromaDB e sentence-transformers
 

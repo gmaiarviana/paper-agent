@@ -906,9 +906,9 @@ if need.needs_clarification:
 
 ## Referências
 
-- `docs/architecture/observer_architecture.md` - Arquitetura técnica
-- `docs/architecture/ontology.md` - CognitiveModel e MemoryLayer
-- `docs/architecture/concept_model.md` - Schema de Concept
+- `../architecture/agents/observer/architecture.md` - Arquitetura técnica
+- `../architecture/data-models/ontology.md` - CognitiveModel e MemoryLayer
+- `../architecture/data-models/concept_model.md` - Schema de Concept
 - `core/docs/vision/cognitive_model/core.md` - Fundamentos epistemológicos
 - `docs/agents/memory_agent.md` - Consultado via Orquestrador quando necessário
 - `docs/agents/orchestrator.md` - Recebe sinalizações do Observador

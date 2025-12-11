@@ -53,8 +53,8 @@ Example:
 
 See Also:
     - docs/agents/observer.md - Documentacao completa
-    - docs/architecture/observer_architecture.md - Arquitetura tecnica
-    - docs/architecture/ontology.md - CognitiveModel e Conceitos
+    - core/docs/architecture/agents/observer/architecture.md - Arquitetura tecnica
+    - core/docs/architecture/data-models/ontology.md - CognitiveModel e Conceitos
 """
 
 from .api import ObservadorAPI

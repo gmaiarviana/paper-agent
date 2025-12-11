@@ -1,6 +1,6 @@
 # Idea Model - Estrutura de Dados
 
-> **Nota:** Para entender o que é Ideia filosoficamente, consulte `docs/architecture/ontology.md`.
+> **Nota:** Para entender o que é Ideia filosoficamente, consulte `ontology.md`.
 > 
 > **⚠️ Migração:** Este documento substitui o antigo `topic_argument_model.md` (obsoleto). A migração de "Topic" para "Idea" está planejada no Épico 11.
 
@@ -230,9 +230,9 @@ CREATE TABLE idea_arguments (
 
 ## Referências
 
-- `docs/architecture/ontology.md` - Definição de Ideia
-- `docs/architecture/concept_model.md` - Conceitos que Ideia usa
-- `docs/architecture/argument_model.md` - Argumentos que Ideia possui
+- `ontology.md` - Definição de Ideia
+- `concept_model.md` - Conceitos que Ideia usa
+- `argument_model.md` - Argumentos que Ideia possui
 - `docs/products/paper_agent.md` - Como paper-agent usa Ideias
 - `docs/products/fichamento.md` - Como fichamento extrai Ideias
 

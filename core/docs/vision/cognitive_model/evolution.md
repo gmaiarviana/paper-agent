@@ -439,12 +439,12 @@ Quando um snapshot é criado, o sistema automaticamente dispara o **pipeline de 
 
 Esta integração permite que conceitos sejam detectados e organizados automaticamente sempre que um argumento atinge maturidade, construindo progressivamente a biblioteca global de conceitos do sistema.
 
-> **Nota técnica**: Para detalhes sobre implementação técnica de snapshots, critérios de maturidade e integração com detecção de conceitos, consulte `docs/architecture/snapshot_strategy.md`.
+> **Nota técnica**: Para detalhes sobre implementação técnica de snapshots, critérios de maturidade e integração com detecção de conceitos, consulte `../../architecture/patterns/snapshots.md`.
 
 ## Referências
 
 - `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, responsabilidades)
 - `core/docs/vision/cognitive_model/examples.md` - Exemplos práticos de evolução
-- `docs/architecture/snapshot_strategy.md` - Implementação técnica de snapshots
+- `../../architecture/patterns/snapshots.md` - Implementação técnica de snapshots
 - `core/docs/vision/epistemology.md` - Base filosófica (proposições, solidez, evidências)
 

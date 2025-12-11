@@ -5,8 +5,8 @@
 Este documento complementa `vision.md`, focando em **COMO** o pensamento do usuário evolui ao longo da conversa. Enquanto `vision.md` descreve o que o sistema faz e para quem, este documento explora a evolução dos artefatos cognitivos que representam o entendimento progressivo do argumento científico.
 
 > **Nota:** Este documento descreve como pensamento **evolui** durante conversa.
-> Para estrutura de dados técnica de Argumento, consulte `docs/architecture/argument_model.md`.
-> Para ontologia completa (Conceito/Ideia/Argumento), consulte `docs/architecture/ontology.md`.
+> Para estrutura de dados técnica de Argumento, consulte `../../architecture/data-models/argument_model.md`.
+> Para ontologia completa (Conceito/Ideia/Argumento), consulte `../../architecture/data-models/ontology.md`.
 
 **Foco**: Evolução cognitiva durante conversa, não apenas funcionalidades ou fluxos.
 
@@ -248,7 +248,7 @@ context: {
 
 ## Conexão com Argumento (Entidade Técnica)
 
-> **Nota:** Para schema completo de Argument, consulte `docs/architecture/argument_model.md`.
+> **Nota:** Para schema completo de Argument, consulte `../../architecture/data-models/argument_model.md`.
 
 O modelo cognitivo descrito aqui é materializado tecnicamente como entidade `Argument`:
 ```python
@@ -282,8 +282,8 @@ Uma **Ideia** pode ter múltiplos **Argumentos** (diferentes lentes do mesmo ter
 - `core/docs/vision/cognitive_model/evolution.md` - Processo de evolução do pensamento
 - `core/docs/vision/cognitive_model/examples.md` - Exemplos práticos de evolução
 - `core/docs/vision/epistemology.md` - Base filosófica (proposições, solidez, evidências)
-- `docs/architecture/ontology.md` - Ontologia: Conceito, Ideia, Argumento, Proposição, Evidência
-- `docs/architecture/argument_model.md` - Estrutura técnica de Argument
-- `docs/architecture/idea_model.md` - Como Ideia possui Argumentos
+- `../../architecture/data-models/ontology.md` - Ontologia: Conceito, Ideia, Argumento, Proposição, Evidência
+- `../../architecture/data-models/argument_model.md` - Estrutura técnica de Argument
+- `../../architecture/data-models/idea_model.md` - Como Ideia possui Argumentos
 - `products/revelar/docs/vision.md` (Seção 4) - Entidade Ideia
 

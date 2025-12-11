@@ -83,14 +83,14 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `agents/models/cognitive_model.py` - Modelos de domínio
 
 **Documentação:**
-- `docs/architecture/ontology.md` - O que é Conceito, Ideia, Argumento
-- `docs/architecture/idea_model.md` - Schema técnico de Ideia
-- `docs/architecture/concept_model.md` - Schema técnico de Conceito
-- `docs/architecture/argument_model.md` - Schema técnico de Argumento
-- `docs/architecture/persistence_foundation.md` - Estratégia de persistência
-- `docs/architecture/snapshot_strategy.md` - Estratégia de snapshots
-- `docs/architecture/tech_stack.md` - Stack técnico (SQLite, ChromaDB)
-- `docs/architecture/super_system_vision.md` - Super-sistema
+- `core/docs/architecture/data-models/ontology.md` - O que é Conceito, Ideia, Argumento
+- `core/docs/architecture/data-models/idea_model.md` - Schema técnico de Ideia
+- `core/docs/architecture/data-models/concept_model.md` - Schema técnico de Conceito
+- `core/docs/architecture/data-models/argument_model.md` - Schema técnico de Argumento
+- `core/docs/architecture/data-models/persistence.md` - Estratégia de persistência
+- `core/docs/architecture/patterns/snapshots.md` - Estratégia de snapshots
+- `core/docs/architecture/infrastructure/tech_stack.md` - Stack técnico (SQLite, ChromaDB)
+- `core/docs/architecture/vision/super_system.md` - Super-sistema
 
 **Solicitar quando:**
 - Modificar modelos de dados
@@ -155,7 +155,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `utils/config.py` - Configurações e circuit breaker
 
 **Documentação:**
-- `docs/architecture/tech_stack.md` - Menciona EventBus
+- `core/docs/architecture/infrastructure/tech_stack.md` - Menciona EventBus
 
 **Solicitar quando:**
 - Entender infraestrutura de eventos

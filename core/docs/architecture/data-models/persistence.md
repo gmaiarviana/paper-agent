@@ -63,7 +63,7 @@ Quando escalar para produção:
 - Migration path documentado mas não implementado ainda
 
 ## Referências
-- `docs/architecture/idea_model.md` - Schema de Idea
-- `docs/architecture/argument_model.md` - Schema de Argument
+- `idea_model.md` - Schema de Idea
+- `argument_model.md` - Schema de Argument
 - `core/docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
 

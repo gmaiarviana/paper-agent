@@ -477,7 +477,7 @@ Comunicador:
 - `docs/agents/orchestrator.md` - Quem coordena, não quem fala
 - `docs/features/transparent_backstage.md` - Rastreamento de traduções
 - `ROADMAP.md` - Épico 18 (Personas)
-- `docs/architecture/super_system_vision.md` - Separação de responsabilidades
+- `../architecture/vision/super_system.md` - Separação de responsabilidades
 
 ---
 
