@@ -17,15 +17,16 @@ import sys
 from pathlib import Path
 
 # Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent.parent
+# Caminho: products/revelar/app/pages/*.py -> parent.parent.parent.parent.parent = project root
+project_root = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import streamlit as st
 from datetime import datetime
 
 from core.agents.database.manager import get_database_manager
-from app.components.conversation_helpers import get_relative_timestamp
-from app.components.sidebar import render_sidebar
+from products.revelar.app.components.conversation_helpers import get_relative_timestamp
+from products.revelar.app.components.sidebar import render_sidebar
 
 # === CONFIGURAÇÃO ===
 

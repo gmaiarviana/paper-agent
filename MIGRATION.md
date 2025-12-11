@@ -1518,15 +1518,16 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 
 ### Fase 6: CLI ✅
 - [x] cli/ movido para core/tools/cli/
-- [x] PYTHONPATH ajustado (4 niveis para raiz)
-- [x] Referencias atualizadas em docs e testes
+- [x] Imports ajustados (project_root path corrigido - 4 níveis para raiz)
+- [x] Testes passando (imports validados)
 - [x] Commit realizado
 
-### Fase 7: Produto Revelar
-- [ ] app/ movido
-- [ ] Imports ajustados
-- [ ] Streamlit funcionando
-- [ ] Commits realizados
+### Fase 7: Produto Revelar ✅
+- [x] app/ movido para products/revelar/app/
+- [x] Imports ajustados (from app. → from products.revelar.app.)
+- [x] Caminhos checkpoints.db ajustados (project_root dinâmico)
+- [x] Testes de imports ajustados
+- [x] Commits realizados
 
 ### Fase 8: Testes
 - [ ] unit/ movido

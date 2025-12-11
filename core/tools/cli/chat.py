@@ -20,7 +20,7 @@ import argparse
 from pathlib import Path
 
 # Adicionar o diretório raiz ao PYTHONPATH
-# core/tools/cli/chat.py -> raiz é 4 níveis acima
+# Caminho: core/tools/cli/chat.py -> parent.parent.parent.parent = project root (4 níveis)
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 

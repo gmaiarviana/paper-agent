@@ -12,7 +12,7 @@ Status: Épico 2.1 - Sidebar com Links de Navegação
 import streamlit as st
 import logging
 
-from app.components.session_helpers import get_current_session_id
+from products.revelar.app.components.session_helpers import get_current_session_id
 
 logger = logging.getLogger(__name__)
 

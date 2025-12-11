@@ -19,7 +19,8 @@ import sys
 from pathlib import Path
 
 # Adicionar o diretório raiz ao PYTHONPATH
-project_root = Path(__file__).parent.parent.parent
+# Caminho: products/revelar/app/pages/*.py -> parent.parent.parent.parent.parent = project root
+project_root = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import streamlit as st
@@ -27,9 +28,9 @@ import logging
 from datetime import datetime
 
 from core.agents.database.manager import get_database_manager
-from app.components.session_helpers import get_current_session_id
-from app.components.conversation_helpers import get_relative_timestamp
-from app.components.sidebar import render_sidebar
+from products.revelar.app.components.session_helpers import get_current_session_id
+from products.revelar.app.components.conversation_helpers import get_relative_timestamp
+from products.revelar.app.components.sidebar import render_sidebar
 
 logger = logging.getLogger(__name__)
 
@@ -168,7 +169,9 @@ def get_thread_timestamp_from_checkpoint(thread_id: str) -> str:
         from pathlib import Path
         
         # Caminho do banco SqliteSaver (mesmo usado no LangGraph)
-        db_path = Path(__file__).parent.parent.parent / "data" / "checkpoints.db"
+        # Caminho: products/revelar/app/pages/ -> parent.parent.parent.parent.parent = project root
+        project_root = Path(__file__).parent.parent.parent.parent.parent
+        db_path = project_root / "data" / "checkpoints.db"
         
         if not db_path.exists():
             return None

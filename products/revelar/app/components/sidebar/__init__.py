@@ -12,6 +12,6 @@ Responsável por:
 Status: Épico 2.1 - Sidebar com Links de Navegação
 """
 
-from app.components.sidebar.navigation import render_sidebar
+from products.revelar.app.components.sidebar.navigation import render_sidebar
 
 __all__ = ["render_sidebar"]

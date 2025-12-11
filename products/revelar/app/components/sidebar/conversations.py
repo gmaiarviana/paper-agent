@@ -14,8 +14,8 @@ import streamlit as st
 from typing import List, Dict, Any
 import logging
 
-from app.components.session_helpers import get_current_session_id
-from app.components.conversation_helpers import (
+from products.revelar.app.components.session_helpers import get_current_session_id
+from products.revelar.app.components.conversation_helpers import (
     restore_conversation_context,
     list_recent_conversations,
     get_relative_timestamp

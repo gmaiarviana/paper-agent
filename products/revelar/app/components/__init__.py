@@ -12,15 +12,15 @@ Este pacote contém componentes modulares para a interface de chat:
 Épicos: 4 (Contexto) + 9 (POC → MVP) + 14 (Navegação em Três Espaços)
 """
 
-from app.components.chat_input import render_chat_input
-from app.components.chat_history import render_chat_history
-from app.components.backstage import (
+from products.revelar.app.components.chat_input import render_chat_input
+from products.revelar.app.components.chat_history import render_chat_history
+from products.revelar.app.components.backstage import (
     render_right_panel,
     render_context_section,
     render_backstage,
 )
-from app.components.sidebar import render_sidebar
-from app.components.conversation_helpers import (
+from products.revelar.app.components.sidebar import render_sidebar
+from products.revelar.app.components.conversation_helpers import (
     restore_conversation_context,
     list_recent_conversations,
     get_relative_timestamp

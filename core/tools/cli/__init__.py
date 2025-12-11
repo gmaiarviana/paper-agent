@@ -1,7 +1,7 @@
 """
 CLI (Command Line Interface) do Paper Agent.
 
-Este pacote contem a interface de linha de comando para interagir
+Este pacote contém a interface de linha de comando para interagir
 com os agentes do sistema.
 
 """

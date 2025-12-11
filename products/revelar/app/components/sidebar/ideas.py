@@ -15,8 +15,8 @@ from typing import List, Dict, Any
 from datetime import datetime
 import logging
 
-from app.components.session_helpers import get_current_session_id
-from app.components.conversation_helpers import restore_conversation_context
+from products.revelar.app.components.session_helpers import get_current_session_id
+from products.revelar.app.components.conversation_helpers import restore_conversation_context
 from core.agents.database.manager import get_database_manager
 
 logger = logging.getLogger(__name__)
