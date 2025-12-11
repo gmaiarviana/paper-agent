@@ -37,7 +37,7 @@ Checklist adaptativo com status em tempo real no painel Contexto.
 
 **Contexto:** Originalmente planejado no Épico 9, mas movido para backlog devido à complexidade de expor cognitive_model em tempo real. Indicador de Solidez (9.4) resolve 80% do valor com 20% do esforço. ProgressTracker completo será implementado quando infraestrutura de eventos estiver madura.
 
-**Referência técnica:** Ver `agents/checklist/progress_tracker.py` (backend já implementado) e `docs/interface/web/components.md` seção 3.6 (especificação completa da UI).
+**Referência técnica:** Ver `agents/checklist/progress_tracker.py` (backend já implementado) e `docs/products/revelar/interface/components.md` seção 3.6 (especificação completa da UI).
 
 ### RAG Infrastructure - Metodologista Knowledge Base
 Metodologista consulta knowledge base via RAG ao invés de arquivo `.md` estático.

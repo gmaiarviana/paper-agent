@@ -134,7 +134,7 @@ event_bus.publish_agent_completed(
 - 7.13: Histórico de Decisões → Épico 10.7 (Persistência)
 - 7.14: Argumento Focal Persistente → Épico 10.2 (Persistência)
 
-**Especificação técnica completa:** `docs/interface/conversational_cli.md`
+**Especificação técnica completa:** `docs/core/tools/conversational_cli.md`
 
 ---
 

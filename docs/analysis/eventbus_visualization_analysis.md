@@ -403,7 +403,7 @@ if auto_refresh:
 ### 4.4 Otimizações Futuras (Backlog)
 
 **SSE (Server-Sent Events):**
-- Documentado em `docs/interface/web/flows.md` (linhas 346-398)
+- Documentado em `products/revelar/docs/interface/flows.md` (linhas 346-398)
 - Status: Movido para Backlog
 - Justificativa: Polling de 1s é suficiente para POC/MVP
 
