@@ -378,7 +378,7 @@ Sistema: "OK! E como você vai FORTALECER a proposição de que a visão computa
 
 - `docs/product/vision.md` - Sistema como "mestre socrático"
 - `core/docs/vision/cognitive_model/core.md` - Modelo de fundamentos com solidez
-- `docs/orchestration/conversational_orchestrator/` - Base conversacional (Épico 7)
+- `../conversational/` - Base conversacional (Épico 7)
 
 ---
 

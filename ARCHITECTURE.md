@@ -99,7 +99,7 @@ Produtos são **serviços desacoplados** que consomem core via APIs.
 - EventBus para comunicação CLI ↔ Dashboard
 - MemoryManager para registro de metadados
 
-**Detalhes de fluxo:** Ver `docs/orchestration/multi_agent_architecture/`
+**Detalhes de fluxo:** Ver `core/docs/architecture/agents/multi_agent/`
 
 ---
 
@@ -145,13 +145,13 @@ O sistema oferece **duas interfaces web** com propósitos distintos:
 
 Facilitador conversacional que mantém diálogo fluido, detecta necessidades, oferece opções ao usuário e adapta-se a mudanças de direção. Extrai e atualiza argumento focal a cada turno, provoca reflexão sobre lacunas e detecta emergência de novo estágio.
 
-**Detalhes:** Ver `docs/orchestration/conversational_orchestrator/README.md`
+**Detalhes:** Ver `core/docs/architecture/agents/orchestrator/conversational/README.md`
 
 ## Orquestrador Socrático
 
 Evolução do Orquestrador Conversacional que adiciona capacidade de exposição de suposições implícitas através de contra-perguntas socráticas. Detecta 5 categorias de assumptions (métrica vaga, população vaga, baseline ausente, causalidade assumida, generalização excessiva), escala profundidade de provocação em 3 níveis conforme resistência do usuário, e determina timing apropriado de provocação (quando provocar vs quando apenas explorar).
 
-**Detalhes:** Ver `docs/orchestration/socratic_orchestrator.md`
+**Detalhes:** Ver `core/docs/architecture/agents/orchestrator/socratic.md`
 
 **Relacionamento:** Socrático é extensão do Conversacional. Conversacional provê base de análise contextual e argumento focal; Socrático adiciona provocação estruturada sobre assumptions.
 
@@ -159,7 +159,7 @@ Evolução do Orquestrador Conversacional que adiciona capacidade de exposição
 
 MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento focal) e específicos por agente (estruturação, validação). Suporta versionamento de hipóteses (V1 → V2 → V3) e rastreamento de iterações de refinamento.
 
-**Detalhes:** Ver `docs/orchestration/multi_agent_architecture/`
+**Detalhes:** Ver `core/docs/architecture/agents/multi_agent/`
 
 ## Modelo Cognitivo
 
@@ -523,12 +523,12 @@ Agente especializado em avaliar rigor científico de hipóteses usando LangGraph
 ### Orquestrador (`agents/orchestrator/`)
 Agente responsável por facilitar conversa e coordenar chamadas a agentes especializados. Facilitador conversacional que negocia caminho com usuário.
 
-**Detalhes:** Ver `docs/orchestration/conversational_orchestrator/README.md`
+**Detalhes:** Ver `core/docs/architecture/agents/orchestrator/conversational/README.md`
 
 ### Estruturador (`agents/structurer/`)
 Agente responsável por organizar ideias vagas e refinar questões de pesquisa baseado em feedback. Nó simples com 2 modos: estruturação inicial (V1) e refinamento (V2/V3).
 
-**Detalhes:** Ver `docs/orchestration/refinement_loop.md`
+**Detalhes:** Ver `core/docs/architecture/patterns/refinement.md`
 
 ### Interface Web (`app/`)
 Interface web conversacional (Streamlit) como experiência principal do sistema. Chat fluido com reasoning dos agentes visível ("Bastidores"), métricas inline e streaming de eventos. Componentes: chat, bastidores, timeline, sidebar. Eventos consumidos via polling (POC) ou SSE (MVP).
@@ -547,7 +547,7 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 - **Claude Sonnet 4 usado pelo Metodologista:** Para confiabilidade de JSON estruturado
 - **Claude Haiku usado pelo Estruturador:** Custo-benefício para estruturação/refinamento
 - **Refinamento sob demanda:** Loop não é automático; usuário decide quando refinar baseado em feedback do Metodologista. Sem limite fixo de iterações
-- **Transição para conversação adaptativa:** Ver `docs/orchestration/conversational_orchestrator/` para padrões de conversa vs classificação
+- **Transição para conversação adaptativa:** Ver `core/docs/architecture/agents/orchestrator/conversational/` para padrões de conversa vs classificação
 - **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários
 - **Modo colaborativo:** Prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar)
 
@@ -574,8 +574,8 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 - `core/docs/vision/cognitive_model/` - Modelo cognitivo e evolução
 
 **Orquestração:**
-- `docs/orchestration/multi_agent_architecture/` - Arquitetura multi-agente
-- `docs/orchestration/conversational_orchestrator/` - Orquestrador conversacional
+- `core/docs/architecture/agents/multi_agent/` - Arquitetura multi-agente
+- `core/docs/architecture/agents/orchestrator/conversational/` - Orquestrador conversacional
 
 **Produtos:**
 - `products/produtor-cientifico/docs/vision.md` - Produtor Científico (produto atual)

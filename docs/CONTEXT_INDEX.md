@@ -31,16 +31,15 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Orquestração e Fluxo
 
 **Código:**
-- `agents/multi_agent_graph.py` - Super-grafo principal
-- `agents/orchestrator/` - Orquestrador (nodes, router, state)
-- `agents/orchestrator/state.py` - MultiAgentState (schema completo)
+- `core/agents/multi_agent_graph.py` - Super-grafo principal
+- `core/agents/orchestrator/` - Orquestrador (nodes, router, state)
+- `core/agents/orchestrator/state.py` - MultiAgentState (schema completo)
 
 **Documentação:**
-- `docs/orchestration/multi_agent_architecture/` - **FONTE ÚNICA DA VERDADE** para fluxo e estado
-- `docs/orchestration/conversational_orchestrator/` - Orquestrador conversacional
-- `docs/orchestration/socratic_orchestrator.md` - Orquestrador socrático
-- `docs/orchestration/refinement_loop.md` - Loop de refinamento
-- `docs/orchestration/orchestrator.md` - Orquestrador (especificação adicional)
+- `core/docs/architecture/agents/multi_agent/` - **FONTE ÚNICA DA VERDADE** para fluxo e estado
+- `core/docs/architecture/agents/orchestrator/conversational/` - Orquestrador conversacional
+- `core/docs/architecture/agents/orchestrator/socratic.md` - Orquestrador socrático
+- `core/docs/architecture/patterns/refinement.md` - Loop de refinamento
 
 **Solicitar quando:**
 - Discutir fluxo de agentes
@@ -53,15 +52,15 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Agentes Específicos
 
 **Código:**
-- `agents/methodologist/` - Metodologista (graph, nodes, router, state, tools, wrapper)
-- `agents/structurer/nodes.py` - Estruturador
-- `agents/models/cognitive_model.py` - Modelos Pydantic (CognitiveModel, Contradiction, SolidGround)
+- `core/agents/methodologist/` - Metodologista (graph, nodes, router, state, tools, wrapper)
+- `core/agents/structurer/nodes.py` - Estruturador
+- `core/agents/models/cognitive_model.py` - Modelos Pydantic (CognitiveModel, Contradiction, SolidGround)
 
 **Documentação:**
-- `docs/agents/overview.md` - Visão geral de todos os agentes
-- `docs/agents/methodologist.md` - Especificação do Metodologista
-- `docs/agents/methodologist_knowledge.md` - Conhecimento do Metodologista
-- `docs/orchestration/refinement_loop.md` - **Estruturador documentado aqui** (processamento de feedback, lógica de refinamento)
+- `core/docs/agents/overview.md` - Visão geral de todos os agentes
+- `core/docs/agents/methodologist.md` - Especificação do Metodologista
+- `core/docs/agents/methodologist_knowledge.md` - Conhecimento do Metodologista
+- `core/docs/architecture/patterns/refinement.md` - **Estruturador documentado aqui** (processamento de feedback, lógica de refinamento)
 
 **Solicitar quando:**
 - Refinar comportamento de agente específico
@@ -73,14 +72,14 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Dados e Persistência
 
 **Código:**
-- `agents/database/` - DatabaseManager (orquestrador), IdeasCRUD, ArgumentsCRUD, schema SQLite
+- `core/agents/database/` - DatabaseManager (orquestrador), IdeasCRUD, ArgumentsCRUD, schema SQLite
   - `manager.py` - DatabaseManager singleton (orquestrador)
   - `ideas_crud.py` - CRUD operations para Ideas
   - `arguments_crud.py` - CRUD operations para Arguments
   - `schema.py` - Schema SQL (tabelas, índices, triggers, views)
-- `agents/persistence/snapshot_manager.py` - Snapshots e detecção de maturidade
-- `agents/checklist/progress_tracker.py` - Rastreamento de progresso
-- `agents/models/cognitive_model.py` - Modelos de domínio
+- `core/agents/persistence/snapshot_manager.py` - Snapshots e detecção de maturidade
+- `core/agents/checklist/progress_tracker.py` - Rastreamento de progresso
+- `core/agents/models/cognitive_model.py` - Modelos de domínio
 
 **Documentação:**
 - `core/docs/architecture/data-models/ontology.md` - O que é Conceito, Ideia, Argumento
@@ -103,11 +102,11 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Interface Web
 
 **Código:**
-- `app/chat.py` - Interface principal
-- `app/dashboard.py` - Dashboard de debug
-- `app/components/` - Componentes (chat_input, chat_history, backstage, sidebar/, etc)
+- `products/revelar/app/chat.py` - Interface principal
+- `products/revelar/app/dashboard.py` - Dashboard de debug
+- `products/revelar/app/components/` - Componentes (chat_input, chat_history, backstage, sidebar/, etc)
   - `sidebar/` - Sidebar modular (navigation, conversations, ideas)
-- `app/pages/` - Páginas dedicadas (pensamentos, ideia_detalhes)
+- `products/revelar/app/pages/` - Páginas dedicadas (pensamentos, ideia_detalhes)
 
 **Documentação:**
 - `products/revelar/docs/interface/` - Especificação completa da interface web (overview.md, components.md, flows.md)
@@ -120,7 +119,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - Entender fluxo de navegação
 
 **Gaps identificados:**
-- ⚠️ `app/components/session_helpers.py` - **GAP REAL**: Não encontrei menção específica na documentação
+- ⚠️ `products/revelar/app/components/session_helpers.py` - **GAP REAL**: Não encontrei menção específica na documentação
 
 ---
 
@@ -142,17 +141,17 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Infraestrutura e Utils
 
 **Código:**
-- `utils/event_bus/` - EventBus modularizado (comunicação CLI ↔ Dashboard)
+- `core/utils/event_bus/` - EventBus modularizado (comunicação CLI ↔ Dashboard)
   - `core.py` - Classe base com persistência
   - `publishers.py` - Métodos publish_*
   - `readers.py` - Métodos get_* e list_*
   - `singleton.py` - Classe EventBus completa e get_event_bus()
-- `utils/event_models.py` - Modelos Pydantic de eventos
-- `utils/cost_tracker.py` - Cálculo de custos
-- `utils/token_extractor.py` - Extração de tokens
-- `utils/json_parser.py` - Parser de JSON de LLM
-- `utils/prompts/` - Prompts dos agentes (modularizado por agente: methodologist.py, orchestrator.py, structurer.py)
-- `utils/config.py` - Configurações e circuit breaker
+- `core/utils/event_models.py` - Modelos Pydantic de eventos
+- `core/utils/cost_tracker.py` - Cálculo de custos
+- `core/utils/token_extractor.py` - Extração de tokens
+- `core/utils/json_parser.py` - Parser de JSON de LLM
+- `core/prompts/` - Prompts dos agentes (modularizado por agente: methodologist.py, orchestrator.py, structurer.py)
+- `core/utils/config.py` - Configurações e circuit breaker
 
 **Documentação:**
 - `core/docs/architecture/infrastructure/tech_stack.md` - Menciona EventBus
@@ -163,19 +162,19 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - Debugging de comunicação
 
 **Gaps identificados:**
-- ⚠️ `utils/config.py` - **GAP REAL**: Circuit breaker não encontrado na documentação
-- ⚠️ `utils/json_parser.py` - **GAP REAL**: Parser JSON não encontrado na documentação
+- ⚠️ `core/utils/config.py` - **GAP REAL**: Circuit breaker não encontrado na documentação
+- ⚠️ `core/utils/json_parser.py` - **GAP REAL**: Parser JSON não encontrado na documentação
 
 ---
 
 ### TEMA: Configuração e Memória
 
 **Código:**
-- `agents/memory/config_loader.py` - Carregamento de configs YAML
-- `agents/memory/config_validator.py` - Validação de schema YAML
-- `agents/memory/memory_manager.py` - Gestão de memória por agente
-- `agents/memory/execution_tracker.py` - Helper para captura de tokens
-- `config/agents/*.yaml` - Configs externas por agente
+- `core/agents/memory/config_loader.py` - Carregamento de configs YAML
+- `core/agents/memory/config_validator.py` - Validação de schema YAML
+- `core/agents/memory/memory_manager.py` - Gestão de memória por agente
+- `core/agents/memory/execution_tracker.py` - Helper para captura de tokens
+- `core/config/agents/*.yaml` - Configs externas por agente
 
 **Documentação:**
 - `ARCHITECTURE.md` - Menciona sistema de configuração (seção "Configuração Externa de Agentes")
@@ -212,10 +211,10 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 **Código:**
 - `tests/unit/` - Testes unitários organizados por categoria (226 testes)
-  - `agents/` - Lógica de agentes (orchestrator, structurer, methodologist)
+  - `agents/` - Lógica de agentes (orchestrator, structurer, methodologist) - **Nota:** Ainda na raiz, será migrado para `tests/core/unit/agents/`
   - `models/` - Estruturas de dados (cognitive_model)
   - `memory/` - Sistema de memória (config_loader, execution_tracker, memory_manager)
-  - `utils/` - Utilitários (cost_tracker, event_bus, json_extraction, currency)
+  - `utils/` - Utilitários (cost_tracker, event_bus, json_extraction, currency) - **Nota:** Ainda na raiz, será migrado para `tests/core/unit/utils/`
   - `database/` - Database operations (database_manager)
 - `tests/integration/` - Testes de integração (19 testes)
   - `smoke/` - Validação rápida (3 testes, ~$0.01)
@@ -277,23 +276,23 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ## 🔍 RESUMO DE GAPS (Código Sem Documentação Técnica Detalhada)
 
 ### Críticos (Funcionalidades Importantes)
-1. ⚠️ `app/components/session_helpers.py` - **GAP CONFIRMADO**: Helpers de sessão. Não encontrei menção específica na documentação.
+1. ⚠️ `products/revelar/app/components/session_helpers.py` - **GAP CONFIRMADO**: Helpers de sessão. Não encontrei menção específica na documentação.
 
 ### Menores (Utils e Infraestrutura)
-2. ⚠️ `utils/config.py` - **GAP CONFIRMADO**: Circuit breaker da API Anthropic. Não encontrado na documentação.
-3. ⚠️ `utils/json_parser.py` - **GAP CONFIRMADO**: Parser de JSON de respostas LLM. Não encontrado na documentação.
-4. ⚠️ `agents/memory/` - **GAP CONFIRMADO**: Sistema de memória completo (`memory_manager.py`, `execution_tracker.py`, `config_loader.py`, `config_validator.py`). Mencionado em `ARCHITECTURE.md` mas sem doc técnica detalhada.
+2. ⚠️ `core/utils/config.py` - **GAP CONFIRMADO**: Circuit breaker da API Anthropic. Não encontrado na documentação.
+3. ⚠️ `core/utils/json_parser.py` - **GAP CONFIRMADO**: Parser de JSON de respostas LLM. Não encontrado na documentação.
+4. ⚠️ `core/agents/memory/` - **GAP CONFIRMADO**: Sistema de memória completo (`memory_manager.py`, `execution_tracker.py`, `config_loader.py`, `config_validator.py`). Mencionado em `ARCHITECTURE.md` mas sem doc técnica detalhada.
 5. ⚠️ `scripts/flows/` - **GAP CONFIRMADO**: Scripts de validação manual. Listados em `testing/inventory.md` mas sem doc de propósito/uso.
 6. ⚠️ `scripts/health_checks/` - **GAP CONFIRMADO**: Health checks do sistema. Não encontrado na documentação.
 
 ### ✅ NÃO SÃO GAPS (Documentados)
-- ✅ `agents/structurer/` - Documentado em `refinement_loop.md`
-- ✅ `agents/models/cognitive_model.py` - Documentado em `core/docs/vision/cognitive_model/` e `argument_model.md`
-- ✅ `agents/persistence/snapshot_manager.py` - Documentado em `snapshot_strategy.md`
-- ✅ `agents/checklist/progress_tracker.py` - Documentado em `web/components.md` (seção 3.6)
-- ✅ `app/pages/` - Documentado em `web/components.md` e `navigation_philosophy.md`
-- ✅ `app/components/conversation_helpers.py` - Docstrings detalhadas no código
-- ✅ `utils/event_bus/` - Docstrings detalhadas no código (estrutura modular)
+- ✅ `core/agents/structurer/` - Documentado em `refinement_loop.md`
+- ✅ `core/agents/models/cognitive_model.py` - Documentado em `core/docs/vision/cognitive_model/` e `argument_model.md`
+- ✅ `core/agents/persistence/snapshot_manager.py` - Documentado em `snapshot_strategy.md`
+- ✅ `core/agents/checklist/progress_tracker.py` - Documentado em `web/components.md` (seção 3.6)
+- ✅ `products/revelar/app/pages/` - Documentado em `web/components.md` e `navigation_philosophy.md`
+- ✅ `products/revelar/app/components/conversation_helpers.py` - Docstrings detalhadas no código
+- ✅ `core/utils/event_bus/` - Docstrings detalhadas no código (estrutura modular)
 
 ---
 

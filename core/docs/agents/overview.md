@@ -546,9 +546,9 @@ O sistema diferencia ações que podem ser proativas (baratas) daquelas que requ
 
 ## Fluxo e Estado Compartilhado
 
-Ver fluxo técnico completo em `docs/orchestration/multi_agent_architecture/flows.md`.
+Ver fluxo técnico completo em `../docs/architecture/agents/multi_agent/flows.md`.
 
-Ver `MultiAgentState` em `docs/orchestration/multi_agent_architecture/state.md`.
+Ver `MultiAgentState` em `../docs/architecture/agents/multi_agent/state.md`.
 
 ---
 

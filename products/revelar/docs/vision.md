@@ -49,8 +49,8 @@ personalizados. Ver: `products/produtor-cientifico/docs/vision/agent_personas.md
 
 ## 4. Como Ideias São Gerenciadas
 
-> **Nota:** Para estrutura de dados completa, consulte `docs/architecture/idea_model.md`.
-> Para ontologia (O que é Ideia?), consulte `docs/architecture/ontology.md`.
+> **Nota:** Para estrutura de dados completa, consulte `core/docs/architecture/data-models/idea_model.md`.
+> Para ontologia (O que é Ideia?), consulte `core/docs/architecture/data-models/ontology.md`.
 
 A unidade de trabalho que atravessa todo o fluxo é a **Ideia**.
 

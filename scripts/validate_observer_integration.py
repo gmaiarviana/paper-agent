@@ -47,7 +47,7 @@ def validate_imports():
 
     # 12.3: Timeline do Observer
     try:
-        from app.components.backstage.timeline import render_observer_section
+        from products.revelar.app.components.backstage.timeline import render_observer_section
         logger.info("  ✅ render_observer_section importado")
     except ImportError as e:
         errors.append(f"  ❌ Falha ao importar render_observer_section: {e}")
@@ -244,7 +244,7 @@ def validate_timeline_section():
     logger.info("\n📊 Validando seção da Timeline (12.3)...")
 
     # Verificar que a função existe e aceita parâmetros corretos
-    from app.components.backstage.timeline import render_observer_section, _show_observer_modal
+    from products.revelar.app.components.backstage.timeline import render_observer_section, _show_observer_modal
 
     # Verificar assinaturas
     import inspect

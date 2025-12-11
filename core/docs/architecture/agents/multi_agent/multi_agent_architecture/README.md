@@ -10,7 +10,7 @@
 **Outros documentos devem referenciar este diretório:**
 - `ARCHITECTURE.md`: Resumo + referência para este diretório
 - `docs/agents/overview.md`: Referência para fluxo e estado
-- `docs/orchestration/refinement_loop.md`: Referência para schema completo
+- `../../patterns/refinement.md`: Referência para schema completo
 
 ## Visão Geral
 
@@ -71,7 +71,7 @@ Este diretório está organizado em módulos temáticos:
 - 🔄 `route_after_methodologist`: De automático para oferece opções
 - ✅ Refinamento sob demanda: usuário controla quando refinar (sem limite fixo)
 
-**Especificação detalhada:** `docs/orchestration/conversational_orchestrator/`
+**Especificação detalhada:** `../../orchestrator/conversational/`
 
 ---
 

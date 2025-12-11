@@ -27,7 +27,7 @@ Funcionalidades técnicas que melhoram qualidade e manutenibilidade.
 ### ProgressTracker (Frontend - Interface Web)
 Checklist adaptativo com status em tempo real no painel Contexto.
 
-**Status:** Backend já implementado em `agents/checklist/progress_tracker.py` com `ProgressTracker.evaluate()`.
+**Status:** Backend já implementado em `core/agents/checklist/progress_tracker.py` com `ProgressTracker.evaluate()`.
 
 **Pendente (Frontend):**
 - Componente renderiza checklist no painel Contexto (borda direita, flutuante/fixo)
@@ -37,7 +37,7 @@ Checklist adaptativo com status em tempo real no painel Contexto.
 
 **Contexto:** Originalmente planejado no Épico 9, mas movido para backlog devido à complexidade de expor cognitive_model em tempo real. Indicador de Solidez (9.4) resolve 80% do valor com 20% do esforço. ProgressTracker completo será implementado quando infraestrutura de eventos estiver madura.
 
-**Referência técnica:** Ver `agents/checklist/progress_tracker.py` (backend já implementado) e `products/revelar/docs/interface/components.md` seção 3.6 (especificação completa da UI).
+**Referência técnica:** Ver `core/agents/checklist/progress_tracker.py` (backend já implementado) e `products/revelar/docs/interface/components.md` seção 3.6 (especificação completa da UI).
 
 ### RAG Infrastructure - Metodologista Knowledge Base
 Metodologista consulta knowledge base via RAG ao invés de arquivo `.md` estático.
@@ -46,10 +46,10 @@ Metodologista consulta knowledge base via RAG ao invés de arquivo `.md` estáti
 
 - Setup ChromaDB (vector store local, gratuito) - aproveitar infraestrutura do ÉPICO 10
 - Tool `consult_methodology(query)` com busca semântica
-- Popular KB inicial com `docs/agents/methodologist_knowledge.md`
+- Popular KB inicial com `core/docs/agents/methodologist_knowledge.md`
 - Integrar tool no grafo do Metodologista
 - Embeddings: sentence-transformers (all-MiniLM-L6-v2) - mesmo modelo do ÉPICO 10
-- CLI para gerenciar KB: `python cli/kb_manager.py add/search/stats`
+- CLI para gerenciar KB: `python -m core.tools.cli.kb_manager add/search/stats`
 
 ---
 
@@ -57,7 +57,7 @@ Metodologista consulta knowledge base via RAG ao invés de arquivo `.md` estáti
 ### Cost Controller (Budget Control)
 Budget por sessão para evitar gastos inesperados.
 
-**Status:** Cálculo de custos já implementado (`utils/cost_tracker.py`, `agents/memory/execution_tracker.py`). Métricas de custo já aparecem no dashboard.
+**Status:** Cálculo de custos já implementado (`core/utils/cost_tracker.py`, `core/agents/memory/execution_tracker.py`). Métricas de custo já aparecem no dashboard.
 
 **Pendente:**
 - Budget configurável por sessão (default: $1, max: $10)
@@ -71,8 +71,8 @@ Budget por sessão para evitar gastos inesperados.
 ### Agent Development Kit
 Documentação, templates e patterns para criar novos agentes.
 
-- Documentação completa: `docs/agents/creating_new_agents.md`
-- Template base comentado: `agents/_template/` (copiar e adaptar)
+- Documentação completa: `core/docs/agents/creating_new_agents.md`
+- Template base comentado: `core/agents/_template/` (copiar e adaptar)
 - Exemplos de referência: Metodologista (complexo), Estruturador (simples)
 - Checklist de implementação completa
 - Patterns comuns documentados: reasoning loop, tools, conditional routing
@@ -189,7 +189,7 @@ Reproduzir sessões passo a passo para debugging avançado.
 
 - Gravar todas interações (estado antes/depois, LLM calls, decisões)
 - Storage: JSONL file por sessão em `runtime/recordings/`
-- CLI: `python cli/replay_session.py session-123`
+- CLI: `python -m core.tools.cli.replay_session session-123`
 - Breakpoints interativos (pause em nó específico)
 - Step-by-step execution com inspeção de estado
 
@@ -347,7 +347,7 @@ Dashboard de métricas e otimização contínua.
 ### Comparison Tool (Testes)
 Comparar antes/depois de mudanças no prompt para detectar regressões.
 
-- Implementar `compare_results()` em `utils/result_comparer.py`
+- Implementar `compare_results()` em `core/utils/result_comparer.py`
 - Implementar `detect_regressions()` para identificar regressões automaticamente
 - Implementar `compare_results.py` com CLI
 - Output deve incluir resumo de mudanças e lista de cenários que precisam atenção

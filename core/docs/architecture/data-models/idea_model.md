@@ -197,7 +197,7 @@ MultiAgentState:
 3. Sistema oferece: "Criar nova ideia ou continuar?"
 4. Usuário decide → sistema cria idea-002 ou continua idea-001
 
-> **Nota:** Detecção de mudança de foco via focal_argument (ver `docs/orchestration/conversational_orchestrator/reasoning.md`).
+> **Nota:** Detecção de mudança de foco via focal_argument (ver `../../agents/orchestrator/conversational/reasoning.md`).
 
 ## Storage
 

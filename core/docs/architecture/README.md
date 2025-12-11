@@ -15,14 +15,17 @@ Modelagem de dados - ontologia, schemas, persistência
 ### [Agents](./agents/)
 Arquitetura técnica dos agentes do core
 - [Observer](./agents/observer/architecture.md) - Implementação técnica do Observador
+- [Orchestrator](./agents/orchestrator/) - Implementações do Orquestrador
+  - [Conversational](./agents/orchestrator/conversational/) - Orquestrador Conversacional (Épico 7)
+  - [Socratic](./agents/orchestrator/socratic.md) - Orquestrador Socrático (Épico 10)
+- [Multi-Agent](./agents/multi_agent/) - Super-grafo multi-agente (Épico 3-4)
 
 **Nota:** Para visão conceitual dos agentes (papel, responsabilidades), ver [../agents/overview.md](../agents/overview.md)
-
-**Nota:** Para documentação de orchestrator e multi-agent, ver [../../orchestration/](../../orchestration/)
 
 ### [Patterns](./patterns/)
 Padrões e estratégias de design
 - [Snapshots](./patterns/snapshots.md) - Quando e como criar snapshots
+- [Refinement](./patterns/refinement.md) - Loop colaborativo de refinamento
 
 ### [Infrastructure](./infrastructure/)
 Infraestrutura técnica (stack, ferramentas)
@@ -39,5 +42,5 @@ Visão arquitetural de longo prazo
 - [Visão do Produto](../../vision/) - Filosofia e visão de longo prazo
 - [Modelo Cognitivo](../../vision/cognitive_model/) - Base epistemológica
 - [Agentes (Conceitual)](../agents/) - Papel e responsabilidades dos agentes
-- [Orquestração](../../orchestration/) - Documentação de orchestrator e multi-agent
+- [Produtos](../../../products/) - Paper-agent, Fichamento, etc
 

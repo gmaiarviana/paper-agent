@@ -181,7 +181,7 @@ class TestObserverTimelineIntegration:
 
     def test_timeline_renders_observer_events(self):
         """Timeline renderiza eventos do Observer corretamente."""
-        from app.components.backstage.timeline import render_observer_section
+        from products.revelar.app.components.backstage.timeline import render_observer_section
 
         observer_events = [
             {

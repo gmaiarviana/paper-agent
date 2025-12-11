@@ -12,7 +12,7 @@
 - Decide automaticamente quando chamar agentes (sem pedir confirmação)
 - Faz curadoria das respostas dos agentes para apresentar tom unificado
 
-**Detalhes completos:** Ver `docs/orchestration/conversational_orchestrator/README.md`
+**Detalhes completos:** Ver `../../orchestrator/conversational/README.md`
 
 ---
 
@@ -26,7 +26,7 @@
 - Trabalha nos bastidores quando chamado pelo Orquestrador
 - Retorna resultado que é curado pelo Orquestrador antes de apresentar ao usuário
 
-**Detalhes completos:** Ver `docs/orchestration/refinement_loop.md` e `docs/agents/overview.md`
+**Detalhes completos:** Ver `../../patterns/refinement.md` e `../../../agents/overview.md`
 
 ---
 
@@ -60,7 +60,7 @@
 - Se needs_refinement AND iteration >= max → força decisão
 - Se approved/rejected → END
 
-**Detalhes completos:** Ver `docs/agents/methodologist.md` e `docs/orchestration/refinement_loop.md`
+**Detalhes completos:** Ver `../../../agents/methodologist.md` e `../../patterns/refinement.md`
 
 ---
 

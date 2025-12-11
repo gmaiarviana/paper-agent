@@ -14,7 +14,7 @@
 - Sistema de oferta de opções
 - Handling de mudança de direção
 
-**Especificação detalhada:** `docs/orchestration/conversational_orchestrator/`
+**Especificação detalhada:** `../../orchestrator/conversational/`
 
 ---
 
