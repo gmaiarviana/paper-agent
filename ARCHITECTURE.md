@@ -107,7 +107,7 @@ Produtos são **serviços desacoplados** que consomem core via APIs.
 
 O sistema oferece **duas interfaces web** com propósitos distintos:
 
-### Chat Web (`app/chat.py`) - Experiência Principal
+### Chat Web (`products/revelar/app/chat.py`) - Experiência Principal
 - Interface conversacional para usuários finais
 - Chat fluido + bastidores opcionais (reasoning inline)
 - Sidebar com últimas 5 conversas (SqliteSaver backend)
@@ -115,7 +115,7 @@ O sistema oferece **duas interfaces web** com propósitos distintos:
 - Persistência entre visitas (sem autenticação - sessões compartilhadas)
 - **Porta:** :8501
 
-### Dashboard (`app/dashboard.py`) - Debug/Monitoring
+### Dashboard (`products/revelar/app/dashboard.py`) - Debug/Monitoring
 - Visão global de todas as sessões ativas
 - Timeline de eventos por sessão
 - Estatísticas agregadas (tokens, custos, agentes)
@@ -174,11 +174,11 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - Pesquisador (futuro): transforma dúvidas em evidências
 
 **Implementação:**
-- **Schema Pydantic:** `agents/models/cognitive_model.py` - CognitiveModel, Contradiction, SolidGround
-- **Persistência SQLite:** `agents/database/` - DatabaseManager com tabelas ideas e arguments
+- **Schema Pydantic:** `core/agents/models/cognitive_model.py` - CognitiveModel, Contradiction, SolidGround
+- **Persistência SQLite:** `core/agents/database/` - DatabaseManager com tabelas ideas e arguments
 - **Versionamento:** Auto-incremento de versões (V1, V2, V3...) por idea
-- **Maturidade:** `agents/persistence/snapshot_manager.py` - Detecção via LLM e snapshots automáticos (ver `core/docs/architecture/patterns/snapshots.md`)
-- **Checklist:** `agents/checklist/progress_tracker.py` - Rastreamento adaptativo por tipo de artigo
+- **Maturidade:** `core/agents/persistence/snapshot_manager.py` - Detecção via LLM e snapshots automáticos (ver `core/docs/architecture/patterns/snapshots.md`)
+- **Checklist:** `core/agents/checklist/progress_tracker.py` - Rastreamento adaptativo por tipo de artigo
 - **Banco de dados:** `data/data.db` - Separado de checkpoints.db (LangGraph)
 
 **Status de integração (Épico 9):** ✅ Concluído
@@ -200,9 +200,9 @@ Observer integrado ao grafo multi-agente via callback assíncrono após execuç�
 - **Publicação de eventos:** `CognitiveModelUpdatedEvent` via EventBus para Timeline
 
 **Componentes:**
-- **Callback:** `_create_observer_callback()` em `agents/multi_agent_graph.py`
-- **Contexto:** `_build_cognitive_model_context()` em `agents/orchestrator/nodes.py`
-- **Timeline:** `render_observer_section()` em `app/components/backstage/timeline.py`
+- **Callback:** `_create_observer_callback()` em `core/agents/multi_agent_graph.py`
+- **Contexto:** `_build_cognitive_model_context()` em `core/agents/orchestrator/nodes.py`
+- **Timeline:** `render_observer_section()` em `products/revelar/app/components/backstage/timeline.py`
 
 **Fluxo:**
 ```
@@ -248,9 +248,9 @@ User Input → Orchestrator → Response ao usuário
   - Versionamento automático (V1, V2, V3...) via UNIQUE constraint (idea_id, version)
   - Triggers para updated_at automático
   - Views otimizadas para JOIN idea + argumento focal
-- **DatabaseManager singleton:** `agents/database/manager.py` - Orquestrador que delega para CRUDs especializados
-  - `agents/database/ideas_crud.py` - CRUD operations para Ideas
-  - `agents/database/arguments_crud.py` - CRUD operations para Arguments
+- **DatabaseManager singleton:** `core/agents/database/manager.py` - Orquestrador que delega para CRUDs especializados
+  - `core/agents/database/ideas_crud.py` - CRUD operations para Ideas
+  - `core/agents/database/arguments_crud.py` - CRUD operations para Arguments
 - **Localização:** Arquivos locais em `./data/`
 
 **Futuro (MVP/Produção):**
@@ -265,22 +265,22 @@ User Input → Orchestrator → Response ao usuário
 Sistema de configuração dinâmica que permite definir prompts, modelos LLM e limites de contexto via arquivos YAML externos.
 
 **Arquitetura:**
-- **Arquivos YAML**: `config/agents/{agent_name}.yaml` - um por agente (orchestrator, structurer, methodologist)
-- **Loader**: `agents/memory/config_loader.py` - carrega e valida configs em runtime
-- **Validator**: `agents/memory/config_validator.py` - valida schema dos YAMLs
+- **Arquivos YAML**: `core/config/agents/{agent_name}.yaml` - um por agente (orchestrator, structurer, methodologist)
+- **Loader**: `core/agents/memory/config_loader.py` - carrega e valida configs em runtime
+- **Validator**: `core/agents/memory/config_validator.py` - valida schema dos YAMLs
 - **Bootstrap**: Validação automática no `create_multi_agent_graph()`
 
 **Funcionalidades:**
-- Prompts carregados do YAML substituem prompts hard-coded em `utils/prompts/` (módulo modularizado por agente)
+- Prompts carregados do YAML substituem prompts hard-coded em `core/prompts/` (módulo modularizado por agente)
 - Modelos LLM configuráveis por agente (Haiku para performance, Sonnet para precisão)
 - Limites de contexto (`max_input_tokens`, `max_output_tokens`, `max_total_tokens`) por agente
 - **Fallback automático**: Se YAML falhar, nós usam prompts hard-coded para não quebrar sistema
 - **Mensagens em PT-BR**: Todos os erros reportados em português
 
 **Integração runtime:**
-- `orchestrator_node`: Carrega `config/agents/orchestrator.yaml` ao executar
-- `structurer_node`: Carrega `config/agents/structurer.yaml` ao executar (ambos modos: inicial e refinamento)
-- `decide_collaborative` e `force_decision_collaborative`: Carregam `config/agents/methodologist.yaml` ao executar
+- `orchestrator_node`: Carrega `core/config/agents/orchestrator.yaml` ao executar
+- `structurer_node`: Carrega `core/config/agents/structurer.yaml` ao executar (ambos modos: inicial e refinamento)
+- `decide_collaborative` e `force_decision_collaborative`: Carregam `core/config/agents/methodologist.yaml` ao executar
 - `create_multi_agent_graph`: Valida que todos YAMLs obrigatórios existem no bootstrap
 
 ## Registro de Memória e Metadados
@@ -288,9 +288,9 @@ Sistema de configuração dinâmica que permite definir prompts, modelos LLM e l
 Sistema de captura e agregação de tokens, custos e metadados de execução por agente.
 
 **Arquitetura:**
-- **ExecutionTracker**: `agents/memory/execution_tracker.py` - helper para capturar tokens de AIMessage e registrar no MemoryManager
-- **MemoryManager**: `agents/memory/memory_manager.py` - armazena histórico de execuções por sessão e agente
-- **CostTracker**: `utils/cost_tracker.py` - calcula custos baseado em tokens e modelo LLM
+- **ExecutionTracker**: `core/agents/memory/execution_tracker.py` - helper para capturar tokens de AIMessage e registrar no MemoryManager
+- **MemoryManager**: `core/agents/memory/memory_manager.py` - armazena histórico de execuções por sessão e agente
+- **CostTracker**: `core/utils/cost_tracker.py` - calcula custos baseado em tokens e modelo LLM
 - **Integração**: Nós do LangGraph recebem config com `memory_manager` e registram após cada invocação LLM
 
 **Funcionalidades:**
@@ -312,9 +312,9 @@ Sistema de captura e agregação de tokens, custos e metadados de execução por
 Sistema de logging estruturado para debugging e análise de sessões multi-agente.
 
 **Arquitetura:**
-- **StructuredLogger**: `utils/structured_logger.py` - Captura eventos em formato JSONL append-only
-- **DebugReporter**: `utils/debug_reporter.py` - Gera relatórios formatados a partir dos logs
-- **Session Replay**: `scripts/testing/replay_session.py` - Reproduz sessões passo a passo
+- **StructuredLogger**: `core/utils/structured_logger.py` - Captura eventos em formato JSONL append-only
+- **DebugReporter**: `core/utils/debug_reporter.py` - Gera relatórios formatados a partir dos logs
+- **Session Replay**: `scripts/core/testing/replay_session.py` - Reproduz sessões passo a passo
 
 **Logs capturados:**
 - `agent_started`: Início de execução de agente
@@ -347,8 +347,8 @@ Sistema de logging estruturado para debugging e análise de sessões multi-agent
 **Localização:** `logs/structured/{trace_id}.jsonl`
 
 **Ferramentas:**
-- Debug detalhado: `python scripts/testing/debug_scenario.py --scenario N --level full`
-- Replay de sessão: `python scripts/testing/replay_session.py {trace_id}`
+- Debug detalhado: `python scripts/core/testing/debug_scenario.py --scenario N --level full`
+- Replay de sessão: `python scripts/core/testing/replay_session.py {trace_id}`
 
 **Nós instrumentados:**
 - `orchestrator_node`: Logs de análise e decisão
@@ -370,166 +370,162 @@ paper-agent/
 ├── ARCHITECTURE.md        # Visão arquitetural (este arquivo)
 ├── development_guidelines.md  # Regras para desenvolvimento com agentes
 │
-├── config/                # Configurações externas
-│   └── agents/            # Configs YAML por agente
-│       ├── orchestrator.yaml    # Prompt, modelo, limites do Orquestrador
-│       ├── structurer.yaml      # Prompt, modelo, limites do Estruturador
-│       └── methodologist.yaml   # Prompt, modelo, limites do Metodologista
-│
-├── agents/                # Agentes especializados
-│   ├── __init__.py
-│   ├── methodologist/     # Agente Metodologista
+├── core/                  # Core compartilhado
+│   ├── config/            # Configurações externas
+│   │   └── agents/        # Configs YAML por agente
+│   │       ├── orchestrator.yaml    # Prompt, modelo, limites do Orquestrador
+│   │       ├── structurer.yaml      # Prompt, modelo, limites do Estruturador
+│   │       └── methodologist.yaml   # Prompt, modelo, limites do Metodologista
+│   ├── agents/            # Agentes especializados
 │   │   ├── __init__.py
-│   │   ├── state.py       # MethodologistState
-│   │   ├── nodes.py       # analyze, ask_clarification, decide
-│   │   ├── router.py      # route_after_analyze
-│   │   ├── graph.py       # Construção do grafo
-│   │   └── tools.py       # ask_user tool
-│   ├── orchestrator/      # Agente Orquestrador
+│   │   ├── methodologist/     # Agente Metodologista
+│   │   │   ├── __init__.py
+│   │   │   ├── state.py       # MethodologistState
+│   │   │   ├── nodes.py       # analyze, ask_clarification, decide
+│   │   │   ├── router.py      # route_after_analyze
+│   │   │   ├── graph.py       # Construção do grafo
+│   │   │   └── tools.py       # ask_user tool
+│   │   ├── orchestrator/      # Agente Orquestrador
+│   │   │   ├── __init__.py
+│   │   │   ├── state.py       # MultiAgentState
+│   │   │   ├── nodes.py       # orchestrator_node
+│   │   │   └── router.py      # route_from_orchestrator
+│   │   ├── structurer/        # Agente Estruturador
+│   │   │   ├── __init__.py
+│   │   │   └── nodes.py       # structurer_node
+│   │   ├── models/            # Modelos de domínio
+│   │   │   ├── __init__.py
+│   │   │   └── cognitive_model.py    # CognitiveModel, Contradiction, SolidGround
+│   │   ├── database/          # Persistência SQLite
+│   │   │   ├── __init__.py
+│   │   │   ├── schema.py       # Schema SQL (tabelas, índices, triggers, views)
+│   │   │   ├── manager.py      # DatabaseManager (orquestrador singleton)
+│   │   │   ├── ideas_crud.py   # CRUD operations para Ideas
+│   │   │   └── arguments_crud.py # CRUD operations para Arguments
+│   │   ├── persistence/       # Snapshots e maturidade
+│   │   │   ├── __init__.py
+│   │   │   └── snapshot_manager.py   # SnapshotManager (detecção LLM + snapshot automático)
+│   │   ├── checklist/         # Rastreamento de progresso
+│   │   │   ├── __init__.py
+│   │   │   └── progress_tracker.py   # ProgressTracker (checklist adaptativo)
+│   │   ├── memory/            # Sistema de memória e configuração
+│   │   │   ├── __init__.py
+│   │   │   ├── config_loader.py      # Carregamento de configs YAML
+│   │   │   ├── config_validator.py   # Validação de schema YAML
+│   │   │   ├── execution_tracker.py   # Helper para captura de tokens
+│   │   │   └── memory_manager.py     # Gestão de memória por agente
+│   │   └── multi_agent_graph.py      # Super-grafo
+│   ├── utils/                 # Utilitários e helpers
 │   │   ├── __init__.py
-│   │   ├── state.py       # MultiAgentState
-│   │   ├── nodes.py       # orchestrator_node
-│   │   └── router.py      # route_from_orchestrator
-│   ├── structurer/        # Agente Estruturador
+│   │   ├── cost_tracker.py    # Cálculo de custos de API
+│   │   ├── event_models.py    # Models Pydantic para eventos
+│   │   ├── structured_logger.py  # Logging estruturado
+│   │   ├── debug_reporter.py  # Relatórios de debug
+│   │   └── event_bus/         # EventBus modularizado para Dashboard
+│   │       ├── core.py        # Classe base com persistência
+│   │       ├── publishers.py  # Métodos publish_*
+│   │       ├── readers.py     # Métodos get_* e list_*
+│   │       └── singleton.py   # Classe EventBus completa
+│   ├── prompts/               # Prompts dos agentes (modularizado)
 │   │   ├── __init__.py
-│   │   └── nodes.py       # structurer_node
-│   ├── models/            # Modelos de domínio
-│   │   ├── __init__.py
-│   │   └── cognitive_model.py    # CognitiveModel, Contradiction, SolidGround
-│   ├── database/          # Persistência SQLite
-│   │   ├── __init__.py
-│   │   ├── schema.py       # Schema SQL (tabelas, índices, triggers, views)
-│   │   ├── manager.py      # DatabaseManager (orquestrador singleton)
-│   │   ├── ideas_crud.py   # CRUD operations para Ideas
-│   │   └── arguments_crud.py # CRUD operations para Arguments
-│   ├── persistence/       # Snapshots e maturidade
-│   │   ├── __init__.py
-│   │   └── snapshot_manager.py   # SnapshotManager (detecção LLM + snapshot automático)
-│   ├── checklist/         # Rastreamento de progresso
-│   │   ├── __init__.py
-│   │   └── progress_tracker.py   # ProgressTracker (checklist adaptativo)
-│   ├── memory/            # Sistema de memória e configuração
-│   │   ├── __init__.py
-│   │   ├── config_loader.py      # Carregamento de configs YAML
-│   │   ├── config_validator.py   # Validação de schema YAML
-│   │   ├── execution_tracker.py   # Helper para captura de tokens
-│   │   └── memory_manager.py     # Gestão de memória por agente
-│   └── multi_agent_graph.py      # Super-grafo
-│
-├── utils/                 # Utilitários e helpers
-│   ├── __init__.py
-│   ├── prompts/           # Prompts dos agentes (modularizado)
-│   │   ├── __init__.py    # Re-exporta todos os prompts
 │   │   ├── methodologist.py
 │   │   ├── orchestrator.py
 │   │   └── structurer.py
-│   ├── cost_tracker.py    # Cálculo de custos de API
-│   ├── event_models.py    # Models Pydantic para eventos
-│   └── event_bus/         # EventBus modularizado para Dashboard
-│       ├── core.py        # Classe base com persistência
-│       ├── publishers.py  # Métodos publish_*
-│       ├── readers.py     # Métodos get_* e list_*
-│       └── singleton.py   # Classe EventBus completa
+│   ├── tools/                 # Ferramentas
+│   │   └── cli/               # Interface de linha de comando
+│   │       ├── __init__.py
+│   │       └── chat.py        # CLI interativo (integrado com EventBus)
+│   └── docs/                  # Documentação do core
+│       ├── agents/            # Especificações de agentes
+│       ├── architecture/      # Decisões técnicas, modelos de dados
+│       └── vision/            # Visão do sistema
 │
-├── cli/                   # Interface de linha de comando
-│   ├── __init__.py
-│   └── chat.py            # CLI interativo (integrado com EventBus)
-│
-├── app/                   # Interface Web Conversacional
-│   ├── __init__.py
-│   ├── dashboard.py       # Dashboard de visualização de eventos
-│   ├── chat.py            # Chat conversacional principal
-│   └── components/        # Componentes reutilizáveis
-│       ├── __init__.py
-│       ├── chat_input.py     # Input de mensagens (esqueleto)
-│       ├── chat_history.py   # Histórico de conversa (esqueleto)
-│       ├── backstage/        # Painel "Bastidores" (modularizado)
+├── products/                  # Produtos específicos
+│   └── revelar/              # Produto Revelar (atual)
+│       ├── app/               # Interface Web Conversacional
 │       │   ├── __init__.py
-│       │   ├── context.py      # Seção "💡 Contexto" (ideia, solidez, custos)
-│       │   ├── reasoning.py    # Seção "📊 Bastidores" (reasoning dos agentes)
-│       │   ├── timeline.py     # Histórico de agentes
-│       │   └── constants.py    # Constantes compartilhadas
-│       ├── sidebar/          # Sidebar modular (Épico 14.1)
-│       │   ├── __init__.py
-│       │   ├── navigation.py    # Navegação principal
-│       │   ├── conversations.py # Gestão de conversas
-│       │   └── ideas.py         # Gestão de ideias
-│       └── storage.py        # Persistência localStorage
+│       │   ├── dashboard.py   # Dashboard de visualização de eventos
+│       │   ├── chat.py        # Chat conversacional principal
+│       │   └── components/    # Componentes reutilizáveis
+│       │       ├── __init__.py
+│       │       ├── chat_input.py     # Input de mensagens
+│       │       ├── chat_history.py   # Histórico de conversa
+│       │       ├── backstage/        # Painel "Bastidores" (modularizado)
+│       │       │   ├── __init__.py
+│       │       │   ├── context.py      # Seção "💡 Contexto" (ideia, solidez, custos)
+│       │       │   ├── reasoning.py    # Seção "📊 Bastidores" (reasoning dos agentes)
+│       │       │   ├── timeline.py     # Histórico de agentes
+│       │       │   └── constants.py    # Constantes compartilhadas
+│       │       ├── sidebar/          # Sidebar modular (Épico 14.1)
+│       │       │   ├── __init__.py
+│       │       │   ├── navigation.py    # Navegação principal
+│       │       │   ├── conversations.py # Gestão de conversas
+│       │       │   └── ideas.py         # Gestão de ideias
+│       │       └── storage.py        # Persistência localStorage
+│       └── docs/              # Documentação do produto
 │
-├── tests/                 # Testes automatizados (pytest)
+├── tests/                     # Testes automatizados (pytest)
 │   ├── __init__.py
-│   ├── unit/              # Testes unitários (mocks, rápidos)
-│   │   ├── __init__.py
-│   │   ├── test_cost_tracker.py
-│   │   ├── test_methodologist_state.py
-│   │   ├── test_ask_user_tool.py
-│   │   ├── test_graph_nodes.py
-│   │   ├── test_orchestrator.py
-│   │   ├── test_structurer.py
-│   │   ├── test_event_models.py
-│   │   ├── test_event_bus.py
-│   │   ├── test_config_loader.py
-│   │   └── test_memory_manager.py
-│   └── integration/       # Testes de integração (API real)
-│       └── __init__.py
+│   ├── core/                   # Testes do core
+│   │   ├── unit/              # Testes unitários (mocks, rápidos)
+│   │   │   ├── __init__.py
+│   │   │   ├── test_cost_tracker.py
+│   │   │   ├── test_methodologist_state.py
+│   │   │   ├── test_ask_user_tool.py
+│   │   │   ├── test_graph_nodes.py
+│   │   │   ├── test_orchestrator.py
+│   │   │   ├── test_structurer.py
+│   │   │   ├── test_event_models.py
+│   │   │   ├── test_event_bus.py
+│   │   │   ├── test_config_loader.py
+│   │   │   └── test_memory_manager.py
+│   │   └── integration/       # Testes de integração (API real)
+│   │       └── __init__.py
+│   └── products/              # Testes de produtos
 │
-├── scripts/               # Scripts de validação manual
+├── scripts/                   # Scripts de validação manual
 │   ├── __init__.py
-│   ├── health_checks/            # Sanidade de ambiente e configs
-│   │   ├── validate_api.py
-│   │   ├── validate_agent_config.py
-│   │   ├── validate_runtime_config_simple.py
-│   │   ├── validate_syntax.py
-│   │   ├── validate_system_prompt.py
-│   │   ├── validate_execution_tracker.py
-│   │   └── validate_orchestrator_json_parsing.py
-│   ├── flows/                    # Cenários completos (consomem API)
-│   │   ├── validate_cli.py
-│   │   ├── validate_cli_integration.py
-│   │   ├── validate_dashboard.py
-│   │   ├── validate_memory_integration.py
-│   │   ├── validate_multi_agent_flow.py
-│   │   ├── validate_orchestrator.py
-│   │   ├── validate_refinement_loop.py
-│   │   ├── validate_structurer.py
-│   │   ├── validate_structurer_refinement.py
-│   │   └── validate_build_context.py
-│   └── debug/                    # Diagnóstico ad hoc
-│       ├── debug_multi_agent.py
-│       └── check_events.py
+│   ├── core/                   # Scripts do core
+│   │   ├── health_checks/            # Sanidade de ambiente e configs
+│   │   │   ├── validate_api.py
+│   │   │   ├── validate_agent_config.py
+│   │   │   ├── validate_runtime_config_simple.py
+│   │   │   ├── validate_syntax.py
+│   │   │   ├── validate_system_prompt.py
+│   │   │   ├── validate_execution_tracker.py
+│   │   │   └── validate_orchestrator_json_parsing.py
+│   │   ├── testing/                 # Testes e debugging
+│   │   │   ├── debug_scenario.py
+│   │   │   └── replay_session.py
+│   │   └── debug/                    # Diagnóstico ad hoc
+│   │       ├── debug_multi_agent.py
+│   │       └── check_events.py
+│   └── revelar/               # Scripts do produto Revelar
 │
-└── docs/                  # Documentação detalhada por domínio
-    ├── agents/            # Especificações de agentes
-    ├── architecture/      # Decisões técnicas, modelos de dados
-    ├── interface/         # Especificações de interface
-    ├── orchestration/     # Orquestração e estado
-    ├── vision/            # Visão de produto
-    │   ├── vision.md
-    │   ├── cognitive_model/
-    │   ├── conversation_mechanics.md
-    │   └── agent_personas.md
-    ├── products/          # Produtos específicos (paper-agent, fichamento)
-    └── process/           # Desenvolvimento, testes
+└── docs/                      # Documentação geral
+    ├── analysis/              # Análises técnicas
+    ├── process/                # Processos de desenvolvimento
+    └── testing/                # Estratégia de testes
 ```
 
 ## Componentes Principais
 
-### Metodologista (`agents/methodologist/`)
+### Metodologista (`core/agents/methodologist/`)
 Agente especializado em avaliar rigor científico de hipóteses usando LangGraph. Opera em modo colaborativo: `approved`, `needs_refinement`, `rejected`.
 
-**Detalhes:** Ver `docs/agents/methodologist.md`
+**Detalhes:** Ver `core/docs/agents/methodologist.md`
 
-### Orquestrador (`agents/orchestrator/`)
+### Orquestrador (`core/agents/orchestrator/`)
 Agente responsável por facilitar conversa e coordenar chamadas a agentes especializados. Facilitador conversacional que negocia caminho com usuário.
 
 **Detalhes:** Ver `core/docs/architecture/agents/orchestrator/conversational/README.md`
 
-### Estruturador (`agents/structurer/`)
+### Estruturador (`core/agents/structurer/`)
 Agente responsável por organizar ideias vagas e refinar questões de pesquisa baseado em feedback. Nó simples com 2 modos: estruturação inicial (V1) e refinamento (V2/V3).
 
 **Detalhes:** Ver `core/docs/architecture/patterns/refinement.md`
 
-### Interface Web (`app/`)
+### Interface Web (`products/revelar/app/`)
 Interface web conversacional (Streamlit) como experiência principal do sistema. Chat fluido com reasoning dos agentes visível ("Bastidores"), métricas inline e streaming de eventos. Componentes: chat, bastidores, timeline, sidebar. Eventos consumidos via polling (POC) ou SSE (MVP).
 
 **Detalhes:** Ver `products/revelar/docs/interface/` (overview.md, components.md, flows.md)
@@ -537,7 +533,7 @@ Interface web conversacional (Streamlit) como experiência principal do sistema.
 ### CLI (`core/tools/cli/chat.py`)
 Loop interativo minimalista para desenvolvimento e automacao. Backend compartilhado com interface web.
 
-**Detalhes:** Ver `docs/core/tools/cli.md` e `docs/core/tools/conversational_cli.md`
+**Detalhes:** Ver `core/docs/tools/cli.md` e `core/docs/tools/conversational_cli.md`
 
 ## Decisões Técnicas Atuais
 

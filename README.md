@@ -79,7 +79,7 @@ O Paper Agent oferece **duas interfaces web** para diferentes necessidades, alé
 Interface web como experiência principal com chat fluido e painel "Bastidores" para transparência:
 ```bash
 # Executar interface principal
-streamlit run app/chat.py
+streamlit run products/revelar/app/chat.py
 ```
 
 Navegador abre em `http://localhost:8501`.
@@ -121,7 +121,7 @@ Navegador abre em `http://localhost:8501`.
 Interface de debug mantida para desenvolvedores visualizarem eventos de todas as sessões:
 ```bash
 # Executar dashboard de debug
-streamlit run app/dashboard.py
+streamlit run products/revelar/app/dashboard.py
 ```
 
 Navegador abre em `http://localhost:8501` (mesma porta, app diferente).

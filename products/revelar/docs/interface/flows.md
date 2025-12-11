@@ -106,9 +106,9 @@
 
 ### 5.1 Componentes Streamlit
 
-> **⚠️ NOTA:** Interface web conversacional (`app/chat.py`) será implementada no Épico 9. Este é um exemplo da arquitetura planejada.
+> **⚠️ NOTA:** Interface web conversacional (`products/revelar/app/chat.py`) será implementada no Épico 9. Este é um exemplo da arquitetura planejada.
 
-**Arquivo: `app/chat.py` (principal - planejado)**
+**Arquivo: `products/revelar/app/chat.py` (principal - planejado)**
 ```python
 import streamlit as st
 from components.chat_input import render_chat_input
@@ -133,7 +133,7 @@ def main():
         render_backstage(session_id)
 ```
 
-**Arquivo: `app/components/chat_input.py`**
+**Arquivo: `products/revelar/app/components/chat_input.py`**
 ```python
 import streamlit as st
 from agents.multi_agent_graph import create_multi_agent_graph
@@ -171,7 +171,7 @@ def render_chat_input(session_id: str):
         st.rerun()
 ```
 
-**Arquivo: `app/components/backstage/__init__.py`**
+**Arquivo: `products/revelar/app/components/backstage/__init__.py`**
 ```python
 import streamlit as st
 
@@ -208,7 +208,7 @@ def render_backstage(session_id: str):
             st.markdown("Aguardando...")
 ```
 
-**Arquivo: `app/components/sidebar/` (Épico 14.1 - Modular)**
+**Arquivo: `products/revelar/app/components/sidebar/` (Épico 14.1 - Modular)**
 ```python
 import streamlit as st
 from datetime import datetime
@@ -301,7 +301,7 @@ def show_argument_modal(argument):
 
 ### 5.2 Polling de Eventos (POC)
 
-**Arquivo:** `app/components/backstage/` (modularizado)
+**Arquivo:** `products/revelar/app/components/backstage/` (modularizado)
 ```python
 import streamlit as st
 import time

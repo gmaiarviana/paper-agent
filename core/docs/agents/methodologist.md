@@ -161,7 +161,7 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 
 ### Knowledge Base
 
-**Localização:** `docs/agents/methodologist_knowledge.md`
+**Localização:** `core/docs/agents/methodologist_knowledge.md`
 
 **Conteúdo:**
 - Diferença entre lei, teoria e hipótese

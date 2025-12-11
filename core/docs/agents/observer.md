@@ -747,7 +747,7 @@ def create_snapshot(idea_id: UUID):
 
 ### ✅ Épico 10: Observador - Mente Analítica (POC) - COMPLETO
 - ✅ **10.1 Mitose do Orquestrador** - IMPLEMENTADO
-  - Estrutura `agents/observer/` criada
+  - Estrutura `core/agents/observer/` criada
   - ObservadorAPI com interface de consulta
   - Separação de responsabilidades documentada
 - ✅ **10.2 Processamento via LLM** - IMPLEMENTADO
@@ -779,28 +779,28 @@ Observer integrado ao grafo multi-agente via callback assíncrono.
 
 **Implementação:**
 - ✅ **12.1 Callback Assíncrono** - IMPLEMENTADO
-  - `_create_observer_callback()` em `agents/multi_agent_graph.py`
+  - `_create_observer_callback()` em `core/agents/multi_agent_graph.py`
   - Thread daemon após `orchestrator_node` (não bloqueia shutdown)
   - Atualiza `state["cognitive_model"]` com análise semântica
   - Tempo de processamento: <3s em background
   - Publica `CognitiveModelUpdatedEvent` via EventBus
 
 - ✅ **12.2 CognitiveModel no Prompt** - IMPLEMENTADO
-  - `_build_cognitive_model_context()` em `agents/orchestrator/nodes.py`
+  - `_build_cognitive_model_context()` em `core/agents/orchestrator/nodes.py`
   - Formata claim, proposições (top 5 por solidez), conceitos (max 10)
   - Inclui contradições (max 3), questões abertas (max 5), métricas
   - Orquestrador usa naturalmente via prompt context
 
 - ✅ **12.3 Timeline Visual** - IMPLEMENTADO
-  - `render_observer_section()` em `app/components/backstage/timeline.py`
+  - `render_observer_section()` em `products/revelar/app/components/backstage/timeline.py`
   - Seção colapsável "👁️ Observador" com últimos turnos
   - Métricas: conceitos, proposições, solidez, maturidade
   - Modal "👁️ Análise do Observador" com histórico completo
 
 - ✅ **12.4 Testes** - IMPLEMENTADO
-  - 9 testes em `tests/unit/test_observer_callback.py`
-  - 19 testes em `tests/unit/agents/orchestrator/test_cognitive_context.py`
-  - Script `scripts/validate_observer_integration.py`
+  - 9 testes em `tests/core/unit/test_observer_callback.py`
+  - 19 testes em `tests/core/unit/agents/orchestrator/test_cognitive_context.py`
+  - Script `scripts/core/validate_observer_integration.py`
 
 **Fluxo de integração:**
 ```
@@ -859,19 +859,19 @@ Sistema de consultas inteligentes que identifica quando o argumento precisa de e
 
 **Módulos:**
 ```
-agents/observer/
+core/agents/observer/
 ├── clarification.py          # Funções principais
 ├── clarification_prompts.py  # Prompts especializados
-agents/models/
+core/agents/models/
 ├── clarification.py          # Modelos Pydantic
-utils/
+core/utils/
 ├── event_models.py           # Eventos de clarification
 ├── event_bus/publishers.py   # Métodos publish_*
 ```
 
 **Exemplo de uso:**
 ```python
-from agents.observer import (
+from core.agents.observer import (
     identify_clarification_needs,
     should_ask_clarification,
     generate_contradiction_question
@@ -907,10 +907,10 @@ if need.needs_clarification:
 - `../architecture/agents/observer/architecture.md` - Arquitetura técnica
 - `../architecture/data-models/ontology.md` - CognitiveModel e MemoryLayer
 - `../architecture/data-models/concept_model.md` - Schema de Concept
-- `core/docs/vision/cognitive_model/core.md` - Fundamentos epistemológicos
-- `docs/agents/memory_agent.md` - Consultado via Orquestrador quando necessário
-- `docs/agents/orchestrator.md` - Recebe sinalizações do Observador
-- `ROADMAP.md` - Épicos 10, 12, 13
+- `../vision/cognitive_model/core.md` - Fundamentos epistemológicos
+- `core/docs/agents/memory_agent.md` - Consultado via Orquestrador quando necessário
+- `core/docs/agents/orchestrator.md` - Recebe sinalizações do Observador
+- `core/ROADMAP.md` - Épicos 10, 12, 13
 
 ---
 

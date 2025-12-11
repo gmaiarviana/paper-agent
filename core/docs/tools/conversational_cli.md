@@ -182,7 +182,7 @@ python -m core.tools.cli.chat
 python -m core.tools.cli.chat --verbose
 
 # Dashboard (reasoning sempre visível)
-streamlit run app/dashboard.py
+streamlit run products/revelar/app/dashboard.py
 ```
 
 ---

@@ -560,10 +560,10 @@ trace = conversation.get_backstage_trace(turn_id=15)
 
 ## Referências
 
-- `docs/agents/observer.md` - Rastreamento de detecções
-- `docs/agents/orchestrator.md` - Rastreamento de decisões
-- `docs/agents/memory_agent.md` - Rastreamento de consultas
-- `docs/agents/communicator.md` - Rastreamento de traduções (futuro)
+- `core/docs/agents/observer.md` - Rastreamento de detecções
+- `core/docs/agents/orchestrator.md` - Rastreamento de decisões
+- `core/docs/agents/memory_agent.md` - Rastreamento de consultas
+- `core/docs/agents/communicator.md` - Rastreamento de traduções (futuro)
 - `core/docs/architecture/data-models/ontology.md` - BackstageContext
 
 ---

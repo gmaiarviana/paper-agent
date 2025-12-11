@@ -9,7 +9,7 @@
 
 **Outros documentos devem referenciar este diretório:**
 - `ARCHITECTURE.md`: Resumo + referência para este diretório
-- `docs/agents/overview.md`: Referência para fluxo e estado
+- `core/docs/agents/overview.md`: Referência para fluxo e estado
 - `../../patterns/refinement.md`: Referência para schema completo
 
 ## Visão Geral

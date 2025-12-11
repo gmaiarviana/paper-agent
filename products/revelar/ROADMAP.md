@@ -82,7 +82,7 @@
   - Observer publica eventos: `COGNITIVE_MODEL_UPDATED`, `VARIATION_DETECTED`, `DIRECTION_CHANGE`, `CLARIFICATION_REQUESTED`
   - Painel consome eventos via EventBus (já existe)
   - Atualização automática sem refresh manual
-  - Segue padrão de `app/components/backstage/reasoning.py`
+  - Segue padrão de `products/revelar/app/components/backstage/reasoning.py`
 
 #### 1.7 Testes de Interface
 

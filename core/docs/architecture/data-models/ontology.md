@@ -760,6 +760,6 @@ Quando uma proposição é identificada como frágil:
 - `argument_model.md` - Estrutura de dados técnica de Argumento
 - `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, solidez)
 - `core/docs/vision/cognitive_model/evolution.md` - Como pensamento evolui e solidez é calculada
-- `docs/agents/observer.md` - Documentação completa do Observador
+- `core/docs/agents/observer.md` - Documentação completa do Observador
 - `ROADMAP.md` - Épicos 10, 12, 13 (Observador e Conceitos)
 

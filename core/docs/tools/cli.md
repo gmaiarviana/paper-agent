@@ -37,7 +37,7 @@ CLI (chat.py)
 Experiência Esperada
 --------------------
 
-> **Nota:** CLI oferece experiência minimalista focada em texto. Para interface visual com bastidores e timeline, use o Dashboard (`streamlit run app/dashboard.py`). Interface web conversacional (`app/chat.py`) será implementada no Épico 9.
+> **Nota:** CLI oferece experiência minimalista focada em texto. Para interface visual com bastidores e timeline, use o Dashboard (`streamlit run products/revelar/app/dashboard.py`). Interface web conversacional (`products/revelar/app/chat.py`) será implementada no Épico 9.
 
 - Mensagens de decisão do Orquestrador antecedem qualquer chamada de agente (`🎯 Orquestrador decidiu: ...`).
 - Quando o Metodologista é chamado, a CLI exibe status e resumo da decisão (`🧪`, `✅`/`❌`).
@@ -63,7 +63,7 @@ Roteiro de Evolução
 - Documentação preservada para referência
 
 **Migração para Web:**
-- Novas funcionalidades serão implementadas em `app/chat.py` (Épico 9)
+- Novas funcionalidades serão implementadas em `products/revelar/app/chat.py` (Épico 9)
 - Bastidores, timeline, sessões → exclusivos da web
 - CLI permanece útil para automação e testes
 

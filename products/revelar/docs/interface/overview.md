@@ -22,13 +22,13 @@
 
 O sistema mantém **duas interfaces web** com propósitos distintos:
 
-### Interface Principal: Chat (`app/chat.py`)
+### Interface Principal: Chat (`products/revelar/app/chat.py`)
 - **Propósito:** Experiência do usuário final
 - **Foco:** Uma sessão ativa por vez
 - **Bastidores:** Reasoning visível opcionalmente
 - **Público:** Pesquisadores usando o sistema
 
-### Interface de Debug: Dashboard (`app/dashboard.py`)
+### Interface de Debug: Dashboard (`products/revelar/app/dashboard.py`)
 - **Propósito:** Monitoring e debug
 - **Foco:** Visão global de todas as sessões
 - **Eventos:** Timeline completa de todas as sessões
