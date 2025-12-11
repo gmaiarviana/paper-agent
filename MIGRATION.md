@@ -39,10 +39,9 @@
 - ✅ **Caminhos hardcoded:** Todos ajustados (config_loader, catalog, database/manager)
 
 **Migração Física:**
-- ✅ **tests/integration/smoke/:** Migrado para `tests/core/integration/smoke/` (3 arquivos + README)
-- ⏳ **tests/integration/e2e/:** Pendente
-- ⏳ **tests/integration/behavior/:** Pendente
-- ⏳ **tests/unit/:** Pendente
+- ✅ **tests/:** 100% migrado para `tests/core/` (unit/, integration/smoke/, behavior/, e2e/)
+- ✅ **scripts/:** 100% migrado para `scripts/core/` e `scripts/revelar/`
+- ✅ **agents/:** Diretório vazio removido (código em core/agents/)
 
 **Documentação:**
 - ✅ **core/docs/:** Conteúdo significativo migrado (agents/, architecture/, vision/, tools/)
@@ -50,10 +49,11 @@
 
 **Próximos Passos:**
 1. ✅ ~~Completar ajuste de imports restantes~~ (CONCLUÍDO - Quick win #1)
-2. Mover arquivos fisicamente para nova estrutura (testes, scripts) - Em progresso
-3. Reorganizar documentação da raiz
+2. ✅ ~~Mover arquivos fisicamente para nova estrutura~~ (testes, scripts - CONCLUÍDO)
+3. Mover 3 arquivos de teste específicos para `tests/products/revelar/` (ajuste de imports)
+4. Reorganizar documentação da raiz
 
-### ✅ Fases Concluídas (0-7, 11)
+### ✅ Fases Concluídas (0-9, 11)
 
 - **Fase 0:** Preparação ✅
 - **Fase 1:** Estrutura Base ✅
@@ -63,21 +63,22 @@
 - **Fase 5:** Core - Integração ✅
 - **Fase 6:** CLI ✅
 - **Fase 7:** Produto Revelar ✅
+- **Fase 8:** Testes ✅ (migração física completa para tests/core/)
+- **Fase 9:** Scripts ✅ (migração física completa para scripts/core/ e scripts/revelar/)
 - **Fase 11:** ROADMAPs ✅
 
 ### ⏳ Fases em Progresso
 
-- **Fase 8:** Testes ⏳ (imports atualizados para `core.`, estrutura física pendente)
-- **Fase 9:** Scripts ⏳ (imports atualizados para `core.`, estrutura física pendente)
+- **Fase 8.4:** Mover 3 arquivos específicos para tests/products/revelar/ (pendente - requer ajuste de imports)
 - **Fase 10:** Documentação ⏳ (core/docs/ com conteúdo significativo, reorganização pendente)
-- **Fase 12:** Limpeza Final ⏳ (pendente)
+- **Fase 12:** Limpeza Final ⏳ (parcial - agents/ removido)
 
 ### 📊 Estatísticas
 
 - **Core:** 100% migrado ✅
 - **Produto Revelar:** 100% migrado ✅
-- **Testes:** ~98% migrado (imports 100%, smoke/ migrado fisicamente) ⏳
-- **Scripts:** ~90% migrado (imports atualizados, estrutura física pendente) ⏳
+- **Testes:** 100% migrado fisicamente para tests/core/ ✅ (3 arquivos pendentes para products/revelar/)
+- **Scripts:** 100% migrado fisicamente para scripts/core/ e scripts/revelar/ ✅
 - **Documentação:** ~60% migrado (core/docs/ com agents/, architecture/, vision/, tools/) ⏳
 
 ---
@@ -94,7 +95,7 @@ paper-agent/
 │   ├── utils/               # ✅ Migrado
 │   ├── config/              # ✅ Migrado
 │   ├── tools/cli/           # ✅ CLI migrado
-│   ├── docs/vision/        # ✅ Parcial (alguns docs)
+│   ├── docs/               # ✅ Parcial (agents/, architecture/, vision/, tools/)
 │   ├── README.md           # ✅ Existe
 │   └── ROADMAP.md          # ✅ Existe
 │
@@ -105,48 +106,46 @@ paper-agent/
 │       ├── README.md      # ✅ Existe
 │       └── ROADMAP.md     # ✅ Existe
 │
-└── tests/
-    ├── core/              # ⏳ Estrutura criada (parcial)
-    │   ├── unit/          # ⏳ Aguardando migração
-    │   └── integration/   # ⏳ Parcial (smoke/ migrado)
-    │       └── smoke/     # ✅ MIGRADO (3 arquivos + README - Quick win #2)
-    ├── products/revelar/  # ⏳ Estrutura criada (vazia)
-    ├── unit/              # ⚠️ AINDA NA RAIZ (43 arquivos)
-    └── integration/       # ⚠️ AINDA NA RAIZ (29 arquivos restantes: behavior/ + e2e/)
+├── tests/
+│   ├── core/              # ✅ COMPLETO
+│   │   ├── unit/          # ✅ Migrado (43 arquivos)
+│   │   └── integration/   # ✅ Migrado
+│   │       ├── smoke/     # ✅ Migrado (3 arquivos)
+│   │       ├── behavior/  # ✅ Migrado (21 arquivos)
+│   │       └── e2e/       # ✅ Migrado (3 arquivos)
+│   └── products/revelar/  # ⏳ Estrutura criada (3 arquivos pendentes)
+│
+└── scripts/
+    ├── core/              # ✅ COMPLETO
+    │   ├── debug/         # ✅ Migrado
+    │   ├── health_checks/ # ✅ Migrado
+    │   ├── testing/       # ✅ Migrado
+    │   ├── spikes/        # ✅ Migrado
+    │   └── state_introspection/ # ✅ Migrado
+    └── revelar/           # ✅ Estrutura criada
+        └── flows/         # ✅ Migrado
 ```
 
 ### ⚠️ Ainda na Raiz (Pendente)
 
 ```
 paper-agent/
-├── agents/          # ⚠️ Vazio (apenas __pycache__) - pode remover após Fase 8
-├── app/             # ⚠️ Vazio (apenas __pycache__) - pode remover após Fase 8
-├── tests/
-│   ├── unit/        # ⚠️ 43 arquivos - mover para tests/core/unit/ (Fase 8.1) - imports já atualizados
-│   └── integration/ # ⚠️ 29 arquivos restantes - mover para tests/core/integration/ (Fase 8.3-8.5) - imports já atualizados
-│       ├── behavior/ # ⚠️ 29 arquivos (3 vão para products/revelar/)
-│       └── e2e/      # ⚠️ 2 arquivos
-├── scripts/         # ⚠️ Não organizado - mover para scripts/core/ e scripts/revelar/ (Fase 9)
-│   ├── core/        # ⏳ Estrutura criada (parcial - 1 arquivo)
-│   ├── revelar/      # ⏳ Estrutura criada (parcial - 1 arquivo)
-│   ├── health_checks/ # ⚠️ 8 arquivos → scripts/core/ (imports já atualizados)
-│   ├── debug/        # ⚠️ 3 arquivos → scripts/core/ (imports já atualizados)
-│   ├── testing/      # ⚠️ 7 arquivos → scripts/core/ (imports já atualizados)
-│   ├── spikes/       # ⚠️ 2 arquivos → scripts/core/ (imports já atualizados)
-│   ├── flows/        # ⚠️ 1 arquivo → scripts/revelar/
-│   ├── state_introspection/ # ⚠️ 1 arquivo → scripts/core/
-│   └── [7 arquivos na raiz] # ⚠️ → scripts/core/ (imports já atualizados)
-└── docs/            # ⚠️ Não organizado - mover para docs/core/ e docs/products/revelar/ (Fase 10)
-    ├── core/        # ⏳ Estrutura criada (parcial - examples/, features/, tools/)
-    ├── architecture/ # ⚠️ → docs/core/architecture/ (já existe em core/docs/architecture/)
-    ├── agents/      # ⚠️ → docs/core/agents/ (já existe em core/docs/agents/)
-    ├── testing/     # ⚠️ → docs/core/testing/
-    ├── orchestration/ # ⚠️ → docs/core/orchestration/ (não existe mais, integrado em architecture/)
-    ├── interface/   # ⚠️ → docs/products/revelar/interface/ (já existe em docs/products/revelar/interface/)
-    ├── process/     # ⚠️ → docs/core/process/
-    ├── vision/      # ⚠️ → docs/core/vision/ (já existe em core/docs/vision/)
-    └── analysis/    # ⚠️ → docs/core/analysis/
+├── tests/products/revelar/  # ⏳ 3 arquivos pendentes de tests/core/integration/behavior/
+│   └── integration/         # test_cli_integration.py, test_dashboard.py, test_conversation_switching_behavior.py
+│
+└── docs/                    # ⚠️ Não organizado - Fase 10 pendente
+    ├── analysis/            # ⚠️ → docs/core/analysis/
+    ├── epics/               # ⚠️ → docs/core/epics/
+    ├── process/             # ⚠️ → docs/core/process/
+    └── testing/             # ⚠️ → docs/core/testing/
 ```
+
+**Removidos:**
+- ✅ `agents/` - removido (código migrado para core/agents/)
+- ✅ `app/` - não existia mais
+- ✅ `tests/unit/` - migrado para tests/core/unit/
+- ✅ `tests/integration/` - migrado para tests/core/integration/
+- ✅ `scripts/` subdiretórios - migrados para scripts/core/ e scripts/revelar/
 
 ### Dados Reais das Análises
 
