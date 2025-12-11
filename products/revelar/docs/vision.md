@@ -220,7 +220,7 @@ Transparência sobre origem de informações e raciocínio do sistema, permitind
 - ✅ Scripts de automação
 - ❌ Uso interativo por usuários finais (usar web)
 
-**Documentação:** Ver `docs/core/tools/cli.md` e `docs/products/revelar/interface/` (overview.md, components.md, flows.md)
+**Documentação:** Ver `core/docs/tools/cli.md` e `products/revelar/docs/interface/` (overview.md, components.md, flows.md)
 
 ## 6. Casos de Uso Principais (Revelar)
 

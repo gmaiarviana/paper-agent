@@ -110,7 +110,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `app/pages/` - Páginas dedicadas (pensamentos, ideia_detalhes)
 
 **Documentação:**
-- `docs/products/revelar/interface/` - Especificação completa da interface web (overview.md, components.md, flows.md)
+- `products/revelar/docs/interface/` - Especificação completa da interface web (overview.md, components.md, flows.md)
   - Seção 3.6: Painel Progress (Checklist) - documenta `progress_tracker.py`
 - `products/revelar/docs/interface/navigation_philosophy.md` - Filosofia de navegação (3 espaços)
 
@@ -266,7 +266,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Exemplos
 
 **Documentação:**
-- `docs/core/examples/text_processing.md` - Exemplo de processamento (produto Fichamento)
+- `core/docs/examples/text_processing.md` - Exemplo de processamento (produto Fichamento)
 
 **Solicitar quando:**
 - Entender casos de uso práticos

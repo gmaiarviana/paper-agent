@@ -145,7 +145,7 @@
 
 **Consulte:**
 - `products/produtor-cientifico/docs/vision.md` - Interface web conversacional
-- `docs/products/revelar/interface/components.md` - Componentes Streamlit
+- `products/revelar/docs/interface/components.md` - Componentes Streamlit
 
 ### Funcionalidades Planejadas:
 

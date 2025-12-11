@@ -533,7 +533,7 @@ Agente responsável por organizar ideias vagas e refinar questões de pesquisa b
 ### Interface Web (`app/`)
 Interface web conversacional (Streamlit) como experiência principal do sistema. Chat fluido com reasoning dos agentes visível ("Bastidores"), métricas inline e streaming de eventos. Componentes: chat, bastidores, timeline, sidebar. Eventos consumidos via polling (POC) ou SSE (MVP).
 
-**Detalhes:** Ver `docs/products/revelar/interface/` (overview.md, components.md, flows.md)
+**Detalhes:** Ver `products/revelar/docs/interface/` (overview.md, components.md, flows.md)
 
 ### CLI (`core/tools/cli/chat.py`)
 Loop interativo minimalista para desenvolvimento e automacao. Backend compartilhado com interface web.

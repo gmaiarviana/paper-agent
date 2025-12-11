@@ -148,7 +148,7 @@
 **Ações:**
 - `paper_agent.md` → `docs/products/revelar/paper_agent.md` (ou renomear para `revelar.md`)
 - `fichamento.md` → `products/prisma-verbal/docs/vision.md` (movido para prisma-verbal)
-- `examples/sapiens_processing.md` → `docs/core/examples/text_processing.md`
+- `examples/sapiens_processing.md` → `core/docs/examples/text_processing.md`
 
 ---
 
@@ -162,9 +162,9 @@
 - `cli.md` - Interface CLI do Revelar
 - `conversational_cli.md` - CLI conversacional do Revelar
 - `navigation_philosophy.md` - Filosofia de navegação da interface
-- `web/overview.md` - Visão geral da interface web
-- `web/components.md` - Componentes Streamlit
-- `web/flows.md` - Fluxos da interface web
+- `products/revelar/docs/interface/overview.md` - Visão geral da interface web
+- `products/revelar/docs/interface/components.md` - Componentes Streamlit
+- `products/revelar/docs/interface/flows.md` - Fluxos da interface web
 
 ---
 
