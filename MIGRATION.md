@@ -1713,12 +1713,13 @@ Após migração completa:
 
 ---
 
-**Versão:** 2.2
-**Data:** 2025-01-27
+**Versão:** 2.3
+**Data:** 2025-12-11
 **Status:** Documento mestre - atualizado conforme estado atual do projeto
 **Baseado em:** Análises reais de imports, dependências e estrutura atual do projeto
-**Última Atualização:** 
-- Fases 0-7, 11 concluídas ✅
-- Fase 8: Imports atualizados (95%), estrutura física pendente ⏳
-- Fase 9: Imports atualizados (90%), estrutura física pendente ⏳
+**Última Atualização:**
+- Fases 0-9, 11 concluídas ✅
+- Fase 8: 100% migrado fisicamente para tests/core/ ✅
+- Fase 9: 100% migrado fisicamente para scripts/core/ e scripts/revelar/ ✅
 - Fase 10: Conteúdo significativo em core/docs/ (60%), reorganização física pendente ⏳
+- Fase 12: Parcial (agents/ removido) ⏳
