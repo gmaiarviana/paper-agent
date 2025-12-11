@@ -2,8 +2,14 @@
 
 Lista organizada de testes por categoria e propósito.
 
-**Última atualização:** Dezembro 2025  
-**Status pós-migração:** ✅ 237 testes, 0 falhas
+**Última atualização:** Dezembro 2025 (Onda 3 - Consolidação)
+**Status pós-migração:** ✅ ~233 testes, 0 falhas
+
+**Mudanças recentes (Onda 3):**
+- Removidos 4 testes de estrutura Pydantic (validavam apenas biblioteca)
+- Consolidados 2 testes de CognitiveModel em 1 teste abrangente
+- Melhorados 3 testes com asserts fortalecidos
+- Arquivados 2 scripts de validação manual (substituídos por testes)
 
 ---
 
