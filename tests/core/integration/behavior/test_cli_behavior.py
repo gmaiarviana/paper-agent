@@ -21,7 +21,7 @@ PROJECT_ROOT_STR = str(PROJECT_ROOT)
 if PROJECT_ROOT_STR not in sys.path:
     sys.path.insert(0, PROJECT_ROOT_STR)
 
-from scripts.common import setup_project_path
+from scripts.core.common import setup_project_path
 
 setup_project_path()
 

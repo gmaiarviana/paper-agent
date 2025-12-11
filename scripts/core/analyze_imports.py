@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 # Diretórios principais do projeto
-MAIN_DIRS = ['agents', 'app', 'cli', 'utils', 'tests', 'scripts']
+MAIN_DIRS = ['core', 'products', 'tests', 'scripts']
 
 
 def get_python_files(root_dir: str = '.') -> List[Path]:
@@ -247,7 +247,7 @@ def generate_report(dependency_data: Dict, circular: List[Tuple[str, str]]) -> s
     report.append("| Tipo | Quantidade | Percentual |")
     report.append("|------|------------|------------|")
     report.append(f"| Relativos (`from .`) | {dependency_data['relative_count']} | {rel_percent:.1f}% |")
-    report.append(f"| Absolutos (`from agents.`) | {dependency_data['absolute_count']} | {abs_percent:.1f}% |")
+    report.append(f"| Absolutos (`from core.`, `from products.`) | {dependency_data['absolute_count']} | {abs_percent:.1f}% |")
     report.append(f"| **Total** | **{total_imports}** | **100%** |")
     report.append("")
     report.append("> ⚠️ **Nota**: Imports relativos podem quebrar após migração de estrutura de diretórios.\n")
