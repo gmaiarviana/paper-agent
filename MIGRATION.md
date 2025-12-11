@@ -34,17 +34,23 @@
 ### 📈 Progresso Recente (Última Atualização)
 
 **Imports Atualizados:**
-- ✅ **Testes:** 164 arquivos (95%) já usam `from core.` - apenas 1 arquivo pendente
-- ✅ **Scripts:** 64 arquivos (90%) já usam `from core.` - apenas 2 arquivos pendentes
+- ✅ **Testes:** 100% dos imports atualizados para `from core.` / `from products.revelar.`
+- ✅ **Scripts:** 100% dos imports atualizados para `from core.` / `from products.revelar.`
 - ✅ **Caminhos hardcoded:** Todos ajustados (config_loader, catalog, database/manager)
+
+**Migração Física:**
+- ✅ **tests/integration/smoke/:** Migrado para `tests/core/integration/smoke/` (3 arquivos + README)
+- ⏳ **tests/integration/e2e/:** Pendente
+- ⏳ **tests/integration/behavior/:** Pendente
+- ⏳ **tests/unit/:** Pendente
 
 **Documentação:**
 - ✅ **core/docs/:** Conteúdo significativo migrado (agents/, architecture/, vision/, tools/)
 - ⏳ **docs/ raiz:** Reorganização física pendente
 
 **Próximos Passos:**
-1. Completar ajuste de imports restantes (3 arquivos)
-2. Mover arquivos fisicamente para nova estrutura (testes, scripts)
+1. ✅ ~~Completar ajuste de imports restantes~~ (CONCLUÍDO - Quick win #1)
+2. Mover arquivos fisicamente para nova estrutura (testes, scripts) - Em progresso
 3. Reorganizar documentação da raiz
 
 ### ✅ Fases Concluídas (0-7, 11)
@@ -70,7 +76,7 @@
 
 - **Core:** 100% migrado ✅
 - **Produto Revelar:** 100% migrado ✅
-- **Testes:** ~95% migrado (imports atualizados, estrutura física pendente) ⏳
+- **Testes:** ~98% migrado (imports 100%, smoke/ migrado fisicamente) ⏳
 - **Scripts:** ~90% migrado (imports atualizados, estrutura física pendente) ⏳
 - **Documentação:** ~60% migrado (core/docs/ com agents/, architecture/, vision/, tools/) ⏳
 
@@ -100,12 +106,13 @@ paper-agent/
 │       └── ROADMAP.md     # ✅ Existe
 │
 └── tests/
-    ├── core/              # ⏳ Estrutura criada (vazia)
+    ├── core/              # ⏳ Estrutura criada (parcial)
     │   ├── unit/          # ⏳ Aguardando migração
-    │   └── integration/   # ⏳ Aguardando migração
+    │   └── integration/   # ⏳ Parcial (smoke/ migrado)
+    │       └── smoke/     # ✅ MIGRADO (3 arquivos + README - Quick win #2)
     ├── products/revelar/  # ⏳ Estrutura criada (vazia)
-    ├── unit/              # ⚠️ AINDA NA RAIZ
-    └── integration/       # ⚠️ AINDA NA RAIZ
+    ├── unit/              # ⚠️ AINDA NA RAIZ (43 arquivos)
+    └── integration/       # ⚠️ AINDA NA RAIZ (29 arquivos restantes: behavior/ + e2e/)
 ```
 
 ### ⚠️ Ainda na Raiz (Pendente)
@@ -116,8 +123,7 @@ paper-agent/
 ├── app/             # ⚠️ Vazio (apenas __pycache__) - pode remover após Fase 8
 ├── tests/
 │   ├── unit/        # ⚠️ 43 arquivos - mover para tests/core/unit/ (Fase 8.1) - imports já atualizados
-│   └── integration/ # ⚠️ 32 arquivos - mover para tests/core/integration/ (Fase 8.2-8.5) - imports já atualizados
-│       ├── smoke/   # ⚠️ 3 arquivos
+│   └── integration/ # ⚠️ 29 arquivos restantes - mover para tests/core/integration/ (Fase 8.3-8.5) - imports já atualizados
 │       ├── behavior/ # ⚠️ 29 arquivos (3 vão para products/revelar/)
 │       └── e2e/      # ⚠️ 2 arquivos
 ├── scripts/         # ⚠️ Não organizado - mover para scripts/core/ e scripts/revelar/ (Fase 9)
@@ -952,11 +958,13 @@ git mv tests/unit tests/core/unit
 
 ---
 
-#### Fase 8.2: Mover `tests/integration/smoke/` → `tests/core/integration/smoke/`
+#### Fase 8.2: Mover `tests/integration/smoke/` → `tests/core/integration/smoke/` ✅
+
+**Status:** Concluída (Quick win #2)
 
 **Cursor (rápido):**
-- [ ] `git mv tests/integration/smoke tests/core/integration/smoke`
-- [ ] Validar: Estrutura preservada
+- [x] `git mv tests/integration/smoke tests/core/integration/smoke`
+- [x] Validar: Estrutura preservada
 
 **Comandos:**
 ```powershell
@@ -964,8 +972,11 @@ git mv tests/integration/smoke tests/core/integration/smoke
 ```
 
 **Validação:**
-- [ ] Verificar: 3 arquivos movidos (test_methodologist_smoke.py, test_multi_agent_smoke.py, test_structurer_smoke.py)
-- [ ] Verificar: README.md movido também
+- [x] Verificar: 3 arquivos movidos (test_methodologist_smoke.py, test_multi_agent_smoke.py, test_structurer_smoke.py)
+- [x] Verificar: README.md movido também
+- [x] Pytest encontra 11 testes corretamente
+
+**Commit:** `ffed7f4` - Quick win #2
 
 **Pausa Segura:** ✅ Sim
 
@@ -1629,15 +1640,15 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [x] Commits realizados
 
 ### Fase 8: Testes ⏳
-- [x] Imports atualizados para `from core.` (164 arquivos, 95%)
-- [ ] Ajustar último import antigo (`test_observer_integration.py`)
+- [x] Imports atualizados para `from core.` (100% - Quick win #1)
+- [x] Ajustar último import antigo (`test_observer_integration.py`) ✅
+- [x] integration/smoke/ movido fisicamente (3 arquivos + README) ✅ (Quick win #2)
 - [ ] unit/ movido fisicamente (43 arquivos)
-- [ ] integration/smoke/ movido fisicamente (3 arquivos)
 - [ ] integration/behavior/ movido fisicamente (29 arquivos)
 - [ ] 3 arquivos específicos movidos para products/revelar/ (com ajuste de imports)
 - [ ] integration/e2e/ movido fisicamente (2 arquivos)
 - [ ] Todos passando
-- [ ] Commit realizado
+- [x] Commits realizados (Quick wins #1 e #2)
 
 ### Fase 9: Scripts ⏳
 - [x] Imports atualizados para `from core.` (64 arquivos, 90%)
