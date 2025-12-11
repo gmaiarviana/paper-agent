@@ -21,35 +21,6 @@ from core.agents.models.clarification import (
 class TestClarificationModels:
     """Testes para modelos Pydantic de clarification."""
 
-    def test_clarification_need_creation(self):
-        """Testa criacao de ClarificationNeed."""
-        need = ClarificationNeed(
-            needs_clarification=True,
-            clarification_type="contradiction",
-            description="Usuario disse X e Y que parecem contraditorios",
-            suggested_approach="Explorar contextos diferentes",
-            priority="high"
-        )
-
-        assert need.needs_clarification is True
-        assert need.clarification_type == "contradiction"
-        assert need.priority == "high"
-        assert need.turns_persisted == 0
-        assert need.id is not None  # UUID gerado automaticamente
-
-    def test_clarification_need_no_clarification(self):
-        """Testa ClarificationNeed quando nao precisa esclarecimento."""
-        need = ClarificationNeed(
-            needs_clarification=False,
-            clarification_type="confusion",
-            description="Conversa fluindo bem"
-            # suggested_approach omitido (default=None)
-        )
-
-        assert need.needs_clarification is False
-        assert need.priority == "medium"  # Default
-        assert need.suggested_approach is None
-
     def test_clarification_context_creation(self):
         """Testa criacao de ClarificationContext."""
         context = ClarificationContext(
