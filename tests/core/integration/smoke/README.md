@@ -18,10 +18,10 @@ Smoke tests validate basic functionality with minimal API usage. They are:
 
 ```bash
 # Run all smoke tests (requires ANTHROPIC_API_KEY)
-pytest tests/integration/smoke/ -m smoke
+pytest tests/core/integration/smoke/ -m smoke
 
 # Run specific test
-pytest tests/integration/smoke/test_structurer_smoke.py
+pytest tests/core/integration/smoke/test_structurer_smoke.py
 ```
 
 ## Requirements

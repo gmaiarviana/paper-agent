@@ -18,10 +18,10 @@ Fast tests with mocks. No API calls. Run in CI on every PR.
 
 ```bash
 # Run all unit tests
-pytest tests/unit/
+pytest tests/core/unit/
 
 # Run specific category
-pytest tests/unit/agents/
-pytest tests/unit/utils/
+pytest tests/core/unit/agents/
+pytest tests/core/unit/utils/
 ```
 

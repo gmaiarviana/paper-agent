@@ -18,10 +18,10 @@ Behavior tests validate specific system behaviors and interactions:
 
 ```bash
 # Run all behavior tests (requires ANTHROPIC_API_KEY)
-pytest tests/integration/behavior/ -m behavior
+pytest tests/core/integration/behavior/ -m behavior
 
 # Run specific test
-pytest tests/integration/behavior/test_socratic_behavior.py
+pytest tests/core/integration/behavior/test_socratic_behavior.py
 ```
 
 ## Requirements
