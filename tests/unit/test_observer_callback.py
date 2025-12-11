@@ -43,7 +43,7 @@ class TestObserverCallback:
 
     def test_callback_creates_daemon_thread(self, mock_state, mock_result):
         """Callback cria thread daemon para não bloquear shutdown."""
-        with patch("agents.multi_agent_graph.observer_process_turn") as mock_process:
+        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
             mock_process.return_value = {
                 "cognitive_model": {"claim": "teste"},
                 "metrics": {"solidez": 0.5, "completude": 0.3}
@@ -74,7 +74,7 @@ class TestObserverCallback:
 
     def test_callback_passes_correct_arguments(self, mock_state, mock_result):
         """Callback passa argumentos corretos para process_turn."""
-        with patch("agents.multi_agent_graph.observer_process_turn") as mock_process:
+        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
             mock_process.return_value = {
                 "cognitive_model": {"claim": "teste"},
                 "metrics": {"solidez": 0.5, "completude": 0.3}
@@ -107,7 +107,7 @@ class TestObserverCallback:
             "concepts_detected": ["LLM", "produtividade"]
         }
 
-        with patch("agents.multi_agent_graph.observer_process_turn") as mock_process:
+        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
             mock_process.return_value = {
                 "cognitive_model": expected_cognitive_model,
                 "metrics": {"solidez": 0.65, "completude": 0.4}
@@ -128,7 +128,7 @@ class TestObserverCallback:
 
     def test_callback_publishes_event(self, mock_state, mock_result):
         """Callback publica evento cognitive_model_updated."""
-        with patch("agents.multi_agent_graph.observer_process_turn") as mock_process:
+        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
             mock_process.return_value = {
                 "cognitive_model": {
                     "claim": "teste",
@@ -140,7 +140,7 @@ class TestObserverCallback:
                 "metrics": {"solidez": 0.5, "completude": 0.3}
             }
 
-            with patch("agents.multi_agent_graph.get_event_bus") as mock_bus:
+            with patch("core.agents.multi_agent_graph.get_event_bus") as mock_bus:
                 mock_event_bus = MagicMock()
                 mock_bus.return_value = mock_event_bus
 
@@ -165,7 +165,7 @@ class TestObserverCallback:
 
     def test_callback_silent_on_error(self, mock_state, mock_result):
         """Callback é silencioso em caso de erro (não propaga exceção)."""
-        with patch("agents.multi_agent_graph.observer_process_turn") as mock_process:
+        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
             mock_process.side_effect = Exception("Erro simulado")
 
             from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
@@ -182,7 +182,7 @@ class TestObserverCallback:
 
     def test_callback_skipped_when_observer_unavailable(self, mock_state, mock_result):
         """Callback é pulado se Observer não estiver disponível."""
-        with patch("agents.multi_agent_graph.OBSERVER_AVAILABLE", False):
+        with patch("core.agents.multi_agent_graph.OBSERVER_AVAILABLE", False):
             from core.agents.multi_agent_graph import _create_observer_callback
 
             # Não deve fazer nada (sem erro)
@@ -190,7 +190,7 @@ class TestObserverCallback:
 
     def test_callback_converts_messages_to_history(self, mock_state, mock_result):
         """Callback converte messages do LangGraph para formato do Observer."""
-        with patch("agents.multi_agent_graph.observer_process_turn") as mock_process:
+        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
             mock_process.return_value = {
                 "cognitive_model": {"claim": "teste"},
                 "metrics": {"solidez": 0.5, "completude": 0.3}
@@ -222,8 +222,8 @@ class TestInstrumentNodeObserverIntegration:
 
     def test_instrument_node_triggers_observer_for_orchestrator(self):
         """instrument_node dispara Observer apenas para orchestrator."""
-        with patch("agents.multi_agent_graph._create_observer_callback") as mock_callback:
-            with patch("agents.multi_agent_graph.OBSERVER_AVAILABLE", True):
+        with patch("core.agents.multi_agent_graph._create_observer_callback") as mock_callback:
+            with patch("core.agents.multi_agent_graph.OBSERVER_AVAILABLE", True):
                 from core.agents.multi_agent_graph import instrument_node
 
                 # Criar mock do nó
@@ -239,8 +239,8 @@ class TestInstrumentNodeObserverIntegration:
 
     def test_instrument_node_does_not_trigger_observer_for_other_agents(self):
         """instrument_node não dispara Observer para outros agentes."""
-        with patch("agents.multi_agent_graph._create_observer_callback") as mock_callback:
-            with patch("agents.multi_agent_graph.OBSERVER_AVAILABLE", True):
+        with patch("core.agents.multi_agent_graph._create_observer_callback") as mock_callback:
+            with patch("core.agents.multi_agent_graph.OBSERVER_AVAILABLE", True):
                 from core.agents.multi_agent_graph import instrument_node
 
                 # Criar mock do nó
