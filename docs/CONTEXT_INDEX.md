@@ -14,9 +14,9 @@
 - `README.md` - Setup básico e interfaces
 
 ### Visão (Crítico - Onde Queremos Chegar)
-- `docs/vision/vision.md` - Visão de produto, jornada do usuário, tipos de artigo
-- `docs/vision/cognitive_model/` - Como pensamento evolui (claim → fundamentos)
-- `docs/vision/conversation_patterns.md` - Padrões de conversação esperados
+- `products/produtor-cientifico/docs/vision.md` - Visão de produto, jornada do usuário, tipos de artigo
+- `core/docs/vision/cognitive_model/` - Como pensamento evolui (claim → fundamentos)
+- `core/docs/vision/conversation_mechanics.md` - Padrões de conversação esperados
 
 **Total obrigatório:** ~2.000 linhas (~8.000 tokens)
 
@@ -288,7 +288,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 ### ✅ NÃO SÃO GAPS (Documentados)
 - ✅ `agents/structurer/` - Documentado em `refinement_loop.md`
-- ✅ `agents/models/cognitive_model.py` - Documentado em `docs/vision/cognitive_model/` e `argument_model.md`
+- ✅ `agents/models/cognitive_model.py` - Documentado em `core/docs/vision/cognitive_model/` e `argument_model.md`
 - ✅ `agents/persistence/snapshot_manager.py` - Documentado em `snapshot_strategy.md`
 - ✅ `agents/checklist/progress_tracker.py` - Documentado em `web/components.md` (seção 3.6)
 - ✅ `app/pages/` - Documentado em `web/components.md` e `navigation_philosophy.md`

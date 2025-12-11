@@ -163,13 +163,34 @@ python -m core.tools.cli.chat --verbose
 
 Documentação
 ------------
-- **Status de desenvolvimento**: `ROADMAP.md`
-- **Estrutura técnica**: `ARCHITECTURE.md`
-- **Especificações detalhadas**: `docs/`
-  - Agentes: `docs/agents/`
-  - Interface: `docs/interface/`
-  - Orquestração: `docs/orchestration/`
-  - Processo: `docs/process/`
+
+### Estrutura Geral
+
+- **Raiz**: Processo e visão geral
+  - `ROADMAP.md` - Visão geral e índice de épicos
+  - `CONSTITUTION.md` - Princípios e processo de trabalho
+  - `ARCHITECTURE.md` - Decisões arquiteturais
+
+- **Core**: Sistema universal
+  - `core/README.md` - Visão geral do core
+  - `core/ROADMAP.md` - Épicos do core
+  - `core/docs/vision/` - Filosofia e princípios
+  - `core/docs/architecture/` - Estrutura técnica
+  - `core/docs/agents/` - Especificações dos agentes
+
+- **Produtos**: Aplicações específicas
+  - `products/revelar/` - Chat para clareza de pensamento
+  - `products/prisma-verbal/` - Extração de conceitos de textos
+  - `products/produtor-cientifico/` - Manuscritos acadêmicos
+
+### Documentos Essenciais (Core)
+
+- **Filosofia**: `core/docs/vision/system_philosophy.md`
+- **Epistemologia**: `core/docs/vision/epistemology.md`
+- **Modelo Cognitivo**: `core/docs/vision/cognitive_model/`
+- **Conversação**: `core/docs/vision/conversation_mechanics.md`
+- **Ontologia**: `core/docs/architecture/ontology.md`
+- **Super-Sistema**: `core/docs/architecture/super_system_vision.md`
 
 ### Para AI Agents (Claude, Cursor, Claude Code)
 

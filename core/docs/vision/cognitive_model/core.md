@@ -279,11 +279,11 @@ Uma **Ideia** pode ter múltiplos **Argumentos** (diferentes lentes do mesmo ter
 
 ## Referências
 
-- `docs/vision/cognitive_model/evolution.md` - Processo de evolução do pensamento
-- `docs/vision/cognitive_model/examples.md` - Exemplos práticos de evolução
-- `docs/vision/epistemology.md` - Base filosófica (proposições, solidez, evidências)
+- `core/docs/vision/cognitive_model/evolution.md` - Processo de evolução do pensamento
+- `core/docs/vision/cognitive_model/examples.md` - Exemplos práticos de evolução
+- `core/docs/vision/epistemology.md` - Base filosófica (proposições, solidez, evidências)
 - `docs/architecture/ontology.md` - Ontologia: Conceito, Ideia, Argumento, Proposição, Evidência
 - `docs/architecture/argument_model.md` - Estrutura técnica de Argument
 - `docs/architecture/idea_model.md` - Como Ideia possui Argumentos
-- `docs/vision/vision.md` (Seção 4) - Entidade Ideia
+- `products/revelar/docs/vision.md` (Seção 4) - Entidade Ideia
 

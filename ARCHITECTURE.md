@@ -165,7 +165,7 @@ MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento fo
 
 Sistema captura evolução do pensamento do usuário através de modelo cognitivo explícito com campos: `claim`, `premises`, `assumptions`, `open_questions`, `contradictions`, `solid_grounds`, `context`.
 
-**Detalhes completos:** Ver `docs/vision/cognitive_model/`
+**Detalhes completos:** Ver `core/docs/vision/cognitive_model/`
 
 **Responsabilidades:**
 - Orquestrador: detecta suposições, extrai claim, atualiza contexto
@@ -507,7 +507,7 @@ paper-agent/
     ├── vision/            # Visão de produto
     │   ├── vision.md
     │   ├── cognitive_model/
-    │   ├── conversation_patterns.md
+    │   ├── conversation_mechanics.md
     │   └── agent_personas.md
     ├── products/          # Produtos específicos (paper-agent, fichamento)
     └── process/           # Desenvolvimento, testes
@@ -570,8 +570,8 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 - `docs/architecture/snapshot_strategy.md` - Estratégia de persistência de snapshots
 
 **Visão de Produto:**
-- `docs/vision/vision.md` - Visão de produto, tipos de artigo
-- `docs/vision/cognitive_model/` - Modelo cognitivo e evolução
+- `products/produtor-cientifico/docs/vision.md` - Visão de produto, tipos de artigo
+- `core/docs/vision/cognitive_model/` - Modelo cognitivo e evolução
 
 **Orquestração:**
 - `docs/orchestration/multi_agent_architecture/` - Arquitetura multi-agente

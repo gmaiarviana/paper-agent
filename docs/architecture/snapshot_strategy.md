@@ -260,10 +260,10 @@ for concept in concepts:
 
 - `agents/persistence/snapshot_manager.py` - Implementação técnica do SnapshotManager
 - `docs/architecture/persistence_foundation.md` - Fundação de persistência (SQLite, schema)
-- `docs/vision/cognitive_model/core.md` - Conceitos fundamentais do modelo cognitivo
-- `docs/vision/cognitive_model/evolution.md` - Evolução do pensamento e snapshots
+- `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais do modelo cognitivo
+- `core/docs/vision/cognitive_model/evolution.md` - Evolução do pensamento e snapshots
 - `docs/architecture/argument_model.md` - Schema técnico de Argument
 - `docs/architecture/idea_model.md` - Schema de Idea (possui Arguments)
-- `docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
+- `core/docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
 - `ROADMAP.md` - Épico 13 (Conceitos), Épico 15 (Integração de snapshots)
 

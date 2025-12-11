@@ -909,7 +909,7 @@ if need.needs_clarification:
 - `docs/architecture/observer_architecture.md` - Arquitetura técnica
 - `docs/architecture/ontology.md` - CognitiveModel e MemoryLayer
 - `docs/architecture/concept_model.md` - Schema de Concept
-- `docs/vision/cognitive_model/core.md` - Fundamentos epistemológicos
+- `core/docs/vision/cognitive_model/core.md` - Fundamentos epistemológicos
 - `docs/agents/memory_agent.md` - Consultado via Orquestrador quando necessário
 - `docs/agents/orchestrator.md` - Recebe sinalizações do Observador
 - `ROADMAP.md` - Épicos 10, 12, 13

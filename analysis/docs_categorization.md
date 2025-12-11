@@ -112,7 +112,7 @@
 - `epistemology.md` - Epistemologia do sistema
 - `agent_personas.md` - Personas dos agentes
 - `cognitive_model/` - Modelo cognitivo genérico
-- `conversation_patterns.md` - Padrões de conversação
+- `conversation_mechanics.md` - Padrões de conversação
 
 ---
 

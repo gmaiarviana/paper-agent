@@ -4,7 +4,7 @@
 
 Este documento é o **Single Source of Truth (SSoT)** que define a ontologia do super-sistema. Ele estabelece o que são Conceito, Ideia, Argumento, Proposição e Evidência do ponto de vista filosófico, e como essas entidades se relacionam entre si.
 
-A ontologia reflete uma filosofia epistemológica onde não existe distinção binária entre "fato" e "suposição", mas sim proposições com diferentes graus de solidez baseados em evidências. Para entender a base filosófica completa, consulte `docs/vision/epistemology.md`.
+A ontologia reflete uma filosofia epistemológica onde não existe distinção binária entre "fato" e "suposição", mas sim proposições com diferentes graus de solidez baseados em evidências. Para entender a base filosófica completa, consulte `core/docs/vision/epistemology.md`.
 
 Outros documentos de arquitetura referenciam este documento como base para entender as entidades fundamentais do sistema.
 
@@ -754,12 +754,12 @@ Quando uma proposição é identificada como frágil:
 
 ## Referências
 
-- `docs/vision/epistemology.md` - Fundamento filosófico da ontologia (proposições, solidez, evidências)
+- `core/docs/vision/epistemology.md` - Fundamento filosófico da ontologia (proposições, solidez, evidências)
 - `docs/architecture/concept_model.md` - Schema detalhado de Concept
 - `docs/architecture/idea_model.md` - Estrutura de dados técnica de Ideia
 - `docs/architecture/argument_model.md` - Estrutura de dados técnica de Argumento
-- `docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, solidez)
-- `docs/vision/cognitive_model/evolution.md` - Como pensamento evolui e solidez é calculada
+- `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, solidez)
+- `core/docs/vision/cognitive_model/evolution.md` - Como pensamento evolui e solidez é calculada
 - `docs/agents/observer.md` - Documentação completa do Observador
 - `ROADMAP.md` - Épicos 10, 12, 13 (Observador e Conceitos)
 

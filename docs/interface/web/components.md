@@ -215,7 +215,7 @@
 **Futuro (Épico 18):**
 - Agentes customizáveis como personas (Sócrates, Aristóteles, Popper)
 - Botão "Customizar persona" ao lado de cada agente
-- Ver: `docs/vision/agent_personas.md`
+- Ver: `products/produtor-cientifico/docs/vision/agent_personas.md`
 
 **F) Contexto (Painel Direito - Acima)**
 

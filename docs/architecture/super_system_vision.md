@@ -269,6 +269,6 @@ POST   /memory/compact     # Compactar memórias antigas (admin)
 - `docs/architecture/ontology.md` - Ontologia base (Core)
 - `docs/products/paper_agent.md` - Produto específico
 - `docs/products/fichamento.md` - Produto específico
-- `docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
+- `core/docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
 - `ROADMAP.md` - Épicos 11+ (migração)
 

@@ -140,7 +140,7 @@ Permitir customização de agentes como "personas" (Sócrates, Aristóteles, Pop
 - Estilos de argumentação personalizados por persona
 - Treinar personas com feedback do usuário
 
-**Contexto:** Funcionalidade planejada originalmente como Épico 18, movida para Backlog por não ser essencial para MVP. Ver `docs/vision/agent_personas.md`.
+**Contexto:** Funcionalidade planejada originalmente como Épico 18, movida para Backlog por não ser essencial para MVP. Ver `products/produtor-cientifico/docs/vision/agent_personas.md`.
 
 ---
 

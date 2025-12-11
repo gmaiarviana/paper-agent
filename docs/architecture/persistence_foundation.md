@@ -65,5 +65,5 @@ Quando escalar para produção:
 ## Referências
 - `docs/architecture/idea_model.md` - Schema de Idea
 - `docs/architecture/argument_model.md` - Schema de Argument
-- `docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
+- `core/docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)
 

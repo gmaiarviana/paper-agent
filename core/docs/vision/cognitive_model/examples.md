@@ -1,7 +1,7 @@
 # Modelo Cognitivo - Exemplos Práticos
 
-> **Nota:** Para conceitos fundamentais, consulte `docs/vision/cognitive_model/core.md`.  
-> Para processo de evolução, consulte `docs/vision/cognitive_model/evolution.md`.
+> **Nota:** Para conceitos fundamentais, consulte `core/docs/vision/cognitive_model/core.md`.  
+> Para processo de evolução, consulte `core/docs/vision/cognitive_model/evolution.md`.
 
 Este documento apresenta um exemplo completo e detalhado de como o modelo cognitivo evolui durante uma conversa real.
 
@@ -280,7 +280,7 @@ context: {
 
 ## Referências
 
-- `docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, responsabilidades)
-- `docs/vision/cognitive_model/evolution.md` - Processo de evolução do pensamento
-- `docs/vision/epistemology.md` - Base filosófica (proposições, solidez, evidências)
+- `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, responsabilidades)
+- `core/docs/vision/cognitive_model/evolution.md` - Processo de evolução do pensamento
+- `core/docs/vision/epistemology.md` - Base filosófica (proposições, solidez, evidências)
 

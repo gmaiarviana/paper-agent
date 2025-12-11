@@ -1,6 +1,6 @@
 # Modelo Cognitivo - Evolução do Pensamento
 
-> **Nota:** Para conceitos fundamentais (artefatos, responsabilidades), consulte `docs/vision/cognitive_model/core.md`.
+> **Nota:** Para conceitos fundamentais (artefatos, responsabilidades), consulte `core/docs/vision/cognitive_model/core.md`.
 
 Este documento descreve **como** o modelo cognitivo evolui durante a conversa, incluindo processos de provocação, estruturação, detecção de contradições e persistência.
 
@@ -443,8 +443,8 @@ Esta integração permite que conceitos sejam detectados e organizados automatic
 
 ## Referências
 
-- `docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, responsabilidades)
-- `docs/vision/cognitive_model/examples.md` - Exemplos práticos de evolução
+- `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, responsabilidades)
+- `core/docs/vision/cognitive_model/examples.md` - Exemplos práticos de evolução
 - `docs/architecture/snapshot_strategy.md` - Implementação técnica de snapshots
-- `docs/vision/epistemology.md` - Base filosófica (proposições, solidez, evidências)
+- `core/docs/vision/epistemology.md` - Base filosófica (proposições, solidez, evidências)
 

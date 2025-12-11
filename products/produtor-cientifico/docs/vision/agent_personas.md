@@ -1,7 +1,10 @@
-# Agent Personas - Visão Futura
+# Agent Personas - Produtor Científico
 
 > **Status:** Épico 18 (Planejado - Não Refinado)
+> **Produto:** Produtor Científico
 > **Dependências:** Épicos 11-16 concluídos, agentes visíveis na interface
+
+> **Nota:** Este documento é específico do produto Produtor Científico. Para mecânica universal de agentes, consulte `core/docs/agents/`.
 
 ## Conceito
 
@@ -168,7 +171,7 @@ Orquestrador:
 
 ## Referências
 
-- `docs/vision/vision.md` - Visão de produto
-- `docs/vision/cognitive_model/` - Modelo cognitivo
+- `products/produtor-cientifico/docs/vision.md` - Visão de produto
+- `core/docs/vision/cognitive_model/` - Modelo cognitivo
 - `docs/agents/` - Especificações técnicas de cada agente
 

@@ -507,7 +507,7 @@ def load_session(thread_id):
 
 ## 9. Referências
 
-- `docs/vision/epistemology.md` - Por que mostramos solidez, não verdade/falsidade
+- `core/docs/vision/epistemology.md` - Por que mostramos solidez, não verdade/falsidade
 - `docs/interface/navigation_philosophy.md` - Filosofia de navegação
 
 ---

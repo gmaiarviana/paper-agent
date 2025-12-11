@@ -314,7 +314,7 @@ logger.debug(f"Focal argument: {json.dumps(focal_argument, indent=2, ensure_asci
 
 ## 🔗 Referências
 
-- Visão do produto: `docs/vision/vision.md`
+- Visão do produto: `products/revelar/docs/vision.md`
 - Cost tracker: `utils/cost_tracker.py`
 - Orquestrador: `agents/orchestrator/nodes.py`
 - Configurações: `config/agents/*.yaml`

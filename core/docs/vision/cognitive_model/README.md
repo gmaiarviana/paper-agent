@@ -13,8 +13,8 @@ Documentação sobre como o pensamento do usuário evolui ao longo da conversa.
 Este conjunto de documentos complementa `vision.md`, focando em **COMO** o pensamento do usuário evolui ao longo da conversa. Enquanto `vision.md` descreve o que o sistema faz e para quem, estes documentos exploram a evolução dos artefatos cognitivos que representam o entendimento progressivo do argumento científico.
 
 **Relacionamento com outros documentos:**
-- `docs/vision/vision.md`: O que é, para quem, jornada do usuário, tipos de artigo
+- `products/produtor-cientifico/docs/vision.md`: O que é, para quem, jornada do usuário, tipos de artigo
 - `docs/architecture/argument_model.md`: Estrutura técnica (como Argumento é persistido)
 - `docs/architecture/ontology.md`: Definições filosóficas (o que é Argumento)
-- `docs/vision/epistemology.md`: Base filosófica (proposições, solidez, evidências)
+- `core/docs/vision/epistemology.md`: Base filosófica (proposições, solidez, evidências)
 
