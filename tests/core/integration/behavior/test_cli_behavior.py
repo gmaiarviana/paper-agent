@@ -162,8 +162,8 @@ def validate_cli_flow():
     print("=" * 70)
     print("\n📝 Próximos passos:")
     print("   1. Para testar interativamente: python -m core.tools.cli.chat")
-    print("   2. Para executar testes unitários: python -m pytest tests/unit/ -v")
-    print("   3. Para executar testes de integração: python -m pytest tests/integration/ -v")
+    print("   2. Para executar testes unitários: python -m pytest tests/core/unit/ -v")
+    print("   3. Para executar testes de integração: python -m pytest tests/core/integration/ -v")
     print()
 
     return True

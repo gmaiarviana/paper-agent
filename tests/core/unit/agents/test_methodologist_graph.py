@@ -126,7 +126,7 @@ Para testar a execução completa com chamadas à API real:
 1. Garanta que ANTHROPIC_API_KEY está configurada no .env
 2. Execute o teste de integração (Funcionalidade 2.8):
 
-   python -m pytest tests/integration/test_methodologist_smoke.py -v
+   python -m pytest tests/core/integration/smoke/test_methodologist_smoke.py -v
 
 3. Ou teste manualmente via CLI (Funcionalidade 2.7):
 

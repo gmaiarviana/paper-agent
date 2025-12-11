@@ -18,10 +18,10 @@ End-to-end tests validate complete user scenarios:
 
 ```bash
 # Run all E2E tests (requires ANTHROPIC_API_KEY)
-pytest tests/integration/e2e/ -m e2e
+pytest tests/core/integration/e2e/ -m e2e
 
 # Run specific test
-pytest tests/integration/e2e/test_multi_turn_flows.py
+pytest tests/core/integration/e2e/test_multi_turn_flows.py
 ```
 
 ## Requirements
