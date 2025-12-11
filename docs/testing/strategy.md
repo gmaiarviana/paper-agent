@@ -100,6 +100,28 @@ python scripts/health_checks/validate_api.py
 
 ---
 
+## 🎯 Critérios para Criar Testes
+
+**Checklist obrigatório ANTES de criar qualquer teste:**
+
+### ✅ Criar se:
+1. **Valida lógica própria** (não biblioteca externa: Pydantic, YAML, etc.)
+2. **Cobre edge cases reais** (não apenas happy path)
+3. **Asserts substanciais** (valida conteúdo/comportamento, não apenas `is not None`)
+4. **Mocks realistas** (simulam variações, não retornam exatamente o esperado)
+5. **Justificativa clara** (posso explicar por que este teste é necessário)
+
+### ❌ NÃO criar se:
+- Testa apenas que Pydantic/YAML/biblioteca funciona
+- Mock retorna exatamente o que teste espera (sempre passa)
+- Assert apenas verifica presença (`is not None`, `== True`)
+- Teste nunca falhou (questionar utilidade)
+- É cópia de outro teste com pequenas variações
+
+**Ver `docs/testing/test_creation_checklist.md` para checklist detalhado.**
+
+---
+
 ## Mocks vs API Real: Quando Usar?
 
 | Critério | Use Mocks | Use API Real |
@@ -216,23 +238,26 @@ def mock_consult_observer():
 
 ### ✅ DO
 - Testes unitários rápidos (< 100ms cada)
-- Nomes descritivos (`test_calculate_cost_with_zero_tokens`)
-- Um assert por conceito
+- Nomes descritivos que explicam o que está sendo testado
+- Um conceito por teste (não testar 5 coisas em 1 teste)
 - Fixtures para setup repetitivo
-- Mocks para dependências externas
-- **Teste lógica própria, não bibliotecas**
-- **Teste comportamento, não apenas estrutura**
-- **Valide qualidade quando relevante (LLM-as-Judge)**
+- Mocks realistas que simulam variações reais
+- Asserts substanciais que validam comportamento
+- Edge cases que cobrem limites e erros
+- Teste lógica própria, não bibliotecas externas
+- Docstrings explicando por que teste existe (se não óbvio)
 
 ### ❌ DON'T
 - Testes que dependem de ordem de execução
 - Testes que modificam estado global
 - Testes lentos em unit tests (> 1s)
-- Hard-coding de valores mágicos
-- Testes que sempre passam
-- **Testar bibliotecas externas (Pydantic, YAML, etc.)**
-- **Mocks que retornam exatamente o esperado**
-- **Asserts que verificam apenas presença (`is not None`)**
+- Hard-coding de valores mágicos sem explicação
+- Testes que sempre passam (mocks superficiais)
+- Testar bibliotecas externas (Pydantic, YAML, etc.)
+- Mocks que retornam exatamente o esperado
+- Asserts fracos (is not None, == True)
+- Testes sem propósito claro (criados "por obrigação")
+- Testes que nunca falharam (questione utilidade)
 
 ---
 

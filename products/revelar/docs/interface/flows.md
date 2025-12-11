@@ -136,7 +136,7 @@ def main():
 **Arquivo: `products/revelar/app/components/chat_input.py`**
 ```python
 import streamlit as st
-from agents.multi_agent_graph import create_multi_agent_graph
+from core.agents.multi_agent_graph import create_multi_agent_graph
 
 def render_chat_input(session_id: str):
     # Usar st.chat_input (componente nativo Streamlit)
@@ -212,8 +212,8 @@ def render_backstage(session_id: str):
 ```python
 import streamlit as st
 from datetime import datetime
-from agents.multi_agent_graph import get_ideas, create_idea, get_idea
-from agents.database.manager import get_argument
+from core.agents.multi_agent_graph import get_ideas, create_idea, get_idea
+from core.agents.database.manager import get_argument
 
 def render_sidebar():
     """
@@ -305,7 +305,7 @@ def show_argument_modal(argument):
 ```python
 import streamlit as st
 import time
-from utils.event_bus import get_event_bus
+from core.utils.event_bus import get_event_bus
 
 def render_backstage_polling(session_id: str):
     """
@@ -356,7 +356,7 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 import asyncio
 import json
-from utils.event_bus import get_event_bus
+from core.utils.event_bus import get_event_bus
 
 app = FastAPI()
 

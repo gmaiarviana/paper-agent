@@ -249,12 +249,10 @@ class TestStateHasObserverFields:
 
     def test_state_has_clarity_evaluation_field(self):
         """Valida que MultiAgentState tem campo clarity_evaluation."""
-        import os
-        # Usar caminho relativo ao projeto
-        state_path = os.path.join(
-            os.path.dirname(__file__),
-            '..', '..', 'core', 'agents', 'orchestrator', 'state.py'
-        )
+        from pathlib import Path
+        # Caminho correto: tests/core/unit/agents/observer -> core/agents/orchestrator/state.py
+        project_root = Path(__file__).parent.parent.parent.parent.parent.parent
+        state_path = project_root / 'core' / 'agents' / 'orchestrator' / 'state.py'
 
         with open(state_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -264,11 +262,10 @@ class TestStateHasObserverFields:
 
     def test_state_has_variation_analysis_field(self):
         """Valida que MultiAgentState tem campo variation_analysis."""
-        import os
-        state_path = os.path.join(
-            os.path.dirname(__file__),
-            '..', '..', 'core', 'agents', 'orchestrator', 'state.py'
-        )
+        from pathlib import Path
+        # Caminho correto: tests/core/unit/agents/observer -> core/agents/orchestrator/state.py
+        project_root = Path(__file__).parent.parent.parent.parent.parent.parent
+        state_path = project_root / 'core' / 'agents' / 'orchestrator' / 'state.py'
 
         with open(state_path, 'r', encoding='utf-8') as f:
             content = f.read()

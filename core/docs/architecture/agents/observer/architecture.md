@@ -168,13 +168,13 @@ class ObserverState(TypedDict):
 
 ```python
 from langchain_anthropic import ChatAnthropic
-from agents.observer.state import ObserverState
-from agents.observer.extractors import (
+from core.agents.observer.state import ObserverState
+from core.agents.observer.extractors import (
     extract_claims,
     extract_concepts,
     detect_contradictions
 )
-from agents.observer.metrics import (
+from core.agents.observer.metrics import (
     calculate_solidez,
     calculate_completude
 )
@@ -257,7 +257,7 @@ def process_turn(state: ObserverState) -> dict:
 
 ```python
 from langchain_anthropic import ChatAnthropic
-from agents.observer.prompts import (
+from core.agents.observer.prompts import (
     EXTRACT_CLAIMS_PROMPT,
     EXTRACT_CONCEPTS_PROMPT,
     DETECT_CONTRADICTIONS_PROMPT

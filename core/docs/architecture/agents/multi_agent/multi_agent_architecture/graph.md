@@ -19,11 +19,11 @@ orchestrator (entry point)
 ```python
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
-from agents.orchestrator.state import MultiAgentState
-from agents.orchestrator.nodes import orchestrator_node
-from agents.orchestrator.router import route_from_orchestrator
-from agents.structurer.nodes import structurer_node
-from agents.methodologist.nodes import decide_collaborative
+from core.agents.orchestrator.state import MultiAgentState
+from core.agents.orchestrator.nodes import orchestrator_node
+from core.agents.orchestrator.router import route_from_orchestrator
+from core.agents.structurer.nodes import structurer_node
+from core.agents.methodologist.nodes import decide_collaborative
 
 def create_multi_agent_graph():
     """Cria super-grafo com múltiplos agentes."""
