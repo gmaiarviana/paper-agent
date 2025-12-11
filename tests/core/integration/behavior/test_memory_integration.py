@@ -73,9 +73,24 @@ def validate_memory_integration():
     structurer_output = result.get('structurer_output')
     methodologist_output = result.get('methodologist_output')
 
+    # Orchestrator validation
     assert orchestrator_classification is not None, "Orquestrador não classificou"
+    assert isinstance(orchestrator_classification, dict), "orchestrator output deve ser dict"
+    assert any(key in orchestrator_classification for key in ["status", "next_step", "orchestrator_analysis"]), \
+        "orchestrator output deve ter pelo menos uma chave esperada (status, next_step, orchestrator_analysis)"
+    
+    # Structurer validation
     assert structurer_output is not None, "Estruturador não processou"
+    assert isinstance(structurer_output, dict), "structurer output deve ser dict"
+    assert any(key in structurer_output for key in ["structured_question", "version", "structurer_output", "elements"]), \
+        "structurer output deve ter pelo menos uma chave esperada (structured_question, version, structurer_output, elements)"
+    
+    # Methodologist validation
     assert methodologist_output is not None, "Metodologista não decidiu"
+    assert isinstance(methodologist_output, dict), "methodologist output deve ser dict"
+    assert "status" in methodologist_output, "methodologist deve ter campo 'status'"
+    assert methodologist_output["status"] in ["approved", "needs_refinement", "rejected"], \
+        f"methodologist status deve ser válido, recebido: {methodologist_output.get('status')}"
 
     print(f"   ✅ Orquestrador: {orchestrator_classification}")
     print(f"   ✅ Estruturador: questão V{structurer_output.get('version', 1)} gerada")
