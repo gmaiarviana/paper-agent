@@ -11,6 +11,7 @@ Testa:
 """
 
 import pytest
+from pydantic import ValidationError
 from core.agents.models.cognitive_model import CognitiveModel, Contradiction, SolidGround
 from core.agents.models.proposition import Proposicao
 
@@ -21,32 +22,66 @@ from core.agents.models.proposition import Proposicao
 class TestCognitiveModelCreation:
     """Testes de criação e validação do CognitiveModel."""
 
-    def test_create_empty_model(self):
-        """Modelo vazio é válido."""
-        model = CognitiveModel()
-        assert model.claim == ""
-        assert model.proposicoes == []
-        assert model.open_questions == []
-        assert model.contradictions == []
-        assert model.solid_grounds == []
-        assert model.context == {}
-
-    def test_create_full_model(self):
-        """Modelo completo é criado corretamente."""
-        model = CognitiveModel(
-            claim="LLMs aumentam produtividade em 30%",
-            proposicoes=[
-                Proposicao(texto="Equipes usam LLMs", solidez=0.9),
-                Proposicao(texto="Produtividade é mensurável", solidez=0.5),
-            ],
-            open_questions=["Como medir qualidade?"],
+    def test_cognitive_model_creation_and_validation(self):
+        """
+        Testa criação de CognitiveModel (vazio e completo) e validações customizadas.
+        
+        Consolidates:
+        - test_create_empty_model: Valida defaults
+        - test_create_full_model: Valida criação completa
+        - Adds: Testa validação de contradictions (confidence >= 0.80)
+        """
+        # Test 1: Empty model (defaults)
+        empty_model = CognitiveModel()
+        assert empty_model.claim == ""
+        assert empty_model.proposicoes == []
+        assert empty_model.contradictions == []
+        assert empty_model.open_questions == []
+        assert empty_model.solid_grounds == []
+        assert empty_model.context == {}
+        
+        # Test 2: Full model (all fields)
+        prop1 = Proposicao(texto="Proposição 1", solidez=0.8)
+        prop2 = Proposicao(texto="Proposição 2", solidez=0.6)
+        
+        full_model = CognitiveModel(
+            claim="Claim principal",
+            proposicoes=[prop1, prop2],
+            open_questions=["Questão 1", "Questão 2"],
             contradictions=[],
             solid_grounds=[],
             context={"domain": "software"}
         )
-        assert model.claim == "LLMs aumentam produtividade em 30%"
-        assert len(model.proposicoes) == 2
-        assert model.proposicoes[0].solidez == 0.9
+        assert full_model.claim == "Claim principal"
+        assert len(full_model.proposicoes) == 2
+        assert full_model.proposicoes[0].texto == "Proposição 1"
+        assert len(full_model.open_questions) == 2
+        
+        # Test 3: Contradiction validation (custom @field_validator)
+        # Valid contradiction (confidence >= 0.80)
+        valid_contradiction = Contradiction(
+            description="Tensão entre Claim A e Claim B",
+            confidence=0.85,
+        )
+        model_with_valid_contradiction = CognitiveModel(
+            claim="Test",
+            contradictions=[valid_contradiction]
+        )
+        assert len(model_with_valid_contradiction.contradictions) == 1
+        
+        # Invalid contradiction (confidence < 0.80) should raise ValidationError
+        with pytest.raises(ValidationError) as exc_info:
+            invalid_contradiction = Contradiction(
+                description="Contradição fraca",
+                confidence=0.75,  # Below threshold
+            )
+            CognitiveModel(
+                claim="Test",
+                contradictions=[invalid_contradiction]
+            )
+        
+        # Verify error message mentions confidence threshold
+        assert "confidence" in str(exc_info.value).lower() or "0.80" in str(exc_info.value)
 
     def test_create_model_with_proposicoes_from_dict(self):
         """Modelo pode ser criado com proposicoes em formato dict."""
