@@ -147,8 +147,8 @@
 
 **Ações:**
 - `paper_agent.md` → `docs/products/revelar/paper_agent.md` (ou renomear para `revelar.md`)
-- `fichamento.md` → `docs/products/revelar/fichamento.md` (se for específico do Revelar)
-- `examples/sapiens_processing.md` → `docs/products/revelar/examples/sapiens_processing.md`
+- `fichamento.md` → `products/prisma-verbal/docs/vision.md` (movido para prisma-verbal)
+- `examples/sapiens_processing.md` → `docs/core/examples/text_processing.md`
 
 ---
 

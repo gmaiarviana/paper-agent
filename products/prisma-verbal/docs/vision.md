@@ -2,7 +2,7 @@
 
 > **Nota:** Este documento descreve o produto fichamento especificamente.
 > Para core universal, consulte `core/docs/architecture/vision/super_system.md`.
-> Para como sistema processa texto (exemplo Sapiens), consulte `docs/products/examples/sapiens_processing.md`.
+> Para como sistema processa texto (exemplo Sapiens), consulte `docs/core/examples/text_processing.md`.
 
 ## Visão Geral
 
@@ -270,5 +270,5 @@ Sistema: [busca via core - grafo de conhecimento]
 - `core/docs/architecture/vision/super_system.md` - Core → Produtos
 - `core/docs/architecture/data-models/idea_model.md` - Ideias extraídas de livros
 - `core/docs/architecture/data-models/concept_model.md` - Conceitos detectados em livros
-- `docs/products/examples/sapiens_processing.md` - Exemplo concreto de processamento
+- `docs/core/examples/text_processing.md` - Exemplo concreto de processamento
 

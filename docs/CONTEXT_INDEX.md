@@ -110,9 +110,9 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `app/pages/` - Páginas dedicadas (pensamentos, ideia_detalhes)
 
 **Documentação:**
-- `docs/interface/web/` - Especificação completa da interface web (overview.md, components.md, flows.md)
+- `docs/products/revelar/interface/` - Especificação completa da interface web (overview.md, components.md, flows.md)
   - Seção 3.6: Painel Progress (Checklist) - documenta `progress_tracker.py`
-- `docs/interface/navigation_philosophy.md` - Filosofia de navegação (3 espaços)
+- `docs/products/revelar/interface/navigation_philosophy.md` - Filosofia de navegação (3 espaços)
 
 **Solicitar quando:**
 - Implementar features de interface
@@ -130,8 +130,8 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `core/tools/cli/chat.py` - CLI conversacional
 
 **Documentação:**
-- `docs/interface/cli.md` - CLI básico
-- `docs/interface/conversational_cli.md` - CLI conversacional
+- `docs/core/tools/cli.md` - CLI básico
+- `docs/core/tools/conversational_cli.md` - CLI conversacional
 
 **Solicitar quando:**
 - Entender CLI
@@ -255,7 +255,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 **Documentação:**
 - `docs/products/paper_agent.md` - Paper-agent (produto atual)
-- `docs/products/fichamento.md` - Fichamento (produto futuro)
+- `products/prisma-verbal/docs/vision.md` - Fichamento (produto futuro)
 
 **Solicitar quando:**
 - Refinar funcionalidades específicas de produto
@@ -266,7 +266,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Exemplos
 
 **Documentação:**
-- `docs/products/examples/sapiens_processing.md` - Exemplo de processamento (produto Fichamento)
+- `docs/core/examples/text_processing.md` - Exemplo de processamento (produto Fichamento)
 
 **Solicitar quando:**
 - Entender casos de uso práticos

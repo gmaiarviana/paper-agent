@@ -56,7 +56,7 @@ Sistema gerencia ideias cristalizadas durante conversas com navegação em três
 
 **Persistência Silenciosa:** Sistema avalia a cada mensagem se deve criar/atualizar snapshot do argumento. Para estratégia detalhada, ver `core/docs/architecture/patterns/snapshots.md`.
 
-Ver: `docs/interface/navigation_philosophy.md` para filosofia completa.
+Ver: `docs/products/revelar/interface/navigation_philosophy.md` para filosofia completa.
 
 ## Super-Sistema: Core → Produtos
 
@@ -533,12 +533,12 @@ Agente responsável por organizar ideias vagas e refinar questões de pesquisa b
 ### Interface Web (`app/`)
 Interface web conversacional (Streamlit) como experiência principal do sistema. Chat fluido com reasoning dos agentes visível ("Bastidores"), métricas inline e streaming de eventos. Componentes: chat, bastidores, timeline, sidebar. Eventos consumidos via polling (POC) ou SSE (MVP).
 
-**Detalhes:** Ver `docs/interface/web/` (overview.md, components.md, flows.md)
+**Detalhes:** Ver `docs/products/revelar/interface/` (overview.md, components.md, flows.md)
 
 ### CLI (`core/tools/cli/chat.py`)
 Loop interativo minimalista para desenvolvimento e automacao. Backend compartilhado com interface web.
 
-**Detalhes:** Ver `docs/interface/cli.md` e `docs/interface/conversational_cli.md`
+**Detalhes:** Ver `docs/core/tools/cli.md` e `docs/core/tools/conversational_cli.md`
 
 ## Decisões Técnicas Atuais
 
@@ -579,4 +579,4 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 
 **Produtos:**
 - `docs/products/paper_agent.md` - Paper-agent (produto atual)
-- `docs/products/fichamento.md` - Fichamento (produto futuro)
+- `products/prisma-verbal/docs/vision.md` - Fichamento (produto futuro)

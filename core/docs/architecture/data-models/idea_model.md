@@ -234,5 +234,5 @@ CREATE TABLE idea_arguments (
 - `concept_model.md` - Conceitos que Ideia usa
 - `argument_model.md` - Argumentos que Ideia possui
 - `docs/products/paper_agent.md` - Como paper-agent usa Ideias
-- `docs/products/fichamento.md` - Como fichamento extrai Ideias
+- `products/prisma-verbal/docs/vision.md` - Como fichamento extrai Ideias
 
