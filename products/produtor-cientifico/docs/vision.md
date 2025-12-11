@@ -193,6 +193,159 @@ Quando uma ideia atinge maturidade (fundamentos sólidos, poucas questões abert
 - **UC5: Compilar Manuscrito** – Converter artefatos consolidados (hipótese, metodologia, resultados) em manuscrito científico no estilo do usuário.
 - **UC6: Revisar Metodologia** – Analisar desenho metodológico e produzir feedback estruturado com ações recomendadas para rigor científico.
 
+## 6. Entidades do Produto
+
+Produtor Científico adiciona entidades específicas sobre o core universal para gerenciar artigos acadêmicos.
+
+### 6.1 Article (Agregador de Ideias)
+
+Article é a entidade central que agrega múltiplas ideias do core em um artigo científico estruturado:
+
+```python
+Article:
+  id: UUID
+  title: str                    # "Impacto de LLMs em Produtividade"
+  ideas: list[UUID]             # Ideias que compõem o artigo
+  
+  # Metadados específicos
+  article_type: str             # "empirical", "review", "theoretical"
+  sections: list[Section]       # Introdução, Metodologia, ...
+  status: str                   # "draft", "review", "complete"
+  
+  # Resumo compilado
+  summary: str
+  
+  # Metadados de publicação
+  authors: list[str]
+  institution: str
+  keywords: list[str]
+```
+
+### 6.2 Section (Parte do Artigo)
+
+Section representa uma seção estruturada do artigo (Introdução, Metodologia, Resultados, etc.):
+
+```python
+Section:
+  id: UUID
+  article_id: UUID
+  name: str                     # "Introdução", "Metodologia"
+  ideas: list[UUID]             # Ideias usadas nesta seção
+  content: str                  # Texto compilado
+  status: str                   # "pending", "draft", "reviewed"
+```
+
+### 6.3 Como Article Consome Core
+
+Produtor Científico consome o core universal via API para criar e gerenciar ideias, agregando-as em artigos:
+
+```python
+# Produtor Científico chama core via API
+core_api = CoreAPI()
+
+# Criar ideia via conversa
+idea = core_api.create_idea_from_conversation(
+  conversation_id=conv_id
+)
+
+# Adicionar ideia ao artigo
+article = Article(
+  title="Impacto de LLMs",
+  ideas=[idea.id]
+)
+
+# Buscar ideias relacionadas (core fornece)
+related_ideas = core_api.find_related_ideas(
+  idea_id=idea.id,
+  min_similarity=0.75
+)
+```
+
+## 7. Interface: Gestão de Artigos
+
+### 7.1 Sidebar: Gestão de Artigos
+
+Interface permite gerenciar múltiplos artigos simultaneamente:
+
+**Últimos 10 artigos:**
+```
+📄 Impacto de LLMs (ativo)
+📄 Semana de 4 dias (pausado)
+📄 Automação com IA (pausado)
+...
+```
+
+**Funcionalidades:**
+- Alternar entre artigos
+- Pausar/retomar trabalho em artigos
+- Criar novo artigo
+
+### 7.2 Fluxo de Sessão de Trabalho
+
+#### Início de Sessão
+
+```
+[Usuário abre Produtor Científico]
+
+Sistema: "Olá! Quer continuar trabalhando no artigo 
+         'Impacto de LLMs' ou começar algo novo?"
+
+Usuário: "Continuar"
+
+Sistema: [carrega contexto via core]
+         "Você estava refinando argumento sobre métricas.
+          Última sessão: discutimos throughput vs qualidade.
+          Quer continuar daí?"
+```
+
+#### Durante Sessão
+
+```
+[Conversa fluida]
+[Dashboard atualiza em tempo real]
+[Sistema cristaliza ideias silenciosamente]
+[Usuário pode ver bastidores se quiser]
+```
+
+#### Fim de Sessão
+
+```
+Usuário: "Quero encerrar sessão"
+
+Sistema: "Resumo da sessão de hoje:
+          - Refinamos métricas de produtividade
+          - Validamos argumento 1 (aprovado pelo Metodologista)
+          - Pendências: buscar evidências sobre turnover
+          
+          Status do artigo: 65% completo
+          - Introdução: rascunho V2
+          - Metodologia: 80% definida
+          - Resultados: aguardando coleta
+          
+          Salvei tudo. Até a próxima!"
+```
+
+## 8. Integração com Core
+
+### 8.1 O Que Produtor Científico NÃO Reimplementa
+
+Produtor Científico consome as funcionalidades do core universal:
+
+❌ Detecção de conceitos (core faz)  
+❌ Extração de argumentos (core faz)  
+❌ Validação lógica (agentes do core fazem)  
+❌ Conversação socrática (orquestrador do core faz)  
+
+### 8.2 O Que Produtor Científico ADICIONA
+
+Produtor Científico adiciona funcionalidades específicas para produção acadêmica:
+
+✅ Entidade `Article` (agregador)  
+✅ Seções estruturadas (Intro, Metodo, ...)  
+✅ Interface de chat + dashboard  
+✅ Compilação de artigo final  
+✅ Export (PDF, DOCX)  
+
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal

@@ -233,6 +233,6 @@ CREATE TABLE idea_arguments (
 - `ontology.md` - Definição de Ideia
 - `concept_model.md` - Conceitos que Ideia usa
 - `argument_model.md` - Argumentos que Ideia possui
-- `docs/products/paper_agent.md` - Como paper-agent usa Ideias
+- `products/produtor-cientifico/docs/vision.md` - Como Produtor Científico usa Ideias
 - `products/prisma-verbal/docs/vision.md` - Como fichamento extrai Ideias
 

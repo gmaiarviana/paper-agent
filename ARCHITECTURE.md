@@ -56,7 +56,7 @@ Sistema gerencia ideias cristalizadas durante conversas com navegação em três
 
 **Persistência Silenciosa:** Sistema avalia a cada mensagem se deve criar/atualizar snapshot do argumento. Para estratégia detalhada, ver `core/docs/architecture/patterns/snapshots.md`.
 
-Ver: `docs/products/revelar/interface/navigation_philosophy.md` para filosofia completa.
+Ver: `products/revelar/docs/interface/navigation_philosophy.md` para filosofia completa.
 
 ## Super-Sistema: Core → Produtos
 
@@ -578,5 +578,5 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 - `docs/orchestration/conversational_orchestrator/` - Orquestrador conversacional
 
 **Produtos:**
-- `docs/products/paper_agent.md` - Paper-agent (produto atual)
+- `products/produtor-cientifico/docs/vision.md` - Produtor Científico (produto atual)
 - `products/prisma-verbal/docs/vision.md` - Fichamento (produto futuro)

@@ -144,8 +144,8 @@
 - Épico 15
 
 **Consulte:**
-- `docs/products/paper_agent.md` - Interface web conversacional
-- `docs/interface/web/components.md` - Componentes Streamlit
+- `products/produtor-cientifico/docs/vision.md` - Interface web conversacional
+- `docs/products/revelar/interface/components.md` - Componentes Streamlit
 
 ### Funcionalidades Planejadas:
 

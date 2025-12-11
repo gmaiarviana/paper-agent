@@ -112,7 +112,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 **Documentação:**
 - `docs/products/revelar/interface/` - Especificação completa da interface web (overview.md, components.md, flows.md)
   - Seção 3.6: Painel Progress (Checklist) - documenta `progress_tracker.py`
-- `docs/products/revelar/interface/navigation_philosophy.md` - Filosofia de navegação (3 espaços)
+- `products/revelar/docs/interface/navigation_philosophy.md` - Filosofia de navegação (3 espaços)
 
 **Solicitar quando:**
 - Implementar features de interface
@@ -254,7 +254,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Produtos
 
 **Documentação:**
-- `docs/products/paper_agent.md` - Paper-agent (produto atual)
+- `products/produtor-cientifico/docs/vision.md` - Produtor Científico (produto atual)
 - `products/prisma-verbal/docs/vision.md` - Fichamento (produto futuro)
 
 **Solicitar quando:**
