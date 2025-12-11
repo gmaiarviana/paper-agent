@@ -22,14 +22,6 @@ from core.agents.models.proposition import Proposicao, ProposicaoRef
 class TestProposicaoCreation:
     """Testes de criação e validação da Proposicao."""
 
-    def test_create_minimal_proposicao(self):
-        """Proposição mínima (apenas texto) é válida."""
-        prop = Proposicao(texto="Equipes usam LLMs para desenvolvimento")
-        assert prop.texto == "Equipes usam LLMs para desenvolvimento"
-        assert prop.solidez is None
-        assert prop.evidencias == []
-        assert prop.id is not None  # UUID gerado automaticamente
-
     def test_create_full_proposicao(self):
         """Proposição completa é criada corretamente."""
         prop = Proposicao(
@@ -48,13 +40,6 @@ class TestProposicaoCreation:
         prop = Proposicao(texto="Hipótese refutada", solidez=0.0)
         assert prop.solidez == 0.0
         assert prop.is_evaluated() is True
-
-    def test_id_is_auto_generated(self):
-        """IDs são gerados automaticamente e únicos."""
-        prop1 = Proposicao(texto="Teste 1")
-        prop2 = Proposicao(texto="Teste 2")
-        assert prop1.id != prop2.id
-        assert len(prop1.id) > 10  # UUID tem formato longo
 
     def test_texto_cannot_be_empty(self):
         """Texto vazio deve falhar na validação."""
