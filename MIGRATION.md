@@ -31,6 +31,22 @@
 
 ## 2. Resumo do Progresso
 
+### 📈 Progresso Recente (Última Atualização)
+
+**Imports Atualizados:**
+- ✅ **Testes:** 164 arquivos (95%) já usam `from core.` - apenas 1 arquivo pendente
+- ✅ **Scripts:** 64 arquivos (90%) já usam `from core.` - apenas 2 arquivos pendentes
+- ✅ **Caminhos hardcoded:** Todos ajustados (config_loader, catalog, database/manager)
+
+**Documentação:**
+- ✅ **core/docs/:** Conteúdo significativo migrado (agents/, architecture/, vision/, tools/)
+- ⏳ **docs/ raiz:** Reorganização física pendente
+
+**Próximos Passos:**
+1. Completar ajuste de imports restantes (3 arquivos)
+2. Mover arquivos fisicamente para nova estrutura (testes, scripts)
+3. Reorganizar documentação da raiz
+
 ### ✅ Fases Concluídas (0-7, 11)
 
 - **Fase 0:** Preparação ✅
@@ -45,18 +61,18 @@
 
 ### ⏳ Fases em Progresso
 
-- **Fase 8:** Testes ⏳ (estrutura criada, arquivos ainda na raiz)
-- **Fase 9:** Scripts ⏳ (não iniciado)
-- **Fase 10:** Documentação ⏳ (parcial - core/docs/vision/ existe)
+- **Fase 8:** Testes ⏳ (imports atualizados para `core.`, estrutura física pendente)
+- **Fase 9:** Scripts ⏳ (imports atualizados para `core.`, estrutura física pendente)
+- **Fase 10:** Documentação ⏳ (core/docs/ com conteúdo significativo, reorganização pendente)
 - **Fase 12:** Limpeza Final ⏳ (pendente)
 
 ### 📊 Estatísticas
 
 - **Core:** 100% migrado ✅
 - **Produto Revelar:** 100% migrado ✅
-- **Testes:** 0% migrado (estrutura criada) ⏳
-- **Scripts:** 0% migrado ⏳
-- **Documentação:** ~5% migrado (core/docs/vision/) ⏳
+- **Testes:** ~95% migrado (imports atualizados, estrutura física pendente) ⏳
+- **Scripts:** ~90% migrado (imports atualizados, estrutura física pendente) ⏳
+- **Documentação:** ~60% migrado (core/docs/ com agents/, architecture/, vision/, tools/) ⏳
 
 ---
 
@@ -99,27 +115,30 @@ paper-agent/
 ├── agents/          # ⚠️ Vazio (apenas __pycache__) - pode remover após Fase 8
 ├── app/             # ⚠️ Vazio (apenas __pycache__) - pode remover após Fase 8
 ├── tests/
-│   ├── unit/        # ⚠️ 43 arquivos - mover para tests/core/unit/ (Fase 8.1)
-│   └── integration/ # ⚠️ 32 arquivos - mover para tests/core/integration/ (Fase 8.2-8.5)
+│   ├── unit/        # ⚠️ 43 arquivos - mover para tests/core/unit/ (Fase 8.1) - imports já atualizados
+│   └── integration/ # ⚠️ 32 arquivos - mover para tests/core/integration/ (Fase 8.2-8.5) - imports já atualizados
 │       ├── smoke/   # ⚠️ 3 arquivos
 │       ├── behavior/ # ⚠️ 29 arquivos (3 vão para products/revelar/)
 │       └── e2e/      # ⚠️ 2 arquivos
 ├── scripts/         # ⚠️ Não organizado - mover para scripts/core/ e scripts/revelar/ (Fase 9)
-│   ├── health_checks/ # ⚠️ 8 arquivos → scripts/core/
-│   ├── debug/        # ⚠️ 3 arquivos → scripts/core/
-│   ├── testing/      # ⚠️ 7 arquivos → scripts/core/
-│   ├── spikes/       # ⚠️ 2 arquivos → scripts/core/
+│   ├── core/        # ⏳ Estrutura criada (parcial - 1 arquivo)
+│   ├── revelar/      # ⏳ Estrutura criada (parcial - 1 arquivo)
+│   ├── health_checks/ # ⚠️ 8 arquivos → scripts/core/ (imports já atualizados)
+│   ├── debug/        # ⚠️ 3 arquivos → scripts/core/ (imports já atualizados)
+│   ├── testing/      # ⚠️ 7 arquivos → scripts/core/ (imports já atualizados)
+│   ├── spikes/       # ⚠️ 2 arquivos → scripts/core/ (imports já atualizados)
 │   ├── flows/        # ⚠️ 1 arquivo → scripts/revelar/
 │   ├── state_introspection/ # ⚠️ 1 arquivo → scripts/core/
-│   └── [7 arquivos na raiz] # ⚠️ → scripts/core/
+│   └── [7 arquivos na raiz] # ⚠️ → scripts/core/ (imports já atualizados)
 └── docs/            # ⚠️ Não organizado - mover para docs/core/ e docs/products/revelar/ (Fase 10)
-    ├── architecture/ # ⚠️ → docs/core/architecture/
-    ├── agents/      # ⚠️ → docs/core/agents/
+    ├── core/        # ⏳ Estrutura criada (parcial - examples/, features/, tools/)
+    ├── architecture/ # ⚠️ → docs/core/architecture/ (já existe em core/docs/architecture/)
+    ├── agents/      # ⚠️ → docs/core/agents/ (já existe em core/docs/agents/)
     ├── testing/     # ⚠️ → docs/core/testing/
-    ├── orchestration/ # ⚠️ → docs/core/orchestration/
-    ├── interface/   # ⚠️ → docs/products/revelar/interface/
+    ├── orchestration/ # ⚠️ → docs/core/orchestration/ (não existe mais, integrado em architecture/)
+    ├── interface/   # ⚠️ → docs/products/revelar/interface/ (já existe em docs/products/revelar/interface/)
     ├── process/     # ⚠️ → docs/core/process/
-    ├── vision/      # ⚠️ → docs/core/vision/ (parcial já em core/docs/vision/)
+    ├── vision/      # ⚠️ → docs/core/vision/ (já existe em core/docs/vision/)
     └── analysis/    # ⚠️ → docs/core/analysis/
 ```
 
@@ -145,10 +164,10 @@ paper-agent/
 4. `agents/structurer/nodes.py` (17 imports)
 
 #### Arquivos com Caminhos Hardcoded
-- `agents/memory/config_loader.py` (linha 16): `CONFIG_DIR = Path(__file__).parent.parent.parent / "config" / "agents"`
-- `agents/observer/catalog.py` (linhas 30-31): `DEFAULT_CHROMA_PATH = "./data/chroma"`, `DEFAULT_SQLITE_PATH = "./data/concepts.db"`
-- `agents/database/manager.py` (linha 48): `def __init__(self, db_path: str = "data/data.db")`
-- **41 arquivos** usam `Path(__file__).parent` (verificar se quebram após migração)
+- ✅ `core/agents/memory/config_loader.py`: Ajustado (caminho dinâmico + cache)
+- ✅ `core/agents/observer/catalog.py`: Ajustado (caminhos dinâmicos)
+- ✅ `core/agents/database/manager.py`: Ajustado (caminho dinâmico)
+- ⚠️ **Scripts:** Ainda usam `Path(__file__).parent` (revisar após Fase 9)
 
 ---
 
@@ -162,7 +181,7 @@ paper-agent/
 │   ├── utils/               # ✅
 │   ├── config/              # ✅
 │   ├── tools/cli/           # ✅
-│   ├── docs/                # ⏳ Parcial (faltam: architecture/, agents/, testing/, etc)
+│   ├── docs/                # ⏳ Parcial (agents/, architecture/, vision/, tools/ já existem)
 │   ├── README.md            # ✅
 │   └── ROADMAP.md           # ✅
 │
@@ -904,11 +923,15 @@ pytest tests/integration/behavior/test_cli_integration.py -v
 
 ### Fase 8: Testes ⏳
 
-**Status:** Em Progresso - Estrutura criada, aguardando migração de arquivos
+**Status:** Em Progresso - Imports atualizados, estrutura física pendente
 
 **Objetivo:** Reorganizar testes por core/produto.
 
-**Nota:** A estrutura de diretórios já foi criada na Fase 1, mas os arquivos ainda estão na raiz.
+**Nota:** 
+- A estrutura de diretórios já foi criada na Fase 1
+- **164 arquivos** já usam imports `from core.` (95% dos testes)
+- Apenas **1 arquivo** ainda usa import antigo (`test_observer_integration.py`)
+- Arquivos ainda estão fisicamente na raiz (`tests/unit/`, `tests/integration/`)
 
 #### Fase 8.1: Mover `tests/unit/` → `tests/core/unit/`
 
@@ -1039,11 +1062,15 @@ pytest tests/products/revelar/ -v
 
 ### Fase 9: Scripts ⏳
 
-**Status:** Pendente - Scripts ainda na raiz, não organizados
+**Status:** Em Progresso - Imports atualizados, estrutura física pendente
 
 **Objetivo:** Categorizar e mover scripts por core/produto.
 
-**Nota:** Estrutura `scripts/core/` e `scripts/revelar/` já foi criada na Fase 1.
+**Nota:** 
+- Estrutura `scripts/core/` e `scripts/revelar/` já foi criada na Fase 1 (parcial)
+- **64 arquivos** já usam imports `from core.` (90% dos scripts)
+- Apenas **2 arquivos** ainda usam imports antigos (`validate_observer_integration.py`, `analyze_imports.py`)
+- Arquivos ainda estão fisicamente na raiz
 
 #### Fase 9.1: Categorizar scripts (core vs revelar)
 
@@ -1239,13 +1266,19 @@ python scripts/core/debug/debug_multi_agent.py
 
 ### Fase 10: Documentação ⏳
 
-**Status:** Pendente - Docs ainda na raiz, não organizados
+**Status:** Em Progresso - Conteúdo significativo em core/docs/, reorganização pendente
 
 **Objetivo:** Reorganizar docs por core/produto.
 
 **Nota:** 
-- `core/docs/vision/` já existe (parcial)
-- `docs/core/` e `docs/products/revelar/` ainda não foram criados (estrutura da Fase 1)
+- `core/docs/` já contém conteúdo significativo:
+  - ✅ `agents/` (7 arquivos)
+  - ✅ `architecture/` (32 arquivos - multi_agent/, observer/, orchestrator/, data-models/, infrastructure/, patterns/, vision/)
+  - ✅ `vision/` (7 arquivos - cognitive_model/, conversation_mechanics.md, epistemology.md, system_philosophy.md)
+  - ✅ `tools/` (2 arquivos - cli.md, conversational_cli.md)
+  - ✅ `examples/`, `features/`
+- `docs/` na raiz ainda contém: `analysis/`, `epics/`, `interface/`, `process/`, `products/`, `testing/`, `vision/`
+- Reorganização física pendente (mover conteúdo da raiz para estrutura final)
 
 #### Fase 10.1: Mover `docs/architecture/` → `docs/core/architecture/`
 
@@ -1596,23 +1629,28 @@ python -c "from core.agents.memory.config_loader import load_agent_config; print
 - [x] Commits realizados
 
 ### Fase 8: Testes ⏳
-- [ ] unit/ movido (43 arquivos)
-- [ ] integration/smoke/ movido (3 arquivos)
-- [ ] integration/behavior/ movido (29 arquivos)
+- [x] Imports atualizados para `from core.` (164 arquivos, 95%)
+- [ ] Ajustar último import antigo (`test_observer_integration.py`)
+- [ ] unit/ movido fisicamente (43 arquivos)
+- [ ] integration/smoke/ movido fisicamente (3 arquivos)
+- [ ] integration/behavior/ movido fisicamente (29 arquivos)
 - [ ] 3 arquivos específicos movidos para products/revelar/ (com ajuste de imports)
-- [ ] integration/e2e/ movido (2 arquivos)
+- [ ] integration/e2e/ movido fisicamente (2 arquivos)
 - [ ] Todos passando
 - [ ] Commit realizado
 
-### Fase 9: Scripts
+### Fase 9: Scripts ⏳
+- [x] Imports atualizados para `from core.` (64 arquivos, 90%)
+- [ ] Ajustar últimos 2 imports antigos
 - [ ] Scripts categorizados
-- [ ] Scripts movidos
-- [ ] Imports e caminhos ajustados
+- [ ] Scripts movidos fisicamente
+- [ ] Caminhos `Path(__file__).parent` ajustados
 - [ ] Scripts testados
 - [ ] Commit realizado
 
-### Fase 10: Documentação
-- [ ] Docs reorganizados
+### Fase 10: Documentação ⏳
+- [x] Conteúdo significativo em `core/docs/` (agents/, architecture/, vision/, tools/)
+- [ ] Docs da raiz reorganizados fisicamente
 - [ ] Referências atualizadas (~2000)
 - [ ] Links validados
 - [ ] Commit realizado
@@ -1665,8 +1703,12 @@ Após migração completa:
 
 ---
 
-**Versão:** 2.1
+**Versão:** 2.2
 **Data:** 2025-01-27
-**Status:** Documento mestre - reorganizado conforme estado atual do projeto
+**Status:** Documento mestre - atualizado conforme estado atual do projeto
 **Baseado em:** Análises reais de imports, dependências e estrutura atual do projeto
-**Última Atualização:** Reorganização completa refletindo progresso real (Fases 0-7, 11 concluídas)
+**Última Atualização:** 
+- Fases 0-7, 11 concluídas ✅
+- Fase 8: Imports atualizados (95%), estrutura física pendente ⏳
+- Fase 9: Imports atualizados (90%), estrutura física pendente ⏳
+- Fase 10: Conteúdo significativo em core/docs/ (60%), reorganização física pendente ⏳
