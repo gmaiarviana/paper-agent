@@ -272,3 +272,173 @@ Sistema: [busca via core - grafo de conhecimento]
 - `core/docs/architecture/data-models/concept_model.md` - Conceitos detectados em livros
 - `core/docs/examples/text_processing.md` - Exemplo concreto de processamento
 
+## 7. Filosofia do Sistema
+
+### Palavras São Escolhas Contextuais
+
+**Princípio central:** Cada cultura/época usa palavras diferentes para apontar essências similares.
+
+**Exemplos:**
+
+- Marco Aurélio (romano, ~180 DC): "justiça" = ordem cósmica distributiva
+
+- Krishna (védico, ~500 AC): "dharma" = ordem universal, dever cósmico
+
+- Confúcio (chinês, ~500 AC): "harmonia" = equilíbrio natural
+
+**Mesma essência, palavras diferentes.** Sistema abstrai das palavras para capturar o que está sendo APONTADO.
+
+### Essências Transcendem Palavras
+
+**O que sistema busca:**
+
+- Não: definição de dicionário
+
+- Não: tradução literal
+
+- Sim: **Afirmação sobre como realidade funciona**
+
+**Exemplo:**
+
+```
+"Justiça" (Marco) ≠ tradução de "dharma" (Krishna)
+
+Mas ambos apontam estrutura similar:
+
+  "Há ordem anterior ao caos, 
+
+   seguir essa ordem = virtude/dever"
+```
+
+### Entidade Central: Ideia Específica
+
+**Sistema NÃO cataloga conceitos genéricos:**
+
+- ❌ "Cooperação" (muito amplo)
+
+- ❌ "Mitos" (muito amplo)
+
+**Sistema cataloga IDEIAS específicas:**
+
+- ✅ "Cooperação humana em massa depende de mitos compartilhados"
+
+- ✅ "Determinismo cósmico via razão universal" (Marco)
+
+- ✅ "Unidade subjacente à multiplicidade aparente" (Krishna/Jesus/Plotino)
+
+**Ideia = combinação específica de conceitos com afirmação sobre realidade.**
+
+### Genealogia de Crenças (Visão de Longo Prazo)
+
+**Objetivo futuro:** Rastrear origem de comportamentos através de crenças.
+
+**Exemplo:**
+
+```
+Comportamento: Humano come carne
+
+  ↓
+
+Crença 1: Animais são inferiores a humanos
+
+  ↓
+
+Possível origem: "Deus criou animais para servir humanos" (Bíblia)
+
+  ↓
+
+Pessoa pode nunca ter lido Bíblia, mas cultura incorporou crença
+```
+
+**Sistema mapeia:** Genealogia de como crenças culturais se propagam.
+
+**Nota:** Este produto (Prisma Verbal) foca na CAPTURA. Outro produto futuro fará CONEXÕES genealógicas.
+
+## 8. Diferenciação: Prisma Verbal vs Paper-Agent
+
+### Texto Estático vs Conversa Dinâmica
+
+**Prisma Verbal:**
+
+- Input: Livro completo, artigo, transcrição
+
+- Processamento: Leitura sequencial automática
+
+- Output: Ideias extraídas + genealogia de afirmações
+
+- Interação: Usuário consulta resultado (não co-constrói)
+
+**Paper-Agent:**
+
+- Input: Conversa com usuário
+
+- Processamento: Co-construção iterativa
+
+- Output: Argumento científico refinado
+
+- Interação: Sistema + usuário negociam caminho
+
+### Vetorização vs Solidez por Evidências
+
+**Prisma Verbal:**
+
+- Solidez = convergência entre autores
+
+- "Harari #1 converge com Newton" → aumenta solidez
+
+- "Harari #1 diverge de Bíblia" → tensão registrada
+
+- Vetorização semântica para aproximar conceitos
+
+**Paper-Agent:**
+
+- Solidez = evidências bibliográficas científicas
+
+- Proposição com 3 estudos → solidez 0.75
+
+- Proposição sem evidências → solidez 0.30
+
+- Pesquisador busca literatura para fortalecer
+
+### Checkpoints vs Snapshots
+
+**Prisma Verbal:**
+
+- Checkpoints automáticos durante leitura
+
+- Sistema detecta: "Ideia suficientemente madura"
+
+- Livro pode ter dezenas de checkpoints
+
+- Não espera fim do texto
+
+**Paper-Agent:**
+
+- Snapshots durante conversa
+
+- Sistema detecta: "Argumento amadureceu"
+
+- Silencioso (usuário não vê)
+
+- Versionamento (V1, V2, V3...)
+
+### Interface
+
+**Prisma Verbal (não conversacional):**
+
+- Upload de texto → Sistema processa → Mostra resultado
+
+- Navegação por conceitos/ideias extraídas
+
+- Hover profundo em conceitos (herança de Camadas)
+
+- Comparação entre autores
+
+**Paper-Agent (conversacional):**
+
+- Chat interativo
+
+- Sistema + usuário refinam argumento juntos
+
+- Bastidores transparentes (reasoning visível)
+
