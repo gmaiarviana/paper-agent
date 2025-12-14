@@ -68,7 +68,25 @@ Big Bang, Física, Átomos, Moléculas, Química, Organismos, Biologia, Culturas
 
 - Harari (#1) ✗ Bíblia (criação)
 
-## 5. Tipos de Texto (Próximas Sessões)
+## 5. Exemplo: O Poder do Agora (Mais Claro)
+
+**Capítulo 1 - VOCÊ NÃO É A SUA MENTE**
+
+**Resumo:**
+Anedota do mendigo com tesouro dentro. Autor se posiciona como estranho apontando tesouro ao leitor.
+
+**Conceitos que emergem:**
+- Quem não encontrou alegria do Ser é mendigo espiritual
+- Iluminação = estado natural de unidade com o Ser, fim do sofrimento
+- Paradoxo: Ser é essencialmente o indivíduo
+- Incapacidade de conexão → sensação de separação
+
+**Diferencial deste exemplo:**
+- Texto filosófico (não ficção narrativa como Sapiens)
+- "Resumo" captura ilustrações/exemplos (não eventos)
+- Conceitos são mais abstratos (metafísicos vs sociais)
+
+## 6. Tipos de Texto (Próximas Sessões)
 
 Placeholder para explorar:
 
@@ -77,7 +95,51 @@ Placeholder para explorar:
 - Textos ficção (a explorar)
 - Textos artísticos (a explorar)
 
-## 6. Conexão com Core
+## 7. Checkpoint Multinível
+
+Sistema cria checkpoints em múltiplos níveis conforme estrutura do livro:
+- **Parágrafo:** Se ideia completa emerge
+- **Sub-seção:** Agrupamento temático
+- **Capítulo:** Síntese completa
+
+**Decisão é dinâmica**, baseada em:
+- Completude da ideia
+- Distância do início/fim de seção
+- Mudança temática
+
+Exemplo: Capítulo pode ter 1 checkpoint (se linear) ou 5 checkpoints (se denso).
+
+## 8. Separação: Leitura vs Contextualização
+
+**Princípio central:** Contexto externo NÃO contamina leitura base.
+
+**FASE 1 - LEITURA (foco do sistema):**
+- Extrair o que livro diz
+- Sem contexto externo (biografia, época, paralelos históricos)
+- Apenas: texto → conceitos/ideias
+
+**FASE 2 - CONTEXTUALIZAÇÃO (futuro, camada separada):**
+- Conectar com biografia do autor
+- Relacionar com época/cultura
+- Paralelos históricos (ex: Revolução dos Bichos ↔ Revolução Russa)
+- Usuário ou sistema adiciona essa camada **depois**
+
+**Exemplo:**
+
+```python
+# FASE 1 (Leitura - agora)
+Conceito: "Oprimidos devem se revoltar contra opressor"
+Livro: Revolução dos Bichos
+
+# FASE 2 (Contextualização - depois)
+Contexto externo: "Orwell escreveu alegoria da Revolução Russa"
+Paralelo: Major = Marx/Lenin
+Época: Pós-Segunda Guerra, crítica ao stalinismo
+```
+
+**Benefício:** Sistema não impõe viés externo na leitura inicial.
+
+## 9. Conexão com Core
 
 Reutiliza infraestrutura:
 
@@ -91,7 +153,7 @@ Reutiliza infraestrutura:
 - **Prisma**: texto estático
 - **Paper-Agent**: conversa dinâmica
 
-## 7. Filosofia do Sistema
+## 10. Filosofia do Sistema
 
 ### Palavras São Escolhas Contextuais
 
@@ -173,7 +235,7 @@ Pessoa pode nunca ter lido Bíblia, mas cultura incorporou crença
 
 **Nota:** Este produto (Prisma Verbal) foca na CAPTURA. Outro produto futuro fará CONEXÕES genealógicas.
 
-## 8. Diferenciação: Prisma Verbal vs Paper-Agent
+## 11. Diferenciação: Prisma Verbal vs Paper-Agent
 
 ### Texto Estático vs Conversa Dinâmica
 
