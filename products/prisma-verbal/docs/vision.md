@@ -1,5 +1,10 @@
 # Fichamento - Produto
 
+> **Nomenclatura:**
+> - **Produto:** Prisma Verbal (nome externo/marketing)
+> - **Processo técnico:** Fichamento (termo acadêmico consolidado para processar/catalogar textos)
+> - Este documento usa "fichamento" como termo técnico para o processo de extração de conceitos.
+
 > **Nota:** Este documento descreve o produto fichamento especificamente.
 > Para core universal, consulte `core/docs/architecture/vision/super_system.md`.
 > Para como sistema processa texto (exemplo Sapiens), consulte `core/docs/examples/text_processing.md`.
@@ -17,6 +22,18 @@ Fichamento é **serviço desacoplado** que consome core para processar livros/te
 **Diferença de paper-agent:**
 - Paper-agent: conversa dinâmica, ideias emergem
 - Fichamento: texto estático, ideias extraídas de uma vez
+
+---
+
+## Fundamentos Filosóficos
+
+> **Nota:** Para filosofia profunda do sistema (por que fazemos assim), consulte `philosophy.md`.
+
+Este documento (`vision.md`) foca em **O QUE** o produto faz (entidades, fluxos, interface).
+
+O documento `philosophy.md` explica **POR QUE** fazemos assim (princípios epistemológicos, essências vs palavras).
+
+---
 
 ## Entidades Específicas do Fichamento
 
@@ -117,6 +134,25 @@ Sistema processa automaticamente (extração inicial)
 Usuário revisa e refina via conversa
 Sistema atualiza fichamento com refinamentos
 ```
+
+---
+
+## Foco: Ideias Maiores
+
+Sistema extrai **conceitos/ideias centrais** por capítulo/seção, não micro-proposições de cada frase.
+
+**Exemplo:**
+- ❌ Não: "Jones fechou galinheiro", "Jones estava bêbado"
+- ✅ Sim: "Oprimidos devem se revoltar contra opressor"
+
+Conceitos são abstrações que transcendem palavras específicas:
+- "Iluminação = unidade com o Ser" (Tolle)
+- "Moksha = libertação do ego" (Upanishads)
+- Sistema detecta similaridade semântica entre esses conceitos.
+
+Ver `philosophy.md` para detalhes sobre como sistema abstrai de palavras para essências.
+
+---
 
 ## Catálogo Público vs Customização
 
@@ -264,6 +300,25 @@ Sistema: [busca via core - grafo de conhecimento]
 ✅ Customização por usuário  
 ✅ Sistema de aprendizado (agregação)  
 ✅ Interface de upload e revisão  
+
+---
+
+## Separação: Leitura vs Contextualização
+
+Sistema separa duas fases:
+
+**FASE 1 - LEITURA:**
+- Extrai conceitos/ideias do texto
+- Sem contexto externo (biografia, época, paralelos históricos)
+
+**FASE 2 - CONTEXTUALIZAÇÃO (futuro):**
+- Adiciona camada de contexto externo
+- Usuário ou sistema enriquece com biografia, época, relações culturais
+- Não contamina leitura base
+
+Ver `philosophy.md` seção 8 para fundamento filosófico dessa separação.
+
+---
 
 ## Referências
 
