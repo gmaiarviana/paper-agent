@@ -32,6 +32,38 @@ O usuário pode estar explorando uma ideia central, mas naturalmente diverge em 
 **Como funciona (dialética):**
 Sistema atua como mestre socrático: faz perguntas que expõem suposições não examinadas, oferece contra-exemplos, provoca refinamento. Usuário articula melhor à medida que sistema estrutura e valida.
 
+### 2.1 Relevância Multidimensional
+
+Relevância de uma ideia não é binária - é avaliada em múltiplas dimensões:
+
+**Valor Social:**
+- Esta ideia agrega valor para sociedade?
+- Resolve problema real ou é curiosidade acadêmica?
+
+**Viabilidade de Investimento:**
+- Vale a pena investir recursos (tempo, dinheiro) em testar?
+- Potencial de impacto justifica esforço?
+
+**Saturação na Literatura:**
+- Há muito material relacionado (saturação) ou lacuna clara?
+- Se saturada: reformular ângulo ou abandonar
+- Se lacuna: oportunidade de contribuição
+
+**Fundamentação:**
+- Bases/suposições estão bem sustentadas?
+- Proposições têm solidez suficiente?
+
+**Papel do Sistema:**
+- Sistema **detecta** e apresenta informações objetivas (ex: "50+ papers nos últimos 2 anos")
+- Usuário **julga** relevância final baseado em informações apresentadas
+- Sistema pode **alertar** sobre problemas (saturação, bases frágeis) mas não **bloqueia**
+
+**Exemplo:**
+Sistema: "Encontrei 50+ papers sobre LLMs em produtividade nos últimos 2 anos.
+Literatura está saturada. Quer reformular ângulo (ex: foco em Python)
+ou explorar outra ideia?"
+Usuário: [julga se vale reformular ou abandonar]
+
 ## 3. Equipe de Especialistas Visível
 
 Diferente de LLMs generalistas (caixa preta), Revelar expõe 
@@ -227,6 +259,121 @@ Transparência sobre origem de informações e raciocínio do sistema, permitind
 - **UC1: Esclarecer Pensamento Confuso** – De uma confusão mental para uma ideia clara e estruturada através do diálogo.
 - **UC2: Identificar Conceitos Relacionados** – Descobrir conexões entre ideias e conceitos que o usuário não havia percebido.
 - **UC3: Estruturar Argumento Informal** – Transformar pensamento parcial em argumento coerente, mesmo que não seja formalmente acadêmico.
+
+### 6.1 Caso de Uso: Preparar Projeto de Mestrado/Pós-Graduação
+
+**Objetivo:** Transformar ideia nebulosa em base sólida para projeto de pesquisa
+
+**Fluxo:**
+1. Usuário traz ideia vaga: "LLMs aumentam produtividade"
+2. Sistema refina através de diálogo socrático
+3. Proposições emergem e solidez é avaliada
+4. Pesquisador busca evidências bibliográficas
+5. Resultado: Hipótese limpa e bem fundamentada
+
+**Hipótese limpa = base sólida para projeto:**
+- Relevante (agrega valor social/científico)
+- Específica (população, métricas, contexto definidos)
+- Bem fundamentada (proposições com solidez > 0.6)
+- Com suporte bibliográfico (evidências da literatura)
+
+**Exemplo de progressão:**
+Turno 1:  "LLMs aumentam produtividade" (vago)
+Turno 5:  "Claude Code reduz tempo de sprint em 30%" (específico)
+Turno 10: "Claude Code reduz tempo de sprint em 30% em equipes Python de 2-5 devs,
+medido por sprints de 2 semanas, sem comprometer qualidade de código" (hipótese limpa)
+
+**Por que isso é base sólida:**
+- Projeto de mestrado requer hipótese testável e bem contextualizada
+- Sistema ajuda identificar lacunas antes de submeter projeto
+- Evidências bibliográficas fortalecem proposta
+- Tempo investido em clareza inicial economiza meses de retrabalho
+
+### 6.2 O Pesquisador como Filtro de Sinal vs Ruído
+
+**Problema moderno:** Excesso de informação, não falta
+
+No passado, o problema era **falta de informação** (bibliotecas limitadas, papers inacessíveis).
+Hoje, o problema é **excesso de informação** (milhares de papers publicados mensalmente, qualidade variável).
+
+**Papel do Pesquisador:**
+O Pesquisador atua como meta-agente de curadoria bibliográfica, filtrando "sinal" (informação relevante e confiável) de "ruído" (informação irrelevante ou não confiável).
+
+**Curadoria Multinível (3 níveis):**
+
+**Nível 1: Triagem Temática (rápido)**
+- 50 papers encontrados → 10 candidatos
+- Critério: relevância temática (título, abstract, keywords)
+
+**Nível 2: Validação Metodológica (médio)**
+- 10 candidatos → 3-5 papers confiáveis
+- Critério: qualidade metodológica (peer review, metodologia sólida)
+- Aciona Metodologista para validar papers
+
+**Nível 3: Extração de Proposições (caro)**
+- 3-5 papers confiáveis → proposições extraídas e avaliadas
+- Confirmação com usuário: "Encontrei 3 papers confiáveis. Vale processar profundamente?"
+- Aciona Prisma Verbal para processar paper completo
+- Prisma extrai proposições, avalia solidez, detecta dependências
+
+**Resultado final:**
+Paper A (Smith et al. 2023):
+Proposição #5: "Claude Code reduz tempo em 30%"
+Solidez: 0.85 (bem fundamentada, metodologia clara, amostra de 100 equipes)
+Apoia: Proposição X do usuário (fortemente)
+
+Paper B (Jones et al. 2022):
+Proposição #12: "AI tools aumentam bugs em 15%"
+Solidez: 0.60 (metodologia razoável, mas amostra pequena)
+Refuta: Proposição Y do usuário (parcialmente)
+
+**Capacidade que usuário não teria sozinho:**
+- Acesso rápido a papers relevantes
+- Validação de qualidade metodológica
+- Extração de proposições específicas (não ler paper inteiro)
+- Avaliação de solidez baseada em coerência interna
+
+### 6.3 Convergência com Prisma Verbal
+
+**Infraestrutura Compartilhada:**
+
+Revelar e Prisma Verbal fazem parte do mesmo super-sistema, compartilhando:
+- ✅ **Conceitos globais:** Biblioteca única (ChromaDB)
+- ✅ **Detecção de solidez:** Coerência, fundamentação, dependências
+- ✅ **Rastreamento de proposições:** Genealogia de afirmações
+
+**Diferença de Contexto:**
+- **Prisma Verbal:** Extrai proposições de textos estáticos (livros, papers)
+- **Revelar:** Co-constrói proposições com usuário (conversa dinâmica)
+
+**Como Funcionam Juntos:**
+
+**Exemplo:**
+Usuário articula ideia no Revelar: "Reuniões síncronas aumentam alinhamento"
+↓
+Revelar detecta conceito: "Coordenação" (biblioteca global)
+↓
+Sistema sugere: "Isso parece relacionado ao conceito 'Coordenação'
+na biblioteca, usado em:
+- March & Simon (Teoria Organizacional)
+- Scrum/XP (Desenvolvimento Ágil)
+- Rosenberg (Comunicação Não-Violenta)
+Quer explorar como esses autores abordam coordenação?"
+↓
+Usuário confirma interesse
+↓
+Pesquisador aciona Prisma para processar textos relevantes
+↓
+Revelar apresenta proposições extraídas que fortalecem/enfraquecem ideia do usuário
+
+**Benefício:**
+Usuário não está "inventando a roda" - há conhecimento acumulado sob nomenclaturas diferentes.
+Sistema conecta o que usuário está articulando com o que já foi dito antes (por outros autores, em outras palavras).
+
+**Essências Transcendem Palavras:**
+- "Alinhamento", "coordenação", "sincronização" → mesma essência
+- Sistema detecta similaridade semântica via vetores (ChromaDB)
+- Biblioteca global cresce com contribuições de Prisma (textos processados) e Revelar (conversas)
 
 ## Referências
 

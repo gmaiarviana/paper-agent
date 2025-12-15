@@ -12,6 +12,46 @@ Paper Agent é guiado por uma epistemologia específica: não existe verdade abs
 - Pesquisa fortalece/enfraquece, não valida/refuta
 - Ver detalhes em `core/docs/vision/epistemology.md`
 
+## Problema Moderno: Excesso de Informação
+
+### Mudança de Paradigma
+
+**Passado (até anos 2000):**
+- Problema: **falta de informação**
+- Bibliotecas limitadas, papers inacessíveis
+- Desafio: encontrar informação relevante
+- Solução: ampliar acesso (digitalização, internet)
+
+**Presente (2020+):**
+- Problema: **excesso de informação**
+- Milhares de papers publicados mensalmente
+- Qualidade variável (nem tudo é confiável)
+- Desafio: distinguir sinal de ruído
+
+### Implicações para o Sistema
+
+**Sistema não apenas busca informação:**
+- ❌ Trazer tudo que existe sobre tema (saturação)
+- ❌ Assumir que mais informação = melhor resultado
+
+**Sistema filtra e curadora:**
+- ✅ Distinguir informação relevante de irrelevante (sinal vs ruído)
+- ✅ Avaliar qualidade metodológica (fonte confiável?)
+- ✅ Extrair proposições específicas (não ler tudo)
+- ✅ Avaliar solidez baseada em coerência interna
+
+**Capacidade que usuário não teria sozinho:**
+
+Sem sistema:
+- Encontra 50 papers → lê todos (semanas de trabalho)
+- Qualidade variável → risco de bases fracas
+- Sem critério claro → viés de confirmação
+
+Com sistema:
+- 50 papers → 10 candidatos → 3 papers confiáveis (horas)
+- Validação metodológica automática → apenas papers sólidos
+- Proposições extraídas com solidez → foco no relevante
+
 ## Memory em Camadas
 
 O sistema utiliza uma arquitetura de memória inspirada na memória humana, onde informação recente é mais acessível que informação antiga:
@@ -46,6 +86,129 @@ Paper Agent não é apenas um produto isolado. É a **primeira aplicação** de 
 - Infraestrutura (LangGraph, ChromaDB, embeddings)
 
 Produtos são **serviços desacoplados** que consomem core via APIs.
+
+## Convergência Entre Produtos
+
+### Arquitetura Compartilhada
+
+Produtos do super-sistema (Revelar, Prisma Verbal) compartilham infraestrutura técnica, mas têm contextos diferentes:
+
+**Infraestrutura Compartilhada:**
+- ✅ **Conceitos globais:** Biblioteca única (ChromaDB)
+- ✅ **Detecção de solidez:** Coerência, fundamentação, lacunas
+- ✅ **Rastreamento de proposições:** Genealogia de afirmações
+- ✅ **Ontologia:** Conceito, Ideia, Argumento, Proposição, Evidência
+
+**Contextos Diferentes:**
+- **Prisma Verbal:** Extrai proposições de textos estáticos (livros, papers)
+  - Leitura sequencial (como humano)
+  - Extrai proposições (#1, #2, #3...)
+  - Avalia solidez baseada em coerência interna
+  - Detecta dependências (proposição X apoia-se em Y)
+  
+- **Revelar:** Co-constrói proposições com usuário (conversa dinâmica)
+  - Diálogo socrático
+  - Proposições emergem da conversa
+  - Solidez evolui conforme usuário elabora
+  - Sistema provoca reflexão sobre lacunas
+
+### Como Produtos Trabalham Juntos
+
+**Exemplo de fluxo integrado:**
+```
+1. Usuário articula ideia no Revelar:
+   "Reuniões síncronas aumentam alinhamento"
+   ↓
+2. Revelar detecta conceito: "Coordenação" (biblioteca global)
+   ↓
+3. Sistema sugere:
+   "Isso parece relacionado ao conceito 'Coordenação' na biblioteca,
+    usado em:
+    - March & Simon (Teoria Organizacional)
+    - Scrum/XP (Desenvolvimento Ágil)
+    - Rosenberg (Comunicação Não-Violenta)
+    Quer explorar como esses autores abordam coordenação?"
+   ↓
+4. Usuário confirma interesse
+   ↓
+5. Pesquisador (Revelar) aciona Prisma para processar textos relevantes
+   ↓
+6. Prisma extrai proposições de March & Simon (1958):
+   - Proposição #12: "Coordenação requer comunicação frequente"
+   - Solidez: 0.85 (bem fundamentada no texto)
+   ↓
+7. Revelar apresenta ao usuário:
+   "March & Simon (1958) afirmam que coordenação requer comunicação frequente.
+    Isso apoia sua ideia sobre reuniões síncronas. Quer incorporar?"
+```
+
+### Essências Transcendem Palavras
+
+**Princípio:** Cada cultura/época usa palavras diferentes para apontar essências similares.
+
+**Exemplo:**
+- Marco Aurélio (romano, ~180 DC): "justiça" = ordem cósmica distributiva
+- Krishna (védico, ~500 AC): "dharma" = ordem universal, dever cósmico
+- Confúcio (chinês, ~500 AC): "harmonia" = equilíbrio natural
+
+**Mesma essência, palavras diferentes.**
+
+Sistema abstrai das palavras para capturar o que está sendo APONTADO.
+
+**Como sistema detecta similaridade:**
+- Embeddings semânticos (ChromaDB)
+- Threshold de similaridade (> 0.80)
+- Biblioteca global cresce com:
+  - Prisma processa textos estáticos → adiciona conceitos
+  - Revelar capta conceitos de conversas → adiciona à biblioteca
+  - Deduplicação automática (conceitos similares = variations)
+
+**Benefício:**
+Usuário não está "inventando a roda" - há conhecimento acumulado sob nomenclaturas diferentes.
+Sistema conecta o que usuário está articulando com o que já foi dito antes (por outros autores, em outras palavras).
+
+### Biblioteca Global em Evolução
+
+**Como biblioteca cresce:**
+
+**Via Prisma Verbal:**
+```
+1. Prisma processa "Sapiens" (Harari)
+   → Extrai conceito "Cooperação via mitos" (solidez 0.85)
+   → Salva na biblioteca global
+   
+2. Prisma processa "Sociedade sem Estado" (Clastres)
+   → Extrai conceito "Cooperação tribal" (solidez 0.80)
+   → Detecta similaridade com conceito existente (0.87)
+   → Adiciona como variation de "Cooperação"
+```
+
+**Via Revelar:**
+```
+3. Usuário articula "trabalho em equipe"
+   → Revelar detecta similaridade com "Cooperação" (0.91)
+   → Sugere: "Isso se relaciona com conceito 'Cooperação' da biblioteca"
+   → Adiciona "trabalho em equipe" como variation
+```
+
+**Resultado:**
+```
+Conceito: "Cooperação" (biblioteca global)
+  Variations:
+    - cooperação (Harari, Sapiens)
+    - colaboração (usuário, Revelar)
+    - teamwork (inglês)
+    - trabalho em equipe (usuário, Revelar)
+  Usado em:
+    - Ideia: "Cooperação via mitos" (Sapiens)
+    - Ideia: "Cooperação tribal" (Clastres)
+    - Ideia: "Trabalho em equipe aumenta produtividade" (usuário)
+```
+
+**Deduplicação automática garante catálogo limpo:**
+- Threshold > 0.90: adiciona automaticamente como variation
+- Threshold 0.80-0.90: pergunta ao usuário
+- Threshold < 0.80: conceito novo
 
 ## Visão Futura: Separação Comunicador/Orquestrador
 

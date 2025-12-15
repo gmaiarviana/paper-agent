@@ -69,6 +69,142 @@ TypedDict gerenciado pelo LangGraph com os seguintes campos:
 - Logging estruturado de perguntas e respostas
 - **Localização:** `agents/methodologist/tools.py:18`
 
+### Tools Planejadas (Futuro)
+
+#### `validate_paper_methodology(paper_id: str, paper_content: dict) -> dict`
+
+Valida qualidade metodológica de paper encontrado pelo Pesquisador (nível 2 da curadoria).
+
+**Input:**
+```python
+{
+  "paper_id": "paper-123",
+  "title": "Impact of AI Tools on Development Productivity",
+  "authors": ["Smith, J.", "Doe, A."],
+  "abstract": "...",
+  "methodology_section": "...",  # Extraído do paper
+  "sample_size": 100,
+  "study_design": "experimental"
+}
+```
+
+**Output:**
+```python
+{
+  "methodology_quality": "alta" | "média" | "baixa",
+  "peer_review": true | false,
+  "sample_adequacy": {
+    "size": 100,
+    "adequacy": "adequada" | "pequena" | "insuficiente",
+    "justification": "Amostra suficiente para generalização..."
+  },
+  "methodology_description": {
+    "clarity": "clara" | "parcial" | "vaga",
+    "justification": "Metodologia descrita detalhadamente..."
+  },
+  "statistical_analysis": {
+    "appropriate": true | false,
+    "justification": "Testes estatísticos adequados..."
+  },
+  "recommendation": "avançar" | "avisar_limitações" | "descartar",
+  "justification": "Paper tem metodologia robusta...",
+  "limitations": ["Amostra limitada a equipes Python", "Contexto específico..."]
+}
+```
+
+**Critérios de validação:**
+1. **Peer review:** Paper passou por revisão por pares?
+2. **Metodologia descrita:** Método está claro e replicável?
+3. **Amostragem:** Tamanho adequado para generalização?
+4. **Análise estatística:** Testes apropriados foram usados?
+5. **Vieses identificados:** Autores reconhecem limitações?
+
+**Decisão de qualidade:**
+- **Alta:** Todos os critérios satisfeitos → avançar para nível 3
+- **Média:** Maioria satisfeita, algumas limitações → avisar usuário, perguntar se avança
+- **Baixa:** Critérios críticos não satisfeitos → descartar
+
+#### `check_peer_review(paper_id: str, source: str) -> dict`
+
+Verifica se paper passou por peer review consultando metadados da fonte.
+
+**Input:**
+```python
+{
+  "paper_id": "paper-123",
+  "source": "Google Scholar" | "PubMed" | "ArXiv"
+}
+```
+
+**Output:**
+```python
+{
+  "peer_reviewed": true | false,
+  "journal": "Journal of Software Engineering",
+  "impact_factor": 3.5,  # Se disponível
+  "justification": "Publicado em journal peer-reviewed com IF 3.5"
+}
+```
+
+#### `compare_methodologies(paper_ids: list[str]) -> dict`
+
+Compara metodologias de múltiplos papers para identificar padrões e discrepâncias.
+
+**Input:**
+```python
+{
+  "paper_ids": ["paper-123", "paper-456", "paper-789"],
+  "aspect": "sample_size" | "study_design" | "statistical_test"
+}
+```
+
+**Output:**
+```python
+{
+  "comparison": [
+    {
+      "paper_id": "paper-123",
+      "sample_size": 100,
+      "study_design": "experimental"
+    },
+    {
+      "paper_id": "paper-456",
+      "sample_size": 20,  # ⚠️ Discrepância
+      "study_design": "observational"  # ⚠️ Diferente
+    }
+  ],
+  "patterns": "Maioria usa design experimental",
+  "discrepancies": ["Paper-456 tem amostra significativamente menor"],
+  "recommendation": "Dar mais peso a papers com amostra > 50"
+}
+```
+
+### Integração com Pesquisador
+
+**Fluxo de chamada:**
+```
+Pesquisador (nível 2 da curadoria):
+  ↓
+  "Valide este paper antes de processar"
+  ↓
+Metodologista:
+  validate_paper_methodology(paper_id, paper_content)
+  ↓
+  {
+    "methodology_quality": "alta",
+    "recommendation": "avançar",
+    "limitations": [...]
+  }
+  ↓
+Pesquisador:
+  [decide se paper avança para nível 3 - Prisma]
+```
+
+**Responsabilidade clara:**
+- Metodologista valida QUALIDADE do paper (metodologia científica)
+- Pesquisador decide SE e QUANDO acionar Metodologista
+- Prisma extrai PROPOSIÇÕES do paper (após validação)
+
 ### Nós do Grafo
 
 #### 1. `analyze` (agents/methodologist/nodes.py:38)
