@@ -44,16 +44,26 @@ O **Observador (Mente Analítica)** é o agente responsável por monitorar conve
 
 ### Estrutura do CognitiveModel
 
+> **Nota:** Esta é a estrutura do CognitiveModel em memória (durante conversa).  
+> Quando persistido, vira entidade `Argument` no banco de dados (ver seção "Argumento" abaixo).  
+> 
+> **Relação entre `proposicoes` e `fundamentos`:**
+> - `proposicoes` (CognitiveModel): Entidades de conhecimento (Proposições) que podem sustentar o argumento
+> - `fundamentos` (Argument): Proposições no **papel** de sustentar o argumento (referências a Proposições)
+> - **Essência:** Fundamentos são proposições assumindo o papel de bases que sustentam um argumento. Uma mesma Proposição pode ser fundamento de múltiplos Argumentos.
+
 ```python
 CognitiveModel:
-  # Proposições centrais
-  claims: list[str]
+  # Afirmação central
+  claim: str
   
-  # Argumentos de suporte
-  fundamentos: list[str]
+  # Proposições que sustentam o argumento (fundamentos)
+  # Cada proposição tem solidez variável (0-1)
+  # Substitui distinção binária premise/assumption (Épico 11.4)
+  proposicoes: list[Proposicao]  # {texto, solidez, evidencias}
   
   # Inconsistências detectadas
-  contradictions: list[dict]
+  contradictions: list[Contradiction]  # {description, confidence, suggested_resolution}
   
   # Conceitos semânticos (biblioteca global)
   conceitos: list[UUID]  # Referências a Concept
@@ -64,9 +74,20 @@ CognitiveModel:
   # Contexto evolutivo
   context: dict  # {domain, population, technology}
   
+  # Evidências bibliográficas (futuro - Pesquisador)
+  solid_grounds: list[SolidGround]  # {claim, evidence, source}
+  
   # Métricas calculadas
   solidez_geral: float  # 0-1
   completude: float     # 0-1
+```
+
+**Proposicao:**
+```python
+class Proposicao:
+    texto: str          # Enunciado da proposição
+    solidez: float|None # 0-1 (None = não avaliada)
+    evidencias: list    # IDs de evidências (futuro)
 ```
 
 ---
