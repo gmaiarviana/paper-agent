@@ -120,6 +120,90 @@ Sistema extrai **informação** (proposições específicas com contexto), não 
 ### Nota Importante
 Este é princípio **orientador**, não bloqueio técnico. Sistema facilita criação de informação nova, mas não impede registro se usuário decidir.
 
+## Modelo Próprio (Visão Futura)
+
+### Essências Como Unidade de Treino
+
+A arquitetura atual de LLMs opera sobre **tokens** - fragmentos linguísticos que carregam peso estatístico mas não necessariamente significado. Nossa visão futura propõe uma mudança paradigmática: um modelo treinado em **essências**, não em palavras.
+
+**Limitação dos modelos atuais:**
+- Tokenização fragmenta conceitos em pedaços arbitrários
+- Peso estatístico ≠ relevância semântica
+- Mesma ideia em línguas diferentes = representações completamente distintas
+- Vocabulário especializado vs coloquial = compreensão inconsistente
+
+**Proposta: Key-Value Semântico**
+
+Em vez de embeddings baseados em co-ocorrência de tokens, sistema armazena pares estruturados:
+
+```
+{
+  "essência": <abstração semântica pura>,
+  "manifestações": [
+    {resposta_literal_1, contexto_cultural_1},
+    {resposta_literal_2, contexto_cultural_2},
+    ...
+  ]
+}
+```
+
+### Metodologia de Treino
+
+**Fase 1: Comparação Manual (presente)**
+- Humanos identificam: "Esta frase de Marco Aurélio e esta de Confúcio apontam para a mesma essência"
+- Sistema registra par: (texto_literal → proposição_fundamental)
+- Curadoria intensiva, alto custo, alta qualidade
+
+**Fase 2: Semi-Automatizado (médio prazo)**
+- Modelo assiste humano na detecção de candidatos
+- Humano valida/corrige pares sugeridos
+- Loop de feedback refina heurísticas
+
+**Fase 3: Automatizado (longo prazo)**
+- Modelo generaliza padrões de abstração
+- Detecta essências em textos novos sem supervisão
+- Humano audita amostragens, não 100%
+
+### O Diferencial: Abstração de Contexto
+
+Modelo aprende a **transcender**:
+- **Vocabulário:** "justiça", "dharma", "harmonia" → mesma essência
+- **Cultura:** romano, védico, chinês → convergência detectada
+- **Época:** 500 AC, 180 DC, 2024 DC → padrões atemporais
+- **Idade/estilo:** acadêmico, coloquial, poético → essência preservada
+
+**Exemplo concreto:**
+```
+Input: "Cada um leva o que merece" (coloquial, 2024)
+       "A cada um segundo suas obras" (bíblico)
+       "Karma é lei" (védico)
+       "Justiça distributiva" (aristotélico)
+
+Output: Essência → [RETRIBUIÇÃO_PROPORCIONAL]
+        Solidez: alta (convergência transcultural)
+```
+
+### Conexão com Filosofia do Sistema
+
+Esta visão é extensão natural do princípio "Essências transcendem palavras" (ver seção Convergência). Enquanto o sistema atual usa embeddings para detectar similaridade semântica (threshold 0.80+), o modelo próprio internalizaria essa capacidade de abstração como seu modo fundamental de operação.
+
+**Implicação prática:**
+- Usuário articula ideia em português coloquial
+- Sistema reconhece essência, não palavras
+- Conecta com Aristóteles (grego), Lao Tzu (chinês), paper recente (inglês acadêmico)
+- Tudo sem tradução literal - via essência compartilhada
+
+### Status e Horizonte
+
+**Status:** Visão conceitual, pré-pesquisa.
+
+**Dependências:**
+- Corpus curado de pares (literal → essência)
+- Arquitetura de modelo adequada (não transformer padrão?)
+- Métricas de avaliação para "abstração correta"
+
+**Horizonte:** Longo prazo (5+ anos). Documentado aqui para orientar decisões arquiteturais que não fechem portas para essa evolução.
+
 ## Convergência Entre Produtos
 
 ### Arquitetura Compartilhada

@@ -445,6 +445,66 @@ def find_similar_concepts(query_text, top_k=5, threshold=0.80):
 - Busca no ChromaDB: ~100-500ms (500 conceitos)
 - Total: <1s (aceitável para UX)
 
+## Vetorização Futura
+
+**Princípio Fundamental:** Vetorização de conceitos acontece APÓS checkpoint/snapshot, quando a essência do conceito está amadurecida.
+
+### Timing de Vetorização
+
+O sistema **não vetoriza input bruto** do usuário. A vetorização ocorre no momento em que um snapshot é criado:
+
+1. **Input Bruto** → Não vetoriza
+   - Mensagens do usuário são processadas, não vetorizadas
+   - Conceitos mencionados são detectados, mas não persistidos imediatamente
+
+2. **Refinamento** → Não vetoriza
+   - LLM refina e estrutura conceitos detectados
+   - Sistema valida contra biblioteca existente
+   - Conceito ainda está em evolução
+
+3. **Snapshot/Checkpoint** → **Vetoriza**
+   - Momento em que Idea atinge maturidade suficiente
+   - Conceitos associados já foram refinados e validados
+   - Essência estável, pronta para embedding permanente
+
+### Conexão com Pipeline de Detecção (Épico 13)
+
+O Pipeline de Detecção (documentado acima) já implementa este princípio:
+
+```python
+# Trigger de vetorização = criação de snapshot
+idea_snapshot = create_idea_snapshot(idea_id)  # ← Momento de vetorizar
+
+# Pipeline executa APÓS snapshot existir
+detect_concepts_pipeline(idea_snapshot)        # ← Vetorização acontece aqui
+```
+
+**Sequência Correta:**
+1. Conversa evolui → conceitos detectados (sem vetorização)
+2. Idea atinge maturidade → snapshot criado
+3. Pipeline dispara → conceitos são vetorizados e persistidos
+4. ChromaDB recebe embeddings de conceitos refinados
+
+### Por Que Esta Abordagem
+
+| Vetorizar Input Bruto | Vetorizar Após Snapshot |
+|----------------------|------------------------|
+| Vetores de baixa qualidade | Vetores representam essência real |
+| Duplicação excessiva | Deduplicação natural |
+| Custo computacional alto | Custo otimizado (só vetoriza refinados) |
+| Biblioteca poluída | Biblioteca curada |
+
+### Arquitetura Atual Já Suporta
+
+O sistema já possui a estrutura correta para vetorização futura:
+
+- **Checkpoints de Idea** → Trigger natural para vetorização
+- **Pipeline de Detecção** → Mecanismo de extração e persistência
+- **ChromaDB + SQLite** → Infraestrutura de storage pronta
+- **Thresholds de similaridade** → Deduplicação automática
+
+A vetorização de conceitos será ativada quando o Pipeline de Detecção for implementado, usando checkpoints como trigger. Nenhuma mudança arquitetural necessária.
+
 ## Referências
 
 - `ontology.md` - Definição filosófica de Conceito

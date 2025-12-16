@@ -313,6 +313,56 @@ Sistema conecta o que usuário está articulando com o que já foi dito antes (p
 - Sistema detecta similaridade semântica via vetores (ChromaDB)
 - Biblioteca global cresce com contribuições de Prisma (textos processados) e Revelar (conversas)
 
+### Vetorização Futura e Diálogo Socrático
+
+**Clareza Emerge Progressivamente:**
+
+O diálogo socrático do Revelar tem uma implicação direta para vetorização: a clareza conceitual não existe no início - ela é **construída** através da conversa. Isso significa que vetorizar o input inicial seria capturar confusão, não conhecimento.
+
+**Quando Vetorizar:**
+- ❌ Input inicial: "Acho que LLMs aumentam produtividade" (nebuloso)
+- ❌ Durante refinamento: ideia ainda em transformação
+- ✅ Snapshot maduro: argumento refinado com claim, fundamentos, solidez
+
+**Exemplo de Evolução:**
+```
+Início:     "LLMs aumentam produtividade" 
+            → vago, sem contexto, sem métricas
+            → NÃO vetorizar
+
+Meio:       "Ferramentas de código com IA parecem acelerar desenvolvimento"
+            → mais específico, ainda impreciso
+            → NÃO vetorizar
+
+Snapshot:   "Claude Code reduz tempo de sprint em 30% para tarefas de 
+            refatoração em equipes Python (baseado em métricas internas Q4/2024)"
+            → claim específico, contexto claro, mensurável
+            → VETORIZAR
+```
+
+**Benefício para Busca Semântica:**
+
+Vetores que refletem clareza conceitual real (não confusão inicial) produzem:
+- **Matches mais precisos:** busca encontra ideias relacionadas, não ruído
+- **Biblioteca de qualidade:** apenas essências refinadas entram no catálogo
+- **Conexões significativas:** similaridade semântica entre conceitos maduros
+
+**Arquitetura Já Preparada:**
+
+O sistema de snapshots automáticos do Revelar já fornece a estrutura necessária:
+- Snapshots capturam momentos de estabilidade cognitiva
+- Cada snapshot representa ideia em estado de maturidade
+- Vetorização pode ser trigger automático em snapshots marcados como "maduros"
+
+**Implicação Futura:**
+```
+Conversa → Snapshots automáticos → Detecção de maturidade → Vetorização seletiva
+                                                              ↓
+                                            Biblioteca global (ChromaDB)
+```
+
+Usuário não precisa gerenciar isso - sistema identifica quando argumento atingiu clareza suficiente para ser persistido como vetor semântico.
+
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal

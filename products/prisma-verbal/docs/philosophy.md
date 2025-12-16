@@ -235,6 +235,71 @@ Pessoa pode nunca ter lido Bíblia, mas cultura incorporou crença
 
 **Nota:** Este produto (Prisma Verbal) foca na CAPTURA. Outro produto futuro fará CONEXÕES genealógicas.
 
+### Vetorização e Extração Progressiva
+
+**Princípio fundamental:** Essência não é extraída de uma vez — ela EMERGE progressivamente ao longo da leitura.
+
+**Evolução de um conceito:**
+
+```
+Menção inicial     →    Elaboração      →    Clareza plena
+   (vago)              (contextual)         (essência madura)
+
+"física"           →   "física estuda   →   "física = ciência das
+                        matéria e            características
+                        energia"             fundamentais do
+                                             universo pós-Big Bang"
+```
+
+**Por que vetorização NÃO acontece na primeira menção:**
+
+Quando Sapiens menciona "física" pela primeira vez, o leitor ainda não sabe:
+- Em que contexto o autor usa o termo
+- Qual nuance específica está sendo apontada
+- Como esse conceito se relaciona com os demais
+
+O significado **acumula-se** conforme leitura avança. Só após várias menções, exemplos e relações, a essência do conceito se estabiliza.
+
+**Analogia com leitura humana:**
+
+Leitor humano não define "física" ao ler primeira ocorrência. Ele:
+1. Registra o termo (primeira impressão)
+2. Refina entendimento (mais contexto)
+3. Consolida essência (visão completa)
+
+Sistema deve operar igual: **checkpoint é o momento de consolidação**.
+
+**Timing correto de vetorização:**
+
+| Momento | Ação | Justificativa |
+|---------|------|---------------|
+| Primeira menção | Detectar, não vetorizar | Significado ainda incompleto |
+| Durante leitura | Acumular contexto | Essência em formação |
+| Checkpoint | **Vetorizar** | Essência amadurecida |
+
+**Conexão com leitura sequencial:**
+
+Sistema lê como humano (sequencialmente). Isso significa que:
+- Significado não é dado de antemão
+- Significado se **constrói** ao longo do texto
+- Vetorização prematura captura fragmento, não essência
+
+**Exemplo concreto (Sapiens):**
+
+```
+Parágrafo 1: "física" aparece → não vetoriza (o que é "física" aqui?)
+
+Parágrafo 3: "física estuda..." → ainda não vetoriza (elaborando)
+
+Checkpoint do capítulo: sistema consolidou que "física" neste 
+contexto = "ciência das características fundamentais do universo"
+→ AGORA vetoriza (essência madura)
+```
+
+**Implicação arquitetural:**
+
+Checkpoints não são apenas "salvamentos" — são o **momento ontológico** em que conceito deixa de ser fluido e adquire identidade estável. Vetorizar antes disso é capturar sombra, não essência.
+
 ## 11. Diferenciação: Prisma Verbal vs Paper-Agent
 
 ### Texto Estático vs Conversa Dinâmica
@@ -322,4 +387,5 @@ Pessoa pode nunca ter lido Bíblia, mas cultura incorporou crença
 - Sistema + usuário refinam argumento juntos
 
 - Bastidores transparentes (reasoning visível)
+
 
