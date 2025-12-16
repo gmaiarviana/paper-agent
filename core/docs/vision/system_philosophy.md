@@ -87,6 +87,39 @@ Paper Agent não é apenas um produto isolado. É a **primeira aplicação** de 
 
 Produtos são **serviços desacoplados** que consomem core via APIs.
 
+## Informação vs Dados (Filosofia Orientadora)
+
+### Princípio Central
+Sistema extrai **informação** (proposições específicas com contexto), não acumula **dados** (catálogos redundantes).
+
+### O Que É Informação
+- **Proposição específica:** "Smith et al. (2023) afirma que LLMs reduzem tempo em 30% em equipes Python (solidez: 0.85)"
+- **Não é:** "Paper X fala sobre LLMs e produtividade"
+
+### O Que É Dado
+- Catálogo genérico sem contexto
+- Referência sem extração de conhecimento
+- Acúmulo sem síntese
+
+### Como Sistema Captura Isso
+**Prisma Verbal:**
+- Processa texto e extrai proposições específicas
+- Avalia solidez de cada proposição
+- Rastreia genealogia (qual proposição apoia qual)
+
+**Revelar:**
+- Co-constrói proposições com usuário
+- Refina até proposição ter contexto claro
+- Conecta com conceitos da biblioteca global
+
+### Objetivo
+- **Registrar apenas contribuições novas** (não redundância)
+- **Extrair essência** dos textos (não resumir palavras)
+- **Conectar conhecimento** (não isolar papers)
+
+### Nota Importante
+Este é princípio **orientador**, não bloqueio técnico. Sistema facilita criação de informação nova, mas não impede registro se usuário decidir.
+
 ## Convergência Entre Produtos
 
 ### Arquitetura Compartilhada

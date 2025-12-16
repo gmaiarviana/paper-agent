@@ -117,7 +117,7 @@
 │ ─────────────────────────────────────────────   │
 │                                                 │
 │ [💬 Continuar elaborando]  ← novo chat          │
-│ [📝 Criar conteúdo]        ← se madura          │
+│ [📤 Exportar resumo]       ← markdown/texto simples │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -129,7 +129,7 @@
 - Contador: "2 fundamentos precisam fortalecimento"
 - Conversas associadas à ideia
 - Botão "Continuar elaborando" → cria novo thread_id e volta pro chat
-- Botão "Criar conteúdo" → disponível quando ideia tem solidez >= 60%
+- Botão "Exportar resumo" → exporta resumo da ideia em markdown/texto simples
 
 **D) Chat Principal (50-60% largura)**
 ```
@@ -251,50 +251,6 @@
 
 **Chat iniciado de página de ideia:**
 - Já começa com ideia associada no Contexto
-
----
-
-### 3.3 Fluxo "Criar Conteúdo"
-
-**Trigger:** Botão "Criar conteúdo" disponível quando ideia tem solidez >= 60%
-
-**Fluxo:**
-
-```
-Usuário clica "Criar conteúdo"
-↓
-Abre chat com prompt inicial:
-Sistema: "Vamos criar conteúdo a partir dessa ideia!
-Que formato você prefere?
-
-• Artigo acadêmico
-• Post de blog
-• Thread de Twitter
-• Outro"
-↓
-Conversa curta para definir:
-
-• Formato
-• Tom/estilo
-• Ênfase (qual fundamento destacar)
-• Público-alvo
-↓
-Orquestrador chama Escritor
-↓
-Conteúdo gerado baseado em:
-
-• Claim da ideia
-• Fundamentos (proposições)
-• Evidências
-• Preferências definidas na conversa
-```
-
-**Implementação:**
-- Botão "Criar conteúdo" aparece condicionalmente (solidez >= 60%)
-- Abre novo chat com contexto pré-carregado da ideia
-- Orquestrador detecta intenção de criar conteúdo e chama Escritor
-- Escritor gera conteúdo usando metadados já elaborados (claim, fundamentos, evidências)
-- Usuário pode revisar e ajustar antes de exportar
 
 ---
 

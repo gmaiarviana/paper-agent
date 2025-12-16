@@ -1,16 +1,29 @@
-Methodologist Agent
-===================
+# Metodologista - Agente de Validação Lógica
 
-**Status:** Em desenvolvimento (Épicos 2 → 4)
-**Versão:** 1.4
+**Status:** Em desenvolvimento (Épicos 2 → 4)  
+**Versão:** 1.4  
 **Data:** 13/11/2025
 
-## Resumo
+## Visão Geral
+Agente especializado em avaliar **coerência lógica** de hipóteses e argumentos, independente do domínio. Valida solidez de fundamentos, identifica contradições e aponta lacunas no raciocínio.
 
-Agente especializado em avaliar rigor científico de hipóteses. Implementado como agente autônomo usando LangGraph, capaz de:
-- Fazer perguntas ao usuário para obter clarificações
-- Tomar decisões com raciocínio explícito
-- Avaliar hipóteses segundo critérios metodológicos (testabilidade, falseabilidade, especificidade)
+**Contexto agnóstico:** Funciona tanto para hipóteses científicas quanto para hipóteses de negócio, postagens, decisões pessoais.
+
+## Responsabilidades
+- Avaliar coerência lógica (proposições não se contradizem?)
+- Validar solidez de fundamentos (têm base?)
+- Identificar contradições entre proposições
+- Apontar lacunas no raciocínio (open questions)
+- Sugerir fortalecimento de fundamentos frágeis
+- **Adaptar rigor ao contexto** (científico vs negócio vs pessoal)
+
+## Modo de Operação
+Opera em modo **colaborativo**:
+- `approved`: Argumentação sólida e coerente
+- `needs_refinement`: Lacunas identificadas, sugere melhorias
+- `rejected`: Contradição lógica fundamental
+
+**Importante:** Metodologista não impõe formato acadêmico. Valida **lógica**, não **estilo**.
 
 **⚠️ NOTA IMPORTANTE:** O Metodologista é chamado **automaticamente** pelo Orquestrador quando o contexto é suficiente para validação metodológica. O Orquestrador faz curadoria do resultado e apresenta ao usuário em tom coeso, sem necessidade de negociação prévia.
 
@@ -23,28 +36,31 @@ Agente especializado em avaliar rigor científico de hipóteses. Implementado co
 **3 Modos de operação:**
 
 1. **approved:**
-   - Hipótese testável, falseável, específica, operacionalizada
-   - Estrutura científica sólida
-   - Pronta para desenho experimental
+   - Argumentação sólida e coerente
+   - Fundamentos bem estabelecidos
+   - Lógica consistente (sem contradições)
+   - Contexto-adequado: rigor científico para pesquisa, pragmático para negócio/pessoal
 
 2. **needs_refinement (NOVO):**
-   - Ideia tem potencial científico
-   - Falta especificidade (população, métricas, variáveis)
+   - Ideia tem potencial mas falta clareza
+   - Lacunas identificadas (premissas não explícitas, variáveis indefinidas)
    - Pode ser melhorada com refinamento
    - Campo `improvements` lista gaps específicos
 
 3. **rejected:**
-   - Sem base científica (crença popular, impossível testar)
-   - Vagueza extrema que refinamento não resolve
+   - Contradição lógica fundamental
+   - Fundamentos completamente ausentes
+   - Impossível refinar (não há base para trabalhar)
    - Usado apenas em casos extremos
 
 **Quando usar cada modo:**
 
-| Input | Modo | Razão |
-|-------|------|-------|
-| "Método X reduz tempo em 30% em equipes 2-5 devs" | approved | Testável, específico |
-| "Método X é mais rápido" | needs_refinement | Potencial, falta população/métricas |
-| "X é bom porque todo mundo sabe" | rejected | Apelo à crença, não-testável |
+| Input | Contexto | Modo | Razão |
+|-------|----------|------|-------|
+| "Método X reduz tempo em 30% em equipes 2-5 devs" | Negócio/Tech | approved | Testável, específico, fundamentado |
+| "Vou mudar de carreira porque não me sinto realizado" | Pessoal | needs_refinement | Potencial, falta definir "realizado" e evidências |
+| "Método X é mais rápido" | Negócio | needs_refinement | Potencial, falta população/métricas |
+| "X é bom porque todo mundo sabe" | Qualquer | rejected | Apelo à crença, não-testável, sem fundamento |
 
 ### Estado (MethodologistState)
 
@@ -248,12 +264,12 @@ Pesquisador:
 
 **Processo:**
 1. Analisa toda informação coletada (hipótese + clarificações)
-2. Avalia segundo critérios científicos:
-   - Testabilidade
-   - Falseabilidade
-   - Especificidade
-   - Operacionalização
-3. Define status (approved/rejected)
+2. Avalia segundo critérios lógicos (adaptados ao contexto):
+   - Coerência lógica (proposições não se contradizem?)
+   - Solidez de fundamentos (têm base?)
+   - Especificidade adequada ao contexto (científico: rigoroso; negócio: pragmático; pessoal: claro)
+   - Operacionalização quando aplicável (testável para pesquisa/negócio)
+3. Define status (approved/needs_refinement/rejected)
 4. Gera justificativa detalhada
 
 ### Output (atualizado - Épico 4)
@@ -274,7 +290,9 @@ Pesquisador:
 }
 ```
 
-**Exemplo de needs_refinement:**
+**Exemplos de needs_refinement:**
+
+**Contexto científico:**
 ```python
 {
     "status": "needs_refinement",
@@ -295,6 +313,48 @@ Pesquisador:
 }
 ```
 
+**Contexto negócio:**
+```python
+{
+    "status": "needs_refinement",
+    "justification": "Hipótese de que mudança de preço aumenta receita tem potencial, mas falta definir variáveis-chave.",
+    "improvements": [
+        {
+            "aspect": "variáveis",
+            "gap": "Não especificado quanto aumentar preço nem segmento-alvo",
+            "suggestion": "Definir: aumento de 10% em produtos premium, mantendo produtos básicos"
+        },
+        {
+            "aspect": "fundamentos",
+            "gap": "Falta evidência de elasticidade de demanda",
+            "suggestion": "Verificar dados históricos ou pesquisa de mercado sobre sensibilidade a preço"
+        }
+    ],
+    "clarifications": {}
+}
+```
+
+**Contexto pessoal:**
+```python
+{
+    "status": "needs_refinement",
+    "justification": "Decisão de mudar de carreira tem base emocional válida, mas falta clareza sobre critérios de sucesso.",
+    "improvements": [
+        {
+            "aspect": "variáveis",
+            "gap": "'Realização' não está definida",
+            "suggestion": "Especificar: o que significa realização para você? (autonomia, impacto, criatividade?)"
+        },
+        {
+            "aspect": "fundamentos",
+            "gap": "Falta evidência de que nova carreira atenderá critérios",
+            "suggestion": "Conversar com profissionais da área, fazer projeto piloto (freelance, voluntariado)"
+        }
+    ],
+    "clarifications": {}
+}
+```
+
 ### Knowledge Base
 
 **Localização:** `core/docs/agents/methodologist_knowledge.md`
@@ -302,9 +362,11 @@ Pesquisador:
 **Conteúdo:**
 - Diferença entre lei, teoria e hipótese
 - Critérios de testabilidade e falseabilidade (Popper)
-- Exemplos práticos de hipóteses boas vs ruins:
-  - Cafeína e desempenho cognitivo
-  - Música e crescimento de plantas
+- Princípios de coerência lógica e solidez de fundamentos
+- Exemplos práticos de hipóteses boas vs ruins em diferentes contextos:
+  - **Científico:** Cafeína e desempenho cognitivo; Música e crescimento de plantas
+  - **Negócio:** Mudança de preço e receita; Automação e produtividade
+  - **Pessoal:** Mudança de carreira e realização; Relacionamento e felicidade
 
 **Nota:** Knowledge base micro para MVP. Versão completa será implementada futuramente com tool `consult_methodology`.
 
@@ -316,9 +378,9 @@ Pesquisador:
 **Características:**
 - Linguagem direta e concisa (265 palavras)
 - Instruções explícitas sobre uso da tool `ask_user`
-- Define output JSON: `{"status": "approved|rejected", "justification": "..."}`
-- Critérios científicos claros: testabilidade, falseabilidade, especificidade, operacionalização
-- Exemplos práticos de aprovação e rejeição
+- Define output JSON: `{"status": "approved|needs_refinement|rejected", "justification": "..."}`
+- Critérios lógicos adaptáveis ao contexto: coerência, solidez de fundamentos, especificidade adequada
+- Exemplos práticos de aprovação, refinamento e rejeição em diferentes contextos
 
 **Validação:** `scripts/health_checks/validate_system_prompt.py`
 
@@ -337,24 +399,38 @@ Campo "improvements": seja ESPECÍFICO sobre gaps e como preencher
 
 DECISÃO DE STATUS:
 
-approved: Testável + específico + operacionalizado
-needs_refinement: Potencial + falta elementos (população, métricas, variáveis)
-rejected: Sem base científica + impossível refinar
+approved: Coerente + fundamentado + específico (adequado ao contexto)
+needs_refinement: Potencial + falta elementos (premissas, variáveis, evidências)
+rejected: Contradição lógica fundamental + impossível refinar
+
+ADAPTE RIGOR AO CONTEXTO:
+- Científico: rigor metodológico, testabilidade, falseabilidade
+- Negócio: pragmático, métricas mensuráveis, viabilidade
+- Pessoal: clareza de critérios, evidências subjetivas válidas
 
 CAMPO "improvements" (needs_refinement):
 [
 {
-"aspect": "população" | "métricas" | "variáveis" | "testabilidade",
+"aspect": "população" | "métricas" | "variáveis" | "testabilidade" | "fundamentos" | "coerência",
 "gap": "Descrição clara do que falta",
 "suggestion": "Como preencher (exemplo concreto)"
 }
 ]
 EXEMPLOS:
-Input: "Método X é melhor"
+Input: "Método X é melhor" (negócio)
 Output: {
 "status": "needs_refinement",
 "improvements": [
 {"aspect": "métricas", "gap": "Melhor não mensurável", "suggestion": "Definir: reduz tempo em X%, aumenta qualidade em Y%"}
+]
+}
+
+Input: "Vou mudar de carreira porque não me sinto realizado" (pessoal)
+Output: {
+"status": "needs_refinement",
+"improvements": [
+{"aspect": "variáveis", "gap": "'Realizado' não definido", "suggestion": "Especificar critérios: autonomia? impacto? criatividade?"},
+{"aspect": "fundamentos", "gap": "Falta evidência de que nova carreira atenderá", "suggestion": "Conversar com profissionais, fazer projeto piloto"}
 ]
 }
 ```
@@ -399,8 +475,9 @@ faz curadoria do resultado e apresenta ao usuário em tom coeso.
 4. Orquestrador recebe resultado e faz curadoria
 5. Orquestrador apresenta: "Validei sua hipótese: [resultado]. Faz sentido?"
 
-**Exemplo completo:**
+**Exemplos completos:**
 
+**Contexto científico:**
 ```
 Orquestrador: "Validei sua hipótese. Ela atende critérios de testabilidade
               e falseabilidade. Identifiquei que falta definir baseline.
@@ -411,6 +488,32 @@ Usuário: "Faz sentido, mas como definir baseline?"
 ↓
 Orquestrador: "Podemos usar métricas históricas da equipe ou benchmark
               da literatura. Qual prefere?"
+```
+
+**Contexto negócio:**
+```
+Orquestrador: "Analisei sua ideia de aumentar preços. A lógica é sólida,
+              mas falta definir quanto aumentar e em quais produtos.
+              Quer refinar isso?"
+[Bastidores: 🔬 Metodologista validou → 🎯 Orquestrador curou]
+↓
+Usuário: "Sim, como faço?"
+↓
+Orquestrador: "Podemos começar definindo segmento (premium vs básico)
+              e percentual de aumento. Qual faz mais sentido para seu negócio?"
+```
+
+**Contexto pessoal:**
+```
+Orquestrador: "Entendi sua decisão de mudar de carreira. A motivação
+              está clara, mas falta definir o que 'realização' significa
+              para você. Quer explorar isso?"
+[Bastidores: 🔬 Metodologista validou → 🎯 Orquestrador curou]
+↓
+Usuário: "Como?"
+↓
+Orquestrador: "Podemos listar critérios: autonomia, impacto social,
+              criatividade, estabilidade. Quais são mais importantes para você?"
 ```
 
 **Princípios:**

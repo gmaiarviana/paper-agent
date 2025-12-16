@@ -1,11 +1,10 @@
 Paper Agent
 ===========
 
-Visão Geral
------------
-Plataforma colaborativa com agentes de IA pensada para apoiar todo o ciclo de produção de artigos, combinando especialistas virtuais e orquestração automatizada. A POC atual valida a primeira etapa dessa visão: análise de hipóteses com um agente Metodologista coordenado por um Orquestrador construído sobre LangGraph.
+## Visão Geral
+Plataforma colaborativa com agentes de IA para apoiar clareza de pensamento e extração de conhecimento. Arquitetura atual: sistema multi-agente conversacional sobre LangGraph com Orquestrador facilitador, Estruturador organizador e Metodologista validador lógico. Sistema mantém diálogo fluido onde usuário e agentes negociam caminho juntos. Interface web conversacional (Streamlit) como principal; CLI mantido para desenvolvimento e automação.
 
-Interface web conversacional (Streamlit) como experiência principal; CLI mantido como ferramenta auxiliar para desenvolvimento.
+**Produto atual:** Revelar - sistema conversacional para estruturar pensamentos nebulosos em conceitos claros.
 
 Pré-requisitos
 --------------

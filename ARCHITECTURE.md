@@ -78,6 +78,11 @@ Paper-Agent     Fichamento      Rede Social
 
 Produtos são **serviços desacoplados** que consomem core via APIs.
 
+**Produtos atuais/futuros:**
+- **Revelar:** Clareza de pensamento - estruturar ideias nebulosas em conceitos claros (atual)
+- **Prisma Verbal:** Extração de informação - processar literatura e extrair proposições (futuro próximo)
+- **Produtor Científico:** Produção de conteúdo - ideia madura → manuscrito/artigo (futuro)
+
 ## Escopo Atual
 
 **Sistema Multi-Agente Conversacional:**

@@ -4,10 +4,19 @@
 
 ## 1. Visão Geral do Produto Revelar
 
-- **O que é**: Sistema conversacional para estruturar ideias nebulosas em conceitos claros
-- **Para quem**: Pessoas que precisam clareza de pensamento (não artigo científico)
+- **O que é**: Sistema conversacional para estruturar pensamentos nebulosos em conceitos claros
+- **Para quem**: Pessoas que precisam clareza sobre hipóteses, ideias, constatações (qualquer domínio)
 - **Problema resolvido**: Transformar confusão mental em entendimento estruturado
-- **Diferencial**: Chat conversacional com agentes visíveis
+- **Diferencial**: Chat conversacional com agentes visíveis, foco na jornada de clareza
+
+### Output do Revelar
+- ✅ Clareza mental sobre o que você realmente quer dizer
+- ✅ Hipótese bem articulada (negócio, postagem, pesquisa, vida pessoal)
+- ✅ Rede de conceitos conectados
+- ✅ Fundamentos com solidez avaliada
+- ❌ NÃO produz documentos finais (artigos, relatórios)
+
+**Metáfora:** Revelar é o "ateliê de lapidação" onde você refina ideias brutas até ficarem cristalinas. A produção de conteúdo final (artigos, posts, relatórios) acontece em outros produtos.
 
 ## 2. Posicionamento e Diferencial
 
@@ -98,11 +107,12 @@ A unidade de trabalho que atravessa todo o fluxo é a **Ideia**.
 - Argumentos informais são estruturados através do diálogo
 - Dashboard mostra evolução em tempo real
 
-**Ideia Madura → Conteúdo (Opcional)**
+**Ideia Madura = Clareza Alcançada**
 Quando uma ideia atinge clareza suficiente:
-1. Usuário pode acessar ideia e ver resumo estruturado
-2. Sistema oferece opção de exportar como texto simples
-3. Foco permanece na clareza, não em formatos acadêmicos
+1. Usuário vê resumo estruturado (claim, fundamentos, solidez)
+2. Pode exportar estrutura simples (markdown, texto)
+3. Pode passar para próximo produto (Produtor Científico) via integração futura
+4. Foco permanece na clareza, não em formato final
 
 ## 5. Interação com Usuário
 
@@ -256,82 +266,10 @@ Transparência sobre origem de informações e raciocínio do sistema, permitind
 
 ## 6. Casos de Uso Principais (Revelar)
 
-- **UC1: Esclarecer Pensamento Confuso** – De uma confusão mental para uma ideia clara e estruturada através do diálogo.
+- **UC1: Esclarecer Pensamento Confuso** – De uma confusão mental para uma ideia clara e estruturada através do diálogo. Qualquer domínio (negócio, postagem, pesquisa).
 - **UC2: Identificar Conceitos Relacionados** – Descobrir conexões entre ideias e conceitos que o usuário não havia percebido.
-- **UC3: Estruturar Argumento Informal** – Transformar pensamento parcial em argumento coerente, mesmo que não seja formalmente acadêmico.
-
-### 6.1 Caso de Uso: Preparar Projeto de Mestrado/Pós-Graduação
-
-**Objetivo:** Transformar ideia nebulosa em base sólida para projeto de pesquisa
-
-**Fluxo:**
-1. Usuário traz ideia vaga: "LLMs aumentam produtividade"
-2. Sistema refina através de diálogo socrático
-3. Proposições emergem e solidez é avaliada
-4. Pesquisador busca evidências bibliográficas
-5. Resultado: Hipótese limpa e bem fundamentada
-
-**Hipótese limpa = base sólida para projeto:**
-- Relevante (agrega valor social/científico)
-- Específica (população, métricas, contexto definidos)
-- Bem fundamentada (proposições com solidez > 0.6)
-- Com suporte bibliográfico (evidências da literatura)
-
-**Exemplo de progressão:**
-Turno 1:  "LLMs aumentam produtividade" (vago)
-Turno 5:  "Claude Code reduz tempo de sprint em 30%" (específico)
-Turno 10: "Claude Code reduz tempo de sprint em 30% em equipes Python de 2-5 devs,
-medido por sprints de 2 semanas, sem comprometer qualidade de código" (hipótese limpa)
-
-**Por que isso é base sólida:**
-- Projeto de mestrado requer hipótese testável e bem contextualizada
-- Sistema ajuda identificar lacunas antes de submeter projeto
-- Evidências bibliográficas fortalecem proposta
-- Tempo investido em clareza inicial economiza meses de retrabalho
-
-### 6.2 O Pesquisador como Filtro de Sinal vs Ruído
-
-**Problema moderno:** Excesso de informação, não falta
-
-No passado, o problema era **falta de informação** (bibliotecas limitadas, papers inacessíveis).
-Hoje, o problema é **excesso de informação** (milhares de papers publicados mensalmente, qualidade variável).
-
-**Papel do Pesquisador:**
-O Pesquisador atua como meta-agente de curadoria bibliográfica, filtrando "sinal" (informação relevante e confiável) de "ruído" (informação irrelevante ou não confiável).
-
-**Curadoria Multinível (3 níveis):**
-
-**Nível 1: Triagem Temática (rápido)**
-- 50 papers encontrados → 10 candidatos
-- Critério: relevância temática (título, abstract, keywords)
-
-**Nível 2: Validação Metodológica (médio)**
-- 10 candidatos → 3-5 papers confiáveis
-- Critério: qualidade metodológica (peer review, metodologia sólida)
-- Aciona Metodologista para validar papers
-
-**Nível 3: Extração de Proposições (caro)**
-- 3-5 papers confiáveis → proposições extraídas e avaliadas
-- Confirmação com usuário: "Encontrei 3 papers confiáveis. Vale processar profundamente?"
-- Aciona Prisma Verbal para processar paper completo
-- Prisma extrai proposições, avalia solidez, detecta dependências
-
-**Resultado final:**
-Paper A (Smith et al. 2023):
-Proposição #5: "Claude Code reduz tempo em 30%"
-Solidez: 0.85 (bem fundamentada, metodologia clara, amostra de 100 equipes)
-Apoia: Proposição X do usuário (fortemente)
-
-Paper B (Jones et al. 2022):
-Proposição #12: "AI tools aumentam bugs em 15%"
-Solidez: 0.60 (metodologia razoável, mas amostra pequena)
-Refuta: Proposição Y do usuário (parcialmente)
-
-**Capacidade que usuário não teria sozinho:**
-- Acesso rápido a papers relevantes
-- Validação de qualidade metodológica
-- Extração de proposições específicas (não ler paper inteiro)
-- Avaliação de solidez baseada em coerência interna
+- **UC3: Estruturar Argumento Informal** – Transformar pensamento parcial em argumento coerente, independente do domínio.
+- **UC4: Preparar Hipótese para Próxima Etapa** – Refinar hipótese até estar madura para ser usada em outra ferramenta/processo (ver `use_cases.md` para exemplos específicos).
 
 ### 6.3 Convergência com Prisma Verbal
 

@@ -201,50 +201,54 @@ Orquestrador decide baseado em insight + própria análise
 ## 2. METODOLOGISTA
 
 ### Responsabilidades
-- Avaliar rigor científico da hipótese/constatação
-- Validar se a lógica proposta é sólida
-- Identificar falhas metodológicas
-- Sugerir melhorias no método
-- Validar se as conclusões são suportadas pelos argumentos
+- Avaliar **coerência lógica** de hipóteses/constatações (qualquer domínio)
+- Validar se argumentação é sólida (não necessariamente científica)
+- Identificar **contradições** entre proposições
+- Apontar **lacunas** no raciocínio
+- Sugerir fortalecimento de fundamentos frágeis
 - **Validar se fundamentos têm solidez suficiente** (têm base?)
-- **Identificar fundamentos com baixa solidez** (precisam pesquisar?)
+- **Identificar fundamentos com baixa solidez** (precisam evidências?)
 - **Apontar contradictions** na lógica
 - **Sugerir evidências necessárias**: "Fundamento X precisa de evidência" (adiciona open_question)
 
 ### PODE fazer
-- Rejeitar hipótese com justificativa
+- Rejeitar hipótese com justificativa (lógica falha)
 - Pedir mais informações ao usuário (via Orquestrador)
-- Sugerir ajustes na formulação
-- Apontar vieses metodológicos
-- Validar coerência lógica
+- Sugerir ajustes na formulação (clareza)
+- Apontar inconsistências lógicas
+- Validar coerência entre proposições
+- Avaliar solidez de fundamentos (baseado em coerência, não apenas método científico)
 
 ### NÃO PODE fazer
-- Criar o outline do artigo
-- Fazer pesquisa bibliográfica
-- Escrever conteúdo
+- Criar o outline do artigo (responsabilidade de outro produto)
+- Fazer pesquisa bibliográfica (responsabilidade do Pesquisador)
+- Escrever conteúdo (responsabilidade de outro produto)
 - Estruturar argumentação (isso é do Estruturador)
+- **Impor formato acadêmico** (Revelar não exige isso)
+- **Validar metodologia científica específica** (só se contexto pedir)
 
 ### Input esperado
-- Hipótese/constatação/observação do usuário
-- Contexto da área de conhecimento
-- (Opcional) Pesquisas prévias do Pesquisador
+- Hipótese/constatação/observação do usuário (qualquer domínio)
+- Contexto da área/domínio
+- (Opcional) Evidências prévias (pesquisa ou experiência)
 
 ### Output esperado
 **Se aprovado:**
 - Validação com justificativa
-- Pontos fortes da hipótese
-- Recomendações metodológicas
+- Pontos fortes da argumentação
+- Recomendações de fortalecimento
 
 **Se rejeitado:**
-- Falhas específicas identificadas
+- Inconsistências específicas identificadas
 - Sugestões concretas de correção
-- Alternativas metodológicas
+- Alternativas lógicas
 
 ### Critérios de qualidade
-- Justificativas baseadas em método científico
+- Justificativas baseadas em **lógica e coerência**
 - Apontamentos específicos, não genéricos
 - Sugestões acionáveis
-- Sem viés pessoal, apenas rigor metodológico
+- Sem viés de domínio (funciona para negócio, pesquisa, vida pessoal)
+- **Adapta rigor ao contexto** (hipótese de negócio ≠ hipótese científica)
 
 ---
 
