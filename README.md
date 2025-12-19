@@ -1,10 +1,32 @@
-Paper Agent
-===========
+Super-Sistema com Core Universal
+=================================
 
 ## Visão Geral
-Plataforma colaborativa com agentes de IA para apoiar clareza de pensamento e extração de conhecimento. Arquitetura atual: sistema multi-agente conversacional sobre LangGraph com Orquestrador facilitador, Estruturador organizador e Metodologista validador lógico. Sistema mantém diálogo fluido onde usuário e agentes negociam caminho juntos. Interface web conversacional (Streamlit) como principal; CLI mantido para desenvolvimento e automação.
+Super-sistema colaborativo com agentes de IA para apoiar clareza de pensamento e extração de conhecimento. Arquitetura atual: sistema multi-agente conversacional sobre LangGraph com Orquestrador facilitador, Estruturador organizador e Metodologista validador lógico. Sistema mantém diálogo fluido onde usuário e agentes negociam caminho juntos. Interface web conversacional (Streamlit) como principal; CLI mantido para desenvolvimento e automação.
 
 **Produto atual:** Revelar - sistema conversacional para estruturar pensamentos nebulosos em conceitos claros.
+
+Visão do Sistema
+----------------
+
+Este repositório implementa um **super-sistema** com core universal que serve múltiplos produtos. O core compartilha ontologia (Conceito, Ideia, Argumento), modelo cognitivo, agentes especializados e infraestrutura vetorial (ChromaDB, embeddings).
+
+**Pipeline de Produtos (visão futura):**
+```
+Revelar (clareza) → Camadas da Linguagem (estruturação) → Expressão (forma)
+     ↑
+Prisma Verbal (extração de textos)
+```
+
+- **Revelar** (atual): Clareza de pensamento via diálogo socrático
+- **Prisma Verbal** (planejado): Extração de conceitos de textos estáticos
+- **Camadas da Linguagem** (planejado): Estruturação de ideias em mensagens
+- **Expressão** (planejado): Produção de conteúdo em formas diversas
+- **Produtor Científico** (planejado): Especialização de Expressão para artigos acadêmicos
+
+**Filosofia Central:** Sistema não julga verdade, mapeia sustentação. Proposições têm solidez (não são "verdadeiras" ou "falsas"). Pesquisa fortalece/enfraquece, não valida/refuta.
+
+> Para detalhes completos: `core/docs/vision/system_philosophy.md` e `core/docs/architecture/vision/super_system.md`
 
 Pré-requisitos
 --------------
@@ -71,7 +93,7 @@ python -c "import langgraph; print('✅ LangGraph instalado com sucesso!')"
 Interfaces do Sistema
 ---------------------
 
-O Paper Agent oferece **duas interfaces web** para diferentes necessidades, além de CLI para desenvolvimento:
+O sistema oferece **duas interfaces web** para diferentes necessidades, além de CLI para desenvolvimento:
 
 ### 1. Interface Web Conversacional (Principal)
 
@@ -178,9 +200,11 @@ Documentação
   - `core/docs/agents/` - Especificações dos agentes
 
 - **Produtos**: Aplicações específicas
-  - `products/revelar/` - Chat para clareza de pensamento
-  - `products/prisma-verbal/` - Extração de conceitos de textos
-  - `products/produtor-cientifico/` - Manuscritos acadêmicos
+  - `products/revelar/` - Chat para clareza de pensamento (atual)
+  - `products/prisma-verbal/` - Extração de conceitos de textos (planejado)
+  - `products/camadas-da-linguagem/` - Estruturação de mensagens (planejado)
+  - `products/expressao/` - Produção de conteúdo (planejado)
+  - `products/produtor-cientifico/` - Manuscritos acadêmicos (planejado)
 
 ### Documentos Essenciais (Core)
 
