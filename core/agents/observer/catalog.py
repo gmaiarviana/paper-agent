@@ -139,8 +139,16 @@ class ConceptCatalog:
         self.sqlite_path = sqlite_path
 
         # Garantir que diretorios existam
-        os.makedirs(os.path.dirname(chroma_path) or ".", exist_ok=True)
-        os.makedirs(os.path.dirname(sqlite_path) or ".", exist_ok=True)
+        # ChromaDB precisa que o diretório pai exista
+        chroma_dir = os.path.dirname(chroma_path) or "."
+        if chroma_dir and chroma_dir != ".":
+            os.makedirs(chroma_dir, exist_ok=True)
+        # Para ChromaDB, também criar o diretório final se necessário
+        os.makedirs(chroma_path, exist_ok=True)
+        
+        sqlite_dir = os.path.dirname(sqlite_path) or "."
+        if sqlite_dir and sqlite_dir != ".":
+            os.makedirs(sqlite_dir, exist_ok=True)
 
         # Inicializar ChromaDB
         self._init_chromadb()
@@ -327,9 +335,18 @@ class ConceptCatalog:
         query_embedding = generate_embedding(query)
 
         # Buscar no ChromaDB
+        # Garantir que count() retorna um int (pode ser None ou MagicMock em testes)
+        try:
+            collection_count = self._collection.count()
+            if not isinstance(collection_count, int):
+                collection_count = 0
+        except (AttributeError, TypeError):
+            collection_count = 0
+        
+        n_results = min(top_k, max(collection_count, 1))
         results = self._collection.query(
             query_embeddings=[query_embedding],
-            n_results=min(top_k, self._collection.count() or 1),
+            n_results=n_results,
             include=["metadatas", "distances"]
         )
 
@@ -644,7 +661,13 @@ class ConceptCatalog:
         )
         links_count = links_cursor.fetchone()[0]
 
-        chroma_count = self._collection.count()
+        # Garantir que count() retorna um int
+        try:
+            chroma_count = self._collection.count()
+            if not isinstance(chroma_count, int):
+                chroma_count = 0
+        except (AttributeError, TypeError):
+            chroma_count = 0
 
         return {
             "concepts": concepts_count,

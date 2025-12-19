@@ -11,8 +11,25 @@ chamadas reais à API da Anthropic.
 """
 
 import pytest
+import sys
 from unittest.mock import Mock, patch, MagicMock
 from langchain_core.messages import AIMessage, HumanMessage
+
+# Mock langgraph antes de importar módulos que dependem dele
+# Criar estrutura completa de mocks para evitar problemas de __path__
+_mock_langgraph = MagicMock()
+_mock_checkpoint = MagicMock()
+_mock_memory = MagicMock()
+_mock_memory.MemorySaver = MagicMock()
+
+sys.modules['langgraph'] = _mock_langgraph
+sys.modules['langgraph.checkpoint'] = _mock_checkpoint
+sys.modules['langgraph.checkpoint.memory'] = _mock_memory
+
+# Configurar __path__ nos mocks para evitar AttributeError
+_mock_langgraph.__path__ = []
+_mock_checkpoint.__path__ = []
+_mock_memory.__path__ = []
 
 from core.agents.methodologist import (
     MethodologistState,

@@ -14,6 +14,12 @@ from langchain_core.messages import HumanMessage, AIMessage
 # multi_agent_graph imports observer which requires chromadb
 pytest.importorskip("chromadb", reason="chromadb not installed - skipping observer callback tests")
 
+# Importar módulo antes de fazer patches para evitar problemas de importação
+try:
+    from core.agents import multi_agent_graph
+except ImportError:
+    multi_agent_graph = None
+
 class TestObserverCallback:
     """Testes para _create_observer_callback()"""
 
@@ -43,16 +49,19 @@ class TestObserverCallback:
 
     def test_callback_creates_daemon_thread(self, mock_state, mock_result):
         """Callback cria thread daemon para não bloquear shutdown."""
-        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
+        if multi_agent_graph is None:
+            pytest.skip("multi_agent_graph não disponível")
+        
+        if not multi_agent_graph.OBSERVER_AVAILABLE:
+            pytest.skip("Observer não disponível")
+        
+        with patch.object(multi_agent_graph, "observer_process_turn") as mock_process:
             mock_process.return_value = {
                 "cognitive_model": {"claim": "teste"},
                 "metrics": {"solidez": 0.5, "completude": 0.3}
             }
 
-            from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
-
-            if not OBSERVER_AVAILABLE:
-                pytest.skip("Observer não disponível")
+            _create_observer_callback = multi_agent_graph._create_observer_callback
 
             # Capturar threads antes
             threads_before = threading.enumerate()
@@ -74,16 +83,16 @@ class TestObserverCallback:
 
     def test_callback_passes_correct_arguments(self, mock_state, mock_result):
         """Callback passa argumentos corretos para process_turn."""
-        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
+        if multi_agent_graph is None or not multi_agent_graph.OBSERVER_AVAILABLE:
+            pytest.skip("Observer não disponível")
+        
+        with patch.object(multi_agent_graph, "observer_process_turn") as mock_process:
             mock_process.return_value = {
                 "cognitive_model": {"claim": "teste"},
                 "metrics": {"solidez": 0.5, "completude": 0.3}
             }
 
-            from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
-
-            if not OBSERVER_AVAILABLE:
-                pytest.skip("Observer não disponível")
+            _create_observer_callback = multi_agent_graph._create_observer_callback
 
             _create_observer_callback(mock_state, mock_result)
 
@@ -101,22 +110,22 @@ class TestObserverCallback:
 
     def test_callback_updates_result_cognitive_model(self, mock_state, mock_result):
         """Callback atualiza cognitive_model no result."""
+        if multi_agent_graph is None or not multi_agent_graph.OBSERVER_AVAILABLE:
+            pytest.skip("Observer não disponível")
+        
         expected_cognitive_model = {
             "claim": "LLMs aumentam produtividade",
             "proposicoes": [{"texto": "Estudo X", "solidez": 0.8}],
             "concepts_detected": ["LLM", "produtividade"]
         }
 
-        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
+        with patch.object(multi_agent_graph, "observer_process_turn") as mock_process:
             mock_process.return_value = {
                 "cognitive_model": expected_cognitive_model,
                 "metrics": {"solidez": 0.65, "completude": 0.4}
             }
 
-            from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
-
-            if not OBSERVER_AVAILABLE:
-                pytest.skip("Observer não disponível")
+            _create_observer_callback = multi_agent_graph._create_observer_callback
 
             _create_observer_callback(mock_state, mock_result)
 
@@ -128,7 +137,10 @@ class TestObserverCallback:
 
     def test_callback_publishes_event(self, mock_state, mock_result):
         """Callback publica evento cognitive_model_updated."""
-        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
+        if multi_agent_graph is None or not multi_agent_graph.OBSERVER_AVAILABLE:
+            pytest.skip("Observer não disponível")
+        
+        with patch.object(multi_agent_graph, "observer_process_turn") as mock_process:
             mock_process.return_value = {
                 "cognitive_model": {
                     "claim": "teste",
@@ -140,14 +152,11 @@ class TestObserverCallback:
                 "metrics": {"solidez": 0.5, "completude": 0.3}
             }
 
-            with patch("core.agents.multi_agent_graph.get_event_bus") as mock_bus:
+            with patch.object(multi_agent_graph, "get_event_bus") as mock_bus:
                 mock_event_bus = MagicMock()
                 mock_bus.return_value = mock_event_bus
 
-                from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
-
-                if not OBSERVER_AVAILABLE:
-                    pytest.skip("Observer não disponível")
+                _create_observer_callback = multi_agent_graph._create_observer_callback
 
                 _create_observer_callback(mock_state, mock_result)
 
@@ -165,13 +174,13 @@ class TestObserverCallback:
 
     def test_callback_silent_on_error(self, mock_state, mock_result):
         """Callback é silencioso em caso de erro (não propaga exceção)."""
-        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
+        if multi_agent_graph is None or not multi_agent_graph.OBSERVER_AVAILABLE:
+            pytest.skip("Observer não disponível")
+        
+        with patch.object(multi_agent_graph, "observer_process_turn") as mock_process:
             mock_process.side_effect = Exception("Erro simulado")
 
-            from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
-
-            if not OBSERVER_AVAILABLE:
-                pytest.skip("Observer não disponível")
+            _create_observer_callback = multi_agent_graph._create_observer_callback
 
             # Não deve lançar exceção
             try:
@@ -182,24 +191,27 @@ class TestObserverCallback:
 
     def test_callback_skipped_when_observer_unavailable(self, mock_state, mock_result):
         """Callback é pulado se Observer não estiver disponível."""
-        with patch("core.agents.multi_agent_graph.OBSERVER_AVAILABLE", False):
-            from core.agents.multi_agent_graph import _create_observer_callback
+        if multi_agent_graph is None:
+            pytest.skip("multi_agent_graph não disponível")
+        
+        with patch.object(multi_agent_graph, "OBSERVER_AVAILABLE", False):
+            _create_observer_callback = multi_agent_graph._create_observer_callback
 
             # Não deve fazer nada (sem erro)
             _create_observer_callback(mock_state, mock_result)
 
     def test_callback_converts_messages_to_history(self, mock_state, mock_result):
         """Callback converte messages do LangGraph para formato do Observer."""
-        with patch("core.agents.multi_agent_graph.observer_process_turn") as mock_process:
+        if multi_agent_graph is None or not multi_agent_graph.OBSERVER_AVAILABLE:
+            pytest.skip("Observer não disponível")
+        
+        with patch.object(multi_agent_graph, "observer_process_turn") as mock_process:
             mock_process.return_value = {
                 "cognitive_model": {"claim": "teste"},
                 "metrics": {"solidez": 0.5, "completude": 0.3}
             }
 
-            from core.agents.multi_agent_graph import _create_observer_callback, OBSERVER_AVAILABLE
-
-            if not OBSERVER_AVAILABLE:
-                pytest.skip("Observer não disponível")
+            _create_observer_callback = multi_agent_graph._create_observer_callback
 
             _create_observer_callback(mock_state, mock_result)
 
@@ -222,9 +234,12 @@ class TestInstrumentNodeObserverIntegration:
 
     def test_instrument_node_triggers_observer_for_orchestrator(self):
         """instrument_node dispara Observer apenas para orchestrator."""
-        with patch("core.agents.multi_agent_graph._create_observer_callback") as mock_callback:
-            with patch("core.agents.multi_agent_graph.OBSERVER_AVAILABLE", True):
-                from core.agents.multi_agent_graph import instrument_node
+        if multi_agent_graph is None:
+            pytest.skip("multi_agent_graph não disponível")
+        
+        with patch.object(multi_agent_graph, "_create_observer_callback") as mock_callback:
+            with patch.object(multi_agent_graph, "OBSERVER_AVAILABLE", True):
+                instrument_node = multi_agent_graph.instrument_node
 
                 # Criar mock do nó
                 mock_node = MagicMock(return_value={"next_step": "explore"})
@@ -239,9 +254,12 @@ class TestInstrumentNodeObserverIntegration:
 
     def test_instrument_node_does_not_trigger_observer_for_other_agents(self):
         """instrument_node não dispara Observer para outros agentes."""
-        with patch("core.agents.multi_agent_graph._create_observer_callback") as mock_callback:
-            with patch("core.agents.multi_agent_graph.OBSERVER_AVAILABLE", True):
-                from core.agents.multi_agent_graph import instrument_node
+        if multi_agent_graph is None:
+            pytest.skip("multi_agent_graph não disponível")
+        
+        with patch.object(multi_agent_graph, "_create_observer_callback") as mock_callback:
+            with patch.object(multi_agent_graph, "OBSERVER_AVAILABLE", True):
+                instrument_node = multi_agent_graph.instrument_node
 
                 # Criar mock do nó
                 mock_node = MagicMock(return_value={"status": "approved"})
