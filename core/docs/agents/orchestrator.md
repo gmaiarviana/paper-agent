@@ -7,7 +7,7 @@ O Orquestrador é o **Facilitador Conversacional** do sistema multi-agente. Ele 
 **Papel Principal:**
 - Analisa input do usuário e decide entre responder diretamente ou delegar para um agente especializado
 - Mantém histórico da conversa em memória (via LangGraph) e registra cada decisão
-- Facilita diálogo provocativo com exposição de assumptions implícitas
+- Facilita diálogo provocativo com exposição de proposições implícitas
 - Negocia caminhos com o usuário (apresenta opções, não decide sozinho)
 
 ## Evolução Planejada

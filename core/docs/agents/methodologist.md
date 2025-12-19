@@ -43,7 +43,7 @@ Opera em modo **colaborativo**:
 
 2. **needs_refinement (NOVO):**
    - Ideia tem potencial mas falta clareza
-   - Lacunas identificadas (premissas não explícitas, variáveis indefinidas)
+   - Lacunas identificadas (proposições não explícitas, variáveis indefinidas)
    - Pode ser melhorada com refinamento
    - Campo `improvements` lista gaps específicos
 
@@ -400,7 +400,7 @@ Campo "improvements": seja ESPECÍFICO sobre gaps e como preencher
 DECISÃO DE STATUS:
 
 approved: Coerente + fundamentado + específico (adequado ao contexto)
-needs_refinement: Potencial + falta elementos (premissas, variáveis, evidências)
+needs_refinement: Potencial + falta elementos (proposições, variáveis, evidências)
 rejected: Contradição lógica fundamental + impossível refinar
 
 ADAPTE RIGOR AO CONTEXTO:

@@ -7,7 +7,7 @@ Este documento apresenta um exemplo completo e detalhado de como o modelo cognit
 
 ## Exemplo Completo: "Levantamento de Obra com IA"
 
-### Turno 1: Claim Vago, Assumptions Detectadas
+### Turno 1: Claim Vago, Proposições de Baixa Solidez Detectadas
 
 **Input do usuário**: "Quero fazer um artigo sobre levantamento de obra com IA"
 

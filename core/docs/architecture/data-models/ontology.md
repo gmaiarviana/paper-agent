@@ -89,6 +89,27 @@ O **Observador (Mente Analítica)** é o agente responsável por monitorar conve
 > - `fundamentos` (Argument): Proposições no **papel** de sustentar o argumento (referências a Proposições)
 > - **Essência:** Fundamentos são proposições assumindo o papel de bases que sustentam um argumento. Uma mesma Proposição pode ser fundamento de múltiplos Argumentos.
 
+### Fundamentos vs Proposições: Mesma Natureza, Papel Diferente
+
+**Fundamentos e Proposições são a mesma entidade, mudando apenas o momento/papel de uso:**
+
+- **Proposição**: Entidade de conhecimento que existe na biblioteca (independente)
+- **Fundamento**: A mesma proposição quando usada para sustentar um argumento específico (papel contextual)
+
+**Exemplo prático:**
+```
+Proposição P1: "Equipes Python existem" 
+  → Existe na biblioteca como entidade independente
+  
+Argumento A1: "Claude Code aumenta produtividade em equipes Python"
+  → Usa P1 como fundamento (papel: sustentar A1)
+  
+Argumento A2: "Python é linguagem popular em startups"
+  → Também usa P1 como fundamento (mesma entidade, papel diferente)
+```
+
+**Resumo:** Fundamentos não são um tipo diferente de entidade. São proposições assumindo o papel de base de um argumento. A mesma proposição pode ser fundamento de múltiplos argumentos, cada um com seu próprio contexto.
+
 ```python
 CognitiveModel:
   # Afirmação central

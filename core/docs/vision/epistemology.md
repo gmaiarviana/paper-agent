@@ -18,6 +18,14 @@ Este princípio central desloca o sistema de uma lógica binária (verdadeiro/fa
 
 - **Nenhuma afirmação é "fato" ou "suposição" de forma binária**: Toda proposição existe em um espectro de solidez que varia conforme evidências acumuladas.
 
+  **Exemplo prático:**
+  - "A Terra orbita o Sol" → Proposição com solidez 0.99 (muitas evidências, observações diretas, consenso científico)
+  - "LLMs aumentam produtividade" → Proposição com solidez 0.60 (algumas evidências, estudos recentes, debate metodológico)
+  - "Qualidade de código é mensurável" → Proposição com solidez 0.40 (poucas evidências, conceito vago, debate teórico)
+
+  **Não há:** "Isso é fato" vs "Isso é suposição"  
+  **Há:** "Isso tem solidez X baseado em evidências disponíveis no momento"
+
 - **Toda afirmação tem um grau de solidez baseado em evidências**: Uma proposição não é inerentemente verdadeira ou falsa; ela é mais ou menos sustentada por evidências disponíveis.
 
 - **O sistema não julga verdade, apenas mapeia sustentação**: Paper Agent não determina o que é "correto", mas sim o quão bem fundamentada uma afirmação está no momento atual.

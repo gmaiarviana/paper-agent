@@ -361,8 +361,6 @@ Sistema de logging estruturado para debugging e análise de sessões multi-agent
 - `decide_collaborative`: Logs de validação metodológica
 - `force_decision_collaborative`: Logs de decisão forçada
 
-**Ver especificação completa:** `docs/testing/epic8_5_structured_logging_spec.md`
-
 ## Estrutura do Projeto
 
 ```
