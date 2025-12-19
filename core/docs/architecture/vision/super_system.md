@@ -15,11 +15,11 @@ O sistema não é apenas "paper-agent". É um **super-sistema** com core univers
 ┌─────────────────────────────────────────────────┐
 │              CORE UNIVERSAL                      │
 │                                                  │
-│  ┌──────────────────────────────────────────┐  │
-│  │  Ontologia Base                           │  │
-│  │  (Conceito, Ideia, Argumento,             │  │
-│  │   MemoryLayer, BackstageContext)          │  │
-│  └──────────────────────────────────────────┘  │
+  │  ┌──────────────────────────────────────────┐  │
+  │  │  Ontologia Base                           │  │
+  │  │  (Conceito, Ideia, Argumento, Mensagem,   │  │
+  │  │   MemoryLayer, BackstageContext)          │  │
+  │  └──────────────────────────────────────────┘  │
 │                                                  │
 │  ┌──────────────────────────────────────────┐  │
 │  │  Modelo Cognitivo                         │  │
@@ -65,11 +65,29 @@ O sistema não é apenas "paper-agent". É um **super-sistema** com core univers
 
 Tudo que é **independente de produto específico**:
 
-✅ **Ontologia:** Conceito, Ideia, Argumento, MemoryLayer, BackstageContext  
+✅ **Ontologia:** Conceito, Ideia, Argumento, Mensagem, MemoryLayer, BackstageContext  
 ✅ **Modelo Cognitivo:** claim → fundamentos (com solidez variável)  
 ✅ **Agentes:** Orquestrador, Observador, Estruturador, Metodologista, Memory Agent, Comunicador (futuro)  
 ✅ **Infraestrutura:** LangGraph (state), ChromaDB (vetores), SQLite (metadados)  
-✅ **Conversação:** Diálogo socrático, provocação, refinamento  
+✅ **Conversação:** Diálogo socrático, provocação, refinamento
+
+**Entidades Core:**
+```
+Core Universal (compartilhado):
+├─ Ontologia (Conceito, Ideia, Argumento, Proposição, Evidência)
+├─ Mensagem (combinação intencional para comunicação)
+├─ Modelo Cognitivo (claim → fundamentos)
+├─ Agentes (Orquestrador, Estruturador, ...)
+└─ Infraestrutura (LangGraph, ChromaDB, SQLite)
+```
+
+**Fluxo Completo:**
+```
+Conversa → Ideia → Argumento → Mensagem → Forma (artigo/post/etc)
+|         |         |            |          |
+Revelar   Revelar   Revelar    Produtor    Produtor
+Científico  Científico
+```  
 
 ### O Que NÃO é Core
 
@@ -163,6 +181,85 @@ Cada produto configura as camadas de memória de acordo com suas necessidades es
 - **Profunda (anos arquivados):** Histórico completo de perfil, arquivo de longa duração, análise de tendências
 
 **Uso:** Conexão por cosmovisões, evolução de pensamento, matching baseado em histórico.
+
+## Mensagem no Super-Sistema
+
+### O Que É Mensagem
+
+**Mensagem** = Seleção intencional de proposições/argumentos para transmitir ideia através de vetor emocional específico.
+
+**Diferença fundamental:**
+- **Ideia** = território (pensamento articulado)
+- **Argumento** = lente (claim + fundamentos)
+- **Mensagem** = O QUE comunicar (combinação + vetor emocional)
+- **Forma** = COMO expressar (artigo, post, poema)
+
+### Onde Vive
+
+**Core Universal:**
+- Entidade Mensagem (schema, vetor emocional)
+- Lógica de similaridade vetorial
+- Grafo de relevância (argumentos iluminados/apagados)
+
+**Produtos Específicos:**
+- Revelar: NÃO cria mensagens (foco em clareza de ideia)
+- Produtor Científico: SIM, cria mensagens (produção de conteúdo)
+- Prisma Verbal: NÃO interage com mensagens (extração de conhecimento)
+
+### Como Produtos Usam
+
+**Produtor Científico (único que usa):**
+
+1. Usuário tem Ideia madura (solidez suficiente)
+2. Clica "Criar Conteúdo"
+3. Sistema abre chat: "Que sentimento quer despertar no leitor?"
+4. Usuário descreve subjetivamente
+5. Sistema gera vetor emocional
+6. Sistema sugere argumentos ranqueados por similaridade
+7. Usuário customiza (adiciona/remove evidências)
+8. Sistema compila Mensagem
+9. Usuário escolhe Forma (artigo, post, thread)
+10. Sistema gera conteúdo final
+
+**Revelar (NÃO usa):**
+- Foco: clareza de pensamento (Ideia + Argumentos)
+- Output: Ideia estruturada (pode ser passada para Produtor Científico)
+- NÃO cria mensagens (não é escopo)
+
+**Prisma Verbal (NÃO usa):**
+- Foco: extração de conhecimento de textos
+- Output: Ideias + Argumentos extraídos
+- NÃO cria mensagens (não é escopo)
+
+### Fluxo Entre Produtos
+
+```
+┌─────────────┐
+│  Revelar    │ → Ideia estruturada
+└──────┬──────┘
+       │
+       ↓ [usuário decide criar conteúdo]
+       │
+┌──────┴──────────┐
+│ Produtor        │ → Mensagem (O QUE + vetor emocional)
+│ Científico      │ → Forma (artigo/post/thread)
+└─────────────────┘
+```
+
+Usuário pode:
+- Usar Revelar até Ideia ficar madura
+- Passar para Produtor Científico para criar conteúdo
+- OU parar no Revelar (se só quer clareza, não conteúdo)
+
+### Diferencial Competitivo
+
+**Vetor Emocional Indeterminístico:**
+- Usuário descreve subjetivamente sentimento desejado
+- Sistema gera vetor no espaço latente (não categorias)
+- Busca argumentos por similaridade emocional
+- Diferencial: transcende categorização racional de emoções
+
+Ver: `core/docs/vision/communication_philosophy.md` para fundamento filosófico.
 
 ### Vantagens do Desacoplamento
 
@@ -266,7 +363,9 @@ POST   /memory/compact     # Compactar memórias antigas (admin)
 
 ## Referências
 
-- `../data-models/ontology.md` - Ontologia base (Core)
+- `../data-models/ontology.md` - Ontologia base (Core) - Definição de Mensagem na ontologia
+- `../data-models/message_model.md` - Schema técnico de Mensagem
+- `core/docs/vision/communication_philosophy.md` - Filosofia de Mensagem (emoção como espaço latente)
 - `products/produtor-cientifico/docs/vision.md` - Produto específico
 - `products/prisma-verbal/docs/vision.md` - Produto específico
 - `core/docs/vision/epistemology.md` - Epistemologia do sistema (fundamentos com solidez)

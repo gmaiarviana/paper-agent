@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este documento é o **Single Source of Truth (SSoT)** que define a ontologia do super-sistema. Ele estabelece o que são Conceito, Ideia, Argumento, Proposição e Evidência do ponto de vista filosófico, e como essas entidades se relacionam entre si.
+Este documento é o **Single Source of Truth (SSoT)** que define a ontologia do super-sistema. Ele estabelece o que são Conceito, Ideia, Argumento, Proposição, Evidência e Mensagem do ponto de vista filosófico, e como essas entidades se relacionam entre si.
 
 A ontologia reflete uma filosofia epistemológica onde não existe distinção binária entre "fato" e "suposição", mas sim proposições com diferentes graus de solidez baseados em evidências. Para entender a base filosófica completa, consulte `core/docs/vision/epistemology.md`.
 
@@ -227,6 +227,32 @@ Proposição:
 
 **Importante:** "Premissa" agora é um **PAPEL**, não um tipo. Premissa = proposição sendo usada como fundamento de um argumento específico. Não há mais distinção entre premise/assumption - apenas proposições com solidez diferente.
 
+**Relacionamento Bidirecional com Argumentos:**
+
+Uma Proposição pode:
+- Ser usada como fundamento em múltiplos Argumentos (role: fundamento)
+- Ter múltiplos Argumentos que a defendem (lentes diferentes)
+
+**Exemplo:**
+```python
+Proposição:
+  enunciado: "Afastamento da natureza causa ansiedade"
+  
+  # Esta proposição é defendida por múltiplas lentes:
+  argumentos_que_defendem: [
+    {id: "arg-cientifico", claim: "Estudos comprovam correlação"},
+    {id: "arg-vivencial", claim: "Relato pessoal de transformação"},
+    {id: "arg-evolutivo", claim: "Humanos evoluíram em natureza"}
+  ]
+  
+  # Esta proposição é usada como fundamento em:
+  usada_em_argumentos: [
+    {id: "arg-principal", role: "fundamento"}
+  ]
+```
+
+Cada argumento que defende a proposição tem seu próprio vetor emocional. Sistema escolhe qual argumento usar baseado em similaridade com vetor da mensagem.
+
 ### Evidência (Sustentação de Proposições)
 
 **O que é:** Informação que apoia ou refuta uma proposição.
@@ -277,7 +303,16 @@ Argumento:
   claim: str                        # Afirmação principal (campo separado, não é proposição)
   fundamentos: [ProposicaoRef]      # Proposições que sustentam o argumento
   evidencias: [EvidenciaRef]        # Evidências diretas do argumento
+  emocao_vetor: list[float]         # Emoções que este argumento desperta
+                                    # MVP: {"empatia": 0.9, "confianca": 0.2}
+                                    # Visão: [0.78, -0.23, 0.45, ...]
 ```
+
+**Como vetor emocional é usado:**
+- Mensagem tem vetor emocional (intenção comunicativa)
+- Argumento tem vetor emocional (emoções que desperta)
+- Sistema calcula similaridade cosseno entre vetores
+- Argumentos com alta similaridade → selecionados para mensagem
 
 **Exemplos:**
 - Ideia: "Semana de 4 dias"
@@ -287,6 +322,65 @@ Argumento:
   - Argumento 2 (lente retenção):
     - Claim: "Reduz turnover em 20%"
     - Fundamentos: [Proposição: "Satisfação aumenta retenção"]
+
+### Mensagem (Combinação Intencional)
+
+**O que é:** Seleção intencional de proposições/argumentos para transmitir ideia através de vetor emocional específico.
+
+**Características:**
+- Mensagem ≠ Forma (artigo, post, poema)
+- Mensagem = O QUE comunicar + vetor emocional
+- Forma = COMO expressar (vem depois)
+- Mesma ideia → múltiplas mensagens (intenções diferentes)
+
+**Estrutura:**
+```python
+Mensagem:
+  id: UUID
+  idea_id: UUID
+  
+  # Núcleo
+  intencao: str                         # "Provocar questionamento sobre escolhas"
+  emocao_vetor: list[float]             # Vetor no espaço latente (128-512 dims)
+  
+  # Seleção de componentes
+  proposicoes_centrais: [ProposicaoRef]      # Alta aderência emocional
+  proposicoes_perifericas: [ProposicaoRef]   # Média aderência
+  proposicoes_omitidas: [ProposicaoRef]      # Baixa aderência
+  
+  # Customização
+  argumentos_selecionados: [ArgumentoCustomizado]
+```
+
+**Grafo de Relevância:**
+
+Mensagem ilumina/apaga argumentos baseado em similaridade vetorial emocional:
+
+```
+    [💡 Ideia]
+        |
+    [🔵 Proposição]
+        |
+    ┌───────┼───────┐
+    |       |       |
+[🟢 Arg] [⚪ Arg] [🟡 Arg]
+Alta sim  Baixa   Média
+(0.92)   (0.34)  (0.61)
+```
+
+**Vetor Emocional:**
+- MVP: Categorias fixas ({"empatia": 0.8, "urgência": 0.5})
+- Visão: Espaço latente sem rótulos ([0.23, -0.87, 0.45, ...])
+- Sistema calcula similaridade (cosseno) entre vetor da mensagem e vetor de cada argumento
+
+**Customização de Evidências:**
+
+Dentro de cada argumento selecionado, usuário pode escolher quais evidências incluir.
+
+**Exemplos:**
+- Mesma ideia "Cidades fazem mal" gera:
+  - Mensagem A (despertar empatia) → seleciona argumentos vivenciais
+  - Mensagem B (despertar confiança) → seleciona argumentos científicos
 
 ### MemoryLayer (Camada de Memória)
 
@@ -535,6 +629,29 @@ Biblioteca:
 - Proposição tem evidências que apoiam e evidências que refutam
 - Evidência pode apoiar ou refutar múltiplas proposições
 
+### Mensagem ↔ Ideia (N:1)
+- Uma Ideia pode gerar múltiplas Mensagens (intenções diferentes)
+- Mensagem referencia uma Ideia
+
+### Mensagem ↔ Argumento (N:N via seleção)
+- Mensagem seleciona argumentos baseado em similaridade vetorial
+- Mesmo argumento pode aparecer em múltiplas mensagens
+
+### Proposição ↔ Argumento (Bidirecional)
+- **Role 1 (Fundamento):** Proposição é usada como fundamento em Argumentos
+- **Role 2 (Defesa):** Proposição é defendida por múltiplos Argumentos (lentes)
+
+**Exemplo:**
+```
+Proposição X: "Afastamento natureza causa ansiedade"
+├─ Usada como fundamento em: [Argumento Principal]
+└─ Defendida por: [Arg Científico, Arg Vivencial, Arg Evolutivo]
+
+Mensagem quer despertar empatia (vetor: [0.78, -0.23, ...])
+→ Sistema calcula: Arg Vivencial tem vetor [0.76, -0.21, ...] (similaridade: 0.92)
+→ Mensagem seleciona Arg Vivencial (não os outros)
+```
+
 ### CognitiveModel ↔ MemoryLayer (1:N)
 - CognitiveModel atual = mantido em memória ativa (Observador)
 - CognitiveModel histórico = armazenado em MemoryLayer.intermediária como snapshots
@@ -779,6 +896,8 @@ Quando uma proposição é identificada como frágil:
 - `concept_model.md` - Schema detalhado de Concept
 - `idea_model.md` - Estrutura de dados técnica de Ideia
 - `argument_model.md` - Estrutura de dados técnica de Argumento
+- `message_model.md` - Estrutura de dados técnica de Mensagem
+- `core/docs/vision/communication_philosophy.md` - Base filosófica de Mensagem
 - `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, solidez)
 - `core/docs/vision/cognitive_model/evolution.md` - Como pensamento evolui e solidez é calculada
 - `core/docs/agents/observer.md` - Documentação completa do Observador
