@@ -23,6 +23,52 @@ Fichamento é **serviço desacoplado** que consome core para processar livros/te
 - Paper-agent: conversa dinâmica, ideias emergem
 - Fichamento: texto estático, ideias extraídas de uma vez
 
+**Próximo passo:** Usuário pode levar Argumentos extraídos para:
+
+- **Revelar:** Aprofundar e conectar com suas próprias ideias
+- **Camadas da Linguagem:** Estruturar para comunicação
+
+---
+
+## Posição no Pipeline
+
+Prisma Verbal é uma entrada alternativa ao pipeline - extrai conhecimento de textos estáticos.
+
+```
+┌─────────────┐     
+│   Revelar   │     
+│  (diálogo)  │─────┐
+└─────────────┘     │
+                    ▼
+              ┌─────────────────┐
+              │  MOTOR VETORIAL │
+              │   (biblioteca)  │
+              └─────────────────┘
+                    ▲
+┌─────────────┐     │
+│   PRISMA    │─────┘
+│   VERBAL    │
+│   (texto)   │
+└─────────────┘
+                    │
+                    ▼
+          CAMADAS DA LINGUAGEM
+             (estruturação)
+                    │
+                    ▼
+               EXPRESSÃO
+                (forma)
+```
+
+**Entradas:**
+- Texto estático (PDF, livro, paper)
+- Sistema processa e extrai conhecimento
+
+**Saídas:**
+- Argumentos extraídos
+- Conceitos identificados (alimentam biblioteca global)
+- Material pronto para Camadas da Linguagem (se usuário quiser comunicar)
+
 ---
 
 ## Fundamentos Filosóficos
@@ -111,6 +157,12 @@ Sistema: "Identifiquei 15 ideias principais:
           - Conceitos-chave
           
           Quer revisar alguma em particular?"
+
+Após extração:
+Sistema: "Extração completa! O que quer fazer com esses argumentos?
+     1. Explorar no Revelar (conectar com suas ideias)
+     2. Estruturar em Camadas da Linguagem (preparar comunicação)
+     3. Apenas salvar na biblioteca"
 ```
 
 ### Opção B: Conversacional (Usuário Guia)
@@ -126,6 +178,12 @@ Sistema: "Interessante! E quais argumentos ele usa
          para defender isso?"
 
 [conversa guiada até estruturar todas ideias]
+
+Após extração:
+Sistema: "Extração completa! O que quer fazer com esses argumentos?
+     1. Explorar no Revelar (conectar com suas ideias)
+     2. Estruturar em Camadas da Linguagem (preparar comunicação)
+     3. Apenas salvar na biblioteca"
 ```
 
 ### Opção C: Híbrido (Padrão)
@@ -133,6 +191,12 @@ Sistema: "Interessante! E quais argumentos ele usa
 Sistema processa automaticamente (extração inicial)
 Usuário revisa e refina via conversa
 Sistema atualiza fichamento com refinamentos
+
+Após extração:
+Sistema: "Extração completa! O que quer fazer com esses argumentos?
+     1. Explorar no Revelar (conectar com suas ideias)
+     2. Estruturar em Camadas da Linguagem (preparar comunicação)
+     3. Apenas salvar na biblioteca"
 ```
 
 ---
@@ -286,20 +350,30 @@ Sistema: [busca via core - grafo de conhecimento]
 
 ## Integração com Core
 
-### Fichamento NÃO reimplementa:
+### Prisma Verbal NÃO reimplementa:
 
 ❌ Extração de ideias (core faz)  
 ❌ Detecção de conceitos (core faz)  
 ❌ Estruturação de argumentos (core faz)  
 ❌ Busca semântica (core faz)  
+❌ Estruturação de mensagens (isso é Camadas da Linguagem)  
+❌ Produção de conteúdo (isso é Expressão)  
 
-### Fichamento ADICIONA:
+### Prisma Verbal ADICIONA:
 
 ✅ Entidade `Book` e `Chapter`  
 ✅ Catálogo público de fichamentos  
 ✅ Customização por usuário  
 ✅ Sistema de aprendizado (agregação)  
 ✅ Interface de upload e revisão  
+
+### Relação com Pipeline
+
+Prisma Verbal alimenta o Motor Vetorial:
+
+- Argumentos extraídos vão para biblioteca global
+- Conceitos identificados são reutilizáveis
+- Material pode fluir para Camadas da Linguagem → Expressão  
 
 ---
 
@@ -322,8 +396,11 @@ Ver `philosophy.md` seção 8 para fundamento filosófico dessa separação.
 
 ## Referências
 
-- `core/docs/architecture/vision/super_system.md` - Core → Produtos
+- `core/docs/vision/system_philosophy.md` - Filosofia universal
+- `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
 - `core/docs/architecture/data-models/idea_model.md` - Ideias extraídas de livros
 - `core/docs/architecture/data-models/concept_model.md` - Conceitos detectados em livros
 - `core/docs/examples/text_processing.md` - Exemplo concreto de processamento
+- `products/revelar/docs/vision.md` - Produto irmão (entrada via diálogo)
+- `products/camadas-da-linguagem/docs/vision.md` - Próximo produto no pipeline
 

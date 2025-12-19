@@ -4,208 +4,154 @@
 
 ## 1. Visão Geral do Produto
 
-- **O que é**: Sistema para transformar ideias estruturadas em manuscritos científicos publicáveis
+- **O que é**: Especialização de Expressão para produção de artigos acadêmicos
 - **Para quem**: Pesquisadores acadêmicos (mestrandos, doutorandos, professores)
-- **Problema resolvido**: Distância entre ideia estruturada e artigo pronto
-- **Diferencial**: Agentes especializados por tipo de artigo + validação metodológica
+- **Problema resolvido**: Transformar mensagem estruturada em artigo científico publicável
+- **Diferencial**: Agentes especializados por tipo de artigo + validação metodológica + estrutura acadêmica
+- **Input**: Mensagem (de Camadas da Linguagem)
+- **Output**: Artigo acadêmico
 
-## 2. Tipos de Artigo Acadêmico
+## 2. Posição no Pipeline
 
-### 2.1 Empírico/Experimental
+Produtor Científico é uma **especialização de Expressão** para artigos acadêmicos.
+
+```
+┌─────────────┐     ┌─────────────────────────┐     ┌───────────────────────┐
+│   Revelar   │────▶│  Camadas da Linguagem   │────▶│      Expressão        │
+└─────────────┘     └─────────────────────────┘     └───────────────────────┘
+      │                        │                              │
+      ▼                        ▼                    ┌─────────┴─────────┐
+    IDEIA                  MENSAGEM                 ▼                   ▼
+                                               (genérico)    Produtor Científico
+                                                                    │
+                                                                    ▼
+                                                            ARTIGO ACADÊMICO
+```
+
+### O Que Herda de Expressão
+
+- Recebe Mensagem estruturada
+- Transforma em conteúdo com forma
+
+### O Que Adiciona
+
+- Estrutura específica de artigo (Introdução, Metodologia, Resultados...)
+- Validação metodológica integrada
+- Tipos de artigo acadêmico (empírico, revisão, teórico...)
+- Formatação para publicação
+
+## 3. Tipos de Artigo Acadêmico
+
+### 3.1 Empírico/Experimental
 
 - **Características distintivas**: Testa hipóteses com dados coletados; foca em delineamentos experimentais ou quasi-experimentais (ex.: RCT, coorte, A/B tests).
 - **Checkpoints mínimos**: Hipótese clara → Definição de população/métricas → Desenho metodológico → Plano de coleta/análise → Interpretação dos resultados.
 - **Agentes relevantes**: Metodologista (define desenho), Estruturador (formaliza hipótese), Orquestrador (coordena etapas), Escritor (tradução para manuscrito).
 
-### 2.2 Revisão Sistemática/Literatura
+### 3.2 Revisão Sistemática/Literatura
 
 - **Características distintivas**: Sintetiza conhecimento existente com protocolos estruturados (ex.: systematic review, scoping review); foco em transparência e reprodutibilidade.
 - **Checkpoints mínimos**: Questão de pesquisa (PICO/SPIDER) → Estratégia de busca → Critérios de inclusão/exclusão → Extração/síntese → Conclusões e lacunas.
 - **Agentes relevantes**: Orquestrador (define fluxo), Estruturador (formaliza protocolo), Pesquisador (execução da busca externa), Escritor (compila síntese).
 
-### 2.3 Teórico/Conceitual
+### 3.3 Teórico/Conceitual
 
 - **Características distintivas**: Propõe frameworks, modelos ou argumentos conceituais (ex.: modelos teóricos, argumentação filosófica).
 - **Checkpoints mínimos**: Problema conceitual → Revisão crítica → Construção lógica → Proposição de framework → Discussão de implicações/limitações.
 - **Agentes relevantes**: Estruturador (arquitetura do argumento), Metodologista (validação lógica), Escritor (articulação textual), Orquestrador (mantém coerência global).
 
-### 2.4 Estudo de Caso
+### 3.4 Estudo de Caso
 
 - **Características distintivas**: Analisa casos específicos com profundidade contextual (ex.: case study, etnografia).
 - **Checkpoints mínimos**: Seleção do caso → Contextualização → Coleta de evidências → Análise interpretativa → Extração de insights e generalizações prudentes.
 - **Agentes relevantes**: Metodologista (define protocolo qualitativo), Estruturador (organiza narrativa), Orquestrador (sincroniza revisões), Escritor (relato final).
 
-### 2.5 Meta-Análise
+### 3.5 Meta-Análise
 
 - **Características distintivas**: Combina quantitativamente resultados de múltiplos estudos (ex.: meta-analysis, meta-regression).
 - **Checkpoints mínimos**: Questão quantitativa → Busca sistemática → Extração de dados → Análise estatística (modelos/heterogeneidade) → Interpretação dos efeitos.
 - **Agentes relevantes**: Metodologista (modelos estatísticos), Orquestrador (governa rigor), Estruturador (estrutura protocolo), Escritor (relata resultados).
 
-### 2.6 Metodológico
+### 3.6 Metodológico
 
 - **Características distintivas**: Propõe ou valida novos métodos, instrumentos ou pipelines (ex.: validation study, method comparison).
 - **Checkpoints mínimos**: Definição do método → Critérios de avaliação → Coleta/benchmark → Análise comparativa → Discussão de limitações/aplicabilidade.
 - **Agentes relevantes**: Metodologista (constrói validação), Estruturador (documenta passo a passo), Orquestrador (assegura cobertura), Escritor (formaliza resultados).
 
-## 3. Jornada do Usuário
+## 4. Jornada do Usuário
 
 > **💡 Nota de Interface:** Todos os cenários abaixo ocorrem na interface web conversacional. CLI mantém mesma funcionalidade mas é ferramenta auxiliar para desenvolvimento.
 
-### Cenário A: Ideia Vaga (Empírico)
+### Cenário: Produzir Artigo
 
 ```
-Usuário: "Observei que LLMs aumentam produtividade"
-↓
-Orquestrador: "Interessante! Me conta mais: você quer VER o que já existe 
-               sobre isso, ou quer TESTAR uma hipótese sua?"
-↓
-Usuário: "Testar uma hipótese"
-↓
-Orquestrador: "Legal! Me conta mais sobre essa observação..."
-↓
-[Conversa até ficar claro o contexto]
-↓
-Orquestrador: "Organizei sua ideia em uma questão de pesquisa: 
-               'Como LLMs impactam produtividade?' Isso captura o que você quer explorar?"
-[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
-↓
-Usuário: "Sim, mas preciso ser mais específico"
-↓
-Orquestrador: "Validei e refinei: 'Como LLMs (ex.: Claude Code) reduzem tempo 
-               de desenvolvimento em 30%, medido por sprints, em equipes de 2-5 devs?' 
-               Isso faz sentido?"
-[Bastidores: 🔬 Metodologista validou → 📝 Estruturador refinou → 🎯 Orquestrador curou]
-↓
-Usuário: "Perfeito!"
-↓
-Orquestrador: "Ótimo! Podemos seguir com: 1) definir desenho experimental, 
-               2) pesquisar literatura sobre métricas, ou 3) algo diferente?"
-```
+[Usuário vem de Camadas da Linguagem com Mensagem pronta]
 
-### Cenário B: Questão para Revisão
-
-```
-Usuário: "Quero entender o estado da arte em multi-agente para escrita acadêmica"
+Usuário: "Quero transformar essa mensagem em artigo acadêmico"
 ↓
-Orquestrador: "Interessante! Você quer fazer uma REVISÃO de literatura ou 
-               tem uma HIPÓTESE específica para testar?"
+Sistema: "Ótimo! Que tipo de artigo?
+         - Empírico/Experimental
+         - Revisão de Literatura
+         - Teórico/Conceitual
+         - Estudo de Caso
+         - Meta-Análise
+         - Metodológico"
 ↓
-Usuário: "Revisão de literatura"
+Usuário: "Empírico"
 ↓
-Orquestrador: "Perfeito! Organizei uma questão de pesquisa estruturada 
-               (PICO/SPIDER): [resultado]. Isso direciona bem o que você quer buscar?"
-[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
+Sistema: "Para artigo empírico, vou estruturar:
+         - Introdução (contexto + hipótese)
+         - Metodologia (desenho + métricas)
+         - Resultados (dados + análise)
+         - Discussão (interpretação + limitações)
+         
+         Sua mensagem já tem os argumentos organizados.
+         Vou distribuí-los nas seções. Quer revisar?"
+[Bastidores: 📝 Estruturador distribuiu argumentos → 🔬 Metodologista validou estrutura]
+↓
+Usuário: "Sim, mas preciso ajustar a metodologia"
+↓
+Sistema: "Ajustei a metodologia conforme suas especificações: [nova metodologia].
+         A estrutura agora reflete seu desenho experimental. Quer gerar o manuscrito?"
+[Bastidores: 🔬 Metodologista ajustou → 🎯 Orquestrador curou]
 ↓
 Usuário: "Sim"
 ↓
-Orquestrador: "Busquei papers relevantes e organizei uma síntese inicial: 
-               [resumo dos papers encontrados]. Isso cobre o que você precisa?"
-[Bastidores: 🔍 Pesquisador buscou → 🎯 Orquestrador curou]
-↓
-Usuário: "Perfeito! Agora quero compilar a revisão completa"
-↓
-Orquestrador: "Compilei a revisão estruturada: [revisão completa]. Isso captura 
-               o que você queria explorar?"
+Sistema: "Gerado artigo completo: [artigo estruturado]. Quer exportar em PDF, DOCX ou LaTeX?"
 [Bastidores: ✍️ Escritor compilou → 🎯 Orquestrador curou]
 ```
 
-### Cenário C: Framework Teórico
+## 5. Da Mensagem ao Manuscrito
 
-```
-Usuário: "Proponho modelo de governança para sistemas multi-agente"
-↓
-Orquestrador: "Fascinante! Você já tem o modelo estruturado ou está ainda 
-               explorando a ideia?"
-↓
-Usuário: "Tenho uma ideia inicial, mas preciso validar a lógica"
-↓
-Orquestrador: "Validei a consistência lógica do framework: [resultado da validação]. 
-               Faz sentido?"
-[Bastidores: 🔬 Metodologista validou → 🎯 Orquestrador curou]
-↓
-Usuário: "Perfeito!"
-↓
-Orquestrador: "Ótimo! Agora podemos: 1) estruturar o argumento completo, 
-               2) pesquisar frameworks similares, ou 3) começar a escrever. 
-               O que prefere?"
-↓
-Usuário: "Estruturar o argumento"
-↓
-Orquestrador: "Estruturei o argumento completo do framework: [argumentação 
-               organizada]. Isso captura a lógica que você quer apresentar?"
-[Bastidores: 📝 Estruturador estruturou → 🎯 Orquestrador curou]
-↓
-Usuário: "Sim, agora quero redigir o artigo"
-↓
-Orquestrador: "Redigi o artigo teórico completo: [artigo]. Isso reflete o que 
-               você queria comunicar?"
-[Bastidores: ✍️ Escritor redigiu → 🎯 Orquestrador curou]
-```
+Quando usuário chega com Mensagem estruturada (de Camadas da Linguagem):
 
-### Cenário D: Exploração Gradual (Claim Evolui)
+1. Usuário escolhe tipo de artigo
+2. Sistema propõe estrutura de seções
+3. Sistema distribui argumentos/evidências nas seções
+4. Usuário revisa e ajusta
+5. Sistema gera manuscrito
+6. Export (PDF, DOCX, LaTeX)
 
-```
-Usuário começa vago, sistema provoca, claim cristaliza:
-Usuário: "É possível fazer levantamento de obra com tecnologia?"
-↓
-Sistema: "Interessante! 'Tecnologia' é amplo. Você está pensando em:
-         - IA para análise de plantas/documentos?
-         - Drones para medição física?
-         - Software de gestão de projetos?
-         Qual aspecto te intriga mais?"
-↓
-Usuário: "Drones para medir volumes"
-↓
-Sistema (detecta suposições): "Você assumiu que precisão de drones é suficiente 
-         para levantamento oficial. Já considerou margem de erro?"
-↓
-Usuário: "Boa pergunta. Qual margem é aceitável?"
-↓
-Sistema: "Levantamento oficial exige < 2%. Pesquisei e encontrei que drones com 
-         visão computacional conseguem < 1.5% de erro. Isso resolve sua questão?"
-[Bastidores: 🔍 Pesquisador pesquisou → 🎯 Orquestrador curou]
-↓
-[Claim evoluiu: "Tecnologia ajuda obras" → "Drones com visão computacional 
- podem medir volumes com precisão suficiente para levantamento oficial"]
-```
+## 6. Casos de Uso Principais
 
-## 4. Da Ideia ao Manuscrito
+- **UC1: Produzir Artigo de Revisão** – Transformar mensagem em artigo de revisão de literatura com protocolo estruturado (PICO/SPIDER) e síntese.
+- **UC2: Escrever Artigo Teórico** – Compilar mensagem em manuscrito teórico completo com validação lógica.
+- **UC3: Compilar Manuscrito Empírico** – Distribuir argumentos da mensagem em estrutura empírica (Introdução, Metodologia, Resultados, Discussão).
+- **UC4: Revisar Metodologia** – Analisar desenho metodológico proposto e produzir feedback estruturado com ações recomendadas para rigor científico.
 
-Quando uma ideia atinge maturidade (fundamentos sólidos, poucas questões abertas):
+## 7. Entidades do Produto
 
-1. Usuário acessa ideia e clica "Criar Conteúdo"
-2. Abre chat para definir expectativas (formato, tom, ênfase)
-3. Orquestrador chama Escritor
-4. Conteúdo gerado a partir de metadados já elaborados (claim, fundamentos, evidências)
+Produtor Científico adiciona entidades específicas sobre o core universal para gerenciar artigos acadêmicos. Essas entidades especializam a produção de conteúdo da Expressão para o formato acadêmico.
 
-**Formatos possíveis:**
-- Artigo acadêmico
-- Post de blog/LinkedIn
-- Thread de Twitter
-- Apresentação
+### 7.1 Article (Estrutura de Artigo)
 
-## 5. Casos de Uso Principais
-
-- **UC1: Validar Hipótese Científica** – De uma observação vaga para uma hipótese testável ou descarte fundamentado.
-- **UC2: Estruturar Revisão de Literatura** – Transformar questão de pesquisa em protocolo estruturado (PICO/SPIDER) e compilar síntese de literatura.
-- **UC3: Escrever Artigo Teórico** – Construir framework conceitual com validação lógica e redigir manuscrito teórico completo.
-- **UC4: Pesquisar Literatura** – Gerar síntese de papers relevantes com rastreabilidade das fontes e análise crítica.
-- **UC5: Compilar Manuscrito** – Converter artefatos consolidados (hipótese, metodologia, resultados) em manuscrito científico no estilo do usuário.
-- **UC6: Revisar Metodologia** – Analisar desenho metodológico e produzir feedback estruturado com ações recomendadas para rigor científico.
-
-## 6. Entidades do Produto
-
-Produtor Científico adiciona entidades específicas sobre o core universal para gerenciar artigos acadêmicos.
-
-### 6.1 Article (Agregador de Ideias)
-
-Article é a entidade central que agrega múltiplas ideias do core em um artigo científico estruturado:
+Article é a entidade central que estrutura uma Mensagem em artigo científico:
 
 ```python
 Article:
   id: UUID
   title: str                    # "Impacto de LLMs em Produtividade"
-  ideas: list[UUID]             # Ideias que compõem o artigo
+  message_id: UUID              # Mensagem (de Camadas da Linguagem) que originou o artigo
   
   # Metadados específicos
   article_type: str             # "empirical", "review", "theoretical"
@@ -221,7 +167,7 @@ Article:
   keywords: list[str]
 ```
 
-### 6.2 Section (Parte do Artigo)
+### 7.2 Section (Parte do Artigo)
 
 Section representa uma seção estruturada do artigo (Introdução, Metodologia, Resultados, etc.):
 
@@ -235,35 +181,31 @@ Section:
   status: str                   # "pending", "draft", "reviewed"
 ```
 
-### 6.3 Como Article Consome Core
+### 7.3 Como Article Consome Mensagem
 
-Produtor Científico consome o core universal via API para criar e gerenciar ideias, agregando-as em artigos:
+Produtor Científico recebe Mensagem do core (gerada por Camadas da Linguagem) e estrutura em artigo:
 
 ```python
-# Produtor Científico chama core via API
-core_api = CoreAPI()
+# Produtor Científico recebe mensagem de Camadas da Linguagem
+message = core_api.get_message(message_id)
 
-# Criar ideia via conversa
-idea = core_api.create_idea_from_conversation(
-  conversation_id=conv_id
-)
-
-# Adicionar ideia ao artigo
+# Criar artigo a partir da mensagem
 article = Article(
   title="Impacto de LLMs",
-  ideas=[idea.id]
+  message_id=message.id,  # Referência à mensagem
+  article_type="empirical"
 )
 
-# Buscar ideias relacionadas (core fornece)
-related_ideas = core_api.find_related_ideas(
-  idea_id=idea.id,
-  min_similarity=0.75
+# Distribuir argumentos da mensagem nas seções
+sections = structure_message_to_sections(
+  message=message,
+  article_type="empirical"
 )
 ```
 
-## 7. Interface: Gestão de Artigos
+## 8. Interface: Gestão de Artigos
 
-### 7.1 Sidebar: Gestão de Artigos
+### 8.1 Sidebar: Gestão de Artigos
 
 Interface permite gerenciar múltiplos artigos simultaneamente:
 
@@ -280,7 +222,7 @@ Interface permite gerenciar múltiplos artigos simultaneamente:
 - Pausar/retomar trabalho em artigos
 - Criar novo artigo
 
-### 7.2 Fluxo de Sessão de Trabalho
+### 8.2 Fluxo de Sessão de Trabalho
 
 #### Início de Sessão
 
@@ -325,30 +267,36 @@ Sistema: "Resumo da sessão de hoje:
           Salvei tudo. Até a próxima!"
 ```
 
-## 8. Integração com Core
+## 9. Integração com Pipeline
 
-### 8.1 O Que Produtor Científico NÃO Reimplementa
+### 9.1 Relação com Expressão
 
-Produtor Científico consome as funcionalidades do core universal:
+Produtor Científico é especialização de Expressão:
+- Herda capacidade de receber Mensagem e produzir conteúdo
+- Adiciona lógica específica para artigos acadêmicos
+- Compartilha infraestrutura com Expressão
 
-❌ Detecção de conceitos (core faz)  
-❌ Extração de argumentos (core faz)  
-❌ Validação lógica (agentes do core fazem)  
-❌ Conversação socrática (orquestrador do core faz)  
+### 9.2 O Que Produtor Científico NÃO Faz
 
-### 8.2 O Que Produtor Científico ADICIONA
+❌ Criar clareza de ideias (isso é Revelar)  
+❌ Extrair conceitos de textos (isso é Prisma Verbal)  
+❌ Estruturar argumentos em mensagem (isso é Camadas da Linguagem)  
+❌ Produzir outros formatos como post/email (isso é Expressão genérico)
 
-Produtor Científico adiciona funcionalidades específicas para produção acadêmica:
+### 9.3 O Que Produtor Científico ADICIONA sobre Expressão
 
-✅ Entidade `Article` (agregador)  
-✅ Seções estruturadas (Intro, Metodo, ...)  
-✅ Interface de chat + dashboard  
-✅ Compilação de artigo final  
-✅ Export (PDF, DOCX)  
+✅ Tipos de artigo acadêmico (empírico, revisão, teórico...)  
+✅ Estrutura de seções (Introdução, Metodologia, Resultados...)  
+✅ Validação metodológica integrada  
+✅ Formatação para publicação (ABNT, APA, Vancouver...)  
+✅ Export especializado (LaTeX, templates de journals)  
 
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal
-- `core/docs/vision/conversation_mechanics.md` - Mecânica de conversação
+- `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
+- `products/camadas-da-linguagem/docs/vision.md` - Produto anterior no pipeline
+- `products/expressao/docs/vision.md` - Produto base (Produtor Científico é especialização)
+- `products/revelar/docs/vision.md` - Produto de clareza (etapa anterior)
 - `products/produtor-cientifico/docs/vision/agent_personas.md` - Customização de agentes
 

@@ -8,6 +8,43 @@ A ontologia reflete uma filosofia epistemológica onde não existe distinção b
 
 Outros documentos de arquitetura referenciam este documento como base para entender as entidades fundamentais do sistema.
 
+### Fundamento Vetorial
+
+Todas as entidades desta ontologia existem no **espaço vetorial compartilhado** do Motor Vetorial. Isso significa:
+
+- Conceitos, Argumentos, Ideias e Proposições são vetorizados
+- Relações entre entidades são calculadas via operações vetoriais (similaridade, composição)
+- Inferências são feitas via cálculos vetoriais, não apenas via LLM
+- O sistema opera em essências, não em palavras
+
+Para filosofia completa do Motor Vetorial, consulte `core/docs/vision/system_philosophy.md`.
+
+---
+
+## Espectro de Abstração
+
+As entidades da ontologia se distribuem em um espectro de abstração:
+```
+MATERIAL (forma)                                    ESSENCIAL (espírito)
+     │                                                      │
+     ▼                                                      ▼
+palavras → contexto → proposições → argumentos → ideias → conceitos
+     │                                                      │
+  específico                                           universal
+  temporal                                             atemporal
+  idioma-dependente                                    idioma-agnóstico
+```
+
+### Implicações
+
+- **Conceitos** estão no extremo essencial: padrões universais, atemporais
+- **Proposições** estão mais próximas do material: unidades de texto específicas
+- **Argumentos** emergem de proposições quando contextualizados
+- **Ideias** são conjuntos de argumentos, específicas mas reutilizáveis
+- **Mensagens** preparam ideias para materialização em forma linguística
+
+O sistema busca operar no lado essencial sempre que possível, descendo para o material apenas quando necessário (ex: produzir conteúdo final).
+
 ---
 
 ## Observador e CognitiveModel
@@ -165,6 +202,20 @@ idea_concepts:
 - Similaridade > 0.80: variation do conceito existente
 - Similaridade < 0.80: conceito novo
 
+#### Posição no Espectro
+
+Conceitos ocupam o extremo **essencial** do espectro:
+- São padrões universais que transcendem idioma e época
+- Existem independentemente de quem os usa
+- A mesma essência pode ter múltiplas manifestações linguísticas
+
+Exemplo: O conceito "Justiça" pode se manifestar como:
+- "justiça" (português)
+- "dharma" (sânscrito, em certo contexto)
+- "harmonia" (chinês, em certo contexto)
+
+O sistema detecta essa convergência via similaridade vetorial.
+
 **Exemplos de globalidade:**
 
 Conceito "Cooperação" (global, único na biblioteca):
@@ -226,6 +277,28 @@ Proposição:
   - Usada em: Argumento sobre métricas de produtividade
 
 **Importante:** "Premissa" agora é um **PAPEL**, não um tipo. Premissa = proposição sendo usada como fundamento de um argumento específico. Não há mais distinção entre premise/assumption - apenas proposições com solidez diferente.
+
+#### Proposição → Argumento (Transformação por Contexto)
+
+Uma proposição é uma unidade de texto. Ela se torna **argumento** quando:
+- É usada para sustentar uma ideia específica
+- Recebe contexto e intenção
+- É selecionada para comunicação
+
+**Exemplo:**
+
+Proposição: "O sol nasce todo dia"
+- Como texto: apenas uma afirmação
+- Como argumento (com contexto): sustenta a ideia de "constância" ou "confiabilidade"
+
+A mesma proposição pode ser argumento em múltiplas ideias, com papéis diferentes.
+
+#### Posição no Espectro
+
+Proposições estão mais próximas do lado **material**:
+- São unidades de texto específicas
+- Dependem de palavras e contexto linguístico
+- Ao serem usadas como argumentos, movem-se para o lado essencial
 
 **Relacionamento Bidirecional com Argumentos:**
 
@@ -381,6 +454,19 @@ Dentro de cada argumento selecionado, usuário pode escolher quais evidências i
 - Mesma ideia "Cidades fazem mal" gera:
   - Mensagem A (despertar empatia) → seleciona argumentos vivenciais
   - Mensagem B (despertar confiança) → seleciona argumentos científicos
+
+#### Onde é Criada
+
+Mensagem é criada em **Camadas da Linguagem**:
+- Input: Ideia (de Revelar ou Prisma Verbal)
+- Processo: Seleção e organização de argumentos + definição de intenção
+- Output: Mensagem pronta para Expressão
+
+#### Para Onde Vai
+
+Mensagem vai para **Expressão** (ou especializações como Produtor Científico):
+- Expressão recebe Mensagem e dá forma
+- Forma pode ser: post, email, artigo, apresentação
 
 ### MemoryLayer (Camada de Memória)
 
@@ -890,6 +976,34 @@ Quando uma proposição é identificada como frágil:
 2. Sugere buscar evidências para fortalecer a proposição
 3. Mostra impacto: "Fortalecer esta proposição afetaria 5 argumentos"
 
+## Relação com Pipeline de Produtos
+
+As entidades da ontologia fluem através do pipeline:
+```
+┌─────────────┐     ┌─────────────────────────┐     ┌───────────┐
+│   Revelar   │     │  Camadas da Linguagem   │     │ Expressão │
+│ Prisma Verb.│     │                         │     │           │
+└─────────────┘     └─────────────────────────┘     └───────────┘
+      │                        │                          │
+      ▼                        ▼                          ▼
+   IDEIAS               MENSAGENS                    CONTEÚDO
+ ARGUMENTOS          (seleção +                    (forma final)
+ CONCEITOS            intenção)
+```
+
+### Onde Cada Entidade é Criada/Usada
+
+| Entidade | Criada em | Usada em |
+|----------|-----------|----------|
+| Conceito | Revelar, Prisma Verbal | Todos (biblioteca global) |
+| Proposição | Prisma Verbal | Camadas, Expressão |
+| Argumento | Revelar, Prisma Verbal | Camadas, Expressão |
+| Ideia | Revelar | Camadas |
+| Mensagem | Camadas da Linguagem | Expressão |
+| Conteúdo | Expressão | (usuário final) |
+
+---
+
 ## Referências
 
 - `core/docs/vision/epistemology.md` - Fundamento filosófico da ontologia (proposições, solidez, evidências)
@@ -902,4 +1016,7 @@ Quando uma proposição é identificada como frágil:
 - `core/docs/vision/cognitive_model/evolution.md` - Como pensamento evolui e solidez é calculada
 - `core/docs/agents/observer.md` - Documentação completa do Observador
 - `ROADMAP.md` - Épicos 10, 12, 13 (Observador e Conceitos)
+- `products/camadas-da-linguagem/docs/vision.md` - Produto que cria Mensagens
+- `products/expressao/docs/vision.md` - Produto que dá forma a Mensagens
+- `products/produtor-cientifico/docs/vision.md` - Especialização para artigos
 
