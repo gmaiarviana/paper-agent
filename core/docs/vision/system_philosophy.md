@@ -75,12 +75,35 @@ Compactação/arquivamento periódico (ex: anual) para manter performance sem pe
 Paper Agent não é apenas um produto isolado. É a **primeira aplicação** de um super-sistema com core universal que serve múltiplos produtos.
 
 **Produtos planejados:**
-- **Paper-agent:** Auxílio em produção científica (atual)
-- **Fichamento:** Catálogo de livros com ideias extraídas (futuro próximo)
-- **Rede Social:** Conexão por cosmovisões compartilhadas (futuro distante)
+- **Revelar:** Clareza de ideias via diálogo (atual)
+  - Interface: diálogo socrático
+  - Entrada: conversa com usuário
+  - Saída: Ideia clara e fundamentada
+  
+- **Prisma Verbal:** Extração de conceitos de textos (atual)
+  - Interface: processamento de texto estático
+  - Entrada: livros, papers, documentos
+  - Saída: Argumentos extraídos e estruturados
+  
+- **Camadas da Linguagem:** Estruturação de mensagens (novo)
+  - Interface: estruturação de ideias
+  - Entrada: Ideia
+  - Saída: Mensagem estruturada
+  
+- **Expressão:** Produção de conteúdo em formas diversas (novo)
+  - Interface: produção de conteúdo
+  - Entrada: Mensagem
+  - Saída: Conteúdo (post, email, artigo, etc.)
+  
+- **Produtor Científico:** Artigos acadêmicos (especialização de Expressão)
+  - Interface: produção de artigos acadêmicos
+  - Entrada: Mensagem
+  - Saída: Artigo acadêmico formatado
 
 **Core compartilhado:**
-- Ontologia (Conceito, Ideia, Argumento)
+- Motor Vetorial (operações vetoriais, inferências)
+- Biblioteca Vetorial (Conceitos, Argumentos, Ideias, Proposições)
+- Ontologia (Conceito, Ideia, Argumento, Proposição, Evidência)
 - Modelo cognitivo (claim → fundamentos (com solidez variável))
 - Agentes (Orquestrador, Estruturador, Metodologista, Pesquisador)
 - Infraestrutura (LangGraph, ChromaDB, embeddings)
@@ -120,11 +143,11 @@ Sistema extrai **informação** (proposições específicas com contexto), não 
 ### Nota Importante
 Este é princípio **orientador**, não bloqueio técnico. Sistema facilita criação de informação nova, mas não impede registro se usuário decidir.
 
-## Modelo Próprio (Visão Futura)
+## Motor Vetorial (Visão Central)
 
 ### Essências Como Unidade de Treino
 
-A arquitetura atual de LLMs opera sobre **tokens** - fragmentos linguísticos que carregam peso estatístico mas não necessariamente significado. Nossa visão futura propõe uma mudança paradigmática: um modelo treinado em **essências**, não em palavras.
+A arquitetura atual de LLMs opera sobre **tokens** - fragmentos linguísticos que carregam peso estatístico mas não necessariamente significado. O motor vetorial propõe uma mudança paradigmática: um modelo treinado em **essências**, não em palavras.
 
 **Limitação dos modelos atuais:**
 - Tokenização fragmenta conceitos em pedaços arbitrários
@@ -145,6 +168,23 @@ Em vez de embeddings baseados em co-ocorrência de tokens, sistema armazena pare
     ...
   ]
 }
+```
+
+### Inferências Via Operações Vetoriais
+
+O motor vetorial realiza inferências através de **operações vetoriais**, não via chamadas a LLM:
+- **Similaridade:** comparação de vetores (cosine similarity, distância euclidiana)
+- **Composição:** combinação de vetores para formar conceitos complexos
+- **Decomposição:** extração de componentes essenciais de vetores compostos
+- **Projeção:** mapeamento entre espaços vetoriais de diferentes níveis de abstração
+
+**Exemplo:**
+```
+Conceito "Justiça" (vetor) + Conceito "Distributiva" (vetor) 
+  → Operação de composição vetorial
+  → Resultado: "Justiça Distributiva" (novo vetor)
+  → Busca por similaridade na biblioteca
+  → Encontra: "Retribuição Proporcional" (similaridade 0.92)
 ```
 
 ### Metodologia de Treino
@@ -195,39 +235,173 @@ Esta visão é extensão natural do princípio "Essências transcendem palavras"
 
 ### Status e Horizonte
 
-**Status:** Visão conceitual, pré-pesquisa.
+**Status:** Visão estruturante do sistema, agnóstica a prazo.
 
 **Dependências:**
 - Corpus curado de pares (literal → essência)
 - Arquitetura de modelo adequada (não transformer padrão?)
 - Métricas de avaliação para "abstração correta"
 
-**Horizonte:** Longo prazo (5+ anos). Documentado aqui para orientar decisões arquiteturais que não fechem portas para essa evolução.
+**Horizonte:** Estado futuro ideal do sistema. Documentado aqui para orientar decisões arquiteturais que não fechem portas para essa evolução.
+
+## Espectro Matéria ↔ Espírito
+
+O sistema unifica as "camadas" de interpretação com camadas de abstração vetorial através de um espectro contínuo que vai do material (forma) ao essencial (espírito):
+
+```
+MATERIAL (forma)                                    ESSENCIAL (espírito)
+     │                                                      │
+palavras → contexto → proposições → argumentos → ideias → conceitos
+     │                                                      │
+  específico                                           universal
+  temporal                                             atemporal
+  idioma-dependente                                    idioma-agnóstico
+```
+
+### Lado Material (Esquerda do Espectro)
+
+- **Palavras:** unidades linguísticas específicas, dependentes de idioma
+- **Contexto:** significado situacional, temporal, cultural
+- **Proposições:** unidades de texto que podem virar argumentos conforme contexto e intenção
+- **Características:** específico, temporal, idioma-dependente
+
+### Lado Essencial/Espiritual (Direita do Espectro)
+
+- **Argumentos:** estruturas lógicas reutilizáveis que emergem de conceitos
+- **Ideias:** específicas, contextuais, pessoais (conjuntos de argumentos)
+- **Conceitos:** padrões universais, atemporais, idioma-agnósticos
+- **Características:** universal, atemporal, idioma-agnóstico
+
+### Princípio Fundamental
+
+Quanto mais à direita no espectro, mais agnóstico à forma linguística. O motor vetorial opera preferencialmente nas camadas mais à direita (conceitos, argumentos, ideias), abstraindo das palavras específicas para capturar essências compartilhadas.
+
+**Exemplo:**
+```
+Material: "A justiça distributiva requer que cada um receba segundo suas contribuições"
+  ↓ (abstração vetorial)
+Essencial: Conceito "Justiça" + Conceito "Distributiva" + Argumento "Retribuição Proporcional"
+  ↓ (recomposição)
+Material: "Karma é lei" (védico) ou "A cada um segundo suas obras" (bíblico)
+```
+
+Este espectro unifica as "camadas" de interpretação com camadas de abstração vetorial, permitindo que o sistema trabalhe com essências independentemente da forma linguística específica.
+
+## Biblioteca Vetorial
+
+Todos os elementos do sistema (conceitos, argumentos, ideias, proposições) vivem no mesmo **espaço vetorial compartilhado**, formando uma biblioteca que cresce organicamente.
+
+### Conceitos
+
+**Definição:** Padrões universais, atemporais, idioma-agnósticos.
+
+**Exemplos:** amor, família, segurança, justiça, cooperação, coordenação, harmonia, retribuição.
+
+**Características:**
+- Transcendem vocabulário específico
+- Detectados por similaridade vetorial (threshold > 0.80)
+- Podem ter múltiplas "variations" (diferentes palavras apontando para mesma essência)
+- Formam a base sobre a qual argumentos emergem
+
+### Argumentos
+
+**Definição:** Estruturas lógicas reutilizáveis que emergem de conceitos.
+
+**Características:**
+- Compostos de conceitos relacionados
+- Reutilizáveis entre diferentes ideias
+- Podem ser combinados para formar ideias complexas
+- Exemplo: "Justiça distributiva" = Conceito "Justiça" + Conceito "Distributiva"
+
+### Ideias
+
+**Definição:** Específicas, contextuais, pessoais. São conjuntos de argumentos.
+
+**Características:**
+- Combinam múltiplos argumentos
+- Contextuais (dependem de situação específica)
+- Pessoais (refletem visão de mundo do usuário)
+- Podem evoluir ao longo do tempo (via diálogo no Revelar)
+
+### Proposições
+
+**Definição:** Unidades de texto que podem virar argumentos conforme contexto e intenção.
+
+**Características:**
+- Extraídas de textos estáticos (via Prisma Verbal)
+- Ou co-construídas em diálogo (via Revelar)
+- Ganham estrutura de argumento quando conectadas a conceitos
+- Podem ser fundamentos de outros argumentos (genealogia)
+
+### Padrões Emergentes
+
+A biblioteca vetorial revela padrões interessantes:
+- **Muitos argumentos/conceitos se repetem entre usuários:** "Coordenação", "Cooperação", "Justiça" aparecem frequentemente
+- **Deduplicação automática:** Sistema detecta similaridade e sugere conexão com conceitos existentes
+- **Crescimento orgânico:** Biblioteca cresce conforme produtos processam textos e conversas
+- **Reutilização:** Argumentos de um usuário podem enriquecer a biblioteca para outros
+
+**Exemplo de padrão emergente:**
+```
+Conceito "Coordenação" (biblioteca global)
+  ├─ Argumento: "Coordenação requer comunicação frequente"
+  │   └─ Usado em: Ideia "Reuniões síncronas aumentam alinhamento" (usuário A)
+  │   └─ Usado em: Ideia "Stand-ups diários melhoram coordenação" (usuário B)
+  ├─ Argumento: "Coordenação depende de objetivos compartilhados"
+  │   └─ Usado em: Ideia "Visão compartilhada reduz conflitos" (usuário C)
+  └─ Variations: coordenação, alinhamento, sincronização, harmonização
+```
 
 ## Convergência Entre Produtos
 
+### Pipeline Completo
+
+Produtos do super-sistema formam um pipeline onde cada etapa transforma entrada em saída, todas compartilhando o mesmo motor vetorial:
+
+**Interfaces de Entrada (para o Motor Vetorial):**
+- **Revelar:** Diálogo → Ideia (clareza)
+  - Co-constrói ideias com usuário via diálogo socrático
+  - Proposições emergem da conversa
+  - Solidez evolui conforme usuário elabora
+  - Sistema provoca reflexão sobre lacunas
+  
+- **Prisma Verbal:** Texto estático → Argumentos (extração)
+  - Processa textos estáticos (livros, papers)
+  - Leitura sequencial (como humano)
+  - Extrai proposições (#1, #2, #3...)
+  - Avalia solidez baseada em coerência interna
+  - Detecta dependências (proposição X apoia-se em Y)
+
+**Estruturação e Forma:**
+- **Camadas da Linguagem:** Ideia → Mensagem (estruturação)
+  - Recebe Ideia como entrada
+  - Estrutura em Mensagem (organização lógica, hierarquia de argumentos)
+  - Aplica princípios de comunicação efetiva
+
+- **Expressão:** Mensagem → Conteúdo (forma)
+  - Recebe Mensagem como entrada
+  - Produz Conteúdo em formas diversas (post, email, artigo, etc.)
+  - Adapta tom, estilo e formato conforme necessidade
+
+- **Produtor Científico:** Fork de Expressão especializado em artigos acadêmicos
+  - Recebe Mensagem como entrada
+  - Produz artigos acadêmicos com estrutura formal
+  - Aplica normas de citação e formatação científica
+
 ### Arquitetura Compartilhada
 
-Produtos do super-sistema (Revelar, Prisma Verbal) compartilham infraestrutura técnica, mas têm contextos diferentes:
+Todos os produtos compartilham a mesma infraestrutura técnica:
 
 **Infraestrutura Compartilhada:**
+- ✅ **Motor Vetorial:** Operações vetoriais (similaridade, composição, decomposição)
 - ✅ **Conceitos globais:** Biblioteca única (ChromaDB)
 - ✅ **Detecção de solidez:** Coerência, fundamentação, lacunas
 - ✅ **Rastreamento de proposições:** Genealogia de afirmações
 - ✅ **Ontologia:** Conceito, Ideia, Argumento, Proposição, Evidência
 
-**Contextos Diferentes:**
-- **Prisma Verbal:** Extrai proposições de textos estáticos (livros, papers)
-  - Leitura sequencial (como humano)
-  - Extrai proposições (#1, #2, #3...)
-  - Avalia solidez baseada em coerência interna
-  - Detecta dependências (proposição X apoia-se em Y)
-  
-- **Revelar:** Co-constrói proposições com usuário (conversa dinâmica)
-  - Diálogo socrático
-  - Proposições emergem da conversa
-  - Solidez evolui conforme usuário elabora
-  - Sistema provoca reflexão sobre lacunas
+**Diferença está na interface, não no motor:**
+- Backend comum: Motor Vetorial, Biblioteca Vetorial, Ontologia
+- Frontend específico: cada produto adapta interface conforme necessidade do usuário
 
 ### Como Produtos Trabalham Juntos
 
