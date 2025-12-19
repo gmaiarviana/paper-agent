@@ -11,12 +11,38 @@
 
 ### Output do Revelar
 - ✅ Clareza mental sobre o que você realmente quer dizer
-- ✅ Hipótese bem articulada (negócio, postagem, pesquisa, vida pessoal)
+- ✅ Ideia estruturada (conjunto de argumentos)
 - ✅ Rede de conceitos conectados
 - ✅ Fundamentos com solidez avaliada
-- ❌ NÃO produz documentos finais (artigos, relatórios)
+- ❌ NÃO estrutura mensagens (isso é Camadas da Linguagem)
+- ❌ NÃO produz conteúdo final (isso é Expressão)
+
+**Próximo passo:** Usuário pode levar Ideia para Camadas da Linguagem para estruturar comunicação.
 
 **Metáfora:** Revelar é o "ateliê de lapidação" onde você refina ideias brutas até ficarem cristalinas. A produção de conteúdo final (artigos, posts, relatórios) acontece em outros produtos.
+
+### 1.1 Posição no Pipeline
+
+Revelar é a **Etapa 1 do pipeline** - responsável por clareza.
+
+```
+┌─────────────┐     ┌─────────────────────────┐     ┌───────────┐
+│   REVELAR   │────▶│  Camadas da Linguagem   │────▶│ Expressão │
+│  (clareza)  │     │    (estruturação)       │     │  (forma)  │
+└─────────────┘     └─────────────────────────┘     └───────────┘
+      │                        │                          │
+      ▼                        ▼                          ▼
+    IDEIA                  MENSAGEM                   CONTEÚDO
+```
+
+**Entradas:**
+- Usuário com pensamento confuso ou ideia vaga
+- Diálogo socrático para chegar na clareza
+
+**Saídas:**
+- Ideia estruturada (conjunto de argumentos)
+- Conceitos identificados (alimentam biblioteca global)
+- Pronto para ir a Camadas da Linguagem (se usuário quiser comunicar)
 
 ## 2. Posicionamento e Diferencial
 
@@ -111,8 +137,11 @@ A unidade de trabalho que atravessa todo o fluxo é a **Ideia**.
 Quando uma ideia atinge clareza suficiente:
 1. Usuário vê resumo estruturado (claim, fundamentos, solidez)
 2. Pode exportar estrutura simples (markdown, texto)
-3. Pode passar para próximo produto (Produtor Científico) via integração futura
+3. Pode passar para Camadas da Linguagem para estruturar comunicação
 4. Foco permanece na clareza, não em formato final
+
+**Fluxo de saída:**
+Revelar (clareza) → Camadas da Linguagem (estruturação) → Expressão (forma)
 
 ## 5. Interação com Usuário
 
@@ -313,6 +342,37 @@ Sistema conecta o que usuário está articulando com o que já foi dito antes (p
 - Sistema detecta similaridade semântica via vetores (ChromaDB)
 - Biblioteca global cresce com contribuições de Prisma (textos processados) e Revelar (conversas)
 
+**Pipeline Completo:**
+
+Revelar e Prisma Verbal alimentam o mesmo Motor Vetorial:
+
+```
+REVELAR ──────┐
+(diálogo)     │
+              ▼
+        ┌─────────────────┐
+        │  MOTOR VETORIAL │
+        │   (biblioteca)  │
+        └─────────────────┘
+              ▲
+PRISMA  ──────┘
+VERBAL
+(texto)
+              │
+              ▼
+    CAMADAS DA LINGUAGEM
+       (estruturação)
+              │
+              ▼
+         EXPRESSÃO
+          (forma)
+```
+
+Ambos os produtos:
+- Alimentam a biblioteca de conceitos
+- Criam Ideias e Argumentos
+- Preparam material para Camadas da Linguagem
+
 ### Vetorização Futura e Diálogo Socrático
 
 **Clareza Emerge Progressivamente:**
@@ -366,6 +426,9 @@ Usuário não precisa gerenciar isso - sistema identifica quando argumento ating
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal
+- `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
 - `core/docs/vision/conversation_mechanics.md` - Mecânica de conversação
 - `core/docs/vision/cognitive_model/` - Como pensamento evolui
+- `products/camadas-da-linguagem/docs/vision.md` - Próximo produto no pipeline
+- `products/prisma-verbal/docs/vision.md` - Produto irmão (entrada alternativa)
 
