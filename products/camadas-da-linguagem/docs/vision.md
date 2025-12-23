@@ -77,3 +77,4 @@ Usuário define a intenção comunicativa:
 - `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
 - `products/expressao/docs/vision.md` - Produto seguinte no pipeline
 
+

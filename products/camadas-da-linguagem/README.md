@@ -27,3 +27,4 @@ Revelar/Prisma Verbal → Camadas da Linguagem → Expressão
 
 Para informações sobre o super-sistema, consulte `core/docs/architecture/vision/super_system.md`.
 
+

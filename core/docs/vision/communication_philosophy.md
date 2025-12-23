@@ -343,3 +343,4 @@ Sistema já trabalha com espaço latente para conceitos (ChromaDB). Adicionar es
 - ✅ Separação clara entre MVP e Visão
 - ✅ Conexão com filosofia existente do sistema
 
+
