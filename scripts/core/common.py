@@ -15,7 +15,7 @@ def setup_project_path():
     """
     Add project root to Python path for imports.
 
-    This allows scripts to import modules from agents/, utils/, etc.
+    This allows scripts to import modules from core/agents/, core/utils/, etc.
     without requiring package installation.
 
     Note: This is a temporary solution for development. For production,

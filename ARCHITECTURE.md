@@ -34,7 +34,7 @@ Idea:
 
 ## Gestão de Ideias
 
-Sistema gerencia ideias cristalizadas durante conversas com navegação em três espaços distintos (Épico 14):
+Sistema gerencia ideias cristalizadas durante conversas com navegação em três espaços distintos:
 
 **Conversas (Sidebar):**
 - Últimas 5 conversas recentes com timestamp relativo
@@ -116,7 +116,7 @@ O sistema oferece **duas interfaces web** com propósitos distintos:
 - Interface conversacional para usuários finais
 - Chat fluido + bastidores opcionais (reasoning inline)
 - Sidebar com últimas 5 conversas (SqliteSaver backend)
-- Navegação em três espaços: Conversas, Meus Pensamentos, Catálogo (Épico 14)
+- Navegação em três espaços: Conversas, Meus Pensamentos, Catálogo
 - Persistência entre visitas (sem autenticação - sessões compartilhadas)
 - **Porta:** :8501
 
@@ -186,15 +186,15 @@ Sistema captura evolução do pensamento do usuário através de modelo cognitiv
 - **Checklist:** `core/agents/checklist/progress_tracker.py` - Rastreamento adaptativo por tipo de artigo
 - **Banco de dados:** `data/data.db` - Separado de checkpoints.db (LangGraph)
 
-**Status de integração (Épico 9):** ✅ Concluído
+**Status de integração:** ✅ Concluído
 - ✅ Schema implementado (`CognitiveModel`)
 - ✅ SnapshotManager implementado (avalia maturidade via LLM)
-- ✅ **Épico 9.1:** Orquestrador atualizar cognitive_model no state a cada turno
-- ✅ **Épico 9.2:** Passar active_idea_id via config do LangGraph
-- ✅ **Épico 9.3:** Integrar SnapshotManager no fluxo conversacional (persistência automática)
-- ✅ **Épico 9.4:** Indicador de solidez no painel Contexto (`calculate_solidez()`)
+- ✅ Orquestrador atualizar cognitive_model no state a cada turno
+- ✅ Passar active_idea_id via config do LangGraph
+- ✅ Integrar SnapshotManager no fluxo conversacional (persistência automática)
+- ✅ Indicador de solidez no painel Contexto (`calculate_solidez()`)
 
-## Integração Observer (Épico 12)
+## Integração Observer
 
 Observer integrado ao grafo multi-agente via callback assíncrono após execução do Orchestrator.
 
@@ -224,11 +224,11 @@ User Input → Orchestrator → Response ao usuário
          Timeline atualizada (próximo render)
 ```
 
-**Status (Épico 12):** ✅ Concluído
-- ✅ **12.1:** Callback assíncrono via threading (daemon)
-- ✅ **12.2:** CognitiveModel no prompt do Orquestrador
-- ✅ **12.3:** Timeline visual com seção "👁️ Observador"
-- ✅ **12.4:** 28 testes passando (unit + integration)
+**Status:** ✅ Concluído
+- ✅ Callback assíncrono via threading (daemon)
+- ✅ CognitiveModel no prompt do Orquestrador
+- ✅ Timeline visual com seção "👁️ Observador"
+- ✅ 28 testes passando (unit + integration)
 
 ## Stack Técnico
 
@@ -312,7 +312,7 @@ Sistema de captura e agregação de tokens, custos e metadados de execução por
 - `decide_collaborative` (v3.1): Registra decisões colaborativas (approved/needs_refinement/rejected) + tokens
 - `force_decision_collaborative` (v3.1): Registra decisões forçadas após limite + tokens
 
-## Sistema de Observabilidade (Epic 8.5)
+## Sistema de Observabilidade
 
 Sistema de logging estruturado para debugging e análise de sessões multi-agente.
 
@@ -459,7 +459,7 @@ paper-agent/
 │       │       │   ├── reasoning.py    # Seção "📊 Bastidores" (reasoning dos agentes)
 │       │       │   ├── timeline.py     # Histórico de agentes
 │       │       │   └── constants.py    # Constantes compartilhadas
-│       │       ├── sidebar/          # Sidebar modular (Épico 14.1)
+│       │       ├── sidebar/          # Sidebar modular
 │       │       │   ├── __init__.py
 │       │       │   ├── navigation.py    # Navegação principal
 │       │       │   ├── conversations.py # Gestão de conversas
@@ -578,3 +578,34 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 **Produtos:**
 - `products/produtor-cientifico/docs/vision.md` - Produtor Científico (produto atual)
 - `products/prisma-verbal/docs/vision.md` - Fichamento (produto futuro)
+
+---
+
+## Decisões Técnicas Chave
+
+### ChromaDB + SQLite (Arquitetura Híbrida)
+**Implementado:** `core/agents/observer/catalog.py`
+**Contexto:** Conceitos precisam de busca semântica (vetores) E metadados estruturados (label, variations)
+**Decisão:** 
+- ChromaDB: armazena embeddings para busca semântica
+- SQLite: armazena metadados (`concepts.db`)
+- Referência cruzada via `chroma_id`
+**Resultado:** Busca por similaridade + queries estruturadas no mesmo conceito
+
+### Observer como Interface de Consulta (não agente conversacional)
+**Implementado:** `core/agents/observer/api.py` (classe `ObservadorAPI`)
+**Contexto:** Orquestrador precisa consultar estado cognitivo sem interferir no fluxo
+**Decisão:** Observer expõe API `what_do_you_see()` que retorna insights, não comandos
+**Resultado:** Orquestrador mantém autonomia, Observer informa sem impor
+
+### Memory Manager ≠ Memory Agent
+**Implementado:** `core/agents/memory/` (Memory Manager)
+**Contexto:** Sistema precisa de gerenciamento de configuração YAML e histórico
+**Decisão:** Memory Manager gerencia configs e tracking; Memory Agent (camadas temporais) é conceitual/futuro
+**Resultado:** Funcionalidade imediata sem complexidade de memória em camadas
+
+### Diretório `data/chroma/` criado em runtime
+**Implementado:** `core/agents/observer/catalog.py` (linha 147)
+**Contexto:** Evitar subir arquivos binários do ChromaDB no Git
+**Decisão:** Diretório não existe no repo, é criado dinamicamente no primeiro uso
+**Resultado:** Repositório limpo, cada ambiente tem seu próprio ChromaDB local

@@ -12,6 +12,8 @@ Documentação técnica da arquitetura do Observador - Mente Analítica. Detalha
 
 ## Estrutura de Diretórios
 
+> **Nota de Implementação:** O CRUD de conceitos está implementado em `core/agents/observer/catalog.py` (classe `ConceptCatalog`), não em um arquivo separado `concepts_crud.py`.
+
 ```
 paper-agent/
 ├── agents/
@@ -38,7 +40,6 @@ paper-agent/
 │
 ├── database/
 │   ├── schema.py                   # ATUALIZADO - adiciona tabelas concepts
-│   ├── concepts_crud.py            # NOVO - CRUD de conceitos
 │   └── ...
 │
 └── utils/
@@ -339,7 +340,7 @@ def identify_gaps(
 
 #### ChromaDB (Vetores)
 
-**Setup:** `agents/observer/catalog.py`
+**Setup:** `core/agents/observer/catalog.py`
 
 ```python
 import chromadb
@@ -489,10 +490,10 @@ CREATE INDEX idx_idea_concepts_idea_id ON idea_concepts(idea_id);
 CREATE INDEX idx_idea_concepts_concept_id ON idea_concepts(concept_id);
 ```
 
-**CRUD:** `database/concepts_crud.py`
+**CRUD:** `core/agents/observer/catalog.py`
 
 ```python
-class ConceptsCRUD:
+class ConceptCatalog:
     """CRUD operations para Concepts."""
     
     def create(self, concept: Concept) -> str:

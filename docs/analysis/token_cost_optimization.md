@@ -50,7 +50,7 @@ Esta filosofia permite otimizações agressivas que não seriam possíveis em si
 
 **Problema atual:**
 ```python
-# agents/orchestrator/nodes.py:600
+# core/agents/orchestrator/nodes.py:600
 messages = state.get("messages", [])
 if messages:
     context_parts.append("HISTÓRICO DA CONVERSA:")
@@ -102,7 +102,7 @@ ORCHESTRATOR_SOCRATIC_PROMPT_V1 = """Você é o Orquestrador Socrático...
 
 **Problema atual:**
 ```python
-# agents/orchestrator/nodes.py:633
+# core/agents/orchestrator/nodes.py:633
 context_parts.append(json.dumps(structurer_output, indent=2, ensure_ascii=False))
 ```
 
@@ -119,7 +119,7 @@ context_parts.append(json.dumps(structurer_output, indent=2, ensure_ascii=False)
 
 **Problema atual:**
 ```python
-# agents/orchestrator/nodes.py:778-780
+# core/agents/orchestrator/nodes.py:778-780
 llm = create_anthropic_client(model=model_name, temperature=0)
 messages = [HumanMessage(content=conversational_prompt)]
 response = invoke_with_retry(llm=llm, messages=messages, agent_name="orchestrator")
@@ -134,8 +134,8 @@ response = invoke_with_retry(llm=llm, messages=messages, agent_name="orchestrato
 
 **Solução:**
 ```python
-# agents/orchestrator/nodes.py
-from agents.memory.config_loader import get_agent_context_limits
+# core/agents/orchestrator/nodes.py
+from core.agents.memory.config_loader import get_agent_context_limits
 
 limits = get_agent_context_limits("orchestrator")
 llm = create_anthropic_client(
@@ -151,7 +151,7 @@ llm = create_anthropic_client(
 
 **Problema atual:**
 ```python
-# agents/orchestrator/nodes.py:633, 640, 750
+# core/agents/orchestrator/nodes.py:633, 640, 750
 json.dumps(structurer_output, indent=2, ensure_ascii=False)
 json.dumps(methodologist_output, indent=2, ensure_ascii=False)
 json.dumps(previous_focal, indent=2, ensure_ascii=False)
@@ -215,7 +215,7 @@ json.dumps(data, indent=2, ensure_ascii=False)  # Com indent
 ### 1. Truncamento de Histórico
 
 ```python
-# agents/orchestrator/nodes.py
+# core/agents/orchestrator/nodes.py
 def _build_context(state: MultiAgentState, max_recent_messages: int = 10) -> str:
     messages = state.get("messages", [])
     
@@ -234,8 +234,8 @@ def _build_context(state: MultiAgentState, max_recent_messages: int = 10) -> str
 ### 2. Aplicar max_tokens no Orquestrador
 
 ```python
-# agents/orchestrator/nodes.py
-from agents.memory.config_loader import get_agent_context_limits
+# core/agents/orchestrator/nodes.py
+from core.agents.memory.config_loader import get_agent_context_limits
 
 # Carregar limites do YAML
 limits = get_agent_context_limits("orchestrator")
@@ -252,7 +252,7 @@ llm = create_anthropic_client(
 ### 3. JSON Compacto em Contextos
 
 ```python
-# agents/orchestrator/nodes.py
+# core/agents/orchestrator/nodes.py
 # ❌ ANTES (indentado):
 context_parts.append(json.dumps(structurer_output, indent=2, ensure_ascii=False))
 
@@ -290,17 +290,17 @@ logger.debug(f"Focal argument: {json.dumps(focal_argument, indent=2, ensure_asci
 ## ✅ Checklist de Implementação
 
 ### Crítico (Fase 1)
-- [ ] **Truncar histórico no Orquestrador** (`agents/orchestrator/nodes.py:600-620`)
+- [ ] **Truncar histórico no Orquestrador** (`core/agents/orchestrator/nodes.py:600-620`)
   - Implementar lógica similar ao Observer (últimas 10 mensagens)
   - Adicionar resumo de mensagens antigas se > 10
-- [ ] **Aplicar max_tokens no Orquestrador** (`agents/orchestrator/nodes.py:778`)
+- [ ] **Aplicar max_tokens no Orquestrador** (`core/agents/orchestrator/nodes.py:778`)
   - Carregar limite do YAML via `get_agent_context_limits("orchestrator")`
   - Passar `max_tokens` para `create_anthropic_client()`
-- [ ] **JSON compacto em contextos** (`agents/orchestrator/nodes.py:633, 640, 750`)
+- [ ] **JSON compacto em contextos** (`core/agents/orchestrator/nodes.py:633, 640, 750`)
   - Remover `indent=2` de contextos (manter apenas em logs)
 
 ### Importante (Fase 2)
-- [ ] **Otimizar prompt do Orquestrador** (`utils/prompts/orchestrator.py`)
+- [ ] **Otimizar prompt do Orquestrador** (`core/prompts/orchestrator.py`)
   - Reduzir exemplos de 7 para 3
   - Consolidar instruções repetidas
   - Formato mais denso (menos linhas em branco)
@@ -315,7 +315,7 @@ logger.debug(f"Focal argument: {json.dumps(focal_argument, indent=2, ensure_asci
 ## 🔗 Referências
 
 - Visão do produto: `products/revelar/docs/vision.md`
-- Cost tracker: `utils/cost_tracker.py`
-- Orquestrador: `agents/orchestrator/nodes.py`
-- Configurações: `config/agents/*.yaml`
+- Cost tracker: `core/utils/cost_tracker.py`
+- Orquestrador: `core/agents/orchestrator/nodes.py`
+- Configurações: `core/config/agents/*.yaml`
 
