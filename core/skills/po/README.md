@@ -65,7 +65,7 @@ Rejeita **automaticamente** se **qualquer** item ocorrer:
 | Aprovou | Fluxo segue para **Validation Skill** |
 | Rejeitou (gap de implementação) | Devolve para **Dev** |
 | Rejeitou (gap de plano) | Devolve para **Planning** |
-| 3 rejeições consecutivas | `docs/process/development/blockers.md` |
+| 3 rejeições consecutivas | `docs/process/implementation/blockers.md` |
 
 PO **não negocia critério**. Critério de aceite vem do ROADMAP — se está mal escrito, é problema de refinamento (manual via Claude Web), não da PO Skill.
 

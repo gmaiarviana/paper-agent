@@ -81,4 +81,4 @@ Funcionalidades observáveis na entrega (rotas, comandos, comportamentos novos):
 - **Rejeitado (gap de implementação):** devolver ao Dev. Incrementar contador.
 - **Rejeitado (gap de plano):** devolver ao Planning. Incrementar contador.
 - **Rejeitado (gold plating):** devolver ao Dev para remover excesso. Incrementar contador.
-- Após 3 rejeições consecutivas, acionar `docs/process/development/blockers.md`.
+- Após 3 rejeições consecutivas, acionar `docs/process/implementation/blockers.md`.

@@ -39,7 +39,7 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 
 ## 2. DEV (Implementação)
 
-**Objetivo:** implementar tarefas do plano seguindo `docs/process/development/`.
+**Objetivo:** implementar tarefas do plano seguindo `docs/process/implementation/`.
 
 **Deve:**
 - ✅ Seguir [implementation.md](../development/implementation.md) (TDD pragmático, ciclo Red-Green-Refactor)
@@ -152,4 +152,4 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 **Ver também:**
 - Como o dev dispara e valida → [delivery.md](delivery.md)
 - Visão geral e quando usar → [overview.md](overview.md)
-- Guidelines de implementação reaproveitadas → `docs/process/development/`
+- Guidelines de implementação reaproveitadas → `docs/process/implementation/`

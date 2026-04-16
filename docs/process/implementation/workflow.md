@@ -9,7 +9,7 @@ Quando dev solicitar épico:
    - README.md (execução e escopo)
    - ARCHITECTURE.md (estrutura técnica)
    - docs/agents/overview.md (se envolver novos agentes)
-   - planning_guidelines.md (dependências/ordem)
+   - ../refinement/planning_guidelines.md (dependências/ordem)
    - Código relacionado (para entender impacto)
 
 2. **Verificar arquivo de implementação:**

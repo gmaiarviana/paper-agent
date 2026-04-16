@@ -222,7 +222,7 @@ Consulte os documentos essenciais na raiz:
 - **core/ROADMAP.md** - Épicos e melhorias do core
 - **products/revelar/ROADMAP.md** - Épicos e melhorias do Revelar
 - **ARCHITECTURE.md** - Decisões técnicas
-- **planning_guidelines.md** - Processo de refinamento
+- **docs/process/refinement/planning_guidelines.md** - Processo de refinamento
 
 Ver mapa completo de documentação em CONSTITUTION.md.
 

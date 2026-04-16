@@ -63,7 +63,7 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 **Papel:** Implementar código baseado em documentações atualizadas.
 
 **Deve:**
-- ✅ Seguir docs/process/development/ (guidelines)
+- ✅ Seguir docs/process/implementation/ (guidelines)
 - ✅ Seguir `docs/testing/strategy.md` para pirâmide de testes, markers (`integration`, `slow`) e política de uso da API real
 - ✅ Ler ROADMAP.md + specs técnicas
 - ✅ TDD onde aplicável
@@ -87,7 +87,7 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 **1. Análise Contextual**
 - Consultar docs/product/vision.md (expectativas)
 - Consultar ROADMAP.md (épicos anteriores, padrões)
-- Consultar planning_guidelines.md (processo)
+- Consultar docs/process/refinement/planning_guidelines.md (processo)
 - Consultar docs técnicas via mapa (se necessário)
 - Identificar onde comportamento está documentado (OU pedir pra ver)
 
@@ -152,8 +152,8 @@ PROMPT 3: ARCHITECTURE.md
 | **Discutir comportamento de agente** | docs/agents/[agente].md + core/docs/architecture/agents/multi_agent/ | [agente].md + ROADMAP.md + ARCHITECTURE.md |
 | **Ajustar fluxo de dados** | core/docs/architecture/agents/multi_agent/ + ARCHITECTURE.md | multi_agent/ + ARCHITECTURE.md |
 | **Mudar interface** | products/revelar/docs/interface/ OU cli.md + ARCHITECTURE.md | interface/ (overview.md, components.md, flows.md) /cli.md + ROADMAP.md + ARCHITECTURE.md |
-| **Revisar processo de refinamento** | planning_guidelines.md (já tem no contexto) | planning_guidelines.md + CONSTITUTION.md (se princípios mudarem) |
-| **Revisar processo de implementação** | docs/process/development/*.md | development/*.md (não é seu escopo principal) |
+| **Revisar processo de refinamento** | docs/process/refinement/planning_guidelines.md (já tem no contexto) | docs/process/refinement/planning_guidelines.md + CONSTITUTION.md (se princípios mudarem) |
+| **Revisar processo de implementação** | docs/process/implementation/*.md | docs/process/implementation/*.md (não é seu escopo principal) |
 
 ---
 
@@ -183,16 +183,19 @@ PROMPT 3: ARCHITECTURE.md
 
 ## 7. DOCUMENTOS ESSENCIAIS
 
-### Sempre Enviados (raiz - arraste todos)
-1. **CONSTITUTION.md** - Princípios, responsabilidades, mapa, processo (este arquivo)
-2. **ARCHITECTURE.md** - Decisões técnicas consolidadas (enxuto ~300 linhas)
-3. **planning_guidelines.md** - Como refinar épicos, templates, governança
-4. **core/ROADMAP.md** - Épicos e melhorias do core
-5. **products/revelar/ROADMAP.md** - Épicos e melhorias do Revelar
+### Contexto Inicial Padronizado
 
-**Como enviar:** Selecione os 5 arquivos acima, arraste pro Claude web.
+**Ver REFINEMENT_STARTER.md (raiz) para lista autoritativa.**
 
-**Total:** ~1.200 linhas = ~5.000 tokens
+Resumo: 3 arquivos base + 1 específico do produto = 4 arquivos total.
+
+**Como enviar:** Conforme produto que está refinando, arraste os 4 arquivos listados no REFINEMENT_STARTER.md.
+
+### Processo de Refinamento
+
+- **Processo completo:** `docs/process/refinement/planning_guidelines.md` (movido da raiz)
+- **Visão geral:** `docs/process/refinement/overview.md`
+- **Starter pack:** `REFINEMENT_STARTER.md` (raiz)
 
 ### Consultados Via Mapa (docs/ - sob demanda)
 
@@ -206,7 +209,7 @@ PROMPT 3: ARCHITECTURE.md
 - `docs/interface/` - Specs de interface (web, CLI)
 
 **Processo (desenvolvimento):**
-- `docs/process/development/` - Para Claude Code (implementação)
+- `docs/process/implementation/` - Para Claude Code (implementação)
 - `docs/testing/` - Estratégia de testes
 
 **Outros:**
@@ -216,35 +219,38 @@ PROMPT 3: ARCHITECTURE.md
 
 ## 8. ESTRUTURA DO PROJETO (Resumida)
 paper-agent/
-├── CONSTITUTION.md         # 🔴 ESSENCIAL - AI (este arquivo)
-├── ARCHITECTURE.md         # 🔴 ESSENCIAL - Decisões técnicas
-├── planning_guidelines.md  # 🔴 ESSENCIAL - Processo de refinamento
-├── README.md               # 🟢 USUÁRIOS - Setup básico
+├── CONSTITUTION.md           # 🔴 ESSENCIAL - AI (este arquivo)
+├── ARCHITECTURE.md           # 🔴 ESSENCIAL - Decisões técnicas
+├── REFINEMENT_STARTER.md     # 🔴 ESSENCIAL - Lista de contexto de refinamento
+├── README.md                 # 🟢 USUÁRIOS - Setup básico
 │
 ├── core/
-│   └── ROADMAP.md          # 🔴 ESSENCIAL - Épicos/core
+│   └── ROADMAP.md            # 🔴 ESSENCIAL - Épicos/core
 │
 ├── products/
 │   └── revelar/
-│       └── ROADMAP.md      # 🔴 ESSENCIAL - Épicos/revelar
+│       └── ROADMAP.md        # 🔴 ESSENCIAL - Épicos/revelar
 │
 ├── docs/
-│   ├── product/            # Estratégia
-│   ├── agents/             # Specs de agentes
-│   ├── orchestration/      # Fluxos e estados
-│   ├── interface/          # Specs de interface
-│   ├── process/            # Desenvolvimento
-│   ├── testing/            # Testes
-│   └── backlog.md          # Ideias futuras
+│   ├── product/              # Estratégia
+│   ├── agents/               # Specs de agentes
+│   ├── orchestration/        # Fluxos e estados
+│   ├── interface/            # Specs de interface
+│   ├── process/
+│   │   ├── refinement/       # Refinamento (planning_guidelines.md + overview.md)
+│   │   ├── implementation/   # Implementação manual via Cursor
+│   │   └── autonomous/       # Implementação autônoma via Claude Code Web
+│   ├── testing/              # Testes
+│   └── backlog.md            # Ideias futuras
 │
-├── core/                   # Código core compartilhado
-│   ├── agents/             # Agentes
-│   ├── utils/              # Utilitários
-│   └── tools/              # Ferramentas
+├── core/                     # Código core compartilhado
+│   ├── agents/               # Agentes
+│   ├── utils/                # Utilitários
+│   └── tools/                # Ferramentas
 │
 └── products/
     └── revelar/
-        └── app/            # Interface Web Revelar
+        └── app/              # Interface Web Revelar
 
 ---
 

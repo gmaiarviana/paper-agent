@@ -22,10 +22,10 @@ docs/process/autonomous/ (overview.md, workflow.md, delivery.md).
 Contexto obrigatório a ler antes de iniciar:
 - CONSTITUTION.md
 - ARCHITECTURE.md
-- planning_guidelines.md
+- docs/process/refinement/planning_guidelines.md
 - [Roadmap acima]
 - docs/process/autonomous/workflow.md
-- docs/process/development/ (guidelines de implementação reaproveitadas)
+- docs/process/implementation/ (guidelines de implementação reaproveitadas)
 - docs/CONTEXT_INDEX.md (para localizar specs técnicas relevantes)
 
 Restrições:
@@ -37,7 +37,7 @@ Restrições:
 Entrega esperada (Validation Skill):
 - Branch feature/X.Y-nome com push realizado
 - docs/process/current_implementation.md atualizado
-- Mensagem final no formato de docs/process/development/delivery.md
+- Mensagem final no formato de docs/process/implementation/delivery.md
 - Notificação ao dev com comandos prontos para validação local
 ```
 

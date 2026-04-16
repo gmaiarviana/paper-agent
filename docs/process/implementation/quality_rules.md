@@ -82,7 +82,7 @@
 | **README.md** | Getting Started: setup inicial, comandos de validação gerais, referências para docs | ❌ Status de épicos/tasks<br>❌ Estrutura detalhada do projeto<br>❌ Decisões arquiteturais<br>❌ Comandos de validação específicos por task |
 | **ROADMAP.md** | Status de épicos/tasks, critérios de aceite | ❌ Instruções de setup geral<br>❌ Arquitetura técnica<br>❌ Comandos de validação (validação é durante sessão de trabalho) |
 | **ARCHITECTURE.md** | Estrutura técnica, decisões arquiteturais, organização de código, stack | ❌ Status de implementação<br>❌ Instruções de setup<br>❌ Comandos de validação |
-| **development_guidelines.md** | Processo de trabalho com agentes, regras de qualidade, templates de validação | ❌ Funcionalidades específicas<br>❌ Detalhes de implementação |
+| **docs/process/implementation/** | Processo de trabalho com agentes, regras de qualidade, templates de validação | ❌ Funcionalidades específicas<br>❌ Detalhes de implementação |
 | **.github/PULL_REQUEST_TEMPLATE.md** | Template para PRs, preenchido automaticamente pelo GitHub | ❌ Conteúdo específico de tasks<br>❌ Apenas estrutura/template |
 
 **Regras de Ouro:**

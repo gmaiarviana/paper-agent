@@ -64,7 +64,7 @@ Rejeita **automaticamente** se **qualquer** item ocorrer:
 |---------|--------------|
 | Aprovou | Fluxo segue para **PO Skill** |
 | Rejeitou | Fluxo volta para **Dev** com lista de desvios |
-| 3 rejeições consecutivas | Aplicar `docs/process/development/blockers.md` |
+| 3 rejeições consecutivas | Aplicar `docs/process/implementation/blockers.md` |
 
 TL **não reescreve código**. Aponta padrão correto e devolve.
 

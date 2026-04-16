@@ -372,7 +372,7 @@ paper-agent/
 ├── core/ROADMAP.md        # Épicos e melhorias do core
 └── products/revelar/ROADMAP.md  # Épicos e melhorias do Revelar
 ├── ARCHITECTURE.md        # Visão arquitetural (este arquivo)
-├── development_guidelines.md  # Regras para desenvolvimento com agentes
+├── docs/process/implementation/  # Regras para desenvolvimento com agentes
 │
 ├── core/                  # Core compartilhado
 │   ├── config/            # Configurações externas
