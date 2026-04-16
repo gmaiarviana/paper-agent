@@ -18,6 +18,14 @@ Princípios não-negociáveis para trabalhar com este projeto.
 - Validação incremental obrigatória
 - Commits estratégicos (não obrigatórios)
 
+### Fluxos Disponíveis
+Dois modos coexistem; o dev escolhe por funcionalidade:
+
+- **Manual (Cursor):** dev acompanha cada checkpoint. Indicado para épicos novos, decisões arquiteturais ou trade-offs em aberto. Fluxo descrito nas seções 2-7 deste documento.
+- **Autônomo (Claude Code Web):** dev dispara pela manhã e valida à noite; skills automáticas (Planning → Dev → QA → TL → PO → Validation) atuam como gates no lugar das aprovações explícitas. Indicado para funcionalidades já refinadas e claras. Detalhes em `docs/process/autonomous/` e template em `AUTONOMOUS_DISPATCH.md` (raiz).
+
+Princípios, responsabilidades e anti-padrões deste documento valem para os dois modos.
+
 ---
 
 ## 2. RESPONSABILIDADES
