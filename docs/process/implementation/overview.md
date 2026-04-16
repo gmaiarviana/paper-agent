@@ -14,7 +14,7 @@
 - **ARCHITECTURE.md**: Visão arquitetural de alto nível
 - **ROADMAP.md**: Funcionalidades planejadas e status dos épicos
 - **docs/agents/overview.md**: Papéis e limites dos agentes
-- **planning_guidelines.md**: Regras de planejamento e governança
+- **../refinement/planning_guidelines.md**: Regras de planejamento e governança
 
 ### Entrada
 - Dev escolhe: "Funcionalidade X.Y do roadmap"

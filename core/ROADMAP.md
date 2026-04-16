@@ -59,7 +59,7 @@
 
 **Regra:** Claude Code só trabalha em funcionalidades de épicos refinados.
 
-> Para fluxo completo de planejamento, consulte [planning_guidelines.md](../../planning_guidelines.md).
+> Para fluxo completo de planejamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
 
 - Cada épico pode ser desenvolvido **isoladamente**
 - Entrega **valor incremental**

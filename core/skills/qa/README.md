@@ -67,7 +67,7 @@ Rejeita **automaticamente** se **qualquer** item ocorrer:
 |---------|--------------|
 | Aprovou | Fluxo segue para **TL Skill** |
 | Rejeitou | Fluxo volta para **Dev** com lista de problemas |
-| 3 rejeições consecutivas | Aplicar `docs/process/development/blockers.md` e devolver ao dev humano |
+| 3 rejeições consecutivas | Aplicar `docs/process/implementation/blockers.md` e devolver ao dev humano |
 
 QA **não** corrige código. Devolve com diagnóstico.
 

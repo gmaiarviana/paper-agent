@@ -63,7 +63,7 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 **Papel:** Implementar código baseado em documentações atualizadas.
 
 **Deve:**
-- ✅ Seguir docs/process/development/ (guidelines)
+- ✅ Seguir docs/process/implementation/ (guidelines)
 - ✅ Seguir `docs/testing/strategy.md` para pirâmide de testes, markers (`integration`, `slow`) e política de uso da API real
 - ✅ Ler ROADMAP.md + specs técnicas
 - ✅ TDD onde aplicável
@@ -87,7 +87,7 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 **1. Análise Contextual**
 - Consultar docs/product/vision.md (expectativas)
 - Consultar ROADMAP.md (épicos anteriores, padrões)
-- Consultar planning_guidelines.md (processo)
+- Consultar docs/process/refinement/planning_guidelines.md (processo)
 - Consultar docs técnicas via mapa (se necessário)
 - Identificar onde comportamento está documentado (OU pedir pra ver)
 
@@ -152,8 +152,8 @@ PROMPT 3: ARCHITECTURE.md
 | **Discutir comportamento de agente** | docs/agents/[agente].md + core/docs/architecture/agents/multi_agent/ | [agente].md + ROADMAP.md + ARCHITECTURE.md |
 | **Ajustar fluxo de dados** | core/docs/architecture/agents/multi_agent/ + ARCHITECTURE.md | multi_agent/ + ARCHITECTURE.md |
 | **Mudar interface** | products/revelar/docs/interface/ OU cli.md + ARCHITECTURE.md | interface/ (overview.md, components.md, flows.md) /cli.md + ROADMAP.md + ARCHITECTURE.md |
-| **Revisar processo de refinamento** | planning_guidelines.md (já tem no contexto) | planning_guidelines.md + CONSTITUTION.md (se princípios mudarem) |
-| **Revisar processo de implementação** | docs/process/development/*.md | development/*.md (não é seu escopo principal) |
+| **Revisar processo de refinamento** | docs/process/refinement/planning_guidelines.md (já tem no contexto) | docs/process/refinement/planning_guidelines.md + CONSTITUTION.md (se princípios mudarem) |
+| **Revisar processo de implementação** | docs/process/implementation/*.md | docs/process/implementation/*.md (não é seu escopo principal) |
 
 ---
 
@@ -186,7 +186,7 @@ PROMPT 3: ARCHITECTURE.md
 ### Sempre Enviados (raiz - arraste todos)
 1. **CONSTITUTION.md** - Princípios, responsabilidades, mapa, processo (este arquivo)
 2. **ARCHITECTURE.md** - Decisões técnicas consolidadas (enxuto ~300 linhas)
-3. **planning_guidelines.md** - Como refinar épicos, templates, governança
+3. **docs/process/refinement/planning_guidelines.md** - Como refinar épicos, templates, governança
 4. **core/ROADMAP.md** - Épicos e melhorias do core
 5. **products/revelar/ROADMAP.md** - Épicos e melhorias do Revelar
 
@@ -206,7 +206,7 @@ PROMPT 3: ARCHITECTURE.md
 - `docs/interface/` - Specs de interface (web, CLI)
 
 **Processo (desenvolvimento):**
-- `docs/process/development/` - Para Claude Code (implementação)
+- `docs/process/implementation/` - Para Claude Code (implementação)
 - `docs/testing/` - Estratégia de testes
 
 **Outros:**
@@ -218,7 +218,7 @@ PROMPT 3: ARCHITECTURE.md
 paper-agent/
 ├── CONSTITUTION.md         # 🔴 ESSENCIAL - AI (este arquivo)
 ├── ARCHITECTURE.md         # 🔴 ESSENCIAL - Decisões técnicas
-├── planning_guidelines.md  # 🔴 ESSENCIAL - Processo de refinamento
+├── docs/process/refinement/planning_guidelines.md  # 🔴 ESSENCIAL - Processo de refinamento
 ├── README.md               # 🟢 USUÁRIOS - Setup básico
 │
 ├── core/

@@ -10,7 +10,7 @@
 - `CONSTITUTION.md` - Princípios, responsabilidades, processo
 - `ROADMAP.md` - Épicos, funcionalidades, status
 - `ARCHITECTURE.md` - Decisões técnicas consolidadas
-- `planning_guidelines.md` - Processo de refinamento
+- `docs/process/refinement/planning_guidelines.md` - Processo de refinamento
 - `README.md` - Setup básico e interfaces
 
 ### Visão (Crítico - Onde Queremos Chegar)
@@ -192,13 +192,13 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Desenvolvimento e Processo
 
 **Documentação:**
-- `docs/process/development/overview.md` - Visão geral
-- `docs/process/development/workflow.md` - Workflow
-- `docs/process/development/quality_rules.md` - Regras de qualidade
-- `docs/process/development/language_guidelines.md` - Guidelines de linguagem
-- `docs/process/development/implementation.md` - Processo de implementação
-- `docs/process/development/delivery.md` - Processo de entrega
-- `docs/process/development/blockers.md` - Bloqueadores
+- `docs/process/implementation/overview.md` - Visão geral
+- `docs/process/implementation/workflow.md` - Workflow
+- `docs/process/implementation/quality_rules.md` - Regras de qualidade
+- `docs/process/implementation/language_guidelines.md` - Guidelines de linguagem
+- `docs/process/implementation/implementation.md` - Processo de implementação
+- `docs/process/implementation/delivery.md` - Processo de entrega
+- `docs/process/implementation/blockers.md` - Bloqueadores
 
 **Solicitar quando:**
 - Implementar código (Claude Code)

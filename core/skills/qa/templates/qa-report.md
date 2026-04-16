@@ -74,5 +74,5 @@
 ## Próximo Passo
 
 - **Aprovado:** seguir para TL Skill.
-- **Rejeitado:** devolver ao Dev com lista acima. Incrementar contador de rejeições em `current_implementation.md`. Após 3ª rejeição consecutiva, acionar `docs/process/development/blockers.md`.
+- **Rejeitado:** devolver ao Dev com lista acima. Incrementar contador de rejeições em `current_implementation.md`. Após 3ª rejeição consecutiva, acionar `docs/process/implementation/blockers.md`.
 - **Bloqueado por ambiente:** devolver ao dev humano com comandos sugeridos. **Não conta** como rejeição.

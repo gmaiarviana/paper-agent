@@ -77,9 +77,9 @@ A Validation **não devolve** para nenhuma skill. Ela só entrega ao dev. O dev 
 
 ---
 
-## 7. RELAÇÃO COM `docs/process/development/delivery.md`
+## 7. RELAÇÃO COM `docs/process/implementation/delivery.md`
 
-Validation **reusa** o formato de mensagem final definido em `docs/process/development/delivery.md` (mensagem `✅ Branch pronta!...`). A diferença é que no fluxo autônomo:
+Validation **reusa** o formato de mensagem final definido em `docs/process/implementation/delivery.md` (mensagem `✅ Branch pronta!...`). A diferença é que no fluxo autônomo:
 - A mensagem inclui também o **resumo dos gates** (QA/TL/PO)
 - A mensagem é gerada via template em [templates/delivery-report.md](templates/delivery-report.md)
 - A entrega é assíncrona (dev valida quando puder, não no momento)
@@ -90,4 +90,4 @@ Validation **reusa** o formato de mensagem final definido em `docs/process/devel
 - Prompt operacional → [skill.md](skill.md)
 - Template do relatório → [templates/delivery-report.md](templates/delivery-report.md)
 - Visão do fluxo autônomo → `docs/process/autonomous/workflow.md`
-- Mensagem final compartilhada → `docs/process/development/delivery.md`
+- Mensagem final compartilhada → `docs/process/implementation/delivery.md`

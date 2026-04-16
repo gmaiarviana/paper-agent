@@ -83,7 +83,7 @@ Bloco copy-paste com:
 **Substituir TODOS os placeholders** (nome da branch, comandos do produto). Output não pode conter `<...>`.
 
 ### Passo 7 — Notificar o dev
-Mensagem final no formato canônico de `docs/process/development/delivery.md`, **acrescida** de:
+Mensagem final no formato canônico de `docs/process/implementation/delivery.md`, **acrescida** de:
 - Status dos gates (QA/TL/PO ✅)
 - Link mental para o relatório completo (`docs/process/current_implementation.md`)
 - Resumo de 1-2 linhas: "Implementou X, mexeu em Y arquivos, Z testes."
@@ -162,5 +162,5 @@ pytest -m integration             # se aplicável
 **Ver também:**
 - README humano da skill → [README.md](README.md)
 - Template do relatório → [templates/delivery-report.md](templates/delivery-report.md)
-- Mensagem final compartilhada com fluxo manual → `docs/process/development/delivery.md`
+- Mensagem final compartilhada com fluxo manual → `docs/process/implementation/delivery.md`
 - Como o dev valida → `docs/process/autonomous/delivery.md`

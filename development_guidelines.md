@@ -8,7 +8,7 @@ Este documento é o índice principal das diretrizes de desenvolvimento. Cada se
 
 ## 📖 Módulos
 
-### 1. [Overview: Agente Autônomo](docs/process/development/overview.md)
+### 1. [Overview: Agente Autônomo](docs/process/implementation/overview.md)
 **O que contém:**
 - Papel do agente autônomo (Claude Code / Cursor Background)
 - Documentos base obrigatórios (README, ARCHITECTURE, ROADMAP, etc.)
@@ -19,7 +19,7 @@ Este documento é o índice principal das diretrizes de desenvolvimento. Cada se
 
 ---
 
-### 2. [Workflow: Funcionalidade → Tarefas](docs/process/development/workflow.md)
+### 2. [Workflow: Funcionalidade → Tarefas](docs/process/implementation/workflow.md)
 **O que contém:**
 - Recebimento da funcionalidade do roadmap
 - Leitura do contexto obrigatório
@@ -30,7 +30,7 @@ Este documento é o índice principal das diretrizes de desenvolvimento. Cada se
 
 ---
 
-### 3. [Implementação Detalhada](docs/process/development/implementation.md)
+### 3. [Implementação Detalhada](docs/process/implementation/implementation.md)
 **O que contém:**
 - Heurística de TDD (quando aplicar testes antes/depois)
 - Ciclo de implementação (Red-Green-Refactor)
@@ -44,7 +44,7 @@ Este documento é o índice principal das diretrizes de desenvolvimento. Cada se
 
 ---
 
-### 4. [Bloqueios e Travamentos](docs/process/development/blockers.md)
+### 4. [Bloqueios e Travamentos](docs/process/implementation/blockers.md)
 **O que contém:**
 - Critérios de travamento (regra das 3 tentativas)
 - Protocolo de reporte ao dev
@@ -55,7 +55,7 @@ Este documento é o índice principal das diretrizes de desenvolvimento. Cada se
 
 ---
 
-### 5. [Fechamento e Entrega](docs/process/development/delivery.md)
+### 5. [Fechamento e Entrega](docs/process/implementation/delivery.md)
 **O que contém:**
 - Mensagem final obrigatória ao dev
 - Template de PR (referência - o oficial é em `.github/PULL_REQUEST_TEMPLATE.md`)
@@ -66,7 +66,7 @@ Este documento é o índice principal das diretrizes de desenvolvimento. Cada se
 
 ---
 
-### 6. [Regras de Qualidade](docs/process/development/quality_rules.md)
+### 6. [Regras de Qualidade](docs/process/implementation/quality_rules.md)
 **O que contém:**
 - Princípios gerais (incremental, TDD pragmático, transparente)
 - Anti-redundância: tabela de responsabilidades de cada documento
@@ -82,12 +82,12 @@ Este documento é o índice principal das diretrizes de desenvolvimento. Cada se
 
 **Fluxo típico de trabalho:**
 
-1. **Dev solicita funcionalidade** → Leia [overview.md](docs/process/development/overview.md) para entender seu papel
-2. **Planeje as tarefas** → Leia [workflow.md](docs/process/development/workflow.md) e quebre a funcionalidade
-3. **Implemente cada tarefa** → Siga [implementation.md](docs/process/development/implementation.md) (TDD, validação, commits)
-4. **Se encontrar bloqueio** → Consulte [blockers.md](docs/process/development/blockers.md) e reporte após 3 tentativas
-5. **Finalize e entregue** → Use [delivery.md](docs/process/development/delivery.md) para mensagem final e PR
-6. **Mantenha qualidade** → Revise [quality_rules.md](docs/process/development/quality_rules.md) periodicamente
+1. **Dev solicita funcionalidade** → Leia [overview.md](docs/process/implementation/overview.md) para entender seu papel
+2. **Planeje as tarefas** → Leia [workflow.md](docs/process/implementation/workflow.md) e quebre a funcionalidade
+3. **Implemente cada tarefa** → Siga [implementation.md](docs/process/implementation/implementation.md) (TDD, validação, commits)
+4. **Se encontrar bloqueio** → Consulte [blockers.md](docs/process/implementation/blockers.md) e reporte após 3 tentativas
+5. **Finalize e entregue** → Use [delivery.md](docs/process/implementation/delivery.md) para mensagem final e PR
+6. **Mantenha qualidade** → Revise [quality_rules.md](docs/process/implementation/quality_rules.md) periodicamente
 
 ---
 

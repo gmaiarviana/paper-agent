@@ -37,7 +37,7 @@ Falhou alguma? Devolva ao dev com motivo. Não prossiga.
 Ler **obrigatoriamente:**
 - `CONSTITUTION.md`
 - `ARCHITECTURE.md`
-- `planning_guidelines.md`
+- `docs/process/refinement/planning_guidelines.md`
 - ROADMAP indicado no dispatch
 - `docs/process/autonomous/workflow.md`
 - `docs/CONTEXT_INDEX.md`
@@ -183,4 +183,4 @@ Você falhou se:
 **Ver também:**
 - README humano da skill → [README.md](README.md)
 - Exemplo de clarificação → [examples/clarification-example.md](examples/clarification-example.md)
-- Próximo gate (Dev) → `docs/process/development/implementation.md`
+- Próximo gate (Dev) → `docs/process/implementation/implementation.md`

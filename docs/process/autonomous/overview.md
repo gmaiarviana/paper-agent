@@ -75,8 +75,8 @@ Cada skill é um gate: se reprovar, devolve para a etapa anterior antes de avan�
 
 **O modo autônomo NÃO substitui:**
 - CONSTITUTION (princípios continuam valendo)
-- `docs/process/development/` (guidelines de implementação seguem aplicáveis)
-- `planning_guidelines.md` (refinamento de épicos continua manual via Claude Web)
+- `docs/process/implementation/` (guidelines de implementação seguem aplicáveis)
+- `docs/process/refinement/planning_guidelines.md` (refinamento de épicos continua manual via Claude Web)
 
 **O modo autônomo COMPLEMENTA:**
 - Adiciona uma alternativa ao Cursor para disparar funcionalidades já refinadas
