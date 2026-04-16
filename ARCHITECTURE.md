@@ -80,6 +80,7 @@ Produtos são **serviços desacoplados** que consomem core via APIs.
 
 **Produtos atuais/futuros:**
 - **Revelar:** Clareza de pensamento - estruturar ideias nebulosas em conceitos claros (atual)
+- **Ensaio:** Documentação de experimentos de código — PoC → artigo técnico-científico (futuro próximo)
 - **Prisma Verbal:** Extração de informação - processar literatura e extrair proposições (futuro próximo)
 - **Produtor Científico:** Produção de conteúdo - ideia madura → manuscrito/artigo (futuro)
 
@@ -548,6 +549,8 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 - **Transição para conversação adaptativa:** Ver `core/docs/architecture/agents/orchestrator/conversational/` para padrões de conversa vs classificação
 - **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários
 - **Modo colaborativo:** Prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar)
+
+Três agentes core planejados para implementação futura: Researcher (busca web de papers), Curator (fichamento — base do Prisma Verbal), Writer (compilação de texto — base do Produtor Científico). Primeiro a ser implementado: Writer, motivado por Ensaio.
 
 ## Padrões Essenciais
 
