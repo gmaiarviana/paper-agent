@@ -24,9 +24,9 @@ Conduzem o fluxo autônomo de desenvolvimento. Substituem a interação manual d
 | Skill | Etapa do fluxo | Responsabilidade |
 |-------|---------------|------------------|
 | **planning** | Antes do Dev | Quebra funcionalidade em tasks, clarifica TUDO antes de implementar |
-| **qa** | Após Dev | Valida testes, sintaxe, imports, comportamento (a implementar) |
-| **tl** | Após QA | Valida arquitetura, padrões, aderência ao ROADMAP (a implementar) |
-| **po** | Após TL | Valida critérios de aceite (a implementar) |
+| **qa** | Após Dev | Valida testes, sintaxe, imports, comportamento — decisão binária |
+| **tl** | Após QA | Valida arquitetura, padrões, aderência ao ROADMAP técnico — decisão binária |
+| **po** | Após TL | Valida critérios de aceite e detecta gold plating — decisão binária |
 | **validation** | Após PO | Prepara branch + comandos para o dev validar |
 
 ### Skills de Implementação (não existem ainda)
@@ -70,12 +70,12 @@ core/skills/<nome>/
 | Skill | Status | Documentação |
 |-------|--------|-------------|
 | **planning** | ✅ Disponível | [planning/README.md](planning/README.md) |
+| **qa** | ✅ Disponível | [qa/README.md](qa/README.md) |
+| **tl** | ✅ Disponível | [tl/README.md](tl/README.md) |
+| **po** | ✅ Disponível | [po/README.md](po/README.md) |
 | **validation** | ✅ Disponível | [validation/README.md](validation/README.md) |
-| **qa** | ⏳ Planejada | — |
-| **tl** | ⏳ Planejada | — |
-| **po** | ⏳ Planejada | — |
 
-> Ordem de implementação reflete prioridade: Planning + Validation são os extremos do fluxo (entrada e saída) e habilitam o ciclo mínimo viável do modo autônomo.
+> Fluxo completo do modo autônomo agora habilitado: Planning → Dev → QA → TL → PO → Validation, com gates binários automáticos no meio.
 
 ---
 
