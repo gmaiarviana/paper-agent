@@ -183,16 +183,19 @@ PROMPT 3: ARCHITECTURE.md
 
 ## 7. DOCUMENTOS ESSENCIAIS
 
-### Sempre Enviados (raiz - arraste todos)
-1. **CONSTITUTION.md** - Princípios, responsabilidades, mapa, processo (este arquivo)
-2. **ARCHITECTURE.md** - Decisões técnicas consolidadas (enxuto ~300 linhas)
-3. **docs/process/refinement/planning_guidelines.md** - Como refinar épicos, templates, governança
-4. **core/ROADMAP.md** - Épicos e melhorias do core
-5. **products/revelar/ROADMAP.md** - Épicos e melhorias do Revelar
+### Contexto Inicial Padronizado
 
-**Como enviar:** Selecione os 5 arquivos acima, arraste pro Claude web.
+**Ver REFINEMENT_STARTER.md (raiz) para lista autoritativa.**
 
-**Total:** ~1.200 linhas = ~5.000 tokens
+Resumo: 3 arquivos base + 1 específico do produto = 4 arquivos total.
+
+**Como enviar:** Conforme produto que está refinando, arraste os 4 arquivos listados no REFINEMENT_STARTER.md.
+
+### Processo de Refinamento
+
+- **Processo completo:** `docs/process/refinement/planning_guidelines.md` (movido da raiz)
+- **Visão geral:** `docs/process/refinement/overview.md`
+- **Starter pack:** `REFINEMENT_STARTER.md` (raiz)
 
 ### Consultados Via Mapa (docs/ - sob demanda)
 
@@ -216,35 +219,38 @@ PROMPT 3: ARCHITECTURE.md
 
 ## 8. ESTRUTURA DO PROJETO (Resumida)
 paper-agent/
-├── CONSTITUTION.md         # 🔴 ESSENCIAL - AI (este arquivo)
-├── ARCHITECTURE.md         # 🔴 ESSENCIAL - Decisões técnicas
-├── docs/process/refinement/planning_guidelines.md  # 🔴 ESSENCIAL - Processo de refinamento
-├── README.md               # 🟢 USUÁRIOS - Setup básico
+├── CONSTITUTION.md           # 🔴 ESSENCIAL - AI (este arquivo)
+├── ARCHITECTURE.md           # 🔴 ESSENCIAL - Decisões técnicas
+├── REFINEMENT_STARTER.md     # 🔴 ESSENCIAL - Lista de contexto de refinamento
+├── README.md                 # 🟢 USUÁRIOS - Setup básico
 │
 ├── core/
-│   └── ROADMAP.md          # 🔴 ESSENCIAL - Épicos/core
+│   └── ROADMAP.md            # 🔴 ESSENCIAL - Épicos/core
 │
 ├── products/
 │   └── revelar/
-│       └── ROADMAP.md      # 🔴 ESSENCIAL - Épicos/revelar
+│       └── ROADMAP.md        # 🔴 ESSENCIAL - Épicos/revelar
 │
 ├── docs/
-│   ├── product/            # Estratégia
-│   ├── agents/             # Specs de agentes
-│   ├── orchestration/      # Fluxos e estados
-│   ├── interface/          # Specs de interface
-│   ├── process/            # Desenvolvimento
-│   ├── testing/            # Testes
-│   └── backlog.md          # Ideias futuras
+│   ├── product/              # Estratégia
+│   ├── agents/               # Specs de agentes
+│   ├── orchestration/        # Fluxos e estados
+│   ├── interface/            # Specs de interface
+│   ├── process/
+│   │   ├── refinement/       # Refinamento (planning_guidelines.md + overview.md)
+│   │   ├── implementation/   # Implementação manual via Cursor
+│   │   └── autonomous/       # Implementação autônoma via Claude Code Web
+│   ├── testing/              # Testes
+│   └── backlog.md            # Ideias futuras
 │
-├── core/                   # Código core compartilhado
-│   ├── agents/             # Agentes
-│   ├── utils/              # Utilitários
-│   └── tools/              # Ferramentas
+├── core/                     # Código core compartilhado
+│   ├── agents/               # Agentes
+│   ├── utils/                # Utilitários
+│   └── tools/                # Ferramentas
 │
 └── products/
     └── revelar/
-        └── app/            # Interface Web Revelar
+        └── app/              # Interface Web Revelar
 
 ---
 
