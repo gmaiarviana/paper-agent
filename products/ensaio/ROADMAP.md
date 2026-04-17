@@ -24,7 +24,9 @@ Decisões de stack, UX e robustez são proporcionais ao estágio. Calibração i
 
 Alguns épicos do Ensaio dependem de épicos do core. Ver [core/ROADMAP.md](../../core/ROADMAP.md):
 
-- **Writer** (core ÉPICO 2): necessário desde a POC do Ensaio. Primeiro agente core motivado pelo Ensaio.
+- **Writer** (core C-ENSAIO-2): necessário desde a POC do Ensaio. Primeiro agente core motivado pelo Ensaio.
+- **Ingestão de arquivos anexados** (core C-ENSAIO-4): necessário para o MVP do Ensaio.
+- **Writer por seção** (core C-ENSAIO-3): necessário para o Protótipo (rascunho progressivo).
 - **Parametrização de contexto de produto**: padrão pelo qual agentes do core recebem foco/domínio sem conhecer o produto consumidor (ver [core/docs/architecture/vision/super_system.md](../../core/docs/architecture/vision/super_system.md), seção "Injeção de Contexto de Produto").
 
 ---
@@ -59,7 +61,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [core/ROADMAP.md](../.
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- Core ÉPICO 2 (Writer)
+- Core C-ENSAIO-2 (Writer versão inicial)
 - E-POC-1, E-POC-2
 
 ---
