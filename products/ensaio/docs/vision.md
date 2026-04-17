@@ -22,6 +22,8 @@
 
 ## 2. Posição no Super-Sistema
 
+Ensaio é **produto próprio, com app próprio**. Não é modo, página ou extensão do Revelar: roda como aplicação separada, com sua própria interface, seu próprio estado e sua própria jornada. O que compartilha com os outros produtos do super-sistema são **os agentes do core**, não a UI.
+
 Ensaio é produto **paralelo ao Revelar**, não sequencial. Usa os mesmos agentes core (Orquestrador, Estruturador, Metodologista) e adicionará o Writer quando implementado — agente que pertencerá ao core e será compartilhado com Produtor Científico. No futuro, também usará Researcher (busca web de papers) e Curator (fichamento — base do Prisma Verbal).
 
 **Relação com outros produtos:**
@@ -64,7 +66,7 @@ Ensaio é produto **paralelo ao Revelar**, não sequencial. Usa os mesmos agente
 
 O processo de produção de um artigo pode durar semanas. Pesquisador não precisa estar presente o tempo todo — sistema trabalha entre sessões.
 
-**Fluxo esperado:**
+**Fluxo esperado (estado-alvo):**
 1. Pesquisador chega ao sistema e vê pendências (perguntas abertas, sugestões dos agentes)
 2. Responde ao que lhe é apresentado; fornece novas informações do experimento
 3. Sistema avança em background: estrutura trechos, identifica lacunas, sugere evidências a coletar
@@ -75,13 +77,16 @@ O processo de produção de um artigo pode durar semanas. Pesquisador não preci
 - **Revelar:** Sessão síncrona, clareza emerge na conversa
 - **Ensaio:** Sessões múltiplas ao longo de semanas, artigo emerge entre sessões
 
-**Implicação arquitetural:** Sistema precisa manter estado persistente do artigo em construção, pendências abertas e decisões já tomadas.
+**Quando esse fluxo aparece:**
+- **POC:** ainda não existe (POC roda em sessão única e descartável).
+- **Protótipo:** é onde o fluxo assíncrono nasce de verdade — persistência, pendências e rascunhos acumulados entre sessões.
+- **MVP:** o fluxo já está maduro para outros pesquisadores usarem sem tutoria do desenvolvedor.
 
 ## 4. Modo de Escrita Híbrido
 
 Sistema e pesquisador **co-produzem o artigo progressivamente**. Não há separação rígida entre fase de conversa e fase de escrita.
 
-**Como funciona:**
+**Como funciona (estado-alvo):**
 - Sistema escreve rascunhos de partes técnicas (metodologia, estrutura de resultados) à medida que informações chegam
 - Não espera acumular tudo para escrever no final
 - Pesquisador escreve a narrativa (motivação, interpretação, discussão) e revisa rascunhos do sistema
@@ -93,82 +98,128 @@ Sistema e pesquisador **co-produzem o artigo progressivamente**. Não há separa
 
 **Benefício:** Pesquisador nunca enfrenta página em branco — sempre há rascunho parcial para editar.
 
-## 5. Calibração Institucional (Visão Futura)
+**Quando esse modo aparece:**
+- **POC:** não se aplica. Writer gera o artigo inteiro em uma passada, ao final da conversa.
+- **Protótipo:** rascunho evolui por seção, acompanhando a conversa.
+- **MVP:** o modo híbrido é a forma padrão de uso.
 
-Organização possui artigos de referência e pesquisadores experientes. Práticas consolidadas de escrita técnica existem, mas estão distribuídas informalmente entre indivíduos.
+## 5. Estrutura do Artigo Emerge da Conversa
 
-**Visão futura:** Sistema aprende com artigos já publicados e práticas consolidadas da instituição — tornando as boas práticas um ativo compartilhado entre pesquisadores.
+Ensaio **não mantém campo `article_type`** nem enum fixo de tipos de artigo (empírico, revisão, teórico, estudo de caso, meta-análise, metodológico...). A estrutura emerge do que foi conversado; o Writer decide seções em tempo de escrita com base no contexto.
 
-**O que a calibração institucional traz:**
-- Estilo e tom condizentes com publicações anteriores da ICT
-- Estruturas de artigo recorrentes na instituição
-- Padrões de rigor e profundidade esperados
-- Referências recorrentes já conhecidas
-
-**Não previsto para POC.** Entrará em iterações posteriores, após validação do fluxo básico.
-
-## 6. Casos de Uso Principais
-
-- **UC1 (dominante): Artigo Técnico Completo** – Desenvolvo PoC que valida hipótese → quero registrar como artigo técnico completo (metodologia, resultados, discussão, referências).
-- **UC2: One-pager para Divulgação** – Faço experimento rápido → quero one-pager para divulgação interna ou externa (resumo executivo com contexto, resultados e próximos passos).
-
-## 7. Escopo do POC
-
-POC foca em validar o fluxo básico ponta a ponta:
-
-**Incluído:**
-- Conversa sobre o experimento (Orquestrador + Estruturador + Metodologista)
-- Estruturação do artigo (identificação de lacunas, perguntas provocativas)
-- Writer gera primeira versão do artigo
-
-**Fora do escopo do POC:**
-- ❌ Pesquisa web de papers (Researcher — iteração futura)
-- ❌ Calibração com artigos de referência da instituição (iteração futura)
-- ❌ Fichamento automatizado de literatura (Curator/Prisma Verbal — iteração futura)
-
-**Objetivo do POC:** Validar que o fluxo assíncrono + modo híbrido de escrita efetivamente transforma experimento em artigo, antes de investir em recursos avançados.
-
-> **Nota:** Para refinamento dos épicos, ver `products/ensaio/ROADMAP.md`.
-
-## 8. Estrutura do Artigo Emerge da Conversa
-
-Ensaio **não mantém campo `article_type`** nem enum fixo de tipos de artigo. Estruturas (Introdução, Metodologia, Resultados, Discussão, one-pager...) emergem do que foi conversado; o Writer decide seções em tempo de escrita com base no contexto.
-
-- **Sem schema:** não há classificação prévia de "artigo empírico vs one-pager vs ...".
-- **Base de conhecimento no prompt do Writer:** estruturas comuns de artigo técnico-científico vivem no prompt, não em código do Ensaio.
-- **Consequência:** pesquisador não precisa declarar o tipo de artigo. O sistema descobre a estrutura pelo conteúdo do experimento e pela conversa.
+- **Sem classificação prévia:** pesquisador não precisa declarar o tipo de artigo antes de começar.
+- **Base de conhecimento no prompt do Writer:** o sistema tem conhecimento sobre estruturas comuns de artigo técnico-científico, mas **não impõe** — sugere e adapta com base na conversa.
+- **Sem schema de seções:** Introdução, Metodologia, Resultados, Discussão, one-pager... são resultados, não entradas. O Writer combina conforme o conteúdo pedir.
+- **Consequência:** o mesmo sistema serve artigo completo, one-pager ou variações híbridas sem código específico por formato.
 
 Decisão arquitetural registrada em `core/docs/architecture/agents/writer.md`.
 
-## 9. Entidade "Pendência"
+## 6. Pendências como Entidade Central
 
-Item que permanece aberto entre sessões (pergunta sem resposta, evidência a coletar, rascunho esperando revisão, sugestão de agente aguardando decisão do pesquisador).
+Pendência = item que permanece aberto entre sessões: pergunta sem resposta, evidência a coletar, rascunho esperando revisão, sugestão de agente aguardando decisão do pesquisador.
 
-- **Nasce no Ensaio.** É o que viabiliza o fluxo assíncrono descrito na seção 3 — cada sessão abre, trabalha e fecha pendências.
-- **Status: entidade em incubação.** Vive no Ensaio por enquanto; será promovida ao core quando o segundo produto precisar dela (provavelmente Produtor Científico, que herda a natureza multi-sessão).
-- **Critério de promoção:** quando outro produto do super-sistema modelar algo equivalente, extrair Pendência para `core/docs/architecture/data-models/`.
+- **Viabiliza o fluxo assíncrono (seção 3):** cada sessão abre, trabalha e fecha pendências; é o estado que atravessa o tempo entre sessões.
+- **Entidade central no Protótipo e MVP:** é onde o pesquisador para a sessão, é onde o sistema retoma na próxima, é a superfície principal da tela inicial.
+- **Não existe na POC:** POC roda em sessão única, sem persistência — não há entre-sessões onde pendência faria sentido.
+- **Status: em incubação no Ensaio.** Vive no produto por enquanto; será promovida ao core quando o segundo produto do super-sistema precisar dela (provavelmente Produtor Científico, que herda a natureza multi-sessão).
 
 Registro no core: `core/docs/architecture/data-models/ontology.md` (seção "Entidades em Incubação").
 
-## 10. Stack da Interface
+## 7. Stack da Interface
 
-Interface do Ensaio é explicitamente **descartável na POC** e **migrável no Protótipo**. Isso é viabilizado mantendo toda a lógica de domínio no core, com a UI apenas consumindo.
+Ensaio tem **app próprio** (ponto já estabelecido em §2). A decisão sobre *qual* stack usar é explicitamente faseada:
 
-**POC:** Streamlit como atalho. Sem investimento em UI, sem preocupação com design. Serve para validar o fluxo assíncrono e o modo híbrido de escrita (ver seções 3 e 4).
+**POC:** Streamlit como **atalho descartável**. Sem investimento em UI, sem preocupação com design. Serve para validar conversa + geração de artigo antes de qualquer decisão de stack.
 
-**Protótipo:** migração de stack é **frente de trabalho explícita** do refinamento do Protótipo. A stack definitiva (web app dedicada, IDE plugin, desktop, etc.) é decisão desse refinamento, não desta visão.
+**Protótipo:** migração de stack é **frente de trabalho explícita** do refinamento do Protótipo. Stack definitiva (web app dedicada, IDE plugin, desktop, etc.) é decisão desse refinamento — não desta visão.
 
-**Princípio de viabilização:**
+**MVP:** consolida a stack escolhida no Protótipo, com refinamentos necessários para uso por outros pesquisadores sem o desenvolvedor do lado.
+
+**Princípio de viabilização (vale em todos os estágios):**
 - Lógica de domínio (estado do artigo, pendências, decisões dos agentes) vive toda no core.
 - UI do Ensaio é **burra** — só renderiza e chama a API do core.
 - Trocar stack = trocar camada de apresentação, sem tocar em regra de negócio.
 
-Definições de POC / Protótipo / MVP neste projeto: ver `docs/process/refinement/planning_guidelines.md`.
+Definições operacionais de POC / Protótipo / MVP neste projeto: ver `docs/process/refinement/planning_guidelines.md`.
+
+## 8. Casos de Uso Principais
+
+- **UC1 (dominante): Artigo Técnico Completo** – Desenvolvo PoC que valida hipótese → quero registrar como artigo técnico completo (metodologia, resultados, discussão, referências).
+- **UC2: One-pager para Divulgação** – Faço experimento rápido → quero one-pager para divulgação interna ou externa (resumo executivo com contexto, resultados e próximos passos).
+
+Os dois casos de uso são servidos pelo mesmo sistema — a diferença está no que emerge da conversa e no que o Writer escolhe compor (ver §5), não em modos ou configurações pré-declaradas.
+
+## 9. Escopo POC
+
+**Objetivo:** provar que a ideia faz sentido — conversa sobre experimento → markdown.
+
+**Incluído:**
+- Conversa sobre o experimento (Orquestrador + Estruturador)
+- Writer gera o artigo em markdown ao final da conversa, em uma passada
+
+**Fora do escopo do POC:**
+- ❌ Upload de artefatos (notebook, README, CSV, imagens)
+- ❌ Pendências entre sessões
+- ❌ Persistência do artigo (roda em sessão única, descartável)
+- ❌ Rascunho progressivo por seção
+- ❌ Metodologista provocando lacunas no Ensaio
+- ❌ Pesquisa web de papers (Researcher)
+- ❌ Calibração com artigos de referência da instituição
+- ❌ Fichamento automatizado de literatura (Curator / Prisma Verbal)
+- ❌ Integração com repositórios Git
+
+**Critério de saída do POC:** a conversa + o markdown gerado convencem que vale investir em estabilidade e nas frentes do Protótipo.
+
+## 10. Escopo Protótipo
+
+**Objetivo:** a ideia funciona e o próprio desenvolvedor usa de verdade no fluxo real dele.
+
+**Adiciona ao POC:**
+- Persistência do artigo entre sessões
+- Rascunho progressivo por seção (modo de escrita híbrido real — §4)
+- Pendências entre sessões como entidade central (§6)
+- Metodologista aplicado ao Ensaio (provocação sobre lacunas, métricas, evidências)
+- Migração de stack da interface (decidida no refinamento do Protótipo — §7)
+
+**Ainda fora:**
+- ❌ Upload de artefatos (continua no MVP)
+- ❌ Calibração institucional (pós-MVP)
+- ❌ Integração Git (pós-MVP)
+- ❌ Researcher / Curator (iterações futuras)
+
+**Critério de saída do Protótipo:** o desenvolvedor consegue transformar seus próprios experimentos em artigos sem depender de conhecimento interno do código.
+
+## 11. Escopo MVP
+
+**Objetivo:** outros pesquisadores (colegas próximos) usam sem o desenvolvedor do lado.
+
+**Adiciona ao Protótipo:**
+- Upload de artefatos do experimento: notebook, README, CSV, imagens de gráfico
+- Experiência de refinamento *ongoing* madura (pendências, rascunhos e conversa em fluxo estável)
+- Preparação mínima para uso por outros: onboarding básico, mensagens de erro claras, estado previsível
+
+**Critério de saída do MVP:** colega próximo consegue usar o Ensaio sem tutorial ao vivo do desenvolvedor.
+
+## 12. Melhorias Pós-MVP
+
+Frentes que dependem de validação do MVP antes de entrar em roadmap:
+
+- **Calibração institucional:** sistema aprende com artigos publicados e práticas consolidadas da ICT — estilo, estruturas recorrentes, padrões de rigor, referências conhecidas. Torna boas práticas ativo compartilhado.
+- **Integração com Git:** leitura direta do repositório do experimento (código, histórico de commits, arquivos) para alimentar a conversa e o Writer sem uploads manuais.
+- **Researcher no Ensaio:** busca web de papers para fundamentar o artigo.
+- **Curator / Prisma Verbal no Ensaio:** fichamento automatizado de literatura relevante.
+
+Essas frentes entram em iterações posteriores, após validação do fluxo básico ponta a ponta com pesquisadores reais.
+
+> **Nota:** Para refinamento dos épicos, ver `products/ensaio/ROADMAP.md`.
 
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal
 - `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
+- `core/docs/architecture/agents/writer.md` - Decisões arquiteturais do Writer
+- `core/docs/architecture/data-models/ontology.md` - Entidades do core (inclui "Entidades em Incubação")
+- `docs/process/refinement/planning_guidelines.md` - Definições de POC / Protótipo / MVP
 - `products/revelar/docs/vision.md` - Produto paralelo (entrada conversacional)
 - `products/prisma-verbal/docs/vision.md` - Produto futuro (fichamento de literatura)
 - `products/produtor-cientifico/docs/vision.md` - Produto futuro (compartilha Writer)
