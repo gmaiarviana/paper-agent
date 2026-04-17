@@ -612,3 +612,39 @@ Três agentes core planejados para implementação futura: Researcher (busca web
 **Contexto:** Evitar subir arquivos binários do ChromaDB no Git
 **Decisão:** Diretório não existe no repo, é criado dinamicamente no primeiro uso
 **Resultado:** Repositório limpo, cada ambiente tem seu próprio ChromaDB local
+
+### Injeção de Contexto de Produto
+**Documentado:** `core/docs/architecture/vision/super_system.md` (seção "Injeção de Contexto de Produto")
+**Contexto:** Core precisa servir múltiplos produtos (Revelar, Ensaio, Prisma Verbal, Produtor Científico) sem virar acoplado a nenhum
+**Decisão:** Agentes do core aceitam foco/domínio via parametrização; core nunca conhece nomes de produtos nem carrega lógica condicional por produto
+**Resultado:** Novos produtos consomem agentes existentes sem modificá-los; desacoplamento do super-sistema preservado operacionalmente
+
+### Writer Nasce no Core (Motivado pelo Ensaio)
+**Documentado:** `core/docs/architecture/agents/writer.md`
+**Contexto:** Ensaio precisa gerar artigo técnico-científico; Produtor Científico precisará do mesmo agente no futuro
+**Decisão:** Writer é agente do core desde o início (não nasce no Ensaio para depois promover). V1 é nó simples (contexto → markdown), organizado para generalização futura
+**Resultado:** Evita custo de promoção posterior; Ensaio e Produtor Científico compartilham o mesmo agente por construção
+
+### Estruturas de Artigo Vivem no Prompt do Writer
+**Documentado:** `core/docs/architecture/agents/writer.md`, `products/ensaio/docs/vision.md` (seção 8)
+**Contexto:** Tipos de artigo variam (empírico, revisão, one-pager, ...) e evoluem com o domínio
+**Decisão:** Base de conhecimento sobre estruturas comuns fica no prompt do Writer, não em enum ou schema. Writer decide seções com base na conversa. Ensaio especificamente **não** mantém campo `article_type`
+**Resultado:** Evolução da base = edição de prompt (não migração de dados); produtos que já usam `article_type` no `focal_argument` (Revelar, Produtor Científico) seguem independentes do Writer
+
+### Pendência como Entidade em Incubação
+**Documentado:** `products/ensaio/docs/vision.md` (seção 9), `core/docs/architecture/data-models/ontology.md` (seção "Entidades em Incubação")
+**Contexto:** Ensaio precisa de item que fica aberto entre sessões (fluxo assíncrono); ainda é único produto multi-sessão
+**Decisão:** Pendência nasce dentro do Ensaio; promove ao core quando segundo produto (provavelmente Produtor Científico) precisar. Registrada formalmente como "entidade em incubação" no core
+**Resultado:** Evita abstração prematura; critério de promoção explícito
+
+### Stack da Interface do Ensaio: POC Descartável, Protótipo Migra
+**Documentado:** `products/ensaio/docs/vision.md` (seção 10)
+**Contexto:** Ensaio precisa de interface imediata para POC mas sem investir em UI prematuramente
+**Decisão:** POC usa Streamlit como atalho descartável; Protótipo trata migração de stack como frente de trabalho explícita; lógica de domínio fica toda no core, UI burra
+**Resultado:** Troca de stack fica barata; decisão de stack definitivo adiada para refinamento do Protótipo
+
+### Definições Operacionais de POC / Protótipo / MVP
+**Documentado:** `docs/process/refinement/planning_guidelines.md` (seção "Progressão por Estágios")
+**Contexto:** Definições técnicas anteriores ("validar viabilidade", "expandir funcionalidade", "versão publicável") eram imprecisas para decisões de escopo
+**Decisão:** Adotar eixo "quem usa" — POC: dev roda no próprio ambiente, pode ter atalhos; Protótipo: dev usa de verdade no fluxo real; MVP: outros usam sem o dev do lado
+**Resultado:** Decisões de stack, UX e robustez ficam proporcionais ao estágio de forma verificável

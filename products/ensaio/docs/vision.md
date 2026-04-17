@@ -130,6 +130,41 @@ POC foca em validar o fluxo básico ponta a ponta:
 
 > **Nota:** Para refinamento dos épicos, ver `products/ensaio/ROADMAP.md`.
 
+## 8. Estrutura do Artigo Emerge da Conversa
+
+Ensaio **não mantém campo `article_type`** nem enum fixo de tipos de artigo. Estruturas (Introdução, Metodologia, Resultados, Discussão, one-pager...) emergem do que foi conversado; o Writer decide seções em tempo de escrita com base no contexto.
+
+- **Sem schema:** não há classificação prévia de "artigo empírico vs one-pager vs ...".
+- **Base de conhecimento no prompt do Writer:** estruturas comuns de artigo técnico-científico vivem no prompt, não em código do Ensaio.
+- **Consequência:** pesquisador não precisa declarar o tipo de artigo. O sistema descobre a estrutura pelo conteúdo do experimento e pela conversa.
+
+Decisão arquitetural registrada em `core/docs/architecture/agents/writer.md`.
+
+## 9. Entidade "Pendência"
+
+Item que permanece aberto entre sessões (pergunta sem resposta, evidência a coletar, rascunho esperando revisão, sugestão de agente aguardando decisão do pesquisador).
+
+- **Nasce no Ensaio.** É o que viabiliza o fluxo assíncrono descrito na seção 3 — cada sessão abre, trabalha e fecha pendências.
+- **Status: entidade em incubação.** Vive no Ensaio por enquanto; será promovida ao core quando o segundo produto precisar dela (provavelmente Produtor Científico, que herda a natureza multi-sessão).
+- **Critério de promoção:** quando outro produto do super-sistema modelar algo equivalente, extrair Pendência para `core/docs/architecture/data-models/`.
+
+Registro no core: `core/docs/architecture/data-models/ontology.md` (seção "Entidades em Incubação").
+
+## 10. Stack da Interface
+
+Interface do Ensaio é explicitamente **descartável na POC** e **migrável no Protótipo**. Isso é viabilizado mantendo toda a lógica de domínio no core, com a UI apenas consumindo.
+
+**POC:** Streamlit como atalho. Sem investimento em UI, sem preocupação com design. Serve para validar o fluxo assíncrono e o modo híbrido de escrita (ver seções 3 e 4).
+
+**Protótipo:** migração de stack é **frente de trabalho explícita** do refinamento do Protótipo. A stack definitiva (web app dedicada, IDE plugin, desktop, etc.) é decisão desse refinamento, não desta visão.
+
+**Princípio de viabilização:**
+- Lógica de domínio (estado do artigo, pendências, decisões dos agentes) vive toda no core.
+- UI do Ensaio é **burra** — só renderiza e chama a API do core.
+- Trocar stack = trocar camada de apresentação, sem tocar em regra de negócio.
+
+Definições de POC / Protótipo / MVP neste projeto: ver `docs/process/refinement/planning_guidelines.md`.
+
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal

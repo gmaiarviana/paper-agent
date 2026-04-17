@@ -1025,6 +1025,20 @@ As entidades da ontologia fluem através do pipeline:
 
 ---
 
+## Entidades em Incubação
+
+Entidades que nascem dentro de um produto específico e são candidatas a promoção ao core quando um segundo produto precisar delas. Enquanto incubadas, **não vivem no core**; o produto onde nasceram é a referência.
+
+| Entidade | Nasce em | Critério de promoção | Status |
+|----------|----------|----------------------|--------|
+| Pendência (item aberto entre sessões) | Ensaio | Produtor Científico (ou outro produto multi-sessão) modelar algo equivalente | Incubando |
+
+**Contrato:** ao promover, a entidade ganha documento próprio em `core/docs/architecture/data-models/`, agentes do core passam a operá-la, e o produto originário consome via API do core em vez de manter schema local.
+
+Ver `products/ensaio/docs/vision.md` (seção "Entidade Pendência") para a definição atual.
+
+---
+
 ## Referências
 
 - `core/docs/vision/epistemology.md` - Fundamento filosófico da ontologia (proposições, solidez, evidências)

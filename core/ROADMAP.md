@@ -29,17 +29,23 @@
 
 ---
 
-#### ÉPICO 2: Escritor
+#### ÉPICO 2: Escritor (Writer)
 
-**Objetivo:** Agente para compilação de seções do artigo científico.
+**Objetivo:** Agente para compilação de texto. Primeiro a ser implementado dos três agentes core planejados, motivado pelo produto Ensaio e compartilhado futuramente com o Produtor Científico.
 
 **Status:** ⏳ Planejado (não refinado)
 
 **Dependências:**
-- ÉPICO 1 (Pesquisador)
+- Nenhuma (pode iniciar antes do Pesquisador, pois é tracionado pelo Ensaio)
+
+**Decisões arquiteturais já tomadas:** ver `core/docs/architecture/agents/writer.md`
+- Nasce no core (não no Ensaio)
+- Começa simples: nó que recebe contexto e devolve markdown
+- Estruturas de artigo vivem no prompt do Writer (não em enum/schema)
+- Organização inicial antecipa generalização para o Produtor Científico
 
 **Próximos Passos:**
-- Discutir comportamento e integração com outros agentes antes do refinamento
+- Refinar critérios de aceite e interface (inputs/outputs estruturados) antes da implementação
 
 ---
 

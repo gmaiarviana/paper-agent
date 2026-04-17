@@ -9,10 +9,15 @@
 Este projeto segue mentalidade **incremental e pragmática**:
 
 ### Progressão por Estágios
-- **POC (Proof of Concept):** Validar viabilidade técnica com funcionalidade mínima
-- **Protótipo:** Expandir funcionalidade com refinamentos identificados no POC
-- **MVP:** Versão publicável com escopo mínimo valioso
-- **Melhorias:** Expansão gradual baseada em feedback de uso real
+
+Definições trabalhadas para este projeto, no eixo **"quem usa"** (complementa o eixo técnico):
+
+- **POC (Proof of Concept):** prova que a ideia faz sentido. Pode ser tosco, rodar só no ambiente do desenvolvedor, ter atalhos explícitos. Critério de saída: a ideia se sustenta o suficiente para justificar investimento em estabilidade.
+- **Protótipo:** a ideia funciona e o **próprio desenvolvedor usa de verdade** — no fluxo real dele, não só em cenário de teste. Critério de saída: o desenvolvedor consegue usar sem se apoiar em conhecimento interno do código.
+- **MVP:** **outros** (colegas próximos) usam **sem o desenvolvedor do lado**. Critério de saída: valor validado fora do autor.
+- **Melhorias:** Expansão gradual baseada em feedback de uso real.
+
+**Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais ao estágio. POC tolera Streamlit e gambiarras; Protótipo exige fluxo navegável pelo próprio dev; MVP exige que outro ser humano consiga usar sem tutorial ao vivo.
 
 ## Processo de Refinamento com Claude Web
 
