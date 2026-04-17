@@ -114,6 +114,21 @@ Agente responsável por traduzir entre a linguagem natural do usuário e as oper
 
 ## Produtos como Serviços Desacoplados
 
+### Injeção de Contexto de Produto
+
+**Princípio:** Agentes do core aceitam contexto de produto **sem conhecê-lo**.
+
+- Produtos passam foco/domínio ao core via **parametrização** (campos de contexto, prompts parametrizados, argumentos de entrada).
+- O core **nunca sabe nomes de produtos**. Não há `if product == "ensaio"` em agente do core.
+- Conhecimento específico de produto (tipos de artigo, fluxo de pendências, jargão de domínio) é injetado como contexto, não codificado no agente.
+
+**Consequências:**
+- Novo produto pode consumir agentes existentes sem modificá-los.
+- Testes de agentes do core não dependem de fixtures de produto.
+- Evolução de um produto não força mudança de código no core.
+
+Esse princípio é a forma operacional do desacoplamento descrito nesta visão. Exemplos concretos de aplicação em agentes específicos: ver `core/docs/architecture/agents/writer.md`.
+
 ### Produtos Consomem Core via API
 
 **Exemplo: Revelar**

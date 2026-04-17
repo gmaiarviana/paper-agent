@@ -1,0 +1,45 @@
+# Writer (Escritor) — Arquitetura
+
+> **Status:** Planejado — primeiro agente motivado pelo Ensaio, compartilhado com o Produtor Científico.
+> **Nota:** Para papel, responsabilidades e critérios de qualidade, ver `core/docs/agents/overview.md` (seção "Escritor").
+
+## Decisão Arquitetural: Nasce no Core
+
+O Writer **não nasce no produto Ensaio**. É um agente do core desde o início, mesmo sendo o Ensaio o primeiro produto a consumi-lo.
+
+**Justificativa:**
+- O Writer será reusado pelo Produtor Científico (ver `products/produtor-cientifico/docs/vision.md`).
+- Colocá-lo inicialmente dentro do Ensaio exigiria promoção posterior ao core, repetindo o custo que a separação Core ↔ Produto existe justamente para evitar.
+- Ver `core/docs/architecture/vision/super_system.md` para o princípio de desacoplamento.
+
+## Decisão Arquitetural: Começa Simples
+
+Primeira versão do Writer é **um nó simples**: recebe contexto (texto conversacional, argumento focal, estado da conversa) e devolve markdown.
+
+- Sem sub-grafo, sem loop interno de refinamento.
+- Sem pipeline de compilação multi-seção na V1 — a primeira versão gera o artigo em uma passada.
+- Organização do código já antecipa generalização futura: inputs e outputs estruturados, prompt separado por responsabilidade, sem acoplamento com termos específicos do Ensaio.
+
+## Decisão Arquitetural: Estruturas de Artigo no Prompt, Não em Enum
+
+A **base de conhecimento sobre estruturas comuns de artigo vive no prompt do Writer**, não em um campo `article_type`, enum ou schema.
+
+**Consequências:**
+- Writer decide seções (Introdução, Metodologia, Resultados, Discussão...) com base no que foi conversado, não num tipo pré-declarado.
+- Estruturas emergem da conversa — o produto consumidor não precisa classificar o artigo antes de escrever.
+- Evolução da base de conhecimento sobre tipos de artigo = edição de prompt, não migração de dados.
+- Produtos que já usam `article_type` no `focal_argument` (Revelar, Produtor Científico) continuam usando; o Writer **não depende** desse campo para decidir a estrutura.
+
+**Contraste com Ensaio:** o Ensaio não mantém campo `article_type`. Ver `products/ensaio/docs/vision.md` seção sobre Estrutura do Artigo.
+
+## Injeção de Contexto de Produto
+
+Writer recebe contexto de domínio/foco via parâmetros, **sem conhecer o nome do produto consumidor**. Segue o padrão descrito em `core/docs/architecture/vision/super_system.md` (Injeção de Contexto de Produto).
+
+## Referências
+
+- `core/docs/agents/overview.md` — Responsabilidades do Escritor
+- `core/docs/architecture/vision/super_system.md` — Desacoplamento Core ↔ Produto
+- `core/ROADMAP.md` — Épico Escritor
+- `products/ensaio/docs/vision.md` — Primeiro produto consumidor
+- `products/produtor-cientifico/docs/vision.md` — Segundo produto consumidor (futuro)
