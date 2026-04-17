@@ -58,11 +58,62 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [core/ROADMAP.md](../.
 
 **Objetivo:** Pesquisador conversa sobre experimento, pede geração de artigo, recebe markdown, pede ajustes, Writer refaz. Artigo vive só na sessão — sem persistência, sem pendências, sem rascunho progressivo.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ✅ Refinado (pronto para implementação)
 
 **Dependências:**
-- Core C-ENSAIO-2 (Writer versão inicial)
-- E-POC-1, E-POC-2
+- Core [C-ENSAIO-2](../../core/ROADMAP.md) (Writer versão inicial)
+- [E-POC-1](#épico-e-poc-1-app-streamlit-mínimo-do-ensaio) (App Streamlit mínimo do Ensaio)
+- [E-POC-2](#épico-e-poc-2-configuração-de-contexto-de-produto-para-agentes-do-core) (Configuração de contexto de produto)
+
+### Funcionalidades:
+
+#### 3.1 Entrada livre no chat
+
+- **Descrição:** Usuário descreve o experimento em prosa e cola blocos livres (trechos de código, tabelas, notas, saídas de terminal) em qualquer ordem, sem wizard nem campos obrigatórios.
+- **Critérios de Aceite:**
+  - Deve aceitar mensagens de texto livre no chat sem campos obrigatórios e sem wizard de preenchimento
+  - Deve aceitar blocos markdown (código, tabelas, logs) colados em qualquer ordem na conversa
+  - Deve preservar a formatação original de blocos markdown ao renderizar a mensagem (code fences, tabelas, indentação)
+  - Não deve impor sequência predefinida (resumo → método → resultados) nem exigir identificação prévia do tipo de conteúdo colado
+
+#### 3.2 Conversa com Orquestrador + Estruturador
+
+- **Descrição:** Reusar o Orquestrador Conversacional e o Estruturador do core no fluxo do Ensaio sem modificação comportamental, em postura ativo-leve — escutam, organizam e perguntam apenas quando algo está vago.
+- **Critérios de Aceite:**
+  - Deve invocar o Orquestrador Conversacional e o Estruturador existentes no core sem alterar o código desses agentes
+  - Deve injetar o contexto de produto do Ensaio conforme E-POC-2 (foco/domínio via YAML)
+  - Deve manter os agentes em postura ativo-leve: organizam o que foi dito e perguntam somente quando algo está vago
+  - Não deve invocar o Metodologista neste épico (identificação de lacunas de produção é reservada a E-PROTO-5)
+  - Não deve duplicar lógica de agentes no app do Ensaio — qualquer ajuste de comportamento é feito via parametrização de contexto
+
+#### 3.3 Geração sob demanda
+
+- **Descrição:** Comando e/ou botão "Gerar artigo" acionável a qualquer momento da conversa, que invoca o Writer com o histórico conversacional e o argumento focal do Estruturador e retorna o artigo completo em markdown em uma única invocação.
+- **Critérios de Aceite:**
+  - Deve oferecer comando e/ou botão "Gerar artigo" disponível em qualquer ponto da conversa, inclusive cedo
+  - Deve invocar o Writer (C-ENSAIO-2) passando o histórico conversacional acumulado + o argumento focal do Estruturador
+  - Deve receber do Writer o artigo completo em markdown em uma única invocação e exibi-lo no chat
+  - Deve aceitar gerações prematuras sem bloquear — entender a qualidade dessas saídas faz parte da validação da POC
+  - Não deve gerar o artigo por seções nem em streaming parcial (rascunho progressivo é escopo do Protótipo)
+
+#### 3.4 Refinamento minimalista via feedback
+
+- **Descrição:** Usuário pede mudanças ao artigo em linguagem natural no chat ("deixa mais conciso", "adiciona uma seção sobre X"); o Writer é reinvocado com o histórico conversacional acumulado + o artigo anterior e regenera o artigo inteiro.
+- **Critérios de Aceite:**
+  - Deve aceitar feedback em linguagem natural no próprio chat, sem formulário ou UI especializada
+  - Deve reinvocar o Writer passando o histórico conversacional acumulado + o artigo anterior como entrada
+  - Deve substituir o artigo vigente pela versão regenerada e mantê-la visível no chat
+  - Não deve refinar o artigo por seção isoladamente (reservado a C-ENSAIO-3 / fase Protótipo)
+  - Não deve versionar nem persistir versões anteriores do artigo (reservado a E-PROTO-3)
+
+#### 3.5 Sessão única descartável
+
+- **Descrição:** Estado da conversa e do artigo vive apenas em memória da sessão do navegador (Streamlit `st.session_state`); recarregar a página recomeça do zero.
+- **Critérios de Aceite:**
+  - Deve armazenar conversa e artigo gerado em `st.session_state` (ou equivalente em memória da sessão do navegador)
+  - Deve recomeçar do zero ao recarregar a página, sem tentativa de restaurar estado anterior
+  - Não deve gravar conversa ou artigo em disco, banco ou qualquer armazenamento persistente
+  - Não deve expor UI de "salvar sessão", "retomar" ou "histórico" (persistência real entra em E-PROTO-3)
 
 ---
 

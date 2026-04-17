@@ -154,13 +154,14 @@ Os dois casos de uso são servidos pelo mesmo sistema — a diferença está no 
 **Objetivo:** provar que a ideia faz sentido — conversa sobre experimento → markdown.
 
 **Incluído:**
-- Conversa sobre o experimento (Orquestrador + Estruturador)
-- Writer gera o artigo em markdown ao final da conversa, em uma passada
+- Conversa sobre o experimento com Orquestrador + Estruturador do core, em postura conversacional **ativo-leve**: escutam, organizam o que foi dito e perguntam só quando algo está vago (sem Metodologista, sem provocação ativa sobre lacunas)
+- **Geração sob demanda:** pesquisador pede "gerar artigo" quando quiser — mesmo cedo na conversa — e o Writer devolve o markdown completo em uma única passada
+- **Refinamento minimalista por feedback no chat:** pesquisador pede ajustes em linguagem natural ("deixa mais conciso", "adiciona uma seção sobre X") e o Writer regera o artigo inteiro a partir da conversa acumulada + artigo anterior
+- **Sessão única descartável (sem persistência):** estado da conversa e do artigo vive só na memória do navegador; recarregar a página recomeça do zero
 
 **Fora do escopo do POC:**
 - ❌ Upload de artefatos (notebook, README, CSV, imagens)
 - ❌ Pendências entre sessões
-- ❌ Persistência do artigo (roda em sessão única, descartável)
 - ❌ Rascunho progressivo por seção
 - ❌ Metodologista provocando lacunas no Ensaio
 - ❌ Pesquisa web de papers (Researcher)
@@ -169,6 +170,8 @@ Os dois casos de uso são servidos pelo mesmo sistema — a diferença está no 
 - ❌ Integração com repositórios Git
 
 **Critério de saída do POC:** a conversa + o markdown gerado convencem que vale investir em estabilidade e nas frentes do Protótipo.
+
+> Critérios de aceite operacionais dessas decisões vivem no ROADMAP do Ensaio, épico E-POC-3 (ver `products/ensaio/ROADMAP.md`).
 
 ## 10. Escopo Protótipo
 

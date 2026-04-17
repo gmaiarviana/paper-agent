@@ -17,6 +17,9 @@ O Writer **não nasce no produto Ensaio**. É um agente do core desde o início,
 Primeira versão do Writer é **um nó simples**: recebe contexto (texto conversacional, argumento focal, estado da conversa) e devolve markdown.
 
 - Sem sub-grafo, sem loop interno de refinamento.
+- **Refinamento com feedback do usuário é loop externo**, orquestrado pelo produto consumidor via nova invocação do nó — não via loop interno do Writer. Cada feedback vira uma chamada nova com o contexto acumulado; o Writer não guarda estado entre invocações.
+- Primeiro consumidor deste padrão é o **Ensaio na POC** (funcionalidade 3.4 do E-POC-3 — refinamento minimalista): pesquisador pede ajustes em linguagem natural no chat e o produto reinvoca o Writer passando o histórico conversacional acumulado + o artigo anterior; o Writer regera o artigo inteiro em uma passada.
+- Evolução para **refinamento por seção** (Writer gera/revisa seção a seção, habilitando rascunho progressivo) é decisão arquitetural separada — escopo do épico core **C-ENSAIO-3 (Writer por seção)**, fora da V1.
 - Sem pipeline de compilação multi-seção na V1 — a primeira versão gera o artigo em uma passada.
 - Organização do código já antecipa generalização futura: inputs e outputs estruturados, prompt separado por responsabilidade, sem acoplamento com termos específicos do Ensaio.
 
@@ -40,6 +43,7 @@ Writer recebe contexto de domínio/foco via parâmetros, **sem conhecer o nome d
 
 - `core/docs/agents/overview.md` — Responsabilidades do Escritor
 - `core/docs/architecture/vision/super_system.md` — Desacoplamento Core ↔ Produto
-- `core/ROADMAP.md` — Épico Escritor
+- `core/ROADMAP.md` — Épico Escritor (C-ENSAIO-2 V1; C-ENSAIO-3 refinamento por seção)
 - `products/ensaio/docs/vision.md` — Primeiro produto consumidor
+- `products/ensaio/ROADMAP.md` — Épico E-POC-3 (padrão de loop externo de refinamento na POC)
 - `products/produtor-cientifico/docs/vision.md` — Segundo produto consumidor (futuro)
