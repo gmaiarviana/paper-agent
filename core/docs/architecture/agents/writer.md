@@ -35,6 +35,16 @@ A **base de conhecimento sobre estruturas comuns de artigo vive no prompt do Wri
 
 **Contraste com Ensaio:** o Ensaio não mantém campo `article_type`. Ver `products/ensaio/docs/vision.md` seção sobre Estrutura do Artigo.
 
+## Maturidade por Estágio
+
+As 4 dimensões do Writer (contexto, intenção, formato, estrutura — ver `core/docs/agents/overview.md`) evoluem em como são coletadas e decididas ao longo dos estágios:
+
+**V1 (POC do Ensaio):** Writer infere todas as dimensões da conversa. Se alguma dimensão não aparecer naturalmente, Writer adota defaults razoáveis. Refinamento externo via loop do produto (ver funcionalidade 3.4 do E-POC-3) compensa eventual genericidade do resultado.
+
+**Estado-alvo:** Sistema provoca ativamente sobre dimensões faltantes. Propõe formato após conversa ("pelo que me contou, recomendo IMRaD — concorda?"), pergunta intenção quando não emerge da conversa, sugere estrutura narrativa e confirma com o usuário. Qual agente executa essa provocação (Writer, Orquestrador, Metodologista, ou combinação) é decisão de refinamento futuro.
+
+O caminho V1 → estado-alvo passa pelo Protótipo e MVP do Ensaio. O épico E-PROTO-5 (Metodologista aplicado ao Ensaio) é candidato natural para abrigar parte dessa provocação ativa.
+
 ## Injeção de Contexto de Produto
 
 Writer recebe contexto de domínio/foco via parâmetros, **sem conhecer o nome do produto consumidor**. Segue o padrão descrito em `core/docs/architecture/vision/super_system.md` (Injeção de Contexto de Produto).
@@ -45,5 +55,5 @@ Writer recebe contexto de domínio/foco via parâmetros, **sem conhecer o nome d
 - `core/docs/architecture/vision/super_system.md` — Desacoplamento Core ↔ Produto
 - `core/ROADMAP.md` — Épico Escritor (C-ENSAIO-2 V1; C-ENSAIO-3 refinamento por seção)
 - `products/ensaio/docs/vision.md` — Primeiro produto consumidor
-- `products/ensaio/ROADMAP.md` — Épico E-POC-3 (padrão de loop externo de refinamento na POC)
+- `products/ensaio/ROADMAP.md` — Épico E-POC-3 (padrão de loop externo de refinamento na POC); Épico E-PROTO-5 (Metodologista aplicado ao Ensaio — candidato para provocação ativa)
 - `products/produtor-cientifico/docs/vision.md` — Segundo produto consumidor (futuro)
