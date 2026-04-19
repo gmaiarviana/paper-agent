@@ -103,6 +103,8 @@ Sistema e pesquisador **co-produzem o artigo progressivamente**. Não há separa
 - **Protótipo:** rascunho evolui por seção, acompanhando a conversa.
 - **MVP:** o modo híbrido é a forma padrão de uso.
 
+**Provocação sobre dimensões do artigo (estado-alvo):** no Protótipo e MVP, o sistema passa a provocar ativamente sobre as dimensões em que o Writer opera — contexto, intenção, formato e estrutura (ver `core/docs/agents/overview.md`). Se o pesquisador não declarou intenção do artigo (informar, propor, posicionar-se), o sistema pergunta. Se o formato apropriado não está claro, o sistema recomenda baseado na conversa e confirma. Na POC, essas dimensões são inferidas pelo Writer com defaults razoáveis; a provocação ativa entra em fases posteriores.
+
 ## 5. Estrutura do Artigo Emerge da Conversa
 
 Ensaio **não mantém campo `article_type`** nem enum fixo de tipos de artigo (empírico, revisão, teórico, estudo de caso, meta-análise, metodológico...). A estrutura emerge do que foi conversado; o Writer decide seções em tempo de escrita com base no contexto.
@@ -221,6 +223,7 @@ Essas frentes entram em iterações posteriores, após validação do fluxo bás
 - `core/docs/vision/system_philosophy.md` - Filosofia universal
 - `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
 - `core/docs/architecture/agents/writer.md` - Decisões arquiteturais do Writer
+- `core/docs/agents/overview.md` - Responsabilidades e dimensões do Escritor
 - `core/docs/architecture/data-models/ontology.md` - Entidades do core (inclui "Entidades em Incubação")
 - `docs/process/refinement/planning_guidelines.md` - Definições de POC / Protótipo / MVP
 - `products/revelar/docs/vision.md` - Produto paralelo (entrada conversacional)
