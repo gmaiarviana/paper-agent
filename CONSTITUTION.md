@@ -85,10 +85,10 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 ### Claude Web Deve:
 
 **1. Análise Contextual**
-- Consultar docs/product/vision.md (expectativas)
-- Consultar ROADMAP.md (épicos anteriores, padrões)
-- Consultar docs/process/refinement/planning_guidelines.md (processo)
-- Consultar docs técnicas via mapa (se necessário)
+- Consultar `products/<produto>/docs/vision.md` (expectativas do produto em refinamento)
+- Consultar ROADMAP.md do produto + `core/ROADMAP.md` (épicos anteriores, padrões)
+- Consultar `docs/process/refinement/planning_guidelines.md` (processo)
+- Consultar docs técnicas via `docs/CONTEXT_INDEX.md` (se necessário)
 - Identificar onde comportamento está documentado (OU pedir pra ver)
 
 **2. Clarificação**
@@ -124,8 +124,8 @@ PROMPT 3: ARCHITECTURE.md
 ## 4. O QUE PROPOR (Guidelines de Recomendação)
 
 ### Ao Refinar Épico Novo
-- ✅ Consultar docs/product/vision.md (tipos de artigo, jornada do usuário)
-- ✅ Consultar ROADMAP.md (épicos anteriores - manter padrão)
+- ✅ Consultar `products/<produto>/docs/vision.md` (visão, tipos de saída, jornada do usuário)
+- ✅ Consultar ROADMAP.md do produto (épicos anteriores - manter padrão)
 - ✅ Propor funcionalidades detalhadas (critérios de aceite claros)
 - ✅ Perguntar sobre trade-offs técnicos (performance vs simplicidade)
 - ✅ Sugerir divisão POC → Protótipo → MVP
@@ -145,15 +145,12 @@ PROMPT 3: ARCHITECTURE.md
 
 ## 5. MAPA DE DECISÃO
 
-| Se você quer... | Claude web consulta... | Gera prompts para... |
-|----------------|----------------------|---------------------|
-| **Refinar épico novo** | docs/product/vision.md + core/ROADMAP.md ou products/revelar/ROADMAP.md (épicos anteriores) + ARCHITECTURE.md | core/ROADMAP.md ou products/revelar/ROADMAP.md + docs/[spec técnica nova] |
-| **Discutir comportamento do orquestrador** | core/docs/architecture/agents/orchestrator/conversational/ + docs/product/conversation_patterns.md | conversational/README.md + ROADMAP.md + ARCHITECTURE.md |
-| **Discutir comportamento de agente** | docs/agents/[agente].md + core/docs/architecture/agents/multi_agent/ | [agente].md + ROADMAP.md + ARCHITECTURE.md |
-| **Ajustar fluxo de dados** | core/docs/architecture/agents/multi_agent/ + ARCHITECTURE.md | multi_agent/ + ARCHITECTURE.md |
-| **Mudar interface** | products/revelar/docs/interface/ OU cli.md + ARCHITECTURE.md | interface/ (overview.md, components.md, flows.md) /cli.md + ROADMAP.md + ARCHITECTURE.md |
-| **Revisar processo de refinamento** | docs/process/refinement/planning_guidelines.md (já tem no contexto) | docs/process/refinement/planning_guidelines.md + CONSTITUTION.md (se princípios mudarem) |
-| **Revisar processo de implementação** | docs/process/implementation/*.md | docs/process/implementation/*.md (não é seu escopo principal) |
+Mapa único vive em `docs/CONTEXT_INDEX.md` (já no pack inicial):
+
+- **Por tema** → seções `## TEMA: ...` com "Solicitar quando..." em cada uma.
+- **Resumo rápido** → tabela `🎯 MAPA RÁPIDO DE DECISÃO` no fim do arquivo.
+
+Ao refinar: identifique o tema relevante no CONTEXT_INDEX e peça os paths listados ali. Para os arquivos-alvo de prompts (onde escrever), ver também ROADMAP do produto + ARCHITECTURE.md.
 
 ---
 
@@ -170,7 +167,7 @@ PROMPT 3: ARCHITECTURE.md
 - Claude Code atualiza código (+ docs estruturais se mudar)
 
 ### ❌ Assumir sem Base
-- Sempre consultar docs/product/vision.md + guidelines
+- Sempre consultar `products/<produto>/docs/vision.md` + guidelines
 - Perguntar se incerto
 - Não inventar padrões
 
@@ -187,9 +184,9 @@ PROMPT 3: ARCHITECTURE.md
 
 **Ver REFINEMENT_STARTER.md (raiz) para lista autoritativa.**
 
-Resumo: 3 arquivos base + 1 específico do produto = 4 arquivos total.
+Resumo: 4 arquivos genéricos + 2 específicos do produto = 6 arquivos total.
 
-**Como enviar:** Conforme produto que está refinando, arraste os 4 arquivos listados no REFINEMENT_STARTER.md.
+**Como enviar:** Conforme produto que está refinando, arraste os 6 arquivos listados no REFINEMENT_STARTER.md.
 
 ### Processo de Refinamento
 
@@ -197,60 +194,75 @@ Resumo: 3 arquivos base + 1 específico do produto = 4 arquivos total.
 - **Visão geral:** `docs/process/refinement/overview.md`
 - **Starter pack:** `REFINEMENT_STARTER.md` (raiz)
 
-### Consultados Via Mapa (docs/ - sob demanda)
+### Consultados Sob Demanda
 
-**Produto (estratégia):**
-- `docs/product/vision.md` - Tipos de artigo, jornada do usuário, expectativas
-- `docs/product/conversation_patterns.md` - Padrões esperados de interação
-
-**Specs Técnicas (detalhes):**
-- `docs/agents/` - Specs de cada agente
-- `core/docs/architecture/` - Arquitetura, fluxos, estados, refinamento
-- `docs/interface/` - Specs de interface (web, CLI)
-
-**Processo (desenvolvimento):**
-- `docs/process/implementation/` - Para Claude Code (implementação)
-- `docs/testing/` - Estratégia de testes
-
-**Outros:**
-- `docs/backlog.md` - Ideias futuras (não essencial)
+Tudo fora do pack inicial — specs técnicas, filosofia, interface, processo, testes — está mapeado em `docs/CONTEXT_INDEX.md` (já no pack inicial). Não duplicar a lista aqui.
 
 ---
 
 ## 8. ESTRUTURA DO PROJETO (Resumida)
+
+> **Mapa detalhado código↔doc:** `docs/CONTEXT_INDEX.md` (no pack inicial)
+
+```
 paper-agent/
-├── CONSTITUTION.md           # 🔴 ESSENCIAL - AI (este arquivo)
-├── ARCHITECTURE.md           # 🔴 ESSENCIAL - Decisões técnicas
-├── REFINEMENT_STARTER.md     # 🔴 ESSENCIAL - Lista de contexto de refinamento
-├── README.md                 # 🟢 USUÁRIOS - Setup básico
+├── CONSTITUTION.md                  # 🔴 ESSENCIAL - Princípios e processo (este arquivo)
+├── ARCHITECTURE.md                  # 🔴 ESSENCIAL - Decisões técnicas consolidadas
+├── REFINEMENT_STARTER.md            # 🔴 ESSENCIAL - Lista autoritativa do pack de contexto
+├── AUTONOMOUS_DISPATCH.md           # Template de disparo autônomo (Claude Code Web)
+├── README.md                        # 🟢 USUÁRIOS - Setup básico
 │
-├── core/
-│   └── ROADMAP.md            # 🔴 ESSENCIAL - Épicos/core
+├── core/                            # Sistema universal compartilhado
+│   ├── README.md                    # Visão do core
+│   ├── ROADMAP.md                   # 🔴 ESSENCIAL - Épicos do core
+│   ├── agents/                      # Código dos agentes (orchestrator, methodologist, observer, structurer, memory, database, persistence, checklist, models)
+│   ├── prompts/                     # Prompts por agente
+│   ├── config/agents/*.yaml         # Config externa por agente
+│   ├── skills/                      # Skills PO/QA/TL/Planning/Validation (modo autônomo)
+│   ├── tools/cli/                   # CLI conversacional
+│   ├── utils/                       # EventBus, cost_tracker, json_parser, config (circuit breaker)
+│   └── docs/
+│       ├── vision/                  # Filosofia (system_philosophy, epistemology, cognitive_model, ...)
+│       ├── agents/                  # Responsabilidades dos agentes (overview, orchestrator, methodologist, observer, researcher, memory_agent, communicator)
+│       ├── architecture/
+│       │   ├── agents/              # Design técnico (multi_agent/, orchestrator/, observer/, writer.md)
+│       │   ├── data-models/         # Ontologia, idea/concept/argument, persistence
+│       │   ├── patterns/            # refinement.md, snapshots.md
+│       │   ├── infrastructure/      # tech_stack.md, config_system.md (memória/YAML)
+│       │   └── vision/              # super_system.md
+│       ├── tools/                   # cli.md, conversational_cli.md
+│       ├── features/                # transparent_backstage.md
+│       └── examples/                # Exemplos práticos
 │
-├── products/
-│   └── revelar/
-│       └── ROADMAP.md        # 🔴 ESSENCIAL - Épicos/revelar
+├── products/                        # Aplicações específicas (app próprio por produto)
+│   ├── revelar/                     # (atual) Chat para clareza de pensamento
+│   │   ├── README.md, ROADMAP.md
+│   │   ├── app/                     # Streamlit (chat.py, dashboard.py, components/, pages/)
+│   │   └── docs/                    # vision.md, interface/, ux/, use_cases.md
+│   ├── ensaio/                      # (próximo) Experimento → artigo técnico-científico
+│   │   ├── README.md, ROADMAP.md
+│   │   └── docs/vision.md
+│   ├── prisma-verbal/               # (futuro) Extração de conceitos de textos
+│   ├── camadas-da-linguagem/        # (futuro) Ideia → Mensagem
+│   ├── expressao/                   # (futuro) Mensagem → Conteúdo
+│   └── produtor-cientifico/         # (futuro) Artigo acadêmico (especialização)
 │
-├── docs/
-│   ├── product/              # Estratégia
-│   ├── agents/               # Specs de agentes
-│   ├── orchestration/        # Fluxos e estados
-│   ├── interface/            # Specs de interface
+├── docs/                            # Meta-docs do repo (transversais aos produtos)
+│   ├── CONTEXT_INDEX.md             # 🔴 ESSENCIAL - Mapa temático código↔doc
+│   ├── backlog.md                   # Melhorias técnicas não vinculadas a épicos
+│   ├── maturity_checklist.md
+│   ├── analysis/                    # débitos técnicos, otimização de custo
 │   ├── process/
-│   │   ├── refinement/       # Refinamento (planning_guidelines.md + overview.md)
-│   │   ├── implementation/   # Implementação manual via Cursor
-│   │   └── autonomous/       # Implementação autônoma via Claude Code Web
-│   ├── testing/              # Testes
-│   └── backlog.md            # Ideias futuras
+│   │   ├── refinement/              # Refinamento (planning_guidelines.md + overview.md)
+│   │   ├── implementation/          # Implementação manual via Cursor
+│   │   └── autonomous/              # Fluxo autônomo via Claude Code Web
+│   └── testing/                     # Estratégia, estrutura, comandos, inventário
 │
-├── core/                     # Código core compartilhado
-│   ├── agents/               # Agentes
-│   ├── utils/                # Utilitários
-│   └── tools/                # Ferramentas
-│
-└── products/
-    └── revelar/
-        └── app/              # Interface Web Revelar
+├── tests/                           # tests/core/{unit,integration} e tests/products/<produto>/
+└── scripts/                         # scripts/core/{debug,health_checks,spikes,state_introspection,testing} e scripts/<produto>/
+```
+
+**Legenda:** 🔴 no pack inicial de contexto | 🟢 para humanos/setup.
 
 ---
 

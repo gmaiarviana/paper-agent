@@ -7,12 +7,18 @@
 ## 🟢 CONTEXTO OBRIGATÓRIO (Sempre Enviar)
 
 ### Contexto Padronizado (Ver REFINEMENT_STARTER.md)
-- `CONSTITUTION.md` - Princípios, responsabilidades, processo
-- `ARCHITECTURE.md` - Decisões técnicas consolidadas  
-- `core/ROADMAP.md` - Épicos e melhorias do core
-- `products/<produto>/ROADMAP.md` - Épicos do produto específico (Revelar, Ensaio, etc.)
 
-**Total obrigatório:** 4 arquivos (~1.200 linhas, ~5.000 tokens)
+**Genéricos (4):**
+- `CONSTITUTION.md` - Princípios, responsabilidades, processo
+- `ARCHITECTURE.md` - Decisões técnicas consolidadas
+- `core/ROADMAP.md` - Épicos e melhorias do core
+- `docs/CONTEXT_INDEX.md` - **Este arquivo** (mapa temático código↔doc)
+
+**Específicos do produto em refinamento (2):**
+- `products/<produto>/ROADMAP.md` - Épicos do produto (Revelar, Ensaio, Prisma Verbal, ...)
+- `products/<produto>/docs/vision.md` - Visão do produto (o "por quê" e escopo POC/Protótipo/MVP)
+
+**Total obrigatório:** 6 arquivos.
 
 ---
 
@@ -30,7 +36,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `core/agents/orchestrator/state.py` - MultiAgentState (schema completo)
 
 **Documentação:**
-- `core/docs/architecture/agents/multi_agent/` - **FONTE ÚNICA DA VERDADE** para fluxo e estado
+- `core/docs/architecture/agents/multi_agent/` - **FONTE ÚNICA DA VERDADE** para fluxo e estado (state.md, graph.md, nodes.md, flows.md, config.md, prompts.md, evolution.md)
 - `core/docs/architecture/agents/orchestrator/conversational/` - Orquestrador conversacional
 - `core/docs/architecture/agents/orchestrator/socratic.md` - Orquestrador socrático
 - `core/docs/architecture/patterns/refinement.md` - Loop de refinamento
@@ -45,15 +51,30 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 ### TEMA: Agentes Específicos
 
+> **Regra de navegação entre os dois diretórios "agents":**
+> - **`core/docs/agents/`** = **responsabilidades** (quem faz o quê, PODE/NÃO PODE, input/output). **Leitura primária** ao discutir comportamento de um agente.
+> - **`core/docs/architecture/agents/`** = **design técnico** (como o agente se encaixa no grafo, estado, prompts, fluxos). Leitura quando for mexer na implementação.
+> Em caso de conflito, `core/docs/agents/` descreve a intenção; `core/docs/architecture/agents/` descreve o como.
+
 **Código:**
 - `core/agents/methodologist/` - Metodologista (graph, nodes, router, state, tools, wrapper)
 - `core/agents/structurer/nodes.py` - Estruturador
+- `core/agents/observer/` - Observador
 - `core/agents/models/cognitive_model.py` - Modelos Pydantic (CognitiveModel, Contradiction, SolidGround)
 
-**Documentação:**
-- `core/docs/agents/overview.md` - Visão geral de todos os agentes
-- `core/docs/agents/methodologist.md` - Especificação do Metodologista
-- `core/docs/agents/methodologist_knowledge.md` - Conhecimento do Metodologista
+**Documentação — responsabilidades (`core/docs/agents/`):**
+- `core/docs/agents/overview.md` - Visão geral de todos os agentes (responsabilidades, PODE/NÃO PODE, dimensões)
+- `core/docs/agents/methodologist.md`, `methodologist_knowledge.md` - Metodologista
+- `core/docs/agents/orchestrator.md` - Orquestrador
+- `core/docs/agents/observer.md` - Observador
+- `core/docs/agents/researcher.md` - Pesquisador (futuro)
+- `core/docs/agents/memory_agent.md`, `communicator.md` - Demais agentes planejados
+
+**Documentação — design técnico (`core/docs/architecture/agents/`):**
+- `core/docs/architecture/agents/multi_agent/` - Super-grafo, estado, nós, fluxos
+- `core/docs/architecture/agents/orchestrator/conversational/`, `socratic.md` - Orquestrador
+- `core/docs/architecture/agents/observer/architecture.md` - Observador
+- `core/docs/architecture/agents/writer.md` - Writer (motivado pelo Ensaio, compartilhado com Produtor Científico)
 - `core/docs/architecture/patterns/refinement.md` - **Estruturador documentado aqui** (processamento de feedback, lógica de refinamento)
 
 **Solicitar quando:**
@@ -93,19 +114,17 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 ---
 
-### TEMA: Interface Web
+### TEMA: Interface Web (por produto)
 
-**Código:**
-- `products/revelar/app/chat.py` - Interface principal
-- `products/revelar/app/dashboard.py` - Dashboard de debug
-- `products/revelar/app/components/` - Componentes (chat_input, chat_history, backstage, sidebar/, etc)
-  - `sidebar/` - Sidebar modular (navigation, conversations, ideas)
-- `products/revelar/app/pages/` - Páginas dedicadas (pensamentos, ideia_detalhes)
+Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para código Streamlit e `products/<produto>/docs/interface/` (ou equivalente) para a spec.
 
-**Documentação:**
-- `products/revelar/docs/interface/` - Especificação completa da interface web (overview.md, components.md, flows.md)
-  - Seção 3.6: Painel Progress (Checklist) - documenta `progress_tracker.py`
-- `products/revelar/docs/interface/navigation_philosophy.md` - Filosofia de navegação (3 espaços)
+**Revelar (app atual):**
+- Código: `products/revelar/app/chat.py`, `products/revelar/app/dashboard.py`, `products/revelar/app/components/` (chat_input, chat_history, backstage, sidebar/, ...), `products/revelar/app/pages/` (pensamentos, ideia_detalhes)
+- Docs: `products/revelar/docs/interface/` (overview.md, components.md, flows.md — seção 3.6 documenta `progress_tracker.py`), `products/revelar/docs/interface/navigation_philosophy.md`, `products/revelar/docs/ux/conversation_patterns.md`
+
+**Ensaio (próximo app):**
+- Código: `products/ensaio/app/` (a ser criado no E-POC-1 — chat.py, components/, graph.py, product_config.py)
+- Docs: `products/ensaio/docs/vision.md` (visão do produto, POC/Protótipo/MVP), `products/ensaio/ROADMAP.md` (épicos E-POC-1..3)
 
 **Solicitar quando:**
 - Implementar features de interface
@@ -119,12 +138,12 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 ### TEMA: CLI e Automação
 
-**Codigo:**
+**Código:**
 - `core/tools/cli/chat.py` - CLI conversacional
 
 **Documentação:**
-- `docs/core/tools/cli.md` - CLI básico
-- `docs/core/tools/conversational_cli.md` - CLI conversacional
+- `core/docs/tools/cli.md` - CLI básico
+- `core/docs/tools/conversational_cli.md` - CLI conversacional
 
 **Solicitar quando:**
 - Entender CLI
@@ -171,15 +190,14 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `core/config/agents/*.yaml` - Configs externas por agente
 
 **Documentação:**
+- `core/docs/architecture/infrastructure/config_system.md` - **Sistema de configuração e memória** (YAML, loader, validator, memory_manager, execution_tracker)
 - `ARCHITECTURE.md` - Menciona sistema de configuração (seção "Configuração Externa de Agentes")
 
 **Solicitar quando:**
 - Modificar configuração de agentes
 - Entender sistema de memória
 - Debugging de tokens/custos
-
-**Gaps identificados:**
-- ⚠️ Sistema de memória - **GAP REAL**: Mencionado em `ARCHITECTURE.md` (seção "Registro de Memória e Metadados") mas **sem doc técnica detalhada** dos componentes (`memory_manager.py`, `execution_tracker.py`, `config_loader.py`, `config_validator.py`)
+- Implementar parametrização de contexto de produto (Ensaio E-POC-2 / core C-ENSAIO-1)
 
 ---
 
@@ -201,20 +219,19 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ### TEMA: Testes e Qualidade
 
 **Código:**
-- `tests/unit/` - Testes unitários organizados por categoria (226 testes)
-  - `agents/` - Lógica de agentes (orchestrator, structurer, methodologist) - **Nota:** Ainda na raiz, será migrado para `tests/core/unit/agents/`
-  - `models/` - Estruturas de dados (cognitive_model)
-  - `memory/` - Sistema de memória (config_loader, execution_tracker, memory_manager)
-  - `utils/` - Utilitários (cost_tracker, event_bus, json_extraction, currency) - **Nota:** Ainda na raiz, será migrado para `tests/core/unit/utils/`
-  - `database/` - Database operations (database_manager)
-- `tests/integration/` - Testes de integração (19 testes)
-  - `smoke/` - Validação rápida (3 testes, ~$0.01)
-  - `behavior/` - Comportamentos específicos (15 testes, ~$0.02-0.03)
-  - `e2e/` - Cenários completos multi-turn (1 teste, ~$0.05)
-- `scripts/testing/` - Ferramentas de teste (Épico 8)
-  - `execute_scenario.py`, `debug_scenario.py`, `replay_session.py`
-- `scripts/health_checks/` - Health checks de setup
-- `scripts/debug/` - Ferramentas de debug
+- `tests/core/unit/` - Testes unitários do core (agents/, models/, memory/, utils/, database/)
+- `tests/core/integration/` - Testes de integração do core
+  - `smoke/` - Validação rápida
+  - `behavior/` - Comportamentos específicos
+  - `e2e/` - Cenários completos multi-turn
+- `tests/products/<produto>/` - Testes específicos por produto (ex.: `tests/products/revelar/integration/`)
+- `scripts/core/testing/` - Ferramentas de teste (execute_scenario.py, debug_scenario.py, replay_session.py)
+- `scripts/core/health_checks/` - Health checks de setup
+- `scripts/core/debug/` - Ferramentas de debug
+- `scripts/core/spikes/`, `scripts/core/state_introspection/` - Exploração e inspeção
+- `scripts/<produto>/flows/` - Scripts de validação manual por produto (ex.: `scripts/revelar/flows/`)
+
+> **Nota:** Comandos em `docs/testing/commands.md` e `.github/workflows/` podem ainda referenciar `tests/unit/` e `tests/integration/` (migração para `tests/core/...` em andamento). Ao escrever testes novos, usar o layout `tests/core/...` e `tests/products/<produto>/...`.
 
 **Documentação:**
 - `docs/testing/README.md` - Índice e quick start
@@ -241,15 +258,27 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 ---
 
-### TEMA: Produtos
+### TEMA: Produtos (Super-Sistema)
 
-**Documentação:**
-- `products/produtor-cientifico/docs/vision.md` - Produtor Científico (produto atual)
-- `products/prisma-verbal/docs/vision.md` - Fichamento (produto futuro)
+**Visão do super-sistema:**
+- `core/docs/architecture/vision/super_system.md` - Como core e produtos se relacionam (desacoplamento, injeção de contexto de produto)
+
+**Produto atual:**
+- `products/revelar/README.md`, `ROADMAP.md`, `docs/vision.md`, `docs/interface/`, `docs/ux/`, `docs/use_cases.md`
+
+**Próximo produto:**
+- `products/ensaio/README.md`, `ROADMAP.md`, `docs/vision.md` - Transformar experimentos de código em artigos técnico-científicos (POC conversacional + Writer)
+
+**Produtos planejados:**
+- `products/prisma-verbal/` - Extração de conceitos de textos (fichamento)
+- `products/camadas-da-linguagem/` - Ideia → Mensagem
+- `products/expressao/` - Mensagem → Conteúdo (forma)
+- `products/produtor-cientifico/` - Especialização acadêmica de Expressão (compartilha Writer com Ensaio)
 
 **Solicitar quando:**
 - Refinar funcionalidades específicas de produto
 - Entender diferenças entre produtos
+- Discutir o que é do core vs. o que é do produto
 
 ---
 
@@ -267,21 +296,21 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 ## 🔍 RESUMO DE GAPS (Código Sem Documentação Técnica Detalhada)
 
 ### Críticos (Funcionalidades Importantes)
-1. ⚠️ `products/revelar/app/components/session_helpers.py` - **GAP CONFIRMADO**: Helpers de sessão. Não encontrei menção específica na documentação.
+1. ⚠️ `products/revelar/app/components/session_helpers.py` - **GAP**: Helpers de sessão sem menção específica na documentação.
 
 ### Menores (Utils e Infraestrutura)
-2. ⚠️ `core/utils/config.py` - **GAP CONFIRMADO**: Circuit breaker da API Anthropic. Não encontrado na documentação.
-3. ⚠️ `core/utils/json_parser.py` - **GAP CONFIRMADO**: Parser de JSON de respostas LLM. Não encontrado na documentação.
-4. ⚠️ `core/agents/memory/` - **GAP CONFIRMADO**: Sistema de memória completo (`memory_manager.py`, `execution_tracker.py`, `config_loader.py`, `config_validator.py`). Mencionado em `ARCHITECTURE.md` mas sem doc técnica detalhada.
-5. ⚠️ `scripts/flows/` - **GAP CONFIRMADO**: Scripts de validação manual. Listados em `testing/inventory.md` mas sem doc de propósito/uso.
-6. ⚠️ `scripts/health_checks/` - **GAP CONFIRMADO**: Health checks do sistema. Não encontrado na documentação.
+2. ⚠️ `core/utils/config.py` - **GAP**: Circuit breaker da API Anthropic não documentado.
+3. ⚠️ `core/utils/json_parser.py` - **GAP**: Parser de JSON de respostas LLM não documentado.
+4. ⚠️ `scripts/<produto>/flows/` - **GAP**: Scripts de validação manual (ex.: `scripts/revelar/flows/`) sem doc de propósito/uso.
+5. ⚠️ `scripts/core/health_checks/` - **GAP**: Health checks do sistema sem documentação.
 
 ### ✅ NÃO SÃO GAPS (Documentados)
-- ✅ `core/agents/structurer/` - Documentado em `refinement_loop.md`
-- ✅ `core/agents/models/cognitive_model.py` - Documentado em `core/docs/vision/cognitive_model/` e `argument_model.md`
-- ✅ `core/agents/persistence/snapshot_manager.py` - Documentado em `snapshot_strategy.md`
-- ✅ `core/agents/checklist/progress_tracker.py` - Documentado em `web/components.md` (seção 3.6)
-- ✅ `products/revelar/app/pages/` - Documentado em `web/components.md` e `navigation_philosophy.md`
+- ✅ `core/agents/structurer/` - Documentado em `core/docs/architecture/patterns/refinement.md`
+- ✅ `core/agents/models/cognitive_model.py` - Documentado em `core/docs/vision/cognitive_model/` e `core/docs/architecture/data-models/argument_model.md`
+- ✅ `core/agents/persistence/snapshot_manager.py` - Documentado em `core/docs/architecture/patterns/snapshots.md`
+- ✅ `core/agents/memory/` - Documentado em `core/docs/architecture/infrastructure/config_system.md` (sistema YAML + memória + execution tracker)
+- ✅ `core/agents/checklist/progress_tracker.py` - Documentado em `products/revelar/docs/interface/components.md` (seção 3.6)
+- ✅ `products/revelar/app/pages/` - Documentado em `products/revelar/docs/interface/components.md` e `navigation_philosophy.md`
 - ✅ `products/revelar/app/components/conversation_helpers.py` - Docstrings detalhadas no código
 - ✅ `core/utils/event_bus/` - Docstrings detalhadas no código (estrutura modular)
 
@@ -322,7 +351,6 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 ---
 
-**Versão:** 1.0  
-**Data:** 2025-01-XX  
-**Para:** Organização temática de contexto e identificação de gaps
+**Versão:** 2.0
+**Para:** Organização temática de contexto e identificação de gaps. Promovido ao pack inicial de refinamento.
 
