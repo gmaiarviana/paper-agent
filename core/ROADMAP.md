@@ -47,7 +47,7 @@
 
 **Objetivo:** Novo agente no core que recebe contexto conversacional e cognitive_model, devolve markdown estruturado. Nasce simples. Organizado para generalização futura (Produtor Científico reusará).
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ✅ Refinado (pronto para implementação)
 
 **Decisões arquiteturais já tomadas:** ver [core/docs/architecture/agents/writer.md](docs/architecture/agents/writer.md)
 - Nasce no core (não no Ensaio)
@@ -55,8 +55,45 @@
 - Estruturas de artigo vivem no prompt do Writer (não em enum/schema)
 - Organização inicial antecipa generalização para o Produtor Científico
 
-**Próximos Passos:**
-- Refinar critérios de aceite e interface (inputs/outputs estruturados) antes da implementação
+### Funcionalidades:
+
+#### C-ENSAIO-2.1 Nó Writer simples em uma passada
+
+- **Descrição:** Nó LangGraph que recebe contexto e devolve markdown do artigo em uma única invocação. Sem loop interno, sem estado entre invocações.
+- **Critérios de Aceite:**
+  - Deve existir módulo core/agents/writer/ seguindo padrão dos outros agentes (__init__.py, nodes.py)
+  - Deve expor função writer_node invocável isoladamente
+  - Deve receber dict com as chaves: messages, focal_argument, previous_article, product_context
+  - Deve retornar dict contendo string markdown em uma chave (ex: "article")
+  - Não deve manter estado entre invocações
+  - Não deve ter loop interno de refinamento
+
+#### C-ENSAIO-2.2 Prompt com IMRaD e defaults
+
+- **Descrição:** Prompt do Writer contém base de conhecimento sobre estrutura IMRaD. Writer infere intenção e narrativa da conversa, com defaults razoáveis quando não há pistas claras.
+- **Critérios de Aceite:**
+  - Prompt em core/prompts/writer.py como WRITER_PROMPT_V1
+  - Prompt descreve estrutura IMRaD (abstract, introdução, métodos, resultados, discussão, conclusão, referências)
+  - Prompt orienta Writer a inferir intenção da conversa
+  - Prompt define default "informar" quando intenção não emergir
+  - Prompt não contém nome de produto específico (Ensaio, etc)
+
+#### C-ENSAIO-2.3 Configuração YAML
+
+- **Descrição:** Configuração externa do Writer via YAML, seguindo padrão dos outros agentes do core.
+- **Critérios de Aceite:**
+  - Arquivo core/config/agents/writer.yaml com campos: prompt (referência), model, context_limits, metadata
+  - Modelo padrão: claude-3-5-haiku-20241022
+  - Deve ser carregável pelo config_loader existente
+  - Deve validar com config_validator existente
+
+#### C-ENSAIO-2.4 Suporte a loop externo de refinamento
+
+- **Descrição:** Contrato do nó permite reinvocação com previous_article preenchido. Writer regenera artigo inteiro incorporando o feedback presente no histórico de mensagens.
+- **Critérios de Aceite:**
+  - Quando previous_article for None, Writer gera artigo pela primeira vez
+  - Quando previous_article vier preenchido, Writer regenera considerando feedback presente nas messages mais recentes
+  - Writer não tenta editar o previous_article pontualmente; sempre regenera inteiro
 
 ---
 
@@ -86,6 +123,24 @@
 **Status:** ⏳ Planejado (não refinado, condicional)
 
 **Consulte:** [core/docs/architecture/data-models/ontology.md](docs/architecture/data-models/ontology.md) (seção "Entidades em Incubação")
+
+---
+
+#### ÉPICO C-ENSAIO-6: Promoção de Componentes de UI para o Core (Condicional)
+
+**Objetivo:** Componentes de UI conversacional (chat_input, chat_history e similares) hoje vivem em products/revelar/app/components/ e são reusados por outros produtos via import direto. Quando um terceiro produto consumir os mesmos componentes, ou quando surgir atrito concreto com o import cross-produto, promover os componentes compartilhados para core/ui_components/ (nome a definir no refinamento).
+
+**Status:** ⏳ Planejado (não refinado, condicional)
+
+**Dependências:**
+- POC do Ensaio (E-POC-1) em produção como primeiro consumidor externo
+- Segundo consumidor externo (Ensaio na POC é o primeiro)
+
+**Gatilho de ativação:**
+- Terceiro produto com UI conversacional entrando no super-sistema, OU
+- Atrito concreto no import cross-produto atual (manutenção, testes, circularidade, etc.)
+
+**Consulte:** [core/docs/architecture/vision/super_system.md](docs/architecture/vision/super_system.md) (seção sobre componentes compartilhados entre produtos)
 
 ---
 

@@ -360,6 +360,17 @@ Orquestrador decide baseado em insight + própria análise
 - Formatar como artigo científico
 - Manter coerência e fluidez
 
+### Dimensões de Operação
+
+O Writer opera em 4 dimensões ao produzir um artigo:
+
+- **Contexto:** matéria-prima — o que foi feito, dados, detalhes.
+- **Intenção:** o que o autor quer provocar no leitor (informar, posicionar-se, propor, desafiar).
+- **Formato:** molde do artigo (IMRaD, one-pager, ensaio, relato técnico).
+- **Estrutura:** narrativa e ordem dentro do formato.
+
+Nenhuma dessas dimensões é imposta por classificação externa prévia. Todas emergem da conversa, alinhadas à filosofia de "estrutura emerge da conversa" (ver products/ensaio/docs/vision.md §5).
+
 ### PODE fazer
 - Escrever todas as seções
 - Adaptar tom mantendo rigor

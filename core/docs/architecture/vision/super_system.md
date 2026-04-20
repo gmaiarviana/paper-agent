@@ -129,6 +129,20 @@ Agente responsável por traduzir entre a linguagem natural do usuário e as oper
 
 Esse princípio é a forma operacional do desacoplamento descrito nesta visão. Exemplos concretos de aplicação em agentes específicos: ver `core/docs/architecture/agents/writer.md`.
 
+### Componentes de UI entre Produtos
+
+Produtos do super-sistema podem precisar de componentes de UI semelhantes (entrada de chat, histórico de conversa, etc.). O princípio geral é que componentes verdadeiramente compartilhados vivem no core; componentes específicos de um produto vivem dentro do produto.
+
+Na prática, o caminho de promoção é gradual:
+
+1. Primeiro produto cria o componente dentro de si (ex: Revelar criou chat_input e chat_history em products/revelar/app/components/).
+2. Segundo produto reusa via import direto do primeiro produto. É acoplamento aceitável na fase inicial — a forma do componente ainda está sendo descoberta.
+3. Terceiro consumidor, ou atrito concreto no import cross-produto, é o gatilho para promover o componente para core/ui_components/ (nome a definir) e fazer todos os produtos consumirem do core.
+
+A promoção é decisão consciente, registrada como épico no core/ROADMAP.md (ver C-ENSAIO-6). Não é feita preventivamente.
+
+O princípio de desacoplamento core ↔ produto continua valendo: o core não conhece produtos específicos, mesmo quando hospeda componentes que atendem a vários deles.
+
 ### Produtos Consomem Core via API
 
 **Exemplo: Revelar**

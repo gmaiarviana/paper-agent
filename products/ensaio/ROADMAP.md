@@ -39,7 +39,62 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [core/ROADMAP.md](../.
 
 **Objetivo:** Esqueleto de app próprio para o produto Ensaio, reusando componentes do Revelar onde couber. UI descartável — Streamlit como atalho, sem investimento em design.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ✅ Refinado (pronto para implementação)
+
+### Funcionalidades:
+
+#### 1.1 Estrutura de pastas do produto
+
+- **Descrição:** Esqueleto de diretórios e arquivos do app do Ensaio seguindo convenção do super-sistema. App próprio, não modo do Revelar.
+- **Critérios de Aceite:**
+  - Deve criar products/ensaio/app/ com __init__.py
+  - Deve criar products/ensaio/config/ para product.yaml (E-POC-2)
+  - Deve criar products/ensaio/app/components/ para componentes específicos do Ensaio (article_panel.py, generate_button.py)
+  - Não deve criar estrutura sobreposta ao Revelar
+
+#### 1.2 Entrypoint Streamlit
+
+- **Descrição:** Arquivo chat.py como entrypoint do app do Ensaio, rodável via `streamlit run products/ensaio/app/chat.py`.
+- **Critérios de Aceite:**
+  - Deve existir products/ensaio/app/chat.py como entrypoint
+  - Deve rodar sem erros em setup limpo (após instalar requirements)
+  - Deve renderizar layout 60/40 (chat à esquerda, painel do artigo à direita)
+  - Não deve exigir configuração adicional além da ANTHROPIC_API_KEY
+
+#### 1.3 Grafo LangGraph do Ensaio
+
+- **Descrição:** Grafo conversacional com Orquestrador e Estruturador do core, em postura ativo-leve. Writer fica separado do grafo conversacional e é invocado sob demanda.
+- **Critérios de Aceite:**
+  - Deve existir products/ensaio/app/graph.py
+  - Grafo conversacional deve incluir Orquestrador + Estruturador
+  - Writer não deve fazer parte do grafo conversacional automático
+  - Writer deve ser invocado diretamente pelo app quando usuário clicar "Gerar artigo"
+  - Não deve incluir Metodologista neste épico
+
+#### 1.4 Reuso de componentes do Revelar
+
+- **Descrição:** Componentes de UI genéricos (chat_input, chat_history) são reusados do Revelar via import direto, sem duplicação.
+- **Critérios de Aceite:**
+  - Deve importar chat_input e chat_history de products/revelar/app/components/
+  - Não deve duplicar código desses componentes
+  - Se padrão de reuso se consolidar, promover componentes para core/ui_components/ (ver docs/backlog.md)
+
+#### 1.5 Painel do artigo e botão de geração
+
+- **Descrição:** Coluna direita exibe o artigo markdown gerado (quando existe) e botão "Gerar artigo" / "Regenerar" no topo.
+- **Critérios de Aceite:**
+  - Botão "Gerar artigo" deve estar visível desde o início da conversa (conforme 3.3)
+  - Quando existe artigo em st.session_state, botão deve virar "Regenerar"
+  - Artigo deve ser renderizado com st.markdown
+  - Painel deve permanecer com artigo anterior até usuário clicar "Regenerar"
+
+#### 1.6 Gestão de estado em sessão
+
+- **Descrição:** Todo estado (conversa, artigo, focal_argument) vive em st.session_state. Refresh da página zera tudo, conforme 3.5.
+- **Critérios de Aceite:**
+  - Deve usar st.session_state para: messages, focal_argument, current_article, generating
+  - Não deve gravar em disco, banco ou qualquer persistência
+  - Recarregar a página deve recomeçar do zero
 
 ---
 
@@ -47,10 +102,48 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [core/ROADMAP.md](../.
 
 **Objetivo:** YAML do Ensaio define foco/domínio que é injetado nos agentes do core sem que o core conheça o produto. Primeira aplicação concreta do padrão de injeção de contexto.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ✅ Refinado (pronto para implementação)
 
 **Dependências:**
 - Padrão de injeção de contexto (ver core/docs/architecture/vision/super_system.md)
+
+### Funcionalidades:
+
+#### 2.1 YAML de configuração do produto
+
+- **Descrição:** Arquivo YAML no produto Ensaio descreve o foco do produto em prosa livre, sem schema rígido.
+- **Critérios de Aceite:**
+  - Deve existir products/ensaio/config/product.yaml
+  - YAML deve conter campo `focus` com string descrevendo o produto Ensaio (pesquisador transformando experimento em artigo IMRaD)
+  - YAML não deve conter nomes técnicos internos do super-sistema
+  - Campo `focus` deve ser a única chave obrigatória
+
+#### 2.2 Loader no produto
+
+- **Descrição:** Função do app do Ensaio lê o YAML e retorna a string do foco pronta para ser injetada nos agentes do core.
+- **Critérios de Aceite:**
+  - Deve existir products/ensaio/app/product_config.py
+  - Deve expor função que retorna a string do campo `focus`
+  - Deve tratar YAML ausente ou malformado com erro claro
+  - Não deve fazer import de nada do core
+
+#### 2.3 Parâmetro opcional nos agentes do core
+
+- **Descrição:** Agentes do core (Orquestrador, Estruturador, Writer) aceitam product_context como parâmetro opcional sem conhecer o produto consumidor.
+- **Critérios de Aceite:**
+  - Nós do core devem aceitar product_context opcional na invocação
+  - Quando product_context vier preenchido, prompt do agente ganha seção "## CONTEXTO DO PRODUTO" populada com a string
+  - Quando product_context vier vazio ou ausente, seção não aparece e comportamento atual é preservado
+  - Core não deve importar nada de products/ensaio/
+  - Nenhum agente do core deve conhecer nome de produtos
+
+#### 2.4 Injeção no fluxo do Ensaio
+
+- **Descrição:** App do Ensaio carrega o YAML uma vez e injeta a string em toda invocação dos agentes do core.
+- **Critérios de Aceite:**
+  - App deve carregar product_config na inicialização
+  - Toda invocação de Orquestrador, Estruturador e Writer deve passar product_context
+  - Revelar continua funcionando sem passar product_context (backward compatibility)
 
 ---
 
