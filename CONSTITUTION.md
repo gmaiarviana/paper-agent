@@ -145,15 +145,12 @@ PROMPT 3: ARCHITECTURE.md
 
 ## 5. MAPA DE DECISÃO
 
-| Se você quer... | Claude web consulta... | Gera prompts para... |
-|----------------|----------------------|---------------------|
-| **Refinar épico novo** | `products/<produto>/docs/vision.md` + core/ROADMAP.md + products/<produto>/ROADMAP.md + ARCHITECTURE.md | core/ROADMAP.md ou products/<produto>/ROADMAP.md + docs da spec técnica nova (ver `docs/CONTEXT_INDEX.md`) |
-| **Discutir comportamento do orquestrador** | `core/docs/architecture/agents/orchestrator/conversational/` + `products/<produto>/docs/ux/conversation_patterns.md` (quando existir) | `conversational/README.md` + ROADMAP.md + ARCHITECTURE.md |
-| **Discutir comportamento de agente** | `core/docs/agents/<agente>.md` (responsabilidades) + `core/docs/architecture/agents/multi_agent/` (design técnico) | `core/docs/agents/<agente>.md` + ROADMAP.md + ARCHITECTURE.md |
-| **Ajustar fluxo de dados** | `core/docs/architecture/agents/multi_agent/` + ARCHITECTURE.md | `multi_agent/` + ARCHITECTURE.md |
-| **Mudar interface** | `products/<produto>/docs/interface/` OU `core/docs/tools/cli.md` + ARCHITECTURE.md | `products/<produto>/docs/interface/` (overview.md, components.md, flows.md) ou `core/docs/tools/cli.md` + ROADMAP.md + ARCHITECTURE.md |
-| **Revisar processo de refinamento** | `docs/process/refinement/planning_guidelines.md` (já tem no contexto) | `docs/process/refinement/planning_guidelines.md` + CONSTITUTION.md (se princípios mudarem) |
-| **Revisar processo de implementação** | `docs/process/implementation/*.md` | `docs/process/implementation/*.md` (não é seu escopo principal) |
+Mapa único vive em `docs/CONTEXT_INDEX.md` (já no pack inicial):
+
+- **Por tema** → seções `## TEMA: ...` com "Solicitar quando..." em cada uma.
+- **Resumo rápido** → tabela `🎯 MAPA RÁPIDO DE DECISÃO` no fim do arquivo.
+
+Ao refinar: identifique o tema relevante no CONTEXT_INDEX e peça os paths listados ali. Para os arquivos-alvo de prompts (onde escrever), ver também ROADMAP do produto + ARCHITECTURE.md.
 
 ---
 
@@ -197,28 +194,9 @@ Resumo: 4 arquivos genéricos + 2 específicos do produto = 6 arquivos total.
 - **Visão geral:** `docs/process/refinement/overview.md`
 - **Starter pack:** `REFINEMENT_STARTER.md` (raiz)
 
-### Consultados Via Mapa (`docs/CONTEXT_INDEX.md` - sob demanda)
+### Consultados Sob Demanda
 
-**Produto (estratégia):**
-- `products/<produto>/docs/vision.md` - Visão, jornada do usuário, expectativas
-- `products/<produto>/docs/ux/conversation_patterns.md` - Padrões esperados de interação (quando existir)
-
-**Specs Técnicas (detalhes):**
-- `core/docs/agents/` - Responsabilidades de cada agente (quem faz o quê)
-- `core/docs/architecture/agents/` - Design técnico dos agentes (multi_agent, orchestrator, observer, writer)
-- `core/docs/architecture/data-models/` - Ontologia e modelos de dados
-- `core/docs/architecture/patterns/` - Padrões transversais (refinement, snapshots)
-- `core/docs/architecture/infrastructure/` - Stack técnico e sistemas transversais
-- `products/<produto>/docs/interface/` - Specs de interface do produto (quando existir)
-- `core/docs/tools/` - CLI e ferramentas
-
-**Processo (desenvolvimento):**
-- `docs/process/implementation/` - Para Claude Code (implementação)
-- `docs/process/autonomous/` - Para Claude Code Web (fluxo autônomo)
-- `docs/testing/` - Estratégia de testes
-
-**Outros:**
-- `docs/backlog.md` - Ideias futuras (não essencial)
+Tudo fora do pack inicial — specs técnicas, filosofia, interface, processo, testes — está mapeado em `docs/CONTEXT_INDEX.md` (já no pack inicial). Não duplicar a lista aqui.
 
 ---
 

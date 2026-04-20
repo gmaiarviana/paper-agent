@@ -31,18 +31,7 @@ O Claude Web não tem acesso ao repositório. Esse pack dá a ele o mínimo nece
 
 ## 📚 Documentos Consultados Sob Demanda
 
-Durante o refinamento, Claude Web **pede** os documentos adicionais consultando `docs/CONTEXT_INDEX.md` por tema:
-
-- **Orquestração e fluxo:** `core/docs/architecture/agents/multi_agent/`
-- **Agentes (responsabilidades):** `core/docs/agents/` — *leitura primária ao discutir comportamento*
-- **Agentes (design técnico):** `core/docs/architecture/agents/` — *quando for mexer na implementação*
-- **Dados e persistência:** `core/docs/architecture/data-models/`
-- **Padrões transversais:** `core/docs/architecture/patterns/` (refinement, snapshots)
-- **Infraestrutura:** `core/docs/architecture/infrastructure/` (tech_stack, config_system)
-- **Filosofia:** `core/docs/vision/` (system_philosophy, epistemology, cognitive_model, ...)
-- **Interface por produto:** `products/<produto>/docs/interface/`, `products/<produto>/docs/ux/`
-- **Processo:** `docs/process/refinement/`, `docs/process/implementation/`, `docs/process/autonomous/`
-- **Testes:** `docs/testing/`
+Tudo que não está no pack inicial está mapeado em `docs/CONTEXT_INDEX.md` — que já está no pack. Durante o refinamento, Claude Web identifica o tema relevante no CONTEXT_INDEX (seção `## TEMA: ...` ou tabela `🎯 MAPA RÁPIDO DE DECISÃO`) e pede os paths listados ali.
 
 ## ⚠️ Fora do Pack Inicial
 
