@@ -126,6 +126,24 @@
 
 ---
 
+#### ÉPICO C-ENSAIO-6: Promoção de Componentes de UI para o Core (Condicional)
+
+**Objetivo:** Componentes de UI conversacional (chat_input, chat_history e similares) hoje vivem em products/revelar/app/components/ e são reusados por outros produtos via import direto. Quando um terceiro produto consumir os mesmos componentes, ou quando surgir atrito concreto com o import cross-produto, promover os componentes compartilhados para core/ui_components/ (nome a definir no refinamento).
+
+**Status:** ⏳ Planejado (não refinado, condicional)
+
+**Dependências:**
+- POC do Ensaio (E-POC-1) em produção como primeiro consumidor externo
+- Segundo consumidor externo (Ensaio na POC é o primeiro)
+
+**Gatilho de ativação:**
+- Terceiro produto com UI conversacional entrando no super-sistema, OU
+- Atrito concreto no import cross-produto atual (manutenção, testes, circularidade, etc.)
+
+**Consulte:** [core/docs/architecture/vision/super_system.md](docs/architecture/vision/super_system.md) (seção sobre componentes compartilhados entre produtos)
+
+---
+
 > **📖 Melhorias Técnicas:** Para melhorias técnicas não vinculadas a épicos, consulte [docs/backlog.md](../../docs/backlog.md).
 
 ---
