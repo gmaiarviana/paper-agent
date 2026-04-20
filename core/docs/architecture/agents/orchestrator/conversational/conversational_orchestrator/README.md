@@ -27,7 +27,7 @@ Documentação completa do Orquestrador Conversacional, dividida em seções par
 
 - `../../multi_agent/` - Arquitetura multi-agente
 - `../socratic.md` - Orquestrador socrático (evolução)
-- `docs/core/tools/conversational_cli.md` - CLI conversacional
+- `core/docs/tools/conversational_cli.md` - CLI conversacional
 - `ARCHITECTURE.md` - Decisões técnicas consolidadas
 
 ---

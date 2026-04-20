@@ -376,7 +376,7 @@ Sistema: "OK! E como você vai FORTALECER a proposição de que a visão computa
 
 ## Referências
 
-- `docs/product/vision.md` - Sistema como "mestre socrático"
+- `products/revelar/docs/vision.md` - Sistema como "mestre socrático" (Revelar)
 - `core/docs/vision/cognitive_model/core.md` - Modelo de fundamentos com solidez
 - `../conversational/` - Base conversacional (Épico 7)
 

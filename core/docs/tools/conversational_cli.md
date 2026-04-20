@@ -190,5 +190,5 @@ streamlit run products/revelar/app/dashboard.py
 **Referências:**
 - `../docs/architecture/agents/orchestrator/conversational/` - Lógica do Orquestrador
 - `ROADMAP.md` - Épico 7 Protótipo
-- `docs/core/tools/cli.md` - CLI original (antes do Épico 7)
+- `core/docs/tools/cli.md` - CLI original (antes do Épico 7)
 
