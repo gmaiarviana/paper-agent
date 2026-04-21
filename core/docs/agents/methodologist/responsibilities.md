@@ -357,7 +357,7 @@ Pesquisador:
 
 ### Knowledge Base
 
-**Localização:** `core/docs/agents/methodologist_knowledge.md`
+**Localização:** `core/docs/agents/methodologist/knowledge.md`
 
 **Conteúdo:**
 - Diferença entre lei, teoria e hipótese

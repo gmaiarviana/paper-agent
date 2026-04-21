@@ -905,12 +905,12 @@ if need.needs_clarification:
 ## Referências
 
 - `../architecture/agents/observer/architecture.md` - Arquitetura técnica
-- `../architecture/data-models/ontology.md` - CognitiveModel e MemoryLayer
-- `../architecture/data-models/concept_model.md` - Schema de Concept
-- `../vision/cognitive_model/core.md` - Fundamentos epistemológicos
-- `core/docs/agents/memory_agent.md` - Consultado via Orquestrador quando necessário
-- `core/docs/agents/orchestrator.md` - Recebe sinalizações do Observador
-- `core/ROADMAP.md` - Épicos 10, 12, 13
+- `../../architecture/data-models/ontology.md` - CognitiveModel e MemoryLayer
+- `../../architecture/data-models/concept_model.md` - Schema de Concept
+- `../../vision/cognitive_model/core.md` - Fundamentos epistemológicos
+- `core/docs/agents/memory_agent/responsibilities.md` - Consultado via Orquestrador quando necessário
+- `core/docs/agents/orchestrator/responsibilities.md` - Recebe sinalizações do Observador
+- `docs/ROADMAP.md` - Épicos 10, 12, 13
 
 ---
 

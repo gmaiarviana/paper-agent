@@ -280,7 +280,7 @@ Proposição sobre qualidade precisa ser refinada ou descartada.
 
 ## Referências
 
-- `core/docs/agents/methodologist.md` - Validação de qualidade metodológica
+- `core/docs/agents/methodologist/responsibilities.md` - Validação de qualidade metodológica
 - `products/prisma-verbal/docs/philosophy.md` - Como Prisma extrai proposições
 - `products/prisma-verbal/docs/architecture/reading_process.md` - Processo de leitura sequencial
 - `core/docs/architecture/data-models/ontology.md` - Estrutura de Proposição e solidez

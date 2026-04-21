@@ -8,13 +8,13 @@
 - ✅ **Construção do super-grafo:** Especificação completa da arquitetura LangGraph
 
 **Outros documentos devem referenciar este diretório:**
-- `ARCHITECTURE.md`: Resumo + referência para este diretório
+- `docs/ARCHITECTURE.md`: Resumo + referência para este diretório
 - `core/docs/agents/overview.md`: Referência para fluxo e estado
-- `../../patterns/refinement.md`: Referência para schema completo
+- `../patterns/refinement.md`: Referência para schema completo
 
 ## Visão Geral
 
-Este documento detalha a **implementação técnica** do sistema multi-agente. Para visão arquitetural geral, consulte `ARCHITECTURE.md`.
+Este documento detalha a **implementação técnica** do sistema multi-agente. Para visão arquitetural geral, consulte `docs/ARCHITECTURE.md`.
 
 **Foco deste diretório:**
 - Estrutura do MultiAgentState (campos, tipos, uso)
