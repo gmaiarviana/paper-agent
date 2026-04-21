@@ -6,6 +6,14 @@
 
 > **📖 Status Atual:** Para entender o estado técnico do sistema, consulte [ARCHITECTURE.md](../../docs/ARCHITECTURE.md).
 
+### 🧭 Estados dos Épicos
+
+Cada épico percorre três estados de refinamento. Detalhes em [docs/process/refinement/planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
+
+- **`⏳ Planejado`** — apenas objetivo definido. Aguarda 1ª passada de refinamento.
+- **`📋 Critérios definidos`** — funcionalidades e critérios de aceite. Pronto para fluxo manual via Cursor.
+- **`✅ Detalhes definidos`** — contratos, arquivos-alvo e integração explicitados (checklist em [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md)). Pronto para fluxo autônomo via Claude Code Web.
+
 ---
 
 ## 🧭 Filosofia de Estágios

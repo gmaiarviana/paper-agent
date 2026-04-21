@@ -6,6 +6,14 @@
 
 > **📖 Visão:** Para entender a filosofia do sistema, consulte [core/docs/vision/system_philosophy.md](../core/docs/vision/system_philosophy.md).
 
+### 🧭 Estados dos Épicos
+
+Cada épico percorre três estados de refinamento. Detalhes em [process/refinement/planning_guidelines.md](process/refinement/planning_guidelines.md).
+
+- **`⏳ Planejado`** — apenas objetivo definido. Aguarda 1ª passada de refinamento.
+- **`📋 Critérios definidos`** — funcionalidades e critérios de aceite. Pronto para fluxo manual via Cursor.
+- **`✅ Detalhes definidos`** — contratos, arquivos-alvo e integração explicitados (checklist em [process/refinement/autonomous_readiness.md](process/refinement/autonomous_readiness.md)). Pronto para fluxo autônomo via Claude Code Web.
+
 ---
 
 ## 📋 Épicos Planejados
