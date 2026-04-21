@@ -2,7 +2,7 @@
 
 > **📌 Localização:** `docs/process/autonomous/`
 > **📌 Público:** Dev (operador) e Claude Code Web (executor autônomo).
-> **📌 Pré-requisito:** Funcionalidade pertence a épico refinado no ROADMAP.
+> **📌 Pré-requisito:** Funcionalidade pertence a épico em `✅ Detalhes definidos` no ROADMAP (checklist `docs/process/refinement/autonomous_readiness.md` aplicado).
 
 ---
 
@@ -18,7 +18,7 @@ Modo de operação onde o dev **dispara uma funcionalidade pela manhã** via Cla
 
 ### Dev (Operador)
 **Pela manhã:**
-- ✅ Escolher funcionalidade do ROADMAP (épico refinado)
+- ✅ Escolher funcionalidade do ROADMAP (épico em `✅ Detalhes definidos`)
 - ✅ Disparar via `docs/process/autonomous/dispatch.md` em claude.ai/code
 - ✅ Garantir que branch alvo segue padrão `feature/X.Y-nome`
 
@@ -47,26 +47,29 @@ Cada skill é um gate: se reprovar, devolve para a etapa anterior antes de avan�
 
 | Aspecto | Fluxo Manual (Cursor) | Fluxo Autônomo (Claude Code Web) |
 |---------|----------------------|----------------------------------|
-| **Refinamento** | Claude Web → prompts → Cursor | Planning Skill (autônomo, com ROADMAP) |
+| **Estado mínimo do épico** | `📋 Critérios definidos` | `✅ Detalhes definidos` (2ª passada de refinamento aplicada) |
+| **Refinamento** | Claude Web → prompts → Cursor | Planning Skill (autônomo, sobre épico já detalhado) |
 | **Aprovação por checkpoint** | Explícita do dev | Gates QA/TL/PO automáticos |
 | **Validação intermediária** | Dev valida a cada checkpoint | Skills validam; dev só valida no final |
 | **PR** | Dev cria pela interface | Branch pronta + comandos para dev validar |
-| **Quando usar** | Épicos novos, decisões arquiteturais | Funcionalidades já refinadas e claras |
+| **Quando usar** | Épicos novos, decisões arquiteturais em aberto | Funcionalidade com detalhes de execução fechados |
 
 ---
 
 ## 4. QUANDO USAR CADA MODO
 
-### Use o Fluxo Manual quando...
-- Épico ainda não foi refinado
+### Use o Fluxo Manual (Cursor) quando...
+- Épico está em `📋 Critérios definidos` — critérios de aceite existem, detalhes de execução ainda emergem durante a implementação
 - Há decisões arquiteturais em aberto
-- Funcionalidade exige discussão de trade-offs
+- Funcionalidade exige discussão de trade-offs em tempo de implementação
 - Mudança impacta múltiplos sistemas / docs estruturais
 
-### Use o Modo Autônomo quando...
-- Funcionalidade já refinada com critérios de aceite claros
+> Épicos em `⏳ Planejado` passam primeiro pela primeira passada de refinamento antes de qualquer fluxo de execução. Ver `docs/process/refinement/planning_guidelines.md`.
+
+### Use o Modo Autônomo (Claude Code Web) quando...
+- Épico está em `✅ Detalhes definidos` — segunda passada de refinamento concluída, checklist de `docs/process/refinement/autonomous_readiness.md` coberto
 - Dependências técnicas validadas
-- Padrão de implementação conhecido (segue épicos anteriores)
+- Padrão de implementação conhecido (template apontado; segue épicos anteriores)
 - Dev quer disparar e validar depois (sem acompanhamento ativo)
 
 ---
@@ -79,7 +82,7 @@ Cada skill é um gate: se reprovar, devolve para a etapa anterior antes de avan�
 - `docs/process/refinement/planning_guidelines.md` (refinamento de épicos continua manual via Claude Web)
 
 **O modo autônomo COMPLEMENTA:**
-- Adiciona uma alternativa ao Cursor para disparar funcionalidades já refinadas
+- Adiciona uma alternativa ao Cursor para disparar funcionalidades em `✅ Detalhes definidos`
 - Reaproveita ROADMAP, ARCHITECTURE, docs/agents existentes
 - Usa skills como substitutas das aprovações explícitas do dev
 
