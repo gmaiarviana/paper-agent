@@ -1,8 +1,9 @@
 # Planning Guidelines
 
-> **📌 Localização:** Este documento está na RAIZ do projeto.
+> **📌 Localização:** `docs/process/refinement/planning_guidelines.md`.
 > **📌 Público:** Claude Web (refinamento) e desenvolvedores (governança).
-> **📌 Sempre enviar:** Incluir no contexto inicial junto com CONSTITUTION, ROADMAP, ARCHITECTURE.
+> **📌 Envio em sessão de refinamento:** junto com `docs/CONSTITUTION.md`, `docs/ROADMAP.md`, `docs/ARCHITECTURE.md` e o ROADMAP do produto em foco.
+> **📌 Checklist da segunda passada:** `docs/process/refinement/autonomous_readiness.md`.
 
 ## Filosofia de Desenvolvimento
 
@@ -85,7 +86,7 @@ Cada prompt é enxuto mas claro, deixando Cursor pensar também.
 
 > **📌 Nota:** Este é um exemplo hipotético de refinamento. O arquivo `docs/architecture/persistence.md` será criado quando o Épico 10 for refinado.
 
-**Resultado:** Épico refinado, specs criadas, pronto pra Claude Code implementar.
+**Resultado:** Épico em `📋 Critérios definidos`, specs criadas, pronto para implementação via fluxo manual. Antes do dispatch autônomo, rodar a segunda passada (`autonomous_readiness.md`) para promover o épico a `✅ Detalhes definidos`.
 
 ---
 
@@ -118,17 +119,33 @@ Cada prompt é enxuto mas claro, deixando Cursor pensar também.
 ### Gestão do Backlog
 - **Backlog = Desejo, não compromisso**
 - Ideias vão para backlog sem serem épicos formais
-- Épicos não-refinados aguardam priorização + clareza técnica
+- Épicos em `⏳ Planejado` aguardam priorização + clareza técnica
 - Remover do backlog é tão válido quanto adicionar (não há apego)
 
-### Quando Refinar um Épico
-Refine quando **TODOS** estes critérios forem atendidos:
-- ✅ Épico se tornou prioritário (próximo na fila)
-- ✅ Dependências técnicas foram implementadas e validadas
-- ✅ Estado atual do sistema é bem compreendido
-- ✅ Há clareza sobre valor de negócio e viabilidade técnica
+### Três Estados de Refinamento
 
-**Não refine:** épicos distantes, dependências não validadas, incerteza técnica.
+Um épico percorre três estados no ROADMAP. Cada estado marca um nível de maturidade do refinamento e habilita um fluxo de execução específico.
+
+**`⏳ Planejado`** — só objetivo definido.
+Estado inicial de qualquer épico promovido a partir do backlog. Captura intenção e valor de negócio, sem funcionalidades detalhadas. Não é executável por nenhum fluxo.
+
+**`📋 Critérios definidos`** — funcionalidades com critérios de aceite.
+Produto da primeira passada de refinamento. Épico tem funcionalidades delimitadas, critérios de aceite observáveis, trade-offs discutidos. **Suficiente para o fluxo manual via Cursor**, onde o desenvolvedor resolve ambiguidades de execução à medida que aparecem.
+
+**`✅ Detalhes definidos`** — passou pelo checklist de `autonomous_readiness.md`.
+Produto da segunda passada de refinamento. Além dos critérios de aceite, tem contratos de dados explicitados, arquivos-alvo listados, mecanismo de integração descrito, acoplamentos verificados e escopo de testes definido. **Pré-requisito para o fluxo autônomo via Claude Code Web**, onde o agente não deve tomar decisões arquiteturais em tempo de implementação.
+
+### Duas Passadas de Refinamento
+
+A transição `⏳ Planejado → 📋 Critérios definidos` é a **primeira passada**. Responde "isso faz sentido e gera valor?" — produz funcionalidades e critérios.
+
+A transição `📋 Critérios definidos → ✅ Detalhes definidos` é a **segunda passada**. Responde "um agente sem contexto do problema consegue executar isto sem inventar?" — produz decisões de execução. Guiada pelo checklist em `docs/process/refinement/autonomous_readiness.md`.
+
+### Quando Aplicar Cada Passada
+
+**Primeira passada** — quando o épico se torna prioritário (próximo na fila), dependências técnicas foram implementadas e validadas, e há clareza sobre valor e viabilidade.
+
+**Segunda passada** — sob demanda, para o épico específico que vai ser disparado no fluxo autônomo. Aplicar preventivamente em todos os épicos é desperdício: o trabalho perde-se se o épico for repriorizado antes da implementação.
 
 ---
 
@@ -141,16 +158,16 @@ Refine quando **TODOS** estes critérios forem atendidos:
 
 ## Categorias de Épicos
 
-### Épicos Refinados (Prontos para Implementação)
-✅ ÉPICO 1: Setup Inicial
-✅ ÉPICO 2: Agente Metodologista Standalone
-✅ ÉPICO 3: Orquestrador com Reasoning
-✅ ÉPICO 4: Interface CLI e Streamlit
+### `✅ Detalhes definidos` (Prontos para Fluxo Autônomo)
+Épicos que passaram pela segunda passada e estão aptos a dispatch autônomo via Claude Code Web.
 
-**Claude Code só implementa funcionalidades de épicos refinados.**
+### `📋 Critérios definidos` (Prontos para Fluxo Manual)
+Épicos com funcionalidades e critérios de aceite, prontos para implementação manual via Cursor. Precisam da segunda passada antes do dispatch autônomo.
 
-### Épicos Não-Refinados (Requerem Discussão)
-⚠️ ÉPICO 5: Integração com LangGraph State (requer aprofundamento em LangGraph antes da implementação)
+### `⏳ Planejado` (Requer Primeira Passada)
+Épicos com objetivo, ainda sem funcionalidades delimitadas. Aguardam sessão de refinamento.
+
+**Claude Code só implementa funcionalidades de épicos em `📋 Critérios definidos` (fluxo manual) ou `✅ Detalhes definidos` (fluxo autônomo).**
 
 ---
 
@@ -161,43 +178,83 @@ Ideias abstratas que ainda não viraram épicos. Aguardando maturação.
 
 ### 📍 PRÓXIMOS PASSOS
 
-**Épicos podem estar em dois estados:**
+**Épicos percorrem três estados:**
 
-- **Não Refinados:** Apenas objetivo definido. Aguardando sessão de refinamento.
-- **Refinados:** Com funcionalidades e critérios de aceite. Prontos para implementação.
+- **`⏳ Planejado`** — apenas objetivo definido. Aguardando primeira passada de refinamento.
+- **`📋 Critérios definidos`** — funcionalidades e critérios de aceite. Pronto para fluxo manual via Cursor.
+- **`✅ Detalhes definidos`** — contratos, arquivos-alvo e integração explicitados. Pronto para fluxo autônomo via Claude Code Web.
 
-**Fluxo:** Ideia → Épico (não refinado) → Sessão de refinamento → Épico (refinado) → Implementação
+**Fluxo:**
+```
+Ideia → Épico (⏳ Planejado)
+      → 1ª passada de refinamento
+      → Épico (📋 Critérios definidos) — executável em fluxo manual
+      → 2ª passada de refinamento (autonomous_readiness)
+      → Épico (✅ Detalhes definidos) — executável em fluxo autônomo
+      → Implementação
+```
 
 ### ✅ CONCLUÍDO RECENTEMENTE
 Resumo enxuto (1-2 linhas) dos últimos épicos. Remove manualmente quando acumular.
 
 ---
 
-## Template: Épico em Dois Estágios
+## Template: Épico em Três Estados
 
-### Ao promover ideia para épico (Não Refinado):
+### Estado `⏳ Planejado` — ao promover ideia para épico:
 
 ```markdown
 ## ÉPICO X: Nome Descritivo
+**Status:** ⏳ Planejado
+
 **Objetivo:** [O que queremos alcançar com este épico. Foco no valor de negócio.]
 ```
 
-### Após sessão de refinamento (Refinado):
+### Estado `📋 Critérios definidos` — após primeira passada de refinamento:
 
 ```markdown
 ## ÉPICO X: Nome Descritivo
+**Status:** 📋 Critérios definidos
+
 **Objetivo:** [O que queremos alcançar com este épico. Foco no valor de negócio.]
 
 ### Funcionalidades:
 #### X.1 Nome da Funcionalidade
+- **Descrição:** [1-2 frases]
+- **Critérios de Aceite:**
+  - Deve [comportamento observável]
+  - Deve [comportamento observável]
+
 #### X.2 Nome da Funcionalidade
 [...]
 ```
 
-**Quando refinar?**
-- Em sessão dedicada de refinamento
-- Apenas quando épico se tornar prioritário
-- Considera estado técnico atual do sistema
+### Estado `✅ Detalhes definidos` — após segunda passada de refinamento:
+
+Todo o conteúdo do estado anterior, acrescido de uma seção de detalhes de execução para cada funcionalidade (resultado do checklist em `autonomous_readiness.md`):
+
+```markdown
+## ÉPICO X: Nome Descritivo
+**Status:** ✅ Detalhes definidos
+
+**Objetivo:** [...]
+
+### Funcionalidades:
+#### X.1 Nome da Funcionalidade
+- **Descrição:** [...]
+- **Critérios de Aceite:** [...]
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `<caminho/completo>`
+  - **Arquivos a modificar:** `<caminho/completo>`
+  - **Contratos/Shapes:** [estados compartilhados, inputs/outputs relevantes]
+  - **Integração:** [onde o código entra, como é carregado, como é invocado]
+  - **Template de referência:** [agente/componente análogo existente]
+  - **Acoplamentos verificados:** [imports, dependências; refatorações prévias se houver]
+  - **Dependências de ordem:** [funcionalidades/épicos que precisam vir antes]
+  - **Escopo de teste:** [unit / integration / validação manual]
+```
+
+**Quando fazer cada passada?** Ver seção "Três Estados de Refinamento" acima.
 
 ---
 
@@ -301,7 +358,9 @@ Processo: Fazer → Validar → Commit → Iterar
 
 ### Antes de Começar
 1. Verifique dúvidas ou decisões em aberto
-2. Confirme que a funcionalidade pertence a épico refinado
+2. Confirme o estado do épico no ROADMAP:
+   - **Fluxo manual via Cursor:** mínimo `📋 Critérios definidos`
+   - **Fluxo autônomo via Claude Code Web:** exige `✅ Detalhes definidos` (checklist `autonomous_readiness.md` aplicado)
 3. Alinhe o escopo com o usuário
 
 ### Durante Implementação
@@ -319,7 +378,8 @@ Processo: Fazer → Validar → Commit → Iterar
 - Falta de informação
 - Decisões arquiteturais abertas
 - Múltiplas abordagens possíveis
-- Épico não refinado
+- Épico em `⏳ Planejado` (exige primeira passada de refinamento)
+- Fluxo autônomo disparado sobre épico em `📋 Critérios definidos` (exige segunda passada via `autonomous_readiness.md`)
 
 ---
 
