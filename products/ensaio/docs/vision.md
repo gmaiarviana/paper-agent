@@ -1,7 +1,7 @@
 # Visão de Produto - Ensaio
 
 > **Nota:** Para filosofia universal do sistema, consulte `core/docs/vision/system_philosophy.md`.
-> Para arquitetura do super-sistema, consulte `core/docs/architecture/vision/super_system.md`.
+> Para arquitetura do super-sistema, consulte `core/docs/vision/super_system.md`.
 
 ## 1. Visão Geral do Produto Ensaio
 
@@ -114,7 +114,7 @@ Ensaio **não mantém campo `article_type`** nem enum fixo de tipos de artigo (e
 - **Sem schema de seções:** Introdução, Metodologia, Resultados, Discussão, one-pager... são resultados, não entradas. O Writer combina conforme o conteúdo pedir.
 - **Consequência:** o mesmo sistema serve artigo completo, one-pager ou variações híbridas sem código específico por formato.
 
-Decisão arquitetural registrada em `core/docs/architecture/agents/writer.md`.
+Decisão arquitetural registrada em `core/docs/agents/writer/design.md`.
 
 ## 6. Pendências como Entidade Central
 
@@ -221,8 +221,8 @@ Essas frentes entram em iterações posteriores, após validação do fluxo bás
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal
-- `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
-- `core/docs/architecture/agents/writer.md` - Decisões arquiteturais do Writer
+- `core/docs/vision/super_system.md` - Arquitetura do super-sistema
+- `core/docs/agents/writer/design.md` - Decisões arquiteturais do Writer
 - `core/docs/agents/overview.md` - Responsabilidades e dimensões do Escritor
 - `core/docs/architecture/data-models/ontology.md` - Entidades do core (inclui "Entidades em Incubação")
 - `docs/process/refinement/planning_guidelines.md` - Definições de POC / Protótipo / MVP

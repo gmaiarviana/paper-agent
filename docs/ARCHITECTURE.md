@@ -1,4 +1,4 @@
-# ARCHITECTURE.md
+# Arquitetura
 
 ## Visão Geral
 
@@ -60,7 +60,7 @@ Ver: `products/revelar/docs/interface/navigation_philosophy.md` para filosofia c
 
 ## Super-Sistema: Core → Produtos
 
-> **Nota:** Para arquitetura completa, consulte `core/docs/architecture/vision/super_system.md`.
+> **Nota:** Para arquitetura completa, consulte `core/docs/vision/super_system.md`.
 
 Paper-agent é primeira aplicação de um **super-sistema** com core universal:
 ```
@@ -105,7 +105,7 @@ Produtos são **serviços desacoplados** que consomem core via APIs.
 - EventBus para comunicação CLI ↔ Dashboard
 - MemoryManager para registro de metadados
 
-**Detalhes de fluxo:** Ver `core/docs/architecture/agents/multi_agent/`
+**Detalhes de fluxo:** Ver `core/docs/architecture/multi_agent/`
 
 ---
 
@@ -151,13 +151,13 @@ O sistema oferece **duas interfaces web** com propósitos distintos:
 
 Facilitador conversacional que mantém diálogo fluido, detecta necessidades, oferece opções ao usuário e adapta-se a mudanças de direção. Extrai e atualiza argumento focal a cada turno, provoca reflexão sobre lacunas e detecta emergência de novo estágio.
 
-**Detalhes:** Ver `core/docs/architecture/agents/orchestrator/conversational/README.md`
+**Detalhes:** Ver `core/docs/agents/orchestrator/conversational/README.md`
 
 ## Orquestrador Socrático
 
 Evolução do Orquestrador Conversacional que adiciona capacidade de exposição de suposições implícitas através de contra-perguntas socráticas. Detecta 5 categorias de assumptions (métrica vaga, população vaga, baseline ausente, causalidade assumida, generalização excessiva), escala profundidade de provocação em 3 níveis conforme resistência do usuário, e determina timing apropriado de provocação (quando provocar vs quando apenas explorar).
 
-**Detalhes:** Ver `core/docs/architecture/agents/orchestrator/socratic.md`
+**Detalhes:** Ver `core/docs/agents/orchestrator/socratic.md`
 
 **Relacionamento:** Socrático é extensão do Conversacional. Conversacional provê base de análise contextual e argumento focal; Socrático adiciona provocação estruturada sobre assumptions.
 
@@ -165,7 +165,7 @@ Evolução do Orquestrador Conversacional que adiciona capacidade de exposição
 
 MultiAgentState híbrido gerencia campos compartilhados (mensagens, argumento focal) e específicos por agente (estruturação, validação). Suporta versionamento de hipóteses (V1 → V2 → V3) e rastreamento de iterações de refinamento.
 
-**Detalhes:** Ver `core/docs/architecture/agents/multi_agent/`
+**Detalhes:** Ver `core/docs/architecture/multi_agent/`
 
 ## Modelo Cognitivo
 
@@ -369,10 +369,13 @@ paper-agent/
 ├── .env.example           # Template de variáveis de ambiente
 ├── requirements.txt       # Dependências Python
 ├── README.md              # Getting Started
-├── core/ROADMAP.md        # Épicos e melhorias do core
-└── products/revelar/ROADMAP.md  # Épicos e melhorias do Revelar
-├── ARCHITECTURE.md        # Visão arquitetural (este arquivo)
-├── docs/process/implementation/  # Regras para desenvolvimento com agentes
+├── docs/                  # Pack inicial e processo
+│   ├── CONSTITUTION.md    # Princípios e processo
+│   ├── ARCHITECTURE.md    # Visão arquitetural (este arquivo)
+│   ├── ROADMAP.md         # Épicos e melhorias do core
+│   ├── CONTEXT_INDEX.md   # Mapa código↔doc
+│   └── process/           # refinement/, implementation/, autonomous/
+├── products/revelar/ROADMAP.md  # Épicos e melhorias do Revelar
 │
 ├── core/                  # Core compartilhado
 │   ├── config/            # Configurações externas
@@ -517,12 +520,12 @@ paper-agent/
 ### Metodologista (`core/agents/methodologist/`)
 Agente especializado em avaliar rigor científico de hipóteses usando LangGraph. Opera em modo colaborativo: `approved`, `needs_refinement`, `rejected`.
 
-**Detalhes:** Ver `core/docs/agents/methodologist.md`
+**Detalhes:** Ver `core/docs/agents/methodologist/responsibilities.md`
 
 ### Orquestrador (`core/agents/orchestrator/`)
 Agente responsável por facilitar conversa e coordenar chamadas a agentes especializados. Facilitador conversacional que negocia caminho com usuário.
 
-**Detalhes:** Ver `core/docs/architecture/agents/orchestrator/conversational/README.md`
+**Detalhes:** Ver `core/docs/agents/orchestrator/conversational/README.md`
 
 ### Estruturador (`core/agents/structurer/`)
 Agente responsável por organizar ideias vagas e refinar questões de pesquisa baseado em feedback. Nó simples com 2 modos: estruturação inicial (V1) e refinamento (V2/V3).
@@ -546,7 +549,7 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 - **Claude Sonnet 4 usado pelo Metodologista:** Para confiabilidade de JSON estruturado
 - **Claude Haiku usado pelo Estruturador:** Custo-benefício para estruturação/refinamento
 - **Refinamento sob demanda:** Loop não é automático; usuário decide quando refinar baseado em feedback do Metodologista. Sem limite fixo de iterações
-- **Transição para conversação adaptativa:** Ver `core/docs/architecture/agents/orchestrator/conversational/` para padrões de conversa vs classificação
+- **Transição para conversação adaptativa:** Ver `core/docs/agents/orchestrator/conversational/` para padrões de conversa vs classificação
 - **EventBus para visualização:** CLI emite eventos consumidos por Dashboard Streamlit via arquivos JSON temporários
 - **Modo colaborativo:** Prefere `needs_refinement` ao invés de rejeitar diretamente (construir > criticar)
 
@@ -563,7 +566,7 @@ Três agentes core planejados para implementação futura: Researcher (busca web
 
 **Arquitetura:**
 - `core/docs/architecture/data-models/ontology.md` - Ontologia (Conceito/Ideia/Argumento)
-- `core/docs/architecture/vision/super_system.md` - Super-sistema: Core → Produtos
+- `core/docs/vision/super_system.md` - Super-sistema: Core → Produtos
 - `core/docs/architecture/data-models/idea_model.md` - Estrutura de dados Ideia
 - `core/docs/architecture/data-models/concept_model.md` - Estrutura de dados Conceito
 - `core/docs/architecture/data-models/argument_model.md` - Estrutura de dados Argumento
@@ -575,8 +578,8 @@ Três agentes core planejados para implementação futura: Researcher (busca web
 - `core/docs/vision/cognitive_model/` - Modelo cognitivo e evolução
 
 **Orquestração:**
-- `core/docs/architecture/agents/multi_agent/` - Arquitetura multi-agente
-- `core/docs/architecture/agents/orchestrator/conversational/` - Orquestrador conversacional
+- `core/docs/architecture/multi_agent/` - Arquitetura multi-agente
+- `core/docs/agents/orchestrator/conversational/` - Orquestrador conversacional
 
 **Produtos:**
 - `products/produtor-cientifico/docs/vision.md` - Produtor Científico (produto atual)
@@ -614,19 +617,19 @@ Três agentes core planejados para implementação futura: Researcher (busca web
 **Resultado:** Repositório limpo, cada ambiente tem seu próprio ChromaDB local
 
 ### Injeção de Contexto de Produto
-**Documentado:** `core/docs/architecture/vision/super_system.md` (seção "Injeção de Contexto de Produto")
+**Documentado:** `core/docs/vision/super_system.md` (seção "Injeção de Contexto de Produto")
 **Contexto:** Core precisa servir múltiplos produtos (Revelar, Ensaio, Prisma Verbal, Produtor Científico) sem virar acoplado a nenhum
 **Decisão:** Agentes do core aceitam foco/domínio via parametrização; core nunca conhece nomes de produtos nem carrega lógica condicional por produto
 **Resultado:** Novos produtos consomem agentes existentes sem modificá-los; desacoplamento do super-sistema preservado operacionalmente
 
 ### Writer Nasce no Core (Motivado pelo Ensaio)
-**Documentado:** `core/docs/architecture/agents/writer.md`
+**Documentado:** `core/docs/agents/writer/design.md`
 **Contexto:** Ensaio precisa gerar artigo técnico-científico; Produtor Científico precisará do mesmo agente no futuro
 **Decisão:** Writer é agente do core desde o início (não nasce no Ensaio para depois promover). V1 é nó simples (contexto → markdown), organizado para generalização futura
 **Resultado:** Evita custo de promoção posterior; Ensaio e Produtor Científico compartilham o mesmo agente por construção
 
 ### Estruturas de Artigo Vivem no Prompt do Writer
-**Documentado:** `core/docs/architecture/agents/writer.md`, `products/ensaio/docs/vision.md` (seção 8)
+**Documentado:** `core/docs/agents/writer/design.md` + `products/ensaio/docs/vision.md` (seção 8)
 **Contexto:** Tipos de artigo variam (empírico, revisão, one-pager, ...) e evoluem com o domínio
 **Decisão:** Base de conhecimento sobre estruturas comuns fica no prompt do Writer, não em enum ou schema. Writer decide seções com base na conversa. Ensaio especificamente **não** mantém campo `article_type`
 **Resultado:** Evolução da base = edição de prompt (não migração de dados); produtos que já usam `article_type` no `focal_argument` (Revelar, Produtor Científico) seguem independentes do Writer

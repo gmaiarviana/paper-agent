@@ -474,10 +474,10 @@ Comunicador:
 
 ## Referências
 
-- `core/docs/agents/orchestrator.md` - Quem coordena, não quem fala
+- `core/docs/agents/orchestrator/responsibilities.md` - Quem coordena, não quem fala
 - `core/docs/features/transparent_backstage.md` - Rastreamento de traduções
-- `ROADMAP.md` - Épico 18 (Personas)
-- `../architecture/vision/super_system.md` - Separação de responsabilidades
+- `docs/ROADMAP.md` - Épico 18 (Personas)
+- `../../vision/super_system.md` - Separação de responsabilidades
 
 ---
 

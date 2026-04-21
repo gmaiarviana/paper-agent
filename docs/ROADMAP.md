@@ -2,9 +2,9 @@
 
 Épicos e melhorias do sistema core que serve todos os produtos.
 
-> **📖 Status Atual:** Para entender o estado atual do core, consulte [ARCHITECTURE.md](../../ARCHITECTURE.md) e [core/docs/](../../core/docs/).
+> **📖 Status Atual:** Para entender o estado atual do core, consulte [ARCHITECTURE.md](ARCHITECTURE.md) e [core/docs/](../core/docs/).
 
-> **📖 Visão:** Para entender a filosofia do sistema, consulte [core/docs/vision/system_philosophy.md](docs/vision/system_philosophy.md).
+> **📖 Visão:** Para entender a filosofia do sistema, consulte [core/docs/vision/system_philosophy.md](../core/docs/vision/system_philosophy.md).
 
 ---
 
@@ -31,7 +31,7 @@
 
 ### ⏳ Épicos Motivados pelo Ensaio (não refinados)
 
-> **Nota:** Estes épicos são **motivados pelo produto Ensaio** (primeiro produto com necessidades além das do Revelar) mas **pertencem ao core** — serão reusados por outros produtos, especialmente Produtor Científico. O prefixo `C-ENSAIO-` identifica a motivação; o código fica no core e respeita o desacoplamento descrito em [core/docs/architecture/vision/super_system.md](docs/architecture/vision/super_system.md).
+> **Nota:** Estes épicos são **motivados pelo produto Ensaio** (primeiro produto com necessidades além das do Revelar) mas **pertencem ao core** — serão reusados por outros produtos, especialmente Produtor Científico. O prefixo `C-ENSAIO-` identifica a motivação; o código fica no core e respeita o desacoplamento descrito em [core/docs/vision/super_system.md](../core/docs/vision/super_system.md).
 
 #### ÉPICO C-ENSAIO-1: Parametrização de Contexto de Produto nos Agentes
 
@@ -39,7 +39,7 @@
 
 **Status:** ⏳ Planejado (não refinado)
 
-**Consulte:** [core/docs/architecture/vision/super_system.md](docs/architecture/vision/super_system.md) (seção "Injeção de Contexto de Produto")
+**Consulte:** [core/docs/vision/super_system.md](../core/docs/vision/super_system.md) (seção "Injeção de Contexto de Produto")
 
 ---
 
@@ -49,7 +49,7 @@
 
 **Status:** ✅ Refinado (pronto para implementação)
 
-**Decisões arquiteturais já tomadas:** ver [core/docs/architecture/agents/writer.md](docs/architecture/agents/writer.md)
+**Decisões arquiteturais já tomadas:** ver [core/docs/agents/writer/design.md](../core/docs/agents/writer/design.md)
 - Nasce no core (não no Ensaio)
 - Começa simples: nó que recebe contexto e devolve markdown
 - Estruturas de artigo vivem no prompt do Writer (não em enum/schema)
@@ -140,7 +140,7 @@
 - Terceiro produto com UI conversacional entrando no super-sistema, OU
 - Atrito concreto no import cross-produto atual (manutenção, testes, circularidade, etc.)
 
-**Consulte:** [core/docs/architecture/vision/super_system.md](docs/architecture/vision/super_system.md) (seção sobre componentes compartilhados entre produtos)
+**Consulte:** [core/docs/vision/super_system.md](../core/docs/vision/super_system.md) (seção sobre componentes compartilhados entre produtos)
 
 ---
 

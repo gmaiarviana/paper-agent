@@ -19,7 +19,7 @@ Modo de operação onde o dev **dispara uma funcionalidade pela manhã** via Cla
 ### Dev (Operador)
 **Pela manhã:**
 - ✅ Escolher funcionalidade do ROADMAP (épico refinado)
-- ✅ Disparar via `AUTONOMOUS_DISPATCH.md` em claude.ai/code
+- ✅ Disparar via `docs/process/autonomous/dispatch.md` em claude.ai/code
 - ✅ Garantir que branch alvo segue padrão `feature/X.Y-nome`
 
 **À noite (ao receber notificação):**
@@ -35,7 +35,7 @@ Modo de operação onde o dev **dispara uma funcionalidade pela manhã** via Cla
 ### Skills Automáticas (Gates)
 - **Planning Skill:** lê ROADMAP, quebra a funcionalidade em tarefas, esclarece dúvidas técnicas (consulta docs antes de assumir).
 - **QA Skill:** valida testes, sintaxe, imports, comportamento esperado.
-- **TL Skill:** valida arquitetura, padrões, aderência ao ROADMAP e a `ARCHITECTURE.md`.
+- **TL Skill:** valida arquitetura, padrões, aderência ao ROADMAP e a `docs/ARCHITECTURE.md`.
 - **PO Skill:** valida critérios de aceite contra o ROADMAP.
 - **Validation Skill:** prepara branch + comandos de validação para o dev.
 
@@ -88,4 +88,4 @@ Cada skill é um gate: se reprovar, devolve para a etapa anterior antes de avan�
 **Ver também:**
 - Fluxo detalhado das skills → [workflow.md](workflow.md)
 - Como disparar e validar → [delivery.md](delivery.md)
-- Template de dispatch → `AUTONOMOUS_DISPATCH.md` (raiz)
+- Template de dispatch → `docs/process/autonomous/dispatch.md`

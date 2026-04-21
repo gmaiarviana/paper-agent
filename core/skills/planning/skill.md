@@ -35,8 +35,8 @@ Falhou alguma? Devolva ao dev com motivo. Não prossiga.
 
 ### Passo 2 — Leitura de contexto
 Ler **obrigatoriamente:**
-- `CONSTITUTION.md`
-- `ARCHITECTURE.md`
+- `docs/CONSTITUTION.md`
+- `docs/ARCHITECTURE.md`
 - `docs/process/refinement/planning_guidelines.md`
 - ROADMAP indicado no dispatch
 - `docs/process/autonomous/workflow.md`
@@ -109,7 +109,7 @@ Criar `docs/process/current_implementation.md` no template abaixo.
 ```markdown
 # Implementação Atual: Funcionalidade X.Y - <nome>
 
-**Roadmap:** <core/ROADMAP.md | products/<produto>/ROADMAP.md>
+**Roadmap:** <docs/ROADMAP.md | products/<produto>/ROADMAP.md>
 **Branch:** feature/X.Y-nome
 **Modo:** Autônomo
 **Dispatch recebido em:** <YYYY-MM-DD>

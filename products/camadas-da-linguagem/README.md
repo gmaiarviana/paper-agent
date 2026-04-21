@@ -25,6 +25,6 @@ Revelar/Prisma Verbal → Camadas da Linguagem → Expressão
 
 - `products/camadas-da-linguagem/docs/vision.md` - Visão do Produto
 
-Para informações sobre o super-sistema, consulte `core/docs/architecture/vision/super_system.md`.
+Para informações sobre o super-sistema, consulte `core/docs/vision/super_system.md`.
 
 

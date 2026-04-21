@@ -43,5 +43,5 @@ Exemplo de processamento de texto filosófico/científico (Yuval Noah Harari)
 ## 🔗 Relacionados
 
 - [Core - Ontologia](../../../core/docs/architecture/data-models/ontology.md) - Conceito, Ideia, Argumento (compartilhado entre produtos)
-- [Core - Super Sistema](../../../core/docs/architecture/vision/super_system.md) - Como Prisma Verbal consome o core universal
+- [Core - Super Sistema](../../../core/docs/vision/super_system.md) - Como Prisma Verbal consome o core universal
 

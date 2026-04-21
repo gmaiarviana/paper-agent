@@ -17,7 +17,7 @@ Use este processo quando:
 
 ## 📋 Contexto Inicial
 
-Ver **REFINEMENT_STARTER.md** (raiz) para lista de arquivos essenciais.
+Ver **`docs/process/refinement/starter.md`** para lista de arquivos essenciais.
 
 ## 🔄 Fluxos Relacionados
 

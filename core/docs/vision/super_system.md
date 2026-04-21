@@ -127,7 +127,7 @@ Agente responsável por traduzir entre a linguagem natural do usuário e as oper
 - Testes de agentes do core não dependem de fixtures de produto.
 - Evolução de um produto não força mudança de código no core.
 
-Esse princípio é a forma operacional do desacoplamento descrito nesta visão. Exemplos concretos de aplicação em agentes específicos: ver `core/docs/architecture/agents/writer.md`.
+Esse princípio é a forma operacional do desacoplamento descrito nesta visão. Exemplos concretos de aplicação em agentes específicos: ver `core/docs/agents/writer/design.md`.
 
 ### Componentes de UI entre Produtos
 
@@ -139,7 +139,7 @@ Na prática, o caminho de promoção é gradual:
 2. Segundo produto reusa via import direto do primeiro produto. É acoplamento aceitável na fase inicial — a forma do componente ainda está sendo descoberta.
 3. Terceiro consumidor, ou atrito concreto no import cross-produto, é o gatilho para promover o componente para core/ui_components/ (nome a definir) e fazer todos os produtos consumirem do core.
 
-A promoção é decisão consciente, registrada como épico no core/ROADMAP.md (ver C-ENSAIO-6). Não é feita preventivamente.
+A promoção é decisão consciente, registrada como épico no docs/ROADMAP.md (ver C-ENSAIO-6). Não é feita preventivamente.
 
 O princípio de desacoplamento core ↔ produto continua valendo: o core não conhece produtos específicos, mesmo quando hospeda componentes que atendem a vários deles.
 

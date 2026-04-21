@@ -24,5 +24,5 @@ Camadas da Linguagem → Expressão → Conteúdo
 
 ---
 
-Para informações sobre o super-sistema, consulte `core/docs/architecture/vision/super_system.md`.
+Para informações sobre o super-sistema, consulte `core/docs/vision/super_system.md`.
 

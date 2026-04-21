@@ -22,7 +22,7 @@ Princípios não-negociáveis para trabalhar com este projeto.
 Dois modos coexistem; o dev escolhe por funcionalidade:
 
 - **Manual (Cursor):** dev acompanha cada checkpoint. Indicado para épicos novos, decisões arquiteturais ou trade-offs em aberto. Fluxo descrito nas seções 2-7 deste documento.
-- **Autônomo (Claude Code Web):** dev dispara pela manhã e valida à noite; skills automáticas (Planning → Dev → QA → TL → PO → Validation) atuam como gates no lugar das aprovações explícitas. Indicado para funcionalidades já refinadas e claras. Detalhes em `docs/process/autonomous/` e template em `AUTONOMOUS_DISPATCH.md` (raiz).
+- **Autônomo (Claude Code Web):** dev dispara pela manhã e valida à noite; skills automáticas (Planning → Dev → QA → TL → PO → Validation) atuam como gates no lugar das aprovações explícitas. Indicado para funcionalidades já refinadas e claras. Detalhes em `docs/process/autonomous/` e template em `docs/process/autonomous/dispatch.md`.
 
 Princípios, responsabilidades e anti-padrões deste documento valem para os dois modos.
 
@@ -86,7 +86,7 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 
 **1. Análise Contextual**
 - Consultar `products/<produto>/docs/vision.md` (expectativas do produto em refinamento)
-- Consultar ROADMAP.md do produto + `core/ROADMAP.md` (épicos anteriores, padrões)
+- Consultar ROADMAP.md do produto + `docs/ROADMAP.md` (épicos anteriores, padrões)
 - Consultar `docs/process/refinement/planning_guidelines.md` (processo)
 - Consultar docs técnicas via `docs/CONTEXT_INDEX.md` (se necessário)
 - Identificar onde comportamento está documentado (OU pedir pra ver)
@@ -114,9 +114,9 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 ### Output Esperado (Claude web gera)
 PROMPT 1: ROADMAP.md
 [instruções enxutas pro Cursor]
-PROMPT 2: core/docs/architecture/agents/orchestrator/conversational/README.md
+PROMPT 2: core/docs/agents/orchestrator/conversational/README.md
 [instruções enxutas pro Cursor]
-PROMPT 3: ARCHITECTURE.md
+PROMPT 3: docs/ARCHITECTURE.md
 [instruções enxutas pro Cursor]
 
 ---
@@ -150,7 +150,7 @@ Mapa único vive em `docs/CONTEXT_INDEX.md` (já no pack inicial):
 - **Por tema** → seções `## TEMA: ...` com "Solicitar quando..." em cada uma.
 - **Resumo rápido** → tabela `🎯 MAPA RÁPIDO DE DECISÃO` no fim do arquivo.
 
-Ao refinar: identifique o tema relevante no CONTEXT_INDEX e peça os paths listados ali. Para os arquivos-alvo de prompts (onde escrever), ver também ROADMAP do produto + ARCHITECTURE.md.
+Ao refinar: identifique o tema relevante no CONTEXT_INDEX e peça os paths listados ali. Para os arquivos-alvo de prompts (onde escrever), ver também ROADMAP do produto + `docs/ARCHITECTURE.md`.
 
 ---
 
@@ -182,17 +182,17 @@ Ao refinar: identifique o tema relevante no CONTEXT_INDEX e peça os paths lista
 
 ### Contexto Inicial Padronizado
 
-**Ver REFINEMENT_STARTER.md (raiz) para lista autoritativa.**
+**Ver `docs/process/refinement/starter.md` para lista autoritativa.**
 
 Resumo: 4 arquivos genéricos + 2 específicos do produto = 6 arquivos total.
 
-**Como enviar:** Conforme produto que está refinando, arraste os 6 arquivos listados no REFINEMENT_STARTER.md.
+**Como enviar:** Conforme produto que está refinando, arraste os 6 arquivos listados no starter.
 
 ### Processo de Refinamento
 
-- **Processo completo:** `docs/process/refinement/planning_guidelines.md` (movido da raiz)
+- **Processo completo:** `docs/process/refinement/planning_guidelines.md`
 - **Visão geral:** `docs/process/refinement/overview.md`
-- **Starter pack:** `REFINEMENT_STARTER.md` (raiz)
+- **Starter pack:** `docs/process/refinement/starter.md`
 
 ### Consultados Sob Demanda
 
@@ -206,30 +206,37 @@ Tudo fora do pack inicial — specs técnicas, filosofia, interface, processo, t
 
 ```
 paper-agent/
-├── CONSTITUTION.md                  # 🔴 ESSENCIAL - Princípios e processo (este arquivo)
-├── ARCHITECTURE.md                  # 🔴 ESSENCIAL - Decisões técnicas consolidadas
-├── REFINEMENT_STARTER.md            # 🔴 ESSENCIAL - Lista autoritativa do pack de contexto
-├── AUTONOMOUS_DISPATCH.md           # Template de disparo autônomo (Claude Code Web)
 ├── README.md                        # 🟢 USUÁRIOS - Setup básico
+│
+├── docs/                            # 🟢 PACK INICIAL do Claude Web (tudo o que se carrega antes)
+│   ├── CONSTITUTION.md              # 🔴 ESSENCIAL - Princípios e processo (este arquivo)
+│   ├── ARCHITECTURE.md              # 🔴 ESSENCIAL - Decisões técnicas consolidadas
+│   ├── ROADMAP.md                   # 🔴 ESSENCIAL - Épicos do core
+│   ├── CONTEXT_INDEX.md             # 🔴 ESSENCIAL - Mapa temático código↔doc
+│   ├── backlog.md, maturity_checklist.md
+│   ├── analysis/                    # Análises meta (débitos técnicos, otimização)
+│   ├── process/
+│   │   ├── refinement/              # Processo de refinement + starter.md
+│   │   ├── implementation/          # Processo de implementação manual
+│   │   └── autonomous/              # Fluxo autônomo + dispatch.md
+│   └── testing/                     # Estratégia, estrutura, comandos de teste
 │
 ├── core/                            # Sistema universal compartilhado
 │   ├── README.md                    # Visão do core
-│   ├── ROADMAP.md                   # 🔴 ESSENCIAL - Épicos do core
 │   ├── agents/                      # Código dos agentes (orchestrator, methodologist, observer, structurer, memory, database, persistence, checklist, models)
 │   ├── prompts/                     # Prompts por agente
 │   ├── config/agents/*.yaml         # Config externa por agente
 │   ├── skills/                      # Skills PO/QA/TL/Planning/Validation (modo autônomo)
 │   ├── tools/cli/                   # CLI conversacional
 │   ├── utils/                       # EventBus, cost_tracker, json_parser, config (circuit breaker)
-│   └── docs/
-│       ├── vision/                  # Filosofia (system_philosophy, epistemology, cognitive_model, ...)
-│       ├── agents/                  # Responsabilidades dos agentes (overview, orchestrator, methodologist, observer, researcher, memory_agent, communicator)
+│   └── docs/                        # 🟡 DETALHE SOB DEMANDA (carregado conforme tema)
+│       ├── vision/                  # Filosofia + super_system (cognitive_model, epistemology, ...)
+│       ├── agents/                  # Pasta por agente (responsibilities.md + design.md/architecture.md)
 │       ├── architecture/
-│       │   ├── agents/              # Design técnico (multi_agent/, orchestrator/, observer/, writer.md)
+│       │   ├── multi_agent/         # Super-grafo (state, graph, nodes, flows, config, prompts, evolution)
 │       │   ├── data-models/         # Ontologia, idea/concept/argument, persistence
 │       │   ├── patterns/            # refinement.md, snapshots.md
-│       │   ├── infrastructure/      # tech_stack.md, config_system.md (memória/YAML)
-│       │   └── vision/              # super_system.md
+│       │   └── infrastructure/      # tech_stack.md, config_system.md (memória/YAML)
 │       ├── tools/                   # cli.md, conversational_cli.md
 │       ├── features/                # transparent_backstage.md
 │       └── examples/                # Exemplos práticos

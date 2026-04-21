@@ -22,7 +22,7 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 
 **Deve:**
 - ✅ Ler ROADMAP (core ou produto) e localizar funcionalidade X.Y
-- ✅ Ler ARCHITECTURE.md e docs técnicas relevantes (via `docs/CONTEXT_INDEX.md`)
+- ✅ Ler `docs/ARCHITECTURE.md` e docs técnicas relevantes (via `docs/CONTEXT_INDEX.md`)
 - ✅ Quebrar a funcionalidade em tarefas ordenadas por dependência
 - ✅ Identificar dúvidas técnicas e **resolvê-las consultando docs antes de assumir**
 - ✅ Documentar plano em `docs/process/current_implementation.md` (mesmo arquivo do fluxo manual)
@@ -83,7 +83,7 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 **Objetivo:** validar arquitetura, padrões e aderência ao ROADMAP técnico.
 
 **Deve verificar:**
-- ✅ Implementação alinhada com `ARCHITECTURE.md`
+- ✅ Implementação alinhada com `docs/ARCHITECTURE.md`
 - ✅ Padrões dos agentes/módulos similares preservados
 - ✅ Sem duplicação de informação entre docs (ver `.claudecode.md` e CONSTITUTION §6)
 - ✅ Estrutura de pastas e nomenclatura coerente com convenções existentes

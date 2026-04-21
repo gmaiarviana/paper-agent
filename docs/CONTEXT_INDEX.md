@@ -6,12 +6,12 @@
 
 ## 🟢 CONTEXTO OBRIGATÓRIO (Sempre Enviar)
 
-### Contexto Padronizado (Ver REFINEMENT_STARTER.md)
+### Contexto Padronizado (Ver docs/process/refinement/starter.md)
 
 **Genéricos (4):**
-- `CONSTITUTION.md` - Princípios, responsabilidades, processo
-- `ARCHITECTURE.md` - Decisões técnicas consolidadas
-- `core/ROADMAP.md` - Épicos e melhorias do core
+- `docs/CONSTITUTION.md` - Princípios, responsabilidades, processo
+- `docs/ARCHITECTURE.md` - Decisões técnicas consolidadas
+- `docs/ROADMAP.md` - Épicos e melhorias do core
 - `docs/CONTEXT_INDEX.md` - **Este arquivo** (mapa temático código↔doc)
 
 **Específicos do produto em refinamento (2):**
@@ -36,9 +36,9 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `core/agents/orchestrator/state.py` - MultiAgentState (schema completo)
 
 **Documentação:**
-- `core/docs/architecture/agents/multi_agent/` - **FONTE ÚNICA DA VERDADE** para fluxo e estado (state.md, graph.md, nodes.md, flows.md, config.md, prompts.md, evolution.md)
-- `core/docs/architecture/agents/orchestrator/conversational/` - Orquestrador conversacional
-- `core/docs/architecture/agents/orchestrator/socratic.md` - Orquestrador socrático
+- `core/docs/architecture/multi_agent/` - **FONTE ÚNICA DA VERDADE** para fluxo e estado (state.md, graph.md, nodes.md, flows.md, config.md, prompts.md, evolution.md)
+- `core/docs/agents/orchestrator/conversational/` - Orquestrador conversacional
+- `core/docs/agents/orchestrator/socratic.md` - Orquestrador socrático
 - `core/docs/architecture/patterns/refinement.md` - Loop de refinamento
 
 **Solicitar quando:**
@@ -51,10 +51,11 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 
 ### TEMA: Agentes Específicos
 
-> **Regra de navegação entre os dois diretórios "agents":**
-> - **`core/docs/agents/`** = **responsabilidades** (quem faz o quê, PODE/NÃO PODE, input/output). **Leitura primária** ao discutir comportamento de um agente.
-> - **`core/docs/architecture/agents/`** = **design técnico** (como o agente se encaixa no grafo, estado, prompts, fluxos). Leitura quando for mexer na implementação.
-> Em caso de conflito, `core/docs/agents/` descreve a intenção; `core/docs/architecture/agents/` descreve o como.
+> **Organização:** Cada agente tem uma pasta própria em `core/docs/agents/<nome>/` contendo:
+> - `responsibilities.md` — **quem faz o quê**, PODE/NÃO PODE, input/output (leitura primária ao discutir comportamento).
+> - `architecture.md` ou `design.md` — **como** o agente se encaixa no grafo, estado, prompts, fluxos (leitura para implementação).
+>
+> O super-grafo (orquestração de todos os agentes) vive em `core/docs/architecture/multi_agent/`.
 
 **Código:**
 - `core/agents/methodologist/` - Metodologista (graph, nodes, router, state, tools, wrapper)
@@ -62,19 +63,17 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `core/agents/observer/` - Observador
 - `core/agents/models/cognitive_model.py` - Modelos Pydantic (CognitiveModel, Contradiction, SolidGround)
 
-**Documentação — responsabilidades (`core/docs/agents/`):**
+**Documentação — por agente (`core/docs/agents/<nome>/`):**
 - `core/docs/agents/overview.md` - Visão geral de todos os agentes (responsabilidades, PODE/NÃO PODE, dimensões)
-- `core/docs/agents/methodologist.md`, `methodologist_knowledge.md` - Metodologista
-- `core/docs/agents/orchestrator.md` - Orquestrador
-- `core/docs/agents/observer.md` - Observador
-- `core/docs/agents/researcher.md` - Pesquisador (futuro)
-- `core/docs/agents/memory_agent.md`, `communicator.md` - Demais agentes planejados
+- `core/docs/agents/methodologist/responsibilities.md`, `knowledge.md` - Metodologista
+- `core/docs/agents/orchestrator/responsibilities.md`, `socratic.md`, `conversational/` - Orquestrador
+- `core/docs/agents/observer/responsibilities.md`, `architecture.md` - Observador
+- `core/docs/agents/writer/design.md` - Writer (motivado pelo Ensaio, compartilhado com Produtor Científico)
+- `core/docs/agents/researcher/responsibilities.md` - Pesquisador (futuro)
+- `core/docs/agents/memory_agent/responsibilities.md`, `communicator/responsibilities.md` - Demais agentes planejados
 
-**Documentação — design técnico (`core/docs/architecture/agents/`):**
-- `core/docs/architecture/agents/multi_agent/` - Super-grafo, estado, nós, fluxos
-- `core/docs/architecture/agents/orchestrator/conversational/`, `socratic.md` - Orquestrador
-- `core/docs/architecture/agents/observer/architecture.md` - Observador
-- `core/docs/architecture/agents/writer.md` - Writer (motivado pelo Ensaio, compartilhado com Produtor Científico)
+**Documentação — super-grafo e padrões transversais:**
+- `core/docs/architecture/multi_agent/` - Super-grafo, estado, nós, fluxos
 - `core/docs/architecture/patterns/refinement.md` - **Estruturador documentado aqui** (processamento de feedback, lógica de refinamento)
 
 **Solicitar quando:**
@@ -104,7 +103,7 @@ Cada tema pode ser solicitado independentemente, sem ordem fixa.
 - `core/docs/architecture/data-models/persistence.md` - Estratégia de persistência
 - `core/docs/architecture/patterns/snapshots.md` - Estratégia de snapshots
 - `core/docs/architecture/infrastructure/tech_stack.md` - Stack técnico (SQLite, ChromaDB)
-- `core/docs/architecture/vision/super_system.md` - Super-sistema
+- `core/docs/vision/super_system.md` - Super-sistema
 
 **Solicitar quando:**
 - Modificar modelos de dados
@@ -191,7 +190,7 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
 
 **Documentação:**
 - `core/docs/architecture/infrastructure/config_system.md` - **Sistema de configuração e memória** (YAML, loader, validator, memory_manager, execution_tracker)
-- `ARCHITECTURE.md` - Menciona sistema de configuração (seção "Configuração Externa de Agentes")
+- `docs/ARCHITECTURE.md` - Menciona sistema de configuração (seção "Configuração Externa de Agentes")
 
 **Solicitar quando:**
 - Modificar configuração de agentes
@@ -261,7 +260,7 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
 ### TEMA: Produtos (Super-Sistema)
 
 **Visão do super-sistema:**
-- `core/docs/architecture/vision/super_system.md` - Como core e produtos se relacionam (desacoplamento, injeção de contexto de produto)
+- `core/docs/vision/super_system.md` - Como core e produtos se relacionam (desacoplamento, injeção de contexto de produto)
 
 **Produto atual:**
 - `products/revelar/README.md`, `ROADMAP.md`, `docs/vision.md`, `docs/interface/`, `docs/ux/`, `docs/use_cases.md`

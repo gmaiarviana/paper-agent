@@ -2,7 +2,7 @@
 
 Épicos e melhorias do produto Revelar (chat para clareza de pensamento).
 
-> **📖 Status Atual:** Para entender o estado atual do Revelar, consulte [ARCHITECTURE.md](../../ARCHITECTURE.md) e [products/revelar/docs/](docs/).
+> **📖 Status Atual:** Para entender o estado atual do Revelar, consulte [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) e [products/revelar/docs/](docs/).
 
 > **📖 Visão:** Para entender a visão do produto, consulte [products/revelar/docs/vision.md](docs/vision.md).
 

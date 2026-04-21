@@ -8,9 +8,9 @@ O Claude Web não tem acesso ao repositório. Esse pack dá a ele o mínimo nece
 
 ### Genéricos (sempre) — 4 arquivos
 
-1. **`CONSTITUTION.md`** — Princípios, responsabilidades, processo, mapa de decisão, estrutura do projeto.
-2. **`ARCHITECTURE.md`** — Estado técnico atual consolidado.
-3. **`core/ROADMAP.md`** — Épicos e melhorias do core compartilhado (inclui épicos motivados por produtos — prefixo `C-<PRODUTO>-`).
+1. **`docs/CONSTITUTION.md`** — Princípios, responsabilidades, processo, mapa de decisão, estrutura do projeto.
+2. **`docs/ARCHITECTURE.md`** — Estado técnico atual consolidado.
+3. **`docs/ROADMAP.md`** — Épicos e melhorias do core compartilhado (inclui épicos motivados por produtos — prefixo `C-<PRODUTO>-`).
 4. **`docs/CONTEXT_INDEX.md`** — **Mapa temático código↔doc.** Claude Web usa para saber **onde** pedir cada doc adicional (orquestração, agentes, dados, interface, config, testes etc.).
 
 ### Específicos do produto em refinamento — 2 arquivos

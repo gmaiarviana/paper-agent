@@ -26,7 +26,7 @@ Prisma Verbal (extração de textos)
 
 **Filosofia Central:** Sistema não julga verdade, mapeia sustentação. Proposições têm solidez (não são "verdadeiras" ou "falsas"). Pesquisa fortalece/enfraquece, não valida/refuta.
 
-> Para detalhes completos: `core/docs/vision/system_philosophy.md` e `core/docs/architecture/vision/super_system.md`
+> Para detalhes completos: `core/docs/vision/system_philosophy.md` e `core/docs/vision/super_system.md`
 
 Pré-requisitos
 --------------
@@ -187,17 +187,18 @@ Documentação
 
 ### Estrutura Geral
 
-- **Raiz**: Processo e visão geral
-  - `core/ROADMAP.md` - Épicos e melhorias do core
-  - `CONSTITUTION.md` - Princípios e processo de trabalho
-  - `ARCHITECTURE.md` - Decisões arquiteturais
+- **`docs/`**: Pack inicial (Claude Web carrega antes de qualquer pedido)
+  - `docs/CONSTITUTION.md` - Princípios e processo de trabalho
+  - `docs/ARCHITECTURE.md` - Decisões arquiteturais consolidadas
+  - `docs/ROADMAP.md` - Épicos e melhorias do core
+  - `docs/CONTEXT_INDEX.md` - Mapa temático código↔doc
+  - `docs/process/` - refinement, implementation, autonomous
 
-- **Core**: Sistema universal
+- **`core/`**: Sistema universal
   - `core/README.md` - Visão geral do core
-  - `products/revelar/ROADMAP.md` - Épicos e melhorias do Revelar
-  - `core/docs/vision/` - Filosofia e princípios
-  - `core/docs/architecture/` - Estrutura técnica
-  - `core/docs/agents/` - Especificações dos agentes
+  - `core/docs/vision/` - Filosofia e super-sistema
+  - `core/docs/architecture/` - Data models, multi-agent, patterns, infrastructure
+  - `core/docs/agents/` - Pasta por agente (responsibilities + design)
 
 - **Produtos**: Aplicações específicas
   - `products/revelar/` - Chat para clareza de pensamento (atual)
@@ -213,16 +214,16 @@ Documentação
 - **Modelo Cognitivo**: `core/docs/vision/cognitive_model/`
 - **Conversação**: `core/docs/vision/conversation_mechanics.md`
 - **Ontologia**: `core/docs/architecture/data-models/ontology.md`
-- **Super-Sistema**: `core/docs/architecture/vision/super_system.md`
+- **Super-Sistema**: `core/docs/vision/super_system.md`
 
 ### Para AI Agents (Claude, Cursor, Claude Code)
 
-Consulte os documentos essenciais na raiz:
-- **CONSTITUTION.md** - Princípios e processo de trabalho
-- **core/ROADMAP.md** - Épicos e melhorias do core
+Consulte os documentos essenciais em `docs/`:
+- **docs/CONSTITUTION.md** - Princípios e processo de trabalho
+- **docs/ROADMAP.md** - Épicos e melhorias do core
 - **products/revelar/ROADMAP.md** - Épicos e melhorias do Revelar
-- **ARCHITECTURE.md** - Decisões técnicas
+- **docs/ARCHITECTURE.md** - Decisões técnicas
 - **docs/process/refinement/planning_guidelines.md** - Processo de refinamento
 
-Ver mapa completo de documentação em CONSTITUTION.md.
+Ver mapa completo de documentação em `docs/CONTEXT_INDEX.md` e `docs/CONSTITUTION.md`.
 

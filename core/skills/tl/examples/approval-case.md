@@ -39,7 +39,7 @@ core/docs/architecture/patterns/snapshots.md    | +18 -2
 
 ### 3.4 Documentação Estrutural
 - ✅ `core/docs/architecture/patterns/snapshots.md` atualizado: nova seção "Detecção de Maturidade" (8 linhas)
-- ✅ ARCHITECTURE.md não precisava atualização (decisão já consta lá em alto nível)
+- ✅ docs/ARCHITECTURE.md não precisava atualização (decisão já consta lá em alto nível)
 
 ### 3.5 Anti-duplicação
 - ✅ Spec da heurística vive **só** em `snapshots.md`; CRUD documentado **só** em docstring + `data-models/persistence.md` (referência)
@@ -72,5 +72,5 @@ Próximo gate: PO.
 ## O QUE ESTE EXEMPLO ENSINA
 
 - ✅ **Aprovação não é silêncio.** Mesmo aprovando, a TL Skill deixa rastro: o que foi verificado e qual padrão foi seguido.
-- ✅ **Comparar com análogo é o caminho mais barato.** Não precisou abrir `ARCHITECTURE.md` inteiro — bastou comparar com `snapshot_manager.py`.
+- ✅ **Comparar com análogo é o caminho mais barato.** Não precisou abrir `docs/ARCHITECTURE.md` inteiro — bastou comparar com `snapshot_manager.py`.
 - ✅ **Documentação atualizada conta como aderência.** A entrega não é só código; doc estrutural faz parte do padrão.

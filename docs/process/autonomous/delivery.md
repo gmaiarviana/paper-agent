@@ -11,7 +11,7 @@
 ### Passos
 1. **Escolher funcionalidade:** abrir ROADMAP (core ou produto) e identificar `X.Y` (épico refinado).
 2. **Abrir Claude Code Web:** [claude.ai/code](https://claude.ai/code) no repositório `paper-agent`.
-3. **Preencher dispatch:** copiar `AUTONOMOUS_DISPATCH.md` (raiz) e substituir placeholders:
+3. **Preencher dispatch:** copiar `docs/process/autonomous/dispatch.md` e substituir placeholders:
    - `[Funcionalidade X.Y]` → identificador real (ex: `11.3`)
    - `feature/X.Y-nome` → nome real da branch (ex: `feature/11.3-snapshot-detection`)
 4. **Disparar:** enviar o prompt e fechar a sessão. As skills assumem dali pra frente.
@@ -122,5 +122,5 @@ Esses inputs alimentam refinamentos futuros das skills e dos guidelines.
 **Ver também:**
 - Visão geral do modo autônomo → [overview.md](overview.md)
 - Detalhe das skills (Planning/QA/TL/PO/Validation) → [workflow.md](workflow.md)
-- Template de dispatch → `AUTONOMOUS_DISPATCH.md` (raiz)
+- Template de dispatch → `docs/process/autonomous/dispatch.md`
 - Mensagem final padrão (compartilhada com fluxo manual) → [development/delivery.md](../development/delivery.md)

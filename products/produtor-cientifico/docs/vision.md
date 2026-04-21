@@ -294,7 +294,7 @@ Produtor Científico é especialização de Expressão:
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal
-- `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
+- `core/docs/vision/super_system.md` - Arquitetura do super-sistema
 - `products/camadas-da-linguagem/docs/vision.md` - Produto anterior no pipeline
 - `products/expressao/docs/vision.md` - Produto base (Produtor Científico é especialização)
 - `products/revelar/docs/vision.md` - Produto de clareza (etapa anterior)

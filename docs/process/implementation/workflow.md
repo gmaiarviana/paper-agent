@@ -5,10 +5,10 @@
 Quando dev solicitar épico:
 
 1. **Ler contexto obrigatório:**
-   - ROADMAP.md (descrição do épico e funcionalidades)
+   - ROADMAP.md (descrição do épico e funcionalidades — `docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`)
    - README.md (execução e escopo)
-   - ARCHITECTURE.md (estrutura técnica)
-   - docs/agents/overview.md (se envolver novos agentes)
+   - docs/ARCHITECTURE.md (estrutura técnica)
+   - core/docs/agents/overview.md (se envolver novos agentes)
    - ../refinement/planning_guidelines.md (dependências/ordem)
    - Código relacionado (para entender impacto)
 

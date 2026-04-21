@@ -4,7 +4,7 @@
 
 > **📖 Visão:** Para entender a visão do produto, consulte [products/ensaio/docs/vision.md](docs/vision.md).
 
-> **📖 Status Atual:** Para entender o estado técnico do sistema, consulte [ARCHITECTURE.md](../../ARCHITECTURE.md).
+> **📖 Status Atual:** Para entender o estado técnico do sistema, consulte [ARCHITECTURE.md](../../docs/ARCHITECTURE.md).
 
 ---
 
@@ -22,12 +22,12 @@ Decisões de stack, UX e robustez são proporcionais ao estágio. Calibração i
 
 ## 🔗 Dependências do Core
 
-Alguns épicos do Ensaio dependem de épicos do core. Ver [core/ROADMAP.md](../../core/ROADMAP.md):
+Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../../docs/ROADMAP.md):
 
 - **Writer** (core C-ENSAIO-2): necessário desde a POC do Ensaio. Primeiro agente core motivado pelo Ensaio.
 - **Ingestão de arquivos anexados** (core C-ENSAIO-4): necessário para o MVP do Ensaio.
 - **Writer por seção** (core C-ENSAIO-3): necessário para o Protótipo (rascunho progressivo).
-- **Parametrização de contexto de produto**: padrão pelo qual agentes do core recebem foco/domínio sem conhecer o produto consumidor (ver [core/docs/architecture/vision/super_system.md](../../core/docs/architecture/vision/super_system.md), seção "Injeção de Contexto de Produto").
+- **Parametrização de contexto de produto**: padrão pelo qual agentes do core recebem foco/domínio sem conhecer o produto consumidor (ver [core/docs/vision/super_system.md](../../core/docs/vision/super_system.md), seção "Injeção de Contexto de Produto").
 
 ---
 
@@ -105,7 +105,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [core/ROADMAP.md](../.
 **Status:** ✅ Refinado (pronto para implementação)
 
 **Dependências:**
-- Padrão de injeção de contexto (ver core/docs/architecture/vision/super_system.md)
+- Padrão de injeção de contexto (ver core/docs/vision/super_system.md)
 
 ### Funcionalidades:
 
@@ -154,7 +154,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [core/ROADMAP.md](../.
 **Status:** ✅ Refinado (pronto para implementação)
 
 **Dependências:**
-- Core [C-ENSAIO-2](../../core/ROADMAP.md) (Writer versão inicial)
+- Core [C-ENSAIO-2](../../docs/ROADMAP.md) (Writer versão inicial)
 - [E-POC-1](#épico-e-poc-1-app-streamlit-mínimo-do-ensaio) (App Streamlit mínimo do Ensaio)
 - [E-POC-2](#épico-e-poc-2-configuração-de-contexto-de-produto-para-agentes-do-core) (Configuração de contexto de produto)
 
@@ -310,8 +310,8 @@ Backlog sem compromisso. Entram em planejamento quando fizer sentido, geralmente
 ## 📚 Documentação
 
 - `products/ensaio/docs/vision.md` - Visão do produto
-- `core/docs/architecture/agents/writer.md` - Decisões arquiteturais do Writer
-- `core/docs/architecture/vision/super_system.md` - Desacoplamento core ↔ produto
+- `core/docs/agents/writer/design.md` - Decisões arquiteturais do Writer
+- `core/docs/vision/super_system.md` - Desacoplamento core ↔ produto
 
 ---
 

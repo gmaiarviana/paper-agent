@@ -52,8 +52,8 @@ Example:
     0.8
 
 See Also:
-    - docs/agents/observer.md - Documentacao completa
-    - core/docs/architecture/agents/observer/architecture.md - Arquitetura tecnica
+    - core/docs/agents/observer/responsibilities.md - Documentacao completa
+    - core/docs/agents/observer/architecture.md - Arquitetura tecnica
     - core/docs/architecture/data-models/ontology.md - CognitiveModel e Conceitos
 """
 
