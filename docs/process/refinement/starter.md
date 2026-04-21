@@ -29,6 +29,26 @@ O Claude Web não tem acesso ao repositório. Esse pack dá a ele o mínimo nece
 | Expressão (futuro) | — | `products/expressao/docs/vision.md` |
 | Produtor Científico (futuro) | `products/produtor-cientifico/ROADMAP.md` | `products/produtor-cientifico/docs/vision.md` |
 
+## 🔁 Duas Passadas de Refinamento
+
+O refinamento de um mesmo épico pode acontecer em até duas passadas. Cada passada consome este pack inicial, mas responde a uma pergunta diferente e produz um estado diferente no ROADMAP.
+
+### 1ª passada — até `📋 Critérios definidos`
+
+- **Pergunta:** isso faz sentido e gera valor?
+- **Produto:** funcionalidades delimitadas, critérios de aceite observáveis, trade-offs discutidos.
+- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos acima.
+- **Quando acontece:** quando o épico se torna prioritário.
+- **Estado resultante do épico:** `📋 Critérios definidos` — apto ao fluxo manual via Cursor.
+
+### 2ª passada — até `✅ Detalhes definidos`
+
+- **Pergunta:** um agente sem contexto do problema consegue executar isto sem inventar?
+- **Produto:** arquivos-alvo com caminho completo, contratos/shapes, mecanismo de integração, acoplamentos verificados, escopo de testes.
+- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos + inspeção de código relevante (via Cursor, ou como trechos específicos pedidos ao Claude Web) + checklist em [`docs/process/refinement/autonomous_readiness.md`](autonomous_readiness.md).
+- **Quando acontece:** sob demanda, pouco antes de disparar o fluxo autônomo para o épico específico. Aplicar preventivamente em todos os épicos é desperdício — o trabalho perde-se se o épico for repriorizado.
+- **Estado resultante do épico:** `✅ Detalhes definidos` — apto ao fluxo autônomo via Claude Code Web ([`docs/process/autonomous/dispatch.md`](../autonomous/dispatch.md)).
+
 ## 📚 Documentos Consultados Sob Demanda
 
 Tudo que não está no pack inicial está mapeado em `docs/CONTEXT_INDEX.md` — que já está no pack. Durante o refinamento, Claude Web identifica o tema relevante no CONTEXT_INDEX (seção `## TEMA: ...` ou tabela `🎯 MAPA RÁPIDO DE DECISÃO`) e pede os paths listados ali.
