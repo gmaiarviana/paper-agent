@@ -2,14 +2,14 @@
 
 > **📌 Localização:** `docs/process/autonomous/`
 > **📌 Público:** Dev (operador do modo autônomo).
-> **📌 Pré-requisito:** funcionalidade pertence a épico refinado no ROADMAP.
+> **📌 Pré-requisito:** funcionalidade pertence a épico em `✅ Detalhes definidos` no ROADMAP (checklist `docs/process/refinement/autonomous_readiness.md` aplicado).
 
 ---
 
 ## 1. COMO DISPARAR (PELA MANHÃ)
 
 ### Passos
-1. **Escolher funcionalidade:** abrir ROADMAP (core ou produto) e identificar `X.Y` (épico refinado).
+1. **Escolher funcionalidade:** abrir ROADMAP (core ou produto) e identificar `X.Y` em épico `✅ Detalhes definidos`.
 2. **Abrir Claude Code Web:** [claude.ai/code](https://claude.ai/code) no repositório `paper-agent`.
 3. **Preencher dispatch:** copiar `docs/process/autonomous/dispatch.md` e substituir placeholders:
    - `[Funcionalidade X.Y]` → identificador real (ex: `11.3`)

@@ -10,13 +10,13 @@
 
 ## 📋 Épicos Planejados
 
-### ⏳ Épicos Planejados (não refinados)
+### ⏳ Épicos Planejados
 
 #### ÉPICO 1: Pesquisador
 
 **Objetivo:** Agente para busca e síntese de literatura científica. Introduz Evidência como entidade prática.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ⏳ Planejado
 
 **Dependências:**
 - Revelar ÉPICO 2 (Catálogo de Conceitos)
@@ -29,7 +29,7 @@
 
 ---
 
-### ⏳ Épicos Motivados pelo Ensaio (não refinados)
+### ⏳ Épicos Motivados pelo Ensaio
 
 > **Nota:** Estes épicos são **motivados pelo produto Ensaio** (primeiro produto com necessidades além das do Revelar) mas **pertencem ao core** — serão reusados por outros produtos, especialmente Produtor Científico. O prefixo `C-ENSAIO-` identifica a motivação; o código fica no core e respeita o desacoplamento descrito em [core/docs/vision/super_system.md](../core/docs/vision/super_system.md).
 
@@ -37,7 +37,7 @@
 
 **Objetivo:** Agentes do core (Orquestrador e futuros) aceitam foco/domínio passado por produtos externos sem que o core conheça os produtos. Mecanismo de configuração a definir no refinamento.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ⏳ Planejado
 
 **Consulte:** [core/docs/vision/super_system.md](../core/docs/vision/super_system.md) (seção "Injeção de Contexto de Produto")
 
@@ -47,7 +47,7 @@
 
 **Objetivo:** Novo agente no core que recebe contexto conversacional e cognitive_model, devolve markdown estruturado. Nasce simples. Organizado para generalização futura (Produtor Científico reusará).
 
-**Status:** ✅ Refinado (pronto para implementação)
+**Status:** 📋 Critérios definidos
 
 **Decisões arquiteturais já tomadas:** ver [core/docs/agents/writer/design.md](../core/docs/agents/writer/design.md)
 - Nasce no core (não no Ensaio)
@@ -101,7 +101,7 @@
 
 **Objetivo:** Writer evolui para gerar artigo seção por seção em vez de bloco único, permitindo refinamento granular.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ⏳ Planejado
 
 **Dependências:**
 - C-ENSAIO-2 (Writer versão inicial)
@@ -112,7 +112,7 @@
 
 **Objetivo:** Mecanismo genérico para agentes do core consumirem conteúdo de arquivos anexados (notebook, markdown, CSV, imagens). Detalhes de parsing/extração a definir no refinamento.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ⏳ Planejado
 
 ---
 
@@ -120,7 +120,7 @@
 
 **Objetivo:** Pendência nasce no produto Ensaio; promover para o core quando segundo produto precisar (provavelmente Produtor Científico). Épico condicionado à existência de segundo caso de uso.
 
-**Status:** ⏳ Planejado (não refinado, condicional)
+**Status:** ⏳ Planejado (condicional)
 
 **Consulte:** [core/docs/architecture/data-models/ontology.md](docs/architecture/data-models/ontology.md) (seção "Entidades em Incubação")
 
@@ -130,7 +130,7 @@
 
 **Objetivo:** Componentes de UI conversacional (chat_input, chat_history e similares) hoje vivem em products/revelar/app/components/ e são reusados por outros produtos via import direto. Quando um terceiro produto consumir os mesmos componentes, ou quando surgir atrito concreto com o import cross-produto, promover os componentes compartilhados para core/ui_components/ (nome a definir no refinamento).
 
-**Status:** ⏳ Planejado (não refinado, condicional)
+**Status:** ⏳ Planejado (condicional)
 
 **Dependências:**
 - POC do Ensaio (E-POC-1) em produção como primeiro consumidor externo
@@ -158,11 +158,11 @@
 
 ## 📝 Observações
 
-**Regra:** Claude Code só trabalha em funcionalidades de épicos refinados.
+**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `✅ Detalhes definidos`.
 
-> Para fluxo completo de planejamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
+> Para o processo completo de refinamento, consulte [planning_guidelines.md](process/refinement/planning_guidelines.md). Para a 2ª passada (prontidão para autônomo), consulte [autonomous_readiness.md](process/refinement/autonomous_readiness.md).
 
 - Cada épico pode ser desenvolvido **isoladamente**
 - Entrega **valor incremental**
 - Pode ser **testado** antes do próximo
-- Épicos não refinados requerem discussão antes da implementação
+- Épicos em `⏳ Planejado` passam pela 1ª passada de refinamento antes da implementação

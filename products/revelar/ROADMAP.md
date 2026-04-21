@@ -10,13 +10,13 @@
 
 ## 📋 Épicos Planejados
 
-### ✅ Épicos Refinados (prontos para implementação)
+### 📋 Épicos em `Critérios definidos` (prontos para fluxo manual via Cursor)
 
 #### ÉPICO 1: Observer - Painel Visual Dedicado
 
 **Objetivo:** Interface visual mostrando estado do Observer de forma transparente e não-intrusiva.
 
-**Status:** ✅ Refinado (pronto para implementação)
+**Status:** 📋 Critérios definidos
 
 **Dependências:**
 - Observer core já implementado (Épico 10-14 concluídos)
@@ -102,7 +102,7 @@
 
 **Objetivo:** Usuário explora biblioteca de conceitos via web. Transparência sobre o que sistema aprendeu.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** ⏳ Planejado
 
 **Dependências:**
 - ÉPICO 1 (Painel Observer)
@@ -154,11 +154,11 @@
 
 ## 📝 Observações
 
-**Regra:** Claude Code só trabalha em funcionalidades de épicos refinados.
+**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `✅ Detalhes definidos`.
 
-> Para fluxo completo de planejamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
+> Para o processo completo de refinamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md). Para a 2ª passada (prontidão para autônomo), consulte [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md).
 
 - Cada épico pode ser desenvolvido **isoladamente**
 - Entrega **valor incremental**
 - Pode ser **testado** antes do próximo
-- Épicos não refinados requerem discussão antes da implementação
+- Épicos em `⏳ Planejado` passam pela 1ª passada de refinamento antes da implementação
