@@ -25,6 +25,7 @@ Contexto obrigatório a ler antes de iniciar:
 - docs/process/refinement/planning_guidelines.md
 - [Roadmap acima]
 - docs/process/autonomous/workflow.md
+- docs/process/autonomous/session_conventions.md (política de segredos e granularidade de commits)
 - docs/process/implementation/ (guidelines de implementação reaproveitadas)
 - docs/CONTEXT_INDEX.md (para localizar specs técnicas relevantes)
 
@@ -77,3 +78,4 @@ docs/process/autonomous/.
 - Quando usar autônomo vs manual → `docs/process/autonomous/overview.md`
 - Detalhe dos gates → `docs/process/autonomous/workflow.md`
 - Como validar o resultado → `docs/process/autonomous/delivery.md`
+- Convenções operacionais (segredos, granularidade de commits) → `docs/process/autonomous/session_conventions.md`

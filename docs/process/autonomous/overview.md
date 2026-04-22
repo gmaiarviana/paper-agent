@@ -93,3 +93,4 @@ Cada skill é um gate: se reprovar, devolve para a etapa anterior antes de avan�
 - Fluxo detalhado das skills → [workflow.md](workflow.md)
 - Como disparar e validar → [delivery.md](delivery.md)
 - Template de dispatch → `docs/process/autonomous/dispatch.md`
+- Convenções operacionais (segredos, granularidade de commits) → [session_conventions.md](session_conventions.md)
