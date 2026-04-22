@@ -1,6 +1,6 @@
 # Validation Skill
 
-> **📌 Localização:** `core/skills/validation/`
+> **📌 Localização:** `skills/validation/`
 > **📌 Etapa do fluxo:** última (após PO) — `docs/process/autonomous/workflow.md` §6
 > **📌 Pré-requisito:** QA, TL e PO já aprovaram.
 

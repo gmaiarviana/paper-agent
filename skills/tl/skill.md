@@ -141,4 +141,4 @@ Ação: devolver ao Dev. NÃO seguir para PO.
 **Ver também:**
 - README humano da skill → [README.md](README.md)
 - Exemplos → [examples/approval-case.md](examples/approval-case.md), [examples/rejection-case.md](examples/rejection-case.md)
-- Próximo gate → `core/skills/po/skill.md`
+- Próximo gate → `skills/po/skill.md`

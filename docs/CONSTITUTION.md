@@ -229,12 +229,11 @@ paper-agent/
 │   │   └── autonomous/              # Fluxo autônomo + dispatch.md
 │   └── testing/                     # Estratégia, estrutura, comandos de teste
 │
-├── core/                            # Sistema universal compartilhado
+├── core/                            # Sistema universal compartilhado (runtime do produto)
 │   ├── README.md                    # Visão do core
 │   ├── agents/                      # Código dos agentes (orchestrator, methodologist, observer, structurer, memory, database, persistence, checklist, models)
 │   ├── prompts/                     # Prompts por agente
 │   ├── config/agents/*.yaml         # Config externa por agente
-│   ├── skills/                      # Skills PO/QA/TL/Planning/Validation (modo autônomo)
 │   ├── tools/cli/                   # CLI conversacional
 │   ├── utils/                       # EventBus, cost_tracker, json_parser, config (circuit breaker)
 │   └── docs/                        # 🟡 DETALHE SOB DEMANDA (carregado conforme tema)
@@ -248,6 +247,14 @@ paper-agent/
 │       ├── tools/                   # cli.md, conversational_cli.md
 │       ├── features/                # transparent_backstage.md
 │       └── examples/                # Exemplos práticos
+│
+├── skills/                          # Skills do modo autônomo (Planning/QA/TL/PO/Validation) — processo de dev, NÃO runtime do produto
+│   ├── README.md                    # Índice + como o Claude Web carrega cada skill
+│   ├── planning/                    # Gate 1 — quebra funcionalidade em tasks
+│   ├── qa/                          # Gate 3 — valida testes, sintaxe, imports
+│   ├── tl/                          # Gate 4 — valida arquitetura e padrões
+│   ├── po/                          # Gate 5 — valida critérios de aceite
+│   └── validation/                  # Gate 6 — prepara branch + comandos p/ dev
 │
 ├── products/                        # Aplicações específicas (app próprio por produto)
 │   ├── revelar/                     # (atual) Chat para clareza de pensamento

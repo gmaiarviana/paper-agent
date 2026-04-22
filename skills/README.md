@@ -1,6 +1,6 @@
 # Skills
 
-> **📌 Localização:** `core/skills/`
+> **📌 Localização:** `skills/` (raiz do repo)
 > **📌 Público:** Claude Code Web (executor autônomo) e dev (operador).
 > **📌 Pré-requisito de leitura:** `docs/process/autonomous/` (overview, workflow, delivery).
 
@@ -30,7 +30,7 @@ Conduzem o fluxo autônomo de desenvolvimento. Substituem a interação manual d
 | **validation** | Após PO | Prepara branch + comandos para o dev validar |
 
 ### Skills de Implementação (não existem ainda)
-Eventuais blocos reutilizáveis para tarefas técnicas recorrentes (ex: criar novo agente, adicionar tool LangGraph). Quando surgirem, viverão sob `core/skills/<dominio>/` e serão indexados aqui.
+Eventuais blocos reutilizáveis para tarefas técnicas recorrentes (ex: criar novo agente, adicionar tool LangGraph). Quando surgirem, viverão sob `skills/<dominio>/` e serão indexados aqui.
 
 ---
 
@@ -51,7 +51,7 @@ Skills não se invocam diretamente. Elas se comunicam via **artefatos compartilh
 Cada skill segue o mesmo layout para facilitar reuso:
 
 ```
-core/skills/<nome>/
+skills/<nome>/
 ├── README.md           # Quando usar, como funciona, exemplos resumidos
 ├── skill.md            # Prompt/instruções carregadas pelo executor
 ├── examples/           # (opcional) Casos concretos de uso

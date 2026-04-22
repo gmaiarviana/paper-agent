@@ -164,5 +164,5 @@ Bloqueio ≠ rejeição. Não conta como uma das 3 rejeições do `blockers.md`.
 **Ver também:**
 - README humano da skill → [README.md](README.md)
 - Template do relatório → [templates/qa-report.md](templates/qa-report.md)
-- Próximo gate → `core/skills/tl/skill.md`
+- Próximo gate → `skills/tl/skill.md`
 - Devolução por bloqueio → `docs/process/implementation/blockers.md`

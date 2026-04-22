@@ -132,4 +132,4 @@ Ação: devolver conforme tipo. NÃO seguir para Validation.
 **Ver também:**
 - README humano da skill → [README.md](README.md)
 - Template do checklist → [templates/acceptance-criteria.md](templates/acceptance-criteria.md)
-- Próximo gate → `core/skills/validation/skill.md`
+- Próximo gate → `skills/validation/skill.md`
