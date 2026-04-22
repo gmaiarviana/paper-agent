@@ -101,8 +101,6 @@ Comportamentos específicos do sistema.
 
 **Interface:**
 - `test_cli_behavior.py` - CLI do Metodologista
-- `test_cli_integration.py` - Integração CLI → EventBus
-- `test_dashboard.py` - Dashboard Streamlit
 
 **Infraestrutura:**
 - `test_memory_integration.py` - Integração de memória

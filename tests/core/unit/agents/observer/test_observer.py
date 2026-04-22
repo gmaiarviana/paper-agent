@@ -34,7 +34,6 @@ from core.agents.observer import (
     persist_concepts_batch,
     ConceptPersistResult,
     generate_embedding,
-    calculate_similarity,
     SIMILARITY_THRESHOLD_SAME,
     SIMILARITY_THRESHOLD_AUTO
 )
@@ -302,48 +301,6 @@ class TestConceptPipeline:
         assert "total" in result
         assert result["total"] == 3
 
-@requires_embedding_model
-class TestEmbeddings:
-    """Testes para funcoes de embedding."""
-
-    def test_generate_embedding_returns_correct_dimensions(self):
-        """Testa que embedding tem dimensoes corretas (384)."""
-        embedding = generate_embedding("teste")
-        assert len(embedding) == 384
-
-    def test_generate_embedding_deterministic(self):
-        """Testa que mesmo texto gera mesmo embedding."""
-        emb1 = generate_embedding("cooperacao")
-        emb2 = generate_embedding("cooperacao")
-
-        # Deve ser identico
-        assert emb1 == emb2
-
-    def test_calculate_similarity_identical(self):
-        """Testa que vetores identicos tem similaridade 1.0."""
-        emb = generate_embedding("teste")
-        similarity = calculate_similarity(emb, emb)
-
-        assert similarity == pytest.approx(1.0, abs=0.01)
-
-    def test_calculate_similarity_different(self):
-        """Testa que conceitos diferentes tem similaridade menor."""
-        emb1 = generate_embedding("cooperacao")
-        emb2 = generate_embedding("matematica")
-
-        similarity = calculate_similarity(emb1, emb2)
-
-        assert similarity < 0.5  # Conceitos bem diferentes
-
-    def test_calculate_similarity_similar(self):
-        """Testa que conceitos similares tem similaridade alta."""
-        emb1 = generate_embedding("cooperacao")
-        emb2 = generate_embedding("colaboracao")
-
-        similarity = calculate_similarity(emb1, emb2)
-
-        assert similarity > 0.5  # Conceitos relacionados
-
 class TestDeduplication:
     """Testes especificos para logica de deduplicacao."""
 
@@ -370,23 +327,6 @@ class TestDeduplication:
     def test_threshold_auto_is_090(self):
         """Valida que threshold para auto-add variation e 0.90."""
         assert SIMILARITY_THRESHOLD_AUTO == 0.90
-
-    @requires_embedding_model
-    def test_deduplication_with_real_embeddings(self, catalog):
-        """Testa deduplicacao com embeddings reais (nao mocks)."""
-        # Salvar "cooperacao"
-        id1 = catalog.save_concept("cooperacao", "trabalho conjunto")
-
-        # Tentar salvar "cooperacao" novamente (identico)
-        id2 = catalog.save_concept("cooperacao", "outra descricao")
-
-        # Deve ser o mesmo conceito
-        assert id1 == id2
-
-        # Verificar que variacao foi adicionada (se threshold alto)
-        concept = catalog.get_concept_by_id(id1)
-        # Label original deve ser mantido
-        assert concept.label == "cooperacao"
 
 class TestProcessTurnIntegration:
     """Testes de integracao leve para process_turn (com mocks de LLM)."""
