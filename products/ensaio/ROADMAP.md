@@ -433,6 +433,7 @@ Backlog sem compromisso. Entram em planejamento quando fizer sentido, geralmente
 ## 📚 Documentação
 
 - `products/ensaio/docs/vision.md` - Visão do produto
+- `products/ensaio/docs/poc_validation.md` - Checklist de validação manual da POC
 - `core/docs/agents/writer/design.md` - Decisões arquiteturais do Writer
 - `core/docs/vision/super_system.md` - Desacoplamento core ↔ produto
 

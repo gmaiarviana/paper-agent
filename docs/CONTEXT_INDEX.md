@@ -210,6 +210,7 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
   - `epic_completion.md` - **Checklist de saída** (fechamento do épico antes de marcar `✅ Implementado`)
 - `docs/process/implementation/` - Processo de implementação manual via Cursor
 - `docs/process/autonomous/` - Fluxo autônomo via Claude Code Web
+  - `session_conventions.md` - **Convenções operacionais** (política de segredos/`.env` e granularidade de commits) aplicáveis a qualquer sessão autônoma
 
 **Solicitar quando:**
 - Refinar épico com alvo `📋 Critérios definidos` → `refinement/planning_guidelines.md` + `refinement/starter.md`
@@ -217,6 +218,7 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
 - Fechar épico implementado (extração + enxugamento) → `refinement/epic_completion.md`
 - Implementar código manualmente via Cursor → `implementation/`
 - Disparar fluxo autônomo (Claude Code Web) → `autonomous/`
+- Conhecer convenções operacionais do fluxo autônomo (segredos, commits) → `autonomous/session_conventions.md`
 - Validar qualidade → `implementation/quality_rules.md`
 
 ---

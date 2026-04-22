@@ -123,4 +123,5 @@ Esses inputs alimentam refinamentos futuros das skills e dos guidelines.
 - Visão geral do modo autônomo → [overview.md](overview.md)
 - Detalhe das skills (Planning/QA/TL/PO/Validation) → [workflow.md](workflow.md)
 - Template de dispatch → `docs/process/autonomous/dispatch.md`
+- Convenções operacionais (segredos, granularidade de commits) → [session_conventions.md](session_conventions.md)
 - Mensagem final padrão (compartilhada com fluxo manual) → [development/delivery.md](../development/delivery.md)

@@ -172,4 +172,5 @@ Mesmo com código mergeado e validado, o épico permanece em `🏗️ Em andamen
 **Ver também:**
 - Como o dev dispara e valida → [delivery.md](delivery.md)
 - Visão geral e quando usar → [overview.md](overview.md)
+- Convenções operacionais (segredos, granularidade de commits) → [session_conventions.md](session_conventions.md)
 - Guidelines de implementação reaproveitadas → `docs/process/implementation/`
