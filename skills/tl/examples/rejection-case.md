@@ -15,7 +15,7 @@ core/utils/markdown_exporter.py                  | +110 -0
 products/revelar/app/components/export_button.py |  +45 -0
 products/revelar/app/utils/format_helpers.py     |  +38 -0
 core/agents/orchestrator/nodes.py                |  +12 -0
-tests/unit/test_markdown_exporter.py             |  +85 -0
+tests/core/unit/test_markdown_exporter.py             |  +85 -0
 ```
 
 (QA aprovou: testes verdes, sintaxe OK, lógica nova coberta.)

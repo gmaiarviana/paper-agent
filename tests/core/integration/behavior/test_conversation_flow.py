@@ -11,8 +11,6 @@ Valida capacidades de conversação do sistema:
 IMPORTANTE: Este script faz chamadas REAIS à API da Anthropic.
 Custo estimado: ~$0.02-0.05
 
-Uso:
-    python scripts/flows/validate_conversation_flow.py
 """
 
 import logging

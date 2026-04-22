@@ -235,10 +235,10 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
 - `scripts/core/testing/` - Ferramentas de teste (execute_scenario.py, debug_scenario.py, replay_session.py)
 - `scripts/core/health_checks/` - Health checks de setup
 - `scripts/core/debug/` - Ferramentas de debug
-- `scripts/core/spikes/`, `scripts/core/state_introspection/` - Exploração e inspeção
-- `scripts/<produto>/flows/` - Scripts de validação manual por produto (ex.: `scripts/revelar/flows/`)
+- `scripts/core/spikes/` - Exploração
+- `scripts/core/testing/` - Cenários E2E
 
-> **Nota:** Comandos em `docs/testing/commands.md` e `.github/workflows/` podem ainda referenciar `tests/unit/` e `tests/integration/` (migração para `tests/core/...` em andamento). Ao escrever testes novos, usar o layout `tests/core/...` e `tests/products/<produto>/...`.
+Layout de testes: `tests/core/...` para código de `core/`, `tests/products/<produto>/...` para código de `products/<produto>/`.
 
 **Documentação:**
 - `docs/testing/README.md` - Índice e quick start
@@ -308,8 +308,7 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
 ### Menores (Utils e Infraestrutura)
 2. ⚠️ `core/utils/config.py` - **GAP**: Circuit breaker da API Anthropic não documentado.
 3. ⚠️ `core/utils/json_parser.py` - **GAP**: Parser de JSON de respostas LLM não documentado.
-4. ⚠️ `scripts/<produto>/flows/` - **GAP**: Scripts de validação manual (ex.: `scripts/revelar/flows/`) sem doc de propósito/uso.
-5. ⚠️ `scripts/core/health_checks/` - **GAP**: Health checks do sistema sem documentação.
+4. ⚠️ `scripts/core/health_checks/` - **GAP**: Health checks do sistema sem documentação.
 
 ### ✅ NÃO SÃO GAPS (Documentados)
 - ✅ `core/agents/structurer/` - Documentado em `core/docs/architecture/patterns/refinement.md`

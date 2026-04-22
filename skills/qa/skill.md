@@ -66,14 +66,14 @@ Cada chamador também precisa importar sem erro.
 ### Passo 4 — Cobertura de teste para lógica nova
 Para cada arquivo de código (não-teste) modificado:
 - Identificar funções/classes novas ou com lógica alterada
-- Verificar se há teste correspondente em `tests/unit/` ou `tests/integration/`
+- Verificar se há teste correspondente em `tests/core/unit/` ou `tests/core/integration/`
 - Se lógica é "crítica" (não-trivial, não-UI puro) e não tem teste → **rejeitar**
 
 Critério de "lógica crítica" segue `docs/testing/strategy.md`.
 
 ### Passo 5 — Rodar suite
 ```bash
-pytest tests/unit/ -v
+pytest tests/core/unit/ -v
 ```
 Se a entrega muda integração externa:
 ```bash
@@ -120,7 +120,7 @@ Próximo gate: TL.
 
 Problemas encontrados:
 
-1. [TESTE FALHANDO] tests/unit/<arquivo>.py::<test_nome>
+1. [TESTE FALHANDO] tests/core/unit/<arquivo>.py::<test_nome>
    AssertionError: expected X, got Y
    <stack trace relevante>
 

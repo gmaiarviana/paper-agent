@@ -10,8 +10,6 @@ Este script valida se o sistema está funcionando como esperado segundo a visão
 IMPORTANTE: Faz chamadas REAIS à API Anthropic.
 Custo estimado: ~$0.10-0.20
 
-Uso:
-    python scripts/flows/validate_system_maturity.py
 """
 
 import logging

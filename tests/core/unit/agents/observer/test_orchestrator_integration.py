@@ -15,13 +15,24 @@ from unittest.mock import patch, MagicMock
 import sys
 import json
 
-# Mock chromadb e langgraph antes de importar modulos que dependem deles
-sys.modules['chromadb'] = MagicMock()
-sys.modules['chromadb.config'] = MagicMock()
-sys.modules['langgraph'] = MagicMock()
-sys.modules['langgraph.graph'] = MagicMock()
-sys.modules['langgraph.graph.message'] = MagicMock()
-sys.modules['langgraph.graph.message'].add_messages = lambda x: x
+# Mock chromadb e langgraph apenas se nao estiverem instalados (ambiente CI minimal).
+# Quando estao instalados, nao mockar preserva os modulos reais e evita poluir
+# sys.modules (que quebraria test_observer.py no mesmo session).
+try:
+    import chromadb  # noqa: F401
+except ImportError:
+    sys.modules['chromadb'] = MagicMock()
+    sys.modules['chromadb.config'] = MagicMock()
+
+try:
+    import langgraph  # noqa: F401
+    import langgraph.graph  # noqa: F401
+    import langgraph.graph.message  # noqa: F401
+except ImportError:
+    sys.modules['langgraph'] = MagicMock()
+    sys.modules['langgraph.graph'] = MagicMock()
+    sys.modules['langgraph.graph.message'] = MagicMock()
+    sys.modules['langgraph.graph.message'].add_messages = lambda x: x
 
 class TestConsultObserverFunction:
     """Testes para a funcao _consult_observer."""

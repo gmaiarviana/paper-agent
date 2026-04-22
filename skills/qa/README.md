@@ -18,7 +18,7 @@ A QA Skill é o **primeiro gate técnico** após implementação. Decide **binar
 
 Aprova **APENAS** quando **TODOS** os itens forem verdadeiros:
 
-- ✅ Suite completa passa (`pytest tests/unit/`) — 0 falhas, 0 erros
+- ✅ Suite completa passa (`pytest tests/core/unit/`) — 0 falhas, 0 erros
 - ✅ Integration tests aplicáveis passam (`pytest -m integration`)
 - ✅ Sintaxe Python OK em todos os arquivos modificados (parser sem erro)
 - ✅ Imports resolvem (sem `ImportError`, sem ciclo)

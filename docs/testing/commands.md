@@ -1,182 +1,120 @@
 # Testing Commands
 
-## Rodar Testes
+## Dois Perfis de Validação
 
-### Por Categoria (Nova Estrutura)
+O projeto tem **dois perfis** de instalação e execução de testes. Escolha conforme o objetivo.
+
+### Perfil A — Unit (rápido, $0, CI)
+
+Uso: pre-commit local, pipeline de CI, validação rápida de PR.
+Não faz chamadas LLM nem baixa modelos. Alguns testes que dependem de `langgraph-checkpoint-sqlite` pulam silenciosamente — é esperado.
+
 ```bash
-# Unit tests (sempre rodam - $0)
-pytest tests/unit/ -v
+# 1. Instalar dependências de teste (minimal)
+pip install -r requirements-test.txt
 
-# Smoke tests (validação rápida - ~$0.01)
-pytest tests/integration/smoke/ -v -m smoke
-
-# Behavior tests (comportamentos específicos - ~$0.02-0.03)
-pytest tests/integration/behavior/ -v -m behavior
-
-# E2E tests (cenários completos - ~$0.05)
-pytest tests/integration/e2e/ -v -m e2e
-
-# Todos os integration tests
-pytest tests/integration/ -v -m integration
+# 2. Rodar
+pytest tests/core/unit/ -q
 ```
 
-### Por Componente
+**Esperado:** ~412 passed, ~10-19 skipped (skips = modelo HuggingFace ou sqlite checkpoint ausentes).
+
+### Perfil B — Full Integration (local, pago, requer API/rede)
+
+Uso: validação ponta-a-ponta antes de merge, debug de comportamento real do LLM.
+
+Pré-requisitos:
+- `ANTHROPIC_API_KEY` no `.env` ou exportada
+- Conexão de internet (primeira execução baixa o modelo `all-MiniLM-L6-v2` — ~80MB — e cacheia em `~/.cache/huggingface/`)
+
 ```bash
-# Testar apenas agentes
-pytest tests/unit/agents/ -v
+# 1. Instalar dependências completas
+pip install -r requirements.txt
 
-# Testar apenas memória
-pytest tests/unit/memory/ -v
-
-# Testar apenas utils
-pytest tests/unit/utils/ -v
+# 2. Rodar integration tests
+pytest tests/core/integration/ -m integration -q --maxfail=1
 ```
 
-### Exemplos Específicos
+**Custo estimado:** ~$0.10 para a suite completa (Haiku).
+
+---
+
+## Comandos Granulares
+
+### Unit por categoria
 ```bash
-# Testar apenas Orquestrador
-# Executar todos os testes do orquestrador
-pytest tests/unit/agents/orchestrator/ -v
+pytest tests/core/unit/agents/ -q
+pytest tests/core/unit/memory/ -q
+pytest tests/core/unit/utils/ -q
+pytest tests/core/unit/models/ -q
+```
 
-# Executar teste específico
-pytest tests/unit/agents/orchestrator/test_node.py -v
+### Integration por tipo
+```bash
+# Smoke (validação rápida de componentes principais)
+pytest tests/core/integration/smoke/ -m smoke -q
 
-# Testar comportamento socrático
-pytest tests/integration/behavior/test_socratic_behavior.py -v
+# Behavior (comportamentos específicos com API real)
+pytest tests/core/integration/behavior/ -m behavior -q
 
-# Testar fluxos multi-turn
-pytest tests/integration/e2e/test_multi_turn_flows.py -v
+# E2E (cenários completos multi-turn)
+pytest tests/core/integration/e2e/ -m e2e -q
+```
+
+### Teste específico
+```bash
+pytest tests/core/unit/agents/orchestrator/test_node.py -v
+pytest tests/core/integration/behavior/test_embedding_quality.py -v
 ```
 
 ---
 
 ## Scripts de Validação Manual
 
-### State introspection (sem chamadas reais à API)
+### Health checks (sem API)
 ```bash
-python scripts/state_introspection/validate_state.py
-```
-
-```bash
-python scripts/state_introspection/validate_graph.py
-```
-
-```bash
-python scripts/state_introspection/validate_graph_nodes.py
-```
-
-```bash
-python scripts/state_introspection/validate_ask_user.py
-```
-
-### Flows completos (consomem API)
-```bash
-python scripts/flows/validate_cli.py
-```
-
-```bash
-python scripts/flows/validate_cli_integration.py
-```
-
-```bash
-python scripts/flows/validate_dashboard.py
-```
-
-```bash
-python scripts/flows/validate_memory_integration.py
-```
-
-```bash
-python scripts/flows/validate_multi_agent_flow.py
-```
-
-```bash
-python scripts/flows/validate_orchestrator.py
-```
-
-```bash
-python scripts/flows/validate_refinement_loop.py
-```
-
-```bash
-python scripts/flows/validate_structurer.py
-```
-
-```bash
-python scripts/flows/validate_structurer_refinement.py
-```
-
-```bash
-python scripts/flows/validate_build_context.py
-```
-
-### Health checks adicionais
-```bash
-python scripts/health_checks/validate_execution_tracker.py
-```
-
-```bash
-python scripts/health_checks/validate_orchestrator_json_parsing.py
+python scripts/core/health_checks/validate_api.py
+python scripts/core/health_checks/validate_agent_config.py
+python scripts/core/health_checks/validate_execution_tracker.py
+python scripts/core/health_checks/validate_orchestrator_json_parsing.py
+python scripts/core/health_checks/validate_runtime_config_simple.py
+python scripts/core/health_checks/validate_syntax.py
+python scripts/core/health_checks/validate_system_prompt.py
 ```
 
 ### Debug
 ```bash
-python scripts/debug/check_events.py
+python scripts/core/debug/check_events.py
+python scripts/core/debug/debug_multi_agent.py
 ```
 
----
-
-## Testes por Módulo
-
-### Testar apenas CostTracker
+### Inspeção de banco
 ```bash
-pytest tests/unit/test_cost_tracker.py -v
+python scripts/core/inspect_database.py
 ```
 
-### Testar apenas nós do grafo
+### Cenários E2E scriptados
 ```bash
-pytest tests/unit/test_graph_nodes.py -v
-```
-
-### Testar apenas extração de JSON
-```bash
-pytest tests/unit/test_json_extraction.py -v
+python scripts/core/testing/run_scenario.py
+python scripts/core/testing/run_all_scenarios.py
+python scripts/core/testing/replay_session.py
 ```
 
 ---
 
 ## Flags Úteis
 
-### Verbose (mostra cada teste)
 ```bash
-pytest -v
-```
-
-### Stop no primeiro erro
-```bash
-pytest -x
-```
-
-### Mostrar prints
-```bash
-pytest -s
-```
-
-### Rodar teste específico
-```bash
-pytest tests/unit/test_cost_tracker.py::test_calculate_cost_haiku -v
+pytest -v          # Verbose (cada teste)
+pytest -x          # Para no primeiro erro
+pytest -s          # Mostra prints
+pytest --lf        # Só os que falharam na última run
+pytest -k "X"      # Filtra por substring do nome
 ```
 
 ### Markers
 ```bash
-# Rodar apenas testes marcados como integration
-pytest -m integration
-
-# Rodar tudo exceto integration
-pytest -m "not integration"
+pytest -m integration        # Só integration
+pytest -m "not integration"  # Tudo exceto integration
+pytest -m "smoke or behavior" # Combinação
 ```
-
----
-
-**Versão:** 3.0
-**Data:** 15/01/2025

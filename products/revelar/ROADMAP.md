@@ -105,7 +105,6 @@ Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/pla
   - Testes de interação: modal abre/fecha
   - Testes de eventos: painel atualiza com novos eventos
   - Testes de responsividade: funciona em diferentes tamanhos de tela
-  - Script: `scripts/test_observer_panel_ui.py`
 
 ---
 

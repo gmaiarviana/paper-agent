@@ -14,9 +14,14 @@ import pytest
 from unittest.mock import patch, MagicMock
 import sys
 
-# Mock chromadb antes de importar modulos que dependem dele
-sys.modules['chromadb'] = MagicMock()
-sys.modules['chromadb.config'] = MagicMock()
+# Mock chromadb apenas se nao estiver instalado (ambiente CI minimal).
+# Quando chromadb esta instalado (dev/full), nao mockar preserva o modulo real
+# e evita poluir sys.modules (que quebraria test_observer.py no mesmo session).
+try:
+    import chromadb  # noqa: F401
+except ImportError:
+    sys.modules['chromadb'] = MagicMock()
+    sys.modules['chromadb.config'] = MagicMock()
 
 # Import direto do modulo (evita __init__.py com dependencias pesadas)
 from core.agents.observer.extractors import evaluate_conversation_clarity

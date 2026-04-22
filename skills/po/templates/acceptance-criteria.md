@@ -26,10 +26,10 @@ Tipo de rejeição (se aplicável): `gap de implementação | gap de plano | gol
 
 | # | Tipo | Critério (literal do ROADMAP) | Cobertura | Status | Evidência |
 |---|------|-------------------------------|-----------|--------|-----------|
-| 1 | deve | <texto literal> | teste | ✅/❌ | tests/unit/<arquivo>:<linha> |
+| 1 | deve | <texto literal> | teste | ✅/❌ | tests/core/unit/<arquivo>:<linha> |
 | 2 | deve | <texto literal> | manual | ✅/❌ | comando: `<...>` ou rota: `<...>` |
-| 3 | não deve | <texto literal> | teste | ✅/❌ | tests/unit/<arquivo>:<linha> |
-| 4 | deve | <texto literal> | script | ✅/❌ | scripts/validate_<x>.py |
+| 3 | não deve | <texto literal> | teste | ✅/❌ | tests/core/unit/<arquivo>:<linha> |
+| 4 | deve | <texto literal> | script | ✅/❌ | scripts/core/<categoria>/validate_<x>.py |
 
 **Resumo:** <N>/<N> critérios atendidos.
 

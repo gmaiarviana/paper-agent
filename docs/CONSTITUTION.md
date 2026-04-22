@@ -270,7 +270,7 @@ paper-agent/
 │   └── produtor-cientifico/         # (futuro) Artigo acadêmico (especialização)
 │
 ├── tests/                           # tests/core/{unit,integration} e tests/products/<produto>/
-└── scripts/                         # scripts/core/{debug,health_checks,spikes,state_introspection,testing} e scripts/<produto>/
+└── scripts/                         # scripts/core/{debug,health_checks,spikes,testing} e scripts/<produto>/
 ```
 
 **Legenda:** 🔴 no pack inicial de contexto | 🟢 para humanos/setup.

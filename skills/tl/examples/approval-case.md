@@ -15,7 +15,7 @@ core/agents/persistence/maturity_detector.py    | +84 -0
 core/agents/persistence/__init__.py             | +2 -0
 core/agents/database/schema.py                  |  +12 -0
 core/agents/database/snapshots_crud.py          | +96 -0
-tests/unit/persistence/test_maturity_detector.py | +120 -0
+tests/core/unit/persistence/test_maturity_detector.py | +120 -0
 core/docs/architecture/patterns/snapshots.md    | +18 -2
 ```
 

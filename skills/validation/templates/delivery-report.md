@@ -43,7 +43,7 @@
 
 | # | Critério | Cobertura | Onde validar |
 |---|---------|-----------|-------------|
-| 1 | <critério literal> | ✅ Teste | tests/unit/<arquivo>:<linha> |
+| 1 | <critério literal> | ✅ Teste | tests/core/unit/<arquivo>:<linha> |
 | 2 | <critério literal> | ✅ Manual | <comando ou rota> |
 | 3 | <critério literal> | ✅ Teste + Manual | <ambos> |
 
@@ -80,7 +80,7 @@ source venv/bin/activate
 pip install -r requirements.txt   # se deps mudaram
 
 # 3. Rodar testes
-pytest tests/unit/<caminho> -v
+pytest tests/core/unit/<caminho> -v
 pytest -m integration             # se aplicável
 
 # 4. Rodar aplicação (se mudou interface)

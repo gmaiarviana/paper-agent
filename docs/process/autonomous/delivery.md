@@ -64,8 +64,8 @@ source venv/bin/activate           # Linux/Mac
 pip install -r requirements.txt   # se houver mudanças em deps
 
 # 3. Rodar testes
-pytest tests/unit/ -v
-pytest tests/integration/ -v -m integration   # se aplicável
+pytest tests/core/unit/ -v
+pytest tests/core/integration/ -v -m integration   # se aplicável
 
 # 4. Rodar aplicação (se mudou interface)
 [comando específico do produto: streamlit run ..., python -m core.tools.cli.chat, etc]

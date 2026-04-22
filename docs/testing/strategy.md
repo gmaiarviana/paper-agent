@@ -21,7 +21,7 @@
 
 ## Tipos de Testes
 
-### Unit Tests (`tests/unit/`)
+### Unit Tests (`tests/core/unit/`)
 
 **O que são:**
 - Testam **unidades isoladas** de código (funções, classes, métodos)
@@ -37,12 +37,12 @@
 
 **Rodar:**
 ```bash
-pytest tests/unit/
+pytest tests/core/unit/
 ```
 
 ---
 
-### Integration Tests (`tests/integration/`)
+### Integration Tests (`tests/core/integration/`)
 
 **O que são:**
 - Testam **integração real** com serviços externos (Anthropic API)
@@ -60,7 +60,7 @@ pytest tests/unit/
 **Rodar:**
 ```bash
 # Requer ANTHROPIC_API_KEY no ambiente
-pytest tests/integration/ -m integration
+pytest tests/core/integration/ -m integration
 ```
 
 **CI/CD:**
@@ -95,7 +95,7 @@ pytest tests/integration/ -m integration
 **Rodar:**
 ```bash
 # Roda com sua chave pessoal do .env
-python scripts/health_checks/validate_api.py
+python scripts/core/health_checks/validate_api.py
 ```
 
 ---
@@ -150,7 +150,7 @@ python scripts/health_checks/validate_api.py
 
 ### Markers
 
-- `@pytest.mark.unit` (opcional): testes rápidos, sem API real (padrão em `tests/unit/`).
+- `@pytest.mark.unit` (opcional): testes rápidos, sem API real (padrão em `tests/core/unit/`).
 - `@pytest.mark.integration`: testes que usam API real ou fluxo que depende de `ANTHROPIC_API_KEY`.
 - `@pytest.mark.slow` (opcional): testes de integração mais pesados, que podem ser selecionados à parte.
 
@@ -166,9 +166,9 @@ python scripts/health_checks/validate_api.py
 ### Comandos recomendados
 
 - Unit tests (rápidos, sempre rodam):
-  - `pytest tests/unit/`
+  - `pytest tests/core/unit/`
 - Integração (local, com chave configurada):
-  - `pytest tests/integration/ -m integration`
+  - `pytest tests/core/integration/ -m integration`
 - CI:
   - Sempre roda `@pytest.mark.integration` com `ANTHROPIC_API_KEY` de teste configurada via secrets.
 
@@ -228,8 +228,8 @@ def mock_consult_observer():
 - ❌ **Testes de integração reais** (`@pytest.mark.integration`) - NÃO mockear
 
 ### Arquivos que DEVEM ter este mock
-- `tests/unit/agents/orchestrator/test_node.py`
-- `tests/unit/agents/orchestrator/test_integration.py`
+- `tests/core/unit/agents/orchestrator/test_node.py`
+- `tests/core/unit/agents/orchestrator/test_integration.py`
 - Qualquer novo teste unitário que chame `orchestrator_node()`
 
 ---
@@ -343,7 +343,7 @@ def test_socratic_provocation_quality():
 
 ## Referências
 
-- **LLM-as-Judge:** Estratégia documentada em testes de integração (ver `tests/integration/behavior/`)
+- **LLM-as-Judge:** Estratégia documentada em testes de integração (ver `tests/core/integration/behavior/`)
 - **Inventário:** `docs/testing/inventory.md` - O que já está testado
 - **Estrutura:** `docs/testing/structure.md` - Organização de pastas e fixtures
 - **Comandos:** `docs/testing/commands.md` - Comandos pytest

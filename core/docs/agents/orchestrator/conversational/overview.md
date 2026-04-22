@@ -16,7 +16,7 @@
 - ✅ MVP (7.8-7.10): Argumento focal explícito, provocação de reflexão, detecção emergente de estágio
 
 **Validação:**
-- Script: `scripts/flows/validate_orchestrator_mvp.py` - todos os testes passando
+- Testes em `tests/core/integration/behavior/test_orchestrator_integration.py`
 
 ---
 
