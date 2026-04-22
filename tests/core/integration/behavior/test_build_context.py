@@ -9,8 +9,6 @@ todo o histórico de mensagens (user_input + messages).
 
 IMPORTANTE: Este script NÃO faz chamadas à API (testes locais, sem custo).
 
-Uso:
-    python scripts/flows/validate_build_context.py
 
 Valida que _build_context():
 1. Constrói contexto com apenas input inicial (sem histórico)

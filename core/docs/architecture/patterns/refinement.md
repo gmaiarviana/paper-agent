@@ -229,22 +229,6 @@ Após Metodologista processar:
 
 ---
 
-## Testes
-
-**Testes unitários (mocks):**
-
-- `test_methodologist_collaborative_mode.py`
-- `test_structurer_refinement.py`
-- `test_refinement_router.py`
-
-**Testes de integração (API real):**
-
-- `test_refinement_loop_smoke.py`
-
-**Scripts de validação manual:**
-
-- `scripts/flows/validate_refinement_loop.py`
-
 ---
 
 ## Metadados

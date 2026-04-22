@@ -10,8 +10,6 @@ Valida capacidades de evolução do pensamento do usuário:
 IMPORTANTE: Este script faz chamadas REAIS à API da Anthropic.
 Custo estimado: ~$0.03-0.06
 
-Uso:
-    python scripts/flows/validate_cognitive_evolution.py
 """
 
 import logging

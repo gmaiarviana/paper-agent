@@ -58,8 +58,8 @@ Branch pronta: feature/11.1-11.2
 - agents/structurer/nodes.py usa fundamentos (linha 23)
 
 📋 Comandos de validação (copie e cole):
-pytest tests/unit/test_proposition.py -v
-pytest tests/unit/test_cognitive_model.py -v
+pytest tests/core/unit/models/test_proposition.py -v
+pytest tests/core/unit/models/test_cognitive_model.py -v
 
 🔍 Validações esperadas:
 - ✅ Testes devem passar

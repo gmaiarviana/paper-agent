@@ -1,5 +1,5 @@
-# Minimal dependencies for unit tests (fast CI)
-# Use this for pytest tests/unit/ - no API calls, just mocks
+# Dependencies for unit tests (CI)
+# Use this for pytest tests/core/unit/ - no API calls, just mocks
 
 # Core LangChain (for message types and base classes)
 langchain-core>=0.2.0
@@ -12,12 +12,16 @@ langgraph>=0.2.0
 python-dotenv>=1.0.0
 pydantic>=2.0.0
 
+# Observer dependencies (ChromaDB + embeddings)
+# Necessarios para que os testes de tests/core/unit/agents/observer/ rodem
+# sem pular bloco inteiro via sys.modules mock ou pytest.importorskip.
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
 # Testing
 pytest>=8.0.0
 pytest-cov>=6.0.0
 
-# Note: Excludes heavy dependencies not needed for unit tests:
-# - chromadb (semantic search)
-# - sentence-transformers (embeddings)
+# Excluded (not needed for unit tests):
 # - streamlit (web interface)
 # - langgraph-checkpoint-sqlite (persistence)

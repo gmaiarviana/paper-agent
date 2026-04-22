@@ -6,7 +6,7 @@ Executa cenarios de teste A-D automaticamente e gera relatorio
 com eventos publicados e decisoes do sistema.
 
 Uso:
-    python scripts/validate_direction_change.py [--verbose] [--scenario A|B|C|D|all]
+    python scripts/core/validate_direction_change.py [--verbose] [--scenario A|B|C|D|all]
 
 Cenarios:
     A: Variacao simples (nao interrompe fluxo)

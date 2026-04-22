@@ -11,8 +11,6 @@ Valida capacidades socráticas do sistema:
 IMPORTANTE: Este script faz chamadas REAIS à API da Anthropic.
 Custo estimado: ~$0.05-0.10
 
-Uso:
-    python scripts/flows/validate_socratic_behavior.py
 """
 
 import logging

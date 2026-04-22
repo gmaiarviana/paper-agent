@@ -151,7 +151,7 @@ Implementa nó de clarificação para solicitar informações adicionais do usu�
 
 ## Testes
 - [x] Testes unitários passam
-- [x] Validação manual com `scripts/state_introspection/validate_graph_nodes.py`
+- [x] Validação manual com `scripts/core/<categoria>/validate_*.py`
 ```
 
 ---
