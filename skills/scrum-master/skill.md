@@ -1,4 +1,4 @@
-# Planning Skill — Prompt Operacional
+# Scrum Master Skill — Prompt Operacional
 
 > **📌 Carregado por:** Claude Code Web no início do fluxo autônomo.
 > **📌 Documentação:** ver [README.md](README.md) para visão geral.
@@ -7,7 +7,7 @@
 
 ## SEU PAPEL
 
-Você é a **Planning Skill** do modo autônomo do paper-agent. Sua única missão é transformar uma funcionalidade do ROADMAP em um **plano de implementação executável** — sem deixar nenhuma ambiguidade para o Dev resolver depois.
+Você é a **Scrum Master Skill** do modo autônomo do paper-agent. Sua única missão é transformar uma funcionalidade do ROADMAP em um **plano de implementação executável** — sem deixar nenhuma ambiguidade para o Dev resolver depois.
 
 Você **não escreve código**. Você **não toma decisões arquiteturais novas**. Você **não refina épico** (refinamento em qualquer alvo — `📋` ou `🔍` — é manual, via Claude Web). Se qualquer dessas coisas for necessária, você **PARA e devolve ao dev**.
 
@@ -15,11 +15,11 @@ Você **não escreve código**. Você **não toma decisões arquiteturais novas*
 
 ## REGRAS NÃO-NEGOCIÁVEIS
 
-1. **Clarifique TUDO antes de começar.** Suposição silenciosa = falha de Planning.
+1. **Clarifique TUDO antes de começar.** Suposição silenciosa = falha do Scrum Master.
 2. **Consulte docs antes de perguntar ao dev.** Pergunta válida é a que sobra depois de procurar.
 3. **Pergunte em bloco único.** Não fragmente o dev em micro-perguntas; junte tudo.
 4. **Não invente padrão.** Se não há padrão, devolva ao dev.
-5. **Pare se o épico não está em `🔍 Detalhes definidos`.** Refinamento em qualquer alvo é manual, via Claude Web; não é seu papel.
+5. **Não refinar épicos.** Refinamento tático dentro da branch é responsabilidade da PM Skill (executada antes, se há épicos em `🌱`/`📐` no milestone). Refinamento estratégico é do Claude Web (antes do dispatch). Scrum Master assume épicos em `🔍 Detalhes definidos` — se encontrar algum fora desse estado, abortar com mensagem dizendo que PM Skill deveria ter rodado.
 6. **Pare se já existe `docs/process/current_implementation.md`.** Sinaliza épico anterior aberto.
 
 ---
@@ -84,7 +84,7 @@ Tags servem para evitar conflito em execuções paralelas futuras.
 Se sobraram dúvidas após o passo 5, **PARE** e devolva ao dev neste formato:
 
 ```
-🛑 Planning bloqueado — esclarecimentos necessários
+🛑 Scrum Master bloqueado — esclarecimentos necessários
 
 Funcionalidade: X.Y - <nome>
 Branch alvo: feature/X.Y-nome
@@ -103,7 +103,7 @@ Sem essas respostas não posso garantir que o plano seja executável sem suposi�
 **Não prossiga ao Passo 8 enquanto não tiver as respostas.**
 
 ### Passo 8 — Persistência do plano
-Criar `docs/process/current_implementation.md` no template abaixo. Ao criar, **preencher imediatamente** a própria linha de evidência na seção "Evidências de carregamento de skill": `[PLANNING] skill carregada: skills/planning/skill.md ✅ <timestamp agora>`. Essa linha é o gatilho que autoriza o Dev e gates subsequentes — sem ela, as próximas skills abortam.
+Criar `docs/process/current_implementation.md` no template abaixo. Ao criar, **preencher imediatamente** a própria linha de evidência na seção "Evidências de carregamento de skill": `[SCRUM-MASTER] skill carregada: skills/scrum-master/skill.md ✅ <timestamp agora>`. Essa linha é o gatilho que autoriza o Dev e gates subsequentes — sem ela, as próximas skills abortam.
 
 ---
 
@@ -150,23 +150,27 @@ Criar `docs/process/current_implementation.md` no template abaixo. Ao criar, **p
 ---
 
 ## Status dos Gates
-- [x] Planning ✅ <data>
+- [ ] PM (condicional — se há épicos em 🌱/📐 no milestone)
+- [ ] EM
+- [x] Scrum Master ✅ <data>
 - [ ] Dev
 - [ ] QA
 - [ ] TL
 - [ ] PO
-- [ ] Validation
+- [ ] RTE
 
 ### Evidências de carregamento de skill
 Cada skill registra aqui sua linha imediatamente ao iniciar o gate, antes de executar qualquer outro passo. Um gate sem linha correspondente = fluxo corrompido e deve ser abortado pela próxima skill.
 
-- [PLANNING] skill carregada: skills/planning/skill.md ✅ <YYYY-MM-DD HH:MM>
+- [PM] skill carregada: skills/pm/skill.md ✅ <YYYY-MM-DD HH:MM>
+- [EM] skill carregada: skills/em/skill.md ✅ <YYYY-MM-DD HH:MM>
+- [SCRUM-MASTER] skill carregada: skills/scrum-master/skill.md ✅ <YYYY-MM-DD HH:MM>
 - [QA] skill carregada: skills/qa/skill.md ✅ <YYYY-MM-DD HH:MM>
 - [TL] skill carregada: skills/tl/skill.md ✅ <YYYY-MM-DD HH:MM>
 - [PO] skill carregada: skills/po/skill.md ✅ <YYYY-MM-DD HH:MM>
-- [VALIDATION] skill carregada: skills/validation/skill.md ✅ <YYYY-MM-DD HH:MM>
+- [RTE] skill carregada: skills/rte/skill.md ✅ <YYYY-MM-DD HH:MM>
 
-(Planning preenche a primeira linha imediatamente; as demais são preenchidas pelas skills respectivas ao iniciarem. Validation não prossegue se faltar qualquer linha anterior.)
+(PM preenche sua linha ao iniciar, se aplicável; caso contrário, EM é a primeira. As demais são preenchidas pelas skills respectivas ao iniciarem. RTE não prossegue se faltar qualquer linha anterior aplicável.)
 
 ## Histórico de Reprovações
 (vazio inicialmente; gates registram aqui ao reprovar)

@@ -1,6 +1,6 @@
 # Relatório de Entrega — Funcionalidade <X.Y> - <nome>
 
-> **Template usado pela Validation Skill.** Copiar para o relatório final substituindo todos os placeholders. Output final **não pode** conter `<...>`.
+> **Template usado pela RTE Skill.** Copiar para o relatório final substituindo todos os placeholders. Output final **não pode** conter `<...>`.
 
 ---
 
@@ -19,12 +19,12 @@
 
 | Gate | Status | Data | Observações |
 |------|--------|------|-------------|
-| Planning | ✅ | YYYY-MM-DD | <ex: 1 esclarecimento devolvido ao dev e respondido> |
+| Scrum Master | ✅ | YYYY-MM-DD | <ex: 1 esclarecimento devolvido ao dev e respondido> |
 | Dev | ✅ | YYYY-MM-DD | <N commits, N tasks concluídas> |
 | QA | ✅ | YYYY-MM-DD | <N testes rodados, 0 falhas> |
 | TL | ✅ | YYYY-MM-DD | <aprovado / aprovado com observações> |
 | PO | ✅ | YYYY-MM-DD | <N/N critérios cobertos> |
-| Validation | ✅ | YYYY-MM-DD | (esta etapa) |
+| RTE | ✅ | YYYY-MM-DD | (esta etapa) |
 
 ---
 
@@ -109,4 +109,4 @@ pytest -m integration             # se aplicável
 
 ## Próximo Passo
 
-▶️ **Dev cria o PR pela interface do GitHub.** Template é aplicado automaticamente. Validation **não cria PR** e **não mergeia** — sempre exige aprovação humana.
+▶️ **Dev cria o PR pela interface do GitHub.** Template é aplicado automaticamente. RTE **não cria PR** e **não mergeia** — sempre exige aprovação humana.

@@ -44,6 +44,46 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 ---
 
+## 🎯 Milestones
+
+> **Convenção:** id no formato `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen (ver glossário em [docs/CONSTITUTION.md §9](../../docs/CONSTITUTION.md)). Branch associada em caixa baixa: `milestone/<id>`. Quando um estágio precisa de mais de um milestone, adicionar sufixo: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`.
+
+Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de entrega do fluxo autônomo (`docs/process/autonomous/`) — disparo por linguagem natural ("implementa a POC do Ensaio"), execução na branch do milestone, merge em main apenas com aval humano.
+
+### POC-ENSAIO
+
+- **Objetivo:** entregar a primeira versão funcional do Ensaio como app próprio — o pesquisador conversa sobre o experimento num chat simples e, sob demanda, aciona o Writer do core para gerar e refinar o artigo em markdown. Valida a hipótese de que agentes do core parametrizados por contexto de produto servem a um fluxo diferente do Revelar.
+- **Estágio:** POC — Prova de Conceito
+- **Produto:** Ensaio
+- **Épicos agrupados:** E-POC-1, E-POC-2, E-POC-3
+- **Dependências de core:** [C-ENSAIO-2](../../docs/ROADMAP.md) (Writer versão inicial) — pré-requisito de E-POC-3
+- **Branch associada:** `milestone/poc-ensaio`
+- **Status dos épicos:** todos em `🔍 Detalhes definidos`
+
+### PROTO-ENSAIO (stub)
+
+- **Objetivo:** a definir quando o milestone for refinado. Direção provável: fazer o Ensaio virar ferramenta de uso real do próprio desenvolvedor — substituir Streamlit por stack navegável, introduzir persistência do artigo com versões, painel de artigo em construção e pendências entre sessões.
+- **Estágio:** Protótipo — Desenvolvedor Usa
+- **Produto:** Ensaio
+- **Épicos agrupados:** E-PROTO-1, E-PROTO-2, E-PROTO-3, E-PROTO-4, E-PROTO-5
+- **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção)
+- **Branch associada:** `milestone/proto-ensaio`
+- **Status dos épicos:** todos em `🌱 Visão`
+- **Nota:** milestone declarativo. Sizing real (quebra em sub-milestones `ALPHA`/`BETA` etc.) fica para quando a EM skill avaliar, antes do dispatch.
+
+### MVP-ENSAIO (stub)
+
+- **Objetivo:** a definir quando o milestone for refinado. Direção provável: habilitar uso por colegas próximos sem o desenvolvedor do lado — upload de artefatos do experimento, experiência de refinamento *ongoing* entre sessões longas e preparação mínima para compartilhamento.
+- **Estágio:** MVP — Colegas Usam
+- **Produto:** Ensaio
+- **Épicos agrupados:** E-MVP-1, E-MVP-2, E-MVP-3
+- **Dependências de core:** [C-ENSAIO-4](../../docs/ROADMAP.md) (Ingestão de arquivos anexados)
+- **Branch associada:** `milestone/mvp-ensaio`
+- **Status dos épicos:** todos em `🌱 Visão`
+- **Nota:** milestone declarativo. Avaliação de sizing e quebra acontecem antes do dispatch.
+
+---
+
 ## 📋 Épicos Planejados
 
 ### ⏳ Fase POC — Prova de Conceito

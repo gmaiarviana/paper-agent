@@ -8,7 +8,7 @@
 
 ## 1. O QUE É O MODO AUTÔNOMO
 
-Modo de operação onde o dev **dispara uma funcionalidade pela manhã** via Claude Code Web e **valida o resultado à noite**, com skills automáticas conduzindo Planning → Dev → QA → TL → PO → Validation.
+Modo de operação onde o dev **dispara uma funcionalidade pela manhã** via Claude Code Web e **valida o resultado à noite**, com skills automáticas conduzindo Scrum Master → Dev → QA → TL → PO → RTE.
 
 **Diferencial:** o dev não acompanha cada checkpoint. As skills atuam como gates de qualidade no lugar das aprovações explícitas do fluxo manual.
 
@@ -23,7 +23,7 @@ Modo de operação onde o dev **dispara uma funcionalidade pela manhã** via Cla
 - ✅ Garantir que branch alvo segue padrão `feature/X.Y-nome`
 
 **À noite (ao receber notificação):**
-- ✅ Rodar comandos de validação local fornecidos pelo Validation Skill
+- ✅ Rodar comandos de validação local fornecidos pelo RTE Skill
 - ✅ Validar critérios de aceite manualmente
 - ✅ Aprovar merge OU devolver com feedback para nova rodada
 
@@ -33,11 +33,11 @@ Modo de operação onde o dev **dispara uma funcionalidade pela manhã** via Cla
 - ❌ Criar PR manualmente (o fluxo autônomo já entrega branch pronta)
 
 ### Skills Automáticas (Gates)
-- **Planning Skill:** lê ROADMAP, quebra a funcionalidade em tarefas, esclarece dúvidas técnicas (consulta docs antes de assumir).
+- **Scrum Master Skill:** lê ROADMAP, quebra a funcionalidade em tarefas, esclarece dúvidas técnicas (consulta docs antes de assumir).
 - **QA Skill:** valida testes, sintaxe, imports, comportamento esperado.
 - **TL Skill:** valida arquitetura, padrões, aderência ao ROADMAP e a `docs/ARCHITECTURE.md`.
 - **PO Skill:** valida critérios de aceite contra o ROADMAP.
-- **Validation Skill:** prepara branch + comandos de validação para o dev.
+- **RTE Skill:** prepara branch + comandos de validação para o dev.
 
 Cada skill é um gate: se reprovar, devolve para a etapa anterior antes de avançar.
 
@@ -48,7 +48,7 @@ Cada skill é um gate: se reprovar, devolve para a etapa anterior antes de avan�
 | Aspecto | Fluxo Manual (Cursor) | Fluxo Autônomo (Claude Code Web) |
 |---------|----------------------|----------------------------------|
 | **Estado mínimo do épico** | `📋 Critérios definidos` | `🔍 Detalhes definidos` (sessão de refinamento com alvo `🔍` aplicada) |
-| **Refinamento** | Claude Web → prompts → Cursor | Planning Skill (autônomo, sobre épico já detalhado) |
+| **Refinamento** | Claude Web → prompts → Cursor | Scrum Master Skill (autônomo, sobre épico já detalhado) |
 | **Aprovação por checkpoint** | Explícita do dev | Gates QA/TL/PO automáticos |
 | **Validação intermediária** | Dev valida a cada checkpoint | Skills validam; dev só valida no final |
 | **PR** | Dev cria pela interface | Branch pronta + comandos para dev validar |

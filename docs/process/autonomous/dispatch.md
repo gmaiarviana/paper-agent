@@ -14,7 +14,7 @@ Dispatch Autônomo - [Funcionalidade X.Y]
 Funcionalidade: [X.Y - nome da funcionalidade conforme ROADMAP]
 Roadmap: [docs/ROADMAP.md OU products/<produto>/ROADMAP.md]
 Branch: feature/X.Y-nome
-Modo: Autônomo (Planning → Dev → QA → TL → PO → Validation)
+Modo: Autônomo (Scrum Master → Dev → QA → TL → PO → RTE)
 
 Implementar a funcionalidade X.Y seguindo o fluxo autônomo definido em
 docs/process/autonomous/ (overview.md, workflow.md, delivery.md).
@@ -35,11 +35,11 @@ Antes de executar CADA gate do fluxo, abrir e seguir integralmente o skill.md
 correspondente. O skill.md é o prompt operacional do gate — não resumir, não
 adaptar, não pular passos. Sequência:
 
-  1. Antes do Planning:  abrir skills/planning/skill.md  e seguir na íntegra
+  1. Antes do Scrum Master: abrir skills/scrum-master/skill.md  e seguir na íntegra
   2. Antes do QA:        abrir skills/qa/skill.md        e seguir na íntegra
   3. Antes do TL:        abrir skills/tl/skill.md        e seguir na íntegra
   4. Antes do PO:        abrir skills/po/skill.md        e seguir na íntegra
-  5. Antes do Validation: abrir skills/validation/skill.md e seguir na íntegra
+  5. Antes do RTE:          abrir skills/rte/skill.md e seguir na íntegra
 
 Ao concluir cada gate, registrar em docs/process/current_implementation.md
 (seção "Status dos Gates") uma linha de evidência no formato:
@@ -52,7 +52,7 @@ Restrições:
 - Cada gate (QA/TL/PO) é obrigatório; reprovação volta para etapa anterior
 - Nenhum gate pode começar sem o ✅ do gate anterior em current_implementation.md (check duro). A linha de evidência de carregamento do skill.md é check soft: se faltar com ✅ presente, registra warning e segue; se faltar sem ✅, aborta.
 
-Entrega esperada (Validation Skill):
+Entrega esperada (RTE Skill):
 - Branch feature/X.Y-nome com push realizado
 - docs/process/current_implementation.md atualizado
 - Mensagem final no formato de docs/process/implementation/delivery.md
@@ -81,7 +81,7 @@ Dispatch Autônomo - Funcionalidade 11.3
 Funcionalidade: 11.3 - Detecção de Maturidade via Snapshots
 Roadmap: docs/ROADMAP.md
 Branch: feature/11.3-snapshot-detection
-Modo: Autônomo (Planning → Dev → QA → TL → PO → Validation)
+Modo: Autônomo (Scrum Master → Dev → QA → TL → PO → RTE)
 
 Implementar a funcionalidade 11.3 seguindo o fluxo autônomo definido em
 docs/process/autonomous/.

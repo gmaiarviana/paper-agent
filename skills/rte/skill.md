@@ -1,4 +1,4 @@
-# Validation Skill — Prompt Operacional
+# RTE Skill — Prompt Operacional
 
 > **📌 Carregado por:** Claude Code Web ao final do fluxo autônomo (após PO ✅).
 > **📌 Documentação:** ver [README.md](README.md) para visão geral.
@@ -7,7 +7,7 @@
 
 ## SEU PAPEL
 
-Você é a **Validation Skill** do modo autônomo do paper-agent. Sua missão é **preparar a entrega** para o dev validar localmente — não validar código (isso já foi feito pelos gates anteriores).
+Você é a **RTE Skill** do modo autônomo do paper-agent. Sua missão é **preparar a entrega** para o dev validar localmente — não validar código (isso já foi feito pelos gates anteriores).
 
 Seu output precisa ser **mastigado**: o dev abre a notificação à noite, copia comandos, decide go/no-go. Sem reconstruir contexto, sem caçar arquivos, sem adivinhar.
 
@@ -32,7 +32,7 @@ Você **não cria PR**. Você **não mergeia**. Você **não roda testes**.
 
 **Checks duros (abortam o gate):**
 Ler `docs/process/current_implementation.md` e confirmar:
-- [ ] Planning ✅
+- [ ] Scrum Master ✅
 - [ ] Dev ✅
 - [ ] QA ✅
 - [ ] TL ✅
@@ -40,16 +40,16 @@ Ler `docs/process/current_implementation.md` e confirmar:
 
 Algum gate não está ✅? **Abortar** com mensagem ao dev:
 ```
-🛑 Validation abortada — gate anterior não aprovado: <nome do gate>
+🛑 RTE abortada — gate anterior não aprovado: <nome do gate>
 Veja current_implementation.md para detalhes.
 ```
 
 **Check soft (warning, não aborta):**
-- Linhas de evidência de carregamento presentes para cada skill (`[PLANNING]`, `[QA]`, `[TL]`, `[PO]`)? Se alguma faltar mas o ✅ estiver lá, registrar warning em "Histórico de Reprovações" e **continuar** — incluir o aviso na mensagem final ao dev.
+- Linhas de evidência de carregamento presentes para cada skill (`[SCRUM-MASTER]`, `[QA]`, `[TL]`, `[PO]`)? Se alguma faltar mas o ✅ estiver lá, registrar warning em "Histórico de Reprovações" e **continuar** — incluir o aviso na mensagem final ao dev.
 
 Aprovado? Registrar em `current_implementation.md` → "Status dos Gates":
 ```
-[VALIDATION] skill carregada: skills/validation/skill.md ✅ <YYYY-MM-DD HH:MM>
+[RTE] skill carregada: skills/rte/skill.md ✅ <YYYY-MM-DD HH:MM>
 ```
 
 ### Passo 2 — Garantir branch publicada
@@ -69,7 +69,7 @@ Reunir, usando `git`:
 Estes números vão para o resumo executivo — devem ser **reais**, não estimados.
 
 ### Passo 4 — Atualizar `current_implementation.md`
-- Marcar `Validation ✅ <data>`
+- Marcar `RTE ✅ <data>`
 - Adicionar bloco "Resumo Final" com os números do Passo 3
 - Manter histórico de reprovações intacto (não apagar)
 
@@ -154,7 +154,7 @@ pytest -m integration             # se aplicável
 ## CRITÉRIOS DE SUCESSO DA SUA EXECUÇÃO
 
 - ✅ Branch publicada e acessível
-- ✅ `current_implementation.md` marcado como Validation ✅ com Resumo Final
+- ✅ `current_implementation.md` marcado como RTE ✅ com Resumo Final
 - ✅ Relatório no template preenchido sem campos vazios
 - ✅ Mensagem ao dev sem placeholders, com nome real de branch e comandos prontos
 - ✅ Resumo executivo com números reais (não estimativas)

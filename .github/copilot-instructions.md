@@ -48,7 +48,7 @@ pip install -r requirements.txt
 
 **Modo A:** abrir `docs/process/current_implementation.md` e extrair:
 - Funcionalidade/épico (cabeçalho)
-- Arquivos modificados (seção "Resumo Final" da Validation Skill)
+- Arquivos modificados (seção "Resumo Final" da RTE Skill)
 - Critérios de aceite declarados pelo PO
 
 **Modo B:** localizar o épico/funcionalidade no ROADMAP correto e extrair:
@@ -107,6 +107,6 @@ App rodando em: http://localhost:<porta>  (ou: sem app afetada)
 ## Referências
 
 - Fluxo autônomo: `docs/process/autonomous/workflow.md`
-- Quem cria `current_implementation.md`: Planning Skill (início) →
-  atualizada por cada gate → finalizada pela Validation Skill
+- Quem cria `current_implementation.md`: Scrum Master Skill (início) →
+  atualizada por cada gate → finalizada pela RTE Skill
 - ROADMAPs: `docs/ROADMAP.md` (core) e `products/<produto>/ROADMAP.md`

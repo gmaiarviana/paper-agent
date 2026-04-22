@@ -30,14 +30,14 @@ Você **não corrige código**. Você **não negocia critério**. Você **não a
 
 **Checks duros (abortam o gate):**
 - [ ] `docs/process/current_implementation.md` existe
-- [ ] Seção "Status dos Gates" contém `Planning ✅` e `Dev ✅`
+- [ ] Seção "Status dos Gates" contém `Scrum Master ✅` e `Dev ✅`
 - [ ] Branch `feature/X.Y-nome` tem commits novos vs `main`
 - [ ] Ambiente preparado: venv ativo, deps instaladas
 
 Falhou algum check duro? **ABORTE** — reportar bloqueio e parar.
 
 **Check soft (warning, não aborta):**
-- Linha de evidência do Planning presente (`[PLANNING] skill carregada: ...`)? Se faltar, registrar em "Histórico de Reprovações" como warning e **continuar** — provavelmente esquecimento de log, não gate pulado.
+- Linha de evidência do Scrum Master presente (`[SCRUM-MASTER] skill carregada: ...`)? Se faltar, registrar em "Histórico de Reprovações" como warning e **continuar** — provavelmente esquecimento de log, não gate pulado.
 
 Ao iniciar efetivamente o gate, registrar em `current_implementation.md` → "Status dos Gates":
 ```

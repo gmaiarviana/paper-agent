@@ -37,7 +37,7 @@ Rejeita **automaticamente** se **qualquer** item ocorrer:
 - ❌ **Gold plating**: implementou comportamento extra fora do escopo (mesmo que "útil")
 - ❌ ROADMAP não atualizado (ou atualizado com texto que não reflete entrega)
 
-> **Importante:** rejeição por gap de plano (Planning não previu o critério) volta para **Planning**, não para Dev. Rejeição por gap de implementação volta para **Dev**.
+> **Importante:** rejeição por gap de plano (Scrum Master não previu o critério) volta para **Scrum Master**, não para Dev. Rejeição por gap de implementação volta para **Dev**.
 
 ---
 
@@ -45,7 +45,7 @@ Rejeita **automaticamente** se **qualquer** item ocorrer:
 
 - Branch `feature/X.Y-nome` aprovada por QA + TL
 - `current_implementation.md` com `QA ✅` e `TL ✅`
-- Mapeamento crítério ↔ task gerado por Planning
+- Mapeamento crítério ↔ task gerado por Scrum Master
 - ROADMAP da funcionalidade
 
 ---
@@ -62,9 +62,9 @@ Rejeita **automaticamente** se **qualquer** item ocorrer:
 
 | Cenário | Próxima ação |
 |---------|--------------|
-| Aprovou | Fluxo segue para **Validation Skill** |
+| Aprovou | Fluxo segue para **RTE Skill** |
 | Rejeitou (gap de implementação) | Devolve para **Dev** |
-| Rejeitou (gap de plano) | Devolve para **Planning** |
+| Rejeitou (gap de plano) | Devolve para **Scrum Master** |
 | 3 rejeições consecutivas | `docs/process/implementation/blockers.md` |
 
 PO **não negocia critério**. Critério de aceite vem do ROADMAP — se está mal escrito, é problema de refinamento (manual via Claude Web), não da PO Skill.
@@ -83,4 +83,4 @@ Os dois gates podem capturar o mesmo problema por ângulos diferentes — isso �
 - Prompt operacional → [skill.md](skill.md)
 - Template do checklist → [templates/acceptance-criteria.md](templates/acceptance-criteria.md)
 - Critérios de aceite → ROADMAP da funcionalidade
-- Próximo gate → `skills/validation/README.md`
+- Próximo gate → `skills/rte/README.md`

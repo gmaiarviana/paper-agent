@@ -30,14 +30,14 @@ Você **não reescreve**. Você **não aprova "com observação"**. APROVA ou RE
 ### Passo 1 — Pré-checagens (GATE DE ENTRADA)
 
 **Checks duros (abortam o gate):**
-- [ ] `current_implementation.md` com `Planning ✅`, `Dev ✅` e `QA ✅`
+- [ ] `current_implementation.md` com `Scrum Master ✅`, `Dev ✅` e `QA ✅`
 - [ ] Branch tem commits recentes vs `main`
-- [ ] Plano de tasks (Planning) acessível para confronto
+- [ ] Plano de tasks (Scrum Master) acessível para confronto
 
 Falhou algum check duro? **ABORTE** — reportar bloqueio e devolver ao dev.
 
 **Check soft (warning, não aborta):**
-- Linhas de evidência anteriores presentes (`[PLANNING]` e `[QA]`)? Se alguma faltar, registrar warning em "Histórico de Reprovações" e **continuar**.
+- Linhas de evidência anteriores presentes (`[SCRUM-MASTER]` e `[QA]`)? Se alguma faltar, registrar warning em "Histórico de Reprovações" e **continuar**.
 
 Ao iniciar o gate, registrar em `current_implementation.md` → "Status dos Gates":
 ```

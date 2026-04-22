@@ -21,6 +21,27 @@ Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/pla
 
 ---
 
+## 🎯 Milestones
+
+> **Convenção:** id no formato `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen (ver glossário em [docs/CONSTITUTION.md §9](../../docs/CONSTITUTION.md)). Branch associada em caixa baixa: `milestone/<id>`. Quando um estágio precisa de mais de um milestone, adicionar sufixo: `MVP-REVELAR-ALPHA`, `MVP-REVELAR-BETA`.
+
+Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de entrega do fluxo autônomo (`docs/process/autonomous/`) — disparo por linguagem natural ("implementa o MVP do Revelar"), execução na branch do milestone, merge em main apenas com aval humano.
+
+### MVP-REVELAR
+
+- **Objetivo:** fechar a interface do MVP do Revelar em duas frentes complementares — painel visual do Observer nos Bastidores (transparência de como o sistema pensa: claim, proposições, tensões e gaps) e catálogo navegável dos conceitos acumulados. Habilita colegas a usar o Revelar sem o desenvolvedor do lado.
+- **Estágio:** MVP — Colegas Usam (Revelar está em MVP em desenvolvimento, conforme `products/revelar/README.md`)
+- **Produto:** Revelar
+- **Épicos agrupados:** ÉPICO 1 (Observer - Painel Visual Dedicado), ÉPICO 2 (Catálogo de Conceitos - Interface Web)
+- **Dependências de core:** nenhuma pendente (Observer core já implementado; Catálogo depende de Painel Observer — dependência interna ao milestone)
+- **Branch associada:** `milestone/mvp-revelar`
+- **Status dos épicos:** ÉPICO 1 em `📋 Critérios definidos`, ÉPICO 2 em `📐 Funcionalidades esboçadas`
+- **Nota:** com ÉPICO 2 ainda em `📐`, o refinamento tático para `🔍` acontece dentro da branch do milestone via PM skill antes da implementação (ver [docs/process/refinement/planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md)). Avaliação de sizing e possível quebra em sub-milestones acontecem antes do dispatch.
+
+> Épicos concluídos anteriores ao modelo de seis estados não são agrupados retroativamente — seguem a regra de retroatividade declarada acima.
+
+---
+
 ## 📋 Épicos Planejados
 
 ### 📋 Épicos em `Critérios definidos` (prontos para fluxo manual via Cursor)

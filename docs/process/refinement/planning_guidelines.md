@@ -32,6 +32,14 @@ Você fornece ao Claude Web:
 - 5 arquivos essenciais: docs/CONSTITUTION.md, docs/ROADMAP.md, products/revelar/ROADMAP.md, docs/ARCHITECTURE.md, planning_guidelines (este)
 
 ### Claude Web Deve
+
+> **Nota — refinamento estratégico vs tático.** A partir da reforma em curso (milestone como unidade de entrega), o refinamento se divide em duas modalidades:
+>
+> - **Estratégico (Claude Web, externo ao repo):** quebra uma visão em milestones e/ou épicos em `🌱 Visão`/`📐 Funcionalidades esboçadas`, e leva épicos a `📋 Critérios definidos` ou `🔍 Detalhes definidos` **antes de existir milestone em execução**. É o processo descrito nesta seção.
+> - **Tático (PM skill, dentro da branch do milestone):** leva épicos de um milestone já disparado que ainda estão em `🌱` ou `📐` até `🔍 Detalhes definidos`, aplicando o checklist de `autonomous_readiness.md`. A PM skill (a ser criada em M3b da reforma do fluxo) consome o mesmo checklist, mas opera dentro de sessão do Claude Code Web, com acesso direto ao repo, sem gerar prompts para Cursor.
+>
+> Ambos produzem o mesmo estado final no ROADMAP (épico em `🔍`). O que muda é **quem refina** e **onde o resultado é commitado** (fora da branch do milestone, no caso estratégico; dentro, no caso tático).
+
 1. **Análise Contextual:** Consultar vision.md, docs/ROADMAP.md ou products/revelar/ROADMAP.md (épicos anteriores), specs técnicas via mapa
 2. **Clarificação:** Fazer perguntas específicas, validar entendimento, apontar trade-offs
 3. **Recomendação:** Oferecer opções + recomendação balizada por vision.md e guidelines
@@ -127,6 +135,8 @@ Cada prompt é enxuto mas claro, deixando Cursor pensar também.
 
 Um épico percorre até seis estados no ROADMAP. Os quatro primeiros são de refinamento progressivo; os dois últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo.
 
+> **Nota — onde o refinamento acontece.** Até `📋 Critérios definidos`, o refinamento sempre é estratégico, via Claude Web, antes de qualquer milestone em execução. Já a transição de `🌱`/`📐`/`📋` para `🔍 Detalhes definidos` pode acontecer em duas situações distintas: (a) externamente, via Claude Web, como preparação antecipada; ou (b) dentro da branch de um milestone já disparado, via PM skill (skill a ser criada em M3b da reforma do fluxo), como parte do próprio fluxo autônomo. Ambos caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
+
 **`🌱 Visão`** — apenas objetivo definido.
 Estado inicial de qualquer épico promovido a partir do backlog ou produzido por uma sessão do tipo "me quebra essa ideia em épicos a partir da visão". Captura intenção e valor de negócio; não é executável por nenhum fluxo.
 
@@ -209,6 +219,31 @@ Os detalhes específicos de cada ajuste por estágio moram em `docs/process/refi
 
 ### 💡 IDEIAS FUTURAS
 Ideias abstratas que ainda não viraram épicos. Aguardando maturação.
+
+### 🎯 MILESTONES
+
+Um **milestone** agrupa épicos relacionados dentro de um mesmo estágio (POC/Protótipo/MVP). É a unidade de entrega do **fluxo autônomo** — disparo por linguagem natural ("implementa a POC do Ensaio"), execução na branch `milestone/<id>`, merge em main apenas com aval humano. Definição canônica em [docs/CONSTITUTION.md §9](../../CONSTITUTION.md).
+
+**Convenção de id:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`. Quando um estágio precisa ser quebrado em mais de um milestone, acrescentar sufixo: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`. Nome da branch associada em caixa baixa: `milestone/poc-ensaio`.
+
+**Quando dividir um estágio em múltiplos milestones.** A decisão é do EM skill (Engineering Manager, a ser criada em M3b da reforma) no sizing antes do dispatch. Regra fixada: milestone cujo sizing retornar OVERFLOW **nunca** é executado como está — é devolvido ao dev com proposta de quebra em dois ou mais milestones (com sufixos `ALPHA`/`BETA`). Milestones com sizing TIGHT seguem sem aval adicional.
+
+Template mínimo para cada milestone no ROADMAP do produto:
+
+```markdown
+### <ID>  <!-- ex: POC-ENSAIO -->
+
+- **Objetivo:** <o que esse milestone entrega em 1-2 linhas, focado em valor de negócio>
+- **Estágio:** <POC | Protótipo | MVP>
+- **Produto:** <nome do produto>
+- **Épicos agrupados:** <lista dos ids dos épicos, ex: E-POC-1, E-POC-2, E-POC-3>
+- **Dependências de core:** <lista de épicos C-<PRODUTO>-* ou ÉPICO N do core; "nenhuma" se for o caso>
+- **Branch associada:** `milestone/<id-em-caixa-baixa>`
+- **Status dos épicos:** <resumo dos estados atuais dos épicos agrupados>
+- **Nota:** <se stub: declarar que é declarativo; se houver épicos ainda em 🌱/📐, mencionar refinamento tático pela PM skill dentro da branch>
+```
+
+Milestones vivem na seção `## 🎯 Milestones` de cada ROADMAP de produto, logo antes de `## 📋 Épicos Planejados`. O core (`docs/ROADMAP.md`) não tem milestones próprios — usa uma tabela `## 🎯 Épicos Core × Milestones de Produto` para declarar quais épicos core entram em qual milestone de produto (ver lá).
 
 ### 📍 PRÓXIMOS PASSOS
 

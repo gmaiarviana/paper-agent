@@ -23,19 +23,21 @@ Conduzem o fluxo autônomo de desenvolvimento. Substituem a interação manual d
 
 | Skill | Etapa do fluxo | Prompt operacional | Responsabilidade |
 |-------|---------------|-------------------|------------------|
-| **planning** | Antes do Dev | `skills/planning/skill.md` | Quebra funcionalidade em tasks, clarifica TUDO antes de implementar |
+| **pm** | Antes do EM (condicional) | `skills/pm/skill.md` | Refinamento tático dentro da branch — leva épicos em `🌱`/`📐` a `🔍`; pulado se todos já estão em `🔍` |
+| **em** | Antes do Scrum Master | `skills/em/skill.md` | Sizing do milestone (FIT/TIGHT/OVERFLOW); OVERFLOW sempre devolve ao dev |
+| **scrum-master** | Antes do Dev | `skills/scrum-master/skill.md` | Quebra funcionalidade em tasks, clarifica TUDO antes de implementar |
 | **qa** | Após Dev | `skills/qa/skill.md` | Valida testes, sintaxe, imports, comportamento — decisão binária |
 | **tl** | Após QA | `skills/tl/skill.md` | Valida arquitetura, padrões, aderência ao ROADMAP técnico — decisão binária |
 | **po** | Após TL | `skills/po/skill.md` | Valida critérios de aceite e detecta gold plating — decisão binária |
-| **validation** | Após PO | `skills/validation/skill.md` | Prepara branch + comandos para o dev validar |
+| **rte** | Após PO | `skills/rte/skill.md` | Prepara branch + comandos para o dev validar |
 
 ### Protocolo de carregamento (OBRIGATÓRIO no modo autônomo)
-1. O dispatch (`docs/process/autonomous/dispatch.md`) lista os 5 skill.md a carregar em sequência.
+1. O dispatch (`docs/process/autonomous/dispatch.md`) lista os skill.md a carregar em sequência: **PM (se aplicável) → EM → Scrum Master → QA → TL → PO → RTE**.
 2. Antes de executar cada gate, Claude Web **abre o `skill.md` correspondente e segue na íntegra** — não resumir, não adaptar.
 3. Cada skill registra evidência de carregamento em `docs/process/current_implementation.md` → "Evidências de carregamento de skill" imediatamente ao iniciar.
-4. Cada skill (exceto Planning) verifica no gate de entrada:
+4. Cada skill (exceto PM, que é o primeiro quando aplicável, e EM quando PM é pulado) verifica no gate de entrada:
    - **Duro (aborta):** gate anterior tem `✅` em "Status dos Gates". Sem ✅ = gate pulado, aborta.
-   - **Soft (warning):** linha de evidência de carregamento presente. Sem a linha mas com ✅ = provável esquecimento de log, registra warning e continua. Validation propaga os warnings acumulados para a mensagem final.
+   - **Soft (warning):** linha de evidência de carregamento presente. Sem a linha mas com ✅ = provável esquecimento de log, registra warning e continua. RTE propaga os warnings acumulados para a mensagem final.
 
 ### Skills de Implementação (não existem ainda)
 Eventuais blocos reutilizáveis para tarefas técnicas recorrentes (ex: criar novo agente, adicionar tool LangGraph). Quando surgirem, viverão sob `skills/<dominio>/` e serão indexados aqui.
@@ -46,8 +48,8 @@ Eventuais blocos reutilizáveis para tarefas técnicas recorrentes (ex: criar no
 
 Skills não se invocam diretamente. Elas se comunicam via **artefatos compartilhados**:
 
-- **`docs/process/current_implementation.md`** — plano + status de cada gate. Planning escreve; demais skills leem e atualizam.
-- **Branch git `feature/X.Y-nome`** — código + commits. Dev escreve; QA/TL/PO leem; Validation entrega.
+- **`docs/process/current_implementation.md`** — plano + status de cada gate. Scrum Master escreve; demais skills leem e atualizam.
+- **Branch git `feature/X.Y-nome`** — código + commits. Dev escreve; QA/TL/PO leem; RTE entrega.
 - **ROADMAP.md** (core ou produto) — fonte da verdade da funcionalidade. Todas leem; PO confronta com a entrega.
 
 **Regra:** se uma skill precisa de informação que outra produziu, ela busca no artefato — nunca assume estado de memória entre skills.
@@ -77,13 +79,15 @@ skills/<nome>/
 
 | Skill | Status | Documentação |
 |-------|--------|-------------|
-| **planning** | ✅ Disponível | [planning/README.md](planning/README.md) |
+| **pm** | ✅ Disponível | [pm/README.md](pm/README.md) |
+| **em** | ✅ Disponível | [em/README.md](em/README.md) |
+| **scrum-master** | ✅ Disponível | [scrum-master/README.md](scrum-master/README.md) |
 | **qa** | ✅ Disponível | [qa/README.md](qa/README.md) |
 | **tl** | ✅ Disponível | [tl/README.md](tl/README.md) |
 | **po** | ✅ Disponível | [po/README.md](po/README.md) |
-| **validation** | ✅ Disponível | [validation/README.md](validation/README.md) |
+| **rte** | ✅ Disponível | [rte/README.md](rte/README.md) |
 
-> Fluxo completo do modo autônomo agora habilitado: Planning → Dev → QA → TL → PO → Validation, com gates binários automáticos no meio.
+> Fluxo completo do modo autônomo: PM (condicional) → EM → Scrum Master → Dev → QA → TL → PO → RTE, com gates binários automáticos nos checkpoints QA/TL/PO.
 
 ---
 

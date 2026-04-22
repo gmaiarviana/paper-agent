@@ -29,14 +29,14 @@ Você **não negocia critério**. Você **não reescreve ROADMAP**. Você **não
 ### Passo 1 — Pré-checagens (GATE DE ENTRADA)
 
 **Checks duros (abortam o gate):**
-- [ ] `current_implementation.md` com `Planning ✅`, `Dev ✅`, `QA ✅` e `TL ✅`
+- [ ] `current_implementation.md` com `Scrum Master ✅`, `Dev ✅`, `QA ✅` e `TL ✅`
 - [ ] ROADMAP da funcionalidade acessível
-- [ ] Mapeamento Planning (critério ↔ task) presente
+- [ ] Mapeamento Scrum Master (critério ↔ task) presente
 
 Falhou algum check duro? **ABORTE** — reportar bloqueio e devolver ao dev.
 
 **Check soft (warning, não aborta):**
-- Linhas de evidência anteriores presentes (`[PLANNING]`, `[QA]`, `[TL]`)? Se alguma faltar, registrar warning em "Histórico de Reprovações" e **continuar**.
+- Linhas de evidência anteriores presentes (`[SCRUM-MASTER]`, `[QA]`, `[TL]`)? Se alguma faltar, registrar warning em "Histórico de Reprovações" e **continuar**.
 
 Ao iniciar o gate, registrar em `current_implementation.md` → "Status dos Gates":
 ```
@@ -71,7 +71,7 @@ A funcionalidade está acessível pelo usuário final sem etapa escondida? Exemp
 
 ### Passo 7 — Decidir e classificar tipo de rejeição (se aplicável)
 - **Gap de implementação:** Dev fez algo errado/incompleto → devolver para Dev
-- **Gap de plano:** Planning não previu este critério → devolver para Planning
+- **Gap de plano:** Scrum Master não previu este critério → devolver para Scrum Master
 - **Gold plating:** Dev fez além do escopo → devolver para Dev (remover excesso)
 
 ### Passo 8 — Registrar
@@ -96,7 +96,7 @@ Gold plating: nenhum detectado
 Utilizabilidade: OK
 ROADMAP: marcado como concluído
 
-Próximo gate: Validation.
+Próximo gate: RTE.
 ```
 
 ### Rejeitado
@@ -117,7 +117,7 @@ Problemas:
 3. [ROADMAP NÃO ATUALIZADO]
    docs/ROADMAP.md ainda mostra 11.3 como pendente.
 
-Ação: devolver conforme tipo. NÃO seguir para Validation.
+Ação: devolver conforme tipo. NÃO seguir para RTE.
 ```
 
 ---
@@ -142,4 +142,4 @@ Ação: devolver conforme tipo. NÃO seguir para Validation.
 **Ver também:**
 - README humano da skill → [README.md](README.md)
 - Template do checklist → [templates/acceptance-criteria.md](templates/acceptance-criteria.md)
-- Próximo gate → `skills/validation/skill.md`
+- Próximo gate → `skills/rte/skill.md`
