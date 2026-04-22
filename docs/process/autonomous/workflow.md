@@ -20,18 +20,27 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 
 **Objetivo:** transformar funcionalidade do ROADMAP em plano de implementação executável.
 
-**Deve:**
-- ✅ Ler ROADMAP (core ou produto) e localizar funcionalidade X.Y
-- ✅ Ler ARCHITECTURE.md e docs técnicas relevantes (via `docs/CONTEXT_INDEX.md`)
-- ✅ Quebrar a funcionalidade em tarefas ordenadas por dependência
-- ✅ Identificar dúvidas técnicas e **resolvê-las consultando docs antes de assumir**
+**Verificação inicial (gate de entrada):**
+- ✅ Abrir ROADMAP indicado no dispatch e localizar a funcionalidade X.Y
+- ✅ Confirmar que o épico pai está marcado como **`🔍 Detalhes definidos`**
+- ✅ Confirmar que a funcionalidade traz os detalhes de execução produzidos por sessão de refinamento com alvo `🔍` (arquivos-alvo, contratos/shapes, mecanismo de integração, template de referência, acoplamentos, escopo de teste)
+
+**Se a verificação falhar — abortar imediatamente:**
+- Se o épico está em `🌱 Visão` ou `📐 Funcionalidades esboçadas` → devolver ao dev com mensagem: "Épico precisa de sessão de refinamento antes do dispatch autônomo. Ver `docs/process/refinement/planning_guidelines.md`."
+- Se o épico está em `📋 Critérios definidos` → devolver ao dev com mensagem: "Épico em `📋 Critérios definidos`. Sessão de refinamento com alvo `🔍 Detalhes definidos` é feita manualmente via Claude Web, aplicando o checklist de `docs/process/refinement/autonomous_readiness.md`, antes de redispachar."
+- Em todos os casos, a skill **não tenta suprir a lacuna inventando detalhes**.
+
+**Deve (após gate de entrada aprovado):**
+- ✅ Ler `docs/ARCHITECTURE.md` e docs técnicas relevantes (via `docs/CONTEXT_INDEX.md`)
+- ✅ Quebrar a funcionalidade em tarefas ordenadas por dependência, respeitando a sequência declarada no épico
+- ✅ Identificar dúvidas técnicas remanescentes e **resolvê-las consultando docs antes de assumir**
 - ✅ Documentar plano em `docs/process/current_implementation.md` (mesmo arquivo do fluxo manual)
-- ✅ Listar arquivos esperados (criados/modificados) e padrões a seguir
+- ✅ Reutilizar arquivos esperados e template de referência declarados no épico; não redefinir por conta própria
 
 **Não deve:**
 - ❌ Tomar decisões arquiteturais novas (se necessário, abortar e devolver ao dev)
-- ❌ Refinar épico (refinamento é manual, via Claude Web)
-- ❌ Avançar para Dev se funcionalidade não estiver em épico refinado
+- ❌ Refinar épico (refinamento em qualquer alvo — `📋` ou `🔍` — é manual, via Claude Web)
+- ❌ Avançar para Dev se a funcionalidade não estiver em épico `🔍 Detalhes definidos`
 
 **Saída:** plano em `current_implementation.md` + lista de tarefas.
 
@@ -83,7 +92,7 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 **Objetivo:** validar arquitetura, padrões e aderência ao ROADMAP técnico.
 
 **Deve verificar:**
-- ✅ Implementação alinhada com `ARCHITECTURE.md`
+- ✅ Implementação alinhada com `docs/ARCHITECTURE.md`
 - ✅ Padrões dos agentes/módulos similares preservados
 - ✅ Sem duplicação de informação entre docs (ver `.claudecode.md` e CONSTITUTION §6)
 - ✅ Estrutura de pastas e nomenclatura coerente com convenções existentes
@@ -138,6 +147,17 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 - ❌ Pular gates anteriores ainda que considere "trivial"
 
 **Saída:** branch pronta + mensagem final + notificação ao dev.
+
+---
+
+## TRANSIÇÃO DE ESTADO DO ÉPICO
+
+O fluxo autônomo manipula dois estados de execução do épico no ROADMAP:
+
+- **`🏗️ Em andamento`** — marcado assim que a Planning Skill conclui (a partir daí o épico está sob implementação pelas skills). Permanece neste estado durante Dev → QA → TL → PO → Validation e até o ciclo de fechamento ser concluído.
+- **`✅ Implementado`** — **não é acionado pelo fluxo autônomo.** A transição exige a execução do ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md` (extração de conhecimento permanente + poda do ROADMAP) e é feita pelo dev após validar o resultado final.
+
+Mesmo com código mergeado e validado, o épico permanece em `🏗️ Em andamento` até o dev aplicar `epic_completion.md`.
 
 ---
 

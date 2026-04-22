@@ -31,5 +31,5 @@ POC em refinamento (épicos E-POC-1, E-POC-2, E-POC-3 refinados e prontos para i
 
 - `products/ensaio/docs/vision.md` - Visão do produto (POC / Protótipo / MVP, casos de uso, filosofia)
 - `products/ensaio/ROADMAP.md` - Épicos planejados
-- `core/docs/architecture/agents/writer.md` - Decisões arquiteturais do Writer (agente core motivado pelo Ensaio)
-- `core/docs/architecture/vision/super_system.md` - Desacoplamento core ↔ produto
+- `core/docs/agents/writer/design.md` - Decisões arquiteturais do Writer (agente core motivado pelo Ensaio)
+- `core/docs/vision/super_system.md` - Desacoplamento core ↔ produto

@@ -27,7 +27,7 @@ tests/unit/test_markdown_exporter.py             |  +85 -0
 ### 3.1 Estrutura e Nomenclatura — ⚠️ DESVIO #1
 - ❌ `products/revelar/app/utils/format_helpers.py` duplica funções de formatação de markdown que **já existem** em `core/utils/markdown_exporter.py`
 - Padrão esperado: util genérico vive em `core/utils/`; produto importa de lá
-- Referência: `ARCHITECTURE.md` (seção "Separação core vs produto") + `.claudecode.md` (Princípio de Responsabilidade Única)
+- Referência: `docs/ARCHITECTURE.md` (seção "Separação core vs produto") + `.claudecode.md` (Princípio de Responsabilidade Única)
 
 ### 3.2 Contratos e Dependências
 - ✅ Sem ciclo
@@ -37,11 +37,11 @@ tests/unit/test_markdown_exporter.py             |  +85 -0
 - ❌ `core/agents/orchestrator/nodes.py` recebeu mudança nova (+12 linhas) para acoplar exportação ao fluxo conversacional
 - Mas o ROADMAP da 14.2 só pede **botão na interface** + utilitário de exportação — **não** menciona integração ao orquestrador
 - Padrão esperado: orquestrador não muda fora do escopo do épico; nova integração exige refinamento prévio
-- Referência: `core/ROADMAP.md` (funcionalidade 14.2) + CONSTITUTION §1 ("Funcionalidades detalhadas aceleram implementação")
+- Referência: `docs/ROADMAP.md` (funcionalidade 14.2) + CONSTITUTION §1 ("Funcionalidades detalhadas aceleram implementação")
 
 ### 3.4 Documentação Estrutural
 - ✅ `README.md` do produto atualizado com novo botão
-- ✅ Sem mudança em ARCHITECTURE.md (não havia decisão arquitetural nova legítima)
+- ✅ Sem mudança em docs/ARCHITECTURE.md (não havia decisão arquitetural nova legítima)
 
 ### 3.5 Anti-duplicação
 - ❌ Já contemplado no Desvio #1
@@ -63,12 +63,12 @@ Desvios encontrados:
 1. [DUPLICAÇÃO + DOMÍNIO ERRADO] products/revelar/app/utils/format_helpers.py
    Funções de formatação duplicam core/utils/markdown_exporter.py.
    Padrão esperado: produto importa do core; sem reimplementar util genérico.
-   Referência: ARCHITECTURE.md "Separação core vs produto"
+   Referência: docs/ARCHITECTURE.md "Separação core vs produto"
 
 2. [ESCOPO EXTRAPOLADO] core/agents/orchestrator/nodes.py (+12 linhas)
    Mudança no orquestrador não está no escopo da 14.2 (ROADMAP pede botão + util).
    Padrão esperado: orquestrador não muda fora do escopo; nova integração exige refinamento.
-   Referência: core/ROADMAP.md (14.2) + CONSTITUTION §1
+   Referência: docs/ROADMAP.md (14.2) + CONSTITUTION §1
 
 Ação: devolver ao Dev. NÃO seguir para PO.
 ```

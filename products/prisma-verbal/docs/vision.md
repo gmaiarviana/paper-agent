@@ -6,7 +6,7 @@
 > - Este documento usa "fichamento" como termo técnico para o processo de extração de conceitos.
 
 > **Nota:** Este documento descreve o produto fichamento especificamente.
-> Para core universal, consulte `core/docs/architecture/vision/super_system.md`.
+> Para core universal, consulte `core/docs/vision/super_system.md`.
 > Para como sistema processa texto (exemplo Sapiens), consulte `core/docs/examples/text_processing.md`.
 
 ## Visão Geral
@@ -397,7 +397,7 @@ Ver `philosophy.md` seção 8 para fundamento filosófico dessa separação.
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal
-- `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
+- `core/docs/vision/super_system.md` - Arquitetura do super-sistema
 - `core/docs/architecture/data-models/idea_model.md` - Ideias extraídas de livros
 - `core/docs/architecture/data-models/concept_model.md` - Conceitos detectados em livros
 - `core/docs/examples/text_processing.md` - Exemplo concreto de processamento

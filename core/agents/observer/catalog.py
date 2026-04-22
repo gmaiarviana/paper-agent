@@ -41,13 +41,13 @@ def _get_project_root() -> Path:
     # Se estamos em core/agents/observer/, subir 4 níveis para raiz
     base_path = current_file.parent.parent.parent.parent
 
-    # Verificar se é a raiz do projeto (tem ARCHITECTURE.md ou pyproject.toml)
-    if (base_path / "ARCHITECTURE.md").exists() or (base_path / "pyproject.toml").exists():
+    # Verificar se é a raiz do projeto (tem docs/ARCHITECTURE.md ou pytest.ini)
+    if (base_path / "docs" / "ARCHITECTURE.md").exists() or (base_path / "pytest.ini").exists():
         return base_path
 
     # Se estamos em agents/observer/, subir 3 níveis para raiz
     base_path = current_file.parent.parent.parent
-    if (base_path / "ARCHITECTURE.md").exists() or (base_path / "pyproject.toml").exists():
+    if (base_path / "docs" / "ARCHITECTURE.md").exists() or (base_path / "pytest.ini").exists():
         return base_path
 
     # Fallback: assumir 4 níveis (estrutura nova)

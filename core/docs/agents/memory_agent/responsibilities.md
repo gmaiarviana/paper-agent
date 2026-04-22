@@ -420,10 +420,10 @@ memory_config = {
 
 ## Referências
 
-- `../architecture/data-models/ontology.md` - MemoryLayer na ontologia
-- `../architecture/vision/super_system.md` - Configuração por produto
-- `core/docs/agents/orchestrator.md` - Quem consulta Memory
-- `core/docs/agents/observer.md` - Quem detecta necessidade de consulta
+- `../../architecture/data-models/ontology.md` - MemoryLayer na ontologia
+- `../../vision/super_system.md` - Configuração por produto
+- `core/docs/agents/orchestrator/responsibilities.md` - Quem consulta Memory
+- `core/docs/agents/observer/responsibilities.md` - Quem detecta necessidade de consulta
 - `core/docs/features/transparent_backstage.md` - Rastreamento de consultas
 
 ---

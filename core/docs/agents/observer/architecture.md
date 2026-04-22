@@ -768,8 +768,8 @@ with st.expander("👁️ Observador - Mente Analítica", expanded=False):
 
 ## Referências
 
-- `core/docs/agents/observer.md` - Documentação completa do Observador
-- `../../data-models/ontology.md` - CognitiveModel e Conceitos
+- `core/docs/agents/observer/responsibilities.md` - Documentação completa do Observador
+- `../../architecture/data-models/ontology.md` - CognitiveModel e Conceitos
 - `../../data-models/concept_model.md` - Schema de Concept
 - `ROADMAP.md` - Épicos 10, 12, 13
 

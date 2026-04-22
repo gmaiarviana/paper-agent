@@ -2,21 +2,34 @@
 
 Épicos e melhorias do produto Revelar (chat para clareza de pensamento).
 
-> **📖 Status Atual:** Para entender o estado atual do Revelar, consulte [ARCHITECTURE.md](../../ARCHITECTURE.md) e [products/revelar/docs/](docs/).
+> **📖 Status Atual:** Para entender o estado atual do Revelar, consulte [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) e [products/revelar/docs/](docs/).
 
 > **📖 Visão:** Para entender a visão do produto, consulte [products/revelar/docs/vision.md](docs/vision.md).
+
+### 🧭 Estados dos Épicos
+
+Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
+
+- **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
+- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
+- **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
+- **`🔍 Detalhes definidos`** — checklist em [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md) aplicado. Pronto para fluxo autônomo via Claude Code Web.
+- **`🏗️ Em andamento`** — implementação em curso, até o ciclo de fechamento.
+- **`✅ Implementado`** — ciclo de fechamento executado (ver [epic_completion.md](../../docs/process/refinement/epic_completion.md)).
+
+> **Retroatividade:** épicos concluídos antes da introdução do modelo de 6 estados permanecem em formato simplificado (título ✅ + 1-2 linhas de resumo) e não são reclassificados retroativamente. O modelo aplica-se a épicos em andamento e futuros.
 
 ---
 
 ## 📋 Épicos Planejados
 
-### ✅ Épicos Refinados (prontos para implementação)
+### 📋 Épicos em `Critérios definidos` (prontos para fluxo manual via Cursor)
 
 #### ÉPICO 1: Observer - Painel Visual Dedicado
 
 **Objetivo:** Interface visual mostrando estado do Observer de forma transparente e não-intrusiva.
 
-**Status:** ✅ Refinado (pronto para implementação)
+**Status:** 📋 Critérios definidos
 
 **Dependências:**
 - Observer core já implementado (Épico 10-14 concluídos)
@@ -96,13 +109,13 @@
 
 ---
 
-### ⏳ Épicos Planejados (não refinados)
+### 📐 Épicos em Funcionalidades esboçadas
 
 #### ÉPICO 2: Catálogo de Conceitos - Interface Web
 
 **Objetivo:** Usuário explora biblioteca de conceitos via web. Transparência sobre o que sistema aprendeu.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** 📐 Funcionalidades esboçadas
 
 **Dependências:**
 - ÉPICO 1 (Painel Observer)
@@ -154,11 +167,11 @@
 
 ## 📝 Observações
 
-**Regra:** Claude Code só trabalha em funcionalidades de épicos refinados.
+**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `🔍 Detalhes definidos`.
 
-> Para fluxo completo de planejamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
+> Para o processo completo de refinamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md). Para a prontidão ao fluxo autônomo (alvo `🔍`), consulte [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md). Para o fechamento do épico (saída), consulte [epic_completion.md](../../docs/process/refinement/epic_completion.md).
 
 - Cada épico pode ser desenvolvido **isoladamente**
 - Entrega **valor incremental**
 - Pode ser **testado** antes do próximo
-- Épicos não refinados requerem discussão antes da implementação
+- Épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas` passam por sessão de refinamento antes da implementação

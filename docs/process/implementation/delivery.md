@@ -56,7 +56,7 @@ git checkout <nome-real-da-branch>
 
 **Documentação (OBRIGATÓRIA):**
 - [ ] README.md atualizado (se mudou setup/comandos)
-- [ ] ARCHITECTURE.md atualizado (se mudou estrutura)
+- [ ] docs/ARCHITECTURE.md atualizado (se mudou estrutura)
 - [ ] ROADMAP.md marcado como concluído
 - [ ] Comentários em código complexo
 
@@ -86,7 +86,7 @@ git checkout <nome-real-da-branch>
 
 ### Documentação Atualizada
 - [ ] README.md
-- [ ] ARCHITECTURE.md
+- [ ] docs/ARCHITECTURE.md
 - [ ] ROADMAP.md
 
 ### ⚙️ Validação Local (para dev testar antes de mergear)

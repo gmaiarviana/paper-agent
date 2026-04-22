@@ -9,8 +9,12 @@ Princípios não-negociáveis para trabalhar com este projeto.
 ### Como Refinamos
 - POC → Protótipo → MVP (incremental)
 - Discussão > especulação antecipada
-- Épicos refinados apenas quando prioritários
-- Funcionalidades detalhadas aceleram implementação
+- Épicos percorrem até seis estados no ROADMAP: `🌱 Visão` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `✅ Implementado`. Modelo completo em `docs/process/refinement/planning_guidelines.md`.
+- Toda sessão de refinamento começa com um **alvo declarado** (o estado ao qual o épico deve chegar). O Claude Web conduz as perguntas até atingir o alvo, sem parar em estados intermediários.
+- Alvo `📋 Critérios definidos` basta para o fluxo manual via Cursor.
+- Alvo `🔍 Detalhes definidos` é pré-requisito do fluxo autônomo; guiado pelo checklist em `docs/process/refinement/autonomous_readiness.md`. Aplicado sob demanda para o épico específico que vai ser disparado.
+- Fechamento do épico (extração de conhecimento permanente + poda do ROADMAP) segue `docs/process/refinement/epic_completion.md` antes de marcar como `✅ Implementado`.
+- Funcionalidades detalhadas aceleram implementação.
 
 ### Como Implementamos
 - Claude web refina → Cursor atualiza docs → Claude Code implementa
@@ -19,10 +23,12 @@ Princípios não-negociáveis para trabalhar com este projeto.
 - Commits estratégicos (não obrigatórios)
 
 ### Fluxos Disponíveis
-Dois modos coexistem; o dev escolhe por funcionalidade:
+Dois modos coexistem; o dev escolhe por funcionalidade. Cada modo exige um estado mínimo do épico no ROADMAP:
 
-- **Manual (Cursor):** dev acompanha cada checkpoint. Indicado para épicos novos, decisões arquiteturais ou trade-offs em aberto. Fluxo descrito nas seções 2-7 deste documento.
-- **Autônomo (Claude Code Web):** dev dispara pela manhã e valida à noite; skills automáticas (Planning → Dev → QA → TL → PO → Validation) atuam como gates no lugar das aprovações explícitas. Indicado para funcionalidades já refinadas e claras. Detalhes em `docs/process/autonomous/` e template em `AUTONOMOUS_DISPATCH.md` (raiz).
+- **Manual (Cursor):** estado mínimo `📋 Critérios definidos`. Dev acompanha cada checkpoint. Indicado para épicos novos, decisões arquiteturais ou trade-offs ainda em aberto durante a implementação. Fluxo descrito nas seções 2-7 deste documento.
+- **Autônomo (Claude Code Web):** estado mínimo `🔍 Detalhes definidos` (checklist de `autonomous_readiness.md` aplicado). Dev dispara pela manhã e valida à noite; skills automáticas (Planning → Dev → QA → TL → PO → Validation) atuam como gates no lugar das aprovações explícitas. Indicado para funcionalidades com detalhes de execução fechados. Detalhes em `docs/process/autonomous/` e template em `docs/process/autonomous/dispatch.md`.
+
+Épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas` passam por sessão de refinamento com alvo `📋` ou `🔍` antes de qualquer fluxo de execução.
 
 Princípios, responsabilidades e anti-padrões deste documento valem para os dois modos.
 
@@ -71,7 +77,7 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 - ✅ Atualizar docs se mudou estrutura
 
 **Não deve:**
-- ❌ Refinar épicos
+- ❌ Refinar épicos (refinamento em qualquer alvo — `📋 Critérios definidos` ou `🔍 Detalhes definidos` — é manual, via Claude Web)
 - ❌ Tomar decisões arquiteturais sem base
 
 ---
@@ -86,7 +92,7 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 
 **1. Análise Contextual**
 - Consultar `products/<produto>/docs/vision.md` (expectativas do produto em refinamento)
-- Consultar ROADMAP.md do produto + `core/ROADMAP.md` (épicos anteriores, padrões)
+- Consultar ROADMAP.md do produto + `docs/ROADMAP.md` (épicos anteriores, padrões)
 - Consultar `docs/process/refinement/planning_guidelines.md` (processo)
 - Consultar docs técnicas via `docs/CONTEXT_INDEX.md` (se necessário)
 - Identificar onde comportamento está documentado (OU pedir pra ver)
@@ -114,9 +120,9 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 ### Output Esperado (Claude web gera)
 PROMPT 1: ROADMAP.md
 [instruções enxutas pro Cursor]
-PROMPT 2: core/docs/architecture/agents/orchestrator/conversational/README.md
+PROMPT 2: core/docs/agents/orchestrator/conversational/README.md
 [instruções enxutas pro Cursor]
-PROMPT 3: ARCHITECTURE.md
+PROMPT 3: docs/ARCHITECTURE.md
 [instruções enxutas pro Cursor]
 
 ---
@@ -150,7 +156,7 @@ Mapa único vive em `docs/CONTEXT_INDEX.md` (já no pack inicial):
 - **Por tema** → seções `## TEMA: ...` com "Solicitar quando..." em cada uma.
 - **Resumo rápido** → tabela `🎯 MAPA RÁPIDO DE DECISÃO` no fim do arquivo.
 
-Ao refinar: identifique o tema relevante no CONTEXT_INDEX e peça os paths listados ali. Para os arquivos-alvo de prompts (onde escrever), ver também ROADMAP do produto + ARCHITECTURE.md.
+Ao refinar: identifique o tema relevante no CONTEXT_INDEX e peça os paths listados ali. Para os arquivos-alvo de prompts (onde escrever), ver também ROADMAP do produto + `docs/ARCHITECTURE.md`.
 
 ---
 
@@ -182,21 +188,23 @@ Ao refinar: identifique o tema relevante no CONTEXT_INDEX e peça os paths lista
 
 ### Contexto Inicial Padronizado
 
-**Ver REFINEMENT_STARTER.md (raiz) para lista autoritativa.**
+**Ver `docs/process/refinement/starter.md` para lista autoritativa.**
 
 Resumo: 4 arquivos genéricos + 2 específicos do produto = 6 arquivos total.
 
-**Como enviar:** Conforme produto que está refinando, arraste os 6 arquivos listados no REFINEMENT_STARTER.md.
+**Como enviar:** Conforme produto que está refinando, arraste os 6 arquivos listados no starter.
 
 ### Processo de Refinamento
 
-- **Processo completo:** `docs/process/refinement/planning_guidelines.md` (movido da raiz)
+- **Processo completo:** `docs/process/refinement/planning_guidelines.md`
 - **Visão geral:** `docs/process/refinement/overview.md`
-- **Starter pack:** `REFINEMENT_STARTER.md` (raiz)
+- **Starter pack:** `docs/process/refinement/starter.md`
+- **Checklist de entrada para `🔍 Detalhes definidos`:** `docs/process/refinement/autonomous_readiness.md`
+- **Checklist de saída (fechamento do épico):** `docs/process/refinement/epic_completion.md`
 
 ### Consultados Sob Demanda
 
-Tudo fora do pack inicial — specs técnicas, filosofia, interface, processo, testes — está mapeado em `docs/CONTEXT_INDEX.md` (já no pack inicial). Não duplicar a lista aqui.
+Tudo fora do pack inicial — specs técnicas, filosofia, interface, processo (inclusive `autonomous_readiness.md` quando um épico é preparado para o fluxo autônomo, e `epic_completion.md` no fechamento), testes — está mapeado em `docs/CONTEXT_INDEX.md` (já no pack inicial). Não duplicar a lista aqui.
 
 ---
 
@@ -206,30 +214,37 @@ Tudo fora do pack inicial — specs técnicas, filosofia, interface, processo, t
 
 ```
 paper-agent/
-├── CONSTITUTION.md                  # 🔴 ESSENCIAL - Princípios e processo (este arquivo)
-├── ARCHITECTURE.md                  # 🔴 ESSENCIAL - Decisões técnicas consolidadas
-├── REFINEMENT_STARTER.md            # 🔴 ESSENCIAL - Lista autoritativa do pack de contexto
-├── AUTONOMOUS_DISPATCH.md           # Template de disparo autônomo (Claude Code Web)
 ├── README.md                        # 🟢 USUÁRIOS - Setup básico
+│
+├── docs/                            # 🟢 PACK INICIAL do Claude Web (tudo o que se carrega antes)
+│   ├── CONSTITUTION.md              # 🔴 ESSENCIAL - Princípios e processo (este arquivo)
+│   ├── ARCHITECTURE.md              # 🔴 ESSENCIAL - Decisões técnicas consolidadas
+│   ├── ROADMAP.md                   # 🔴 ESSENCIAL - Épicos do core
+│   ├── CONTEXT_INDEX.md             # 🔴 ESSENCIAL - Mapa temático código↔doc
+│   ├── backlog.md, maturity_checklist.md
+│   ├── analysis/                    # Análises meta (débitos técnicos, otimização)
+│   ├── process/
+│   │   ├── refinement/              # Processo de refinement + starter.md
+│   │   ├── implementation/          # Processo de implementação manual
+│   │   └── autonomous/              # Fluxo autônomo + dispatch.md
+│   └── testing/                     # Estratégia, estrutura, comandos de teste
 │
 ├── core/                            # Sistema universal compartilhado
 │   ├── README.md                    # Visão do core
-│   ├── ROADMAP.md                   # 🔴 ESSENCIAL - Épicos do core
 │   ├── agents/                      # Código dos agentes (orchestrator, methodologist, observer, structurer, memory, database, persistence, checklist, models)
 │   ├── prompts/                     # Prompts por agente
 │   ├── config/agents/*.yaml         # Config externa por agente
 │   ├── skills/                      # Skills PO/QA/TL/Planning/Validation (modo autônomo)
 │   ├── tools/cli/                   # CLI conversacional
 │   ├── utils/                       # EventBus, cost_tracker, json_parser, config (circuit breaker)
-│   └── docs/
-│       ├── vision/                  # Filosofia (system_philosophy, epistemology, cognitive_model, ...)
-│       ├── agents/                  # Responsabilidades dos agentes (overview, orchestrator, methodologist, observer, researcher, memory_agent, communicator)
+│   └── docs/                        # 🟡 DETALHE SOB DEMANDA (carregado conforme tema)
+│       ├── vision/                  # Filosofia + super_system (cognitive_model, epistemology, ...)
+│       ├── agents/                  # Pasta por agente (responsibilities.md + design.md/architecture.md)
 │       ├── architecture/
-│       │   ├── agents/              # Design técnico (multi_agent/, orchestrator/, observer/, writer.md)
+│       │   ├── multi_agent/         # Super-grafo (state, graph, nodes, flows, config, prompts, evolution)
 │       │   ├── data-models/         # Ontologia, idea/concept/argument, persistence
 │       │   ├── patterns/            # refinement.md, snapshots.md
-│       │   ├── infrastructure/      # tech_stack.md, config_system.md (memória/YAML)
-│       │   └── vision/              # super_system.md
+│       │   └── infrastructure/      # tech_stack.md, config_system.md (memória/YAML)
 │       ├── tools/                   # cli.md, conversational_cli.md
 │       ├── features/                # transparent_backstage.md
 │       └── examples/                # Exemplos práticos
@@ -246,17 +261,6 @@ paper-agent/
 │   ├── camadas-da-linguagem/        # (futuro) Ideia → Mensagem
 │   ├── expressao/                   # (futuro) Mensagem → Conteúdo
 │   └── produtor-cientifico/         # (futuro) Artigo acadêmico (especialização)
-│
-├── docs/                            # Meta-docs do repo (transversais aos produtos)
-│   ├── CONTEXT_INDEX.md             # 🔴 ESSENCIAL - Mapa temático código↔doc
-│   ├── backlog.md                   # Melhorias técnicas não vinculadas a épicos
-│   ├── maturity_checklist.md
-│   ├── analysis/                    # débitos técnicos, otimização de custo
-│   ├── process/
-│   │   ├── refinement/              # Refinamento (planning_guidelines.md + overview.md)
-│   │   ├── implementation/          # Implementação manual via Cursor
-│   │   └── autonomous/              # Fluxo autônomo via Claude Code Web
-│   └── testing/                     # Estratégia, estrutura, comandos, inventário
 │
 ├── tests/                           # tests/core/{unit,integration} e tests/products/<produto>/
 └── scripts/                         # scripts/core/{debug,health_checks,spikes,state_introspection,testing} e scripts/<produto>/

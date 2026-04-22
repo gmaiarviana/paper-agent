@@ -477,11 +477,11 @@ O Orquestrador opera em três modos principais:
 ## Referências
 
 - `core/docs/agents/overview.md` - Visão geral do sistema multi-agente
-- `core/docs/agents/observer.md` - Sinaliza necessidade de consulta a Memory
-- `core/docs/agents/memory_agent.md` - Consultado quando necessário
-- `core/docs/agents/communicator.md` - Separação futura
-- `../docs/architecture/agents/orchestrator/conversational/` - Documentação completa do Orquestrador Conversacional
-- `../docs/architecture/agents/orchestrator/socratic.md` - Orquestrador socrático (evolução)
+- `core/docs/agents/observer/responsibilities.md` - Sinaliza necessidade de consulta a Memory
+- `core/docs/agents/memory_agent/responsibilities.md` - Consultado quando necessário
+- `core/docs/agents/communicator/responsibilities.md` - Separação futura
+- `./conversational/` - Documentação completa do Orquestrador Conversacional
+- `./socratic.md` - Orquestrador socrático (evolução)
 - `agents/orchestrator/nodes.py` - Implementação do nó principal
 - `agents/orchestrator/state.py` - Definição do estado
 - `agents/orchestrator/router.py` - Roteamento entre agentes

@@ -81,13 +81,13 @@
 |-----------|-----------------|----------------------|
 | **README.md** | Getting Started: setup inicial, comandos de validação gerais, referências para docs | ❌ Status de épicos/tasks<br>❌ Estrutura detalhada do projeto<br>❌ Decisões arquiteturais<br>❌ Comandos de validação específicos por task |
 | **ROADMAP.md** | Status de épicos/tasks, critérios de aceite | ❌ Instruções de setup geral<br>❌ Arquitetura técnica<br>❌ Comandos de validação (validação é durante sessão de trabalho) |
-| **ARCHITECTURE.md** | Estrutura técnica, decisões arquiteturais, organização de código, stack | ❌ Status de implementação<br>❌ Instruções de setup<br>❌ Comandos de validação |
+| **docs/ARCHITECTURE.md** | Estrutura técnica, decisões arquiteturais, organização de código, stack | ❌ Status de implementação<br>❌ Instruções de setup<br>❌ Comandos de validação |
 | **docs/process/implementation/** | Processo de trabalho com agentes, regras de qualidade, templates de validação | ❌ Funcionalidades específicas<br>❌ Detalhes de implementação |
 | **.github/PULL_REQUEST_TEMPLATE.md** | Template para PRs, preenchido automaticamente pelo GitHub | ❌ Conteúdo específico de tasks<br>❌ Apenas estrutura/template |
 
 **Regras de Ouro:**
 - ✅ **Status de funcionalidades**: Vive APENAS no ROADMAP.md
-- ✅ **Estrutura do projeto**: Vive APENAS no ARCHITECTURE.md
+- ✅ **Estrutura do projeto**: Vive APENAS no docs/ARCHITECTURE.md
 - ✅ **Setup e comandos gerais**: Vive APENAS no README.md
 - ✅ **Validação de funcionalidades**: Acontece durante a sessão de trabalho via scripts (`scripts/**/validate_*.py`)
 - ❌ **NUNCA duplicar informações** entre documentos - sempre referenciar
@@ -146,7 +146,7 @@ python scripts/<categoria>/validate_*.py
 Lendo contexto...
 - ROADMAP.md: Funcionalidade 3.2 descrita
 - README.md: Stack Next.js 14 + PostgreSQL, rodar com `npm run dev`
-- ARCHITECTURE.md: API em /app/api, componentes em /components
+- docs/ARCHITECTURE.md: API em /app/api, componentes em /components
 
 Plano de implementação:
 
@@ -191,7 +191,7 @@ Finalizando...
 ✅ Aplicação rodando sem erros
 ✅ Documentação atualizada:
    - README.md (sem mudanças necessárias)
-   - ARCHITECTURE.md (novos endpoints documentados)
+   - docs/ARCHITECTURE.md (novos endpoints documentados)
    - ROADMAP.md (3.2 marcado como completo)
 ✅ Push realizado: feature/3.2-sistema-relatorios
 
@@ -243,7 +243,7 @@ npm run dev
 
 ### ✅ Processo de Verificação Obrigatório
 
-**ANTES de editar arquivos críticos (ROADMAP.md, ARCHITECTURE.md, README.md):**
+**ANTES de editar arquivos críticos (ROADMAP.md, docs/ARCHITECTURE.md, README.md):**
 
 1. **Verificar status do repositório:**
    ```powershell
@@ -256,7 +256,7 @@ npm run dev
    ```powershell
    # Ver diferenças em arquivos críticos
    git diff HEAD origin/main -- ROADMAP.md
-   git diff HEAD origin/main -- ARCHITECTURE.md
+   git diff HEAD origin/main -- docs/ARCHITECTURE.md
    git diff HEAD origin/main -- README.md
    ```
 
@@ -264,7 +264,7 @@ npm run dev
    ```powershell
    # Ver o que foi modificado localmente
    git diff -- ROADMAP.md
-   git diff -- ARCHITECTURE.md
+   git diff -- docs/ARCHITECTURE.md
    ```
 
 4. **Decisão:**
@@ -386,7 +386,7 @@ git show <commit-hash>:ROADMAP.md | Select-Object -First 100
 - Decisões técnicas devem fazer sentido
 - Documentação é tão importante quanto código
 - PR deve ser auto-explicativo e permitir validação fácil
-- **ANTES de editar ROADMAP.md/ARCHITECTURE.md: verificar conflitos com origin/main**
+- **ANTES de editar ROADMAP.md/docs/ARCHITECTURE.md: verificar conflitos com origin/main**
 
 ---
 

@@ -7,7 +7,7 @@
 ## Identificação
 
 - **Funcionalidade:** X.Y - <nome literal do ROADMAP>
-- **Roadmap:** <core/ROADMAP.md | products/<produto>/ROADMAP.md>
+- **Roadmap:** <docs/ROADMAP.md | products/<produto>/ROADMAP.md>
 - **Branch:** feature/X.Y-nome
 - **Avaliado em:** YYYY-MM-DD HH:MM
 - **Tentativa nº:** <N>

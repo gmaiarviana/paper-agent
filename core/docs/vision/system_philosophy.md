@@ -532,7 +532,7 @@ Separação completa permitirá múltiplos canais de comunicação (web, CLI, AP
 - **Colaborativo**: agentes constroem junto ao pesquisador, estimulando coautoria e reflexão crítica.
 - **Transparente**: reasoning dos agentes exposto, integrando explicações curtas ou links para aprofundamento.
 - **Incremental**: começa com entregáveis mínimos e expande funcionalidades à medida que aprende com o uso.
-- **Escalável**: arquitetura previsa integração de novos tipos de artigo, agentes e extensões (ver `ARCHITECTURE.md` para detalhes técnicos).
+- **Escalável**: arquitetura previsa integração de novos tipos de artigo, agentes e extensões (ver `docs/ARCHITECTURE.md` para detalhes técnicos).
 - **Epistemologicamente honesto**: não existe verdade absoluta; sistema mapeia graus de sustentação baseados em evidências, não julgamentos binários de verdade/falsidade.
 
 ## Referências

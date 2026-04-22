@@ -38,12 +38,12 @@ Prompt hard-coded em `core/prompts/<agente>.py` serve como **fallback** se YAML 
 
 ## Onde aparece na arquitetura
 
-- Mencionado em `ARCHITECTURE.md` (seções "Configuração Externa de Agentes" e "Registro de Memória e Metadados").
-- Integra com observabilidade estruturada (ver `ARCHITECTURE.md` → "Sistema de Observabilidade"): `execution_tracker` alimenta métricas; `structured_logger` persiste eventos.
+- Mencionado em `docs/ARCHITECTURE.md` (seções "Configuração Externa de Agentes" e "Registro de Memória e Metadados").
+- Integra com observabilidade estruturada (ver `docs/ARCHITECTURE.md` → "Sistema de Observabilidade"): `execution_tracker` alimenta métricas; `structured_logger` persiste eventos.
 
 ## Referências
 
 - Código: `core/agents/memory/`, `core/config/agents/`, `core/utils/cost_tracker.py`
 - Prompts: `core/prompts/<agente>.py` (fallback)
-- Super-sistema e injeção de contexto de produto: `core/docs/architecture/vision/super_system.md`
-- Motivação Ensaio: `products/ensaio/ROADMAP.md` (E-POC-2) e `core/ROADMAP.md` (C-ENSAIO-1)
+- Super-sistema e injeção de contexto de produto: `core/docs/vision/super_system.md`
+- Motivação Ensaio: `products/ensaio/ROADMAP.md` (E-POC-2) e `docs/ROADMAP.md` (C-ENSAIO-1)

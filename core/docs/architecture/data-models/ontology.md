@@ -1049,8 +1049,8 @@ Ver `products/ensaio/docs/vision.md` (seção "Entidade Pendência") para a defi
 - `core/docs/vision/communication_philosophy.md` - Base filosófica de Mensagem
 - `core/docs/vision/cognitive_model/core.md` - Conceitos fundamentais (artefatos, solidez)
 - `core/docs/vision/cognitive_model/evolution.md` - Como pensamento evolui e solidez é calculada
-- `core/docs/agents/observer.md` - Documentação completa do Observador
-- `ROADMAP.md` - Épicos 10, 12, 13 (Observador e Conceitos)
+- `core/docs/agents/observer/responsibilities.md` - Documentação completa do Observador
+- `docs/ROADMAP.md` - Épicos 10, 12, 13 (Observador e Conceitos)
 - `products/camadas-da-linguagem/docs/vision.md` - Produto que cria Mensagens
 - `products/expressao/docs/vision.md` - Produto que dá forma a Mensagens
 - `products/produtor-cientifico/docs/vision.md` - Especialização para artigos

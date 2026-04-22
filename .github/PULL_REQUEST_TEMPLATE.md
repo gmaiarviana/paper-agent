@@ -42,7 +42,7 @@ python scripts/validate_*.py
 
 - [ ] README.md (se mudou setup/comandos gerais)
 - [ ] ROADMAP.md (task marcada como concluída)
-- [ ] ARCHITECTURE.md (se mudou estrutura/decisões arquiteturais)
+- [ ] docs/ARCHITECTURE.md (se mudou estrutura/decisões arquiteturais)
 - [ ] Código comentado quando necessário
 
 ---

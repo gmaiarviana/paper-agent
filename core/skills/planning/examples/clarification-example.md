@@ -10,7 +10,7 @@
 Dispatch Autônomo - Funcionalidade 11.3
 
 Funcionalidade: 11.3 - Detecção de Maturidade via Snapshots
-Roadmap: core/ROADMAP.md
+Roadmap: docs/ROADMAP.md
 Branch: feature/11.3-snapshot-detection
 Modo: Autônomo
 ```
@@ -64,7 +64,7 @@ Funcionalidade: 11.3 - Detecção de Maturidade via Snapshots
 Branch alvo: feature/11.3-snapshot-detection
 
 Já consultei:
-- core/ROADMAP.md (funcionalidade 11.3)
+- docs/ROADMAP.md (funcionalidade 11.3)
 - core/docs/architecture/patterns/snapshots.md
 - core/docs/architecture/data-models/persistence.md
 - core/docs/architecture/infrastructure/tech_stack.md

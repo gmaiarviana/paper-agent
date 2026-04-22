@@ -46,7 +46,7 @@ Metodologista consulta knowledge base via RAG ao invés de arquivo `.md` estáti
 
 - Setup ChromaDB (vector store local, gratuito) - aproveitar infraestrutura do ÉPICO 10
 - Tool `consult_methodology(query)` com busca semântica
-- Popular KB inicial com `core/docs/agents/methodologist_knowledge.md`
+- Popular KB inicial com `core/docs/agents/methodologist/knowledge.md`
 - Integrar tool no grafo do Metodologista
 - Embeddings: sentence-transformers (all-MiniLM-L6-v2) - mesmo modelo do ÉPICO 10
 - CLI para gerenciar KB: `python -m core.tools.cli.kb_manager add/search/stats`

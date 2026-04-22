@@ -2,21 +2,34 @@
 
 Épicos e melhorias do sistema core que serve todos os produtos.
 
-> **📖 Status Atual:** Para entender o estado atual do core, consulte [ARCHITECTURE.md](../../ARCHITECTURE.md) e [core/docs/](../../core/docs/).
+> **📖 Status Atual:** Para entender o estado atual do core, consulte [ARCHITECTURE.md](ARCHITECTURE.md) e [core/docs/](../core/docs/).
 
-> **📖 Visão:** Para entender a filosofia do sistema, consulte [core/docs/vision/system_philosophy.md](docs/vision/system_philosophy.md).
+> **📖 Visão:** Para entender a filosofia do sistema, consulte [core/docs/vision/system_philosophy.md](../core/docs/vision/system_philosophy.md).
+
+### 🧭 Estados dos Épicos
+
+Cada épico percorre até seis estados. Detalhes em [process/refinement/planning_guidelines.md](process/refinement/planning_guidelines.md).
+
+- **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
+- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
+- **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
+- **`🔍 Detalhes definidos`** — checklist em [autonomous_readiness.md](process/refinement/autonomous_readiness.md) aplicado. Pronto para fluxo autônomo via Claude Code Web.
+- **`🏗️ Em andamento`** — implementação em curso, até o ciclo de fechamento.
+- **`✅ Implementado`** — ciclo de fechamento executado (ver [epic_completion.md](process/refinement/epic_completion.md)).
+
+> **Retroatividade:** épicos concluídos antes da introdução do modelo de 6 estados permanecem em formato simplificado (título ✅ + 1-2 linhas de resumo) e não são reclassificados retroativamente. O modelo aplica-se a épicos em andamento e futuros.
 
 ---
 
 ## 📋 Épicos Planejados
 
-### ⏳ Épicos Planejados (não refinados)
+### 🌱 Épicos em Visão
 
 #### ÉPICO 1: Pesquisador
 
 **Objetivo:** Agente para busca e síntese de literatura científica. Introduz Evidência como entidade prática.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** 🌱 Visão
 
 **Dependências:**
 - Revelar ÉPICO 2 (Catálogo de Conceitos)
@@ -29,17 +42,17 @@
 
 ---
 
-### ⏳ Épicos Motivados pelo Ensaio (não refinados)
+### 🌱 Épicos Motivados pelo Ensaio (em Visão)
 
-> **Nota:** Estes épicos são **motivados pelo produto Ensaio** (primeiro produto com necessidades além das do Revelar) mas **pertencem ao core** — serão reusados por outros produtos, especialmente Produtor Científico. O prefixo `C-ENSAIO-` identifica a motivação; o código fica no core e respeita o desacoplamento descrito em [core/docs/architecture/vision/super_system.md](docs/architecture/vision/super_system.md).
+> **Nota:** Estes épicos são **motivados pelo produto Ensaio** (primeiro produto com necessidades além das do Revelar) mas **pertencem ao core** — serão reusados por outros produtos, especialmente Produtor Científico. O prefixo `C-ENSAIO-` identifica a motivação; o código fica no core e respeita o desacoplamento descrito em [core/docs/vision/super_system.md](../core/docs/vision/super_system.md).
 
 #### ÉPICO C-ENSAIO-1: Parametrização de Contexto de Produto nos Agentes
 
 **Objetivo:** Agentes do core (Orquestrador e futuros) aceitam foco/domínio passado por produtos externos sem que o core conheça os produtos. Mecanismo de configuração a definir no refinamento.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** 🌱 Visão
 
-**Consulte:** [core/docs/architecture/vision/super_system.md](docs/architecture/vision/super_system.md) (seção "Injeção de Contexto de Produto")
+**Consulte:** [core/docs/vision/super_system.md](../core/docs/vision/super_system.md) (seção "Injeção de Contexto de Produto")
 
 ---
 
@@ -47,9 +60,9 @@
 
 **Objetivo:** Novo agente no core que recebe contexto conversacional e cognitive_model, devolve markdown estruturado. Nasce simples. Organizado para generalização futura (Produtor Científico reusará).
 
-**Status:** ✅ Refinado (pronto para implementação)
+**Status:** 📋 Critérios definidos
 
-**Decisões arquiteturais já tomadas:** ver [core/docs/architecture/agents/writer.md](docs/architecture/agents/writer.md)
+**Decisões arquiteturais já tomadas:** ver [core/docs/agents/writer/design.md](../core/docs/agents/writer/design.md)
 - Nasce no core (não no Ensaio)
 - Começa simples: nó que recebe contexto e devolve markdown
 - Estruturas de artigo vivem no prompt do Writer (não em enum/schema)
@@ -101,7 +114,7 @@
 
 **Objetivo:** Writer evolui para gerar artigo seção por seção em vez de bloco único, permitindo refinamento granular.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** 🌱 Visão
 
 **Dependências:**
 - C-ENSAIO-2 (Writer versão inicial)
@@ -112,7 +125,7 @@
 
 **Objetivo:** Mecanismo genérico para agentes do core consumirem conteúdo de arquivos anexados (notebook, markdown, CSV, imagens). Detalhes de parsing/extração a definir no refinamento.
 
-**Status:** ⏳ Planejado (não refinado)
+**Status:** 🌱 Visão
 
 ---
 
@@ -120,7 +133,7 @@
 
 **Objetivo:** Pendência nasce no produto Ensaio; promover para o core quando segundo produto precisar (provavelmente Produtor Científico). Épico condicionado à existência de segundo caso de uso.
 
-**Status:** ⏳ Planejado (não refinado, condicional)
+**Status:** 🌱 Visão (condicional)
 
 **Consulte:** [core/docs/architecture/data-models/ontology.md](docs/architecture/data-models/ontology.md) (seção "Entidades em Incubação")
 
@@ -130,7 +143,7 @@
 
 **Objetivo:** Componentes de UI conversacional (chat_input, chat_history e similares) hoje vivem em products/revelar/app/components/ e são reusados por outros produtos via import direto. Quando um terceiro produto consumir os mesmos componentes, ou quando surgir atrito concreto com o import cross-produto, promover os componentes compartilhados para core/ui_components/ (nome a definir no refinamento).
 
-**Status:** ⏳ Planejado (não refinado, condicional)
+**Status:** 🌱 Visão (condicional)
 
 **Dependências:**
 - POC do Ensaio (E-POC-1) em produção como primeiro consumidor externo
@@ -140,7 +153,7 @@
 - Terceiro produto com UI conversacional entrando no super-sistema, OU
 - Atrito concreto no import cross-produto atual (manutenção, testes, circularidade, etc.)
 
-**Consulte:** [core/docs/architecture/vision/super_system.md](docs/architecture/vision/super_system.md) (seção sobre componentes compartilhados entre produtos)
+**Consulte:** [core/docs/vision/super_system.md](../core/docs/vision/super_system.md) (seção sobre componentes compartilhados entre produtos)
 
 ---
 
@@ -158,11 +171,11 @@
 
 ## 📝 Observações
 
-**Regra:** Claude Code só trabalha em funcionalidades de épicos refinados.
+**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `🔍 Detalhes definidos`.
 
-> Para fluxo completo de planejamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
+> Para o processo completo de refinamento, consulte [planning_guidelines.md](process/refinement/planning_guidelines.md). Para a prontidão ao fluxo autônomo (alvo `🔍`), consulte [autonomous_readiness.md](process/refinement/autonomous_readiness.md). Para o fechamento do épico (saída), consulte [epic_completion.md](process/refinement/epic_completion.md).
 
 - Cada épico pode ser desenvolvido **isoladamente**
 - Entrega **valor incremental**
 - Pode ser **testado** antes do próximo
-- Épicos não refinados requerem discussão antes da implementação
+- Épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas` passam por sessão de refinamento antes da implementação

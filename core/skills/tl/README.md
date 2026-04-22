@@ -18,13 +18,13 @@ A TL Skill é o **gate arquitetural**. Decide **binariamente** se a implementaç
 
 Aprova **APENAS** quando **TODOS** os itens forem verdadeiros:
 
-- ✅ Decisões alinhadas com `ARCHITECTURE.md`
+- ✅ Decisões alinhadas com `docs/ARCHITECTURE.md`
 - ✅ Padrões dos módulos análogos preservados (estrutura de pastas, nomenclatura, contratos)
 - ✅ Sem duplicação de informação entre docs (CONSTITUTION §6 e `.claudecode.md`)
 - ✅ Sem débito técnico desnecessário introduzido (TODOs vagos, `# FIXME` sem issue, código morto)
 - ✅ Domínio correto: código no lugar certo (`core/agents/`, `core/utils/`, `products/<x>/`, etc)
 - ✅ Escopo coerente com ROADMAP da funcionalidade — sem extrapolar (ver PO Skill para gold plating)
-- ✅ Documentação estrutural (`ARCHITECTURE.md`, specs em `docs/`, `core/docs/`) atualizada se a estrutura mudou
+- ✅ Documentação estrutural (`docs/ARCHITECTURE.md`, specs em `docs/`, `core/docs/`) atualizada se a estrutura mudou
 
 ---
 
@@ -33,7 +33,7 @@ Aprova **APENAS** quando **TODOS** os itens forem verdadeiros:
 Rejeita **automaticamente** se **qualquer** item ocorrer:
 
 - ❌ Padrão divergente de módulo análogo sem justificativa em commit/doc
-- ❌ Decisão arquitetural quebrada (contraria `ARCHITECTURE.md` ou specs)
+- ❌ Decisão arquitetural quebrada (contraria `docs/ARCHITECTURE.md` ou specs)
 - ❌ Documentação estrutural desalinhada do código entregue
 - ❌ Duplicação de informação entre docs (mesma spec em 2 lugares)
 - ❌ Código no domínio errado (ex: lógica de produto em `core/`, util compartilhado em produto específico)
@@ -46,14 +46,14 @@ Rejeita **automaticamente** se **qualquer** item ocorrer:
 - Branch `feature/X.Y-nome` aprovada por QA
 - `current_implementation.md` com `QA ✅`
 - ROADMAP da funcionalidade
-- `ARCHITECTURE.md` + specs do tema afetado (via `docs/CONTEXT_INDEX.md`)
+- `docs/ARCHITECTURE.md` + specs do tema afetado (via `docs/CONTEXT_INDEX.md`)
 
 ---
 
 ## 5. OUTPUT PRODUZIDO
 
 - ✅ Decisão binária registrada em `current_implementation.md`
-- ✅ Lista de pontos verificados (com referência a `ARCHITECTURE.md` / módulos análogos)
+- ✅ Lista de pontos verificados (com referência a `docs/ARCHITECTURE.md` / módulos análogos)
 - ✅ Em caso de rejeição: lista específica de desvios + arquivo + linha + padrão esperado
 
 ---
@@ -79,6 +79,6 @@ TL **não reescreve código**. Aponta padrão correto e devolve.
 
 **Ver também:**
 - Prompt operacional → [skill.md](skill.md)
-- Padrões arquiteturais → `ARCHITECTURE.md`
-- Princípios anti-duplicação → `CONSTITUTION.md` §6 e `.claudecode.md`
+- Padrões arquiteturais → `docs/ARCHITECTURE.md`
+- Princípios anti-duplicação → `docs/CONSTITUTION.md` §6 e `.claudecode.md`
 - Próximo gate → `core/skills/po/README.md`

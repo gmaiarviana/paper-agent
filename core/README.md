@@ -10,13 +10,13 @@ Sistema multi-agente universal que serve múltiplos produtos.
 
 ## Documentação
 
-- `core/docs/vision/` - Filosofia e princípios
-- `core/docs/architecture/` - Estrutura técnica
-- `core/docs/agents/` - Especificações dos agentes
-- `core/ROADMAP.md` - Épicos e planejamento
+- `core/docs/vision/` - Filosofia, cognitive_model, super_system
+- `core/docs/architecture/` - Data models, multi-agent, patterns, infrastructure
+- `core/docs/agents/` - Pasta por agente (responsibilities + design)
+- `docs/ROADMAP.md` - Épicos e planejamento do core
 
 ## Referências
 
-- `ARCHITECTURE.md` (raiz) - Decisões arquiteturais
-- `CONSTITUTION.md` (raiz) - Processo de trabalho
+- `docs/ARCHITECTURE.md` - Decisões arquiteturais
+- `docs/CONSTITUTION.md` - Processo de trabalho
 

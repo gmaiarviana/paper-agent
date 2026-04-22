@@ -105,7 +105,7 @@ Problemas:
    Tipo: gold plating → devolver ao Dev.
 
 3. [ROADMAP NÃO ATUALIZADO]
-   core/ROADMAP.md ainda mostra 11.3 como pendente.
+   docs/ROADMAP.md ainda mostra 11.3 como pendente.
 
 Ação: devolver conforme tipo. NÃO seguir para Validation.
 ```

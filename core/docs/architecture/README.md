@@ -12,15 +12,10 @@ Modelagem de dados - ontologia, schemas, persistência
 - [Concept Model](./data-models/concept_model.md) - Schema técnico de Conceito
 - [Persistence](./data-models/persistence.md) - SQLite, checkpointer, schema base
 
-### [Agents](./agents/)
-Arquitetura técnica dos agentes do core
-- [Observer](./agents/observer/architecture.md) - Implementação técnica do Observador
-- [Orchestrator](./agents/orchestrator/) - Implementações do Orquestrador
-  - [Conversational](./agents/orchestrator/conversational/) - Orquestrador Conversacional (Épico 7)
-  - [Socratic](./agents/orchestrator/socratic.md) - Orquestrador Socrático (Épico 10)
-- [Multi-Agent](./agents/multi_agent/) - Super-grafo multi-agente (Épico 3-4)
+### [Multi-Agent](./multi_agent/)
+Super-grafo multi-agente (Épico 3-4) — orquestração do sistema de agentes como um todo.
 
-**Nota:** Para visão conceitual dos agentes (papel, responsabilidades), ver [../agents/overview.md](../agents/overview.md)
+**Nota:** Para arquitetura e responsabilidades de cada agente individual, ver [../agents/](../agents/) (cada agente tem sua própria pasta com `responsibilities.md` e, quando aplicável, `architecture.md` / `design.md`).
 
 ### [Patterns](./patterns/)
 Padrões e estratégias de design
@@ -30,17 +25,13 @@ Padrões e estratégias de design
 ### [Infrastructure](./infrastructure/)
 Infraestrutura técnica (stack, ferramentas)
 - [Tech Stack](./infrastructure/tech_stack.md) - ChromaDB, SQLite, sentence-transformers
-
-### [Vision](./vision/)
-Visão arquitetural de longo prazo
-- [Super System](./vision/super_system.md) - Core universal → Múltiplos produtos
+- [Config System](./infrastructure/config_system.md) - YAML configs, memória, execution tracker
 
 ---
 
 ## 🔗 Referências Relacionadas
 
-- [Visão do Produto](../../vision/) - Filosofia e visão de longo prazo
-- [Modelo Cognitivo](../../vision/cognitive_model/) - Base epistemológica
-- [Agentes (Conceitual)](../agents/) - Papel e responsabilidades dos agentes
-- [Produtos](../../../products/) - Paper-agent, Fichamento, etc
-
+- [Visão e Filosofia](../vision/) - Filosofia, visão de longo prazo e super-sistema
+- [Modelo Cognitivo](../vision/cognitive_model/) - Base epistemológica
+- [Agentes](../agents/) - Pasta por agente com responsabilidades e design técnico
+- [Produtos](../../../products/) - Revelar, Ensaio, etc

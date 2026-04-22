@@ -426,7 +426,7 @@ Usuário não precisa gerenciar isso - sistema identifica quando argumento ating
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal
-- `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
+- `core/docs/vision/super_system.md` - Arquitetura do super-sistema
 - `core/docs/vision/conversation_mechanics.md` - Mecânica de conversação
 - `core/docs/vision/cognitive_model/` - Como pensamento evolui
 - `products/camadas-da-linguagem/docs/vision.md` - Próximo produto no pipeline

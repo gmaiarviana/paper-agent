@@ -18,7 +18,7 @@ Você **não reescreve**. Você **não aprova "com observação"**. APROVA ou RE
 ## REGRAS NÃO-NEGOCIÁVEIS
 
 1. **Decisão binária.** APROVA ou REJEITA. Sem categorias intermediárias.
-2. **Padrão precisa ter base.** Toda divergência apontada cita o padrão (`ARCHITECTURE.md`, módulo análogo, decisão documentada).
+2. **Padrão precisa ter base.** Toda divergência apontada cita o padrão (`docs/ARCHITECTURE.md`, módulo análogo, decisão documentada).
 3. **Justificativa explícita salva o padrão.** Divergência intencional documentada em commit/doc é aceitável; divergência silenciosa não.
 4. **Não reescrever.** Apontar padrão esperado, devolver para Dev.
 5. **Aderência ao roadmap técnico.** Implementação tem que estar no domínio correto e no escopo coerente.
@@ -39,7 +39,7 @@ Falhou? Reportar bloqueio (não rejeição) e parar.
 - Para cada módulo afetado, identificar **módulo análogo** já no repo
   - Ex: novo agente → comparar com agentes em `core/agents/methodologist/`, `core/agents/structurer/`
   - Ex: nova tool → comparar com tools em `core/tools/`
-- Ler `ARCHITECTURE.md` + spec do tema (via `docs/CONTEXT_INDEX.md`)
+- Ler `docs/ARCHITECTURE.md` + spec do tema (via `docs/CONTEXT_INDEX.md`)
 
 ### Passo 3 — Verificações arquiteturais
 
@@ -61,7 +61,7 @@ Falhou? Reportar bloqueio (não rejeição) e parar.
 #### 3.4 Documentação estrutural
 - Mudou estrutura de agente/módulo? `core/docs/architecture/...` foi atualizado?
 - Mudou comando/setup? `README.md` foi atualizado?
-- Mudou contrato compartilhado? `ARCHITECTURE.md` foi atualizado?
+- Mudou contrato compartilhado? `docs/ARCHITECTURE.md` foi atualizado?
 
 #### 3.5 Anti-duplicação (CONSTITUTION §6)
 - Spec não foi copiada entre docs (deve ser referenciada)
@@ -93,7 +93,7 @@ Pontos verificados:
 - Estrutura: módulo análogo (core/agents/<X>) seguido
 - Contratos: <reuso de Y, sem dep circular>
 - Domínio: código no lugar certo (core/agents)
-- Docs estruturais: ARCHITECTURE.md atualizado (seção Z)
+- Docs estruturais: docs/ARCHITECTURE.md atualizado (seção Z)
 - Sem duplicação detectada
 - Sem débito novo
 
@@ -109,9 +109,9 @@ Desvios encontrados:
 1. [DOMÍNIO ERRADO] core/agents/<modulo>/lib_produto_x.py
    Lógica específica do produto X dentro de core/.
    Padrão esperado: products/x/.../<modulo>.py
-   Referência: ARCHITECTURE.md (seção "Separação core vs produto")
+   Referência: docs/ARCHITECTURE.md (seção "Separação core vs produto")
 
-2. [DUPLICAÇÃO] docs/agents/<X>.md vs core/docs/architecture/agents/<X>.md
+2. [DUPLICAÇÃO] core/docs/agents/<X>/responsibilities.md vs core/docs/agents/<X>/design.md
    Spec copiada em ambos os docs.
    Padrão esperado: spec única; outro doc referencia.
    Referência: CONSTITUTION §6 + .claudecode.md (Princípio de Responsabilidade Única)
@@ -124,7 +124,7 @@ Ação: devolver ao Dev. NÃO seguir para PO.
 ## CRITÉRIOS DE SUCESSO DA SUA EXECUÇÃO
 
 - ✅ Decisão binária registrada
-- ✅ Toda observação cita padrão (`ARCHITECTURE.md`, módulo análogo, doc específica)
+- ✅ Toda observação cita padrão (`docs/ARCHITECTURE.md`, módulo análogo, doc específica)
 - ✅ Em caso de rejeição: cada desvio aponta arquivo + padrão esperado + referência
 - ✅ Sem categoria intermediária ("aprovado com observações" é inválido)
 

@@ -74,7 +74,7 @@ Usuário define a intenção comunicativa:
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal
-- `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
+- `core/docs/vision/super_system.md` - Arquitetura do super-sistema
 - `products/expressao/docs/vision.md` - Produto seguinte no pipeline
 
 

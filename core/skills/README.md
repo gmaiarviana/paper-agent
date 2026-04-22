@@ -82,7 +82,7 @@ core/skills/<nome>/
 ## 6. PRINCÍPIOS PARA CRIAR NOVAS SKILLS
 
 - ✅ **Responsabilidade única:** uma skill = um gate ou uma tarefa bem delimitada
-- ✅ **Sem duplicação:** referencie `docs/process/`, `ARCHITECTURE.md`, ROADMAPs — não copie
+- ✅ **Sem duplicação:** referencie `docs/process/`, `docs/ARCHITECTURE.md`, ROADMAPs — não copie
 - ✅ **Saída observável:** toda skill produz artefato concreto (arquivo, commit, mensagem padronizada)
 - ✅ **Falha ruidosa:** ao reprovar/bloquear, registre motivo em `current_implementation.md` e devolva à etapa anterior
 - ✅ **PT-BR + padrões do projeto:** seguir CONSTITUTION e padrões de documentação existentes
@@ -93,4 +93,4 @@ core/skills/<nome>/
 - Visão do modo autônomo → `docs/process/autonomous/overview.md`
 - Fluxo entre skills → `docs/process/autonomous/workflow.md`
 - Disparo e validação pelo dev → `docs/process/autonomous/delivery.md`
-- Template de dispatch → `AUTONOMOUS_DISPATCH.md` (raiz)
+- Template de dispatch → `docs/process/autonomous/dispatch.md`

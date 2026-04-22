@@ -11,14 +11,14 @@
 
 ### Documentos Base (Obrigatórios)
 - **README.md**: Como rodar a aplicação (setup, contexto da POC)
-- **ARCHITECTURE.md**: Visão arquitetural de alto nível
-- **ROADMAP.md**: Funcionalidades planejadas e status dos épicos
-- **docs/agents/overview.md**: Papéis e limites dos agentes
+- **docs/ARCHITECTURE.md**: Visão arquitetural de alto nível
+- **docs/ROADMAP.md** (ou `products/<produto>/ROADMAP.md`): Funcionalidades planejadas e status dos épicos
+- **core/docs/agents/overview.md**: Papéis e limites dos agentes
 - **../refinement/planning_guidelines.md**: Regras de planejamento e governança
 
 ### Entrada
 - Dev escolhe: "Funcionalidade X.Y do roadmap"
-- Arquivos contextuais: ROADMAP.md, README.md, ARCHITECTURE.md
+- Arquivos contextuais: ROADMAP (docs/ ou product), README.md, docs/ARCHITECTURE.md
 
 ### Saída
 - Branch com código implementado

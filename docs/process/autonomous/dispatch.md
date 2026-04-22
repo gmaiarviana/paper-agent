@@ -1,7 +1,7 @@
-# AUTONOMOUS_DISPATCH.md
+# Autonomous Dispatch
 
 > **📌 Uso:** copie o template abaixo, substitua os placeholders e cole no [claude.ai/code](https://claude.ai/code) sobre o repositório `paper-agent`.
-> **📌 Pré-requisito:** funcionalidade pertence a épico **refinado** no ROADMAP. Caso contrário, use o fluxo manual.
+> **📌 Pré-requisito:** funcionalidade pertence a épico em **`🔍 Detalhes definidos`** no ROADMAP (checklist `docs/process/refinement/autonomous_readiness.md` aplicado). Épicos em `📋 Critérios definidos` usam o fluxo manual via Cursor; em `🌱 Visão` ou `📐 Funcionalidades esboçadas`, passam por sessão de refinamento antes.
 > **📌 Documentação completa:** `docs/process/autonomous/`
 
 ---
@@ -12,7 +12,7 @@
 Dispatch Autônomo - [Funcionalidade X.Y]
 
 Funcionalidade: [X.Y - nome da funcionalidade conforme ROADMAP]
-Roadmap: [core/ROADMAP.md OU products/<produto>/ROADMAP.md]
+Roadmap: [docs/ROADMAP.md OU products/<produto>/ROADMAP.md]
 Branch: feature/X.Y-nome
 Modo: Autônomo (Planning → Dev → QA → TL → PO → Validation)
 
@@ -20,8 +20,8 @@ Implementar a funcionalidade X.Y seguindo o fluxo autônomo definido em
 docs/process/autonomous/ (overview.md, workflow.md, delivery.md).
 
 Contexto obrigatório a ler antes de iniciar:
-- CONSTITUTION.md
-- ARCHITECTURE.md
+- docs/CONSTITUTION.md
+- docs/ARCHITECTURE.md
 - docs/process/refinement/planning_guidelines.md
 - [Roadmap acima]
 - docs/process/autonomous/workflow.md
@@ -45,10 +45,11 @@ Entrega esperada (Validation Skill):
 
 ## CHECKLIST ANTES DE DISPARAR
 
-- [ ] Funcionalidade X.Y está em épico **refinado** no ROADMAP
+- [ ] Funcionalidade X.Y está em épico marcado como **`🔍 Detalhes definidos`** no ROADMAP
+- [ ] Refinamento com alvo `🔍 Detalhes definidos` aplicado — itens de `docs/process/refinement/autonomous_readiness.md` cobertos (termos, contratos, arquivos-alvo, integração, acoplamentos, testes)
 - [ ] Critérios de aceite estão claros e testáveis
 - [ ] Dependências técnicas implementadas e validadas
-- [ ] Sem decisões arquiteturais em aberto (caso contrário → fluxo manual)
+- [ ] Sem decisões arquiteturais em aberto (caso contrário → fluxo manual via Cursor)
 - [ ] Nome da branch segue padrão `feature/X.Y-nome`
 - [ ] `docs/process/current_implementation.md` **não existe** (épico anterior finalizado)
 
@@ -60,7 +61,7 @@ Entrega esperada (Validation Skill):
 Dispatch Autônomo - Funcionalidade 11.3
 
 Funcionalidade: 11.3 - Detecção de Maturidade via Snapshots
-Roadmap: core/ROADMAP.md
+Roadmap: docs/ROADMAP.md
 Branch: feature/11.3-snapshot-detection
 Modo: Autônomo (Planning → Dev → QA → TL → PO → Validation)
 

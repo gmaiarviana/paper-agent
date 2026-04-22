@@ -2,16 +2,16 @@
 
 > **📌 Localização:** `core/skills/planning/`
 > **📌 Etapa do fluxo:** primeira (antes do Dev) — `docs/process/autonomous/workflow.md` §1
-> **📌 Pré-requisito:** funcionalidade pertence a épico **refinado** no ROADMAP.
+> **📌 Pré-requisito:** funcionalidade pertence a épico em **`🔍 Detalhes definidos`** no ROADMAP (checklist `docs/process/refinement/autonomous_readiness.md` aplicado).
 
 ---
 
 ## 1. QUANDO USAR
 
-Use quando o dispatch autônomo (`AUTONOMOUS_DISPATCH.md`) é recebido e antes de qualquer linha de código ser escrita.
+Use quando o dispatch autônomo (`docs/process/autonomous/dispatch.md`) é recebido e antes de qualquer linha de código ser escrita.
 
 **Não usar se:**
-- ❌ Funcionalidade está em épico não-refinado (refinamento é manual via Claude Web)
+- ❌ Funcionalidade está em épico `🌱 Visão`, `📐 Funcionalidades esboçadas` ou `📋 Critérios definidos` (refinamento em qualquer alvo é manual via Claude Web; alvo `🔍 Detalhes definidos` segue `docs/process/refinement/autonomous_readiness.md`)
 - ❌ Há decisão arquitetural em aberto (devolver ao dev)
 - ❌ `docs/process/current_implementation.md` já existe (épico anterior não fechou)
 
@@ -21,7 +21,7 @@ Use quando o dispatch autônomo (`AUTONOMOUS_DISPATCH.md`) é recebido e antes d
 
 A skill executa, em ordem:
 
-1. **Leitura de contexto** — ROADMAP (core ou produto), ARCHITECTURE.md, `docs/CONTEXT_INDEX.md`, specs do tema afetado.
+1. **Leitura de contexto** — ROADMAP (core ou produto), `docs/ARCHITECTURE.md`, `docs/CONTEXT_INDEX.md`, specs do tema afetado.
 2. **Quebra em tasks** — divide a funcionalidade em tarefas curtas e ordenadas por dependência técnica.
 3. **Detecção de ambiguidades** — varre critérios de aceite e contexto técnico em busca de pontos abertos.
 4. **Resolução por consulta** — para cada ambiguidade, tenta resolver via docs antes de assumir.
@@ -37,9 +37,9 @@ A skill executa, em ordem:
 
 - Funcionalidade `X.Y` (id do ROADMAP)
 - Branch alvo (`feature/X.Y-nome`)
-- Roadmap aplicável (`core/ROADMAP.md` ou `products/<produto>/ROADMAP.md`)
+- Roadmap aplicável (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`)
 
-Geralmente vem preenchido via `AUTONOMOUS_DISPATCH.md`.
+Geralmente vem preenchido via `docs/process/autonomous/dispatch.md`.
 
 ---
 

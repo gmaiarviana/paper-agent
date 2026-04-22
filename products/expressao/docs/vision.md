@@ -65,7 +65,7 @@ Fork de Expressão otimizado para artigos acadêmicos:
 ## Referências
 
 - `core/docs/vision/system_philosophy.md` - Filosofia universal
-- `core/docs/architecture/vision/super_system.md` - Arquitetura do super-sistema
+- `core/docs/vision/super_system.md` - Arquitetura do super-sistema
 - `products/camadas-da-linguagem/docs/vision.md` - Produto anterior no pipeline
 - `products/produtor-cientifico/docs/vision.md` - Especialização para artigos
 

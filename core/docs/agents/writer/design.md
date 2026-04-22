@@ -10,7 +10,7 @@ O Writer **não nasce no produto Ensaio**. É um agente do core desde o início,
 **Justificativa:**
 - O Writer será reusado pelo Produtor Científico (ver `products/produtor-cientifico/docs/vision.md`).
 - Colocá-lo inicialmente dentro do Ensaio exigiria promoção posterior ao core, repetindo o custo que a separação Core ↔ Produto existe justamente para evitar.
-- Ver `core/docs/architecture/vision/super_system.md` para o princípio de desacoplamento.
+- Ver `core/docs/vision/super_system.md` para o princípio de desacoplamento.
 
 ## Decisão Arquitetural: Começa Simples
 
@@ -47,13 +47,13 @@ O caminho V1 → estado-alvo passa pelo Protótipo e MVP do Ensaio. O épico E-P
 
 ## Injeção de Contexto de Produto
 
-Writer recebe contexto de domínio/foco via parâmetros, **sem conhecer o nome do produto consumidor**. Segue o padrão descrito em `core/docs/architecture/vision/super_system.md` (Injeção de Contexto de Produto).
+Writer recebe contexto de domínio/foco via parâmetros, **sem conhecer o nome do produto consumidor**. Segue o padrão descrito em `core/docs/vision/super_system.md` (Injeção de Contexto de Produto).
 
 ## Referências
 
 - `core/docs/agents/overview.md` — Responsabilidades do Escritor
-- `core/docs/architecture/vision/super_system.md` — Desacoplamento Core ↔ Produto
-- `core/ROADMAP.md` — Épico Escritor (C-ENSAIO-2 V1; C-ENSAIO-3 refinamento por seção)
+- `core/docs/vision/super_system.md` — Desacoplamento Core ↔ Produto
+- `docs/ROADMAP.md` — Épico Escritor (C-ENSAIO-2 V1; C-ENSAIO-3 refinamento por seção)
 - `products/ensaio/docs/vision.md` — Primeiro produto consumidor
 - `products/ensaio/ROADMAP.md` — Épico E-POC-3 (padrão de loop externo de refinamento na POC); Épico E-PROTO-5 (Metodologista aplicado ao Ensaio — candidato para provocação ativa)
 - `products/produtor-cientifico/docs/vision.md` — Segundo produto consumidor (futuro)
