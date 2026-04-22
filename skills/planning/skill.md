@@ -103,7 +103,7 @@ Sem essas respostas não posso garantir que o plano seja executável sem suposi�
 **Não prossiga ao Passo 8 enquanto não tiver as respostas.**
 
 ### Passo 8 — Persistência do plano
-Criar `docs/process/current_implementation.md` no template abaixo.
+Criar `docs/process/current_implementation.md` no template abaixo. Ao criar, **preencher imediatamente** a própria linha de evidência na seção "Evidências de carregamento de skill": `[PLANNING] skill carregada: skills/planning/skill.md ✅ <timestamp agora>`. Essa linha é o gatilho que autoriza o Dev e gates subsequentes — sem ela, as próximas skills abortam.
 
 ---
 
@@ -150,12 +150,23 @@ Criar `docs/process/current_implementation.md` no template abaixo.
 ---
 
 ## Status dos Gates
-- [ ] Planning ✅ <data>
+- [x] Planning ✅ <data>
 - [ ] Dev
 - [ ] QA
 - [ ] TL
 - [ ] PO
 - [ ] Validation
+
+### Evidências de carregamento de skill
+Cada skill registra aqui sua linha imediatamente ao iniciar o gate, antes de executar qualquer outro passo. Um gate sem linha correspondente = fluxo corrompido e deve ser abortado pela próxima skill.
+
+- [PLANNING] skill carregada: skills/planning/skill.md ✅ <YYYY-MM-DD HH:MM>
+- [QA] skill carregada: skills/qa/skill.md ✅ <YYYY-MM-DD HH:MM>
+- [TL] skill carregada: skills/tl/skill.md ✅ <YYYY-MM-DD HH:MM>
+- [PO] skill carregada: skills/po/skill.md ✅ <YYYY-MM-DD HH:MM>
+- [VALIDATION] skill carregada: skills/validation/skill.md ✅ <YYYY-MM-DD HH:MM>
+
+(Planning preenche a primeira linha imediatamente; as demais são preenchidas pelas skills respectivas ao iniciarem. Validation não prossegue se faltar qualquer linha anterior.)
 
 ## Histórico de Reprovações
 (vazio inicialmente; gates registram aqui ao reprovar)

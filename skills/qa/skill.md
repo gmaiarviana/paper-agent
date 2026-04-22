@@ -26,12 +26,19 @@ Você **não corrige código**. Você **não negocia critério**. Você **não a
 
 ## SEQUÊNCIA OBRIGATÓRIA
 
-### Passo 1 — Pré-checagens
-- [ ] `docs/process/current_implementation.md` existe e tem `Dev ✅`
+### Passo 1 — Pré-checagens (GATE DE ENTRADA)
+- [ ] `docs/process/current_implementation.md` existe
+- [ ] Seção "Status dos Gates" contém `Planning ✅` e `Dev ✅`
+- [ ] Seção "Status dos Gates" contém a linha de evidência do Planning: `[PLANNING] skill carregada: skills/planning/skill.md ✅ <timestamp>`
 - [ ] Branch `feature/X.Y-nome` tem commits novos vs `main`
 - [ ] Ambiente preparado: venv ativo, deps instaladas
 
-Falhou? Reportar bloqueio (não confundir com rejeição) e parar.
+Se qualquer item do gate de entrada falhar, **ABORTE**: reportar bloqueio e parar. Não executar QA sem Dev concluído e Planning comprovadamente carregado — qualquer outra situação indica fluxo corrompido (pulando gates) e deve ser devolvido ao dev.
+
+Ao iniciar efetivamente o gate, registrar em `current_implementation.md` → "Status dos Gates":
+```
+[QA] skill carregada: skills/qa/skill.md ✅ <YYYY-MM-DD HH:MM>
+```
 
 ### Passo 2 — Inventário do diff
 Coletar:

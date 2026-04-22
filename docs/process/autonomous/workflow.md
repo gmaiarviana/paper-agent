@@ -3,6 +3,7 @@
 > **📌 Localização:** `docs/process/autonomous/`
 > **📌 Público:** Claude Code Web operando em modo autônomo.
 > **📌 Princípio:** cada skill é um gate. Reprovou → volta para a etapa anterior antes de avançar.
+> **📌 Obrigatório:** antes de executar cada gate, abrir e seguir o `skill.md` correspondente (prompt operacional). Este arquivo descreve o fluxo geral; o `skill.md` de cada gate é a spec executável — não substituir um pelo outro.
 
 ---
 
@@ -17,6 +18,8 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 ---
 
 ## 1. PLANNING SKILL
+
+> **📌 Spec executável obrigatória:** `skills/planning/skill.md` — carregar antes de iniciar este gate.
 
 **Objetivo:** transformar funcionalidade do ROADMAP em plano de implementação executável.
 
@@ -66,6 +69,8 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 
 ## 3. QA SKILL
 
+> **📌 Spec executável obrigatória:** `skills/qa/skill.md` — carregar antes de iniciar este gate.
+
 **Objetivo:** validar qualidade técnica antes de seguir.
 
 **Deve verificar:**
@@ -89,6 +94,8 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 
 ## 4. TL SKILL (Tech Lead)
 
+> **📌 Spec executável obrigatória:** `skills/tl/skill.md` — carregar antes de iniciar este gate.
+
 **Objetivo:** validar arquitetura, padrões e aderência ao ROADMAP técnico.
 
 **Deve verificar:**
@@ -111,6 +118,8 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 
 ## 5. PO SKILL (Product Owner)
 
+> **📌 Spec executável obrigatória:** `skills/po/skill.md` — carregar antes de iniciar este gate.
+
 **Objetivo:** validar critérios de aceite da funcionalidade.
 
 **Deve verificar:**
@@ -130,6 +139,8 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 ---
 
 ## 6. VALIDATION SKILL
+
+> **📌 Spec executável obrigatória:** `skills/validation/skill.md` — carregar antes de iniciar este gate.
 
 **Objetivo:** preparar entrega para o dev validar manualmente.
 

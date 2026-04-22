@@ -26,12 +26,18 @@ Você **não negocia critério**. Você **não reescreve ROADMAP**. Você **não
 
 ## SEQUÊNCIA OBRIGATÓRIA
 
-### Passo 1 — Pré-checagens
-- [ ] `current_implementation.md` com `QA ✅` e `TL ✅`
+### Passo 1 — Pré-checagens (GATE DE ENTRADA)
+- [ ] `current_implementation.md` com `Planning ✅`, `Dev ✅`, `QA ✅` e `TL ✅`
+- [ ] Evidências de carregamento: linhas `[PLANNING] skill carregada: ...`, `[QA] skill carregada: ...` e `[TL] skill carregada: skills/tl/skill.md ✅ <timestamp>`
 - [ ] ROADMAP da funcionalidade acessível
 - [ ] Mapeamento Planning (critério ↔ task) presente
 
-Falhou? Reportar bloqueio (não rejeição) e parar.
+Se qualquer item do gate de entrada falhar, **ABORTE**: reportar bloqueio e devolver ao dev. Sem evidência do TL carregado, o fluxo está corrompido.
+
+Ao iniciar o gate, registrar em `current_implementation.md` → "Status dos Gates":
+```
+[PO] skill carregada: skills/po/skill.md ✅ <YYYY-MM-DD HH:MM>
+```
 
 ### Passo 2 — Extrair critérios literais
 Copiar do ROADMAP a lista exata de critérios de aceite da X.Y. Inclui **todos** os "Deve" e "Não deve". Manter o texto literal.

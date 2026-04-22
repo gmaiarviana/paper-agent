@@ -27,12 +27,18 @@ Você **não reescreve**. Você **não aprova "com observação"**. APROVA ou RE
 
 ## SEQUÊNCIA OBRIGATÓRIA
 
-### Passo 1 — Pré-checagens
-- [ ] `current_implementation.md` com `QA ✅`
+### Passo 1 — Pré-checagens (GATE DE ENTRADA)
+- [ ] `current_implementation.md` com `Planning ✅`, `Dev ✅` e `QA ✅`
+- [ ] Evidências de carregamento nas linhas anteriores: `[PLANNING] skill carregada: ...` e `[QA] skill carregada: skills/qa/skill.md ✅ <timestamp>`
 - [ ] Branch tem commits recentes vs `main`
 - [ ] Plano de tasks (Planning) acessível para confronto
 
-Falhou? Reportar bloqueio (não rejeição) e parar.
+Se qualquer item do gate de entrada falhar, **ABORTE**: reportar bloqueio e devolver ao dev. Sem evidência do QA carregado, o fluxo está corrompido.
+
+Ao iniciar o gate, registrar em `current_implementation.md` → "Status dos Gates":
+```
+[TL] skill carregada: skills/tl/skill.md ✅ <YYYY-MM-DD HH:MM>
+```
 
 ### Passo 2 — Inventário e contexto técnico
 - Listar arquivos modificados (`git diff --name-only main...HEAD`)
