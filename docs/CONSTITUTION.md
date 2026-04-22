@@ -6,18 +6,24 @@ Princípios não-negociáveis para trabalhar com este projeto.
 
 ## 1. PRINCÍPIOS DE TRABALHO
 
+### Unidade de Entrega
+- **Fluxo autônomo: milestone.** Um **milestone** agrupa épicos relacionados dentro de um estágio (POC, Protótipo, MVP). Um estágio pode ter 1 ou N milestones. Um milestone fecha quando todos os seus épicos caem na branch do milestone, validados pelos gates automáticos, e recebem aval humano.
+- **Fluxo manual via Cursor: funcionalidade/épico.** O fluxo manual segue operando no grão de funcionalidade dentro de épico, como ferramenta complementar ao autônomo.
+- Estágio, milestone, épico e funcionalidade são definidos no Glossário ao fim deste documento.
+
 ### Como Refinamos
 - POC → Protótipo → MVP (incremental)
 - Discussão > especulação antecipada
 - Épicos percorrem até seis estados no ROADMAP: `🌱 Visão` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `✅ Implementado`. Modelo completo em `docs/process/refinement/planning_guidelines.md`.
-- Toda sessão de refinamento começa com um **alvo declarado** (o estado ao qual o épico deve chegar). O Claude Web conduz as perguntas até atingir o alvo, sem parar em estados intermediários.
+- Toda sessão de refinamento começa com um **alvo declarado** (o estado ao qual o épico deve chegar). O refinador — Claude Web (estratégico) ou PM skill (tático, dentro da branch do milestone) — conduz as perguntas até atingir o alvo, sem parar em estados intermediários.
 - Alvo `📋 Critérios definidos` basta para o fluxo manual via Cursor.
-- Alvo `🔍 Detalhes definidos` é pré-requisito do fluxo autônomo; guiado pelo checklist em `docs/process/refinement/autonomous_readiness.md`. Aplicado sob demanda para o épico específico que vai ser disparado.
+- Alvo `🔍 Detalhes definidos` é pré-requisito do fluxo autônomo; guiado pelo checklist em `docs/process/refinement/autonomous_readiness.md`. Aplicado sob demanda, épico a épico — pelo Claude Web antes do milestone existir, ou pela PM skill dentro da branch do milestone quando o milestone é disparado com épicos ainda em `🌱` ou `📐`.
 - Fechamento do épico (extração de conhecimento permanente + poda do ROADMAP) segue `docs/process/refinement/epic_completion.md` antes de marcar como `✅ Implementado`.
 - Funcionalidades detalhadas aceleram implementação.
 
 ### Como Implementamos
-- Claude web refina → Cursor atualiza docs → Claude Code implementa
+- Refinamento estratégico (visão → milestones → épicos) via Claude Web → docs atualizadas → fluxo manual via Cursor (grão de funcionalidade) OU fluxo autônomo via Claude Code Web (grão de milestone)
+- Milestone disparado por linguagem natural ("implementa a POC do Ensaio") entra em branch própria `milestone/<id-em-caixa-baixa>`; main só recebe milestone com aval humano
 - TDD pragmático (lógica crítica sim, UI não)
 - Validação incremental obrigatória
 - Commits estratégicos (não obrigatórios)
@@ -66,7 +72,7 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 - ❌ Criar documentação extra (README, resumos, etc)
 
 ### Claude Code (Implementador)
-**Papel:** Implementar código baseado em documentações atualizadas.
+**Papel:** Implementar código baseado em documentações atualizadas e — no fluxo autônomo, dentro da branch do milestone — refinar épicos ainda pendentes via PM skill.
 
 **Deve:**
 - ✅ Seguir docs/process/implementation/ (guidelines)
@@ -75,10 +81,17 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 - ✅ TDD onde aplicável
 - ✅ Validar incrementalmente
 - ✅ Atualizar docs se mudou estrutura
+- ✅ No fluxo autônomo, refinar épicos de um milestone que ainda estão em `🌱` ou `📐` **dentro da branch do milestone**, via PM skill, antes de entrar em implementação — nunca em main
 
 **Não deve:**
-- ❌ Refinar épicos (refinamento em qualquer alvo — `📋 Critérios definidos` ou `🔍 Detalhes definidos` — é manual, via Claude Web)
+- ❌ Refinar visão ou quebrar visão em milestones (trabalho estratégico, feito via Claude Web antes de existir milestone)
+- ❌ Mergear em main sem aval humano explícito sobre o milestone
 - ❌ Tomar decisões arquiteturais sem base
+
+**Princípio de refinamento na reforma:**
+- Refinamento **estratégico** (visão → milestones, visão → épicos em `🌱`/`📐`) segue sendo feito via Claude Web, antes de qualquer milestone existir.
+- Refinamento **tático** (épico em `🌱` ou `📐` → `🔍 Detalhes definidos`) acontece dentro da branch do milestone, via PM skill, como parte do fluxo autônomo.
+- `main` só recebe milestone que passou por todos os gates automáticos e recebeu aval humano explícito.
 
 ---
 
@@ -107,23 +120,38 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 - Recomendar baseado em vision.md + guidelines
 - Justificar recomendação
 
-**4. Gerar Prompts**
+**4. Gerar Prompts** (quando a entrada é para fluxo manual via Cursor)
 - Múltiplos prompts (1 por arquivo)
 - Ordem de execução clara
 - Instruções enxutas (Cursor pensa também)
 - Manter padrões existentes
 
 **5. Validação**
-- Confirmar que prompts fazem sentido
+- Confirmar que prompts ou plano de milestones fazem sentido
 - Verificar se nada foi esquecido
 
-### Output Esperado (Claude web gera)
+### Output Esperado
+
+O formato do output depende do alvo da sessão de refinamento. Os dois formatos abaixo são complementares — sessões estratégicas produzem o primeiro, sessões de preparação para o fluxo manual produzem o segundo.
+
+**Formato A — Sessão estratégica (visão → milestones / épicos em `🌱` / `📐`)**
+
+Lista de milestones e/ou épicos proposta para o ROADMAP do produto, com o id no formato `<ESTAGIO>-<PRODUTO>` e o agrupamento de épicos por milestone. Nenhum prompt para Cursor — a materialização no ROADMAP é parte do fluxo de desenvolvimento a jusante.
+
+**Formato B — Sessão de preparação para fluxo manual via Cursor (alvo `📋 Critérios definidos` ou `🔍 Detalhes definidos` de épicos já existentes)**
+
+Um prompt por arquivo a atualizar, para o Cursor executar:
+
+```
 PROMPT 1: ROADMAP.md
 [instruções enxutas pro Cursor]
 PROMPT 2: core/docs/agents/orchestrator/conversational/README.md
 [instruções enxutas pro Cursor]
 PROMPT 3: docs/ARCHITECTURE.md
 [instruções enxutas pro Cursor]
+```
+
+> No fluxo autônomo, refinamento tático (épico em `🌱`/`📐` → `🔍`) não passa por Claude Web nem por Cursor — acontece dentro da branch do milestone, via PM skill, como parte da mesma sessão de dispatch.
 
 ---
 
@@ -277,7 +305,29 @@ paper-agent/
 
 ---
 
-**Versão:** 1.0  
-**Data:** 15/11/2025  
-**Para:** Claude Web (consultor estratégico de refinamento)
+## 9. GLOSSÁRIO
+
+Quatro termos fixam a hierarquia de entrega usada pelo projeto. Refinamento, planejamento e dispatch se referem a eles com esse significado exato.
+
+**Estágio**
+Fase do produto no eixo "quem usa": POC (prova que a ideia faz sentido), Protótipo (o próprio dev usa de verdade), MVP (outros usam sem o dev do lado). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo.
+
+**Milestone**
+Unidade de entrega do **fluxo autônomo**. Agrupa épicos relacionados dentro de um mesmo estágio. Um estágio pode ter 1 ou N milestones. Um milestone é disparado por linguagem natural ("implementa a POC do Ensaio"), executado numa branch `milestone/<id-em-caixa-baixa>`, e só chega em main depois do aval humano explícito.
+
+- **Id do milestone:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`.
+- **Sufixo** quando um estágio tem mais de um milestone: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`.
+- **Branch:** id em caixa baixa com `milestone/` na frente. Ex.: `milestone/poc-ensaio`.
+
+**Épico**
+Agrupamento coeso de funcionalidades que entrega valor incremental. Unidade do ROADMAP. Percorre até seis estados (`🌱 Visão` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `✅ Implementado`). Um épico pode pertencer a um milestone (quando for ser executado via fluxo autônomo) ou ser implementado isoladamente no fluxo manual via Cursor.
+
+**Funcionalidade**
+Unidade mínima de trabalho dentro de um épico. Tem critérios de aceite próprios e, em estado `🔍`, detalhes de execução fechados (arquivos-alvo, contratos, acoplamentos, escopo de teste). É a unidade do **fluxo manual** via Cursor; no fluxo autônomo é a unidade sobre a qual cada gate (QA/TL/PO) decide APROVA/REJEITA.
+
+---
+
+**Versão:** 1.1
+**Data:** 22/04/2026
+**Para:** Claude Web (consultor estratégico de refinamento) e Claude Code Web (executor autônomo)
 

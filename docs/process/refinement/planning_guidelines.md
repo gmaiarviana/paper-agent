@@ -32,6 +32,14 @@ Você fornece ao Claude Web:
 - 5 arquivos essenciais: docs/CONSTITUTION.md, docs/ROADMAP.md, products/revelar/ROADMAP.md, docs/ARCHITECTURE.md, planning_guidelines (este)
 
 ### Claude Web Deve
+
+> **Nota — refinamento estratégico vs tático.** A partir da reforma em curso (milestone como unidade de entrega), o refinamento se divide em duas modalidades:
+>
+> - **Estratégico (Claude Web, externo ao repo):** quebra uma visão em milestones e/ou épicos em `🌱 Visão`/`📐 Funcionalidades esboçadas`, e leva épicos a `📋 Critérios definidos` ou `🔍 Detalhes definidos` **antes de existir milestone em execução**. É o processo descrito nesta seção.
+> - **Tático (PM skill, dentro da branch do milestone):** leva épicos de um milestone já disparado que ainda estão em `🌱` ou `📐` até `🔍 Detalhes definidos`, aplicando o checklist de `autonomous_readiness.md`. A PM skill (a ser criada em M3b da reforma do fluxo) consome o mesmo checklist, mas opera dentro de sessão do Claude Code Web, com acesso direto ao repo, sem gerar prompts para Cursor.
+>
+> Ambos produzem o mesmo estado final no ROADMAP (épico em `🔍`). O que muda é **quem refina** e **onde o resultado é commitado** (fora da branch do milestone, no caso estratégico; dentro, no caso tático).
+
 1. **Análise Contextual:** Consultar vision.md, docs/ROADMAP.md ou products/revelar/ROADMAP.md (épicos anteriores), specs técnicas via mapa
 2. **Clarificação:** Fazer perguntas específicas, validar entendimento, apontar trade-offs
 3. **Recomendação:** Oferecer opções + recomendação balizada por vision.md e guidelines
@@ -126,6 +134,8 @@ Cada prompt é enxuto mas claro, deixando Cursor pensar também.
 ### Seis Estados de Refinamento
 
 Um épico percorre até seis estados no ROADMAP. Os quatro primeiros são de refinamento progressivo; os dois últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo.
+
+> **Nota — onde o refinamento acontece.** Até `📋 Critérios definidos`, o refinamento sempre é estratégico, via Claude Web, antes de qualquer milestone em execução. Já a transição de `🌱`/`📐`/`📋` para `🔍 Detalhes definidos` pode acontecer em duas situações distintas: (a) externamente, via Claude Web, como preparação antecipada; ou (b) dentro da branch de um milestone já disparado, via PM skill (skill a ser criada em M3b da reforma do fluxo), como parte do próprio fluxo autônomo. Ambos caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
 
 **`🌱 Visão`** — apenas objetivo definido.
 Estado inicial de qualquer épico promovido a partir do backlog ou produzido por uma sessão do tipo "me quebra essa ideia em épicos a partir da visão". Captura intenção e valor de negócio; não é executável por nenhum fluxo.
