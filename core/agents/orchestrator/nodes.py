@@ -738,6 +738,22 @@ def orchestrator_node(state: MultiAgentState, config: Optional[RunnableConfig] =
     # Usar prompt socrático do Épico 10
     from core.prompts import ORCHESTRATOR_SOCRATIC_PROMPT_V1
 
+    # Injeção de contexto de produto (E-POC-2.3): se o produto consumidor passou
+    # product_context via config.configurable, prepende seção opcional ao prompt
+    # socrático. Quando ausente/vazio, o comportamento é idêntico ao anterior.
+    socratic_prompt = ORCHESTRATOR_SOCRATIC_PROMPT_V1
+    product_context = None
+    if config:
+        product_context = config.get("configurable", {}).get("product_context")
+    if product_context and isinstance(product_context, str) and product_context.strip():
+        socratic_prompt = (
+            "## CONTEXTO DO PRODUTO\n"
+            f"{product_context.strip()}\n\n"
+            "---\n\n"
+            f"{socratic_prompt}"
+        )
+        logger.info("Orchestrator: product_context injetado no prompt")
+
     # Construir contexto completo (histórico + input atual)
     full_context = _build_context(state)
     logger.info("Contexto construído com histórico completo")
@@ -753,8 +769,8 @@ ARGUMENTO FOCAL ANTERIOR:
 (Compare com novo input para detectar mudança de direção)
 """
 
-    # Construir prompt completo
-    conversational_prompt = f"""{ORCHESTRATOR_SOCRATIC_PROMPT_V1}
+    # Construir prompt completo (usa socratic_prompt que pode ter product_context injetado).
+    conversational_prompt = f"""{socratic_prompt}
 
 CONTEXTO DA CONVERSA:
 {full_context}

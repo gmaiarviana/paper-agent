@@ -1,0 +1,35 @@
+# Configuração do Agente Writer (C-ENSAIO-2)
+# Este arquivo define o comportamento e limites do Writer.
+
+# System prompt do agente (referência para documentação).
+# O prompt real vive em core/prompts/writer.py :: WRITER_PROMPT_V1.
+prompt: |
+  Writer técnico-científico que recebe contexto conversacional + argumento focal
+  e devolve artigo completo em markdown (IMRaD por padrão). Suporta reinvocação
+  com previous_article para refinamento completo baseado em feedback do histórico.
+
+  Prompt completo: core/prompts/writer.py :: WRITER_PROMPT_V1
+
+# Tags para categorização
+tags:
+  - writer
+  - imrad
+  - article-generation
+  - multi-agent
+
+# Limites de contexto (tokens)
+# Writer produz artigos mais longos que outros agentes; elevamos max_output_tokens.
+context_limits:
+  max_input_tokens: 8000
+  max_output_tokens: 4000
+  max_total_tokens: 12000
+
+# Modelo LLM
+model: claude-3-5-haiku-20241022
+
+# Metadados
+metadata:
+  version: "1.0"
+  epic: "C-ENSAIO-2"
+  created_at: "2026-04-22"
+  description: "Writer inicial: recebe contexto conversacional e devolve markdown IMRaD em uma passada."

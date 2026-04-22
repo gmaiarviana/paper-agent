@@ -94,6 +94,20 @@ Você pode operar em dois modos:
 IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensamento do usuário."""
         model_name = get_anthropic_model()  # Fallback usa modelo centralizado
 
+    # Injeção de contexto de produto (E-POC-2.3): se o produto consumidor injetou
+    # product_context via config.configurable, prepende uma seção opcional ao prompt.
+    # O core não conhece o produto; apenas respeita o contrato do config.
+    product_context = None
+    if config:
+        product_context = config.get("configurable", {}).get("product_context")
+    if product_context and isinstance(product_context, str) and product_context.strip():
+        system_prompt = (
+            "## CONTEXTO DO PRODUTO\n"
+            f"{product_context.strip()}\n\n"
+            "---\n\n"
+            f"{system_prompt}"
+        )
+
     # Extrair trace_id do config para logging estruturado
     trace_id = "unknown"
     if config:
