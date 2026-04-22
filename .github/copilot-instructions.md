@@ -6,22 +6,19 @@ Se o dev pedir outra coisa (implementar, refatorar, etc.), siga o pedido normalm
 
 ---
 
-## Contexto do projeto
+## Princípio
 
-- Monorepo com `core/` (runtime) e `products/` (produtos que consomem o core).
-- Branches `claude/*` e `feature/*` são produzidas pelo fluxo autônomo descrito em `docs/process/autonomous/`.
-- A entrega vem com artefatos fixos: `docs/process/current_implementation.md` (plano + status dos gates) e mensagem final listando comandos + critérios de aceite.
-- Dois perfis de teste formalizados em `docs/testing/commands.md`:
-  - **Unit (rápido, $0):** `requirements-test.txt` + `pytest tests/core/unit/`
-  - **Full Integration (pago, rede):** `requirements.txt` + `ANTHROPIC_API_KEY` + `pytest tests/core/integration/ -m integration`
+Testes já foram executados **duas vezes** antes da branch chegar pra ser validada:
+1. **QA Skill** (Claude Code Web) rodou unit + integration durante a implementação — resultado em `docs/process/current_implementation.md`.
+2. **CI** (`.github/workflows/test-unit.yml`) roda unit no push — status no PR.
+
+Portanto **não re-rode testes por padrão**. O valor do passo local é o que CI e QA não conseguem: **ver a app subir sem crashar** e **observar os critérios de aceite visuais**. Só rode testes se o dev pedir explícito ou se algo abaixo indicar regressão.
 
 ---
 
 ## Fluxo quando o dev disser "valida essa branch X"
 
-Execute em ordem. Pare e reporte ao dev no primeiro erro crítico; se só for warning, continue e inclua no relatório final.
-
-### 1. Sincronizar a branch
+### 1. Sincronizar
 
 ```bash
 git fetch origin
@@ -29,105 +26,108 @@ git checkout <branch>
 git pull origin <branch>
 ```
 
-### 2. Ler o contrato de entrega
+### 2. Checar os sinais que já existem
 
-Abrir e extrair destes dois arquivos — são a **fonte de verdade** do que foi entregue:
+**a) Gates do fluxo autônomo** — abrir `docs/process/current_implementation.md` e verificar:
+- Status dos Gates: QA ✅ / TL ✅ / PO ✅
+- Lista de tarefas concluídas (entender o que mudou)
+- Critérios de aceite declarados
 
-- `docs/process/current_implementation.md`
-  - Status dos gates (QA / TL / PO): devem estar marcados como ✅
-  - Lista de tarefas concluídas
-  - Evidências de carregamento de skill (para auditoria)
-- Mensagem final do commit da Validation Skill (normalmente no último commit da branch) — contém:
-  - Comandos de validação prontos
-  - Critérios de aceite do ROADMAP a observar
+**b) CI** — verificar pelo PR ou via `gh`:
+```bash
+gh pr checks <branch>    # se houver PR aberto
+# ou
+gh run list --branch <branch> --limit 3
+```
 
-Se algum gate estiver como ❌ ou pulado, **avise o dev antes de continuar**.
+**Abortar antes de continuar** se:
+- Algum gate estiver ❌ ou não preenchido → branch não passou no fluxo autônomo
+- CI estiver vermelho → testes unit falhando
+- `current_implementation.md` não existir → branch não veio do fluxo autônomo (talvez validação manual seja diferente; perguntar ao dev)
 
-### 3. Preparar ambiente
+### 3. Checar se deps mudaram
 
 ```bash
-python -m venv venv                 # se ainda não existir
-source venv/bin/activate            # Linux/Mac
-# .\venv\Scripts\Activate.ps1       # Windows
+git diff origin/main -- requirements.txt requirements-test.txt
+```
+
+Se mudou, rodar:
+```bash
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Use `requirements.txt` (completo) por padrão — integration precisa dele. `requirements-test.txt` só se o dev pedir o perfil rápido.
+Se `ModuleNotFoundError` aparecer depois em qualquer passo, é aqui que resolve.
 
-### 4. Rodar testes
+### 4. Smoke-check da aplicação
 
-**Perfil Unit** (sempre):
-```bash
-pytest tests/core/unit/ -q
-```
-Espera-se: 0 falhas. Skips são aceitos (ver `docs/testing/commands.md` para quais).
+Aplicar **apenas aos entry points afetados pela branch** (usar `git diff --stat origin/main` como guia):
 
-**Perfil Integration** (se `ANTHROPIC_API_KEY` estiver setada no `.env` ou exportada):
-```bash
-pytest tests/core/integration/ -m integration -q --maxfail=1
-```
-Espera-se: 0 falhas. Se cair por falta de API key, reporte ao dev — não pule.
-
-### 5. Smoke-check da aplicação
-
-Se a branch mexeu em `products/revelar/app/**` ou `core/tools/cli/**`, subir e verificar que não crasha:
-
-**Streamlit chat (revelar):**
+**Streamlit chat (revelar)** — se mexeu em `products/revelar/app/**`:
 ```bash
 timeout 15 streamlit run products/revelar/app/chat.py --server.headless true --server.port 8599 2>&1 | head -40
 ```
-Sucesso: aparece "You can now view your Streamlit app" sem traceback. Se sair antes por erro de import/runtime, reporte o traceback.
+Sucesso: linha "You can now view your Streamlit app" sem traceback.
 
-**Streamlit dashboard:**
+**Streamlit dashboard** — se mexeu em dashboard:
 ```bash
 timeout 15 streamlit run products/revelar/app/dashboard.py --server.headless true --server.port 8598 2>&1 | head -40
 ```
 
-**CLI:**
+**CLI** — se mexeu em `core/tools/cli/**`:
 ```bash
 echo "" | timeout 10 python -m core.tools.cli.chat 2>&1 | head -30
 ```
 Sucesso: CLI inicia e mostra prompt sem traceback.
 
-Se mudou nenhuma interface, pular esta etapa.
+Se a branch só mexe em `core/agents/**`, `docs/**` ou testes — pular esta etapa.
 
-### 6. Mapear critérios de aceite
+### 5. Listar critérios de aceite pra inspeção visual
 
-Para cada critério listado na mensagem final da branch:
+Da seção de critérios em `current_implementation.md` (e/ou ROADMAP linkado), separar:
+- **Cobertos por teste** (QA/CI já validaram) → não listar
+- **Comportamento observável** (ex: "ao clicar em X, aparece Y") → listar como checkbox pro dev
+- **"Não deve"** não coberto por teste → listar como inspeção manual
 
-- Se o critério tem teste associado → já coberto pelo passo 4, marcar como ✅
-- Se é comportamento observável (ex: "ao clicar em X, aparece Y") → listar para o dev inspecionar visualmente
-- Se é "não deve" (ex: "não deve quebrar comportamento anterior") → se houver regressão nos testes, já pegou; senão, listar como inspeção manual
-
-### 7. Reportar ao dev
-
-Formato fixo:
+### 6. Reportar
 
 ```
 Branch: <nome>
-Commits novos: <N>
+Diff resumido: <N arquivos, áreas principais>
 
-✅ Gates autônomos (via current_implementation.md)
-  - QA: <status>
-  - TL: <status>
-  - PO: <status>
+Sinais verdes
+  ✅/❌ Gates QA/TL/PO (via current_implementation.md)
+  ✅/❌ CI (via gh pr checks)
+  ✅/❌ Smoke app: <entry points testados + resultado>
 
-✅ Testes
-  - Unit: <passed/failed/skipped>
-  - Integration: <passed/failed/skipped> OU "pulado (sem API key)"
-
-✅ Smoke da aplicação
-  - <entry point>: <OK | falhou com: <trecho do erro>>
-
-📋 Critérios de aceite pendentes de inspeção visual
+📋 Critérios pendentes de inspeção visual
   - [ ] <critério 1>
   - [ ] <critério 2>
 
 ⚠️ Pontos de atenção
-  - <warnings que apareceram>
+  - <se alguma coisa fugiu do esperado>
 
-Recomendação: <aprovar merge | pedir ajuste | aprofundar critério N>
+Recomendação: <aprovar merge | ajustar X | subir a app e inspecionar Y>
 ```
+
+---
+
+## Quando RE-RODAR testes localmente
+
+Só nesses casos:
+
+- Dev pediu explícito ("roda os testes também")
+- Um gate está ❌ em `current_implementation.md` e o dev quer confirmar o problema
+- CI vermelho e dev quer reproduzir localmente
+- Você detectou regressão de dep no passo 3 e quer validar depois do pip install
+
+Comandos (se precisar):
+```bash
+pytest tests/core/unit/ -q
+pytest tests/core/integration/ -m integration -q --maxfail=1   # só se ANTHROPIC_API_KEY setada
+```
+
+Perfis completos em `docs/testing/commands.md`.
 
 ---
 
@@ -135,15 +135,13 @@ Recomendação: <aprovar merge | pedir ajuste | aprofundar critério N>
 
 - **Não crie PR nem faça merge.** O dev decide.
 - **Não faça push de código novo.** Só validação.
-- Se o teste unit falhar, pare e reporte. Não tente "consertar" sem o dev pedir.
-- Se faltar dependência (ex: `ModuleNotFoundError`), verifique se `requirements.txt` foi atualizado na branch — se sim, rode `pip install -r requirements.txt` novamente; se não, reporte como regressão.
-- Preserve o ambiente do dev: não rode `pip uninstall` sem pedir; não mexa em `.env`.
+- Preserve o ambiente do dev: não rode `pip uninstall`, não mexa em `.env`.
+- Se encontrar problema, **reporte** e pare. Não tente "consertar" sem pedido explícito.
 
 ---
 
 ## Referências
 
 - Fluxo autônomo completo: `docs/process/autonomous/workflow.md`
-- Mensagem final esperada: `docs/process/autonomous/delivery.md`
-- Perfis de teste: `docs/testing/commands.md`
-- Layout de testes: `docs/testing/structure.md`
+- Mensagem final esperada da Validation Skill: `docs/process/autonomous/delivery.md`
+- Perfis de teste (se precisar rodar): `docs/testing/commands.md`
