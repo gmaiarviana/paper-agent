@@ -33,7 +33,9 @@ Conduzem o fluxo autônomo de desenvolvimento. Substituem a interação manual d
 1. O dispatch (`docs/process/autonomous/dispatch.md`) lista os 5 skill.md a carregar em sequência.
 2. Antes de executar cada gate, Claude Web **abre o `skill.md` correspondente e segue na íntegra** — não resumir, não adaptar.
 3. Cada skill registra evidência de carregamento em `docs/process/current_implementation.md` → "Evidências de carregamento de skill" imediatamente ao iniciar.
-4. Cada skill (exceto Planning) verifica a evidência do gate anterior como parte do gate de entrada. Falta de evidência = fluxo corrompido → aborta e devolve ao dev.
+4. Cada skill (exceto Planning) verifica no gate de entrada:
+   - **Duro (aborta):** gate anterior tem `✅` em "Status dos Gates". Sem ✅ = gate pulado, aborta.
+   - **Soft (warning):** linha de evidência de carregamento presente. Sem a linha mas com ✅ = provável esquecimento de log, registra warning e continua. Validation propaga os warnings acumulados para a mensagem final.
 
 ### Skills de Implementação (não existem ainda)
 Eventuais blocos reutilizáveis para tarefas técnicas recorrentes (ex: criar novo agente, adicionar tool LangGraph). Quando surgirem, viverão sob `skills/<dominio>/` e serão indexados aqui.

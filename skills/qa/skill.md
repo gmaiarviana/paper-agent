@@ -27,13 +27,17 @@ Você **não corrige código**. Você **não negocia critério**. Você **não a
 ## SEQUÊNCIA OBRIGATÓRIA
 
 ### Passo 1 — Pré-checagens (GATE DE ENTRADA)
+
+**Checks duros (abortam o gate):**
 - [ ] `docs/process/current_implementation.md` existe
 - [ ] Seção "Status dos Gates" contém `Planning ✅` e `Dev ✅`
-- [ ] Seção "Status dos Gates" contém a linha de evidência do Planning: `[PLANNING] skill carregada: skills/planning/skill.md ✅ <timestamp>`
 - [ ] Branch `feature/X.Y-nome` tem commits novos vs `main`
 - [ ] Ambiente preparado: venv ativo, deps instaladas
 
-Se qualquer item do gate de entrada falhar, **ABORTE**: reportar bloqueio e parar. Não executar QA sem Dev concluído e Planning comprovadamente carregado — qualquer outra situação indica fluxo corrompido (pulando gates) e deve ser devolvido ao dev.
+Falhou algum check duro? **ABORTE** — reportar bloqueio e parar.
+
+**Check soft (warning, não aborta):**
+- Linha de evidência do Planning presente (`[PLANNING] skill carregada: ...`)? Se faltar, registrar em "Histórico de Reprovações" como warning e **continuar** — provavelmente esquecimento de log, não gate pulado.
 
 Ao iniciar efetivamente o gate, registrar em `current_implementation.md` → "Status dos Gates":
 ```

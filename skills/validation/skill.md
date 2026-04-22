@@ -29,20 +29,23 @@ Você **não cria PR**. Você **não mergeia**. Você **não roda testes**.
 ## SEQUÊNCIA OBRIGATÓRIA
 
 ### Passo 1 — Verificar gates anteriores (GATE DE ENTRADA)
+
+**Checks duros (abortam o gate):**
 Ler `docs/process/current_implementation.md` e confirmar:
 - [ ] Planning ✅
 - [ ] Dev ✅
 - [ ] QA ✅
 - [ ] TL ✅
 - [ ] PO ✅
-- [ ] Linhas de evidência de carregamento presentes para cada skill: `[PLANNING] skill carregada: skills/planning/skill.md ✅ <timestamp>`, `[QA] skill carregada: skills/qa/skill.md ✅ <timestamp>`, `[TL] skill carregada: skills/tl/skill.md ✅ <timestamp>`, `[PO] skill carregada: skills/po/skill.md ✅ <timestamp>`
 
-Algum gate não está ✅ ou sem linha de evidência? **Abortar** com mensagem ao dev:
+Algum gate não está ✅? **Abortar** com mensagem ao dev:
 ```
-🛑 Validation abortada — gate anterior não comprovado: <nome do gate>
-Motivo: <sem ✅ | sem evidência de carregamento de skill>
+🛑 Validation abortada — gate anterior não aprovado: <nome do gate>
 Veja current_implementation.md para detalhes.
 ```
+
+**Check soft (warning, não aborta):**
+- Linhas de evidência de carregamento presentes para cada skill (`[PLANNING]`, `[QA]`, `[TL]`, `[PO]`)? Se alguma faltar mas o ✅ estiver lá, registrar warning em "Histórico de Reprovações" e **continuar** — incluir o aviso na mensagem final ao dev.
 
 Aprovado? Registrar em `current_implementation.md` → "Status dos Gates":
 ```

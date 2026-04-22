@@ -28,12 +28,16 @@ Você **não reescreve**. Você **não aprova "com observação"**. APROVA ou RE
 ## SEQUÊNCIA OBRIGATÓRIA
 
 ### Passo 1 — Pré-checagens (GATE DE ENTRADA)
+
+**Checks duros (abortam o gate):**
 - [ ] `current_implementation.md` com `Planning ✅`, `Dev ✅` e `QA ✅`
-- [ ] Evidências de carregamento nas linhas anteriores: `[PLANNING] skill carregada: ...` e `[QA] skill carregada: skills/qa/skill.md ✅ <timestamp>`
 - [ ] Branch tem commits recentes vs `main`
 - [ ] Plano de tasks (Planning) acessível para confronto
 
-Se qualquer item do gate de entrada falhar, **ABORTE**: reportar bloqueio e devolver ao dev. Sem evidência do QA carregado, o fluxo está corrompido.
+Falhou algum check duro? **ABORTE** — reportar bloqueio e devolver ao dev.
+
+**Check soft (warning, não aborta):**
+- Linhas de evidência anteriores presentes (`[PLANNING]` e `[QA]`)? Se alguma faltar, registrar warning em "Histórico de Reprovações" e **continuar**.
 
 Ao iniciar o gate, registrar em `current_implementation.md` → "Status dos Gates":
 ```

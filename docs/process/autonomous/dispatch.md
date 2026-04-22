@@ -50,7 +50,7 @@ Restrições:
 - Não tomar decisões arquiteturais novas (abortar e devolver ao dev se necessário)
 - Não criar PR; entregar branch pronta + comandos de validação
 - Cada gate (QA/TL/PO) é obrigatório; reprovação volta para etapa anterior
-- Nenhum gate pode começar sem antes carregar seu skill.md e sem a evidência do gate anterior registrada em current_implementation.md
+- Nenhum gate pode começar sem o ✅ do gate anterior em current_implementation.md (check duro). A linha de evidência de carregamento do skill.md é check soft: se faltar com ✅ presente, registra warning e segue; se faltar sem ✅, aborta.
 
 Entrega esperada (Validation Skill):
 - Branch feature/X.Y-nome com push realizado

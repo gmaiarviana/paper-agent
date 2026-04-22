@@ -27,12 +27,16 @@ Você **não negocia critério**. Você **não reescreve ROADMAP**. Você **não
 ## SEQUÊNCIA OBRIGATÓRIA
 
 ### Passo 1 — Pré-checagens (GATE DE ENTRADA)
+
+**Checks duros (abortam o gate):**
 - [ ] `current_implementation.md` com `Planning ✅`, `Dev ✅`, `QA ✅` e `TL ✅`
-- [ ] Evidências de carregamento: linhas `[PLANNING] skill carregada: ...`, `[QA] skill carregada: ...` e `[TL] skill carregada: skills/tl/skill.md ✅ <timestamp>`
 - [ ] ROADMAP da funcionalidade acessível
 - [ ] Mapeamento Planning (critério ↔ task) presente
 
-Se qualquer item do gate de entrada falhar, **ABORTE**: reportar bloqueio e devolver ao dev. Sem evidência do TL carregado, o fluxo está corrompido.
+Falhou algum check duro? **ABORTE** — reportar bloqueio e devolver ao dev.
+
+**Check soft (warning, não aborta):**
+- Linhas de evidência anteriores presentes (`[PLANNING]`, `[QA]`, `[TL]`)? Se alguma faltar, registrar warning em "Histórico de Reprovações" e **continuar**.
 
 Ao iniciar o gate, registrar em `current_implementation.md` → "Status dos Gates":
 ```
