@@ -9,11 +9,12 @@ Princípios não-negociáveis para trabalhar com este projeto.
 ### Como Refinamos
 - POC → Protótipo → MVP (incremental)
 - Discussão > especulação antecipada
-- Refinamento acontece em duas passadas:
-  - **1ª passada:** produz `📋 Critérios definidos` — funcionalidades e critérios de aceite, suficientes para o fluxo manual via Cursor.
-  - **2ª passada:** produz `✅ Detalhes definidos` — contratos, arquivos-alvo e integração explicitados, sob demanda para épicos que vão para o fluxo autônomo. Checklist em `docs/process/refinement/autonomous_readiness.md`.
-- Refinamento só acontece para épicos prioritários; detalhes adicionais (2ª passada) só para o épico específico prestes a ser disparado no autônomo.
-- Funcionalidades detalhadas aceleram implementação
+- Épicos percorrem até seis estados no ROADMAP: `🌱 Visão` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `✅ Implementado`. Modelo completo em `docs/process/refinement/planning_guidelines.md`.
+- Toda sessão de refinamento começa com um **alvo declarado** (o estado ao qual o épico deve chegar). O Claude Web conduz as perguntas até atingir o alvo, sem parar em estados intermediários.
+- Alvo `📋 Critérios definidos` basta para o fluxo manual via Cursor.
+- Alvo `🔍 Detalhes definidos` é pré-requisito do fluxo autônomo; guiado pelo checklist em `docs/process/refinement/autonomous_readiness.md`. Aplicado sob demanda para o épico específico que vai ser disparado.
+- Fechamento do épico (extração de conhecimento permanente + poda do ROADMAP) segue `docs/process/refinement/epic_completion.md` antes de marcar como `✅ Implementado`.
+- Funcionalidades detalhadas aceleram implementação.
 
 ### Como Implementamos
 - Claude web refina → Cursor atualiza docs → Claude Code implementa
@@ -25,9 +26,9 @@ Princípios não-negociáveis para trabalhar com este projeto.
 Dois modos coexistem; o dev escolhe por funcionalidade. Cada modo exige um estado mínimo do épico no ROADMAP:
 
 - **Manual (Cursor):** estado mínimo `📋 Critérios definidos`. Dev acompanha cada checkpoint. Indicado para épicos novos, decisões arquiteturais ou trade-offs ainda em aberto durante a implementação. Fluxo descrito nas seções 2-7 deste documento.
-- **Autônomo (Claude Code Web):** estado mínimo `✅ Detalhes definidos` (2ª passada de refinamento concluída). Dev dispara pela manhã e valida à noite; skills automáticas (Planning → Dev → QA → TL → PO → Validation) atuam como gates no lugar das aprovações explícitas. Indicado para funcionalidades com detalhes de execução fechados. Detalhes em `docs/process/autonomous/` e template em `docs/process/autonomous/dispatch.md`.
+- **Autônomo (Claude Code Web):** estado mínimo `🔍 Detalhes definidos` (checklist de `autonomous_readiness.md` aplicado). Dev dispara pela manhã e valida à noite; skills automáticas (Planning → Dev → QA → TL → PO → Validation) atuam como gates no lugar das aprovações explícitas. Indicado para funcionalidades com detalhes de execução fechados. Detalhes em `docs/process/autonomous/` e template em `docs/process/autonomous/dispatch.md`.
 
-Épicos em `⏳ Planejado` passam pela 1ª passada de refinamento antes de qualquer fluxo de execução.
+Épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas` passam por sessão de refinamento com alvo `📋` ou `🔍` antes de qualquer fluxo de execução.
 
 Princípios, responsabilidades e anti-padrões deste documento valem para os dois modos.
 
@@ -198,11 +199,12 @@ Resumo: 4 arquivos genéricos + 2 específicos do produto = 6 arquivos total.
 - **Processo completo:** `docs/process/refinement/planning_guidelines.md`
 - **Visão geral:** `docs/process/refinement/overview.md`
 - **Starter pack:** `docs/process/refinement/starter.md`
-- **Checklist da 2ª passada (prontidão para autônomo):** `docs/process/refinement/autonomous_readiness.md`
+- **Checklist de entrada para `🔍 Detalhes definidos`:** `docs/process/refinement/autonomous_readiness.md`
+- **Checklist de saída (fechamento do épico):** `docs/process/refinement/epic_completion.md`
 
 ### Consultados Sob Demanda
 
-Tudo fora do pack inicial — specs técnicas, filosofia, interface, processo (inclusive `autonomous_readiness.md` quando um épico específico for preparado para o fluxo autônomo), testes — está mapeado em `docs/CONTEXT_INDEX.md` (já no pack inicial). Não duplicar a lista aqui.
+Tudo fora do pack inicial — specs técnicas, filosofia, interface, processo (inclusive `autonomous_readiness.md` quando um épico é preparado para o fluxo autônomo, e `epic_completion.md` no fechamento), testes — está mapeado em `docs/CONTEXT_INDEX.md` (já no pack inicial). Não duplicar a lista aqui.
 
 ---
 

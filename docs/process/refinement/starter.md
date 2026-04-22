@@ -29,25 +29,34 @@ O Claude Web não tem acesso ao repositório. Esse pack dá a ele o mínimo nece
 | Expressão (futuro) | — | `products/expressao/docs/vision.md` |
 | Produtor Científico (futuro) | `products/produtor-cientifico/ROADMAP.md` | `products/produtor-cientifico/docs/vision.md` |
 
-## 🔁 Duas Passadas de Refinamento
+## 🎯 Alvos de Refinamento
 
-O refinamento de um mesmo épico pode acontecer em até duas passadas. Cada passada consome este pack inicial, mas responde a uma pergunta diferente e produz um estado diferente no ROADMAP.
+Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qual o épico deve chegar ao fim da sessão. O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`; alvos mais profundos exigem contexto adicional. O modelo completo dos seis estados de um épico vive em [`planning_guidelines.md`](planning_guidelines.md).
 
-### 1ª passada — até `📋 Critérios definidos`
+### Alvo `📐 Funcionalidades esboçadas` (refinamento em massa)
+
+- **Pergunta:** como essa visão se quebra em épicos trabalháveis?
+- **Produto:** N épicos com objetivo e lista curta de funcionalidades (descrição de 1 frase cada), sem critérios de aceite.
+- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos.
+- **Quando acontece:** ao abrir um ROADMAP novo ou ao quebrar uma visão de produto em itens trabalháveis.
+
+### Alvo `📋 Critérios definidos` (refinamento profundo — critérios)
 
 - **Pergunta:** isso faz sentido e gera valor?
 - **Produto:** funcionalidades delimitadas, critérios de aceite observáveis, trade-offs discutidos.
-- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos acima.
+- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos.
 - **Quando acontece:** quando o épico se torna prioritário.
 - **Estado resultante do épico:** `📋 Critérios definidos` — apto ao fluxo manual via Cursor.
 
-### 2ª passada — até `✅ Detalhes definidos`
+### Alvo `🔍 Detalhes definidos` (refinamento profundo — detalhes)
 
 - **Pergunta:** um agente sem contexto do problema consegue executar isto sem inventar?
 - **Produto:** arquivos-alvo com caminho completo, contratos/shapes, mecanismo de integração, acoplamentos verificados, escopo de testes.
-- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos + inspeção de código relevante (via Cursor, ou como trechos específicos pedidos ao Claude Web) + checklist em [`docs/process/refinement/autonomous_readiness.md`](autonomous_readiness.md).
+- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos + inspeção de código relevante (via Cursor, ou como trechos específicos pedidos ao Claude Web) + checklist em [`autonomous_readiness.md`](autonomous_readiness.md).
 - **Quando acontece:** sob demanda, pouco antes de disparar o fluxo autônomo para o épico específico. Aplicar preventivamente em todos os épicos é desperdício — o trabalho perde-se se o épico for repriorizado.
-- **Estado resultante do épico:** `✅ Detalhes definidos` — apto ao fluxo autônomo via Claude Code Web ([`docs/process/autonomous/dispatch.md`](../autonomous/dispatch.md)).
+- **Estado resultante do épico:** `🔍 Detalhes definidos` — apto ao fluxo autônomo via Claude Code Web ([`dispatch.md`](../autonomous/dispatch.md)).
+
+> Atalho permitido: uma única sessão pode ir direto de `🌱 Visão` para `📋` ou `🔍`, desde que o alvo declarado seja esse e o contexto correspondente seja enviado.
 
 ## 📚 Documentos Consultados Sob Demanda
 

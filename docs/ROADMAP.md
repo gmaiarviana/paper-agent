@@ -8,23 +8,26 @@
 
 ### 🧭 Estados dos Épicos
 
-Cada épico percorre três estados de refinamento. Detalhes em [process/refinement/planning_guidelines.md](process/refinement/planning_guidelines.md).
+Cada épico percorre até seis estados. Detalhes em [process/refinement/planning_guidelines.md](process/refinement/planning_guidelines.md).
 
-- **`⏳ Planejado`** — apenas objetivo definido. Aguarda 1ª passada de refinamento.
-- **`📋 Critérios definidos`** — funcionalidades e critérios de aceite. Pronto para fluxo manual via Cursor.
-- **`✅ Detalhes definidos`** — contratos, arquivos-alvo e integração explicitados (checklist em [process/refinement/autonomous_readiness.md](process/refinement/autonomous_readiness.md)). Pronto para fluxo autônomo via Claude Code Web.
+- **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
+- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
+- **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
+- **`🔍 Detalhes definidos`** — checklist em [autonomous_readiness.md](process/refinement/autonomous_readiness.md) aplicado. Pronto para fluxo autônomo via Claude Code Web.
+- **`🏗️ Em andamento`** — implementação em curso, até o ciclo de fechamento.
+- **`✅ Implementado`** — ciclo de fechamento executado (ver [epic_completion.md](process/refinement/epic_completion.md)).
 
 ---
 
 ## 📋 Épicos Planejados
 
-### ⏳ Épicos Planejados
+### 🌱 Épicos em Visão
 
 #### ÉPICO 1: Pesquisador
 
 **Objetivo:** Agente para busca e síntese de literatura científica. Introduz Evidência como entidade prática.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 **Dependências:**
 - Revelar ÉPICO 2 (Catálogo de Conceitos)
@@ -37,7 +40,7 @@ Cada épico percorre três estados de refinamento. Detalhes em [process/refineme
 
 ---
 
-### ⏳ Épicos Motivados pelo Ensaio
+### 🌱 Épicos Motivados pelo Ensaio (em Visão)
 
 > **Nota:** Estes épicos são **motivados pelo produto Ensaio** (primeiro produto com necessidades além das do Revelar) mas **pertencem ao core** — serão reusados por outros produtos, especialmente Produtor Científico. O prefixo `C-ENSAIO-` identifica a motivação; o código fica no core e respeita o desacoplamento descrito em [core/docs/vision/super_system.md](../core/docs/vision/super_system.md).
 
@@ -45,7 +48,7 @@ Cada épico percorre três estados de refinamento. Detalhes em [process/refineme
 
 **Objetivo:** Agentes do core (Orquestrador e futuros) aceitam foco/domínio passado por produtos externos sem que o core conheça os produtos. Mecanismo de configuração a definir no refinamento.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 **Consulte:** [core/docs/vision/super_system.md](../core/docs/vision/super_system.md) (seção "Injeção de Contexto de Produto")
 
@@ -109,7 +112,7 @@ Cada épico percorre três estados de refinamento. Detalhes em [process/refineme
 
 **Objetivo:** Writer evolui para gerar artigo seção por seção em vez de bloco único, permitindo refinamento granular.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 **Dependências:**
 - C-ENSAIO-2 (Writer versão inicial)
@@ -120,7 +123,7 @@ Cada épico percorre três estados de refinamento. Detalhes em [process/refineme
 
 **Objetivo:** Mecanismo genérico para agentes do core consumirem conteúdo de arquivos anexados (notebook, markdown, CSV, imagens). Detalhes de parsing/extração a definir no refinamento.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 ---
 
@@ -128,7 +131,7 @@ Cada épico percorre três estados de refinamento. Detalhes em [process/refineme
 
 **Objetivo:** Pendência nasce no produto Ensaio; promover para o core quando segundo produto precisar (provavelmente Produtor Científico). Épico condicionado à existência de segundo caso de uso.
 
-**Status:** ⏳ Planejado (condicional)
+**Status:** 🌱 Visão (condicional)
 
 **Consulte:** [core/docs/architecture/data-models/ontology.md](docs/architecture/data-models/ontology.md) (seção "Entidades em Incubação")
 
@@ -138,7 +141,7 @@ Cada épico percorre três estados de refinamento. Detalhes em [process/refineme
 
 **Objetivo:** Componentes de UI conversacional (chat_input, chat_history e similares) hoje vivem em products/revelar/app/components/ e são reusados por outros produtos via import direto. Quando um terceiro produto consumir os mesmos componentes, ou quando surgir atrito concreto com o import cross-produto, promover os componentes compartilhados para core/ui_components/ (nome a definir no refinamento).
 
-**Status:** ⏳ Planejado (condicional)
+**Status:** 🌱 Visão (condicional)
 
 **Dependências:**
 - POC do Ensaio (E-POC-1) em produção como primeiro consumidor externo
@@ -166,11 +169,11 @@ Cada épico percorre três estados de refinamento. Detalhes em [process/refineme
 
 ## 📝 Observações
 
-**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `✅ Detalhes definidos`.
+**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `🔍 Detalhes definidos`.
 
-> Para o processo completo de refinamento, consulte [planning_guidelines.md](process/refinement/planning_guidelines.md). Para a 2ª passada (prontidão para autônomo), consulte [autonomous_readiness.md](process/refinement/autonomous_readiness.md).
+> Para o processo completo de refinamento, consulte [planning_guidelines.md](process/refinement/planning_guidelines.md). Para a prontidão ao fluxo autônomo (alvo `🔍`), consulte [autonomous_readiness.md](process/refinement/autonomous_readiness.md). Para o fechamento do épico (saída), consulte [epic_completion.md](process/refinement/epic_completion.md).
 
 - Cada épico pode ser desenvolvido **isoladamente**
 - Entrega **valor incremental**
 - Pode ser **testado** antes do próximo
-- Épicos em `⏳ Planejado` passam pela 1ª passada de refinamento antes da implementação
+- Épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas` passam por sessão de refinamento antes da implementação

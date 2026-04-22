@@ -2,7 +2,7 @@
 
 > **📌 Localização:** `core/skills/planning/`
 > **📌 Etapa do fluxo:** primeira (antes do Dev) — `docs/process/autonomous/workflow.md` §1
-> **📌 Pré-requisito:** funcionalidade pertence a épico em **`✅ Detalhes definidos`** no ROADMAP (checklist `docs/process/refinement/autonomous_readiness.md` aplicado).
+> **📌 Pré-requisito:** funcionalidade pertence a épico em **`🔍 Detalhes definidos`** no ROADMAP (checklist `docs/process/refinement/autonomous_readiness.md` aplicado).
 
 ---
 
@@ -11,7 +11,7 @@
 Use quando o dispatch autônomo (`docs/process/autonomous/dispatch.md`) é recebido e antes de qualquer linha de código ser escrita.
 
 **Não usar se:**
-- ❌ Funcionalidade está em épico `⏳ Planejado` ou `📋 Critérios definidos` (ambas as passadas de refinamento são manuais via Claude Web; a 2ª passada segue `docs/process/refinement/autonomous_readiness.md`)
+- ❌ Funcionalidade está em épico `🌱 Visão`, `📐 Funcionalidades esboçadas` ou `📋 Critérios definidos` (refinamento em qualquer alvo é manual via Claude Web; alvo `🔍 Detalhes definidos` segue `docs/process/refinement/autonomous_readiness.md`)
 - ❌ Há decisão arquitetural em aberto (devolver ao dev)
 - ❌ `docs/process/current_implementation.md` já existe (épico anterior não fechou)
 

@@ -204,15 +204,17 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
 
 **Documentação:**
 - `docs/process/refinement/` - Processo de refinement com Claude Web
-  - `planning_guidelines.md` - Processo completo (inclui os três estados: ⏳ Planejado / 📋 Critérios definidos / ✅ Detalhes definidos)
-  - `starter.md` - Pack inicial de contexto (6 arquivos) e descrição das duas passadas
-  - `autonomous_readiness.md` - **Checklist da 2ª passada de refinamento** (Critérios → Detalhes); consumido sob demanda pouco antes do dispatch autônomo
+  - `planning_guidelines.md` - Processo completo (inclui os seis estados: 🌱 Visão / 📐 Funcionalidades esboçadas / 📋 Critérios definidos / 🔍 Detalhes definidos / 🏗️ Em andamento / ✅ Implementado) e o conceito de alvo de refinamento
+  - `starter.md` - Pack inicial de contexto (6 arquivos) e alvos de refinamento típicos
+  - `autonomous_readiness.md` - **Checklist de entrada para `🔍 Detalhes definidos`** (consumido sob demanda pouco antes do dispatch autônomo)
+  - `epic_completion.md` - **Checklist de saída** (fechamento do épico antes de marcar `✅ Implementado`)
 - `docs/process/implementation/` - Processo de implementação manual via Cursor
 - `docs/process/autonomous/` - Fluxo autônomo via Claude Code Web
 
 **Solicitar quando:**
-- Refinar épico — 1ª passada (Critérios de aceite) → `refinement/planning_guidelines.md` + `refinement/starter.md`
-- Promover épico de Critérios para Detalhes (2ª passada) → `refinement/autonomous_readiness.md`
+- Refinar épico com alvo `📋 Critérios definidos` → `refinement/planning_guidelines.md` + `refinement/starter.md`
+- Refinar épico com alvo `🔍 Detalhes definidos` (prontidão para autônomo) → `refinement/autonomous_readiness.md`
+- Fechar épico implementado (extração + enxugamento) → `refinement/epic_completion.md`
 - Implementar código manualmente via Cursor → `implementation/`
 - Disparar fluxo autônomo (Claude Code Web) → `autonomous/`
 - Validar qualidade → `implementation/quality_rules.md`
@@ -344,7 +346,8 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
 | Se você quer... | Solicite tema... |
 |----------------|------------------|
 | **Refinar épico novo** | Obrigatório (raiz + visão) |
-| **Promover épico de Critérios para Detalhes** | Desenvolvimento e Processo |
+| **Refinar épico com alvo `🔍 Detalhes definidos`** | Desenvolvimento e Processo |
+| **Fechar épico implementado (extração + enxugamento)** | Desenvolvimento e Processo |
 | **Discutir comportamento do orquestrador** | Orquestração e Fluxo |
 | **Implementar novo agente** | Agentes Específicos + Orquestração |
 | **Modificar modelo de dados** | Dados e Persistência |

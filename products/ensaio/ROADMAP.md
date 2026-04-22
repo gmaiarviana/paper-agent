@@ -8,11 +8,14 @@
 
 ### 🧭 Estados dos Épicos
 
-Cada épico percorre três estados de refinamento. Detalhes em [docs/process/refinement/planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
+Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
 
-- **`⏳ Planejado`** — apenas objetivo definido. Aguarda 1ª passada de refinamento.
-- **`📋 Critérios definidos`** — funcionalidades e critérios de aceite. Pronto para fluxo manual via Cursor.
-- **`✅ Detalhes definidos`** — contratos, arquivos-alvo e integração explicitados (checklist em [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md)). Pronto para fluxo autônomo via Claude Code Web.
+- **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
+- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
+- **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
+- **`🔍 Detalhes definidos`** — checklist em [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md) aplicado. Pronto para fluxo autônomo via Claude Code Web.
+- **`🏗️ Em andamento`** — implementação em curso, até o ciclo de fechamento.
+- **`✅ Implementado`** — ciclo de fechamento executado (ver [epic_completion.md](../../docs/process/refinement/epic_completion.md)).
 
 ---
 
@@ -224,7 +227,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** Decidir e implementar nova stack da interface do Ensaio, substituindo Streamlit. Primeira frente do Protótipo — a escolha exata de stack é parte do refinamento deste épico.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 ---
 
@@ -232,7 +235,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** Item que fica aberto entre sessões. Sistema e pesquisador podem criar. Pendências aparecem quando pesquisador volta ao Ensaio, viabilizando o fluxo assíncrono.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 **Nota:** Pendência é **entidade em incubação** — vive no Ensaio até que outro produto precise dela (ver [core/docs/architecture/data-models/ontology.md](../../core/docs/architecture/data-models/ontology.md), seção "Entidades em Incubação").
 
@@ -242,7 +245,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** Artigo sobrevive ao fim da sessão. Versões permitem rollback e comparação entre estados anteriores.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 ---
 
@@ -250,7 +253,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** Painel com seções do artigo, status por seção, edição inline do markdown. Viabiliza o modo de escrita híbrido (rascunho progressivo que evolui com a conversa).
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 **Dependências:**
 - E-PROTO-1 (nova stack), E-PROTO-3 (persistência)
@@ -261,7 +264,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** Metodologista (agente do core existente) passa a identificar lacunas de produção no contexto do Ensaio — métricas ausentes, evidências faltantes, afirmações sem suporte — via parametrização de contexto, sem código específico por produto.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 **Dependências:**
 - E-POC-2 (parametrização de contexto)
@@ -274,7 +277,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** Pesquisador anexa notebook, README, CSV, imagens de gráfico. Agentes leem e usam esses artefatos como contexto para a conversa e para o Writer.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 ---
 
@@ -282,7 +285,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** Sessões longas maduras — pendências persistentes, rascunhos atuais, histórico do que mudou entre sessões. Refinamento contínuo do artigo ao longo de semanas.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 **Dependências:**
 - E-PROTO-2 (pendências), E-PROTO-3 (persistência), E-PROTO-4 (UI de artigo)
@@ -293,7 +296,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** Setup mínimo para outra pessoa usar o Ensaio sem o desenvolvedor do lado. Forma exata (deploy, empacotamento local, etc.) é decidida no refinamento deste épico.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 ---
 
@@ -325,11 +328,11 @@ Backlog sem compromisso. Entram em planejamento quando fizer sentido, geralmente
 
 ## 📝 Observações
 
-**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `✅ Detalhes definidos`.
+**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `🔍 Detalhes definidos`.
 
-> Para o processo completo de refinamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md). Para a 2ª passada (prontidão para autônomo), consulte [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md).
+> Para o processo completo de refinamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md). Para a prontidão ao fluxo autônomo (alvo `🔍`), consulte [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md). Para o fechamento do épico (saída), consulte [epic_completion.md](../../docs/process/refinement/epic_completion.md).
 
 - Cada épico pode ser desenvolvido **isoladamente** dentro de sua fase
 - Entrega **valor incremental**
 - Pode ser **testado** antes do próximo
-- Épicos em `⏳ Planejado` passam pela 1ª passada de refinamento antes da implementação
+- Épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas` passam por sessão de refinamento antes da implementação

@@ -1,7 +1,7 @@
 # Autonomous Dispatch
 
 > **📌 Uso:** copie o template abaixo, substitua os placeholders e cole no [claude.ai/code](https://claude.ai/code) sobre o repositório `paper-agent`.
-> **📌 Pré-requisito:** funcionalidade pertence a épico em **`✅ Detalhes definidos`** no ROADMAP (checklist `docs/process/refinement/autonomous_readiness.md` aplicado). Épicos em `📋 Critérios definidos` usam o fluxo manual via Cursor; em `⏳ Planejado`, passam pela primeira passada de refinamento antes.
+> **📌 Pré-requisito:** funcionalidade pertence a épico em **`🔍 Detalhes definidos`** no ROADMAP (checklist `docs/process/refinement/autonomous_readiness.md` aplicado). Épicos em `📋 Critérios definidos` usam o fluxo manual via Cursor; em `🌱 Visão` ou `📐 Funcionalidades esboçadas`, passam por sessão de refinamento antes.
 > **📌 Documentação completa:** `docs/process/autonomous/`
 
 ---
@@ -45,8 +45,8 @@ Entrega esperada (Validation Skill):
 
 ## CHECKLIST ANTES DE DISPARAR
 
-- [ ] Funcionalidade X.Y está em épico marcado como **`✅ Detalhes definidos`** no ROADMAP
-- [ ] Segunda passada de refinamento aplicada — itens de `docs/process/refinement/autonomous_readiness.md` cobertos (termos, contratos, arquivos-alvo, integração, acoplamentos, testes)
+- [ ] Funcionalidade X.Y está em épico marcado como **`🔍 Detalhes definidos`** no ROADMAP
+- [ ] Refinamento com alvo `🔍 Detalhes definidos` aplicado — itens de `docs/process/refinement/autonomous_readiness.md` cobertos (termos, contratos, arquivos-alvo, integração, acoplamentos, testes)
 - [ ] Critérios de aceite estão claros e testáveis
 - [ ] Dependências técnicas implementadas e validadas
 - [ ] Sem decisões arquiteturais em aberto (caso contrário → fluxo manual via Cursor)

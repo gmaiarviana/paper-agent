@@ -8,11 +8,14 @@
 
 ### 🧭 Estados dos Épicos
 
-Cada épico percorre três estados de refinamento. Detalhes em [docs/process/refinement/planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
+Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md).
 
-- **`⏳ Planejado`** — apenas objetivo definido. Aguarda 1ª passada de refinamento.
-- **`📋 Critérios definidos`** — funcionalidades e critérios de aceite. Pronto para fluxo manual via Cursor.
-- **`✅ Detalhes definidos`** — contratos, arquivos-alvo e integração explicitados (checklist em [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md)). Pronto para fluxo autônomo via Claude Code Web.
+- **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
+- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
+- **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
+- **`🔍 Detalhes definidos`** — checklist em [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md) aplicado. Pronto para fluxo autônomo via Claude Code Web.
+- **`🏗️ Em andamento`** — implementação em curso, até o ciclo de fechamento.
+- **`✅ Implementado`** — ciclo de fechamento executado (ver [epic_completion.md](../../docs/process/refinement/epic_completion.md)).
 
 ---
 
@@ -110,7 +113,7 @@ Cada épico percorre três estados de refinamento. Detalhes em [docs/process/ref
 
 **Objetivo:** Usuário explora biblioteca de conceitos via web. Transparência sobre o que sistema aprendeu.
 
-**Status:** ⏳ Planejado
+**Status:** 🌱 Visão
 
 **Dependências:**
 - ÉPICO 1 (Painel Observer)
@@ -162,11 +165,11 @@ Cada épico percorre três estados de refinamento. Detalhes em [docs/process/ref
 
 ## 📝 Observações
 
-**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `✅ Detalhes definidos`.
+**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `🔍 Detalhes definidos`.
 
-> Para o processo completo de refinamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md). Para a 2ª passada (prontidão para autônomo), consulte [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md).
+> Para o processo completo de refinamento, consulte [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md). Para a prontidão ao fluxo autônomo (alvo `🔍`), consulte [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md). Para o fechamento do épico (saída), consulte [epic_completion.md](../../docs/process/refinement/epic_completion.md).
 
 - Cada épico pode ser desenvolvido **isoladamente**
 - Entrega **valor incremental**
 - Pode ser **testado** antes do próximo
-- Épicos em `⏳ Planejado` passam pela 1ª passada de refinamento antes da implementação
+- Épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas` passam por sessão de refinamento antes da implementação
