@@ -1,6 +1,6 @@
 # PO Skill (Product Owner)
 
-> **📌 Localização:** `core/skills/po/`
+> **📌 Localização:** `skills/po/`
 > **📌 Etapa do fluxo:** quinta (após TL) — `docs/process/autonomous/workflow.md` §5
 > **📌 Pré-requisito:** TL Skill aprovou.
 
@@ -83,4 +83,4 @@ Os dois gates podem capturar o mesmo problema por ângulos diferentes — isso �
 - Prompt operacional → [skill.md](skill.md)
 - Template do checklist → [templates/acceptance-criteria.md](templates/acceptance-criteria.md)
 - Critérios de aceite → ROADMAP da funcionalidade
-- Próximo gate → `core/skills/validation/README.md`
+- Próximo gate → `skills/validation/README.md`

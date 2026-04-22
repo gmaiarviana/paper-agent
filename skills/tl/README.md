@@ -1,6 +1,6 @@
 # TL Skill (Tech Lead)
 
-> **📌 Localização:** `core/skills/tl/`
+> **📌 Localização:** `skills/tl/`
 > **📌 Etapa do fluxo:** quarta (após QA) — `docs/process/autonomous/workflow.md` §4
 > **📌 Pré-requisito:** QA Skill aprovou.
 
@@ -81,4 +81,4 @@ TL **não reescreve código**. Aponta padrão correto e devolve.
 - Prompt operacional → [skill.md](skill.md)
 - Padrões arquiteturais → `docs/ARCHITECTURE.md`
 - Princípios anti-duplicação → `docs/CONSTITUTION.md` §6 e `.claudecode.md`
-- Próximo gate → `core/skills/po/README.md`
+- Próximo gate → `skills/po/README.md`

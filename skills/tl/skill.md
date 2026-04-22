@@ -27,12 +27,22 @@ Você **não reescreve**. Você **não aprova "com observação"**. APROVA ou RE
 
 ## SEQUÊNCIA OBRIGATÓRIA
 
-### Passo 1 — Pré-checagens
-- [ ] `current_implementation.md` com `QA ✅`
+### Passo 1 — Pré-checagens (GATE DE ENTRADA)
+
+**Checks duros (abortam o gate):**
+- [ ] `current_implementation.md` com `Planning ✅`, `Dev ✅` e `QA ✅`
 - [ ] Branch tem commits recentes vs `main`
 - [ ] Plano de tasks (Planning) acessível para confronto
 
-Falhou? Reportar bloqueio (não rejeição) e parar.
+Falhou algum check duro? **ABORTE** — reportar bloqueio e devolver ao dev.
+
+**Check soft (warning, não aborta):**
+- Linhas de evidência anteriores presentes (`[PLANNING]` e `[QA]`)? Se alguma faltar, registrar warning em "Histórico de Reprovações" e **continuar**.
+
+Ao iniciar o gate, registrar em `current_implementation.md` → "Status dos Gates":
+```
+[TL] skill carregada: skills/tl/skill.md ✅ <YYYY-MM-DD HH:MM>
+```
 
 ### Passo 2 — Inventário e contexto técnico
 - Listar arquivos modificados (`git diff --name-only main...HEAD`)
@@ -141,4 +151,4 @@ Ação: devolver ao Dev. NÃO seguir para PO.
 **Ver também:**
 - README humano da skill → [README.md](README.md)
 - Exemplos → [examples/approval-case.md](examples/approval-case.md), [examples/rejection-case.md](examples/rejection-case.md)
-- Próximo gate → `core/skills/po/skill.md`
+- Próximo gate → `skills/po/skill.md`

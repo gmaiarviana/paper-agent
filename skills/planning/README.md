@@ -1,6 +1,6 @@
 # Planning Skill
 
-> **📌 Localização:** `core/skills/planning/`
+> **📌 Localização:** `skills/planning/`
 > **📌 Etapa do fluxo:** primeira (antes do Dev) — `docs/process/autonomous/workflow.md` §1
 > **📌 Pré-requisito:** funcionalidade pertence a épico em **`🔍 Detalhes definidos`** no ROADMAP (checklist `docs/process/refinement/autonomous_readiness.md` aplicado).
 
@@ -75,4 +75,4 @@ Quando **PO reprova** por gap de plano (não de implementação), o fluxo volta 
 **Ver também:**
 - Prompt operacional → [skill.md](skill.md)
 - Etapa no fluxo geral → `docs/process/autonomous/workflow.md` §1
-- Estrutura geral de skills → `core/skills/README.md`
+- Estrutura geral de skills → `skills/README.md`
