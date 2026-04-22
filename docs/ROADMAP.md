@@ -17,6 +17,8 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
 - **`🏗️ Em andamento`** — implementação em curso, até o ciclo de fechamento.
 - **`✅ Implementado`** — ciclo de fechamento executado (ver [epic_completion.md](process/refinement/epic_completion.md)).
 
+> **Retroatividade:** épicos concluídos antes da introdução do modelo de 6 estados permanecem em formato simplificado (título ✅ + 1-2 linhas de resumo) e não são reclassificados retroativamente. O modelo aplica-se a épicos em andamento e futuros.
+
 ---
 
 ## 📋 Épicos Planejados
