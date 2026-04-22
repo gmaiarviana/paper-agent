@@ -21,6 +21,24 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
 
 ---
 
+## 🎯 Épicos Core × Milestones de Produto
+
+> **Nota:** O core não tem milestones próprios — seus épicos são consumidos pelos milestones dos produtos. Épicos motivados por produto (prefixo `C-<PRODUTO>-`) declaram aqui qual milestone de produto os consome, para que o dispatch do milestone saiba que precisa tê-los implementados como dependência. Convenção de id de milestone em [docs/CONSTITUTION.md §9](CONSTITUTION.md).
+
+| Épico Core | Status | Milestone consumidor | Produto |
+|------------|--------|----------------------|---------|
+| ÉPICO 1 (Pesquisador) | 🌱 Visão | — (não vinculado) | — |
+| C-ENSAIO-1 (Parametrização de Contexto) | 🌱 Visão | POC-ENSAIO | Ensaio |
+| C-ENSAIO-2 (Writer versão inicial) | 🔍 Detalhes definidos | POC-ENSAIO | Ensaio |
+| C-ENSAIO-3 (Writer por seção) | 🌱 Visão | PROTO-ENSAIO | Ensaio |
+| C-ENSAIO-4 (Ingestão de arquivos anexados) | 🌱 Visão | MVP-ENSAIO | Ensaio |
+| C-ENSAIO-5 (Pendência — condicional) | 🌱 Visão (condicional) | — (sem milestone até segundo consumidor aparecer) | — |
+| C-ENSAIO-6 (Componentes de UI — condicional) | 🌱 Visão (condicional) | — (sem milestone até gatilho de ativação) | — |
+
+Épicos sem coluna "Milestone consumidor" preenchida não entram em nenhum milestone de produto até que um gatilho apareça. Mudanças de vínculo são feitas editando esta tabela.
+
+---
+
 ## 📋 Épicos Planejados
 
 ### 🌱 Épicos em Visão

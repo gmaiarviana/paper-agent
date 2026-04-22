@@ -220,6 +220,30 @@ Os detalhes específicos de cada ajuste por estágio moram em `docs/process/refi
 ### 💡 IDEIAS FUTURAS
 Ideias abstratas que ainda não viraram épicos. Aguardando maturação.
 
+### 🎯 MILESTONES
+
+Um **milestone** agrupa épicos relacionados dentro de um mesmo estágio (POC/Protótipo/MVP). É a unidade de entrega do **fluxo autônomo** — disparo por linguagem natural ("implementa a POC do Ensaio"), execução na branch `milestone/<id>`, merge em main apenas com aval humano. Definição canônica em [docs/CONSTITUTION.md §9](../../CONSTITUTION.md).
+
+**Convenção de id:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`. Quando um estágio precisa ser quebrado em mais de um milestone, acrescentar sufixo: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`. Nome da branch associada em caixa baixa: `milestone/poc-ensaio`.
+
+**Quando dividir um estágio em múltiplos milestones.** A decisão é do EM skill (Engineering Manager, a ser criada em M3b da reforma) no sizing antes do dispatch. Regra fixada: milestone cujo sizing retornar OVERFLOW **nunca** é executado como está — é devolvido ao dev com proposta de quebra em dois ou mais milestones (com sufixos `ALPHA`/`BETA`). Milestones com sizing TIGHT seguem sem aval adicional.
+
+Template mínimo para cada milestone no ROADMAP do produto:
+
+```markdown
+### <ID>  <!-- ex: POC-ENSAIO -->
+
+- **Estágio:** <POC | Protótipo | MVP>
+- **Produto:** <nome do produto>
+- **Épicos agrupados:** <lista dos ids dos épicos, ex: E-POC-1, E-POC-2, E-POC-3>
+- **Dependências de core:** <lista de épicos C-<PRODUTO>-* ou ÉPICO N do core; "nenhuma" se for o caso>
+- **Branch associada:** `milestone/<id-em-caixa-baixa>`
+- **Status dos épicos:** <resumo dos estados atuais dos épicos agrupados>
+- **Nota:** <se stub: declarar que é declarativo; se houver épicos ainda em 🌱/📐, mencionar refinamento tático pela PM skill dentro da branch>
+```
+
+Milestones vivem na seção `## 🎯 Milestones` de cada ROADMAP de produto, logo antes de `## 📋 Épicos Planejados`. O core (`docs/ROADMAP.md`) não tem milestones próprios — usa uma tabela `## 🎯 Épicos Core × Milestones de Produto` para declarar quais épicos core entram em qual milestone de produto (ver lá).
+
 ### 📍 PRÓXIMOS PASSOS
 
 **Épicos percorrem até seis estados:**

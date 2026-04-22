@@ -101,14 +101,52 @@ Não aplicáveis nesta reforma. A execução foi manual pelo dev, revisada fora 
 
 ---
 
+### Épico M2 — Camada de milestone nos ROADMAPs
+
+**Status:** ✅ Concluído em 2026-04-22
+
+**Objetivo:** criar a camada de milestone nos ROADMAPs existentes, agrupando épicos já escritos sob milestones dentro de cada estágio. Sem criar épicos novos, sem mudar conteúdo de épicos existentes.
+
+#### Arquivos tocados
+
+- `products/ensaio/ROADMAP.md` — seção `## 🎯 Milestones` nova antes de `## 📋 Épicos Planejados`. Milestones criados: **POC-ENSAIO** (E-POC-1, E-POC-2, E-POC-3; dep core C-ENSAIO-2), **PROTO-ENSAIO** stub (E-PROTO-1..5; dep core C-ENSAIO-3), **MVP-ENSAIO** stub (E-MVP-1..3; dep core C-ENSAIO-4).
+- `products/revelar/ROADMAP.md` — seção `## 🎯 Milestones` nova. Milestone criado: **MVP-REVELAR** (ÉPICO 1 Observer, ÉPICO 2 Catálogo). Estágio identificado como MVP via `products/revelar/README.md` linha 21 ("MVP em desenvolvimento"). Épicos concluídos anteriores ao modelo de seis estados não são agrupados (regra de retroatividade).
+- `products/produtor-cientifico/ROADMAP.md` — seção `## 🎯 Milestones` stub com placeholder citando nomenclatura esperada. Nenhum milestone criado.
+- `products/prisma-verbal/ROADMAP.md` — seção `## 🎯 Milestones` stub com placeholder citando nomenclatura esperada. Nenhum milestone criado.
+- `docs/ROADMAP.md` (core) — seção nova `## 🎯 Épicos Core × Milestones de Produto` com tabela mapeando: C-ENSAIO-1 → POC-ENSAIO (base de E-POC-2); C-ENSAIO-2 → POC-ENSAIO; C-ENSAIO-3 → PROTO-ENSAIO; C-ENSAIO-4 → MVP-ENSAIO; C-ENSAIO-5 e C-ENSAIO-6 sem milestone (condicionais). ÉPICO 1 Pesquisador sem vínculo.
+- `docs/process/refinement/planning_guidelines.md` — na seção `## Estrutura do Roadmap`, bloco novo `### 🎯 MILESTONES` com definição (referenciando CONSTITUTION §9), convenção de id, regra de quebra por sizing (OVERFLOW do EM skill sempre quebra), template `### <ID>` com campos mínimos, e nota sobre onde vive a seção em cada ROADMAP.
+
+#### Milestones criados (índice)
+
+- **Ensaio:** POC-ENSAIO, PROTO-ENSAIO (stub), MVP-ENSAIO (stub)
+- **Revelar:** MVP-REVELAR
+- **Core:** nenhum (core não tem milestones próprios; tem tabela de vínculo)
+- **Produtor Científico, Prisma Verbal:** nenhum (stubs de seção apenas)
+
+#### Decisões tomadas durante a execução
+
+1. **Estágio atual do Revelar = MVP** — identificado via `products/revelar/README.md` linha 21 ("MVP em desenvolvimento (Épicos 1-16)"). ÉPICO 1 e ÉPICO 2 do Revelar foram agrupados sob MVP-REVELAR.
+2. **Revelar sem épicos concluídos para agrupar retroativamente** — o ROADMAP atual não lista épicos concluídos (foram podados antes da reforma). A nota de retroatividade foi preservada no milestone MVP-REVELAR.
+3. **ÉPICO 2 do Revelar (Catálogo) em `📐 Funcionalidades esboçadas`** entra no milestone mesmo sem estar pronto para `🔍` — alinhado com o princípio de que PM skill (M3b) refina tático dentro da branch.
+4. **Core não tem milestones próprios** — traduzido como tabela de vínculo `Épico Core × Milestone consumidor`. Alternativa rejeitada: criar "milestones core" sintéticos, porque violaria a convenção `<ESTAGIO>-<PRODUTO>` (não existe estágio de core isolado).
+5. **Stubs de produto-futuro** (Produtor Científico e Prisma Verbal) usam placeholder textual, não tabela com milestones inventados — alinhado com a restrição "não inventar milestones que ainda não existem como intenção".
+6. **C-ENSAIO-1 mapeado para POC-ENSAIO** — baseado na observação de que E-POC-2 do Ensaio já é consumidor concreto desse padrão (seu título é "Configuração de Contexto de Produto para Agentes do Core"). Se houver intenção diferente, essa entrada da tabela pode ser corrigida em sessão futura.
+
+#### Inconsistências observadas (não corrigidas em M2 — escopo de milestones posteriores)
+
+1. **`products/revelar/README.md` linha 21** fala em "Épicos 1-16" mas o ROADMAP só tem ÉPICO 1 e ÉPICO 2 ativos. Os demais (3-16) foram podados sem deixar resumo no ROADMAP. Não afeta M2 nem nenhum milestone da reforma, mas vale eventual saneamento do README do Revelar fora da reforma.
+2. **ÉPICO 1 Pesquisador no core ROADMAP** tem dependência declarada "Revelar ÉPICO 2 (Catálogo de Conceitos)" mas permanece em `🌱 Visão` sem milestone consumidor. Consistente — Pesquisador só vira milestone quando virar consumidor de algum produto. Ficou registrado na tabela como "— (não vinculado)".
+3. **ÉPICO 2 do Revelar (Catálogo)** depende internamente de ÉPICO 1 (Painel Observer). Ambos caem no mesmo milestone MVP-REVELAR — a dependência interna é resolvida como ordem de execução dentro do milestone, não como quebra em milestones separados. Se EM skill em M3b decidir quebrar (MVP-REVELAR-ALPHA/BETA), cada um fica com 1 épico.
+
+---
+
 ### Épicos pendentes da reforma
 
-- **M2** — ⬜ pendente
-- **M3a** — ⬜ pendente
-- **M3b** — ⬜ pendente
-- **M4** — ⬜ pendente
-- **M5** — ⬜ pendente
-- **M6** — ⬜ pendente
+- **M3a** — ⬜ pendente (renomeações skills planning→scrum-master, validation→rte; varredura de refs cruzadas dentro de skills/ e docs/process/autonomous/)
+- **M3b** — ⬜ pendente (criar skills/pm/, skills/em/, docs/process/sizing/)
+- **M4** — ⬜ pendente (reescrita de docs/process/autonomous/ para milestone)
+- **M5** — ⬜ pendente (atualização de docs/process/refinement/)
+- **M6** — ⬜ pendente (integrações e cross-refs finais)
 
 ---
 
@@ -127,3 +165,20 @@ Não aplicáveis nesta reforma. A execução foi manual pelo dev, revisada fora 
 - Reforma continua pronta para disparar M2 na próxima sessão.
 - Branch local `refactor/fluxo-milestone` sem push (instrução do dev).
 - Inconsistências herdadas detectadas e registradas para M3a/M4/M5/M6 (ver bloco "Inconsistências observadas" em M1 acima).
+
+### Sessão 2 — 2026-04-22 — M2
+
+**Executado:** M2 completo em 1 commit.
+
+**Arquivos tocados:**
+- Modificado: `products/ensaio/ROADMAP.md` (seção 🎯 Milestones com POC-ENSAIO + stubs PROTO-ENSAIO, MVP-ENSAIO)
+- Modificado: `products/revelar/ROADMAP.md` (seção 🎯 Milestones com MVP-REVELAR)
+- Modificado: `products/produtor-cientifico/ROADMAP.md` (seção 🎯 Milestones stub)
+- Modificado: `products/prisma-verbal/ROADMAP.md` (seção 🎯 Milestones stub)
+- Modificado: `docs/ROADMAP.md` (seção 🎯 Épicos Core × Milestones de Produto com tabela de vínculo)
+- Modificado: `docs/process/refinement/planning_guidelines.md` (bloco 🎯 MILESTONES em `## Estrutura do Roadmap` com convenção, regra de quebra e template)
+
+**Observações:**
+- Reforma pronta para disparar M3a na próxima sessão.
+- Inconsistências observadas registradas no bloco M2 acima (README do Revelar, dep interna MVP-REVELAR). Nenhuma bloqueia M3a+.
+- Mapeamento C-ENSAIO-1 → POC-ENSAIO foi inferido via consumidor (E-POC-2); revisar se a intenção for diferente.
