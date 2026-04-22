@@ -31,14 +31,26 @@ O Claude Web não tem acesso ao repositório. Esse pack dá a ele o mínimo nece
 
 ## 🎯 Alvos de Refinamento
 
-Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qual o épico deve chegar ao fim da sessão. O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`; alvos mais profundos exigem contexto adicional. O modelo completo dos seis estados de um épico vive em [`planning_guidelines.md`](planning_guidelines.md).
+Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qual o épico (ou conjunto de épicos) deve chegar ao fim da sessão. Sessões se dividem em dois tipos conforme o alvo:
 
-### Alvo `📐 Funcionalidades esboçadas` (refinamento em massa)
+- **Refinamento em massa** — alvo `🌱 Visão` ou `📐 Funcionalidades esboçadas`, aplicado a múltiplos épicos de uma vez. Produz várias entradas no ROADMAP a partir de uma visão.
+- **Refinamento profundo** — alvo `📋 Critérios definidos` ou `🔍 Detalhes definidos`, aplicado a um épico específico que se aproxima da implementação.
 
-- **Pergunta:** como essa visão se quebra em épicos trabalháveis?
+O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. O alvo `🔍 Detalhes definidos` exige contexto adicional — inspeção de código relevante + checklist específico. O modelo completo dos seis estados de um épico vive em [`planning_guidelines.md`](planning_guidelines.md).
+
+### Alvo `🌱 Visão` (refinamento em massa — nível título)
+
+- **Pergunta:** quais são os principais épicos desta visão?
+- **Produto:** N épicos com título e objetivo. Sem lista de funcionalidades ainda.
+- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos.
+- **Quando acontece:** ao abrir um ROADMAP novo e querer apenas registrar os próximos movimentos em alto nível.
+
+### Alvo `📐 Funcionalidades esboçadas` (refinamento em massa — nível esboço)
+
+- **Pergunta:** como essa visão se quebra em épicos trabalháveis, e o que cada um entrega?
 - **Produto:** N épicos com objetivo e lista curta de funcionalidades (descrição de 1 frase cada), sem critérios de aceite.
 - **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos.
-- **Quando acontece:** ao abrir um ROADMAP novo ou ao quebrar uma visão de produto em itens trabalháveis.
+- **Quando acontece:** ao quebrar uma visão de produto em itens trabalháveis com um pouco mais de granularidade que `🌱 Visão`.
 
 ### Alvo `📋 Critérios definidos` (refinamento profundo — critérios)
 
@@ -52,7 +64,7 @@ Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qu
 
 - **Pergunta:** um agente sem contexto do problema consegue executar isto sem inventar?
 - **Produto:** arquivos-alvo com caminho completo, contratos/shapes, mecanismo de integração, acoplamentos verificados, escopo de testes.
-- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos + inspeção de código relevante (via Cursor, ou como trechos específicos pedidos ao Claude Web) + checklist em [`autonomous_readiness.md`](autonomous_readiness.md).
+- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos + **inspeção de código relevante** (via Cursor, ou como trechos específicos pedidos ao Claude Web) + checklist em [`autonomous_readiness.md`](autonomous_readiness.md). A inspeção de código é parte obrigatória deste alvo, não opcional.
 - **Quando acontece:** sob demanda, pouco antes de disparar o fluxo autônomo para o épico específico. Aplicar preventivamente em todos os épicos é desperdício — o trabalho perde-se se o épico for repriorizado.
 - **Estado resultante do épico:** `🔍 Detalhes definidos` — apto ao fluxo autônomo via Claude Code Web ([`dispatch.md`](../autonomous/dispatch.md)).
 
