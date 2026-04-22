@@ -77,7 +77,7 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 - ✅ Atualizar docs se mudou estrutura
 
 **Não deve:**
-- ❌ Refinar épicos (ambas as passadas — 1ª e 2ª — são manuais, via Claude Web)
+- ❌ Refinar épicos (refinamento em qualquer alvo — `📋 Critérios definidos` ou `🔍 Detalhes definidos` — é manual, via Claude Web)
 - ❌ Tomar decisões arquiteturais sem base
 
 ---
