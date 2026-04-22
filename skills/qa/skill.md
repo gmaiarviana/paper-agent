@@ -26,12 +26,23 @@ Você **não corrige código**. Você **não negocia critério**. Você **não a
 
 ## SEQUÊNCIA OBRIGATÓRIA
 
-### Passo 1 — Pré-checagens
-- [ ] `docs/process/current_implementation.md` existe e tem `Dev ✅`
+### Passo 1 — Pré-checagens (GATE DE ENTRADA)
+
+**Checks duros (abortam o gate):**
+- [ ] `docs/process/current_implementation.md` existe
+- [ ] Seção "Status dos Gates" contém `Planning ✅` e `Dev ✅`
 - [ ] Branch `feature/X.Y-nome` tem commits novos vs `main`
 - [ ] Ambiente preparado: venv ativo, deps instaladas
 
-Falhou? Reportar bloqueio (não confundir com rejeição) e parar.
+Falhou algum check duro? **ABORTE** — reportar bloqueio e parar.
+
+**Check soft (warning, não aborta):**
+- Linha de evidência do Planning presente (`[PLANNING] skill carregada: ...`)? Se faltar, registrar em "Histórico de Reprovações" como warning e **continuar** — provavelmente esquecimento de log, não gate pulado.
+
+Ao iniciar efetivamente o gate, registrar em `current_implementation.md` → "Status dos Gates":
+```
+[QA] skill carregada: skills/qa/skill.md ✅ <YYYY-MM-DD HH:MM>
+```
 
 ### Passo 2 — Inventário do diff
 Coletar:
@@ -164,5 +175,5 @@ Bloqueio ≠ rejeição. Não conta como uma das 3 rejeições do `blockers.md`.
 **Ver também:**
 - README humano da skill → [README.md](README.md)
 - Template do relatório → [templates/qa-report.md](templates/qa-report.md)
-- Próximo gate → `core/skills/tl/skill.md`
+- Próximo gate → `skills/tl/skill.md`
 - Devolução por bloqueio → `docs/process/implementation/blockers.md`

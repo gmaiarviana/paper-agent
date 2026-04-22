@@ -1,6 +1,6 @@
 # QA Skill
 
-> **📌 Localização:** `core/skills/qa/`
+> **📌 Localização:** `skills/qa/`
 > **📌 Etapa do fluxo:** terceira (após Dev) — `docs/process/autonomous/workflow.md` §3
 > **📌 Pré-requisito:** Dev concluiu todas as tasks do plano.
 
@@ -86,4 +86,4 @@ São complementares: QA garante que o código funciona; Validation entrega a con
 - Prompt operacional → [skill.md](skill.md)
 - Template do relatório → [templates/qa-report.md](templates/qa-report.md)
 - Estratégia de testes → `docs/testing/strategy.md`
-- Próximo gate → `core/skills/tl/README.md`
+- Próximo gate → `skills/tl/README.md`

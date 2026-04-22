@@ -28,7 +28,9 @@ Você **não cria PR**. Você **não mergeia**. Você **não roda testes**.
 
 ## SEQUÊNCIA OBRIGATÓRIA
 
-### Passo 1 — Verificar gates anteriores
+### Passo 1 — Verificar gates anteriores (GATE DE ENTRADA)
+
+**Checks duros (abortam o gate):**
 Ler `docs/process/current_implementation.md` e confirmar:
 - [ ] Planning ✅
 - [ ] Dev ✅
@@ -36,10 +38,18 @@ Ler `docs/process/current_implementation.md` e confirmar:
 - [ ] TL ✅
 - [ ] PO ✅
 
-Algum não está ✅? **Abortar** com mensagem ao dev:
+Algum gate não está ✅? **Abortar** com mensagem ao dev:
 ```
 🛑 Validation abortada — gate anterior não aprovado: <nome do gate>
 Veja current_implementation.md para detalhes.
+```
+
+**Check soft (warning, não aborta):**
+- Linhas de evidência de carregamento presentes para cada skill (`[PLANNING]`, `[QA]`, `[TL]`, `[PO]`)? Se alguma faltar mas o ✅ estiver lá, registrar warning em "Histórico de Reprovações" e **continuar** — incluir o aviso na mensagem final ao dev.
+
+Aprovado? Registrar em `current_implementation.md` → "Status dos Gates":
+```
+[VALIDATION] skill carregada: skills/validation/skill.md ✅ <YYYY-MM-DD HH:MM>
 ```
 
 ### Passo 2 — Garantir branch publicada
