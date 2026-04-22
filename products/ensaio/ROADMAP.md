@@ -52,6 +52,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### POC-ENSAIO
 
+- **Objetivo:** entregar a primeira versão funcional do Ensaio como app próprio — o pesquisador conversa sobre o experimento num chat simples e, sob demanda, aciona o Writer do core para gerar e refinar o artigo em markdown. Valida a hipótese de que agentes do core parametrizados por contexto de produto servem a um fluxo diferente do Revelar.
 - **Estágio:** POC — Prova de Conceito
 - **Produto:** Ensaio
 - **Épicos agrupados:** E-POC-1, E-POC-2, E-POC-3
@@ -61,6 +62,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### PROTO-ENSAIO (stub)
 
+- **Objetivo:** a definir quando o milestone for refinado. Direção provável: fazer o Ensaio virar ferramenta de uso real do próprio desenvolvedor — substituir Streamlit por stack navegável, introduzir persistência do artigo com versões, painel de artigo em construção e pendências entre sessões.
 - **Estágio:** Protótipo — Desenvolvedor Usa
 - **Produto:** Ensaio
 - **Épicos agrupados:** E-PROTO-1, E-PROTO-2, E-PROTO-3, E-PROTO-4, E-PROTO-5
@@ -71,6 +73,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### MVP-ENSAIO (stub)
 
+- **Objetivo:** a definir quando o milestone for refinado. Direção provável: habilitar uso por colegas próximos sem o desenvolvedor do lado — upload de artefatos do experimento, experiência de refinamento *ongoing* entre sessões longas e preparação mínima para compartilhamento.
 - **Estágio:** MVP — Colegas Usam
 - **Produto:** Ensaio
 - **Épicos agrupados:** E-MVP-1, E-MVP-2, E-MVP-3

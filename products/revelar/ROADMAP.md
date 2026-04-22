@@ -29,6 +29,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### MVP-REVELAR
 
+- **Objetivo:** fechar a interface do MVP do Revelar em duas frentes complementares — painel visual do Observer nos Bastidores (transparência de como o sistema pensa: claim, proposições, tensões e gaps) e catálogo navegável dos conceitos acumulados. Habilita colegas a usar o Revelar sem o desenvolvedor do lado.
 - **Estágio:** MVP — Colegas Usam (Revelar está em MVP em desenvolvimento, conforme `products/revelar/README.md`)
 - **Produto:** Revelar
 - **Épicos agrupados:** ÉPICO 1 (Observer - Painel Visual Dedicado), ÉPICO 2 (Catálogo de Conceitos - Interface Web)

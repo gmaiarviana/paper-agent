@@ -182,3 +182,19 @@ Não aplicáveis nesta reforma. A execução foi manual pelo dev, revisada fora 
 - Reforma pronta para disparar M3a na próxima sessão.
 - Inconsistências observadas registradas no bloco M2 acima (README do Revelar, dep interna MVP-REVELAR). Nenhuma bloqueia M3a+.
 - Mapeamento C-ENSAIO-1 → POC-ENSAIO foi inferido via consumidor (E-POC-2); revisar se a intenção for diferente.
+
+### Sessão 2.1 — 2026-04-22 — Ajuste pós-validação de M2
+
+**Executado:** ajuste cirúrgico do M2 em 1 commit, após review do Copilot.
+
+**Motivo:** template de milestone em `planning_guidelines.md` e os 4 milestones criados (POC-ENSAIO, PROTO-ENSAIO, MVP-ENSAIO, MVP-REVELAR) não tinham campo `Objetivo`. Sem ele, milestone vira lista de épicos sem propósito declarado.
+
+**Arquivos tocados (4):**
+- Modificado: `docs/process/refinement/planning_guidelines.md` (campo `Objetivo` como primeiro item do template `### <ID>`)
+- Modificado: `products/ensaio/ROADMAP.md` (objetivos em POC-ENSAIO, PROTO-ENSAIO, MVP-ENSAIO — stubs com direção provável marcada como "a definir")
+- Modificado: `products/revelar/ROADMAP.md` (objetivo em MVP-REVELAR)
+- Modificado: `docs/process/current_implementation.md` (esta seção)
+
+**Observações:**
+- Stubs de `produtor-cientifico` e `prisma-verbal` não foram tocados (ainda sem milestones reais, só placeholder).
+- Nenhum outro campo dos milestones foi alterado. Nenhum conteúdo de épico foi alterado.

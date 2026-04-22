@@ -233,6 +233,7 @@ Template mínimo para cada milestone no ROADMAP do produto:
 ```markdown
 ### <ID>  <!-- ex: POC-ENSAIO -->
 
+- **Objetivo:** <o que esse milestone entrega em 1-2 linhas, focado em valor de negócio>
 - **Estágio:** <POC | Protótipo | MVP>
 - **Produto:** <nome do produto>
 - **Épicos agrupados:** <lista dos ids dos épicos, ex: E-POC-1, E-POC-2, E-POC-3>
