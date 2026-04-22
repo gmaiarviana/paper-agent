@@ -770,7 +770,8 @@ def create_snapshot(idea_id: UUID):
   - Similaridade cosseno ordenada descendente
   - Thresholds: 0.80 (mesmo conceito), 0.90 (auto-variation)
 - ✅ **10.6 Testes POC** - IMPLEMENTADO
-  - 22 testes unitários em `tests/unit/test_observer.py`
+  - Testes unitários em `tests/core/unit/agents/observer/test_observer.py`
+  - Testes de qualidade de embedding em `tests/core/integration/behavior/test_embedding_quality.py`
   - Cobertura: ConceptCatalog, Pipeline, Embeddings, Deduplicação
   - Mocks para LLM, vetores fixos para busca semântica
 ### ✅ Épico 12: Observador Integrado ao Fluxo - COMPLETO
@@ -798,9 +799,8 @@ Observer integrado ao grafo multi-agente via callback assíncrono.
   - Modal "👁️ Análise do Observador" com histórico completo
 
 - ✅ **12.4 Testes** - IMPLEMENTADO
-  - 9 testes em `tests/core/unit/test_observer_callback.py`
-  - 19 testes em `tests/core/unit/agents/orchestrator/test_cognitive_context.py`
-  - Script `scripts/core/validate_observer_integration.py`
+  - `tests/core/unit/agents/observer/test_callback.py`
+  - `tests/core/unit/agents/orchestrator/test_cognitive_context.py`
 
 **Fluxo de integração:**
 ```

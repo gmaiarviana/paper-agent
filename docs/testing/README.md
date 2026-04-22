@@ -9,19 +9,19 @@
 ## 🎯 Quick Start
 ```bash
 # Unit tests (rápidos, sem custo) - CI
-pytest tests/unit/
+pytest tests/core/unit/
 
 # Smoke tests (validação rápida, API real)
-pytest tests/integration/smoke/ -m smoke
+pytest tests/core/integration/smoke/ -m smoke
 
 # Behavior tests (comportamentos específicos)
-pytest tests/integration/behavior/ -m behavior
+pytest tests/core/integration/behavior/ -m behavior
 
 # E2E tests (cenários completos, mais caros)
-pytest tests/integration/e2e/ -m e2e
+pytest tests/core/integration/e2e/ -m e2e
 
 # Todos os integration tests
-pytest tests/integration/ -m integration
+pytest tests/core/integration/ -m integration
 ```
 
 ## 💡 TL;DR

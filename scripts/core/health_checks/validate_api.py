@@ -8,7 +8,7 @@ This script performs a simple test to ensure:
 4. Token usage and costs are tracked
 
 This is a MANUAL validation tool for local development.
-For automated tests, see tests/unit/ and tests/integration/.
+For automated tests, see tests/core/unit/ and tests/core/integration/.
 """
 
 import os

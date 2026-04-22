@@ -77,7 +77,7 @@ Preencher [templates/delivery-report.md](templates/delivery-report.md) com:
 Bloco copy-paste com:
 1. Baixar branch: `git fetch origin` + `git checkout feature/X.Y-nome` + `git pull`
 2. Preparar ambiente: ativar venv + `pip install -r requirements.txt` (se deps mudaram)
-3. Rodar testes aplicáveis: `pytest tests/unit/...` + `pytest -m integration` se houver
+3. Rodar testes aplicáveis: `pytest tests/core/unit/...` + `pytest -m integration` se houver
 4. Rodar aplicação se mudou interface: comando específico do produto
 
 **Substituir TODOS os placeholders** (nome da branch, comandos do produto). Output não pode conter `<...>`.
@@ -120,7 +120,7 @@ source venv/bin/activate
 pip install -r requirements.txt   # se deps mudaram
 
 # 3. Rodar testes
-pytest tests/unit/<caminho> -v
+pytest tests/core/unit/<caminho> -v
 pytest -m integration             # se aplicável
 
 # 4. Rodar aplicação (se mudou interface)

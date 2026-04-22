@@ -215,7 +215,7 @@ if __name__ == "__main__":
         sys.exit(1)
 ```
 
-**Localização:** `scripts/<categoria>/validate_*.py` (ex: `scripts/state_introspection/validate_ask_user.py`)
+**Localização:** `scripts/core/<categoria>/validate_*.py` (ex: `scripts/core/health_checks/validate_api.py`)
 
 **Idioma e convenções:**
 - Nomes de funções, variáveis e arquivos em inglês (`validate_module`, `project_root`), conforme [`language_guidelines.md`](language_guidelines.md)

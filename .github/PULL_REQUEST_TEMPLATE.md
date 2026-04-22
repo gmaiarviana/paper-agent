@@ -20,20 +20,20 @@
 ### 🧪 Testes
 
 **Testes Unitários:**
-- Arquivo(s): `tests/unit/test_*.py`
+- Arquivo(s): `tests/core/unit/<caminho>/test_*.py`
 - Resultado: X/X testes passando
 
-**Script de Validação:**
-- Arquivo: `scripts/validate_*.py`
+**Script de Validação (se aplicável):**
+- Arquivo: `scripts/core/<categoria>/validate_*.py`
 - Resultado: ✅ Validação completa
 
 **Como rodar:**
 ```bash
 # Testes unitários
-python -m pytest tests/unit/test_*.py -v
+python -m pytest tests/core/unit/ -v
 
 # Script de validação
-python scripts/validate_*.py
+python scripts/core/<categoria>/validate_*.py
 ```
 
 ---
@@ -75,10 +75,10 @@ pip install -r requirements.txt
 **Passo 4: Rodar testes**
 ```bash
 # Testes unitários
-python -m pytest tests/unit/test_*.py -v
+python -m pytest tests/core/unit/ -v
 
 # Script de validação (recomendado - ajuda a entender o módulo!)
-python scripts/validate_*.py
+python scripts/core/<categoria>/validate_*.py
 ```
 
 **Resultados esperados:**

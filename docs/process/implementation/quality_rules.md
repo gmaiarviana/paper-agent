@@ -117,10 +117,10 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 
 # 3. Testes unitários
-python -m pytest tests/unit/test_*.py -v
+python -m pytest tests/core/unit/ -v
 
 # 4. Validação manual (script - RECOMENDADO!)
-python scripts/<categoria>/validate_*.py
+python scripts/core/<categoria>/validate_*.py
 
 # Resultados esperados:
 # - ✅ X/X testes passando

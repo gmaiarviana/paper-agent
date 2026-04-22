@@ -4,8 +4,6 @@ Script de validação manual do estado do agente Metodologista.
 Valida que a criação do estado inicial está funcionando corretamente,
 exibindo os valores de forma legível para inspeção humana.
 
-Uso:
-    python scripts/validate_state.py
 """
 
 import json

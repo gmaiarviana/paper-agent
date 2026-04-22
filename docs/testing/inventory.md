@@ -17,16 +17,16 @@ Lista organizada de testes por categoria e propósito.
 
 | Categoria | Local | Arquivos | Custo | Quando Rodar |
 |-----------|-------|----------|-------|--------------|
-| Unit | `tests/unit/` | 21 | $0 | CI (sempre) |
-| Smoke | `tests/integration/smoke/` | 3 | ~$0.01 | Manual/CI seletivo |
-| Behavior | `tests/integration/behavior/` | 15 | ~$0.02-0.03 | Manual (releases) |
-| E2E | `tests/integration/e2e/` | 1 | ~$0.05 | Manual (crítico) |
+| Unit | `tests/core/unit/` | 21 | $0 | CI (sempre) |
+| Smoke | `tests/core/integration/smoke/` | 3 | ~$0.01 | Manual/CI seletivo |
+| Behavior | `tests/core/integration/behavior/` | 15 | ~$0.02-0.03 | Manual (releases) |
+| E2E | `tests/core/integration/e2e/` | 1 | ~$0.05 | Manual (crítico) |
 
 **Total:** 40 arquivos de teste
 
 ---
 
-## 🧪 Unit Tests (tests/unit/)
+## 🧪 Unit Tests (tests/core/unit/)
 
 ### agents/ (11 arquivos)
 - `orchestrator/` - Testes do orquestrador (modularizados):
@@ -77,33 +77,25 @@ Validação rápida de componentes principais.
 - `test_multi_agent_smoke.py` - Smoke test do super-grafo
 - `test_structurer_smoke.py` - Smoke test do Estruturador
 
-### behavior/ (15 arquivos)
+### behavior/
 Comportamentos específicos do sistema.
 
 **Conversação:**
 - `test_conversation_flow.py` - Fluxo conversacional
 - `test_conversation_switching.py` - Alternância de conversas
-- `test_conversational_cli.py` - CLI conversacional
 - `test_socratic_behavior.py` - Comportamento socrático
 
 **Agentes:**
 - `test_orchestrator_integration.py` - Orquestrador (API real)
 - `test_structurer_integration.py` - Estruturador (API real)
-- `test_multi_agent_flow.py` - Fluxo multi-agente
-
-**Refinamento:**
-- `test_refinement_loop.py` - Loop de refinamento
-- `test_structurer_refinement.py` - Refinamento do Estruturador
+- `test_observer_integration.py` - Observer integrado ao orquestrador
 
 **Cognição:**
 - `test_cognitive_evolution.py` - Evolução cognitiva
 - `test_build_context.py` - Construção de contexto
-
-**Interface:**
-- `test_cli_behavior.py` - CLI do Metodologista
+- `test_embedding_quality.py` - Qualidade do modelo de embeddings
 
 **Infraestrutura:**
-- `test_memory_integration.py` - Integração de memória
 - `test_real_api_tokens.py` - Tokens reais da API
 - `test_token_extraction.py` - Extração de tokens
 - `test_system_maturity.py` - Maturidade geral

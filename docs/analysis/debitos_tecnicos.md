@@ -881,8 +881,8 @@ def format_conversation_history(
 ### 4.1 Falta de Testes de Integração para Observer
 
 **Localização:**
-- `tests/integration/` - poucos testes do Observer
-- `tests/unit/` - testes unitários existem mas não cobrem fluxo completo
+- `tests/core/integration/` - poucos testes do Observer
+- `tests/core/unit/` - testes unitários existem mas não cobrem fluxo completo
 
 **Problema:**
 - Observer é crítico mas pouco testado em integração

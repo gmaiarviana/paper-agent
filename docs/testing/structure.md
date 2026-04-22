@@ -36,9 +36,8 @@ paper-agent/
 │   │   │   ├── test_multi_agent_smoke.py
 │   │   │   └── test_structurer_smoke.py
 │   │   │
-│   │   ├── behavior/               # Comportamentos (15 arquivos, ~$0.02-0.03)
+│   │   ├── behavior/               # Comportamentos (~$0.02-0.03)
 │   │   │   ├── test_socratic_behavior.py
-│   │   │   ├── test_refinement_loop.py
 │   │   │   ├── test_conversation_flow.py
 │   │   │   ├── test_cognitive_evolution.py
 │   │   │   └── ...
@@ -69,25 +68,25 @@ paper-agent/
 
 ## Categorias de Testes
 
-### Unit Tests (`tests/unit/`)
+### Unit Tests (`tests/core/unit/`)
 - **Custo:** $0
 - **Velocidade:** < 1s por teste
 - **Quando:** CI em todo PR
 - **Total:** 226 testes
 
-### Smoke Tests (`tests/integration/smoke/`)
+### Smoke Tests (`tests/core/integration/smoke/`)
 - **Custo:** ~$0.01 por teste
 - **Velocidade:** 1-2s por teste
 - **Quando:** Manual ou CI seletivo
 - **Total:** 11 testes
 
-### Behavior Tests (`tests/integration/behavior/`)
+### Behavior Tests (`tests/core/integration/behavior/`)
 - **Custo:** ~$0.02-0.03 por teste
 - **Velocidade:** 2-5s por teste
 - **Quando:** Manual (antes de releases)
 - **Total:** 15 arquivos
 
-### E2E Tests (`tests/integration/e2e/`)
+### E2E Tests (`tests/core/integration/e2e/`)
 - **Custo:** ~$0.05 por teste
 - **Velocidade:** 5-10s por teste
 - **Quando:** Manual (validações críticas)
@@ -131,4 +130,4 @@ Logger para rastrear custos em testes
 
 **Versão:** 3.1 (Refatorado - modularizado)
 **Data:** 14/12/2025
-**Nota:** Testes do Orquestrador foram modularizados em `tests/unit/agents/orchestrator/` para melhor organização.
+**Nota:** Testes do Orquestrador foram modularizados em `tests/core/unit/agents/orchestrator/` para melhor organização.

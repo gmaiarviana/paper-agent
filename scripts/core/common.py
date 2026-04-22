@@ -5,7 +5,7 @@ This module provides shared setup functionality to avoid code duplication
 across manual validation scripts in the scripts/ directory.
 
 These are MANUAL validation tools for local development, not automated tests.
-For automated tests, see tests/unit/ and tests/integration/.
+For automated tests, see tests/core/unit/ and tests/core/integration/.
 """
 
 import sys

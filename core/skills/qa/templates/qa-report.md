@@ -64,7 +64,7 @@
 - **Tempo total da execução:** <Xs>
 - **Comandos rodados:**
   ```bash
-  pytest tests/unit/ -v
+  pytest tests/core/unit/ -v
   pytest -m integration -v   # se aplicável
   ```
 - **Saída completa:** anexada em commit/log do gate (não embutir no relatório)

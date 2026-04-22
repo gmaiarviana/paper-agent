@@ -382,7 +382,7 @@ Pesquisador:
 - Critérios lógicos adaptáveis ao contexto: coerência, solidez de fundamentos, especificidade adequada
 - Exemplos práticos de aprovação, refinamento e rejeição em diferentes contextos
 
-**Validação:** `scripts/health_checks/validate_system_prompt.py`
+**Validação:** `scripts/core/health_checks/validate_system_prompt.py`
 
 ### Prompt Colaborativo (Épico 4)
 
@@ -532,14 +532,14 @@ Orquestrador: "Podemos listar critérios: autonomia, impacto social,
 ## Testes
 
 ### Testes Unitários
-- **Estado:** `tests/unit/test_methodologist_state.py` (4/4)
-- **Tool ask_user:** `tests/unit/test_ask_user_tool.py` (10/10)
-- **Nós do grafo:** `tests/unit/test_graph_nodes.py` (16/16)
+- **Estado:** `tests/core/unit/agents/test_methodologist_state.py`
+- **Lógica de estado:** `tests/core/unit/agents/test_methodologist_state_logic.py`
+- **Tool ask_user:** `tests/core/unit/agents/test_ask_user_tool.py`
+- **Grafo:** `tests/core/unit/agents/test_methodologist_graph.py`
+- **Nós do grafo:** `tests/core/unit/agents/test_methodologist_nodes.py`
 
-### Scripts de Validação Manual
-- `scripts/state_introspection/validate_state.py`: Valida estado e checkpointer
-- `scripts/state_introspection/validate_ask_user.py`: Valida tool ask_user
-- `scripts/state_introspection/validate_graph_nodes.py`: Valida nós do grafo
+### Smoke Test
+- `tests/core/integration/smoke/test_methodologist_smoke.py`
 
 ## Evolução (Épicos 2 → 4)
 

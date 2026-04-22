@@ -297,7 +297,7 @@ mkdir -p data/chroma data/sqlite
 
 ### Passo 4: Testar
 ```bash
-python scripts/test_stack.py
+pytest tests/core/integration/behavior/test_embedding_quality.py -v
 # Cria conceitos, testa busca, valida storage
 ```
 

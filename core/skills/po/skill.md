@@ -78,9 +78,9 @@ Atualizar `current_implementation.md`:
 ✅ PO APROVADO
 
 Critérios cobertos: <N>/<N>
-- Critério 1 ✅ teste em tests/unit/<arquivo>:<linha>
+- Critério 1 ✅ teste em tests/core/unit/<arquivo>:<linha>
 - Critério 2 ✅ manual via comando <X>
-- Critério 3 (não deve) ✅ teste em tests/unit/<arquivo>:<linha>
+- Critério 3 (não deve) ✅ teste em tests/core/unit/<arquivo>:<linha>
 
 Gold plating: nenhum detectado
 Utilizabilidade: OK

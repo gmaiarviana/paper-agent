@@ -2,145 +2,102 @@
 
 ## Rodar Testes
 
-### Por Categoria (Nova Estrutura)
+### Por Categoria
 ```bash
 # Unit tests (sempre rodam - $0)
-pytest tests/unit/ -v
+pytest tests/core/unit/ -v
 
 # Smoke tests (validação rápida - ~$0.01)
-pytest tests/integration/smoke/ -v -m smoke
+pytest tests/core/integration/smoke/ -v -m smoke
 
 # Behavior tests (comportamentos específicos - ~$0.02-0.03)
-pytest tests/integration/behavior/ -v -m behavior
+pytest tests/core/integration/behavior/ -v -m behavior
 
 # E2E tests (cenários completos - ~$0.05)
-pytest tests/integration/e2e/ -v -m e2e
+pytest tests/core/integration/e2e/ -v -m e2e
 
 # Todos os integration tests
-pytest tests/integration/ -v -m integration
+pytest tests/core/integration/ -v -m integration
 ```
 
 ### Por Componente
 ```bash
 # Testar apenas agentes
-pytest tests/unit/agents/ -v
+pytest tests/core/unit/agents/ -v
 
 # Testar apenas memória
-pytest tests/unit/memory/ -v
+pytest tests/core/unit/memory/ -v
 
 # Testar apenas utils
-pytest tests/unit/utils/ -v
+pytest tests/core/unit/utils/ -v
 ```
 
 ### Exemplos Específicos
 ```bash
-# Testar apenas Orquestrador
 # Executar todos os testes do orquestrador
-pytest tests/unit/agents/orchestrator/ -v
+pytest tests/core/unit/agents/orchestrator/ -v
 
 # Executar teste específico
-pytest tests/unit/agents/orchestrator/test_node.py -v
+pytest tests/core/unit/agents/orchestrator/test_node.py -v
 
 # Testar comportamento socrático
-pytest tests/integration/behavior/test_socratic_behavior.py -v
+pytest tests/core/integration/behavior/test_socratic_behavior.py -v
 
 # Testar fluxos multi-turn
-pytest tests/integration/e2e/test_multi_turn_flows.py -v
+pytest tests/core/integration/e2e/test_multi_turn_flows.py -v
 ```
 
 ---
 
 ## Scripts de Validação Manual
 
-### State introspection (sem chamadas reais à API)
+### Health checks (conexão com API, configs)
 ```bash
-python scripts/state_introspection/validate_state.py
-```
-
-```bash
-python scripts/state_introspection/validate_graph.py
-```
-
-```bash
-python scripts/state_introspection/validate_graph_nodes.py
-```
-
-```bash
-python scripts/state_introspection/validate_ask_user.py
-```
-
-### Flows completos (consomem API)
-```bash
-python scripts/flows/validate_cli.py
-```
-
-```bash
-python scripts/flows/validate_cli_integration.py
-```
-
-```bash
-python scripts/flows/validate_dashboard.py
-```
-
-```bash
-python scripts/flows/validate_memory_integration.py
-```
-
-```bash
-python scripts/flows/validate_multi_agent_flow.py
-```
-
-```bash
-python scripts/flows/validate_orchestrator.py
-```
-
-```bash
-python scripts/flows/validate_refinement_loop.py
-```
-
-```bash
-python scripts/flows/validate_structurer.py
-```
-
-```bash
-python scripts/flows/validate_structurer_refinement.py
-```
-
-```bash
-python scripts/flows/validate_build_context.py
-```
-
-### Health checks adicionais
-```bash
-python scripts/health_checks/validate_execution_tracker.py
-```
-
-```bash
-python scripts/health_checks/validate_orchestrator_json_parsing.py
+python scripts/core/health_checks/validate_api.py
+python scripts/core/health_checks/validate_agent_config.py
+python scripts/core/health_checks/validate_execution_tracker.py
+python scripts/core/health_checks/validate_orchestrator_json_parsing.py
+python scripts/core/health_checks/validate_runtime_config_simple.py
+python scripts/core/health_checks/validate_syntax.py
+python scripts/core/health_checks/validate_system_prompt.py
 ```
 
 ### Debug
 ```bash
-python scripts/debug/check_events.py
+python scripts/core/debug/check_events.py
+python scripts/core/debug/debug_multi_agent.py
+```
+
+### Inspeção de banco
+```bash
+python scripts/core/inspect_database.py
+```
+
+### Cenários E2E (scripts/core/testing/)
+```bash
+python scripts/core/testing/run_scenario.py
+python scripts/core/testing/run_all_scenarios.py
+python scripts/core/testing/replay_session.py
 ```
 
 ---
 
 ## Testes por Módulo
 
-### Testar apenas CostTracker
+### CostTracker
 ```bash
-pytest tests/unit/test_cost_tracker.py -v
+pytest tests/core/unit/utils/test_cost_tracker.py -v
 ```
 
-### Testar apenas nós do grafo
+### Extração de JSON
 ```bash
-pytest tests/unit/test_graph_nodes.py -v
+pytest tests/core/unit/utils/test_json_extraction.py -v
 ```
 
-### Testar apenas extração de JSON
+### Metodologista (grafo e nós)
 ```bash
-pytest tests/unit/test_json_extraction.py -v
+pytest tests/core/unit/agents/test_methodologist_graph.py -v
+pytest tests/core/unit/agents/test_methodologist_nodes.py -v
 ```
 
 ---
@@ -164,7 +121,7 @@ pytest -s
 
 ### Rodar teste específico
 ```bash
-pytest tests/unit/test_cost_tracker.py::test_calculate_cost_haiku -v
+pytest tests/core/unit/utils/test_cost_tracker.py::test_calculate_cost_haiku -v
 ```
 
 ### Markers
@@ -175,8 +132,3 @@ pytest -m integration
 # Rodar tudo exceto integration
 pytest -m "not integration"
 ```
-
----
-
-**Versão:** 3.0
-**Data:** 15/01/2025
