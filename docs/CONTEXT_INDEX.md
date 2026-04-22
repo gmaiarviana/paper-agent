@@ -346,7 +346,7 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
 | Se você quer... | Solicite tema... |
 |----------------|------------------|
 | **Refinar épico novo** | Obrigatório (raiz + visão) |
-| **Refinar épico com alvo `🔍 Detalhes definidos`** | Desenvolvimento e Processo |
+| **Refinar épico específico até alvo X** (X ∈ { `📋 Critérios definidos`, `🔍 Detalhes definidos` }) | Desenvolvimento e Processo |
 | **Fechar épico implementado (extração + enxugamento)** | Desenvolvimento e Processo |
 | **Discutir comportamento do orquestrador** | Orquestração e Fluxo |
 | **Implementar novo agente** | Agentes Específicos + Orquestração |
