@@ -60,13 +60,18 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
 
 **Objetivo:** Novo agente no core que recebe contexto conversacional e cognitive_model, devolve markdown estruturado. Nasce simples. Organizado para generalização futura (Produtor Científico reusará).
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Decisões arquiteturais já tomadas:** ver [core/docs/agents/writer/design.md](../core/docs/agents/writer/design.md)
 - Nasce no core (não no Ensaio)
 - Começa simples: nó que recebe contexto e devolve markdown
 - Estruturas de artigo vivem no prompt do Writer (não em enum/schema)
 - Organização inicial antecipa generalização para o Produtor Científico
+
+**Simplificações POC declaradas:**
+- Sem testes de integração (cobertura por validação manual via script)
+- Sem streaming ou geração por seção (escopo do épico C-ENSAIO-3)
+- Sem versionamento de output (estado no consumidor)
 
 ### Funcionalidades:
 
@@ -80,6 +85,15 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
   - Deve retornar dict contendo string markdown em uma chave (ex: "article")
   - Não deve manter estado entre invocações
   - Não deve ter loop interno de refinamento
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `core/agents/writer/__init__.py`, `core/agents/writer/nodes.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:** input é dict com chaves `messages` (lista de mensagens LangChain), `focal_argument` (dict ou None), `previous_article` (str ou None), `product_context` (str ou None); output é dict com chave `article` (str com markdown do artigo)
+  - **Integração:** nó isolado invocado diretamente por produtos — sem integração com `core/agents/multi_agent_graph.py` nesta versão
+  - **Template de referência:** `core/agents/structurer/nodes.py` (também é nó simples, mesma estrutura)
+  - **Acoplamentos verificados:** LLM via `langchain_anthropic.ChatAnthropic` como o `structurer_node`; sem dependência de `MultiAgentState` ou `EventBus` nesta versão
+  - **Dependências de ordem:** nenhuma (primeiro da sequência da POC)
+  - **Escopo de teste:** 1 unit test em `tests/core/unit/test_writer.py` validando que `writer_node` retorna dict com chave `article` quando invocado com input mínimo (mock do LLM)
 
 #### C-ENSAIO-2.2 Prompt com IMRaD e defaults
 
@@ -90,6 +104,13 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
   - Prompt orienta Writer a inferir intenção da conversa
   - Prompt define default "informar" quando intenção não emergir
   - Prompt não contém nome de produto específico (Ensaio, etc)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `core/prompts/writer.py`
+  - **Contratos/Shapes:** expõe constante `WRITER_PROMPT_V1` (string) com placeholders para `focal_argument`, `previous_article`, `product_context`
+  - **Integração:** importado por `core/agents/writer/nodes.py`
+  - **Template de referência:** `core/prompts/structurer.py` (estrutura de prompt com placeholders)
+  - **Comportamento com `focal_argument` vazio ou parcial:** prompt orienta Writer a usar defaults IMRaD (abstract, introdução, métodos, resultados, discussão, conclusão, referências) e inferir da conversa o que puder
+  - **Escopo de teste:** validação manual via script (ver 2.1)
 
 #### C-ENSAIO-2.3 Configuração YAML
 
@@ -99,6 +120,13 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
   - Modelo padrão: claude-3-5-haiku-20241022
   - Deve ser carregável pelo config_loader existente
   - Deve validar com config_validator existente
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `core/config/agents/writer.yaml`
+  - **Arquivos a modificar:** nenhum (reusa `config_loader` existente)
+  - **Contratos/Shapes:** YAML com campos `prompt` (referência a `WRITER_PROMPT_V1`), `model` (`claude-3-5-haiku-20241022`), `context_limits` (`max_input_tokens`, `max_output_tokens`, `max_total_tokens`), `metadata`
+  - **Template de referência:** `core/config/agents/structurer.yaml`
+  - **Acoplamentos verificados:** `core/agents/memory/config_loader.py` carrega via padrão existente sem modificação; `core/agents/memory/config_validator.py` valida schema sem mudança
+  - **Escopo de teste:** validação manual carregando o YAML pelo `config_loader` em script
 
 #### C-ENSAIO-2.4 Suporte a loop externo de refinamento
 
@@ -107,6 +135,12 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
   - Quando previous_article for None, Writer gera artigo pela primeira vez
   - Quando previous_article vier preenchido, Writer regenera considerando feedback presente nas messages mais recentes
   - Writer não tenta editar o previous_article pontualmente; sempre regenera inteiro
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum (comportamento absorvido em 2.1)
+  - **Contratos/Shapes:** quando `previous_article` é None, Writer gera pela primeira vez; quando preenchido, Writer regenera inteiro considerando feedback presente em `messages`
+  - **Integração:** quem invoca (app do produto) é responsável por acumular `messages` e passar `previous_article`
+  - **Template de referência:** padrão declarado em `core/docs/agents/writer/design.md` seção "Decisão Arquitetural: Começa Simples"
+  - **Escopo de teste:** validação manual via script que invoca `writer_node` duas vezes (primeira com `previous_article=None`, segunda com o artigo anterior e nova mensagem no histórico)
 
 ---
 
