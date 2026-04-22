@@ -377,6 +377,13 @@ Funcionalidades desejáveis para aprimorar experiência do usuário na interface
 
 ---
 
+### Utilitários de Composição de Grafos Produto-Específicos
+Quando o super-sistema tiver 2-3 produtos com grafos próprios (Ensaio + Produtor Científico + um terceiro), avaliar extração de utilitários comuns de composição para `core/agents/graph_builders/` (ou nome equivalente). Até lá, cada produto compõe manualmente em `products/<produto>/app/graph.py`.
+
+**Origem:** decisão arquitetural em `docs/ARCHITECTURE.md` (composição de grafo por produto).
+
+---
+
 **Versão:** 1.0  
 **Data:** 2025-11-14
 
