@@ -200,8 +200,59 @@ Não aplicáveis nesta reforma. A execução foi manual pelo dev, revisada fora 
 
 ### Épicos pendentes da reforma
 
-- **M3b** — ⬜ pendente (criar skills/pm/, skills/em/, docs/process/sizing/)
-- **M4** — ⬜ pendente (reescrita de docs/process/autonomous/ para milestone, incluindo descrição "pela manhã/à noite" e gates silenciosos)
+### Épico M3b — Criar PM, EM e infra de sizing
+
+**Status:** ✅ Concluído em 2026-04-22
+
+**Objetivo:** criar a PM Skill (refinamento tático dentro da branch), a EM Skill (sizing antes do Scrum Master) e a infra `docs/process/sizing/` (heurística + schema do histórico + arquivo JSONL vazio). Sem mexer em skills existentes nem em outros docs.
+
+#### Artefatos criados (7 arquivos)
+
+- `skills/pm/README.md` — papel, quando usar, como funciona, input/output, interação com outras skills, relação com Claude Web (complementar, não substituto).
+- `skills/pm/skill.md` — prompt operacional. 10 regras não-negociáveis, 9 passos da sequência (pré-checagens; identificar épicos; leitura de contexto; aplicar checklist por épico nas 5 categorias; ajuste por estágio; detecção e resolução; bloco único de perguntas; atualizar ROADMAPs; commit). Critérios de sucesso e falha. Marker `[PM] skill carregada: skills/pm/skill.md ✅ <timestamp>`.
+- `skills/em/README.md` — papel, quando usar, como funciona, input/output, interação com outras skills, calibração com histórico, relação com Claude Web.
+- `skills/em/skill.md` — prompt operacional. 7 regras não-negociáveis, 9 passos da sequência (pré-checagens; coleta de dados; carregar heurística; calcular fator de risco; estimar LOC; decidir veredicto; PARA se OVERFLOW com proposta de quebra; persistir em history.jsonl; atualizar current_implementation.md). Critérios de sucesso e falha. Marker `[EM] skill carregada: skills/em/skill.md ✅ <timestamp>`.
+- `docs/process/sizing/heuristic.md` — fórmula `LOC_estimado = Σ (funcionalidades × LOC_média_por_funcionalidade × fator_de_risco)`. Defaults consolidados (ver tabela ao fim do arquivo). Bootstrap e evolução com histórico. Critério de quebra para OVERFLOW.
+- `docs/process/sizing/schema.md` — schema das linhas do JSONL (campos, tipos, origem EM ou RTE). Política de duas linhas por milestone (decisão pela EM com `session_outcome=pending`; fechamento pela RTE com `loc_actual` preenchido e `session_outcome` final). Append-only. Exemplo de ciclo completo.
+- `docs/process/sizing/history.jsonl` — arquivo realmente vazio (JSONL não suporta comentários; schema vive em `schema.md`).
+
+#### Decisões tomadas durante a execução
+
+1. **Ordem de fluxo PM → EM** (não estava explícita no plano). PM precisa rodar antes do EM porque sem épicos em `🔍`, EM não tem `features_count` para a fórmula. EM aborta com mensagem clara se encontrar épico pré-`🔍`. PM é condicional (só roda se há pendente).
+2. **JSONL realmente vazio.** JSONL não suporta comentários; schema vive em `schema.md`. Padrão consistente com formatos de log estruturado.
+3. **Duas linhas por milestone no `history.jsonl`.** EM grava linha `pending` no início; RTE grava linha de fechamento com `loc_actual` real. Append-only preservado. Cada linha é autocontida (repete campos de identificação) para que filtros de calibragem rodem sem join.
+4. **Markers `[PM]` e `[EM]` no `current_implementation.md`.** O template atual em `scrum-master/skill.md` ainda lista só os 5 markers antigos. PM e EM declaram o formato esperado; reescrita do template é trabalho de M4. Anotado nos `skill.md` como nota explícita.
+5. **Defaults da heurística** (registrados em `heuristic.md`):
+   - `LOC_média_por_funcionalidade` inicial = 200
+   - `fator_de_risco_inicial` = 1.0; +0.3 por refatoração declarada; +0.3 por integração com sistema existente; +0.2 por dependência de core não-`✅`; máximo razoável por épico = 2.0
+   - Threshold FIT ≤ 3000; TIGHT ≤ 6000; OVERFLOW > 6000
+   - Bootstrap: defaults até `≥ 3` linhas FIT concluídas em `history.jsonl`
+   - Janela da média móvel: últimas 10 linhas FIT concluídas
+6. **`loc_actual` definido como `git diff --shortstat origin/main..HEAD` na branch do milestone, contando código + testes (excluindo docs e configs puras).** Detalhamento exato fica a cargo de M4 quando a RTE for reescrita; declarado no `schema.md` como ponto a fechar.
+7. **PM commita na branch do milestone, não em main.** RTE faz o push do milestone inteiro depois. PM atualiza ROADMAPs locais; sem push automático.
+8. **PM só toca em ROADMAPs e current_implementation.md.** EM só toca em history.jsonl e current_implementation.md. Restrito por design para evitar escopo creeping.
+
+#### Inconsistências observadas (registradas, não tocadas em M3b)
+
+1. **Template de `current_implementation.md` em `skills/scrum-master/skill.md` lista só 5 markers** (`[SCRUM-MASTER]`, `[QA]`, `[TL]`, `[PO]`, `[RTE]`). PM e EM precisam aparecer lá para o protocolo de carregamento ser completo. **Escopo:** M4 (reescrita do fluxo autônomo).
+2. **`docs/process/autonomous/workflow.md`** ainda descreve o fluxo como `Scrum Master → Dev → QA → TL → PO → RTE`. PM e EM não estão no diagrama. **Escopo:** M4.
+3. **Tabela em `skills/README.md`** lista 5 skills; PM e EM não aparecem. **Escopo:** M4 quando o orquestrador do fluxo for reescrito.
+4. **`skills/scrum-master/skill.md` regra 5** ainda diz "refinamento em qualquer alvo é manual, via Claude Web; não é seu papel". Com a PM existindo, essa regra precisa ser atualizada para "refinamento tático é da PM Skill; Scrum Master só recebe épicos já em `🔍`". **Escopo:** M4.
+
+#### Confirmação explícita
+
+**PM e EM descrevem complementaridade com Claude Web, não substituição.** Verificado em:
+- `skills/pm/README.md` §1 "Papel": "PM **não substitui Claude Web**. As duas modalidades de refinamento são complementares, com escopos distintos: Claude Web — refinamento estratégico ... PM Skill — refinamento tático ..."
+- `skills/pm/README.md` §7 "Relação com Claude Web": reforço explícito.
+- `skills/pm/skill.md` "Seu Papel": "Você **não substitui o Claude Web**. Refinamento estratégico ... continua exclusivo do Claude Web ..."
+- `skills/em/README.md` §8 "Relação com Claude Web": "Claude Web decide o que entra no milestone (escopo, prioridade, divisão estratégica). EM decide se o milestone, como definido, cabe na sessão."
+- `skills/em/skill.md` "Seu Papel": "Você **não substitui o Claude Web**. Claude Web decide o que entra no milestone ...; você decide se o que entrou cabe na sessão."
+
+---
+
+### Épicos pendentes da reforma
+
+- **M4** — ⬜ pendente (reescrita de docs/process/autonomous/ para milestone, incluindo descrição "pela manhã/à noite", gates silenciosos, integração de PM e EM no fluxo, atualização do template `current_implementation.md` com markers `[PM]` e `[EM]`)
 - **M5** — ⬜ pendente (atualização de docs/process/refinement/)
 - **M6** — ⬜ pendente (integrações e cross-refs finais)
 
@@ -272,3 +323,20 @@ Não aplicáveis nesta reforma. A execução foi manual pelo dev, revisada fora 
 - Conteúdo operacional dos skill.md NÃO foi reescrito (ainda fala em "funcionalidade X.Y" e gates per-funcionalidade — escopo de M4).
 - Descrição "disparar pela manhã e validar à noite" mantida — reescrita em M4.
 - Grep final limpo exceto pela nota histórica em `current_implementation.md:96`, que é registro deliberado.
+
+### Sessão 4 — 2026-04-22 — M3b
+
+**Executado:** M3b completo em 1 commit único (PM + EM + sizing infra são interdependentes na revisão e não fazem sentido isolados; commit único deixa o diff legível e reversível como bloco).
+
+**Escopo atacado:**
+- Criar `skills/pm/` (README.md + skill.md)
+- Criar `skills/em/` (README.md + skill.md)
+- Criar `docs/process/sizing/` (heuristic.md + schema.md + history.jsonl vazio)
+
+**Arquivos criados:** 7 (todos novos; nenhum modificado fora dessa lista).
+
+**Observações:**
+- Branch pronta para disparar M4 na próxima sessão.
+- PM e EM ainda não estão integrados ao fluxo descrito em `docs/process/autonomous/workflow.md` nem ao template em `skills/scrum-master/skill.md`. Integração é escopo de M4.
+- Defaults da heurística são chute inicial e devem ser revisados após os 5 primeiros milestones reais (declarado em `heuristic.md`).
+- Confirmação explícita de complementaridade Claude Web ↔ PM/EM registrada no bloco do épico M3b acima.
