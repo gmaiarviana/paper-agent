@@ -39,11 +39,16 @@ from core.agents.observer import (
 )
 
 def _embedding_model_available() -> bool:
-    """Tenta carregar o modelo local de embeddings. Retorna False se offline/sem cache."""
+    """Tenta carregar o modelo local de embeddings. Retorna False se offline/sem cache.
+
+    Captura apenas OSError (inclui LocalEntryNotFoundError do HuggingFace quando
+    o modelo nao esta cacheado e nao ha internet) e ImportError. Bugs reais
+    (TypeError, AttributeError, ValueError) propagam para nao mascarar falhas.
+    """
     try:
         generate_embedding("probe")
         return True
-    except Exception:
+    except (OSError, ImportError):
         return False
 
 _MODEL_AVAILABLE = _embedding_model_available()
