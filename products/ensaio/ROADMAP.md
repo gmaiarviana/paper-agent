@@ -52,7 +52,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** Esqueleto de app próprio para o produto Ensaio, reusando componentes do Revelar onde couber. UI descartável — Streamlit como atalho, sem investimento em design.
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 ### Funcionalidades:
 
@@ -64,6 +64,10 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Deve criar products/ensaio/config/ para product.yaml (E-POC-2)
   - Deve criar products/ensaio/app/components/ para componentes específicos do Ensaio (article_panel.py, generate_button.py)
   - Não deve criar estrutura sobreposta ao Revelar
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `products/ensaio/app/__init__.py`, `products/ensaio/app/components/__init__.py`, `products/ensaio/config/` (diretório)
+  - **Template de referência:** estrutura de `products/revelar/app/`
+  - **Escopo de teste:** validação manual (diretórios existem)
 
 #### 1.2 Entrypoint Streamlit
 
@@ -73,6 +77,13 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Deve rodar sem erros em setup limpo (após instalar requirements)
   - Deve renderizar layout 60/40 (chat à esquerda, painel do artigo à direita)
   - Não deve exigir configuração adicional além da ANTHROPIC_API_KEY
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `products/ensaio/app/chat.py`
+  - **Contratos/Shapes:** script executável via `streamlit run products/ensaio/app/chat.py`; layout `st.columns([3, 2])` (chat esquerda, painel direita)
+  - **Template de referência:** `products/revelar/app/chat.py`
+  - **Acoplamentos verificados:** depende apenas de `ANTHROPIC_API_KEY` em `.env`
+  - **Dependências de ordem:** depois de 1.1
+  - **Escopo de teste:** validação manual (rodar app, conferir layout)
 
 #### 1.3 Grafo LangGraph do Ensaio
 
@@ -83,6 +94,15 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Writer não deve fazer parte do grafo conversacional automático
   - Writer deve ser invocado diretamente pelo app quando usuário clicar "Gerar artigo"
   - Não deve incluir Metodologista neste épico
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `products/ensaio/app/graph.py`
+  - **Contratos/Shapes:** expõe função `create_ensaio_graph()` que retorna `StateGraph` compilado; grafo compõe apenas `orchestrator_node` e `structurer_node` importados do core; Writer fica fora do grafo
+  - **Integração:** usa `MultiAgentState` do core (`core/agents/orchestrator/state.py`) como state; usa `route_from_orchestrator` do core para routing; `SqliteSaver` próprio em `data/ensaio_checkpoints.db`
+  - **Template de referência:** `core/agents/multi_agent_graph.py` (para entender padrão de composição — Ensaio não reusa a função, compõe próprio grafo a partir dos nós)
+  - **Acoplamentos verificados:** nós do core (`orchestrator_node`, `structurer_node`) são importáveis isoladamente e não dependem de Metodologista estar presente; `route_from_orchestrator` aceita estado sem metodologista no grafo (documentar comportamento esperado se rotear para methodologist)
+  - **Decisão arquitetural:** produto compõe próprio grafo a partir dos nós do core — princípio do super-sistema (ver `docs/ARCHITECTURE.md` seção a ser adicionada no PROMPT 3)
+  - **Dependências de ordem:** depois de 1.1
+  - **Escopo de teste:** validação manual via `scripts/ensaio/flows/validate_graph.py` invocando o grafo com input fixo
 
 #### 1.4 Reuso de componentes do Revelar
 
@@ -91,6 +111,13 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Deve importar chat_input e chat_history de products/revelar/app/components/
   - Não deve duplicar código desses componentes
   - Se padrão de reuso se consolidar, promover componentes para core/ui_components/ (ver docs/backlog.md)
+- **Detalhes de execução:**
+  - **Reuso direto via import:** `products/revelar/app/components/chat_history.py` (componente burro, sem acoplamento ao grafo)
+  - **Arquivos a criar:** `products/ensaio/app/components/chat_input.py` (versão própria — o `chat_input` do Revelar está acoplado ao grafo do Revelar e ao `EventBus`; Ensaio precisa invocar seu próprio grafo)
+  - **Template de referência para o chat_input do Ensaio:** `products/revelar/app/components/chat_input.py` (estrutura do form Streamlit e gestão de processing); simplificar removendo dependência de `EventBus` (POC sem métricas inline) e adaptar invocação para o grafo do Ensaio
+  - **Acoplamentos verificados:** `chat_history.py` do Revelar lê apenas `st.session_state.messages` e não importa do core — reuso direto é seguro
+  - **Dependências de ordem:** depois de 1.3
+  - **Escopo de teste:** validação manual (mensagens renderizam no histórico após envio)
 
 #### 1.5 Painel do artigo e botão de geração
 
@@ -100,6 +127,13 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Quando existe artigo em st.session_state, botão deve virar "Regenerar"
   - Artigo deve ser renderizado com st.markdown
   - Painel deve permanecer com artigo anterior até usuário clicar "Regenerar"
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `products/ensaio/app/components/article_panel.py`, `products/ensaio/app/components/generate_button.py`
+  - **Contratos/Shapes:** `article_panel` renderiza `st.session_state.current_article` com `st.markdown` quando existe; `generate_button` exibe "Gerar artigo" quando `current_article is None`, "Regenerar" caso contrário
+  - **Integração:** botão invoca handler que chama Writer diretamente (detalhado em 3.3)
+  - **Template de referência:** componentes de `products/revelar/app/components/` para padrão de componente Streamlit
+  - **Dependências de ordem:** depois de 1.2
+  - **Escopo de teste:** validação manual
 
 #### 1.6 Gestão de estado em sessão
 
@@ -108,6 +142,18 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Deve usar st.session_state para: messages, focal_argument, current_article, generating
   - Não deve gravar em disco, banco ou qualquer persistência
   - Recarregar a página deve recomeçar do zero
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/chat.py`
+  - **Contratos/Shapes:** chaves em `st.session_state` — `messages` (list), `focal_argument` (dict ou None), `current_article` (str ou None), `generating` (bool), `session_id` (str), `thread_id` (str)
+  - **Integração:** inicialização em `chat.py` na primeira execução
+  - **Acoplamentos verificados:** recarregar página zera `st.session_state` por padrão Streamlit — comportamento desejado
+  - **Dependências de ordem:** depois de 1.2
+  - **Escopo de teste:** validação manual (recarregar página recomeça do zero)
+
+**Simplificações POC declaradas:**
+- Sem persistência em disco além de checkpoints do LangGraph (sessão descartável por design)
+- Sem testes automatizados de UI
+- Sem métricas inline no chat (EventBus fora do escopo da POC)
 
 ---
 
@@ -115,10 +161,12 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** YAML do Ensaio define foco/domínio que é injetado nos agentes do core sem que o core conheça o produto. Primeira aplicação concreta do padrão de injeção de contexto.
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:**
 - Padrão de injeção de contexto (ver core/docs/vision/super_system.md)
+
+**Sequência:** Depende de C-ENSAIO-2 já implementado (Writer nasce com parâmetro `product_context`). Escopo efetivo deste épico é estender o padrão a Orquestrador e Estruturador.
 
 ### Funcionalidades:
 
@@ -130,6 +178,11 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - YAML deve conter campo `focus` com string descrevendo o produto Ensaio (pesquisador transformando experimento em artigo IMRaD)
   - YAML não deve conter nomes técnicos internos do super-sistema
   - Campo `focus` deve ser a única chave obrigatória
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `products/ensaio/config/product.yaml`
+  - **Contratos/Shapes:** YAML com único campo obrigatório `focus` (string descrevendo o produto Ensaio em prosa livre)
+  - **Template de referência:** estrutura YAML simples (sem template específico; não replicar schema de `core/config/agents/*.yaml`)
+  - **Escopo de teste:** validação manual
 
 #### 2.2 Loader no produto
 
@@ -139,6 +192,13 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Deve expor função que retorna a string do campo `focus`
   - Deve tratar YAML ausente ou malformado com erro claro
   - Não deve fazer import de nada do core
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `products/ensaio/app/product_config.py`
+  - **Contratos/Shapes:** expõe função `load_product_context() -> str` que lê o YAML e retorna o valor de `focus`; lança exceção com mensagem clara em PT-BR quando YAML ausente ou malformado
+  - **Acoplamentos verificados:** módulo não importa nada de `core/`
+  - **Template de referência:** `core/agents/memory/config_loader.py` (padrão de loader YAML com PyYAML)
+  - **Dependências de ordem:** depois de 2.1
+  - **Escopo de teste:** 1 unit test em `tests/products/ensaio/unit/test_product_config.py` cobrindo YAML válido, ausente e malformado
 
 #### 2.3 Parâmetro opcional nos agentes do core
 
@@ -149,6 +209,14 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Quando product_context vier vazio ou ausente, seção não aparece e comportamento atual é preservado
   - Core não deve importar nada de products/ensaio/
   - Nenhum agente do core deve conhecer nome de produtos
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `core/agents/orchestrator/nodes.py` (aceitar `product_context` via config do LangGraph), `core/agents/structurer/nodes.py` (idem), `core/prompts/orchestrator.py` (adicionar placeholder `{product_context}` em seção opcional), `core/prompts/structurer.py` (idem)
+  - **Contratos/Shapes:** `product_context` chega via `config.configurable.product_context` do LangGraph; quando presente e não-vazio, prompt ganha seção "## CONTEXTO DO PRODUTO" populada com a string; quando ausente, seção some e comportamento é idêntico ao atual
+  - **Integração:** Writer já aceita `product_context` por C-ENSAIO-2 — nada a modificar no Writer
+  - **Acoplamentos verificados:** Revelar continua invocando sem passar `product_context` no config; prompts sem placeholder preenchido ficam sem a seção (validar via grep nos prompts e rodar o Revelar)
+  - **Template de referência:** padrão atual de uso de `config.configurable` nos nós (ex: `active_idea_id` no `orchestrator_node`)
+  - **Dependências de ordem:** depois de C-ENSAIO-2 implementado
+  - **Escopo de teste:** validação manual rodando Revelar (sem `product_context`) e Ensaio (com `product_context`)
 
 #### 2.4 Injeção no fluxo do Ensaio
 
@@ -157,6 +225,15 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - App deve carregar product_config na inicialização
   - Toda invocação de Orquestrador, Estruturador e Writer deve passar product_context
   - Revelar continua funcionando sem passar product_context (backward compatibility)
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/chat.py` (carregar `product_config` na inicialização), `products/ensaio/app/graph.py` (passar `product_context` no config ao invocar o grafo)
+  - **Contratos/Shapes:** `product_context` carregado uma vez e injetado em toda invocação do grafo via `config={"configurable": {"product_context": ..., "thread_id": ...}}`
+  - **Dependências de ordem:** depois de 2.2 e 2.3
+  - **Escopo de teste:** validação manual (logs dos agentes devem mostrar seção "CONTEXTO DO PRODUTO" no prompt montado)
+
+**Simplificações POC declaradas:**
+- YAML com único campo (`focus`); sem schema validator dedicado
+- Sem versionamento do YAML
 
 ---
 
@@ -164,7 +241,7 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
 
 **Objetivo:** Pesquisador conversa sobre experimento, pede geração de artigo, recebe markdown, pede ajustes, Writer refaz. Artigo vive só na sessão — sem persistência, sem pendências, sem rascunho progressivo.
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:**
 - Core [C-ENSAIO-2](../../docs/ROADMAP.md) (Writer versão inicial)
@@ -181,6 +258,11 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Deve aceitar blocos markdown (código, tabelas, logs) colados em qualquer ordem na conversa
   - Deve preservar a formatação original de blocos markdown ao renderizar a mensagem (code fences, tabelas, indentação)
   - Não deve impor sequência predefinida (resumo → método → resultados) nem exigir identificação prévia do tipo de conteúdo colado
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/components/chat_input.py` (garantir `st.text_area` sem parsing especial)
+  - **Contratos/Shapes:** mensagens do usuário vão cruas para `st.session_state.messages` como `HumanMessage`
+  - **Dependências de ordem:** depois de E-POC-1
+  - **Escopo de teste:** validação manual (colar bloco de código markdown preserva formatação)
 
 #### 3.2 Conversa com Orquestrador + Estruturador
 
@@ -191,6 +273,12 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Deve manter os agentes em postura ativo-leve: organizam o que foi dito e perguntam somente quando algo está vago
   - Não deve invocar o Metodologista neste épico (identificação de lacunas de produção é reservada a E-PROTO-5)
   - Não deve duplicar lógica de agentes no app do Ensaio — qualquer ajuste de comportamento é feito via parametrização de contexto
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** nenhum código do core (reuso puro via grafo do Ensaio)
+  - **Integração:** `chat_input.py` do Ensaio invoca `ensaio_graph` passando `product_context` no config
+  - **Acoplamentos verificados:** Orquestrador e Estruturador operam sobre `MultiAgentState` do core sem modificação
+  - **Dependências de ordem:** depois de E-POC-1 e E-POC-2
+  - **Escopo de teste:** validação manual via conversa real
 
 #### 3.3 Geração sob demanda
 
@@ -201,6 +289,13 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Deve receber do Writer o artigo completo em markdown em uma única invocação e exibi-lo no chat
   - Deve aceitar gerações prematuras sem bloquear — entender a qualidade dessas saídas faz parte da validação da POC
   - Não deve gerar o artigo por seções nem em streaming parcial (rascunho progressivo é escopo do Protótipo)
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/components/generate_button.py` (handler do clique)
+  - **Contratos/Shapes:** handler importa `writer_node` diretamente de `core/agents/writer/nodes.py` e invoca como função Python (fora do grafo); input montado a partir de `st.session_state.messages`, `st.session_state.focal_argument`, `product_context`, `previous_article=None` (primeira geração)
+  - **Integração:** resultado do Writer (`article`) salvo em `st.session_state.current_article`; `st.session_state.generating` controla feedback visual durante a chamada
+  - **Template de referência:** padrão de invocação direta de nó (sem precedente no código atual — declarar como primeira aplicação)
+  - **Dependências de ordem:** depois de C-ENSAIO-2 (Writer existe) e E-POC-1.5 (botão existe)
+  - **Escopo de teste:** validação manual (clicar "Gerar artigo" em qualquer momento produz markdown no painel direito)
 
 #### 3.4 Refinamento minimalista via feedback
 
@@ -211,6 +306,12 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Deve substituir o artigo vigente pela versão regenerada e mantê-la visível no chat
   - Não deve refinar o artigo por seção isoladamente (reservado a C-ENSAIO-3 / fase Protótipo)
   - Não deve versionar nem persistir versões anteriores do artigo (reservado a E-PROTO-3)
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/components/generate_button.py` (mesmo handler; muda label do botão baseado em `current_article`)
+  - **Contratos/Shapes:** quando `current_article` preenchido, handler invoca `writer_node` com `previous_article=current_article` e `messages` atualizadas (feedback do usuário já está no histórico)
+  - **Integração:** Writer regenera o artigo inteiro; substitui `st.session_state.current_article`
+  - **Dependências de ordem:** depois de 3.3
+  - **Escopo de teste:** validação manual (pedir "deixa mais conciso" no chat, clicar "Regenerar", conferir que artigo muda)
 
 #### 3.5 Sessão única descartável
 
@@ -220,6 +321,15 @@ Alguns épicos do Ensaio dependem de épicos do core. Ver [docs/ROADMAP.md](../.
   - Deve recomeçar do zero ao recarregar a página, sem tentativa de restaurar estado anterior
   - Não deve gravar conversa ou artigo em disco, banco ou qualquer armazenamento persistente
   - Não deve expor UI de "salvar sessão", "retomar" ou "histórico" (persistência real entra em E-PROTO-3)
+- **Detalhes de execução:**
+  - **Coberto por E-POC-1.6**
+  - **Acoplamentos verificados:** checkpoints do LangGraph são volumosos mas aceitos na POC (limpar manualmente `data/ensaio_checkpoints.db` quando quiser zerar)
+  - **Escopo de teste:** validação manual
+
+**Simplificações POC declaradas:**
+- Sem indicadores de progresso por agente (sem EventBus)
+- Sem versionamento do artigo entre regenerações (só o mais recente vive em `current_article`)
+- Sem guardrail se usuário gera sem conversa prévia (Writer lida com defaults do prompt)
 
 ---
 

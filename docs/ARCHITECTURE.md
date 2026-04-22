@@ -651,3 +651,10 @@ Três agentes core planejados para implementação futura: Researcher (busca web
 **Contexto:** Definições técnicas anteriores ("validar viabilidade", "expandir funcionalidade", "versão publicável") eram imprecisas para decisões de escopo
 **Decisão:** Adotar eixo "quem usa" — POC: dev roda no próprio ambiente, pode ter atalhos; Protótipo: dev usa de verdade no fluxo real; MVP: outros usam sem o dev do lado
 **Resultado:** Decisões de stack, UX e robustez ficam proporcionais ao estágio de forma verificável
+
+### Produtos Compõem Próprio Grafo a partir de Nós do Core
+**Documentado:** `core/docs/vision/super_system.md` (princípio do desacoplamento)
+**Contexto:** Cada produto do super-sistema tem necessidades de fluxo próprias. Revelar usa Orquestrador + Estruturador + Metodologista. Ensaio, na POC, usa apenas Orquestrador + Estruturador. Produtos futuros (Produtor Científico, Prisma Verbal) terão composições próprias
+**Decisão:** O core expõe nós (`core/agents/<agente>/nodes.py`) como unidades reutilizáveis. Cada produto compõe seu próprio grafo em `products/<produto>/app/graph.py` importando os nós do core. O grafo pré-montado em `core/agents/multi_agent_graph.py` existe por legado (Revelar) e permanece; produtos novos não usam essa função
+**Consequência:** Core não ganha flags do tipo `include_methodologist`, `include_researcher` — evita que o core conheça produtos. Adicionar agente ao fluxo de um produto é mudança dentro de `products/<produto>/app/graph.py`, não no core
+**Primeira aplicação:** Ensaio na POC (épico E-POC-1.3)
