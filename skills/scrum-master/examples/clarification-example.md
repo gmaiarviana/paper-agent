@@ -1,6 +1,6 @@
 # Exemplo: Clarificação Bem-Sucedida
 
-> **Contexto:** caso real (anonimizado) onde a Planning Skill identificou 3 ambiguidades, resolveu 2 via consulta a docs e devolveu 1 ao dev em bloco único.
+> **Contexto:** caso real (anonimizado) onde a Scrum Master Skill identificou 3 ambiguidades, resolveu 2 via consulta a docs e devolveu 1 ao dev em bloco único.
 
 ---
 
@@ -58,7 +58,7 @@ Modo: Autônomo
 ## Bloco de Perguntas Devolvido ao Dev (Passo 7)
 
 ```
-🛑 Planning bloqueado — esclarecimentos necessários
+🛑 Scrum Master bloqueado — esclarecimentos necessários
 
 Funcionalidade: 11.3 - Detecção de Maturidade via Snapshots
 Branch alvo: feature/11.3-snapshot-detection
@@ -95,7 +95,7 @@ Sem essa resposta não posso definir Task de schema/migration nem padrão de ret
 
 ## Resultado
 
-A Planning Skill incorporou a resposta no bloco de Esclarecimentos, gerou plano completo em `current_implementation.md` com 4 tasks (3 backend + 1 data) e seguiu para o Dev sem deixar suposição.
+A Scrum Master Skill incorporou a resposta no bloco de Esclarecimentos, gerou plano completo em `current_implementation.md` com 4 tasks (3 backend + 1 data) e seguiu para o Dev sem deixar suposição.
 
 **Sem essa clarificação**, o Dev teria 50% de chance de implementar o backend errado e o PO reprovaria por divergência de arquitetura — perdendo um ciclo inteiro do gate.
 

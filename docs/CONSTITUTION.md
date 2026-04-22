@@ -32,7 +32,7 @@ Princípios não-negociáveis para trabalhar com este projeto.
 Dois modos coexistem; o dev escolhe por funcionalidade. Cada modo exige um estado mínimo do épico no ROADMAP:
 
 - **Manual (Cursor):** estado mínimo `📋 Critérios definidos`. Dev acompanha cada checkpoint. Indicado para épicos novos, decisões arquiteturais ou trade-offs ainda em aberto durante a implementação. Fluxo descrito nas seções 2-7 deste documento.
-- **Autônomo (Claude Code Web):** estado mínimo `🔍 Detalhes definidos` (checklist de `autonomous_readiness.md` aplicado). Dev dispara pela manhã e valida à noite; skills automáticas (Planning → Dev → QA → TL → PO → Validation) atuam como gates no lugar das aprovações explícitas. Indicado para funcionalidades com detalhes de execução fechados. Detalhes em `docs/process/autonomous/` e template em `docs/process/autonomous/dispatch.md`.
+- **Autônomo (Claude Code Web):** estado mínimo `🔍 Detalhes definidos` (checklist de `autonomous_readiness.md` aplicado). Dev dispara pela manhã e valida à noite; skills automáticas (Scrum Master → Dev → QA → TL → PO → RTE) atuam como gates no lugar das aprovações explícitas. Indicado para funcionalidades com detalhes de execução fechados. Detalhes em `docs/process/autonomous/` e template em `docs/process/autonomous/dispatch.md`.
 
 Épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas` passam por sessão de refinamento com alvo `📋` ou `🔍` antes de qualquer fluxo de execução.
 
@@ -276,13 +276,13 @@ paper-agent/
 │       ├── features/                # transparent_backstage.md
 │       └── examples/                # Exemplos práticos
 │
-├── skills/                          # Skills do modo autônomo (Planning/QA/TL/PO/Validation) — processo de dev, NÃO runtime do produto
+├── skills/                          # Skills do modo autônomo (Scrum Master/QA/TL/PO/RTE) — processo de dev, NÃO runtime do produto
 │   ├── README.md                    # Índice + como o Claude Web carrega cada skill
-│   ├── planning/                    # Gate 1 — quebra funcionalidade em tasks
+│   ├── scrum-master/                # Gate 1 — quebra funcionalidade em tasks
 │   ├── qa/                          # Gate 3 — valida testes, sintaxe, imports
 │   ├── tl/                          # Gate 4 — valida arquitetura e padrões
 │   ├── po/                          # Gate 5 — valida critérios de aceite
-│   └── validation/                  # Gate 6 — prepara branch + comandos p/ dev
+│   └── rte/                         # Gate 6 — prepara branch + comandos p/ dev
 │
 ├── products/                        # Aplicações específicas (app próprio por produto)
 │   ├── revelar/                     # (atual) Chat para clareza de pensamento

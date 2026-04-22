@@ -91,9 +91,9 @@ Não aplicáveis nesta reforma. A execução foi manual pelo dev, revisada fora 
 
 #### Inconsistências observadas (não corrigidas em M1 — escopo de milestones posteriores)
 
-1. **CONSTITUTION §1 "Fluxos Disponíveis"** (linha ~35) ainda descreve o fluxo autônomo como "Dev dispara pela manhã e valida à noite; skills automáticas (Planning → Dev → QA → TL → PO → Validation)". Isso contradiz o princípio novo de gates silenciosos/notificação por milestone e usa os nomes antigos das skills. **Escopo:** M3a (renomeações) e M4 (reescrita do fluxo autônomo).
+1. **CONSTITUTION §1 "Fluxos Disponíveis"** (linha ~35) ainda descreve o fluxo autônomo como "Dev dispara pela manhã e valida à noite; skills automáticas (Planning → Dev → QA → TL → PO → Validation)". Isso contradiz o princípio novo de gates silenciosos/notificação por milestone e usa os nomes antigos das skills. **Escopo:** M3a (renomeações) e M4 (reescrita do fluxo autônomo). — _Nomes atualizados em M3a; reescrita do fluxo (pela-manhã/à-noite, gates silenciosos) fica em M4._
 
-2. **CONSTITUTION §8 "Estrutura do Projeto"** ainda lista `skills/planning/` e `skills/validation/` na árvore. **Escopo:** M3a (renomeações) e M6 (varredura final de cross-refs).
+2. **CONSTITUTION §8 "Estrutura do Projeto"** ainda lista `skills/planning/` e `skills/validation/` na árvore. **Escopo:** M3a (renomeações) e M6 (varredura final de cross-refs). — _Resolvido em M3a._
 
 3. **Comentários "Fluxo manual descrito nas seções 2-7 deste documento"** (linha ~34): as seções 2-7 falam principalmente do papel do Claude Web + Cursor; com a reforma, a separação entre manual e autônomo vai mais no lado do fluxo autônomo do que do manual. Texto coerente por ora; revisita em M5/M6 se necessário.
 
@@ -140,11 +140,68 @@ Não aplicáveis nesta reforma. A execução foi manual pelo dev, revisada fora 
 
 ---
 
+### Épico M3a — Renomeações de skills + referências cruzadas
+
+**Status:** ✅ Concluído em 2026-04-22
+
+**Objetivo:** renomear `skills/planning/` → `skills/scrum-master/` e `skills/validation/` → `skills/rte/`, e atualizar todas as referências cruzadas no repo. Mecânico. Sem criar conteúdo novo.
+
+#### Renomeações (git mv)
+
+- `skills/planning/` → `skills/scrum-master/` (preservando histórico; 3 arquivos: README.md, skill.md, examples/clarification-example.md)
+- `skills/validation/` → `skills/rte/` (preservando histórico; 3 arquivos: README.md, skill.md, templates/delivery-report.md)
+
+#### Arquivos com referências atualizadas (12)
+
+- `skills/scrum-master/skill.md` — cabeçalho, papel, markers `[PLANNING]` → `[SCRUM-MASTER]`, `[VALIDATION]` → `[RTE]`, status dos gates, bloco de bloqueio
+- `skills/scrum-master/README.md` — cabeçalho, localização, autorreferências
+- `skills/scrum-master/examples/clarification-example.md` — menções a "Planning Skill" e "🛑 Planning bloqueado"
+- `skills/rte/skill.md` — cabeçalho, papel, status dos gates, markers, mensagens de abort/avançar
+- `skills/rte/README.md` — cabeçalho, localização, referência a "Planning" na tabela de skills anteriores
+- `skills/rte/templates/delivery-report.md` — linha "Template usado por RTE Skill", tabela de status, mensagem de próximo passo
+- `skills/qa/README.md` — seção "Diferenças da RTE Skill"
+- `skills/qa/skill.md` — markers no gate de entrada
+- `skills/tl/skill.md` — markers + referência a plano de tasks
+- `skills/po/README.md` — referências a "Planning" como roteamento de rejeição e próximo gate
+- `skills/po/skill.md` — referências em gate de entrada, roteamento, próximo gate
+- `skills/po/templates/acceptance-criteria.md` — roteamento e próximo passo
+- `skills/README.md` — tabelas de skills (ordem + links), protocolo de carregamento, comunicação por artefatos
+- `docs/process/autonomous/dispatch.md` — lista de skill.md a carregar, modo autônomo descritivo, entrega esperada
+- `docs/process/autonomous/workflow.md` — cabeçalho, diagrama do fluxo, seção "1. Scrum Master Skill" e "6. RTE Skill", referências a `skills/<nome>/skill.md`
+- `docs/process/autonomous/overview.md` — resumo do fluxo, responsabilidades das skills, tabela manual×autônomo
+- `docs/process/autonomous/delivery.md` — referências ao nome da skill que notifica
+- `docs/CONSTITUTION.md` — §1 "Fluxos Disponíveis" (nomes no pipeline) e §8 árvore de pastas
+- `.github/copilot-instructions.md` — menção a quem cria e finaliza `current_implementation.md`
+
+#### Arquivos fora da lista inicial do usuário onde o grep acusou
+
+- `skills/po/templates/acceptance-criteria.md` — não estava listado explicitamente na instrução, mas o grep acusou e o arquivo é template consumido pela PO Skill. Atualizado.
+- `skills/scrum-master/examples/clarification-example.md` — idem (conteúdo do example usa o nome antigo). Atualizado.
+- `skills/rte/templates/delivery-report.md` — idem. Atualizado.
+
+#### NÃO foi tocado (dentro do princípio mecânico)
+
+- Descrição do fluxo "disparar pela manhã / validar à noite" em `docs/CONSTITUTION.md:35` e `docs/process/autonomous/overview.md` — mantida como está; reescrita é escopo de M4.
+- `docs/process/autonomous/session_conventions.md` — grep inicial listou, mas os hits eram "validação" (substantivo em português) em contexto não-skill. Zero alteração necessária.
+- Seções do fluxo que descrevem gates per-funcionalidade — mantidas; reescrita é escopo de M4.
+
+#### Verificação final
+
+`grep -rn "Planning Skill\|Validation Skill\|skills/planning\|skills/validation" docs/ skills/ .github/`:
+- 0 hits em `docs/`, `skills/`, `.github/` fora de `current_implementation.md`.
+- 1 hit em `docs/process/current_implementation.md:96` — nota histórica de M1 que registra o trabalho de M3a; deliberada, conforme combinado.
+
+#### Inconsistências observadas durante a execução
+
+1. `skills/po/templates/acceptance-criteria.md` e `skills/scrum-master/examples/clarification-example.md` não estavam na lista inicial do usuário mas tinham refs. Atualizados para consistência.
+2. Markers literais `[PLANNING]` e `[VALIDATION]` no campo "Evidências de carregamento de skill" foram atualizados para `[SCRUM-MASTER]` e `[RTE]` em todos os `skill.md` para manter consistência entre o nome da skill e o marker que ela grava. Decisão mecânica, não arquitetural — segue o nome do cargo.
+
+---
+
 ### Épicos pendentes da reforma
 
-- **M3a** — ⬜ pendente (renomeações skills planning→scrum-master, validation→rte; varredura de refs cruzadas dentro de skills/ e docs/process/autonomous/)
 - **M3b** — ⬜ pendente (criar skills/pm/, skills/em/, docs/process/sizing/)
-- **M4** — ⬜ pendente (reescrita de docs/process/autonomous/ para milestone)
+- **M4** — ⬜ pendente (reescrita de docs/process/autonomous/ para milestone, incluindo descrição "pela manhã/à noite" e gates silenciosos)
 - **M5** — ⬜ pendente (atualização de docs/process/refinement/)
 - **M6** — ⬜ pendente (integrações e cross-refs finais)
 
@@ -198,3 +255,20 @@ Não aplicáveis nesta reforma. A execução foi manual pelo dev, revisada fora 
 **Observações:**
 - Stubs de `produtor-cientifico` e `prisma-verbal` não foram tocados (ainda sem milestones reais, só placeholder).
 - Nenhum outro campo dos milestones foi alterado. Nenhum conteúdo de épico foi alterado.
+
+### Sessão 3 — 2026-04-22 — M3a
+
+**Executado:** M3a completo em 1 commit único (renames + edições fizeram sentido juntos porque os arquivos renomeados também foram editados — git trata como RM).
+
+**Escopo atacado:**
+- Renomear `skills/planning/` → `skills/scrum-master/` e `skills/validation/` → `skills/rte/` via `git mv` (histórico preservado).
+- Atualizar todas as referências cruzadas em skills/, docs/process/autonomous/, docs/CONSTITUTION.md e .github/copilot-instructions.md.
+- Atualizar markers `[PLANNING]`/`[VALIDATION]` → `[SCRUM-MASTER]`/`[RTE]` e status `Planning ✅`/`Validation ✅` → `Scrum Master ✅`/`RTE ✅` para consistência com o nome novo.
+
+**Arquivos tocados:** 6 renomeados + 12 modificados (total 18 paths no diff). Ver bloco do épico M3a para detalhes.
+
+**Observações:**
+- Branch pronta para disparar M3b na próxima sessão.
+- Conteúdo operacional dos skill.md NÃO foi reescrito (ainda fala em "funcionalidade X.Y" e gates per-funcionalidade — escopo de M4).
+- Descrição "disparar pela manhã e validar à noite" mantida — reescrita em M4.
+- Grep final limpo exceto pela nota histórica em `current_implementation.md:96`, que é registro deliberado.

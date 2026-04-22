@@ -1,6 +1,6 @@
-# Planning Skill
+# Scrum Master Skill
 
-> **📌 Localização:** `skills/planning/`
+> **📌 Localização:** `skills/scrum-master/`
 > **📌 Etapa do fluxo:** primeira (antes do Dev) — `docs/process/autonomous/workflow.md` §1
 > **📌 Pré-requisito:** funcionalidade pertence a épico em **`🔍 Detalhes definidos`** no ROADMAP (checklist `docs/process/refinement/autonomous_readiness.md` aplicado).
 
@@ -66,9 +66,9 @@ Estrutura detalhada em [skill.md](skill.md).
 | Skill seguinte | Como recebe input |
 |----------------|-------------------|
 | **Dev** | Lê `current_implementation.md` (tasks + arquivos esperados) |
-| **PO** (depois) | Reusa o mapeamento crítério-de-aceite ↔ task que Planning produziu |
+| **PO** (depois) | Reusa o mapeamento crítério-de-aceite ↔ task que Scrum Master produziu |
 
-Quando **PO reprova** por gap de plano (não de implementação), o fluxo volta para Planning revisar.
+Quando **PO reprova** por gap de plano (não de implementação), o fluxo volta para Scrum Master revisar.
 
 ---
 

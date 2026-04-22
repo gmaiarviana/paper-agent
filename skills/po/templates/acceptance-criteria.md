@@ -67,7 +67,7 @@ Funcionalidades observáveis na entrega (rotas, comandos, comportamentos novos):
 ### 1. [TIPO: <CRITÉRIO NÃO ATENDIDO | GOLD PLATING | ROADMAP NÃO ATUALIZADO>]
 - **Critério/Item:** <texto>
 - **Detalhe:** <o que falta ou o que sobra>
-- **Roteamento:** <Dev | Planning>
+- **Roteamento:** <Dev | Scrum Master>
 
 ### 2. ...
 
@@ -77,8 +77,8 @@ Funcionalidades observáveis na entrega (rotas, comandos, comportamentos novos):
 
 ## Próximo Passo
 
-- **Aprovado:** seguir para Validation Skill.
+- **Aprovado:** seguir para RTE Skill.
 - **Rejeitado (gap de implementação):** devolver ao Dev. Incrementar contador.
-- **Rejeitado (gap de plano):** devolver ao Planning. Incrementar contador.
+- **Rejeitado (gap de plano):** devolver ao Scrum Master. Incrementar contador.
 - **Rejeitado (gold plating):** devolver ao Dev para remover excesso. Incrementar contador.
 - Após 3 rejeições consecutivas, acionar `docs/process/implementation/blockers.md`.

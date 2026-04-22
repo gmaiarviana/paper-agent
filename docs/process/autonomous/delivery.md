@@ -28,7 +28,7 @@
 
 ## 2. AO RECEBER NOTIFICAÇÃO DE TASK PRONTA (À NOITE)
 
-A Validation Skill notifica o dev no formato definido em [development/delivery.md](../development/delivery.md):
+A RTE Skill notifica o dev no formato definido em [development/delivery.md](../development/delivery.md):
 
 ```
 ✅ Branch pronta! Você pode criar o PR pela interface do GitHub.
@@ -50,7 +50,7 @@ A Validation Skill notifica o dev no formato definido em [development/delivery.m
 
 ## 3. COMANDOS DE VALIDAÇÃO LOCAL
 
-A Validation Skill já entrega os comandos prontos. Estrutura típica:
+A RTE Skill já entrega os comandos prontos. Estrutura típica:
 
 ```bash
 # 1. Baixar branch
@@ -121,7 +121,7 @@ Esses inputs alimentam refinamentos futuros das skills e dos guidelines.
 
 **Ver também:**
 - Visão geral do modo autônomo → [overview.md](overview.md)
-- Detalhe das skills (Planning/QA/TL/PO/Validation) → [workflow.md](workflow.md)
+- Detalhe das skills (Scrum Master/QA/TL/PO/RTE) → [workflow.md](workflow.md)
 - Template de dispatch → `docs/process/autonomous/dispatch.md`
 - Convenções operacionais (segredos, granularidade de commits) → [session_conventions.md](session_conventions.md)
 - Mensagem final padrão (compartilhada com fluxo manual) → [development/delivery.md](../development/delivery.md)

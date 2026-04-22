@@ -73,12 +73,12 @@ QA **não** corrige código. Devolve com diagnóstico.
 
 ---
 
-## 7. DIFERENÇAS DA VALIDATION SKILL
+## 7. DIFERENÇAS DA RTE SKILL
 
 QA **roda testes** para decidir aprovação/rejeição.
-Validation **não roda testes** — só prepara entrega humana.
+RTE **não roda testes** — só prepara entrega humana.
 
-São complementares: QA garante que o código funciona; Validation entrega a confirmação ao dev.
+São complementares: QA garante que o código funciona; RTE entrega a confirmação ao dev.
 
 ---
 

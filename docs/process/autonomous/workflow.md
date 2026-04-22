@@ -1,4 +1,4 @@
-# Workflow Autônomo: Planning → Dev → QA → TL → PO → Validation
+# Workflow Autônomo: Scrum Master → Dev → QA → TL → PO → RTE
 
 > **📌 Localização:** `docs/process/autonomous/`
 > **📌 Público:** Claude Code Web operando em modo autônomo.
@@ -10,16 +10,16 @@
 ## FLUXO GERAL
 
 ```
-Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → Validation Skill → Dev valida
+Dispatch → Scrum Master Skill → Dev → QA Skill → TL Skill → PO Skill → RTE Skill → Dev valida
                 ↑              ↑       ↑         ↑          ↑
                 └──── reprovou? volta para a etapa anterior ────┘
 ```
 
 ---
 
-## 1. PLANNING SKILL
+## 1. SCRUM MASTER SKILL
 
-> **📌 Spec executável obrigatória:** `skills/planning/skill.md` — carregar antes de iniciar este gate.
+> **📌 Spec executável obrigatória:** `skills/scrum-master/skill.md` — carregar antes de iniciar este gate.
 
 **Objetivo:** transformar funcionalidade do ROADMAP em plano de implementação executável.
 
@@ -132,15 +132,15 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 - ❌ Algum critério de aceite não está coberto/observável
 - ❌ Comportamento "não deve" não foi validado
 
-**Ação ao reprovar:** retornar ao Planning ou Dev (dependendo se é gap de plano ou de implementação).
+**Ação ao reprovar:** retornar ao Scrum Master ou Dev (dependendo se é gap de plano ou de implementação).
 
 **Saída:** checklist de aceite com status por critério.
 
 ---
 
-## 6. VALIDATION SKILL
+## 6. RTE SKILL
 
-> **📌 Spec executável obrigatória:** `skills/validation/skill.md` — carregar antes de iniciar este gate.
+> **📌 Spec executável obrigatória:** `skills/rte/skill.md` — carregar antes de iniciar este gate.
 
 **Objetivo:** preparar entrega para o dev validar manualmente.
 
@@ -165,7 +165,7 @@ Dispatch → Planning Skill → Dev → QA Skill → TL Skill → PO Skill → V
 
 O fluxo autônomo manipula dois estados de execução do épico no ROADMAP:
 
-- **`🏗️ Em andamento`** — marcado assim que a Planning Skill conclui (a partir daí o épico está sob implementação pelas skills). Permanece neste estado durante Dev → QA → TL → PO → Validation e até o ciclo de fechamento ser concluído.
+- **`🏗️ Em andamento`** — marcado assim que a Scrum Master Skill conclui (a partir daí o épico está sob implementação pelas skills). Permanece neste estado durante Dev → QA → TL → PO → RTE e até o ciclo de fechamento ser concluído.
 - **`✅ Implementado`** — **não é acionado pelo fluxo autônomo.** A transição exige a execução do ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md` (extração de conhecimento permanente + poda do ROADMAP) e é feita pelo dev após validar o resultado final.
 
 Mesmo com código mergeado e validado, o épico permanece em `🏗️ Em andamento` até o dev aplicar `epic_completion.md`.
@@ -176,7 +176,7 @@ Mesmo com código mergeado e validado, o épico permanece em `🏗️ Em andamen
 
 - Cada gate registra reprovações em `current_implementation.md`
 - Após **3 reprovações consecutivas** no mesmo gate → aplicar regra de bloqueio de [blockers.md](../development/blockers.md) e devolver ao dev
-- Reprovação de TL ou PO **nunca** é resolvida pulando o gate; sempre volta ao Dev (ou Planning, conforme natureza)
+- Reprovação de TL ou PO **nunca** é resolvida pulando o gate; sempre volta ao Dev (ou Scrum Master, conforme natureza)
 
 ---
 

@@ -1,6 +1,6 @@
-# Validation Skill
+# RTE Skill
 
-> **📌 Localização:** `skills/validation/`
+> **📌 Localização:** `skills/rte/`
 > **📌 Etapa do fluxo:** última (após PO) — `docs/process/autonomous/workflow.md` §6
 > **📌 Pré-requisito:** QA, TL e PO já aprovaram.
 
@@ -8,7 +8,7 @@
 
 ## 1. PAPEL NA ENTREGA
 
-A Validation Skill é a **ponte entre o ciclo autônomo e o dev humano**. Ela não valida código (isso já foi feito por QA/TL/PO) — ela **prepara a entrega** de forma que o dev consiga validar localmente sem precisar reconstruir contexto.
+A RTE Skill é a **ponte entre o ciclo autônomo e o dev humano**. Ela não valida código (isso já foi feito por QA/TL/PO) — ela **prepara a entrega** de forma que o dev consiga validar localmente sem precisar reconstruir contexto.
 
 **Princípio:** o dev recebe a notificação à noite e deve conseguir, em <10min, baixar a branch, rodar comandos prontos e decidir go/no-go.
 
@@ -16,7 +16,7 @@ A Validation Skill é a **ponte entre o ciclo autônomo e o dev humano**. Ela n�
 
 ## 2. QUANDO USAR
 
-Invocada automaticamente pelo fluxo autônomo após **PO Skill aprovar**. Se algum gate anterior reprovou, Validation **não roda** — fluxo volta para a etapa correspondente.
+Invocada automaticamente pelo fluxo autônomo após **PO Skill aprovar**. Se algum gate anterior reprovou, RTE **não roda** — fluxo volta para a etapa correspondente.
 
 **Não usar se:**
 - ❌ Gate anterior (QA/TL/PO) reprovou ou está pendente
@@ -32,11 +32,11 @@ A skill executa, em ordem:
 1. **Verifica gates anteriores** — confirma QA/TL/PO ✅ em `current_implementation.md`.
 2. **Garante branch publicada** — `git push -u origin feature/X.Y-nome` (com retry conforme guidelines).
 3. **Coleta dados da entrega** — arquivos modificados, número de commits, escopo dos testes.
-4. **Atualiza `current_implementation.md`** — marca Validation ✅ e sintetiza status final.
+4. **Atualiza `current_implementation.md`** — marca RTE ✅ e sintetiza status final.
 5. **Gera relatório de entrega** — usando [templates/delivery-report.md](templates/delivery-report.md).
 6. **Notifica o dev** — via mensagem padronizada com comandos prontos para copiar/colar.
 
-**Não executa testes.** QA já fez isso. Validation só prepara para validação **humana**.
+**Não executa testes.** QA já fez isso. RTE só prepara para validação **humana**.
 
 ---
 
@@ -51,7 +51,7 @@ A skill executa, em ordem:
 ## 5. OUTPUT PRODUZIDO
 
 - ✅ Branch `feature/X.Y-nome` com push confirmado
-- ✅ `current_implementation.md` com Validation ✅ e resumo final
+- ✅ `current_implementation.md` com RTE ✅ e resumo final
 - ✅ Relatório de entrega no formato de [templates/delivery-report.md](templates/delivery-report.md)
 - ✅ Mensagem ao dev com:
   - Comandos de validação local (copy-paste, com nome real da branch)
@@ -66,20 +66,20 @@ A skill executa, em ordem:
 
 ## 6. INTERAÇÃO COM OUTRAS SKILLS
 
-| Skill anterior | O que Validation lê dela |
+| Skill anterior | O que RTE lê dela |
 |----------------|-------------------------|
 | **PO** | Confirmação de critérios de aceite cobertos (vai para o relatório) |
 | **TL** | Observações arquiteturais (vão para "Notas Técnicas") |
 | **QA** | Cobertura de testes (vai para "Resumo Executivo") |
-| **Planning** | Mapeamento task ↔ critério de aceite (base do relatório) |
+| **Scrum Master** | Mapeamento task ↔ critério de aceite (base do relatório) |
 
-A Validation **não devolve** para nenhuma skill. Ela só entrega ao dev. O dev é quem decide retornar para o ciclo (nova rodada autônoma) ou aprovar merge.
+A RTE **não devolve** para nenhuma skill. Ela só entrega ao dev. O dev é quem decide retornar para o ciclo (nova rodada autônoma) ou aprovar merge.
 
 ---
 
 ## 7. RELAÇÃO COM `docs/process/implementation/delivery.md`
 
-Validation **reusa** o formato de mensagem final definido em `docs/process/implementation/delivery.md` (mensagem `✅ Branch pronta!...`). A diferença é que no fluxo autônomo:
+RTE **reusa** o formato de mensagem final definido em `docs/process/implementation/delivery.md` (mensagem `✅ Branch pronta!...`). A diferença é que no fluxo autônomo:
 - A mensagem inclui também o **resumo dos gates** (QA/TL/PO)
 - A mensagem é gerada via template em [templates/delivery-report.md](templates/delivery-report.md)
 - A entrega é assíncrona (dev valida quando puder, não no momento)
