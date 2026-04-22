@@ -1,4 +1,4 @@
-# Workflow Autônomo: Scrum Master → Dev → QA → TL → PO → RTE
+# Workflow Autônomo: PM (condicional) → EM → Scrum Master → Dev → QA → TL → PO → RTE
 
 > **📌 Localização:** `docs/process/autonomous/`
 > **📌 Público:** Claude Code Web operando em modo autônomo.
@@ -10,10 +10,16 @@
 ## FLUXO GERAL
 
 ```
-Dispatch → Scrum Master Skill → Dev → QA Skill → TL Skill → PO Skill → RTE Skill → Dev valida
-                ↑              ↑       ↑         ↑          ↑
-                └──── reprovou? volta para a etapa anterior ────┘
+Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL Skill → PO Skill → RTE Skill → Dev valida
+                                ↑              ↑       ↑         ↑          ↑
+                                └──── reprovou? volta para a etapa anterior ────┘
 ```
+
+**PM é condicional** — roda se o milestone tem ao menos um épico em `🌱 Visão` ou `📐 Funcionalidades esboçadas`. Se todos os épicos já estão em `🔍 Detalhes definidos` (ou superior), PM é **pulado** e o fluxo entra direto no EM. Detalhes em [skills/pm/README.md](../../../skills/pm/README.md).
+
+**EM é sempre o primeiro gate de sizing** antes do Scrum Master. Decide FIT/TIGHT/OVERFLOW segundo [docs/process/sizing/heuristic.md](../sizing/heuristic.md); OVERFLOW sempre devolve ao dev com proposta de quebra — nunca aceita silenciosamente. Detalhes em [skills/em/README.md](../../../skills/em/README.md).
+
+> **Nota sobre este arquivo.** O conteúdo operacional abaixo (gates QA/TL/PO com decisão per-funcionalidade, mensagens "dispara pela manhã / valida à noite", regras de reprovação por funcionalidade) ainda reflete o modelo anterior à reforma de milestone. Reescrita completa para operar por milestone é dívida registrada em [docs/process/refactor-backlog.md](../refactor-backlog.md) (M4-restante).
 
 ---
 

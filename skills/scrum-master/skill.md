@@ -19,7 +19,7 @@ Você **não escreve código**. Você **não toma decisões arquiteturais novas*
 2. **Consulte docs antes de perguntar ao dev.** Pergunta válida é a que sobra depois de procurar.
 3. **Pergunte em bloco único.** Não fragmente o dev em micro-perguntas; junte tudo.
 4. **Não invente padrão.** Se não há padrão, devolva ao dev.
-5. **Pare se o épico não está em `🔍 Detalhes definidos`.** Refinamento em qualquer alvo é manual, via Claude Web; não é seu papel.
+5. **Não refinar épicos.** Refinamento tático dentro da branch é responsabilidade da PM Skill (executada antes, se há épicos em `🌱`/`📐` no milestone). Refinamento estratégico é do Claude Web (antes do dispatch). Scrum Master assume épicos em `🔍 Detalhes definidos` — se encontrar algum fora desse estado, abortar com mensagem dizendo que PM Skill deveria ter rodado.
 6. **Pare se já existe `docs/process/current_implementation.md`.** Sinaliza épico anterior aberto.
 
 ---
@@ -150,6 +150,8 @@ Criar `docs/process/current_implementation.md` no template abaixo. Ao criar, **p
 ---
 
 ## Status dos Gates
+- [ ] PM (condicional — se há épicos em 🌱/📐 no milestone)
+- [ ] EM
 - [x] Scrum Master ✅ <data>
 - [ ] Dev
 - [ ] QA
@@ -160,13 +162,15 @@ Criar `docs/process/current_implementation.md` no template abaixo. Ao criar, **p
 ### Evidências de carregamento de skill
 Cada skill registra aqui sua linha imediatamente ao iniciar o gate, antes de executar qualquer outro passo. Um gate sem linha correspondente = fluxo corrompido e deve ser abortado pela próxima skill.
 
+- [PM] skill carregada: skills/pm/skill.md ✅ <YYYY-MM-DD HH:MM>
+- [EM] skill carregada: skills/em/skill.md ✅ <YYYY-MM-DD HH:MM>
 - [SCRUM-MASTER] skill carregada: skills/scrum-master/skill.md ✅ <YYYY-MM-DD HH:MM>
 - [QA] skill carregada: skills/qa/skill.md ✅ <YYYY-MM-DD HH:MM>
 - [TL] skill carregada: skills/tl/skill.md ✅ <YYYY-MM-DD HH:MM>
 - [PO] skill carregada: skills/po/skill.md ✅ <YYYY-MM-DD HH:MM>
 - [RTE] skill carregada: skills/rte/skill.md ✅ <YYYY-MM-DD HH:MM>
 
-(Scrum Master preenche a primeira linha imediatamente; as demais são preenchidas pelas skills respectivas ao iniciarem. RTE não prossegue se faltar qualquer linha anterior.)
+(PM preenche sua linha ao iniciar, se aplicável; caso contrário, EM é a primeira. As demais são preenchidas pelas skills respectivas ao iniciarem. RTE não prossegue se faltar qualquer linha anterior aplicável.)
 
 ## Histórico de Reprovações
 (vazio inicialmente; gates registram aqui ao reprovar)

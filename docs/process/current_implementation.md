@@ -250,11 +250,34 @@ Não aplicáveis nesta reforma. A execução foi manual pelo dev, revisada fora 
 
 ---
 
-### Épicos pendentes da reforma
+### Wrap-up — mínimo para deixar main consistente com PM/EM existindo
 
-- **M4** — ⬜ pendente (reescrita de docs/process/autonomous/ para milestone, incluindo descrição "pela manhã/à noite", gates silenciosos, integração de PM e EM no fluxo, atualização do template `current_implementation.md` com markers `[PM]` e `[EM]`)
-- **M5** — ⬜ pendente (atualização de docs/process/refinement/)
-- **M6** — ⬜ pendente (integrações e cross-refs finais)
+**Status:** ✅ Concluído em 2026-04-22
+
+**Objetivo:** deixar a branch pronta para merge em main com consistência mínima (PM e EM referenciados onde o fluxo é definido) sem executar M4 completo. O restante (M4-restante, M5, M6) vira dívida documentada em `docs/process/refactor-backlog.md`.
+
+**Ações executadas (5 + atualização desta âncora):**
+
+1. **`skills/README.md`** — tabela de skills na §2 ganhou linhas PM (condicional, antes do EM) e EM (antes do Scrum Master). Protocolo de carregamento atualizado para citar PM → EM → Scrum Master → ... Tabela §5 "SKILLS DISPONÍVEIS" idem.
+2. **`skills/scrum-master/skill.md`** — regra 5 reescrita: "Não refinar épicos. Refinamento tático dentro da branch é responsabilidade da PM skill (executada antes). Refinamento estratégico é do Claude Web (antes do dispatch). Scrum Master assume épicos em `🔍 Detalhes definidos` — se encontrar algum fora desse estado, abortar com mensagem dizendo que PM Skill deveria ter rodado."
+3. **`skills/scrum-master/skill.md`** (template) — "Status dos Gates" e "Evidências de carregamento de skill" ganharam `[PM]` (primeiro) e `[EM]` (segundo). Nota de fechamento atualizada para explicar que PM é condicional.
+4. **`docs/process/autonomous/workflow.md`** — cabeçalho e diagrama ASCII atualizados para `PM (condicional) → EM → Scrum Master → Dev → QA → TL → PO → RTE`. Parágrafos curtos abaixo do diagrama explicam a condicionalidade do PM e o papel do EM. Nota explícita de que o resto do arquivo (descrição operacional dos gates) ainda reflete o modelo per-funcionalidade e é dívida registrada em `refactor-backlog.md`.
+5. **`docs/process/refactor-backlog.md`** (novo) — documenta a dívida aberta com 3 blocos (M4-restante, M5, M6), micro-dívidas detectadas, e seção vazia "Outras melhorias" para absorver ideias futuras de processo.
+6. **`docs/process/current_implementation.md`** (esta seção) — registra o wrap-up e explicita que a reforma está pausada para merge.
+
+**O que NÃO foi tocado (virou dívida em `refactor-backlog.md`):**
+
+- `docs/process/autonomous/dispatch.md`, `overview.md`, `delivery.md`, `session_conventions.md` — corpo principal continua per-funcionalidade.
+- Conteúdo operacional de `skills/scrum-master/skill.md` (além da regra 5 e do template), `skills/qa/skill.md`, `skills/tl/skill.md`, `skills/po/skill.md`, `skills/rte/skill.md` — continuam falando em "funcionalidade X.Y".
+- `docs/process/refinement/*.md` — callouts de M1 permanecem como único tratamento do refinamento tático.
+- `docs/CONTEXT_INDEX.md`, `docs/ARCHITECTURE.md`, `.github/copilot-instructions.md`, `README.md` — não mencionam PM/EM/sizing no mapa/árvore.
+- Typo `IImplementado` — permanece; será resolvido em M6.
+
+### Branch pronta para merge em main
+
+- ✅ Reforma pausada após M3b + wrap-up.
+- ✅ Dívida aberta migrada para `docs/process/refactor-backlog.md` (M4-restante, M5, M6 + micro-dívidas).
+- ✅ `main` fica consistente: PM e EM existem como skills, estão citadas onde o fluxo é declarado (skills/README.md, workflow.md, template do scrum-master), e o backlog aponta exatamente o que falta.
 
 ---
 
@@ -340,3 +363,19 @@ Não aplicáveis nesta reforma. A execução foi manual pelo dev, revisada fora 
 - PM e EM ainda não estão integrados ao fluxo descrito em `docs/process/autonomous/workflow.md` nem ao template em `skills/scrum-master/skill.md`. Integração é escopo de M4.
 - Defaults da heurística são chute inicial e devem ser revisados após os 5 primeiros milestones reais (declarado em `heuristic.md`).
 - Confirmação explícita de complementaridade Claude Web ↔ PM/EM registrada no bloco do épico M3b acima.
+
+### Sessão 5 — 2026-04-22 — Wrap-up antes do merge em main
+
+**Executado:** 5 ações cirúrgicas + atualização desta âncora, em 1 commit único para deixar `main` consistente com PM e EM existindo. M4-restante, M5, M6 pausados e migrados para `docs/process/refactor-backlog.md`.
+
+**Arquivos tocados (5 modificados + 1 criado):**
+- Modificado: `skills/README.md` (tabelas §2 e §5 + protocolo de carregamento com PM/EM)
+- Modificado: `skills/scrum-master/skill.md` (regra 5 reescrita + template ganha `[PM]`/`[EM]` em Status dos Gates e Evidências)
+- Modificado: `docs/process/autonomous/workflow.md` (cabeçalho + diagrama + parágrafos PM condicional / EM primeiro gate + nota sobre dívida do resto)
+- Criado: `docs/process/refactor-backlog.md` (dívida aberta M4-restante/M5/M6 + micro-dívidas + seção "Outras melhorias")
+- Modificado: `docs/process/current_implementation.md` (wrap-up registrado; bloco "branch pronta para merge")
+
+**Observações:**
+- Branch `refactor/fluxo-milestone` pronta para merge em `main` (decisão do dev; esta sessão não faz merge nem PR).
+- Reforma PAUSADA após M3b + wrap-up. Retomar com M4-restante conforme bloco em `refactor-backlog.md`.
+- Nada fora do escopo cirúrgico foi tocado: dispatch/overview/delivery/session_conventions continuam per-funcionalidade; conteúdo operacional dos demais skill.md intacto; refinement/ intacto; CONTEXT_INDEX/ARCHITECTURE/copilot-instructions/README intactos.
