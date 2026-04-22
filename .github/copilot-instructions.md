@@ -1,147 +1,112 @@
 # Copilot Instructions — Paper Agent
 
-Guia para GitHub Copilot (no VS Code) quando o dev pede ajuda para **validar uma branch produzida pelo fluxo autônomo do Claude Code Web**.
+Guia para o Copilot (VS Code) quando o dev disser "valida essa branch".
 
-Se o dev pedir outra coisa (implementar, refatorar, etc.), siga o pedido normalmente — este arquivo é específico para o fluxo de validação.
-
----
-
-## Princípio
-
-Testes já foram executados **duas vezes** antes da branch chegar pra ser validada:
-1. **QA Skill** (Claude Code Web) rodou unit + integration durante a implementação — resultado em `docs/process/current_implementation.md`.
-2. **CI** (`.github/workflows/test-unit.yml`) roda unit no push — status no PR.
-
-Portanto **não re-rode testes por padrão**. O valor do passo local é o que CI e QA não conseguem: **ver a app subir sem crashar** e **observar os critérios de aceite visuais**. Só rode testes se o dev pedir explícito ou se algo abaixo indicar regressão.
+Objetivo único: **sincronizar, resumir o que mudou, subir a app**. O dev observa
+e decide. Nada além disso sem pedido explícito.
 
 ---
 
-## Fluxo quando o dev disser "valida essa branch X"
+## Regras duras
+
+- **Não rode testes** (nem unit, nem integration). QA Skill e CI já rodaram.
+- **Não crie PR, não mergeie, não dê push.**
+- **Não invente critério de aceite.** Extrai do doc ou do ROADMAP; se não achar, pergunta.
+- Se faltar informação pra algum passo → **pare e pergunte**. Não tente suprir.
+
+---
+
+## Dois modos de validação
+
+### Modo A — Branch saiu do fluxo autônomo
+Sinal: `docs/process/current_implementation.md` existe na branch.
+Fonte de verdade: esse arquivo (tem gates, diff, critérios, comandos).
+
+### Modo B — Validação avulsa (manual / sem fluxo autônomo)
+Sinal: `current_implementation.md` NÃO existe.
+Fonte de verdade: ROADMAP (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`)
+— o dev precisa te dizer qual funcionalidade/épico (ex: "C-ENSAIO-2").
+Se o dev não disser, **pergunte** antes de continuar.
+
+---
+
+## Fluxo (3 passos)
 
 ### 1. Sincronizar
-
 ```bash
 git fetch origin
 git checkout <branch>
 git pull origin <branch>
 ```
-
-### 2. Checar os sinais que já existem
-
-**a) Gates do fluxo autônomo** — abrir `docs/process/current_implementation.md` e verificar:
-- Status dos Gates: QA ✅ / TL ✅ / PO ✅
-- Lista de tarefas concluídas (entender o que mudou)
-- Critérios de aceite declarados
-
-**b) CI** — verificar pelo PR ou via `gh`:
-```bash
-gh pr checks <branch>    # se houver PR aberto
-# ou
-gh run list --branch <branch> --limit 3
-```
-
-**Abortar antes de continuar** se:
-- Algum gate estiver ❌ ou não preenchido → branch não passou no fluxo autônomo
-- CI estiver vermelho → testes unit falhando
-- `current_implementation.md` não existir → branch não veio do fluxo autônomo (talvez validação manual seja diferente; perguntar ao dev)
-
-### 3. Checar se deps mudaram
-
-```bash
-git diff origin/main -- requirements.txt requirements-test.txt
-```
-
-Se mudou, rodar:
+Se `requirements.txt` ou `requirements-test.txt` mudaram vs `origin/main`:
 ```bash
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Se `ModuleNotFoundError` aparecer depois em qualquer passo, é aqui que resolve.
+### 2. Montar o resumo "o que mudou + o que observar"
 
-### 4. Smoke-check da aplicação
+**Modo A:** abrir `docs/process/current_implementation.md` e extrair:
+- Funcionalidade/épico (cabeçalho)
+- Arquivos modificados (seção "Resumo Final" da Validation Skill)
+- Critérios de aceite declarados pelo PO
 
-Aplicar **apenas aos entry points afetados pela branch** (usar `git diff --stat origin/main` como guia):
+**Modo B:** localizar o épico/funcionalidade no ROADMAP correto e extrair:
+- Título + objetivo
+- Bloco "Critérios de Aceite" da(s) funcionalidade(s) implementada(s)
 
-**Streamlit chat (revelar)** — se mexeu em `products/revelar/app/**`:
+Complementar com `git diff --stat origin/main` pra listar áreas tocadas.
+
+Em ambos os modos, filtrar os critérios em dois grupos:
+- **Observável no uso da app** (ex: "ao clicar X aparece Y") → vai pro checklist do dev
+- **Não deve** (ex: "não trava, não perde histórico") → vai pro checklist do dev
+
+Critérios cobertos só por teste automatizado **não listar** — CI já cuida.
+
+### 3. Subir a app afetada
+Detectar produto pelo diff (`git diff --name-only origin/main | grep products/`):
+- `products/revelar/app/**` → `streamlit run products/revelar/app/chat.py`
+- `products/ensaio/app/**` → `streamlit run products/ensaio/app/chat.py`
+- Outro produto → procurar `products/<nome>/app/chat.py`; se não existir, perguntar ao dev
+
+Comando padrão:
 ```bash
-timeout 15 streamlit run products/revelar/app/chat.py --server.headless true --server.port 8599 2>&1 | head -40
+streamlit run <path> --server.headless true --server.port <porta>
 ```
-Sucesso: linha "You can now view your Streamlit app" sem traceback.
+Subir em **foreground** e deixar rodando — o dev vai abrir no navegador.
+Se o log mostrar traceback no start → parar, reportar o erro, não tentar consertar.
 
-**Streamlit dashboard** — se mexeu em dashboard:
-```bash
-timeout 15 streamlit run products/revelar/app/dashboard.py --server.headless true --server.port 8598 2>&1 | head -40
-```
+Se a branch mexeu em mais de um produto, perguntar ao dev qual subir primeiro.
 
-**CLI** — se mexeu em `core/tools/cli/**`:
-```bash
-echo "" | timeout 10 python -m core.tools.cli.chat 2>&1 | head -30
-```
-Sucesso: CLI inicia e mostra prompt sem traceback.
-
-Se a branch só mexe em `core/agents/**`, `docs/**` ou testes — pular esta etapa.
-
-### 5. Listar critérios de aceite pra inspeção visual
-
-Da seção de critérios em `current_implementation.md` (e/ou ROADMAP linkado), separar:
-- **Cobertos por teste** (QA/CI já validaram) → não listar
-- **Comportamento observável** (ex: "ao clicar em X, aparece Y") → listar como checkbox pro dev
-- **"Não deve"** não coberto por teste → listar como inspeção manual
-
-### 6. Reportar
-
-```
-Branch: <nome>
-Diff resumido: <N arquivos, áreas principais>
-
-Sinais verdes
-  ✅/❌ Gates QA/TL/PO (via current_implementation.md)
-  ✅/❌ CI (via gh pr checks)
-  ✅/❌ Smoke app: <entry points testados + resultado>
-
-📋 Critérios pendentes de inspeção visual
-  - [ ] <critério 1>
-  - [ ] <critério 2>
-
-⚠️ Pontos de atenção
-  - <se alguma coisa fugiu do esperado>
-
-Recomendação: <aprovar merge | ajustar X | subir a app e inspecionar Y>
-```
+Se a branch não mexeu em nenhum produto (só `core/` ou `docs/`):
+avisar o dev que não há app pra subir e pular esta etapa.
 
 ---
 
-## Quando RE-RODAR testes localmente
+## Output fixo
 
-Só nesses casos:
-
-- Dev pediu explícito ("roda os testes também")
-- Um gate está ❌ em `current_implementation.md` e o dev quer confirmar o problema
-- CI vermelho e dev quer reproduzir localmente
-- Você detectou regressão de dep no passo 3 e quer validar depois do pip install
-
-Comandos (se precisar):
-```bash
-pytest tests/core/unit/ -q
-pytest tests/core/integration/ -m integration -q --maxfail=1   # só se ANTHROPIC_API_KEY setada
 ```
+Branch: <nome>  |  Modo: <A (autônomo) | B (avulso - <épico>)>
 
-Perfis completos em `docs/testing/commands.md`.
+O que mudou
+  • <bullet extraído do current_implementation.md ou resumo do diff>
+  • ...
 
----
+Pra você observar na app (do ROADMAP / PO)
+  [ ] <critério observável 1>
+  [ ] <critério observável 2>
+  [ ] <comportamento "não deve" 1>
 
-## Regras
+App rodando em: http://localhost:<porta>  (ou: sem app afetada)
 
-- **Não crie PR nem faça merge.** O dev decide.
-- **Não faça push de código novo.** Só validação.
-- Preserve o ambiente do dev: não rode `pip uninstall`, não mexa em `.env`.
-- Se encontrar problema, **reporte** e pare. Não tente "consertar" sem pedido explícito.
+⚠️  <bloco opcional — só se algo travou o fluxo>
+```
 
 ---
 
 ## Referências
 
-- Fluxo autônomo completo: `docs/process/autonomous/workflow.md`
-- Mensagem final esperada da Validation Skill: `docs/process/autonomous/delivery.md`
-- Perfis de teste (se precisar rodar): `docs/testing/commands.md`
+- Fluxo autônomo: `docs/process/autonomous/workflow.md`
+- Quem cria `current_implementation.md`: Planning Skill (início) →
+  atualizada por cada gate → finalizada pela Validation Skill
+- ROADMAPs: `docs/ROADMAP.md` (core) e `products/<produto>/ROADMAP.md`
