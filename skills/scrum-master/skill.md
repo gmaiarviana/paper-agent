@@ -110,70 +110,145 @@ Criar `docs/process/current_implementation.md` no template abaixo. Ao criar, **p
 ## TEMPLATE DE `current_implementation.md`
 
 ```markdown
-# Implementação Atual: Funcionalidade X.Y - <nome>
+# Implementação Atual: Milestone <ID>
 
-**Roadmap:** <docs/ROADMAP.md | products/<produto>/ROADMAP.md>
-**Branch:** feature/X.Y-nome
+**Milestone:** <ID> — <nome em 1 linha do ROADMAP>
+**Produto:** <produto>
+**Estágio:** <POC | Protótipo | MVP>
+**Branch:** milestone/<id-em-caixa-baixa>
 **Modo:** Autônomo
 **Dispatch recebido em:** <YYYY-MM-DD>
 
 ---
 
-## Critérios de Aceite (do ROADMAP)
-- [ ] <critério 1, copiado literal>
-- [ ] <critério 2>
-- ...
+## Contexto do Milestone
 
-## Plano de Tasks
+**Objetivo:** <copiado literal do campo "Objetivo" do milestone no ROADMAP>
 
-### Task 1 — <nome curto>
-- **Domain:** backend
-- **Estimativa:** ~<LOC> linhas | risco: baixo/médio/alto
-- **Arquivos esperados:** 
-  - criar: `caminho/novo.py`
-  - modificar: `caminho/existente.py`
-- **Padrão a seguir:** <referência a módulo análogo, ex: `core/agents/methodologist/`>
-- **Critérios de aceite cobertos:** [1, 3]
-- **Validação:** <como verificar que esta task entrega valor>
+**Épicos agrupados:** <lista de ids, ex.: E-POC-1, E-POC-2, E-POC-3>
 
-### Task 2 — ...
-[mesma estrutura]
+**Dependências de core:** <lista de épicos C-<PRODUTO>-N em ✅ ou "nenhuma">
 
 ---
 
-## Esclarecimentos
+## Sizing (EM)
+
+> Preenchido pela EM skill no início do fluxo.
+
+- **Veredicto:** <FIT | TIGHT>
+- **Épicos avaliados:** <N>
+- **Funcionalidades totais:** <N>
+- **Fator de risco médio:** <valor>
+- **LOC estimado:** <valor>
+- **Linha persistida:** `docs/process/sizing/history.jsonl` (`session_outcome=pending`)
+- **Alerta (se TIGHT):** <texto curto para a entrega final mostrar ao dev>
+
+> OVERFLOW não chega aqui — a EM skill devolve ao dev antes do Scrum Master rodar.
+
+---
+
+## Épicos
+
+Um bloco por épico, na ordem de execução. Cada épico fecha quando **todas** as suas funcionalidades têm Dev/QA/TL/PO ✅.
+
+---
+
+### Épico <ID-EPICO-1> — <nome>
+
+**Status:** 🏗️ Em andamento — desde <YYYY-MM-DD>
+**Objetivo:** <copiado do ROADMAP>
+**Dependências:** <lista ou "nenhuma">
+
+#### Funcionalidades
+
+##### <N.1> — <nome>
+
+- **Domain:** <backend | frontend | data | docs | tests>
+- **Estimativa:** ~<LOC> linhas | risco: <baixo | médio | alto>
+- **Arquivos esperados:**
+  - criar: `<caminho/completo>`
+  - modificar: `<caminho/completo>`
+- **Padrão a seguir:** `<módulo análogo>`
+- **Critérios de aceite cobertos:** [<ids literais do ROADMAP>]
+- **Validação:** <como verificar que a funcionalidade entrega valor>
+
+##### <N.2> — <nome>
+[mesma estrutura]
+
+#### Gates por funcionalidade — Épico <ID-EPICO-1>
+
+| Funcionalidade | Dev | QA | TL | PO |
+|----------------|:---:|:--:|:--:|:--:|
+| <N.1> <nome>   | ⏳  | ⏳ | ⏳ | ⏳ |
+| <N.2> <nome>   | ⏳  | ⏳ | ⏳ | ⏳ |
+
+**Legenda:** ⏳ pendente · ✅ aprovado · ❌ reprovado (ver Histórico de Reprovações) · ➖ não aplicável
+
+Gates QA/TL/PO escrevem o status nesta tabela ao decidir por cada funcionalidade. Cada decisão também gera uma linha em "Evidências de carregamento de skill" (abaixo) e, se reprovar, uma linha em "Histórico de Reprovações".
+
+---
+
+### Épico <ID-EPICO-2> — <nome>
+[mesma estrutura: status, objetivo, dependências, funcionalidades, tabela de gates]
+
+---
+
+## Esclarecimentos (resolvidos por consulta)
+
+Itens que PM e/ou Scrum Master resolveram consultando docs/código, com fonte.
+
 - ✅ <ambiguidade resolvida> — fonte: `<arquivo>:<linha>`
 - ✅ <ambiguidade resolvida> — fonte: `<arquivo>`
 
-(se houve perguntas devolvidas ao dev, registrar aqui as respostas recebidas)
+(Se houve perguntas devolvidas ao dev humano, registrar aqui as respostas recebidas.)
 
 ---
 
-## Status dos Gates
-- [ ] PM (condicional — se há épicos em 🌱/📐 no milestone)
-- [ ] EM
-- [x] Scrum Master ✅ <data>
-- [ ] Dev
-- [ ] QA
-- [ ] TL
-- [ ] PO
-- [ ] RTE
+## Status dos Gates (nível milestone)
+
+Gates únicos por milestone. Gates QA/TL/PO são per-funcionalidade — ver tabelas "Gates por funcionalidade" em cada épico acima.
+
+- [ ] PM (condicional — ➖ se todos os épicos já estavam em `🔍` no dispatch)
+- [ ] EM (veredicto: <FIT | TIGHT>)
+- [ ] Scrum Master (plano para todos os <N> épicos escrito)
+- [ ] Loop por épico concluído (todas as tabelas acima com Dev/QA/TL/PO ✅)
+- [ ] RTE (no fim do milestone, após o último épico fechar)
 
 ### Evidências de carregamento de skill
-Cada skill registra aqui sua linha imediatamente ao iniciar o gate, antes de executar qualquer outro passo. Um gate sem linha correspondente = fluxo corrompido e deve ser abortado pela próxima skill.
+
+Cada skill registra evidência de carregamento imediatamente ao iniciar, antes de executar qualquer passo. Gate sem linha correspondente = fluxo corrompido e deve ser abortado pela próxima skill.
+
+**Únicas por milestone (1 linha cada):**
 
 - [PM] skill carregada: skills/pm/skill.md ✅ <YYYY-MM-DD HH:MM>
+  - (ou, se pulada) [PM] skill pulada: todos os épicos já em `🔍` ➖ <YYYY-MM-DD HH:MM>
 - [EM] skill carregada: skills/em/skill.md ✅ <YYYY-MM-DD HH:MM>
 - [SCRUM-MASTER] skill carregada: skills/scrum-master/skill.md ✅ <YYYY-MM-DD HH:MM>
-- [QA] skill carregada: skills/qa/skill.md ✅ <YYYY-MM-DD HH:MM>
-- [TL] skill carregada: skills/tl/skill.md ✅ <YYYY-MM-DD HH:MM>
-- [PO] skill carregada: skills/po/skill.md ✅ <YYYY-MM-DD HH:MM>
 - [RTE] skill carregada: skills/rte/skill.md ✅ <YYYY-MM-DD HH:MM>
 
-(PM preenche sua linha ao iniciar, se aplicável; caso contrário, EM é a primeira. As demais são preenchidas pelas skills respectivas ao iniciarem. RTE não prossegue se faltar qualquer linha anterior aplicável.)
+**Repetidas por funcionalidade (1 linha × gate × funcionalidade):**
+
+Formato: `[<GATE>] skills/<gate>/skill.md <status> <YYYY-MM-DD HH:MM> | épico <ID-EPICO> | funcionalidade <N.M>`
+
+- [QA] skills/qa/skill.md ✅ <YYYY-MM-DD HH:MM> | épico <ID-EPICO-1> | funcionalidade <N.1>
+- [TL] skills/tl/skill.md ✅ <YYYY-MM-DD HH:MM> | épico <ID-EPICO-1> | funcionalidade <N.1>
+- [PO] skills/po/skill.md ✅ <YYYY-MM-DD HH:MM> | épico <ID-EPICO-1> | funcionalidade <N.1>
+- [QA] skills/qa/skill.md ✅ <YYYY-MM-DD HH:MM> | épico <ID-EPICO-1> | funcionalidade <N.2>
+- ...
+
+O contexto `épico <ID-EPICO> | funcionalidade <N.M>` é obrigatório — a regra de escalação por 3 reprovações depende dele.
+
+---
 
 ## Histórico de Reprovações
-(vazio inicialmente; gates registram aqui ao reprovar)
+
+Cada linha registra uma reprovação de gate em uma funcionalidade específica.
+
+Formato: `<YYYY-MM-DD HH:MM> | épico <ID-EPICO> | funcionalidade <N.M> | gate <QA|TL|PO> | <motivo curto>`
+
+- <YYYY-MM-DD HH:MM> | épico <...> | funcionalidade <...> | gate <...> | <motivo>
+
+**Escalação:** 3 reprovações consecutivas no **mesmo gate do mesmo épico** abortam o milestone inteiro e notificam o dev. A contagem **não agrega entre épicos distintos** — reprovações de QA na funcionalidade N.1 e na N.2 do mesmo épico, porém, somam.
 ```
 
 ---

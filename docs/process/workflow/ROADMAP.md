@@ -92,13 +92,24 @@ atual (linear por funcionalidade) para shape aninhado (milestone → épicos
 → funcionalidades → gates). Template é gerado pelo Scrum Master no início
 de cada milestone.
 
-**Status:** 🌱 Visão
+**Status:** ✅ Implementado
 
 **Dependências:** W-POC-1 (dispatch identifica o milestone que alimenta
 o template)
 
 **Migra de:** `docs/process/refactor-backlog.md` → M4-restante (item
 "Template de current_implementation.md")
+
+**Entregue em:** bloco markdown dentro de `skills/scrum-master/skill.md`,
+seção "TEMPLATE DE `current_implementation.md`". Gates QA/TL/PO
+representados por tabela por épico (linhas = funcionalidades, colunas =
+Dev/QA/TL/PO, status por emoji ⏳/✅/❌/➖). Evidências de carregamento
+separadas em dois blocos: únicas por milestone (PM/EM/Scrum Master/RTE,
+1 linha cada) e repetidas por funcionalidade (QA/TL/PO, 1 linha cada
+gate × funcionalidade, com contexto `épico <ID> | funcionalidade <N.M>`).
+Histórico de reprovações carrega o mesmo contexto para a regra de
+escalação (3 consecutivas no mesmo gate do mesmo épico → aborta
+milestone) operar.
 
 #### ÉPICO W-POC-3: Reescrita operacional das skills por milestone
 
