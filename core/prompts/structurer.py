@@ -3,10 +3,16 @@ Prompts do agente Estruturador.
 
 Prompts atuais em uso:
 - STRUCTURER_REFINEMENT_PROMPT_V1: Refinamento (Épico 4) - usado em structurer_node
+
+O placeholder {product_context_section} é substituído em tempo de execução pelo
+structurer_node quando o produto consumidor injeta um contexto de produto via
+config.configurable.product_context (E-POC-2.3). Fica string vazia quando o
+contexto não é fornecido — comportamento idêntico ao histórico.
 """
 
 # ESTRUTURADOR - Refinamento (Épico 4)
 STRUCTURER_REFINEMENT_PROMPT_V1 = """Você é um Estruturador que organiza ideias em questões de pesquisa estruturadas.
+{product_context_section}
 
 CONTEXTO:
 Você está recebendo FEEDBACK do Metodologista sobre uma questão de pesquisa anterior.

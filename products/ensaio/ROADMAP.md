@@ -58,7 +58,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 - **Épicos agrupados:** E-POC-1, E-POC-2, E-POC-3
 - **Dependências de core:** [C-ENSAIO-2](../../docs/ROADMAP.md) (Writer versão inicial) — pré-requisito de E-POC-3
 - **Branch associada:** `milestone/poc-ensaio`
-- **Status dos épicos:** todos em `🔍 Detalhes definidos`
+- **Status dos épicos:** todos em `🏗️ Em andamento` (sessão autônoma entregou — aguarda validação manual via [poc_validation.md](docs/poc_validation.md) e merge)
 
 ### PROTO-ENSAIO (stub)
 
@@ -92,7 +92,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 **Objetivo:** Esqueleto de app próprio para o produto Ensaio, reusando componentes do Revelar onde couber. UI descartável — Streamlit como atalho, sem investimento em design.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🏗️ Em andamento (entregue pela sessão autônoma do milestone POC-ENSAIO — aguardando validação manual do dev via `products/ensaio/docs/poc_validation.md`)
 
 ### Funcionalidades:
 
@@ -201,7 +201,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 **Objetivo:** YAML do Ensaio define foco/domínio que é injetado nos agentes do core sem que o core conheça o produto. Primeira aplicação concreta do padrão de injeção de contexto.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🏗️ Em andamento (entregue pela sessão autônoma do milestone POC-ENSAIO — aguardando validação manual do dev via `products/ensaio/docs/poc_validation.md`)
 
 **Dependências:**
 - Padrão de injeção de contexto (ver core/docs/vision/super_system.md)
@@ -281,7 +281,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 **Objetivo:** Pesquisador conversa sobre experimento, pede geração de artigo, recebe markdown, pede ajustes, Writer refaz. Artigo vive só na sessão — sem persistência, sem pendências, sem rascunho progressivo.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🏗️ Em andamento (entregue pela sessão autônoma do milestone POC-ENSAIO — aguardando validação manual do dev via `products/ensaio/docs/poc_validation.md`)
 
 **Dependências:**
 - Core [C-ENSAIO-2](../../docs/ROADMAP.md) (Writer versão inicial)

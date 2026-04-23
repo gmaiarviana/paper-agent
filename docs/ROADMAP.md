@@ -29,7 +29,7 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
 |------------|--------|----------------------|---------|
 | ÉPICO 1 (Pesquisador) | 🌱 Visão | — (não vinculado) | — |
 | C-ENSAIO-1 (Parametrização de Contexto) | 🌱 Visão | POC-ENSAIO | Ensaio |
-| C-ENSAIO-2 (Writer versão inicial) | 🔍 Detalhes definidos | POC-ENSAIO | Ensaio |
+| C-ENSAIO-2 (Writer versão inicial) | 🏗️ Em andamento | POC-ENSAIO | Ensaio |
 | C-ENSAIO-3 (Writer por seção) | 🌱 Visão | PROTO-ENSAIO | Ensaio |
 | C-ENSAIO-4 (Ingestão de arquivos anexados) | 🌱 Visão | MVP-ENSAIO | Ensaio |
 | C-ENSAIO-5 (Pendência — condicional) | 🌱 Visão (condicional) | — (sem milestone até segundo consumidor aparecer) | — |
@@ -78,7 +78,7 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
 
 **Objetivo:** Novo agente no core que recebe contexto conversacional e cognitive_model, devolve markdown estruturado. Nasce simples. Organizado para generalização futura (Produtor Científico reusará).
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🏗️ Em andamento (entregue pela sessão autônoma do milestone POC-ENSAIO — aguardando validação manual do dev via `products/ensaio/docs/poc_validation.md`)
 
 **Decisões arquiteturais já tomadas:** ver [core/docs/agents/writer/design.md](../core/docs/agents/writer/design.md)
 - Nasce no core (não no Ensaio)
