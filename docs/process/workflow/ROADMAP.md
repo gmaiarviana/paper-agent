@@ -85,8 +85,8 @@ para identificar milestone alvo e estado inicial.
 
 **Dependências:** nenhuma (primeiro do POC-WORKFLOW)
 
-**Migra de:** `docs/process/refactor-backlog.md` → M4-restante (item
-"docs/process/autonomous/dispatch.md")
+**Migra de:** reforma de milestone (branch `refactor/fluxo-milestone`,
+2026-04)
 
 **Entregue em:** commit `7ec1a4d` — reescrita completa de
 `docs/process/autonomous/dispatch.md`. Substitui template de placeholder
@@ -110,8 +110,8 @@ de cada milestone.
 **Dependências:** W-POC-1 (dispatch identifica o milestone que alimenta
 o template)
 
-**Migra de:** `docs/process/refactor-backlog.md` → M4-restante (item
-"Template de current_implementation.md")
+**Migra de:** reforma de milestone (branch `refactor/fluxo-milestone`,
+2026-04)
 
 **Entregue em:** bloco markdown dentro de `skills/scrum-master/skill.md`,
 seção "TEMPLATE DE `current_implementation.md`". Gates QA/TL/PO
@@ -136,8 +136,8 @@ shape aninhado definido em W-POC-2.
 **Dependências:** W-POC-2 (template aninhado precisa existir para skills
 poderem consumi-lo)
 
-**Migra de:** `docs/process/refactor-backlog.md` → M4-restante (item
-"Conteúdo operacional dos skill.md")
+**Migra de:** reforma de milestone (branch `refactor/fluxo-milestone`,
+2026-04)
 
 **Entregue em:** reescrita de 5 skill.md —
 `skills/scrum-master/skill.md` (PAPEL + REGRAS + Passos 1-8 reescritos
@@ -194,9 +194,8 @@ ganha descrição detalhada em `workflow.md`.
 os arquivos de `docs/process/autonomous/` são a descrição humana desse
 mesmo modelo)
 
-**Migra de:** `docs/process/refactor-backlog.md` → M4-restante
-(bullets `workflow.md`, `overview.md`, `delivery.md`,
-`session_conventions.md`, "Política de escalação de 3 reprovações")
+**Migra de:** reforma de milestone (branch `refactor/fluxo-milestone`,
+2026-04)
 
 #### ÉPICO W-PROTO-2: Distinção estratégico × tático em `docs/process/refinement/`
 
@@ -220,7 +219,8 @@ em bulk para todos os épicos do milestone).
 após W-PROTO-1 para manter coerência entre `autonomous/` e
 `refinement/`, mas não bloqueante.
 
-**Migra de:** `docs/process/refactor-backlog.md` → M5
+**Migra de:** reforma de milestone (branch `refactor/fluxo-milestone`,
+2026-04)
 
 #### ÉPICO W-PROTO-3: Migração do template `skills/rte/templates/delivery-report.md` para shape de milestone
 
@@ -264,8 +264,8 @@ o que sobrou.
 **Dependências:** W-PROTO-1 e W-PROTO-2 (varredura final faz sentido
 depois que os arquivos operacionais e de refinamento foram migrados)
 
-**Migra de:** `docs/process/refactor-backlog.md` → M6 + "Micro-dívidas
-detectadas ao longo da reforma"
+**Migra de:** reforma de milestone (branch `refactor/fluxo-milestone`,
+2026-04)
 
 ---
 
