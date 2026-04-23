@@ -31,7 +31,7 @@ Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/pla
 - **Épicos agrupados:** W-POC-1, W-POC-2, W-POC-3, W-POC-4
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/poc-workflow`
-- **Status dos épicos:** W-POC-1 ✅, W-POC-2 ✅, W-POC-3 🌱 Visão,
+- **Status dos épicos:** W-POC-1 ✅, W-POC-2 ✅, W-POC-3 ✅,
   W-POC-4 🌱 Visão (execução real reservada para o dev).
 - **Nota:** este milestone promove a dívida documentada em
   `docs/process/refactor-backlog.md` a épicos do workflow. Uma vez este
@@ -128,13 +128,30 @@ e RTE para operar dentro do loop por épico de um milestone, em vez do
 modelo atual per-funcionalidade. Pré-checagens de cada skill consomem o
 shape aninhado definido em W-POC-2.
 
-**Status:** 🌱 Visão
+**Status:** ✅ Implementado
 
 **Dependências:** W-POC-2 (template aninhado precisa existir para skills
 poderem consumi-lo)
 
 **Migra de:** `docs/process/refactor-backlog.md` → M4-restante (item
 "Conteúdo operacional dos skill.md")
+
+**Entregue em:** reescrita de 5 skill.md —
+`skills/scrum-master/skill.md` (PAPEL + REGRAS + Passos 1-8 reescritos
+para planejar o milestone inteiro: N épicos quebrados em tasks numa
+única passada, preenchimento das seções "Épicos" e "Esclarecimentos" do
+template aninhado já criado por PM/EM; template em si intocado);
+`skills/qa/skill.md`, `skills/tl/skill.md`, `skills/po/skill.md` (Passo
+1 identifica épico+funcionalidade via ponteiro na tabela de gates —
+primeira linha com Dev ✅ e gate corrente ⏳; Passo 2/diff compara
+contra último sha validado na branch `milestone/<id>`, não contra
+`main`; Passo 7/8 grava status na célula correta da tabela aninhada,
+evidência com contexto `| épico <ID> | funcionalidade <N.M>`);
+`skills/rte/skill.md` (Passo 1 exige todas as células Dev/QA/TL/PO ✅
+em todas as tabelas; Passo 2 faz push único de `milestone/<id>`; Passo
+3 coleta dados de `main...HEAD` sobre o milestone todo; Passo 5/7
+consolida N épicos em relatório único e mensagem única; dívida do
+template `delivery-report.md` declarada inline para migração posterior).
 
 #### ÉPICO W-POC-4: Execução real da POC-ENSAIO no fluxo novo
 
