@@ -19,7 +19,7 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 
 **EM é sempre o primeiro gate de sizing** antes do Scrum Master. Decide FIT/TIGHT/OVERFLOW segundo [docs/process/sizing/heuristic.md](../sizing/heuristic.md); OVERFLOW sempre devolve ao dev com proposta de quebra — nunca aceita silenciosamente. Detalhes em [skills/em/README.md](../../../skills/em/README.md).
 
-> **Nota sobre este arquivo.** O conteúdo operacional abaixo (gates QA/TL/PO com decisão per-funcionalidade, mensagens "dispara pela manhã / valida à noite", regras de reprovação por funcionalidade) ainda reflete o modelo anterior à reforma de milestone. Reescrita completa para operar por milestone é dívida registrada em [docs/process/refactor-backlog.md](../refactor-backlog.md) (M4-restante).
+> **Nota sobre este arquivo.** O conteúdo operacional abaixo (gates QA/TL/PO com decisão per-funcionalidade, mensagens "dispara pela manhã / valida à noite", regras de reprovação por funcionalidade) ainda reflete o modelo anterior à reforma de milestone. Reescrita completa para operar por milestone é o épico W-PROTO-1 em [docs/process/workflow/ROADMAP.md](../workflow/ROADMAP.md). Enquanto isso, a semântica operacional viva está nos `skill.md` (reescritos em W-POC-3).
 
 ---
 
