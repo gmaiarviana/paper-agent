@@ -31,8 +31,8 @@ Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/pla
 - **Épicos agrupados:** W-POC-1, W-POC-2, W-POC-3, W-POC-4
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/poc-workflow`
-- **Status dos épicos:** todos em 🌱 Visão no momento da criação deste
-  ROADMAP (derivados de discussão prévia, aguardam refinamento formal).
+- **Status dos épicos:** W-POC-1 ✅, W-POC-2 ✅, W-POC-3 🌱 Visão,
+  W-POC-4 🌱 Visão (execução real reservada para o dev).
 - **Nota:** este milestone promove a dívida documentada em
   `docs/process/refactor-backlog.md` a épicos do workflow. Uma vez este
   ROADMAP em vigor, `refactor-backlog.md` pode referenciar W-POC-* e ser
@@ -78,12 +78,22 @@ natural ("implementa a POC do Ensaio") em vez do template de placeholder
 atual ("[Funcionalidade X.Y]"). Parser informal que Claude Code Web aplica
 para identificar milestone alvo e estado inicial.
 
-**Status:** 🌱 Visão
+**Status:** ✅ Implementado
 
 **Dependências:** nenhuma (primeiro do POC-WORKFLOW)
 
 **Migra de:** `docs/process/refactor-backlog.md` → M4-restante (item
 "docs/process/autonomous/dispatch.md")
+
+**Entregue em:** commit `7ec1a4d` — reescrita completa de
+`docs/process/autonomous/dispatch.md`. Substitui template de placeholder
+por dispatch em linguagem natural ("implementa a POC do Ensaio") e
+documenta parser informal de 5 passos (extrair id `<ESTAGIO>-<PRODUTO>`,
+localizar no ROADMAP, identificar estado inicial do fluxo com base em
+épicos `🌱/📐/📋/🔍`, preparar branch `milestone/<id>`, carregar skills
+em sequência). 4 exemplos de dispatch cobrindo milestone com tudo em
+`🔍`, milestone com épicos pré-`🔍` (PM skill roda), milestone com
+sufixo e entrada ambígua.
 
 #### ÉPICO W-POC-2: Template aninhado de current_implementation.md
 
@@ -148,10 +158,11 @@ operacional antes da execução real)
 **Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`;
 fluxo autônomo via Claude Code Web exige `🔍 Detalhes definidos`.
 
-Todos os épicos W-POC-* estão em `🌱 Visão` e precisam passar por
-refinamento antes de qualquer fluxo de execução. Refinamento estratégico
-(visão → critérios) via Claude Web; refinamento tático (critérios →
-detalhes) via PM Skill dentro da branch do milestone.
+W-POC-1 e W-POC-2 foram executados manualmente via Claude Code (fora do
+fluxo autônomo) na branch `claude/create-workflow-docs-6CR73` porque o
+próprio fluxo autônomo é o que está sendo reescrito. W-POC-3 segue o
+mesmo caminho. W-POC-4 (execução real da POC-ENSAIO) é a primeira prova
+do fluxo novo e roda via dispatch autônomo regular, a cargo do dev humano.
 
 Épicos PROTO e MVP ainda não foram desenhados — ficam a definir em
 refinamento estratégico após POC-WORKFLOW fechar, com aprendizado real
