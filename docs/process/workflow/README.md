@@ -14,7 +14,6 @@
 - `docs/process/implementation/` — subdomínio operacional: fluxo manual via Cursor
 - `docs/process/autonomous/` — subdomínio operacional: fluxo autônomo via Claude Code Web
 - `docs/process/sizing/` — heurística e histórico de sizing da EM Skill
-- `docs/process/refactor-backlog.md` — dívida técnica específica da reforma de milestone em curso
 
-Este diretório (`workflow/`) é o "meta" — missão e roadmap do processo como um todo.
+Este diretório (`workflow/`) é o "meta" — missão e roadmap do processo como um todo. Dívida técnica do workflow é rastreada como épicos dentro do `ROADMAP.md` acima, não em arquivo separado.
 As pastas-irmãs são as subáreas operacionais.
