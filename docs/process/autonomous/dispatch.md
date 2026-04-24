@@ -1,7 +1,7 @@
 # Autonomous Dispatch
 
 > **📌 Uso:** dispare o fluxo autônomo em [claude.ai/code](https://claude.ai/code) sobre o repositório `paper-agent` com uma frase em linguagem natural que identifique o **milestone** alvo.
-> **📌 Pré-requisito:** o milestone alvo existe no ROADMAP do produto (seção `## 🎯 Milestones`). Épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas` são refinados pela PM skill dentro da branch; épicos em `🔍 Detalhes definidos` seguem direto.
+> **📌 Pré-requisito:** o milestone alvo existe no ROADMAP do produto (seção `## 🎯 Milestones`). Épicos em `🌱 Visão`, `🧭 Jornada alinhada` ou `📐 Funcionalidades esboçadas` são refinados pela PM skill dentro da branch; épicos em `🔍 Detalhes definidos` seguem direto.
 > **📌 Documentação completa:** `docs/process/autonomous/`
 
 ---
@@ -52,7 +52,7 @@ Extrair do bloco do milestone:
 Com base nos épicos agrupados:
 
 - Todos em `🔍 Detalhes definidos` → **PM skill é pulada**; fluxo começa em EM.
-- Algum em `🌱 Visão` ou `📐 Funcionalidades esboçadas` → **PM skill é obrigatória** antes de EM (refinamento tático dentro da branch).
+- Algum em `🌱 Visão`, `🧭 Jornada alinhada` ou `📐 Funcionalidades esboçadas` → **PM skill é obrigatória** antes de EM (refinamento tático dentro da branch).
 - Algum em `📋 Critérios definidos` → PM skill também é obrigatória (leva de `📋` a `🔍`).
 - Épico em `🏗️ Em andamento` ou `✅ Implementado` no meio do milestone → **abortar**, pedir ao dev confirmação (pode indicar milestone mal-sinalizado ou retomada de trabalho).
 
@@ -92,8 +92,8 @@ Protocolo detalhado em `skills/README.md`.
 ## RESTRIÇÕES DO FLUXO AUTÔNOMO
 
 - **Escopo:** fluxo opera sobre o **milestone inteiro**. Commits vão para `milestone/<id>`; `main` recebe o milestone apenas após aval humano explícito.
-- **Refinamento estratégico não acontece aqui.** Visão → milestones/épicos em `🌱`/`📐` é Claude Web, externo ao repo. Se o milestone alvo não existir no ROADMAP, abortar.
-- **Refinamento tático acontece dentro da branch.** PM skill leva épicos `🌱`/`📐`/`📋` a `🔍` antes da EM rodar o sizing.
+- **Refinamento estratégico não acontece aqui.** Visão → milestones/épicos em `🌱`/`🧭`/`📐` é Claude Web, externo ao repo. Se o milestone alvo não existir no ROADMAP, abortar.
+- **Refinamento tático acontece dentro da branch.** PM skill leva épicos `🌱`/`🧭`/`📐`/`📋` a `🔍` antes da EM rodar o sizing.
 - **Sem novas decisões arquiteturais.** Se o fluxo topar decisão em aberto não coberta por refinamento, abortar e devolver.
 - **Sem PR automático.** A RTE prepara a branch e comandos; o PR é criação humana.
 - **Escalação:** 3 reprovações consecutivas no mesmo gate do mesmo épico abortam o milestone inteiro e notificam o dev (sem agregar entre épicos distintos).
@@ -107,7 +107,7 @@ Protocolo detalhado em `skills/README.md`.
 |---------|------|-----|
 | Dispatch | Dev | Frase em linguagem natural identifica o milestone |
 | Parsing | Claude Code Web | Extrai id, localiza no ROADMAP, escolhe ponto de entrada |
-| PM (condicional) | skill | Refina épicos `🌱`/`📐`/`📋` até `🔍` dentro da branch |
+| PM (condicional) | skill | Refina épicos `🌱`/`🧭`/`📐`/`📋` até `🔍` dentro da branch |
 | EM | skill | Sizing FIT/TIGHT/OVERFLOW; OVERFLOW devolve ao dev |
 | Scrum Master | skill | Cria `docs/process/current_implementation.md` no shape aninhado do milestone |
 | Loop por épico | Dev + QA + TL + PO | Implementa e valida funcionalidade por funcionalidade em cada épico |
@@ -139,7 +139,7 @@ implementa a POC do Ensaio
 
 Claude Code Web extrai `POC-ENSAIO`, vê que todos os épicos (E-POC-1, E-POC-2, E-POC-3) estão em `🔍 Detalhes definidos`, pula a PM skill e começa pela EM.
 
-**Exemplo 2 — milestone com épicos em `🌱`/`📐`:**
+**Exemplo 2 — milestone com épicos em `🌱`/`🧭`/`📐`:**
 
 ```
 roda PROTO-ENSAIO

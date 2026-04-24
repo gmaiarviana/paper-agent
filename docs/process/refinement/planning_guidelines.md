@@ -40,6 +40,32 @@ Você fornece ao Claude Web:
 >
 > Ambos produzem o mesmo estado final no ROADMAP (épico em `🔍`). O que muda é **quem refina** e **onde o resultado é commitado** (fora da branch do milestone, no caso estratégico; dentro, no caso tático).
 
+### Postura do Refinamento
+
+Refinamento é **conversa**, não execução. O agente otimiza por **alinhamento contínuo com o usuário**, não por entregar o alvo declarado o mais rápido possível. Vários erros recorrentes (editar antes de aval, descer níveis prematuros, perguntar em bloco indiscriminado) são sintomas do mesmo padrão: tratar o refinamento como tarefa em vez de diálogo. Quatro regras operacionais:
+
+**a) Hierarquia de camadas — subir antes de descer.**
+
+Refinamento percorre quatro camadas e a ordem importa:
+
+```
+milestone (visão, jornada) → épico (objetivo, o que é/não é) → funcionalidade (esboço) → critério de aceite (testável)
+```
+
+O alvo declarado (`📋`, `🔍`) define a **profundidade final**; a **ordem de subida** começa sempre na camada mais alta. Refinar critério de aceite antes de alinhar jornada/objetivo gera retrabalho — se a camada superior muda, tudo abaixo muda junto. Sintoma típico do erro: usuário interrompe pedindo "conversa em camada mais alto".
+
+**b) Confirmação conversacional antes de edit.**
+
+Antes de escrever em qualquer arquivo (ROADMAP, vision.md, spec), confirmar conversacionalmente o que vai ser escrito: *"vou registrar X, Y, Z, segue?"*. Não é cerimônia pesada (não exige palavra-chave nem recap formal) — é checagem leve para capturar desalinhamento antes do edit. Custo zero quando alinhamento existe; salva retrabalho quando não existe.
+
+**c) Pergunta por qualidade, não por quantidade.**
+
+Pergunta legítima é a que **altera um resultado de forma cara de reverter** — decisão arquitetural, recorte de escopo, quebra de premissa da visão. Detalhes viram proposta com default; usuário corrige no review. Sem teto numérico fixo: zero perguntas é aceitável se os defaults forem sólidos; oito perguntas heterogêneas costuma ser sintoma de não-filtro entre "decisão estrutural" e "detalhe assumível".
+
+**d) Centralidade da visão como restrição dura.**
+
+Antes de iniciar refinamento, identificar o que a visão do produto declara como **central** para o estágio alvo (POC/Protótipo/MVP). Itens centrais são restrição **não-negociável** — não podem ser cortados nem reduzidos por proposta do agente durante a sessão; só pelo usuário. Pergunta direta no início: *"o que a visão declara central no estágio alvo, e portanto não é negociável?"*. Sintoma do erro: agente reabre item declarado central no meio da sessão como se fosse opcional.
+
 1. **Análise Contextual:** Consultar vision.md, docs/ROADMAP.md ou products/revelar/ROADMAP.md (épicos anteriores), specs técnicas via mapa
 2. **Clarificação:** Fazer perguntas específicas, validar entendimento, apontar trade-offs
 3. **Recomendação:** Oferecer opções + recomendação balizada por vision.md e guidelines
@@ -133,12 +159,15 @@ Cada prompt é enxuto mas claro, deixando Cursor pensar também.
 
 ### Seis Estados de Refinamento
 
-Um épico percorre até seis estados no ROADMAP. Os quatro primeiros são de refinamento progressivo; os dois últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo.
+Um épico percorre até sete estados no ROADMAP. Os cinco primeiros são de refinamento progressivo; os dois últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo. **Os mesmos estados aplicam-se ao campo "Status" do milestone** — milestone em `🧭 Jornada alinhada` significa objetivo, jornada e escopo declinados, glossário ancorado e mapeamento de feedback do estágio anterior consolidados, com lista de épicos definida (mesmo que individualmente em estados anteriores).
 
 > **Nota — onde o refinamento acontece.** Até `📋 Critérios definidos`, o refinamento sempre é estratégico, via Claude Web, antes de qualquer milestone em execução. Já a transição de `🌱`/`📐`/`📋` para `🔍 Detalhes definidos` pode acontecer em duas situações distintas: (a) externamente, via Claude Web, como preparação antecipada; ou (b) dentro da branch de um milestone já disparado, via PM skill (skill a ser criada em M3b da reforma do fluxo), como parte do próprio fluxo autônomo. Ambos caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
 
 **`🌱 Visão`** — apenas objetivo definido.
 Estado inicial de qualquer épico promovido a partir do backlog ou produzido por uma sessão do tipo "me quebra essa ideia em épicos a partir da visão". Captura intenção e valor de negócio; não é executável por nenhum fluxo.
+
+**`🧭 Jornada alinhada`** — objetivo refinado, rationale e escopo declinado.
+Estado intermediário entre `🌱` e `📐`. Captura entendimento compartilhado do que o épico/milestone **é** (objetivo aprofundado, o que é / o que não é, terminologia ancorada via glossário, acoplamentos sinalizados); para milestone, inclui jornada alvo, escopo declinado e mapeamento de feedback do estágio anterior. Funcionalidades ainda não esboçadas. Não é executável por nenhum fluxo; valor está em habilitar **commit intermediário de progresso de refinamento** quando reframe é trabalho real e a sessão estratégica não chega a critérios de aceite numa única passada.
 
 **`📐 Funcionalidades esboçadas`** — lista de funcionalidades com descrição curta, sem critérios de aceite.
 Estado intermediário útil quando um épico foi quebrado a partir de uma visão e as funcionalidades já emergiram, mas os critérios de aceite ainda não foram discutidos funcionalidade a funcionalidade. Não é executável por nenhum fluxo.
@@ -161,6 +190,7 @@ Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qu
 
 Formas típicas de declarar o alvo:
 - "Quebrar esta visão em N épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas`."
+- "Levar Milestone X (e/ou seus épicos) até `🧭 Jornada alinhada`."
 - "Levar Épico X até `📋 Critérios definidos`."
 - "Levar Épico X até `🔍 Detalhes definidos`."
 
@@ -222,11 +252,16 @@ Ideias abstratas que ainda não viraram épicos. Aguardando maturação.
 
 ### 🎯 MILESTONES
 
-Um **milestone** agrupa épicos relacionados dentro de um mesmo estágio (POC/Protótipo/MVP). É a unidade de entrega do **fluxo autônomo** — disparo por linguagem natural ("implementa a POC do Ensaio"), execução na branch `milestone/<id>`, merge em main apenas com aval humano. Definição canônica em [docs/CONSTITUTION.md §9](../../CONSTITUTION.md).
+Um **milestone** agrupa épicos relacionados dentro de um mesmo estágio (POC/Protótipo/MVP) = uma sessão de trabalho coerente. É a unidade de entrega do **fluxo autônomo** — disparo por linguagem natural ("implementa a POC do Ensaio"), execução na branch `milestone/<id>`, merge em main apenas com aval humano. Definição canônica em [docs/CONSTITUTION.md §9](../../CONSTITUTION.md).
 
-**Convenção de id:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`. Quando um estágio precisa ser quebrado em mais de um milestone, acrescentar sufixo: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`. Nome da branch associada em caixa baixa: `milestone/poc-ensaio`.
+**Quem decide o agrupamento em milestones.** O agrupamento de épicos em milestones é **output do refinamento estratégico** (Claude Web, fora da branch), junto da declaração dos próprios épicos. Não é decisão da PM skill (que faz refinamento tático dentro da branch sobre um milestone já declarado) nem da EM skill (que só faz sizing do milestone declarado). Quando o refinamento estratégico descobre acoplamento entre épicos, declara-os no mesmo milestone; quando detecta que épicos do mesmo estágio são independentes, declara milestones separados.
 
-**Quando dividir um estágio em múltiplos milestones.** A decisão é do EM skill (Engineering Manager, a ser criada em M3b da reforma) no sizing antes do dispatch. Regra fixada: milestone cujo sizing retornar OVERFLOW **nunca** é executado como está — é devolvido ao dev com proposta de quebra em dois ou mais milestones (com sufixos `ALPHA`/`BETA`). Milestones com sizing TIGHT seguem sem aval adicional.
+**Convenção de id:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`. Quando um estágio precisa ser quebrado em mais de um milestone, acrescentar sufixo semântico ou ordinal: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`, `PROTO-WORKFLOW-ENCERRAMENTO`. Nome da branch associada em caixa baixa: `milestone/poc-ensaio`, `milestone/proto-workflow-encerramento`.
+
+**Quando dividir um estágio em múltiplos milestones.** Dois gatilhos:
+
+1. **Proativo (refinamento estratégico):** o próprio agrupamento estratégico separa milestones quando os épicos são independentes ou quando o escopo total do estágio é maior que uma sessão coerente. Este é o caminho normal.
+2. **Reativo (EM skill no sizing):** milestone cujo sizing retornar OVERFLOW **nunca** é executado como está — a EM skill devolve ao dev com proposta de quebra; a decisão efetiva volta ao refinamento estratégico para re-agrupar. Milestones com sizing TIGHT seguem sem aval adicional.
 
 Template mínimo para cada milestone no ROADMAP do produto:
 
@@ -240,16 +275,40 @@ Template mínimo para cada milestone no ROADMAP do produto:
 - **Dependências de core:** <lista de épicos C-<PRODUTO>-* ou ÉPICO N do core; "nenhuma" se for o caso>
 - **Branch associada:** `milestone/<id-em-caixa-baixa>`
 - **Status dos épicos:** <resumo dos estados atuais dos épicos agrupados>
+- **Feedback do estágio anterior endereçado:** <itens vindos da validação manual do estágio anterior que este milestone resolve. Para cada item: de onde vem (ex.: validação pós-merge do milestone X) e como é endereçado (épico Y cobre; trabalho preparatório fora de épico; etc.). "Nenhum" se o milestone não inclui higiene pós-validação. Bucket existe para evitar que dívidas pós-validação se percam entre ficha técnica e ROADMAP.>
 - **Nota:** <se stub: declarar que é declarativo; se houver épicos ainda em 🌱/📐, mencionar refinamento tático pela PM skill dentro da branch>
 ```
 
 Milestones vivem na seção `## 🎯 Milestones` de cada ROADMAP de produto, logo antes de `## 📋 Épicos Planejados`. O core (`docs/ROADMAP.md`) não tem milestones próprios — usa uma tabela `## 🎯 Épicos Core × Milestones de Produto` para declarar quais épicos core entram em qual milestone de produto (ver lá).
 
+**Épicos podem ficar órfãos na fase.** O ROADMAP aceita épicos listados dentro de uma fase (`### ⏳ Fase <Estágio>`) **sem atribuição de milestone** — é o estado natural de um épico em `🌱 Visão` ou `📐 Funcionalidades esboçadas` que ainda não foi agrupado. Forçar a atribuição prematura empurra o erro de acoplar épicos desconexos num mesmo milestone. Milestone só é declarado quando o refinamento estratégico identifica um **agrupamento coeso**.
+
+#### Checklist de coerência para declarar um milestone
+
+Antes de declarar um milestone no ROADMAP (refinamento estratégico), aplicar este checklist aos épicos candidatos:
+
+1. **Compartilham arquivos-alvo ou código?** Épicos que tocam os mesmos módulos, configs ou contratos são fortes candidatos a milestone único.
+2. **Compartilham conceitos centrais ou rito?** Ex.: W-PROTO-5/6/7 dividem o rito de `epic_completion.md` — coupling conceitual, mesmo sem compartilhar código. W-PROTO-1/2/3/4 são dívida documental que não toca os mesmos arquivos nem conceitos — coupling zero.
+3. **Cabem numa sessão (sizing tentativo FIT ou TIGHT)?** Estimativa grosseira via heurística de `docs/process/sizing/heuristic.md`; OVERFLOW antecipado → declarar dois milestones de saída.
+
+**Regra:** 2+ respostas negativas → declarar milestones separados. 2+ respostas positivas → milestone único é adequado.
+
+#### Anti-padrão: milestone-balaio
+
+Declarar um milestone com **todos os épicos remanescentes de uma fase** sem aplicar o checklist acima. Resultado: milestone inchado, baixo acoplamento interno, sessão autônoma inviável — split retroativo vira obrigatório, desperdiçando refinamento tático já executado.
+
+**Exemplo canônico:** `PROTO-WORKFLOW` foi declarado em 2026-04 com 7 épicos heterogêneos (W-PROTO-1..7) sob a heurística implícita "1 estágio = 1 milestone". Durante o refinamento dos épicos em 2026-04-24, o desacoplamento ficou visível e o milestone foi splittado retroativamente em `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5/6/7, coupling de rito) e `PROTO-WORKFLOW-DOC` (W-PROTO-1/2/3/4, coupling zero entre si e com os outros). O checklist acima foi introduzido nesta reforma como prevenção.
+
+#### Defesa secundária: sinalização tardia
+
+O checklist estratégico é a primeira linha de defesa — quando falha, a **EM skill** (sizing dentro da branch do milestone) é a última oportunidade de detectar o erro antes de desperdiçar implementação. Hoje a EM decide sobre tamanho (FIT/TIGHT/OVERFLOW); num cenário futuro pode ganhar heurística de coerência (detectar baixo acoplamento entre épicos do milestone e emitir warning pro dev avaliar split). Essa evolução da EM é registrada como observação no ROADMAP do workflow e vira épico quando houver sinal real de necessidade (um erro recorrente que o checklist estratégico não pega).
+
 ### 📍 PRÓXIMOS PASSOS
 
-**Épicos percorrem até seis estados:**
+**Épicos percorrem até sete estados:**
 
 - **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
+- **`🧭 Jornada alinhada`** — objetivo refinado + rationale + glossário ancorado + acoplamentos sinalizados; jornada e escopo declinados (para milestone). Aguarda refinamento.
 - **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
 - **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
 - **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Pronto para fluxo autônomo via Claude Code Web.
