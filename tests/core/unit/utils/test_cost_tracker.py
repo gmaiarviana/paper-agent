@@ -54,10 +54,23 @@ class TestCostTracker:
         assert result["output_cost"] == 0.0
         assert result["total_cost"] == 0.0
 
-    def test_calculate_cost_invalid_model(self):
-        """Test that invalid model raises ValueError."""
-        with pytest.raises(ValueError, match="Model .* not supported"):
-            CostTracker.calculate_cost("invalid-model", 100, 100)
+    def test_calculate_cost_unknown_model_returns_zero(self, caplog):
+        """Modelo desconhecido não derruba o fluxo; custo vira 0 e log avisa."""
+        import logging
+
+        with caplog.at_level(logging.WARNING, logger="core.utils.cost_tracker"):
+            result = CostTracker.calculate_cost("unmapped-model-xyz", 100, 100)
+
+        assert result == {"input_cost": 0.0, "output_cost": 0.0, "total_cost": 0.0}
+        assert any("não mapeado" in record.message for record in caplog.records)
+
+    def test_calculate_cost_claude_sonnet_4(self):
+        """Modelos da família Claude 4 já estão mapeados (bugfix pós-POC)."""
+        result = CostTracker.calculate_cost("claude-sonnet-4-5", 1_000_000, 1_000_000)
+        # Sonnet 4.x pricing: $3/1M input, $15/1M output — valida estrutura
+        assert result["input_cost"] == pytest.approx(3.00, rel=1e-6)
+        assert result["output_cost"] == pytest.approx(15.00, rel=1e-6)
+        assert result["total_cost"] == pytest.approx(18.00, rel=1e-6)
 
     def test_format_cost(self):
         """Test cost formatting."""
@@ -74,10 +87,15 @@ class TestCostTracker:
         assert info["input"] == 0.80
         assert info["output"] == 4.00
 
-    def test_get_model_info_invalid(self):
-        """Test that getting info for invalid model raises ValueError."""
-        with pytest.raises(ValueError, match="Model .* not supported"):
-            CostTracker.get_model_info("invalid-model")
+    def test_get_model_info_unknown_returns_zero(self, caplog):
+        """Modelo desconhecido devolve zeros em vez de levantar ValueError."""
+        import logging
+
+        with caplog.at_level(logging.WARNING, logger="core.utils.cost_tracker"):
+            info = CostTracker.get_model_info("unmapped-model-xyz")
+
+        assert info == {"input": 0.0, "output": 0.0}
+        assert any("não mapeado" in record.message for record in caplog.records)
 
     def test_cost_structure(self):
         """Test that result has expected structure."""

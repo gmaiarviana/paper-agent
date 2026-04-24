@@ -25,7 +25,15 @@ Ensaio é **produto próprio com app próprio**, paralelo ao Revelar. Compartilh
 
 ## Status
 
-POC em refinamento (épicos E-POC-1, E-POC-2, E-POC-3 refinados e prontos para implementação). Depende do core C-ENSAIO-2 (Writer versão inicial) — já refinado.
+POC ✅ implementada e validada manualmente (milestone POC-ENSAIO — C-ENSAIO-2, E-POC-1, E-POC-2, E-POC-3).
+
+Executar localmente:
+
+```bash
+python -m streamlit run products/ensaio/app/chat.py
+```
+
+Requer apenas `ANTHROPIC_API_KEY` no `.env`. Modelo padrão pode ser trocado via `LLM_MODEL` no `.env`.
 
 ## Documentação
 

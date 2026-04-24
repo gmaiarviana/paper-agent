@@ -29,7 +29,7 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
 |------------|--------|----------------------|---------|
 | ÉPICO 1 (Pesquisador) | 🌱 Visão | — (não vinculado) | — |
 | C-ENSAIO-1 (Parametrização de Contexto) | 🌱 Visão | POC-ENSAIO | Ensaio |
-| C-ENSAIO-2 (Writer versão inicial) | 🔍 Detalhes definidos | POC-ENSAIO | Ensaio |
+| C-ENSAIO-2 (Writer versão inicial) | ✅ Implementado | POC-ENSAIO | Ensaio |
 | C-ENSAIO-3 (Writer por seção) | 🌱 Visão | PROTO-ENSAIO | Ensaio |
 | C-ENSAIO-4 (Ingestão de arquivos anexados) | 🌱 Visão | MVP-ENSAIO | Ensaio |
 | C-ENSAIO-5 (Pendência — condicional) | 🌱 Visão (condicional) | — (sem milestone até segundo consumidor aparecer) | — |
@@ -74,91 +74,15 @@ Cada épico percorre até seis estados. Detalhes em [process/refinement/planning
 
 ---
 
-#### ÉPICO C-ENSAIO-2: Writer (Versão Inicial)
+#### ÉPICO C-ENSAIO-2: Writer (Versão Inicial) ✅
 
-**Objetivo:** Novo agente no core que recebe contexto conversacional e cognitive_model, devolve markdown estruturado. Nasce simples. Organizado para generalização futura (Produtor Científico reusará).
+**Status:** ✅ Implementado — PR #TBD
 
-**Status:** 🔍 Detalhes definidos
+**Entregue:** Nó `writer_node` simples, stateless, em `core/agents/writer/` — recebe `{messages, focal_argument, previous_article, product_context}` e devolve `{article}` em markdown numa única passada. Prompt IMRaD em `core/prompts/writer.py` (`WRITER_PROMPT_V1`); config em `core/config/agents/writer.yaml`. Suporte a loop externo de refinamento (reinvocação com `previous_article`).
 
-**Decisões arquiteturais já tomadas:** ver [core/docs/agents/writer/design.md](../core/docs/agents/writer/design.md)
-- Nasce no core (não no Ensaio)
-- Começa simples: nó que recebe contexto e devolve markdown
-- Estruturas de artigo vivem no prompt do Writer (não em enum/schema)
-- Organização inicial antecipa generalização para o Produtor Científico
+**Decisões permanentes:** ver [core/docs/agents/writer/design.md](../core/docs/agents/writer/design.md) (nasce no core, começa simples, estrutura vive no prompt, organização antecipa generalização para o Produtor Científico).
 
-**Simplificações POC declaradas:**
-- Sem testes de integração (cobertura por validação manual via script)
-- Sem streaming ou geração por seção (escopo do épico C-ENSAIO-3)
-- Sem versionamento de output (estado no consumidor)
-
-### Funcionalidades:
-
-#### C-ENSAIO-2.1 Nó Writer simples em uma passada
-
-- **Descrição:** Nó LangGraph que recebe contexto e devolve markdown do artigo em uma única invocação. Sem loop interno, sem estado entre invocações.
-- **Critérios de Aceite:**
-  - Deve existir módulo core/agents/writer/ seguindo padrão dos outros agentes (__init__.py, nodes.py)
-  - Deve expor função writer_node invocável isoladamente
-  - Deve receber dict com as chaves: messages, focal_argument, previous_article, product_context
-  - Deve retornar dict contendo string markdown em uma chave (ex: "article")
-  - Não deve manter estado entre invocações
-  - Não deve ter loop interno de refinamento
-- **Detalhes de execução:**
-  - **Arquivos a criar:** `core/agents/writer/__init__.py`, `core/agents/writer/nodes.py`
-  - **Arquivos a modificar:** nenhum
-  - **Contratos/Shapes:** input é dict com chaves `messages` (lista de mensagens LangChain), `focal_argument` (dict ou None), `previous_article` (str ou None), `product_context` (str ou None); output é dict com chave `article` (str com markdown do artigo)
-  - **Integração:** nó isolado invocado diretamente por produtos — sem integração com `core/agents/multi_agent_graph.py` nesta versão
-  - **Template de referência:** `core/agents/structurer/nodes.py` (também é nó simples, mesma estrutura)
-  - **Acoplamentos verificados:** LLM via `langchain_anthropic.ChatAnthropic` como o `structurer_node`; sem dependência de `MultiAgentState` ou `EventBus` nesta versão
-  - **Dependências de ordem:** nenhuma (primeiro da sequência da POC)
-  - **Escopo de teste:** 1 unit test em `tests/core/unit/test_writer.py` validando que `writer_node` retorna dict com chave `article` quando invocado com input mínimo (mock do LLM)
-
-#### C-ENSAIO-2.2 Prompt com IMRaD e defaults
-
-- **Descrição:** Prompt do Writer contém base de conhecimento sobre estrutura IMRaD. Writer infere intenção e narrativa da conversa, com defaults razoáveis quando não há pistas claras.
-- **Critérios de Aceite:**
-  - Prompt em core/prompts/writer.py como WRITER_PROMPT_V1
-  - Prompt descreve estrutura IMRaD (abstract, introdução, métodos, resultados, discussão, conclusão, referências)
-  - Prompt orienta Writer a inferir intenção da conversa
-  - Prompt define default "informar" quando intenção não emergir
-  - Prompt não contém nome de produto específico (Ensaio, etc)
-- **Detalhes de execução:**
-  - **Arquivos a criar:** `core/prompts/writer.py`
-  - **Contratos/Shapes:** expõe constante `WRITER_PROMPT_V1` (string) com placeholders para `focal_argument`, `previous_article`, `product_context`
-  - **Integração:** importado por `core/agents/writer/nodes.py`
-  - **Template de referência:** `core/prompts/structurer.py` (estrutura de prompt com placeholders)
-  - **Comportamento com `focal_argument` vazio ou parcial:** prompt orienta Writer a usar defaults IMRaD (abstract, introdução, métodos, resultados, discussão, conclusão, referências) e inferir da conversa o que puder
-  - **Escopo de teste:** validação manual via script (ver 2.1)
-
-#### C-ENSAIO-2.3 Configuração YAML
-
-- **Descrição:** Configuração externa do Writer via YAML, seguindo padrão dos outros agentes do core.
-- **Critérios de Aceite:**
-  - Arquivo core/config/agents/writer.yaml com campos: prompt (referência), model, context_limits, metadata
-  - Modelo padrão: claude-3-5-haiku-20241022
-  - Deve ser carregável pelo config_loader existente
-  - Deve validar com config_validator existente
-- **Detalhes de execução:**
-  - **Arquivos a criar:** `core/config/agents/writer.yaml`
-  - **Arquivos a modificar:** nenhum (reusa `config_loader` existente)
-  - **Contratos/Shapes:** YAML com campos `prompt` (referência a `WRITER_PROMPT_V1`), `model` (`claude-3-5-haiku-20241022`), `context_limits` (`max_input_tokens`, `max_output_tokens`, `max_total_tokens`), `metadata`
-  - **Template de referência:** `core/config/agents/structurer.yaml`
-  - **Acoplamentos verificados:** `core/agents/memory/config_loader.py` carrega via padrão existente sem modificação; `core/agents/memory/config_validator.py` valida schema sem mudança
-  - **Escopo de teste:** validação manual carregando o YAML pelo `config_loader` em script
-
-#### C-ENSAIO-2.4 Suporte a loop externo de refinamento
-
-- **Descrição:** Contrato do nó permite reinvocação com previous_article preenchido. Writer regenera artigo inteiro incorporando o feedback presente no histórico de mensagens.
-- **Critérios de Aceite:**
-  - Quando previous_article for None, Writer gera artigo pela primeira vez
-  - Quando previous_article vier preenchido, Writer regenera considerando feedback presente nas messages mais recentes
-  - Writer não tenta editar o previous_article pontualmente; sempre regenera inteiro
-- **Detalhes de execução:**
-  - **Arquivos a criar:** nenhum (comportamento absorvido em 2.1)
-  - **Contratos/Shapes:** quando `previous_article` é None, Writer gera pela primeira vez; quando preenchido, Writer regenera inteiro considerando feedback presente em `messages`
-  - **Integração:** quem invoca (app do produto) é responsável por acumular `messages` e passar `previous_article`
-  - **Template de referência:** padrão declarado em `core/docs/agents/writer/design.md` seção "Decisão Arquitetural: Começa Simples"
-  - **Escopo de teste:** validação manual via script que invoca `writer_node` duas vezes (primeira com `previous_article=None`, segunda com o artigo anterior e nova mensagem no histórico)
+**Referências:** `tests/core/unit/test_writer.py`, `scripts/core/flows/validate_writer.py`, `docs/ARCHITECTURE.md` (padrões Core ↔ Produto).
 
 ---
 

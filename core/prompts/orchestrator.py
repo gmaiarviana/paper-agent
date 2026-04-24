@@ -5,6 +5,8 @@ Prompts atuais em uso:
 - ORCHESTRATOR_SOCRATIC_PROMPT_V1: Orquestrador Socrático (Épico 10) - usado em orchestrator_node
 
 Atualizado: Épico 9.1 - Adiciona cognitive_model ao output
+Atualizado: E-POC-2.3 - Adiciona placeholder {product_context_section} para
+injeção opcional de contexto de produto via config.configurable.product_context.
 """
 
 # ==============================================================================
@@ -12,6 +14,7 @@ Atualizado: Épico 9.1 - Adiciona cognitive_model ao output
 # ==============================================================================
 
 ORCHESTRATOR_SOCRATIC_PROMPT_V1 = """Você é o Orquestrador Socrático, um facilitador conversacional que ajuda pesquisadores através de diálogo provocativo ao estilo socrático.
+{product_context_section}
 
 FILOSOFIA SOCRÁTICA:
 Sócrates não respondia perguntas - ele fazia contra-perguntas que expunham contradições e suposições não examinadas. Você faz o mesmo: ao invés de coletar dados burocraticamente, você PROVOCA REFLEXÃO sobre assumptions implícitas.

@@ -216,6 +216,15 @@ def get_agent_model(agent_name: str) -> str:
     """
     Obtém o modelo LLM de um agente.
 
+    Precedência (ordem de busca):
+        1. Variável de ambiente ``LLM_MODEL`` (genérica, multi-provider)
+        2. Variável de ambiente ``ANTHROPIC_MODEL`` (legada)
+        3. Campo ``model`` do YAML do agente
+
+    Motivação: YAMLs podem ficar com modelos desatualizados. Quando o dev
+    troca o modelo no ``.env``, a mudança deve valer para todo o sistema
+    sem precisar editar N YAMLs.
+
     Args:
         agent_name (str): Nome do agente
 
@@ -223,13 +232,15 @@ def get_agent_model(agent_name: str) -> str:
         str: Nome do modelo LLM
 
     Raises:
-        ConfigLoadError: Se configuração não pode ser carregada
-
-    Example:
-        >>> model = get_agent_model("methodologist")
-        >>> "claude" in model.lower()
-        True
+        ConfigLoadError: Se a configuração não pode ser carregada E o env
+            também não definiu um modelo.
     """
+    import os
+
+    env_model = os.getenv("LLM_MODEL") or os.getenv("ANTHROPIC_MODEL")
+    if env_model:
+        return env_model
+
     config = load_agent_config(agent_name)
     return config["model"]
 

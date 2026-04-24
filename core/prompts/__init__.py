@@ -26,6 +26,11 @@ from core.prompts.structurer import (
     STRUCTURER_REFINEMENT_PROMPT_V1,
 )
 
+# Re-exportar prompts do Writer (C-ENSAIO-2)
+from core.prompts.writer import (
+    WRITER_PROMPT_V1,
+)
+
 __all__ = [
     # Metodologista
     "METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1",
@@ -34,5 +39,7 @@ __all__ = [
     "ORCHESTRATOR_SOCRATIC_PROMPT_V1",
     # Estruturador
     "STRUCTURER_REFINEMENT_PROMPT_V1",
+    # Writer
+    "WRITER_PROMPT_V1",
 ]
 

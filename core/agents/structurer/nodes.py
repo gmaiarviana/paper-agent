@@ -85,7 +85,7 @@ def structurer_node(state: MultiAgentState, config: Optional[RunnableConfig] = N
         logger.warning("⚠️ Usando prompt e modelo padrão (fallback)")
         # Fallback: prompt hard-coded do YAML como referência
         system_prompt = """Você é um Estruturador que organiza ideias em questões de pesquisa estruturadas.
-
+{product_context_section}
 CONTEXTO:
 Você pode operar em dois modos:
 1. ESTRUTURAÇÃO INICIAL: Recebe ideia vaga e gera questão V1
@@ -98,6 +98,19 @@ IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensa
     trace_id = "unknown"
     if config:
         trace_id = config.get("configurable", {}).get("thread_id", "unknown")
+
+    # Injeção opcional de contexto de produto (E-POC-2.3)
+    product_context = None
+    if config:
+        product_context = config.get("configurable", {}).get("product_context")
+    product_context_section = (
+        f"\n## CONTEXTO DO PRODUTO\n\n{product_context.strip()}\n\n---\n"
+        if product_context and product_context.strip()
+        else ""
+    )
+    system_prompt = system_prompt.replace(
+        "{product_context_section}", product_context_section
+    )
     
     # Inicializar logger estruturado
     structured_logger = StructuredLogger()
@@ -382,10 +395,23 @@ def _refine_question(state: MultiAgentState, methodologist_feedback: dict, confi
     improvements = methodologist_feedback['improvements']
     logger.info(f"Refinando para V{current_version}...")
 
-    # Construir prompt de refinamento
+    # Construir prompt de refinamento (substituindo placeholder de contexto de produto — E-POC-2.3)
     improvements_str = json.dumps(improvements, ensure_ascii=False, indent=2)
 
-    refinement_prompt = f"""{STRUCTURER_REFINEMENT_PROMPT_V1}
+    langgraph_config = config.get("langgraph_config")
+    product_context = None
+    if langgraph_config:
+        product_context = langgraph_config.get("configurable", {}).get("product_context")
+    product_context_section = (
+        f"\n## CONTEXTO DO PRODUTO\n\n{product_context.strip()}\n\n---\n"
+        if product_context and product_context.strip()
+        else ""
+    )
+    refinement_system_prompt = STRUCTURER_REFINEMENT_PROMPT_V1.replace(
+        "{product_context_section}", product_context_section
+    )
+
+    refinement_prompt = f"""{refinement_system_prompt}
 
 **Input original do usuário:**
 {state['user_input']}

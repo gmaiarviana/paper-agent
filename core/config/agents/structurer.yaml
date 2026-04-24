@@ -2,9 +2,13 @@
 # Este arquivo define o comportamento e limites do Estruturador
 
 # System prompt do agente (modo inicial + refinamento)
+# O placeholder {product_context_section} é substituído em tempo de execução pelo
+# structurer_node. Quando o produto consumidor passa product_context via
+# config.configurable, vira uma seção "## CONTEXTO DO PRODUTO"; caso contrário,
+# vira string vazia (E-POC-2.3).
 prompt: |
   Você é um Estruturador que organiza ideias em questões de pesquisa estruturadas.
-
+  {product_context_section}
   CONTEXTO:
   Você pode operar em dois modos:
   1. ESTRUTURAÇÃO INICIAL: Recebe ideia vaga e gera questão V1

@@ -84,6 +84,16 @@ Produtos são **serviços desacoplados** que consomem core via APIs.
 - **Prisma Verbal:** Extração de informação - processar literatura e extrair proposições (futuro próximo)
 - **Produtor Científico:** Produção de conteúdo - ideia madura → manuscrito/artigo (futuro)
 
+### Padrões de composição Core ↔ Produto
+
+Dois padrões consolidados pela POC do Ensaio, aplicáveis a futuros produtos:
+
+**1. Produto compõe o próprio grafo a partir de nós do core.**
+O core expõe nós individuais (`orchestrator_node`, `structurer_node`, `writer_node`, etc.); o produto monta o `StateGraph` que faz sentido para seu fluxo em vez de reusar `create_multi_agent_graph`. O Ensaio compõe Orquestrador + Estruturador (sem Metodologista, com Writer fora do grafo), mapeando rotas incompatíveis para `END` — ver `products/ensaio/app/graph.py`. Revelar continua usando `create_multi_agent_graph` como um caso particular desse padrão.
+
+**2. Injeção de contexto de produto via `config.configurable`.**
+Agentes do core não conhecem nomes de produtos. Cada nó lê `config.configurable.product_context` (string em prosa livre) e, quando presente, substitui o placeholder `{product_context_section}` no prompt por uma seção "## CONTEXTO DO PRODUTO". Quando ausente, a seção some e o comportamento é idêntico ao histórico — backward compatible. O produto carrega sua string de um YAML próprio (ex.: `products/ensaio/config/product.yaml`, campo único `focus`) e injeta em toda invocação do grafo. Implementado em `core/prompts/{orchestrator,structurer,writer}.py` e nos nós correspondentes.
+
 ## Escopo Atual
 
 **Sistema Multi-Agente Conversacional:**
