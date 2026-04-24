@@ -14,7 +14,7 @@ Princípios não-negociáveis para trabalhar com este projeto.
 ### Como Refinamos
 - POC → Protótipo → MVP (incremental)
 - Discussão > especulação antecipada
-- Épicos percorrem até seis estados no ROADMAP: `🌱 Visão` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `✅ Implementado`. Modelo completo em `docs/process/refinement/planning_guidelines.md`.
+- Épicos percorrem até sete estados no ROADMAP: `🌱 Visão` → `🧭 Jornada alinhada` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `✅ Implementado`. Modelo completo em `docs/process/refinement/planning_guidelines.md`.
 - Toda sessão de refinamento começa com um **alvo declarado** (o estado ao qual o épico deve chegar). O refinador — Claude Web (estratégico) ou PM skill (tático, dentro da branch do milestone) — conduz as perguntas até atingir o alvo, sem parar em estados intermediários.
 - Alvo `📋 Critérios definidos` basta para o fluxo manual via Cursor.
 - Alvo `🔍 Detalhes definidos` é pré-requisito do fluxo autônomo; guiado pelo checklist em `docs/process/refinement/autonomous_readiness.md`. Aplicado sob demanda, épico a épico — pelo Claude Web antes do milestone existir, ou pela PM skill dentro da branch do milestone quando o milestone é disparado com épicos ainda em `🌱` ou `📐`.
@@ -307,23 +307,26 @@ paper-agent/
 
 ## 9. GLOSSÁRIO
 
-Quatro termos fixam a hierarquia de entrega usada pelo projeto. Refinamento, planejamento e dispatch se referem a eles com esse significado exato.
+Cinco termos fixam a hierarquia de entrega usada pelo projeto. Refinamento, planejamento e dispatch se referem a eles com esse significado exato.
 
 **Estágio**
-Fase do produto no eixo "quem usa": POC (prova que a ideia faz sentido), Protótipo (o próprio dev usa de verdade), MVP (outros usam sem o dev do lado). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo.
+Fase do produto no eixo "quem usa": POC (prova que a ideia faz sentido), Protótipo (o próprio dev usa de verdade), MVP (outros usam sem o dev do lado). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo. **Estágio** é o agregador do ROADMAP (seção "Fase <estágio>"), não é dispatcheável — milestones que o compõem é que são.
 
 **Milestone**
-Unidade de entrega do **fluxo autônomo**. Agrupa épicos relacionados dentro de um mesmo estágio. Um estágio pode ter 1 ou N milestones. Um milestone é disparado por linguagem natural ("implementa a POC do Ensaio"), executado numa branch `milestone/<id-em-caixa-baixa>`, e só chega em main depois do aval humano explícito.
+Unidade de entrega do **fluxo autônomo** = uma sessão de trabalho coerente. Agrupa épicos relacionados dentro de um mesmo estágio. Um estágio pode ter 1 ou N milestones; o agrupamento é output do **refinamento estratégico** (Claude Web, fora da branch), antes do dispatch. Um milestone é disparado por linguagem natural ("implementa a POC do Ensaio"), executado numa branch `milestone/<id-em-caixa-baixa>`, e só chega em main depois do aval humano explícito.
 
 - **Id do milestone:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`.
-- **Sufixo** quando um estágio tem mais de um milestone: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`.
+- **Sufixo** quando um estágio tem mais de um milestone: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`, `PROTO-WORKFLOW-ENCERRAMENTO`.
 - **Branch:** id em caixa baixa com `milestone/` na frente. Ex.: `milestone/poc-ensaio`.
 
 **Épico**
-Agrupamento coeso de funcionalidades que entrega valor incremental. Unidade do ROADMAP. Percorre até seis estados (`🌱 Visão` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `✅ Implementado`). Um épico pode pertencer a um milestone (quando for ser executado via fluxo autônomo) ou ser implementado isoladamente no fluxo manual via Cursor.
+Agrupamento coeso de funcionalidades que entrega valor incremental. Unidade do ROADMAP. Percorre até sete estados (`🌱 Visão` → `🧭 Jornada alinhada` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `✅ Implementado`). Um épico pode pertencer a um milestone (quando for ser executado via fluxo autônomo) ou ser implementado isoladamente no fluxo manual via Cursor. **Os mesmos estados aplicam-se ao campo "Status" do milestone** — milestone em `🧭 Jornada alinhada` significa objetivo, jornada e escopo declinados, glossário ancorado e mapeamento de feedback do estágio anterior consolidados, com lista de épicos definida (mesmo que individualmente em estados anteriores).
 
 **Funcionalidade**
-Unidade mínima de trabalho dentro de um épico. Tem critérios de aceite próprios e, em estado `🔍`, detalhes de execução fechados (arquivos-alvo, contratos, acoplamentos, escopo de teste). É a unidade do **fluxo manual** via Cursor; no fluxo autônomo é a unidade sobre a qual cada gate (QA/TL/PO) decide APROVA/REJEITA.
+Unidade mínima do ROADMAP, dentro de um épico. Tem critérios de aceite próprios e, em estado `🔍`, detalhes de execução fechados (arquivos-alvo, contratos, acoplamentos, escopo de teste). É a unidade do **fluxo manual** via Cursor; no fluxo autônomo é a unidade sobre a qual cada gate (QA/TL/PO) decide APROVA/REJEITA.
+
+**Tarefa**
+Unidade mínima de **execução** dentro de uma funcionalidade. Criada pela Scrum Master skill em `docs/process/current_implementation.md` no início da sessão autônoma; consumida pelo Dev na ordem declarada. Tarefas não existem no ROADMAP — vivem só no artefato de sessão; somem quando o milestone fecha.
 
 ---
 

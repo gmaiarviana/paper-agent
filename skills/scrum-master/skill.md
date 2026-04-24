@@ -21,7 +21,7 @@ Você **não escreve código**. Você **não toma decisões arquiteturais novas*
 2. **Consulte docs antes de perguntar ao dev.** Pergunta válida é a que sobra depois de procurar.
 3. **Pergunte em bloco único.** Não fragmente o dev em micro-perguntas; junte tudo, cobrindo o milestone inteiro (não uma pergunta por épico em rodadas separadas).
 4. **Não invente padrão.** Se não há padrão, devolva ao dev.
-5. **Não refinar épicos.** Refinamento tático dentro da branch é responsabilidade da PM Skill (executada antes, se há épicos em `🌱`/`📐` no milestone). Refinamento estratégico é do Claude Web (antes do dispatch). Scrum Master assume **todos** os épicos do milestone em `🔍 Detalhes definidos` — se encontrar algum fora desse estado, abortar com mensagem dizendo que PM Skill deveria ter rodado.
+5. **Não refinar épicos.** Refinamento tático dentro da branch é responsabilidade da PM Skill (executada antes, se há épicos em `🌱`/`🧭`/`📐` no milestone). Refinamento estratégico é do Claude Web (antes do dispatch). Scrum Master assume **todos** os épicos do milestone em `🔍 Detalhes definidos` — se encontrar algum fora desse estado, abortar com mensagem dizendo que PM Skill deveria ter rodado.
 6. **Pare se a seção `## Épicos` de `docs/process/current_implementation.md` já está preenchida.** Blocos de épico populados sinalizam milestone anterior aberto ou Scrum Master já executado. Cabeçalho, contexto e bloco de Sizing (EM) presentes são esperados — PM e EM rodam antes. O que não pode ter é plano de tasks.
 
 ---
@@ -35,12 +35,12 @@ Você **não escreve código**. Você **não toma decisões arquiteturais novas*
 - [ ] Milestone disparado existe na seção `## 🎯 Milestones` de algum `products/<produto>/ROADMAP.md`
 - [ ] `docs/process/current_implementation.md` existe com cabeçalho e bloco de Sizing (EM) preenchidos (PM rodou se aplicável, EM rodou)
 - [ ] A seção `## Épicos` em `current_implementation.md` **não está preenchida** com blocos de épico (se estiver, milestone anterior aberto → abortar)
-- [ ] **Todos** os épicos agrupados pelo milestone (listados no bloco do milestone em `## 🎯 Milestones`, mais os épicos core apontados pela tabela `## 🎯 Épicos Core × Milestones de Produto` em `docs/ROADMAP.md`) estão em **`🔍 Detalhes definidos`** — nenhum em `🌱`, `📐`, `📋`, `🏗️` ou `✅`
+- [ ] **Todos** os épicos agrupados pelo milestone (listados no bloco do milestone em `## 🎯 Milestones`, mais os épicos core apontados pela tabela `## 🎯 Épicos Core × Milestones de Produto` em `docs/ROADMAP.md`) estão em **`🔍 Detalhes definidos`** — nenhum em `🌱`, `🧭`, `📐`, `📋`, `🏗️` ou `✅`
 - [ ] Para cada épico: critérios de aceite por funcionalidade presentes e legíveis
 - [ ] Para cada épico: detalhes de execução produzidos por refinamento com alvo `🔍` estão presentes em cada funcionalidade — arquivos-alvo, contratos/shapes, mecanismo de integração, template de referência, acoplamentos verificados, escopo de teste (ver `docs/process/refinement/autonomous_readiness.md`)
 
 Falhou alguma? Devolva ao dev com motivo. Não prossiga.
-- Se algum épico está em `🌱`/`📐` → mensagem: "Épico(s) `<lista>` pré-`🔍`. PM Skill deveria ter rodado antes. Redispachar após refinamento tático concluir."
+- Se algum épico está em `🌱`/`🧭`/`📐` → mensagem: "Épico(s) `<lista>` pré-`🔍`. PM Skill deveria ter rodado antes. Redispachar após refinamento tático concluir."
 - Se algum épico está em `📋` → mensagem: "Épico(s) `<lista>` em `📋 Critérios definidos`. Refinamento com alvo `🔍` (checklist `autonomous_readiness.md`) é pré-requisito do fluxo autônomo. PM Skill não eleva `📋→🔍`; refaça via Claude Web."
 - Se algum épico está em `🏗️` ou `✅` → mensagem: "Épico(s) `<lista>` com estado `<estado>`. Milestone mal-sinalizado (parcialmente consumido ou já entregue). Resolver no ROADMAP antes de redispachar."
 - Se a seção `## Épicos` já tem blocos preenchidos → mensagem: "Seção `## Épicos` de `current_implementation.md` já populada. Finalizar milestone anterior antes de disparar novo."
