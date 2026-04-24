@@ -33,7 +33,7 @@ Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/pla
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/poc-workflow`
 - **Status dos épicos:** W-POC-1 ✅, W-POC-2 ✅, W-POC-3 ✅,
-  W-POC-4 🌱 Visão (execução real reservada para o dev).
+  W-POC-4 ✅.
 - **Nota:** dívida residual da reforma de milestone (M4-restante, M5, M6
   e dívidas declaradas em W-POC-3) vive no PROTO-WORKFLOW como épicos
   W-PROTO-1..4. O antigo `docs/process/refactor-backlog.md` foi
@@ -42,19 +42,24 @@ Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/pla
 ### PROTO-WORKFLOW
 
 - **Objetivo:** fluxo de implementação estabilizado com uso real
-  semanal + segundo fluxo do workflow aparecendo (a definir no
-  refinamento). Candidato forte para segundo fluxo: observação de
-  arquitetura (detectar crescimento desordenado, atividade de baixo
-  custo recorrente). Primeira safra de épicos absorve a dívida residual
-  da reforma de milestone que não coube no POC.
+  semanal + refinamento do ciclo de encerramento (validação async,
+  extração no momento da implementação, faxina automática via Action)
+  + segundo fluxo do workflow aparecendo (a definir no refinamento).
+  Candidato forte para segundo fluxo: observação de arquitetura
+  (detectar crescimento desordenado, atividade de baixo custo
+  recorrente). Primeira safra de épicos absorve a dívida residual
+  da reforma de milestone que não coube no POC; segunda safra ataca
+  o atrito observado em W-POC-4 no rito de encerramento.
 - **Estágio:** Protótipo
 - **Épicos agrupados:** W-PROTO-1, W-PROTO-2, W-PROTO-3, W-PROTO-4
-  (saneamento residual da reforma) + épicos do segundo fluxo a definir
-  em refinamento estratégico.
+  (saneamento residual da reforma); W-PROTO-5, W-PROTO-6, W-PROTO-7
+  (refinamento do ciclo de encerramento); + épicos do segundo fluxo
+  a definir em refinamento estratégico.
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow`
 - **Status dos épicos:** W-PROTO-1 🌱 Visão, W-PROTO-2 🌱 Visão,
-  W-PROTO-3 🌱 Visão, W-PROTO-4 🌱 Visão.
+  W-PROTO-3 🌱 Visão, W-PROTO-4 🌱 Visão, W-PROTO-5 🌱 Visão,
+  W-PROTO-6 🌱 Visão, W-PROTO-7 🌱 Visão.
 
 ### MVP-WORKFLOW
 
@@ -158,18 +163,15 @@ template `delivery-report.md` declarada inline para migração posterior).
 
 #### ÉPICO W-POC-4: Execução real da POC-ENSAIO no fluxo novo
 
-**Objetivo:** executar o milestone POC-ENSAIO de ponta a ponta usando o
-fluxo reescrito (W-POC-1/2/3). Primeira prova real do fluxo autônomo por
-milestone. Aprendizado desta execução informa refinamento de M5 e M6 da
-reforma original (que entram no PROTO-WORKFLOW).
+**Objetivo:** primeira prova real do fluxo autônomo por milestone via
+execução end-to-end da POC-ENSAIO.
 
-**Status:** 🌱 Visão
+**Status:** ✅ Implementado
 
-**Dependências:** W-POC-1, W-POC-2, W-POC-3 (fluxo precisa estar
-operacional antes da execução real)
-
-**Nota:** a POC-ENSAIO em si é milestone do produto Ensaio. W-POC-4 é o
-épico do workflow que usa a POC-ENSAIO como teste do fluxo.
+**Entregue em:** PR #77 (merge `c423238`, 2026-04-24) — POC-ENSAIO
+mergeada em main. Rito de fechamento (extração + enxugamento + transição)
+executado manualmente no commit `9831d50`. Atrito observado durante o rito
+alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### Épicos do PROTO-WORKFLOW
 
@@ -267,6 +269,75 @@ depois que os arquivos operacionais e de refinamento foram migrados)
 **Migra de:** reforma de milestone (branch `refactor/fluxo-milestone`,
 2026-04)
 
+#### ÉPICO W-PROTO-5: Validação async — PR antes da aprovação, Copilot como validador local
+
+**Objetivo:** mover a validação do implementador pra depois da abertura
+da PR. Hoje o agente implementador só encerra quando o dev valida;
+passa a encerrar quando abre a PR (novo estado terminal: "PR aberta,
+pending review"). Dev valida localmente com GitHub Copilot usando os
+critérios inline no body da PR (ou referenciados via `poc_validation.md`
+equivalente gerado no mesmo commit da implementação). Aprovação = merge.
+
+**Status:** 🌱 Visão
+
+**Dependências:** nenhuma (refinamento operacional do ciclo de
+encerramento; não bloqueia nem é bloqueado por W-PROTO-1/2/3/4)
+
+**Motivação:** atrito observado em W-POC-4 — sessão do agente ficava
+bloqueada aguardando validação manual antes de abrir PR, acoplando
+conclusão da sessão ao timing do dev. Tocar: `epic_completion.md`
+(reordenar os passos; PR passa a ser artefato aberto pelo implementador
+com critérios de validação embutidos, não último passo do rito);
+documentação de estado terminal da sessão do agente em
+`docs/process/autonomous/` (sessão pode encerrar com PR aberta).
+
+#### ÉPICO W-PROTO-6: Skill de faxina + GitHub Action pós-merge
+
+**Objetivo:** automatizar enxugamento do ROADMAP e transição de estado
+(🏗️→✅) via GitHub Action disparada no merge da PR do épico. Cria
+`skills/cleanup/skill.md` com as regras determinísticas (reduzir épico
+a título + 1-2 linhas + PR; virar status na tabela do milestone);
+`.github/workflows/epic-cleanup.yml` roda Claude Code CLI no runner,
+carrega a skill, commita o resultado direto na main (mudança só em
+docs, baixo risco). Secret `ANTHROPIC_API_KEY` configurado no repo.
+Primeira skill do projeto executada via Action em vez de via fluxo
+local — experimento com Claude Code CLI.
+
+**Status:** 🌱 Visão
+
+**Dependências:** W-PROTO-7 (extração precisa sair do rito de
+fechamento antes da faxina ser automatizada — skill de cleanup cobre
+só enxugamento + transição, que são determinísticos).
+
+**Motivação:** atrito observado em W-POC-4 — rito de fechamento manual
+consome ~300 linhas de edição em ROADMAPs após merge, tarefa repetitiva
+e mecânica que não exige julgamento do dev nem do implementador.
+
+#### ÉPICO W-PROTO-7: Extração pra ARCHITECTURE.md como passo do implementador
+
+**Objetivo:** mover extração de conhecimento permanente (padrões novos
+em `docs/ARCHITECTURE.md` ou `core/docs/architecture/`, notas em
+`.claudecode.md`, comportamento em `core/docs/agents/<agente>/`) do
+rito de fechamento (`epic_completion.md`) pro momento da implementação.
+Implementador escreve no mesmo commit da entrega, enquanto o contexto
+do que foi construído está fresco; `epic_completion.md` passa a cobrir
+só enxugamento + transição (partes determinísticas que a Action de
+W-PROTO-6 consegue executar).
+
+**Status:** 🌱 Visão
+
+**Dependências:** nenhuma (é pré-requisito técnico de W-PROTO-6, não
+tem dependências próprias).
+
+**Motivação:** extração exige julgamento ("isso é padrão reusável?
+merece entrada em ARCHITECTURE.md?") e não pode ser automatizada.
+Separar dos passos mecânicos (enxugamento + transição) libera esses
+últimos pra automação. Tocar: `epic_completion.md` (remover seção
+"Extração" do rito pós-merge; nova referência de que extração é
+responsabilidade do implementador); skills do implementador ou
+convenção de commit que sinalize a obrigatoriedade da extração antes
+de abrir PR.
+
 ---
 
 ## 📚 Observações
@@ -277,9 +348,15 @@ fluxo autônomo via Claude Code Web exige `🔍 Detalhes definidos`.
 W-POC-1 e W-POC-2 foram executados manualmente via Claude Code (fora do
 fluxo autônomo) na branch `claude/create-workflow-docs-6CR73` porque o
 próprio fluxo autônomo é o que está sendo reescrito. W-POC-3 segue o
-mesmo caminho. W-POC-4 (execução real da POC-ENSAIO) é a primeira prova
-do fluxo novo e roda via dispatch autônomo regular, a cargo do dev humano.
+mesmo caminho. W-POC-4 foi executado em 2026-04-24 via PR #77 (POC-ENSAIO),
+confirmando o fluxo novo end-to-end; atrito observado no rito de
+encerramento alimentou o desenho de W-PROTO-5/6/7.
 
-Épicos PROTO e MVP ainda não foram desenhados — ficam a definir em
-refinamento estratégico após POC-WORKFLOW fechar, com aprendizado real
-no bolso.
+W-PROTO-5/6/7 formam uma unidade lógica (refinamento do ciclo de
+encerramento) e podem ser executados em sequência: W-PROTO-5 (processual,
+baixo custo) → W-PROTO-7 (separa extração da faxina) → W-PROTO-6 (infra
+de automação). W-PROTO-1/2/3/4 (dívida documental da reforma de
+milestone) podem rodar em paralelo quando houver capacidade.
+
+Épicos MVP ainda não foram desenhados — ficam a definir em refinamento
+estratégico após PROTO-WORKFLOW fechar, com aprendizado real no bolso.
