@@ -40,6 +40,32 @@ Você fornece ao Claude Web:
 >
 > Ambos produzem o mesmo estado final no ROADMAP (épico em `🔍`). O que muda é **quem refina** e **onde o resultado é commitado** (fora da branch do milestone, no caso estratégico; dentro, no caso tático).
 
+### Postura do Refinamento
+
+Refinamento é **conversa**, não execução. O agente otimiza por **alinhamento contínuo com o usuário**, não por entregar o alvo declarado o mais rápido possível. Vários erros recorrentes (editar antes de aval, descer níveis prematuros, perguntar em bloco indiscriminado) são sintomas do mesmo padrão: tratar o refinamento como tarefa em vez de diálogo. Quatro regras operacionais:
+
+**a) Hierarquia de camadas — subir antes de descer.**
+
+Refinamento percorre quatro camadas e a ordem importa:
+
+```
+milestone (visão, jornada) → épico (objetivo, o que é/não é) → funcionalidade (esboço) → critério de aceite (testável)
+```
+
+O alvo declarado (`📋`, `🔍`) define a **profundidade final**; a **ordem de subida** começa sempre na camada mais alta. Refinar critério de aceite antes de alinhar jornada/objetivo gera retrabalho — se a camada superior muda, tudo abaixo muda junto. Sintoma típico do erro: usuário interrompe pedindo "conversa em camada mais alto".
+
+**b) Confirmação conversacional antes de edit.**
+
+Antes de escrever em qualquer arquivo (ROADMAP, vision.md, spec), confirmar conversacionalmente o que vai ser escrito: *"vou registrar X, Y, Z, segue?"*. Não é cerimônia pesada (não exige palavra-chave nem recap formal) — é checagem leve para capturar desalinhamento antes do edit. Custo zero quando alinhamento existe; salva retrabalho quando não existe.
+
+**c) Pergunta por qualidade, não por quantidade.**
+
+Pergunta legítima é a que **altera um resultado de forma cara de reverter** — decisão arquitetural, recorte de escopo, quebra de premissa da visão. Detalhes viram proposta com default; usuário corrige no review. Sem teto numérico fixo: zero perguntas é aceitável se os defaults forem sólidos; oito perguntas heterogêneas costuma ser sintoma de não-filtro entre "decisão estrutural" e "detalhe assumível".
+
+**d) Centralidade da visão como restrição dura.**
+
+Antes de iniciar refinamento, identificar o que a visão do produto declara como **central** para o estágio alvo (POC/Protótipo/MVP). Itens centrais são restrição **não-negociável** — não podem ser cortados nem reduzidos por proposta do agente durante a sessão; só pelo usuário. Pergunta direta no início: *"o que a visão declara central no estágio alvo, e portanto não é negociável?"*. Sintoma do erro: agente reabre item declarado central no meio da sessão como se fosse opcional.
+
 1. **Análise Contextual:** Consultar vision.md, docs/ROADMAP.md ou products/revelar/ROADMAP.md (épicos anteriores), specs técnicas via mapa
 2. **Clarificação:** Fazer perguntas específicas, validar entendimento, apontar trade-offs
 3. **Recomendação:** Oferecer opções + recomendação balizada por vision.md e guidelines
@@ -245,6 +271,7 @@ Template mínimo para cada milestone no ROADMAP do produto:
 - **Dependências de core:** <lista de épicos C-<PRODUTO>-* ou ÉPICO N do core; "nenhuma" se for o caso>
 - **Branch associada:** `milestone/<id-em-caixa-baixa>`
 - **Status dos épicos:** <resumo dos estados atuais dos épicos agrupados>
+- **Feedback do estágio anterior endereçado:** <itens vindos da validação manual do estágio anterior que este milestone resolve. Para cada item: de onde vem (ex.: validação pós-merge do milestone X) e como é endereçado (épico Y cobre; trabalho preparatório fora de épico; etc.). "Nenhum" se o milestone não inclui higiene pós-validação. Bucket existe para evitar que dívidas pós-validação se percam entre ficha técnica e ROADMAP.>
 - **Nota:** <se stub: declarar que é declarativo; se houver épicos ainda em 🌱/📐, mencionar refinamento tático pela PM skill dentro da branch>
 ```
 

@@ -8,7 +8,7 @@ Um épico atinge `🔍 Detalhes definidos` quando um agente sem contexto do prob
 
 Este checklist é **complementar** ao `docs/process/refinement/epic_completion.md` — aqui descrevemos os critérios de **entrada** em implementação; lá, os de **saída**.
 
-## Checklist (cinco categorias)
+## Checklist (seis categorias)
 
 ### a) Termos e conceitos
 
@@ -41,6 +41,7 @@ Interação com o que já existe foi verificada, não assumida.
 - Código existente que será lido ou importado foi inspecionado durante o refinamento.
 - O acoplamento resultante está declarado viável para o escopo do épico (imports, dependências transitivas, estado compartilhado).
 - Refatorações prévias necessárias viraram dependência explícita no épico ou épico próprio no ROADMAP.
+- **Mudanças em código compartilhado entre produtos** (`core/`, módulos cross-produto) listam **todos os produtos consumidores afetados** e declaram como cada um foi verificado contra regressão (teste automatizado, inspeção manual, validação no fluxo do produto). Mudança em prompt/agente do core sem essa lista é defeito do refinamento — produto compartilhador pode quebrar silenciosamente.
 
 ### e) Sequência e testes
 
@@ -50,9 +51,16 @@ Ordem de execução e critério de "pronto" são observáveis.
 - Escopo de teste por funcionalidade está definido: unit, integration, validação manual via script.
 - Critérios de aceite são observáveis por teste automatizado ou script de validação.
 
+### f) Centralidade da visão respeitada
+
+O que a visão do produto declara como central para o estágio alvo permanece intacto.
+
+- Itens declarados **centrais** na vision.md do produto para o estágio (POC/Protótipo/MVP) estão preservados ou avançados pelo épico — nunca cortados nem reduzidos.
+- Quando o refinamento propõe ajuste de algo central, o ajuste foi explicitamente autorizado pelo usuário (registrado no épico ou em comentário), não absorvido como detalhe.
+
 ## Ajuste por Estágio (POC / Protótipo / MVP)
 
-O nível de detalhe exigido varia por estágio do produto. As três listas abaixo aplicam-se **sobre** as cinco categorias acima: indicam quais itens são incondicionais e quais podem ser simplificados.
+O nível de detalhe exigido varia por estágio do produto. As três listas abaixo aplicam-se **sobre** as seis categorias acima: indicam quais itens são incondicionais e quais podem ser simplificados.
 
 ### Aplicáveis em todos os estágios
 
@@ -63,7 +71,9 @@ Estes itens são exigência mínima, mesmo em POC:
 - Arquivos a criar e modificar listados com caminho.
 - Mecanismo de integração descrito.
 - Acoplamentos com código existente inspecionados.
+- Mudanças em código compartilhado entre produtos listam consumidores impactados.
 - Dependências entre épicos e funcionalidades declaradas com ordem.
+- Centralidade da visão respeitada (itens centrais não foram cortados sem autorização explícita).
 
 ### Aplicáveis a Protótipo e MVP
 
