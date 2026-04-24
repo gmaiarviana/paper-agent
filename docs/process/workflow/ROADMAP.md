@@ -1036,7 +1036,27 @@ independentes e podem ser executados em qualquer ordem.
 A quebra da fase Protótipo do Workflow em dois milestones
 (`PROTO-WORKFLOW-ENCERRAMENTO` e `PROTO-WORKFLOW-DOC`) foi aplicada
 em 2026-04-24 como bootstrap manual da convenção "sessão = milestone
-coerente" — similar ao bootstrap de W-POC-1/2.
+coerente" — similar ao bootstrap de W-POC-1/2. Para evitar que o
+erro do milestone-balaio se repita, foi introduzido um checklist de
+coerência no refinamento estratégico em
+`docs/process/refinement/planning_guidelines.md` (seção "Checklist
+de coerência para declarar um milestone").
+
+**Observação sobre evolução da EM skill.** A EM skill hoje decide
+sobre tamanho (FIT/TIGHT/OVERFLOW) com base em LOC e risco, rodando
+**depois** da PM skill no fluxo autônomo. Isso significa que, se o
+checklist estratégico falhar e um milestone-balaio chegar ao dispatch,
+o refinamento tático (PM) já foi executado antes da EM detectar o
+problema — desperdiçando trabalho. Caminhos considerados e ainda não
+formalizados em épico: (a) EM ganha preflight de coerência antes da
+PM (detecção via métrica de acoplamento entre épicos, devolve antes
+de PM rodar); (b) manter ordem atual e aceitar que EM emite warning
+tardio com custo de PM já pago; (c) nova skill "Coherence" entre
+Dispatch e PM, especializada em verificar coerência do agrupamento.
+Decisão adiada — vira épico na fase Protótipo ou MVP quando houver
+sinal real de necessidade (erro recorrente que o checklist estratégico
+não pegou). Primeiro instrumento de detecção é o próprio checklist
+estratégico introduzido nesta reforma.
 
 Épicos MVP ainda não foram desenhados — ficam a definir em refinamento
 estratégico após ambos os milestones da fase Protótipo fecharem, com

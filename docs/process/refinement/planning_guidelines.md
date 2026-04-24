@@ -250,6 +250,28 @@ Template mínimo para cada milestone no ROADMAP do produto:
 
 Milestones vivem na seção `## 🎯 Milestones` de cada ROADMAP de produto, logo antes de `## 📋 Épicos Planejados`. O core (`docs/ROADMAP.md`) não tem milestones próprios — usa uma tabela `## 🎯 Épicos Core × Milestones de Produto` para declarar quais épicos core entram em qual milestone de produto (ver lá).
 
+**Épicos podem ficar órfãos na fase.** O ROADMAP aceita épicos listados dentro de uma fase (`### ⏳ Fase <Estágio>`) **sem atribuição de milestone** — é o estado natural de um épico em `🌱 Visão` ou `📐 Funcionalidades esboçadas` que ainda não foi agrupado. Forçar a atribuição prematura empurra o erro de acoplar épicos desconexos num mesmo milestone. Milestone só é declarado quando o refinamento estratégico identifica um **agrupamento coeso**.
+
+#### Checklist de coerência para declarar um milestone
+
+Antes de declarar um milestone no ROADMAP (refinamento estratégico), aplicar este checklist aos épicos candidatos:
+
+1. **Compartilham arquivos-alvo ou código?** Épicos que tocam os mesmos módulos, configs ou contratos são fortes candidatos a milestone único.
+2. **Compartilham conceitos centrais ou rito?** Ex.: W-PROTO-5/6/7 dividem o rito de `epic_completion.md` — coupling conceitual, mesmo sem compartilhar código. W-PROTO-1/2/3/4 são dívida documental que não toca os mesmos arquivos nem conceitos — coupling zero.
+3. **Cabem numa sessão (sizing tentativo FIT ou TIGHT)?** Estimativa grosseira via heurística de `docs/process/sizing/heuristic.md`; OVERFLOW antecipado → declarar dois milestones de saída.
+
+**Regra:** 2+ respostas negativas → declarar milestones separados. 2+ respostas positivas → milestone único é adequado.
+
+#### Anti-padrão: milestone-balaio
+
+Declarar um milestone com **todos os épicos remanescentes de uma fase** sem aplicar o checklist acima. Resultado: milestone inchado, baixo acoplamento interno, sessão autônoma inviável — split retroativo vira obrigatório, desperdiçando refinamento tático já executado.
+
+**Exemplo canônico:** `PROTO-WORKFLOW` foi declarado em 2026-04 com 7 épicos heterogêneos (W-PROTO-1..7) sob a heurística implícita "1 estágio = 1 milestone". Durante o refinamento dos épicos em 2026-04-24, o desacoplamento ficou visível e o milestone foi splittado retroativamente em `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5/6/7, coupling de rito) e `PROTO-WORKFLOW-DOC` (W-PROTO-1/2/3/4, coupling zero entre si e com os outros). O checklist acima foi introduzido nesta reforma como prevenção.
+
+#### Defesa secundária: sinalização tardia
+
+O checklist estratégico é a primeira linha de defesa — quando falha, a **EM skill** (sizing dentro da branch do milestone) é a última oportunidade de detectar o erro antes de desperdiçar implementação. Hoje a EM decide sobre tamanho (FIT/TIGHT/OVERFLOW); num cenário futuro pode ganhar heurística de coerência (detectar baixo acoplamento entre épicos do milestone e emitir warning pro dev avaliar split). Essa evolução da EM é registrada como observação no ROADMAP do workflow e vira épico quando houver sinal real de necessidade (um erro recorrente que o checklist estratégico não pega).
+
 ### 📍 PRÓXIMOS PASSOS
 
 **Épicos percorrem até seis estados:**
