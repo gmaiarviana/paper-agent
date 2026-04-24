@@ -126,10 +126,25 @@ def _process_user_message(
 
     except Exception as exc:  # pragma: no cover - depende de API externa
         logger.error("Erro ao processar mensagem do Ensaio: %s", exc, exc_info=True)
-        st.error(f"❌ Erro ao processar mensagem: {exc}")
-        # Remover mensagem do usuário para permitir nova tentativa
-        if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
-            st.session_state.messages.pop()
+        # Preservar a mensagem do usuário no histórico e mostrar o erro como
+        # bubble do assistente — evita a sensação de "mensagem sumiu" e
+        # permite retry no próximo turno sem o usuário redigitar.
+        st.session_state.messages.append(
+            {
+                "role": "assistant",
+                "content": (
+                    f"❌ Não consegui processar sua mensagem agora: `{exc}`.\n\n"
+                    "A mensagem original ficou registrada no histórico. "
+                    "Tente reenviar uma nova mensagem daqui a pouco; se o erro "
+                    "persistir, veja o terminal do Streamlit."
+                ),
+                "tokens": None,
+                "cost": None,
+                "duration": None,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
+        st.error(f"Erro ao processar mensagem: {exc}")
     finally:
         st.session_state.processing = False
         st.session_state.pending_message = None
