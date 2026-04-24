@@ -60,16 +60,18 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 - **Branch associada:** `milestone/poc-ensaio`
 - **Status dos épicos:** ✅ Implementados (C-ENSAIO-2, E-POC-1, E-POC-2, E-POC-3) — validação manual executada, PR #TBD
 
-### PROTO-ENSAIO (stub)
+### PROTO-ENSAIO
 
-- **Objetivo:** a definir quando o milestone for refinado. Direção provável: fazer o Ensaio virar ferramenta de uso real do próprio desenvolvedor — substituir Streamlit por stack navegável, introduzir persistência do artigo com versões, painel de artigo em construção e pendências entre sessões.
-- **Estágio:** Protótipo — Desenvolvedor Usa
+- **Objetivo:** elevar a **qualidade** do POC usando coerentemente capacidades que já temos (Metodologista parado no core, Writer evoluindo para por-seção, persistência do LangGraph) num chassi de stack adequado. Protótipo **não inventa features novas** — usa melhor o que existe. Único artigo em andamento por vez; múltiplos projetos ficam para MVP/depois.
+- **Estágio:** Protótipo — Usuário usa de verdade
 - **Produto:** Ensaio
 - **Épicos agrupados:** E-PROTO-1, E-PROTO-2, E-PROTO-3, E-PROTO-4, E-PROTO-5
-- **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção)
+- **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção) — pré-requisito de E-PROTO-4.
 - **Branch associada:** `milestone/proto-ensaio`
-- **Status dos épicos:** todos em `🌱 Visão`
-- **Nota:** milestone declarativo. Sizing real (quebra em sub-milestones `ALPHA`/`BETA` etc.) fica para quando a EM skill avaliar, antes do dispatch.
+- **Status dos épicos:** todos em `🌱 Visão`. Milestone passou por passo de refinamento estratégico (objetivo reformulado, jornada alvo desenhada, lista de épicos consolidada com *rationale* de qualidade); funcionalidades e critérios de aceite para a próxima sessão de refinamento.
+- **Jornada alvo (alta-nível):** usuário abre o app → continua no mesmo artigo, vê a última conversa e perguntas do sistema ainda em aberto → responde → Orquestrador/Estruturador organizam; Metodologista provoca quando a conversa toca em metodologia → clica "Gerar" ou "Regenerar seção X" → painel mostra artigo seccionado com edição inline → fecha e volta depois no mesmo ponto.
+- **Nota sobre processo:** a escala atual de 6 estados não tem nível que represente "milestone alinhado, jornada desenhada, épicos listados com *rationale*" — fica entre `🌱 Visão` e `📐 Funcionalidades esboçadas`. Registrado para ajuste de processo. Sizing real (quebra em sub-milestones `ALPHA`/`BETA`) fica para quando a EM skill avaliar, antes do dispatch.
+- **Escopo declinado:** proposta de E-PROTO-6 (higiene de UX no Streamlit) foi declinada — trabalho transitório que morreria com E-PROTO-1 (migração de stack). Único item que sobrevive à stack nova — ajuste do prompt do Orquestrador/Estruturador para não prometer ações fora do escopo POC — fica como higiene pós-POC imediata (fora do milestone).
 
 ### MVP-ENSAIO (stub)
 
