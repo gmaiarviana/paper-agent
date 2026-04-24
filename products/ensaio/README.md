@@ -25,15 +25,15 @@ Ensaio é **produto próprio com app próprio**, paralelo ao Revelar. Compartilh
 
 ## Status
 
-POC implementada pela sessão autônoma do milestone POC-ENSAIO (C-ENSAIO-2, E-POC-1, E-POC-2, E-POC-3 em `🏗️ Em andamento`) — aguarda validação manual do dev via [`docs/poc_validation.md`](docs/poc_validation.md) antes do merge.
+POC ✅ implementada e validada manualmente (milestone POC-ENSAIO — C-ENSAIO-2, E-POC-1, E-POC-2, E-POC-3).
 
 Executar localmente:
 
 ```bash
-streamlit run products/ensaio/app/chat.py
+python -m streamlit run products/ensaio/app/chat.py
 ```
 
-Requer apenas `ANTHROPIC_API_KEY` no `.env`.
+Requer apenas `ANTHROPIC_API_KEY` no `.env`. Modelo padrão pode ser trocado via `LLM_MODEL` no `.env`.
 
 ## Documentação
 
