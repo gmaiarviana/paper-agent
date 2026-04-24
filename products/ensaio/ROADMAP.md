@@ -53,7 +53,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### POC-ENSAIO
 
-- **Objetivo:** entregar a primeira versão funcional do Ensaio como app próprio — o pesquisador conversa sobre o experimento num chat simples e, sob demanda, aciona o Writer do core para gerar e refinar o artigo em markdown. Valida a hipótese de que agentes do core parametrizados por contexto de produto servem a um fluxo diferente do Revelar.
+- **Objetivo:** entregar a primeira versão funcional do Ensaio como app próprio — o Usuário conversa sobre o experimento num chat simples e, sob demanda, aciona o Writer do core para gerar e refinar o artigo em markdown. Valida a hipótese de que agentes do core parametrizados por contexto de produto servem a um fluxo diferente do Revelar.
 - **Estágio:** POC — Prova de Conceito
 - **Produto:** Ensaio
 - **Épicos agrupados:** E-POC-1, E-POC-2, E-POC-3
@@ -63,16 +63,23 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### PROTO-ENSAIO
 
+- **Status:** `🧭 Jornada alinhada`
 - **Objetivo:** elevar a **qualidade** do POC usando coerentemente capacidades que já temos (Metodologista parado no core, Writer evoluindo para por-seção, persistência do LangGraph) num chassi de stack adequado. Protótipo **não inventa features novas** — usa melhor o que existe. Único artigo em andamento por vez; múltiplos projetos ficam para MVP/depois.
 - **Estágio:** Protótipo — Usuário usa de verdade
 - **Produto:** Ensaio
-- **Épicos agrupados:** E-PROTO-1, E-PROTO-2, E-PROTO-3, E-PROTO-4, E-PROTO-5
+- **Épicos agrupados:** E-PROTO-1, E-PROTO-2, E-PROTO-3, E-PROTO-4, E-PROTO-5 (todos em `🌱 Visão` — funcionalidades e critérios para próxima sessão de refinamento)
 - **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção) — pré-requisito de E-PROTO-4.
 - **Branch associada:** `milestone/proto-ensaio`
-- **Status dos épicos:** todos em `🌱 Visão`. Milestone passou por passo de refinamento estratégico (objetivo reformulado, jornada alvo desenhada, lista de épicos consolidada com *rationale* de qualidade); funcionalidades e critérios de aceite para a próxima sessão de refinamento.
-- **Jornada alvo (alta-nível):** usuário abre o app → continua no mesmo artigo, vê a última conversa e perguntas do sistema ainda em aberto → responde → Orquestrador/Estruturador organizam; Metodologista provoca quando a conversa toca em metodologia → clica "Gerar" ou "Regenerar seção X" → painel mostra artigo seccionado com edição inline → fecha e volta depois no mesmo ponto.
-- **Nota sobre processo:** a escala atual de 6 estados não tem nível que represente "milestone alinhado, jornada desenhada, épicos listados com *rationale*" — fica entre `🌱 Visão` e `📐 Funcionalidades esboçadas`. Registrado para ajuste de processo. Sizing real (quebra em sub-milestones `ALPHA`/`BETA`) fica para quando a EM skill avaliar, antes do dispatch.
-- **Escopo declinado:** proposta de E-PROTO-6 (higiene de UX no Streamlit) foi declinada — trabalho transitório que morreria com E-PROTO-1 (migração de stack). Único item que sobrevive à stack nova — ajuste do prompt do Orquestrador/Estruturador para não prometer ações fora do escopo POC — fica como higiene pós-POC imediata (fora do milestone).
+- **Glossário do produto:** termos "Usuário" (jornada) e "Pesquisador" (persona) ancorados em [products/ensaio/docs/vision.md §13](docs/vision.md).
+- **Jornada alvo (alta-nível):** Usuário abre o app → continua no mesmo artigo, vê a última conversa e perguntas do sistema ainda em aberto → responde → Orquestrador/Estruturador organizam; Metodologista provoca quando a conversa toca em metodologia → clica "Gerar" ou "Regenerar seção X" → painel mostra artigo seccionado com edição inline → fecha e volta depois no mesmo ponto.
+- **Feedback do POC endereçado por este milestone:**
+  - Promessas vazias do Orquestrador/Estruturador ("vou validar...") → ajuste de prompt como **trabalho preparatório de entrada** do milestone (higiene pós-POC, commit antes do dispatch; não é épico).
+  - Falta de transparência sobre qual agente está falando → detalhe dentro de **E-PROTO-1**: nova stack entrega bubble com label do agente (`🎯 Orquestrador`, `🔬 Metodologista`).
+  - Feedback de processamento (blur opaco do Streamlit) → resolvido por **E-PROTO-1** — stack nova substitui o mecanismo.
+  - Relação chat ↔ evento de geração / histórico confuso → **E-PROTO-3** (versões visíveis) + **E-PROTO-4** (painel seccionado com edição).
+  - Carregamento inicial lento → **E-PROTO-1** — cold start aceitável vira critério da ADR da stack.
+- **Escopo declinado:** proposta de E-PROTO-6 (higiene de UX no Streamlit) foi declinada — trabalho transitório que morreria com E-PROTO-1 (migração de stack). Único item que sobrevive à stack nova é o ajuste de prompt acima, listado como trabalho preparatório.
+- **Sizing:** avaliação real (e eventual quebra em sub-milestones `ALPHA`/`BETA`) fica para quando a EM skill avaliar, antes do dispatch.
 
 ### MVP-ENSAIO (stub)
 
@@ -133,7 +140,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 #### ÉPICO E-PROTO-2: Entidade Pendência no Produto
 
-**Objetivo:** Item que fica aberto entre sessões. Sistema e pesquisador podem criar. Pendências aparecem quando pesquisador volta ao Ensaio, viabilizando o fluxo assíncrono.
+**Objetivo:** Item que fica aberto entre sessões. Sistema e Usuário podem criar. Pendências aparecem quando Usuário volta ao Ensaio, viabilizando o fluxo assíncrono.
 
 **Status:** 🌱 Visão
 
@@ -175,7 +182,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 #### ÉPICO E-MVP-1: Upload de Arquivos do Experimento
 
-**Objetivo:** Pesquisador anexa notebook, README, CSV, imagens de gráfico. Agentes leem e usam esses artefatos como contexto para a conversa e para o Writer.
+**Objetivo:** Usuário anexa notebook, README, CSV, imagens de gráfico. Agentes leem e usam esses artefatos como contexto para a conversa e para o Writer.
 
 **Status:** 🌱 Visão
 

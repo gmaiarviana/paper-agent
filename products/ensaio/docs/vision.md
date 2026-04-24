@@ -8,7 +8,7 @@
 - **O que é**: Sistema conversacional para transformar experimentos de código em artigos técnico-científicos publicáveis
 - **Para quem**: Pesquisadores de uma ICT (uso institucional) que produzem PoCs e experimentos em desenvolvimento de software, IA agêntica e tecnologias de TRL 3-6
 - **Problema resolvido**: O ritmo de experimentos supera a capacidade de produção de artigos. Experimentos acontecem, código fica no repositório, aprendizados se perdem. Falta processo que transforme o que foi feito em conhecimento estruturado e comunicável
-- **Diferencial**: Sistema proativo que provoca o pesquisador — identifica lacunas no argumento e solicita métricas, evidências e informações que o artigo precisará
+- **Diferencial**: Sistema proativo que provoca o Usuário — identifica lacunas no argumento e solicita métricas, evidências e informações que o artigo precisará
 - **Destino**: Publicação técnico-científica formal. Saída pode ser artigo completo ou one-pager para divulgação rápida
 
 ### Output do Ensaio
@@ -18,7 +18,7 @@
 - ❌ NÃO produz o experimento em si (parte do trabalho do pesquisador)
 - ❌ NÃO substitui revisão humana final (pesquisador mantém autoria)
 
-**Metáfora:** Ensaio é o "laboratório de escrita" onde experimentos viram artigos. O experimento acontece no código; o artigo emerge da conversa entre pesquisador e sistema.
+**Metáfora:** Ensaio é o "laboratório de escrita" onde experimentos viram artigos. O experimento acontece no código; o artigo emerge da conversa entre Usuário e sistema.
 
 ## 2. Posição no Super-Sistema
 
@@ -64,10 +64,10 @@ Ensaio é produto **paralelo ao Revelar**, não sequencial. Usa os mesmos agente
 
 **Diferencial central do produto em relação ao Revelar.**
 
-O processo de produção de um artigo pode durar semanas. Pesquisador não precisa estar presente o tempo todo — sistema trabalha entre sessões.
+O processo de produção de um artigo pode durar semanas. Usuário não precisa estar presente o tempo todo — sistema trabalha entre sessões.
 
 **Fluxo esperado (estado-alvo):**
-1. Pesquisador chega ao sistema e vê pendências (perguntas abertas, sugestões dos agentes)
+1. Usuário chega ao sistema e vê pendências (perguntas abertas, sugestões dos agentes)
 2. Responde ao que lhe é apresentado; fornece novas informações do experimento
 3. Sistema avança em background: estrutura trechos, identifica lacunas, sugere evidências a coletar
 4. Na próxima sessão, novas atualizações aguardam — rascunhos evoluídos, perguntas refinadas
@@ -84,32 +84,32 @@ O processo de produção de um artigo pode durar semanas. Pesquisador não preci
 
 ## 4. Modo de Escrita Híbrido
 
-Sistema e pesquisador **co-produzem o artigo progressivamente**. Não há separação rígida entre fase de conversa e fase de escrita.
+Sistema e Usuário **co-produzem o artigo progressivamente**. Não há separação rígida entre fase de conversa e fase de escrita.
 
 **Como funciona (estado-alvo):**
 - Sistema escreve rascunhos de partes técnicas (metodologia, estrutura de resultados) à medida que informações chegam
 - Não espera acumular tudo para escrever no final
-- Pesquisador escreve a narrativa (motivação, interpretação, discussão) e revisa rascunhos do sistema
+- Usuário escreve a narrativa (motivação, interpretação, discussão) e revisa rascunhos do sistema
 - Ao final, sistema gera primeira versão completa para revisão e publicação
 
 **Divisão de responsabilidades:**
 - **Sistema (via Writer):** Metodologia, estrutura de resultados, formatação, referências, consistência
-- **Pesquisador:** Narrativa, contextualização, interpretação, decisões editoriais finais
+- **Usuário:** Narrativa, contextualização, interpretação, decisões editoriais finais
 
-**Benefício:** Pesquisador nunca enfrenta página em branco — sempre há rascunho parcial para editar.
+**Benefício:** Usuário nunca enfrenta página em branco — sempre há rascunho parcial para editar.
 
 **Quando esse modo aparece:**
 - **POC:** não se aplica. Writer gera o artigo inteiro em uma passada, ao final da conversa.
 - **Protótipo:** rascunho evolui por seção, acompanhando a conversa.
 - **MVP:** o modo híbrido é a forma padrão de uso.
 
-**Provocação sobre dimensões do artigo (estado-alvo):** no Protótipo e MVP, o sistema passa a provocar ativamente sobre as dimensões em que o Writer opera — contexto, intenção, formato e estrutura (ver `core/docs/agents/overview.md`). Se o pesquisador não declarou intenção do artigo (informar, propor, posicionar-se), o sistema pergunta. Se o formato apropriado não está claro, o sistema recomenda baseado na conversa e confirma. Na POC, essas dimensões são inferidas pelo Writer com defaults razoáveis; a provocação ativa entra em fases posteriores.
+**Provocação sobre dimensões do artigo (estado-alvo):** no Protótipo e MVP, o sistema passa a provocar ativamente sobre as dimensões em que o Writer opera — contexto, intenção, formato e estrutura (ver `core/docs/agents/overview.md`). Se o Usuário não declarou intenção do artigo (informar, propor, posicionar-se), o sistema pergunta. Se o formato apropriado não está claro, o sistema recomenda baseado na conversa e confirma. Na POC, essas dimensões são inferidas pelo Writer com defaults razoáveis; a provocação ativa entra em fases posteriores.
 
 ## 5. Estrutura do Artigo Emerge da Conversa
 
 Ensaio **não mantém campo `article_type`** nem enum fixo de tipos de artigo (empírico, revisão, teórico, estudo de caso, meta-análise, metodológico...). A estrutura emerge do que foi conversado; o Writer decide seções em tempo de escrita com base no contexto.
 
-- **Sem classificação prévia:** pesquisador não precisa declarar o tipo de artigo antes de começar.
+- **Sem classificação prévia:** Usuário não precisa declarar o tipo de artigo antes de começar.
 - **Base de conhecimento no prompt do Writer:** o sistema tem conhecimento sobre estruturas comuns de artigo técnico-científico, mas **não impõe** — sugere e adapta com base na conversa.
 - **Sem schema de seções:** Introdução, Metodologia, Resultados, Discussão, one-pager... são resultados, não entradas. O Writer combina conforme o conteúdo pedir.
 - **Consequência:** o mesmo sistema serve artigo completo, one-pager ou variações híbridas sem código específico por formato.
@@ -118,10 +118,10 @@ Decisão arquitetural registrada em `core/docs/agents/writer/design.md`.
 
 ## 6. Pendências como Entidade Central
 
-Pendência = item que permanece aberto entre sessões: pergunta sem resposta, evidência a coletar, rascunho esperando revisão, sugestão de agente aguardando decisão do pesquisador.
+Pendência = item que permanece aberto entre sessões: pergunta sem resposta, evidência a coletar, rascunho esperando revisão, sugestão de agente aguardando decisão do Usuário.
 
 - **Viabiliza o fluxo assíncrono (seção 3):** cada sessão abre, trabalha e fecha pendências; é o estado que atravessa o tempo entre sessões.
-- **Entidade central no Protótipo e MVP:** é onde o pesquisador para a sessão, é onde o sistema retoma na próxima, é a superfície principal da tela inicial.
+- **Entidade central no Protótipo e MVP:** é onde o Usuário para a sessão, é onde o sistema retoma na próxima, é a superfície principal da tela inicial.
 - **Não existe na POC:** POC roda em sessão única, sem persistência — não há entre-sessões onde pendência faria sentido.
 - **Status: em incubação no Ensaio.** Vive no produto por enquanto; será promovida ao core quando o segundo produto do super-sistema precisar dela (provavelmente Produtor Científico, que herda a natureza multi-sessão).
 
@@ -157,8 +157,8 @@ Os dois casos de uso são servidos pelo mesmo sistema — a diferença está no 
 
 **Incluído:**
 - Conversa sobre o experimento com Orquestrador + Estruturador do core, em postura conversacional **ativo-leve**: escutam, organizam o que foi dito e perguntam só quando algo está vago (sem Metodologista, sem provocação ativa sobre lacunas)
-- **Geração sob demanda:** pesquisador pede "gerar artigo" quando quiser — mesmo cedo na conversa — e o Writer devolve o markdown completo em uma única passada
-- **Refinamento minimalista por feedback no chat:** pesquisador pede ajustes em linguagem natural ("deixa mais conciso", "adiciona uma seção sobre X") e o Writer regera o artigo inteiro a partir da conversa acumulada + artigo anterior
+- **Geração sob demanda:** Usuário pede "gerar artigo" quando quiser — mesmo cedo na conversa — e o Writer devolve o markdown completo em uma única passada
+- **Refinamento minimalista por feedback no chat:** Usuário pede ajustes em linguagem natural ("deixa mais conciso", "adiciona uma seção sobre X") e o Writer regera o artigo inteiro a partir da conversa acumulada + artigo anterior
 - **Sessão única descartável (sem persistência):** estado da conversa e do artigo vive só na memória do navegador; recarregar a página recomeça do zero
 
 **Fora do escopo do POC:**
@@ -217,6 +217,15 @@ Frentes que dependem de validação do MVP antes de entrar em roadmap:
 Essas frentes entram em iterações posteriores, após validação do fluxo básico ponta a ponta com pesquisadores reais.
 
 > **Nota:** Para refinamento dos épicos, ver `products/ensaio/ROADMAP.md`.
+
+## 13. Glossário
+
+O Ensaio usa dois termos que se referem à mesma pessoa real em contextos diferentes. A distinção é intencional: mantém precisão sem proliferação de vocabulário.
+
+- **Usuário** — quem **opera** o Ensaio na jornada do produto (abre o app, digita no chat, pede geração, edita seções, fecha sessões pendentes). Termo operacional: usado em qualquer descrição de comportamento, fluxo, UX ou interação.
+- **Pesquisador** — a **persona** do produto: pesquisador de uma ICT produzindo experimentos de código. Termo de público-alvo, autoria acadêmica e escopo de adoção: usado em descrições de "para quem", autoria do artigo, escopo de validação com pares e previsão de uso por outros pesquisadores.
+
+Um mesmo indivíduo é Usuário quando opera o produto e Pesquisador quando se fala dele como público-alvo ou autor do artigo.
 
 ## Referências
 
