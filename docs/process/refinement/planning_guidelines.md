@@ -222,11 +222,16 @@ Ideias abstratas que ainda não viraram épicos. Aguardando maturação.
 
 ### 🎯 MILESTONES
 
-Um **milestone** agrupa épicos relacionados dentro de um mesmo estágio (POC/Protótipo/MVP). É a unidade de entrega do **fluxo autônomo** — disparo por linguagem natural ("implementa a POC do Ensaio"), execução na branch `milestone/<id>`, merge em main apenas com aval humano. Definição canônica em [docs/CONSTITUTION.md §9](../../CONSTITUTION.md).
+Um **milestone** agrupa épicos relacionados dentro de um mesmo estágio (POC/Protótipo/MVP) = uma sessão de trabalho coerente. É a unidade de entrega do **fluxo autônomo** — disparo por linguagem natural ("implementa a POC do Ensaio"), execução na branch `milestone/<id>`, merge em main apenas com aval humano. Definição canônica em [docs/CONSTITUTION.md §9](../../CONSTITUTION.md).
 
-**Convenção de id:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`. Quando um estágio precisa ser quebrado em mais de um milestone, acrescentar sufixo: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`. Nome da branch associada em caixa baixa: `milestone/poc-ensaio`.
+**Quem decide o agrupamento em milestones.** O agrupamento de épicos em milestones é **output do refinamento estratégico** (Claude Web, fora da branch), junto da declaração dos próprios épicos. Não é decisão da PM skill (que faz refinamento tático dentro da branch sobre um milestone já declarado) nem da EM skill (que só faz sizing do milestone declarado). Quando o refinamento estratégico descobre acoplamento entre épicos, declara-os no mesmo milestone; quando detecta que épicos do mesmo estágio são independentes, declara milestones separados.
 
-**Quando dividir um estágio em múltiplos milestones.** A decisão é do EM skill (Engineering Manager, a ser criada em M3b da reforma) no sizing antes do dispatch. Regra fixada: milestone cujo sizing retornar OVERFLOW **nunca** é executado como está — é devolvido ao dev com proposta de quebra em dois ou mais milestones (com sufixos `ALPHA`/`BETA`). Milestones com sizing TIGHT seguem sem aval adicional.
+**Convenção de id:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`. Quando um estágio precisa ser quebrado em mais de um milestone, acrescentar sufixo semântico ou ordinal: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`, `PROTO-WORKFLOW-ENCERRAMENTO`. Nome da branch associada em caixa baixa: `milestone/poc-ensaio`, `milestone/proto-workflow-encerramento`.
+
+**Quando dividir um estágio em múltiplos milestones.** Dois gatilhos:
+
+1. **Proativo (refinamento estratégico):** o próprio agrupamento estratégico separa milestones quando os épicos são independentes ou quando o escopo total do estágio é maior que uma sessão coerente. Este é o caminho normal.
+2. **Reativo (EM skill no sizing):** milestone cujo sizing retornar OVERFLOW **nunca** é executado como está — a EM skill devolve ao dev com proposta de quebra; a decisão efetiva volta ao refinamento estratégico para re-agrupar. Milestones com sizing TIGHT seguem sem aval adicional.
 
 Template mínimo para cada milestone no ROADMAP do produto:
 

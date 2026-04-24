@@ -307,23 +307,26 @@ paper-agent/
 
 ## 9. GLOSSÁRIO
 
-Quatro termos fixam a hierarquia de entrega usada pelo projeto. Refinamento, planejamento e dispatch se referem a eles com esse significado exato.
+Cinco termos fixam a hierarquia de entrega usada pelo projeto. Refinamento, planejamento e dispatch se referem a eles com esse significado exato.
 
 **Estágio**
-Fase do produto no eixo "quem usa": POC (prova que a ideia faz sentido), Protótipo (o próprio dev usa de verdade), MVP (outros usam sem o dev do lado). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo.
+Fase do produto no eixo "quem usa": POC (prova que a ideia faz sentido), Protótipo (o próprio dev usa de verdade), MVP (outros usam sem o dev do lado). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo. **Estágio** é o agregador do ROADMAP (seção "Fase <estágio>"), não é dispatcheável — milestones que o compõem é que são.
 
 **Milestone**
-Unidade de entrega do **fluxo autônomo**. Agrupa épicos relacionados dentro de um mesmo estágio. Um estágio pode ter 1 ou N milestones. Um milestone é disparado por linguagem natural ("implementa a POC do Ensaio"), executado numa branch `milestone/<id-em-caixa-baixa>`, e só chega em main depois do aval humano explícito.
+Unidade de entrega do **fluxo autônomo** = uma sessão de trabalho coerente. Agrupa épicos relacionados dentro de um mesmo estágio. Um estágio pode ter 1 ou N milestones; o agrupamento é output do **refinamento estratégico** (Claude Web, fora da branch), antes do dispatch. Um milestone é disparado por linguagem natural ("implementa a POC do Ensaio"), executado numa branch `milestone/<id-em-caixa-baixa>`, e só chega em main depois do aval humano explícito.
 
 - **Id do milestone:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`.
-- **Sufixo** quando um estágio tem mais de um milestone: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`.
+- **Sufixo** quando um estágio tem mais de um milestone: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`, `PROTO-WORKFLOW-ENCERRAMENTO`.
 - **Branch:** id em caixa baixa com `milestone/` na frente. Ex.: `milestone/poc-ensaio`.
 
 **Épico**
 Agrupamento coeso de funcionalidades que entrega valor incremental. Unidade do ROADMAP. Percorre até seis estados (`🌱 Visão` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `✅ Implementado`). Um épico pode pertencer a um milestone (quando for ser executado via fluxo autônomo) ou ser implementado isoladamente no fluxo manual via Cursor.
 
 **Funcionalidade**
-Unidade mínima de trabalho dentro de um épico. Tem critérios de aceite próprios e, em estado `🔍`, detalhes de execução fechados (arquivos-alvo, contratos, acoplamentos, escopo de teste). É a unidade do **fluxo manual** via Cursor; no fluxo autônomo é a unidade sobre a qual cada gate (QA/TL/PO) decide APROVA/REJEITA.
+Unidade mínima do ROADMAP, dentro de um épico. Tem critérios de aceite próprios e, em estado `🔍`, detalhes de execução fechados (arquivos-alvo, contratos, acoplamentos, escopo de teste). É a unidade do **fluxo manual** via Cursor; no fluxo autônomo é a unidade sobre a qual cada gate (QA/TL/PO) decide APROVA/REJEITA.
+
+**Tarefa**
+Unidade mínima de **execução** dentro de uma funcionalidade. Criada pela Scrum Master skill em `docs/process/current_implementation.md` no início da sessão autônoma; consumida pelo Dev na ordem declarada. Tarefas não existem no ROADMAP — vivem só no artefato de sessão; somem quando o milestone fecha.
 
 ---
 

@@ -35,32 +35,46 @@ Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/pla
 - **Status dos épicos:** W-POC-1 ✅, W-POC-2 ✅, W-POC-3 ✅,
   W-POC-4 ✅.
 - **Nota:** dívida residual da reforma de milestone (M4-restante, M5, M6
-  e dívidas declaradas em W-POC-3) vive no PROTO-WORKFLOW como épicos
-  W-PROTO-1..4. O antigo `docs/process/refactor-backlog.md` foi
+  e dívidas declaradas em W-POC-3) vive na fase Protótipo, distribuída
+  entre `PROTO-WORKFLOW-DOC` (W-PROTO-1..4 — saneamento documental) e
+  `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5..7 — refinamento do ciclo
+  de encerramento). O antigo `docs/process/refactor-backlog.md` foi
   migrado para este ROADMAP e removido.
 
-### PROTO-WORKFLOW
+### PROTO-WORKFLOW-ENCERRAMENTO
 
-- **Objetivo:** fluxo de implementação estabilizado com uso real
-  semanal + refinamento do ciclo de encerramento (validação async,
-  extração no momento da implementação, faxina automática via Action)
-  + segundo fluxo do workflow aparecendo (a definir no refinamento).
-  Candidato forte para segundo fluxo: observação de arquitetura
-  (detectar crescimento desordenado, atividade de baixo custo
-  recorrente). Primeira safra de épicos absorve a dívida residual
-  da reforma de milestone que não coube no POC; segunda safra ataca
-  o atrito observado em W-POC-4 no rito de encerramento.
+- **Objetivo:** refinamento do ciclo de encerramento autônomo —
+  validação async via PR, extração como passo do implementador, faxina
+  mecânica via GitHub Action pós-merge. Primeira unidade coerente da
+  fase Protótipo do Workflow.
+- **Estágio:** Protótipo
+- **Épicos agrupados:** W-PROTO-5, W-PROTO-6, W-PROTO-7
+- **Dependências de core:** nenhuma
+- **Branch associada:** `milestone/proto-workflow-encerramento`
+- **Status dos épicos:** W-PROTO-5 🔍 Detalhes definidos, W-PROTO-6
+  🔍 Detalhes definidos, W-PROTO-7 🔍 Detalhes definidos.
+- **Nota:** unidade lógica descoberta durante refinamento
+  (2026-04-24) — os três épicos dividem o rito de `epic_completion.md`
+  e foram refinados em conjunto na branch
+  `claude/continue-workflow-implementation-5PKVa`. Ordem sugerida de
+  implementação: W-PROTO-5 → W-PROTO-7 → W-PROTO-6.
+
+### PROTO-WORKFLOW-DOC
+
+- **Objetivo:** saneamento documental residual da reforma de milestone
+  — reescrever arquivos de `docs/process/autonomous/` e
+  `docs/process/refinement/` para o modelo de milestone, migrar
+  template de `delivery-report.md`, fechar cross-references e limpar
+  ponteiros quebrados. Segunda unidade coerente da fase Protótipo do
+  Workflow, independente de `PROTO-WORKFLOW-ENCERRAMENTO`.
 - **Estágio:** Protótipo
 - **Épicos agrupados:** W-PROTO-1, W-PROTO-2, W-PROTO-3, W-PROTO-4
-  (saneamento residual da reforma); W-PROTO-5, W-PROTO-6, W-PROTO-7
-  (refinamento do ciclo de encerramento); + épicos do segundo fluxo
-  a definir em refinamento estratégico.
 - **Dependências de core:** nenhuma
-- **Branch associada:** `milestone/proto-workflow`
+- **Branch associada:** `milestone/proto-workflow-doc`
 - **Status dos épicos:** W-PROTO-1 🌱 Visão, W-PROTO-2 🌱 Visão,
-  W-PROTO-3 🌱 Visão, W-PROTO-4 🌱 Visão, W-PROTO-5 🔍 Detalhes
-  definidos, W-PROTO-6 🔍 Detalhes definidos, W-PROTO-7 🔍 Detalhes
-  definidos.
+  W-PROTO-3 🌱 Visão, W-PROTO-4 🌱 Visão.
+- **Nota:** pendente de refinamento tático (não bloqueia
+  `PROTO-WORKFLOW-ENCERRAMENTO`).
 
 ### MVP-WORKFLOW
 
@@ -73,14 +87,18 @@ Cada épico percorre até seis estados. Detalhes em [docs/process/refinement/pla
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/mvp-workflow`
 - **Status dos épicos:** milestone em declaração — épicos serão
-  definidos em refinamento estratégico via Claude Web após
-  PROTO-WORKFLOW fechar.
+  definidos em refinamento estratégico via Claude Web após ambos os
+  milestones da fase Protótipo fecharem.
 
 ## 📋 Épicos Planejados
 
-### Épicos do POC-WORKFLOW
+### ⏳ Fase POC
+
+Único milestone: `POC-WORKFLOW`.
 
 #### ÉPICO W-POC-1: Dispatch em linguagem natural
+
+**Milestone:** `POC-WORKFLOW`
 
 **Objetivo:** permitir que o dispatch autônomo seja invocado por linguagem
 natural ("implementa a POC do Ensaio") em vez do template de placeholder
@@ -105,6 +123,8 @@ em sequência). 4 exemplos de dispatch cobrindo milestone com tudo em
 sufixo e entrada ambígua.
 
 #### ÉPICO W-POC-2: Template aninhado de current_implementation.md
+
+**Milestone:** `POC-WORKFLOW`
 
 **Objetivo:** migrar o template de `current_implementation.md` do shape
 atual (linear por funcionalidade) para shape aninhado (milestone → épicos
@@ -131,6 +151,8 @@ escalação (3 consecutivas no mesmo gate do mesmo épico → aborta
 milestone) operar.
 
 #### ÉPICO W-POC-3: Reescrita operacional das skills por milestone
+
+**Milestone:** `POC-WORKFLOW`
 
 **Objetivo:** reescrever conteúdo operacional de Scrum Master, QA, TL, PO
 e RTE para operar dentro do loop por épico de um milestone, em vez do
@@ -164,6 +186,8 @@ template `delivery-report.md` declarada inline para migração posterior).
 
 #### ÉPICO W-POC-4: Execução real da POC-ENSAIO no fluxo novo
 
+**Milestone:** `POC-WORKFLOW`
+
 **Objetivo:** primeira prova real do fluxo autônomo por milestone via
 execução end-to-end da POC-ENSAIO.
 
@@ -174,9 +198,13 @@ mergeada em main. Rito de fechamento (extração + enxugamento + transição)
 executado manualmente no commit `9831d50`. Atrito observado durante o rito
 alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
-### Épicos do PROTO-WORKFLOW
+### ⏳ Fase Protótipo
+
+> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-1, 2, 3, 4).
 
 #### ÉPICO W-PROTO-1: Reescrita por milestone dos arquivos operacionais de `docs/process/autonomous/`
+
+**Milestone:** `PROTO-WORKFLOW-DOC`
 
 **Objetivo:** alinhar `workflow.md` (corpo abaixo do diagrama),
 `overview.md`, `delivery.md` e `session_conventions.md` ao modelo de
@@ -201,6 +229,8 @@ mesmo modelo)
 2026-04)
 
 #### ÉPICO W-PROTO-2: Distinção estratégico × tático em `docs/process/refinement/`
+
+**Milestone:** `PROTO-WORKFLOW-DOC`
 
 **Objetivo:** promover a distinção refinamento estratégico (Claude
 Web, fora da branch, antes do dispatch) × refinamento tático (PM
@@ -227,6 +257,8 @@ após W-PROTO-1 para manter coerência entre `autonomous/` e
 
 #### ÉPICO W-PROTO-3: Migração do template `skills/rte/templates/delivery-report.md` para shape de milestone
 
+**Milestone:** `PROTO-WORKFLOW-DOC`
+
 **Objetivo:** reescrever o template de relatório de entrega para
 acomodar N épicos em sub-seções, em vez do formato atual (uma
 funcionalidade isolada). A skill RTE (`skills/rte/skill.md` Passo 5,
@@ -242,6 +274,8 @@ antigo. Dívida declarada inline no próprio `skill.md` durante W-POC-3.
 **Migra de:** dívida declarada em commit `7cde7d9` (W-POC-3)
 
 #### ÉPICO W-PROTO-4: Cross-references e saneamento documental pós-reforma
+
+**Milestone:** `PROTO-WORKFLOW-DOC`
 
 **Objetivo:** fechar pontas periféricas para que o grep do repositório
 fique coerente e a reforma de milestone não deixe ponteiros quebrados.
@@ -271,6 +305,8 @@ depois que os arquivos operacionais e de refinamento foram migrados)
 2026-04)
 
 #### ÉPICO W-PROTO-5: Validação async — PR antes da aprovação, Copilot como validador local
+
+**Milestone:** `PROTO-WORKFLOW-ENCERRAMENTO`
 
 **Objetivo:** mover a validação do dev pra depois da abertura da PR.
 Hoje a sessão autônoma (= "fase de implementação") só encerra quando o
@@ -501,6 +537,8 @@ todos os critérios são textualmente verificáveis.
 
 #### ÉPICO W-PROTO-6: Skill de faxina + GitHub Action pós-merge
 
+**Milestone:** `PROTO-WORKFLOW-ENCERRAMENTO`
+
 **Objetivo:** automatizar enxugamento do ROADMAP e transição de estado
 (🏗️→✅) via GitHub Action disparada no merge da PR de milestone.
 Cria `skills/cleanup/skill.md` com as regras determinísticas (reduzir
@@ -534,7 +572,7 @@ e mecânica que não exige julgamento do dev nem do implementador.
   GitHub Actions invocando Claude Code via Action oficial da
   Anthropic (ex.: `anthropics/claude-code-action` — nome exato a
   confirmar na implementação). Serve de template para automações
-  futuras (candidatas em PROTO-WORKFLOW e além).
+  futuras (candidatas na fase Protótipo e além).
 - **ID de milestone na branch** = `milestone/<id-em-caixa-baixa>`.
   Padrão já estabelecido em W-POC-3; é o único identificador que a
   Action precisa para localizar o milestone no ROADMAP relevante.
@@ -559,8 +597,9 @@ Action roda **somente** quando:
 **Shape do input da skill cleanup** (passado como variáveis de ambiente
 ou argumento do prompt inicial):
 - `MILESTONE_ID` — extraído do `head.ref` via regex
-  `milestone/(.+)` → upper-case (ex.: `milestone/proto-workflow` →
-  `PROTO-WORKFLOW`).
+  `milestone/(.+)` → upper-case (ex.:
+  `milestone/proto-workflow-encerramento` →
+  `PROTO-WORKFLOW-ENCERRAMENTO`).
 - `MERGED_PR_URL` — `github.event.pull_request.html_url`, pra linkar
   no enxugamento.
 - `MERGE_SHA` — `github.event.pull_request.merge_commit_sha`, pra
@@ -722,10 +761,12 @@ Sub-funcionalidades internas, implementadas em ordem:
   no workflow + invocar via UI do GitHub Actions passando parâmetros
   manuais. Observar que o Claude Code Action executa, a skill corre,
   o commit é gerado (modo A ou B).
-- **Teste real:** o próprio merge da PR deste épico **não** dispara
-  a Action (é branch de POC-WORKFLOW/PROTO-WORKFLOW, mas ainda não há
-  milestone fechado). O primeiro teste real é no próximo milestone
-  fechado após W-PROTO-6 em produção.
+- **Teste real:** o próprio merge da PR do milestone
+  `PROTO-WORKFLOW-ENCERRAMENTO` **não** dispara a Action
+  retroativamente (GitHub lê o workflow YAML da branch base =
+  `main` no momento do evento; o YAML só chega em `main` **depois**
+  do merge). O primeiro teste real é no próximo milestone fechado
+  após W-PROTO-6 estar em `main`.
 - **Critério de aceite:** próximo milestone fechado após W-PROTO-6
   tem o ROADMAP atualizado automaticamente; dev confirma via diff
   da Action no histórico do GitHub.
@@ -758,6 +799,8 @@ estas são verificações adiadas deliberadamente):**
 `claude/continue-workflow-implementation-5PKVa`.
 
 #### ÉPICO W-PROTO-7: Extração pra ARCHITECTURE.md como passo do implementador
+
+**Milestone:** `PROTO-WORKFLOW-ENCERRAMENTO`
 
 **Objetivo:** mover extração de conhecimento permanente (padrões novos
 em `docs/ARCHITECTURE.md` ou `core/docs/architecture/`, notas em
@@ -978,14 +1021,23 @@ confirmando o fluxo novo end-to-end; atrito observado no rito de
 encerramento alimentou o desenho de W-PROTO-5/6/7.
 
 W-PROTO-5/6/7 formam uma unidade lógica (refinamento do ciclo de
-encerramento) e podem ser executados em sequência: W-PROTO-5 (processual,
-baixo custo) → W-PROTO-7 (separa extração da faxina) → W-PROTO-6 (infra
-de automação). Os três foram refinados em conjunto em 2026-04-24 na
-branch `claude/continue-workflow-implementation-5PKVa` e estão em
-`🔍 Detalhes definidos` — prontos para dispatch autônomo via
-Claude Code Web (a gatilhar pelo operador). W-PROTO-1/2/3/4 (dívida
-documental da reforma de milestone) permanecem em `🌱 Visão` e podem
-ser refinadas em rodada posterior.
+encerramento) e foram agrupados no milestone
+`PROTO-WORKFLOW-ENCERRAMENTO`. Ordem sugerida de execução: W-PROTO-5
+(processual, baixo custo) → W-PROTO-7 (separa extração da faxina) →
+W-PROTO-6 (infra de automação). Os três foram refinados em conjunto
+em 2026-04-24 na branch `claude/continue-workflow-implementation-5PKVa`
+e estão em `🔍 Detalhes definidos` — prontos para dispatch autônomo
+via Claude Code Web (a gatilhar pelo operador). W-PROTO-1/2/3/4
+(dívida documental da reforma de milestone) vivem em
+`PROTO-WORKFLOW-DOC` e permanecem em `🌱 Visão` pendentes de
+refinamento tático; os dois milestones da fase Protótipo são
+independentes e podem ser executados em qualquer ordem.
+
+A quebra da fase Protótipo do Workflow em dois milestones
+(`PROTO-WORKFLOW-ENCERRAMENTO` e `PROTO-WORKFLOW-DOC`) foi aplicada
+em 2026-04-24 como bootstrap manual da convenção "sessão = milestone
+coerente" — similar ao bootstrap de W-POC-1/2.
 
 Épicos MVP ainda não foram desenhados — ficam a definir em refinamento
-estratégico após PROTO-WORKFLOW fechar, com aprendizado real no bolso.
+estratégico após ambos os milestones da fase Protótipo fecharem, com
+aprendizado real no bolso.
