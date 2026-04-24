@@ -159,12 +159,15 @@ Cada prompt é enxuto mas claro, deixando Cursor pensar também.
 
 ### Seis Estados de Refinamento
 
-Um épico percorre até seis estados no ROADMAP. Os quatro primeiros são de refinamento progressivo; os dois últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo.
+Um épico percorre até sete estados no ROADMAP. Os cinco primeiros são de refinamento progressivo; os dois últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo. **Os mesmos estados aplicam-se ao campo "Status" do milestone** — milestone em `🧭 Jornada alinhada` significa objetivo, jornada e escopo declinados, glossário ancorado e mapeamento de feedback do estágio anterior consolidados, com lista de épicos definida (mesmo que individualmente em estados anteriores).
 
 > **Nota — onde o refinamento acontece.** Até `📋 Critérios definidos`, o refinamento sempre é estratégico, via Claude Web, antes de qualquer milestone em execução. Já a transição de `🌱`/`📐`/`📋` para `🔍 Detalhes definidos` pode acontecer em duas situações distintas: (a) externamente, via Claude Web, como preparação antecipada; ou (b) dentro da branch de um milestone já disparado, via PM skill (skill a ser criada em M3b da reforma do fluxo), como parte do próprio fluxo autônomo. Ambos caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
 
 **`🌱 Visão`** — apenas objetivo definido.
 Estado inicial de qualquer épico promovido a partir do backlog ou produzido por uma sessão do tipo "me quebra essa ideia em épicos a partir da visão". Captura intenção e valor de negócio; não é executável por nenhum fluxo.
+
+**`🧭 Jornada alinhada`** — objetivo refinado, rationale e escopo declinado.
+Estado intermediário entre `🌱` e `📐`. Captura entendimento compartilhado do que o épico/milestone **é** (objetivo aprofundado, o que é / o que não é, terminologia ancorada via glossário, acoplamentos sinalizados); para milestone, inclui jornada alvo, escopo declinado e mapeamento de feedback do estágio anterior. Funcionalidades ainda não esboçadas. Não é executável por nenhum fluxo; valor está em habilitar **commit intermediário de progresso de refinamento** quando reframe é trabalho real e a sessão estratégica não chega a critérios de aceite numa única passada.
 
 **`📐 Funcionalidades esboçadas`** — lista de funcionalidades com descrição curta, sem critérios de aceite.
 Estado intermediário útil quando um épico foi quebrado a partir de uma visão e as funcionalidades já emergiram, mas os critérios de aceite ainda não foram discutidos funcionalidade a funcionalidade. Não é executável por nenhum fluxo.
@@ -187,6 +190,7 @@ Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qu
 
 Formas típicas de declarar o alvo:
 - "Quebrar esta visão em N épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas`."
+- "Levar Milestone X (e/ou seus épicos) até `🧭 Jornada alinhada`."
 - "Levar Épico X até `📋 Critérios definidos`."
 - "Levar Épico X até `🔍 Detalhes definidos`."
 
@@ -301,9 +305,10 @@ O checklist estratégico é a primeira linha de defesa — quando falha, a **EM 
 
 ### 📍 PRÓXIMOS PASSOS
 
-**Épicos percorrem até seis estados:**
+**Épicos percorrem até sete estados:**
 
 - **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
+- **`🧭 Jornada alinhada`** — objetivo refinado + rationale + glossário ancorado + acoplamentos sinalizados; jornada e escopo declinados (para milestone). Aguarda refinamento.
 - **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
 - **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
 - **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Pronto para fluxo autônomo via Claude Code Web.

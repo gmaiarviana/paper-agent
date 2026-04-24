@@ -204,7 +204,7 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
 
 **Documentação:**
 - `docs/process/refinement/` - Processo de refinement com Claude Web
-  - `planning_guidelines.md` - Processo completo (inclui os seis estados: 🌱 Visão / 📐 Funcionalidades esboçadas / 📋 Critérios definidos / 🔍 Detalhes definidos / 🏗️ Em andamento / ✅ Implementado) e o conceito de alvo de refinamento
+  - `planning_guidelines.md` - Processo completo (inclui os sete estados: 🌱 Visão / 🧭 Jornada alinhada / 📐 Funcionalidades esboçadas / 📋 Critérios definidos / 🔍 Detalhes definidos / 🏗️ Em andamento / ✅ Implementado) e o conceito de alvo de refinamento
   - `starter.md` - Pack inicial de contexto (6 arquivos) e alvos de refinamento típicos
   - `autonomous_readiness.md` - **Checklist de entrada para `🔍 Detalhes definidos`** (consumido sob demanda pouco antes do dispatch autônomo)
   - `epic_completion.md` - **Checklist de saída** (fechamento do épico antes de marcar `✅ Implementado`)

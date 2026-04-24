@@ -36,7 +36,7 @@ Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qu
 - **Refinamento em massa** — alvo `🌱 Visão` ou `📐 Funcionalidades esboçadas`, aplicado a múltiplos épicos de uma vez. Produz várias entradas no ROADMAP a partir de uma visão.
 - **Refinamento profundo** — alvo `📋 Critérios definidos` ou `🔍 Detalhes definidos`, aplicado a um épico específico que se aproxima da implementação.
 
-O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. O alvo `🔍 Detalhes definidos` exige contexto adicional — inspeção de código relevante + checklist específico. O modelo completo dos seis estados de um épico vive em [`planning_guidelines.md`](planning_guidelines.md).
+O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. O alvo `🔍 Detalhes definidos` exige contexto adicional — inspeção de código relevante + checklist específico. O modelo completo dos sete estados de um épico vive em [`planning_guidelines.md`](planning_guidelines.md).
 
 ### Alvo `🌱 Visão` (refinamento em massa — nível título)
 
@@ -44,6 +44,13 @@ O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. 
 - **Produto:** N épicos com título e objetivo. Sem lista de funcionalidades ainda.
 - **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos.
 - **Quando acontece:** ao abrir um ROADMAP novo e querer apenas registrar os próximos movimentos em alto nível.
+
+### Alvo `🧭 Jornada alinhada` (refinamento estratégico — alinhamento)
+
+- **Pergunta:** o que esse épico/milestone **é**? Qual a jornada, o escopo declinado, o vocabulário?
+- **Produto:** objetivo refinado, rationale (o que é / o que **não** é), terminologia ancorada via Glossário, acoplamentos sinalizados; para milestone, jornada alvo + escopo declinado + mapeamento de feedback do estágio anterior. Funcionalidades ainda não esboçadas.
+- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos.
+- **Quando acontece:** quando o épico/milestone exige reframe (mais que título, menos que esboço de funcionalidades). Estado existe para evitar que sessão estratégica fique em limbo entre `🌱` e `📐` e para habilitar **commit intermediário de progresso de refinamento** quando uma única sessão não chega aos critérios.
 
 ### Alvo `📐 Funcionalidades esboçadas` (refinamento em massa — nível esboço)
 
