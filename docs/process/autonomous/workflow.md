@@ -10,10 +10,12 @@
 ## FLUXO GERAL
 
 ```
-Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL Skill → PO Skill → RTE Skill → Dev valida
+Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL Skill → PO Skill → RTE Skill → PR aberta → Dev revisa (Copilot) → merge
                                 ↑              ↑       ↑         ↑          ↑
                                 └──── reprovou? volta para a etapa anterior ────┘
 ```
+
+**Estado terminal da fase de implementação (W-PROTO-5):** a sessão autônoma encerra na **abertura da PR**, não na validação local do dev. RTE gera `validation-<milestone>.md`, abre PR via `mcp__github__create_pull_request` com Seção 🎯 padronizada no body, e notifica o dev com o link. Revisão humana acontece na PR (Copilot + aprovação manual + merge).
 
 **PM é condicional** — roda se o milestone tem ao menos um épico em `🌱 Visão` ou `📐 Funcionalidades esboçadas`. Se todos os épicos já estão em `🔍 Detalhes definidos` (ou superior), PM é **pulado** e o fluxo entra direto no EM. Detalhes em [skills/pm/README.md](../../../skills/pm/README.md).
 
@@ -64,10 +66,12 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 - ✅ Seguir [quality_rules.md](../development/quality_rules.md) (anti-redundância, padrões)
 - ✅ Atualizar docs estruturais quando alterar estrutura
 - ✅ Commits incrementais e descritivos
+- ✅ **Executar itens abertos em `## Extração pendente`** (W-PROTO-7) antes de iniciar a próxima funcionalidade ou no último commit do épico. Marcar `- [x]` após executar. RTE aborta se houver `- [ ]` aberto no gate de entrada.
 
 **Não deve:**
 - ❌ Inventar funcionalidades fora do plano
 - ❌ Criar docs extras sem necessidade (ver anti-padrões em CONSTITUTION)
+- ❌ Avançar para a próxima funcionalidade do **mesmo épico** com item `- [ ]` aberto referente à funcionalidade anterior já aprovada pelo TL
 
 **Saída:** código + testes + docs atualizadas, prontos para QA.
 
@@ -110,6 +114,7 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 - ✅ Sem duplicação de informação entre docs (ver `.claudecode.md` e CONSTITUTION §6)
 - ✅ Estrutura de pastas e nomenclatura coerente com convenções existentes
 - ✅ Decisões técnicas documentadas onde apropriado
+- ✅ **Identificar conhecimento permanente** (padrão arquitetural novo, comportamento de agente, decisão reutilizável) e registrar em `current_implementation.md` → bloco `## Extração pendente` da sub-seção do épico atual (W-PROTO-7). Ao fechar o último gate do épico sem itens identificados, declarar explicitamente `(vazio — TL não identificou conhecimento permanente neste épico)`. Detalhes em `skills/tl/skill.md` §3.5.
 
 **Reprova quando:**
 - ❌ Introduziu padrão divergente sem justificativa
@@ -148,22 +153,22 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 
 > **📌 Spec executável obrigatória:** `skills/rte/skill.md` — carregar antes de iniciar este gate.
 
-**Objetivo:** preparar entrega para o dev validar manualmente.
+**Objetivo:** fechar o milestone abrindo a PR com Seção 🎯 padronizada para o dev revisar via Copilot.
 
 **Deve:**
-- ✅ Garantir branch `feature/X.Y-nome` com push realizado
-- ✅ Atualizar `docs/process/current_implementation.md` (marcar checkpoints concluídos)
-- ✅ Gerar mensagem final no formato definido em [delivery.md](delivery.md)
-- ✅ Listar comandos de validação local prontos para copiar/colar (com nome real da branch)
-- ✅ Listar critérios de aceite + validações esperadas (o que dev deve observar)
+- ✅ Garantir branch `milestone/<id-em-caixa-baixa>` com push único realizado
+- ✅ Atualizar `docs/process/current_implementation.md` (marcar checkpoints concluídos, gravar Resumo Final do Milestone)
+- ✅ Gerar `validation-<milestone-id>.md` versionado no mesmo commit que prepara a PR
+- ✅ **Criar PR com body padronizado** via `mcp__github__create_pull_request` (fallback: `gh pr create`); body **obrigatoriamente** contém a Seção 🎯 Validação completa, sem placeholders
+- ✅ Gerar mensagem final no formato definido em [delivery.md](delivery.md), com link da PR e instrução copy-paste ao Copilot
 - ✅ Notificar o dev (canal acordado: notificação Claude Code Web)
 
 **Não deve:**
-- ❌ Criar PR automaticamente
-- ❌ Mergear sem aprovação explícita do dev
+- ❌ Mergear automaticamente — aprovação humana segue obrigatória
+- ❌ Abrir PR sem Seção 🎯 completa (critérios consolidados de PO ✅, link para `validation-<id>.md`)
 - ❌ Pular gates anteriores ainda que considere "trivial"
 
-**Saída:** branch pronta + mensagem final + notificação ao dev.
+**Saída:** PR aberta + `validation-<id>.md` versionado + mensagem final + notificação ao dev.
 
 ---
 
@@ -172,9 +177,11 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 O fluxo autônomo manipula dois estados de execução do épico no ROADMAP:
 
 - **`🏗️ Em andamento`** — marcado assim que a Scrum Master Skill conclui (a partir daí o épico está sob implementação pelas skills). Permanece neste estado durante Dev → QA → TL → PO → RTE e até o ciclo de fechamento ser concluído.
-- **`✅ Implementado`** — **não é acionado pelo fluxo autônomo.** A transição exige a execução do ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md` (extração de conhecimento permanente + poda do ROADMAP) e é feita pelo dev após validar o resultado final.
+- **`✅ Implementado`** — **não é acionado pelo fluxo autônomo.** A transição exige a execução do ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md` (extração de conhecimento permanente + poda do ROADMAP) e é feita após validar o resultado final.
 
-Mesmo com código mergeado e validado, o épico permanece em `🏗️ Em andamento` até o dev aplicar `epic_completion.md`.
+> **Estado terminal da fase de implementação (W-PROTO-5):** "PR aberta", **não** "Dev validou". A sessão autônoma encerra com a RTE abrindo a PR; o épico segue em `🏗️ Em andamento` até a fase de higiene rodar (cf. `epic_completion.md`).
+
+Mesmo com código mergeado e validado, o épico permanece em `🏗️ Em andamento` até o ciclo de `epic_completion.md` ser aplicado.
 
 ---
 

@@ -63,34 +63,41 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### PROTO-ENSAIO
 
-- **Status:** `🧭 Jornada alinhada`
-- **Objetivo:** elevar a **qualidade** do POC usando coerentemente capacidades que já temos (Metodologista parado no core, Writer evoluindo para por-seção, persistência do LangGraph) num chassi de stack adequado. Protótipo **não inventa features novas** — usa melhor o que existe. Único artigo em andamento por vez; múltiplos projetos ficam para MVP/depois.
+- **Status:** `📐 Funcionalidades esboçadas`
+- **Objetivo:** elevar a **qualidade da experiência dentro de uma sessão** usando coerentemente capacidades que já temos (Metodologista parado no core, Writer evoluindo para por-seção) num chassi de stack adequado. Protótipo continua em sessão única e descartável (igual à POC) — persistência, pendências e fluxo assíncrono migram para o MVP por coerência de escopo (ver [vision.md §§3, 6, 10, 11](docs/vision.md)). Único artigo em andamento por vez; múltiplos artigos ficam em Ideias Futuras.
 - **Estágio:** Protótipo — Usuário usa de verdade
 - **Produto:** Ensaio
-- **Épicos agrupados:** E-PROTO-1, E-PROTO-2, E-PROTO-3, E-PROTO-4, E-PROTO-5 (todos em `🌱 Visão` — funcionalidades e critérios para próxima sessão de refinamento)
-- **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção) — pré-requisito de E-PROTO-4.
+- **Épicos agrupados:** E-PROTO-1, E-PROTO-2, E-PROTO-3 (todos em `📐 Funcionalidades esboçadas` — critérios de aceite para próxima sessão de refinamento)
+- **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção) — pré-requisito de E-PROTO-2.
 - **Branch associada:** `milestone/proto-ensaio`
 - **Glossário do produto:** termos "Usuário" (jornada) e "Pesquisador" (persona) ancorados em [products/ensaio/docs/vision.md §13](docs/vision.md).
-- **Jornada alvo (alta-nível):** Usuário abre o app → continua no mesmo artigo, vê a última conversa e perguntas do sistema ainda em aberto → responde → Orquestrador/Estruturador organizam; Metodologista provoca quando a conversa toca em metodologia → clica "Gerar" ou "Regenerar seção X" → painel mostra artigo seccionado com edição inline → fecha e volta depois no mesmo ponto.
+- **Jornada alvo (alta-nível):** Usuário abre o app → começa nova sessão sobre o experimento → conversa flui no chat com transparência sobre qual agente está falando (`🎯 Orquestrador`, `🔬 Metodologista`) e feedback de processamento decente → Metodologista provoca quando a conversa toca em metodologia (lacunas, métricas, evidências) → clica "Gerar artigo" / "Gerar seção X" / "Regenerar seção X" → painel seccionado mostra o artigo em construção com status por seção e edição inline do markdown → ao final, exporta/copia o artigo. Sessão é descartável (recarregar zera tudo); persistência fica para o MVP.
 - **Feedback do POC endereçado por este milestone:**
   - Promessas vazias do Orquestrador/Estruturador ("vou validar...") → ajuste de prompt como **trabalho preparatório de entrada** do milestone (higiene pós-POC, commit antes do dispatch; não é épico).
-  - Falta de transparência sobre qual agente está falando → detalhe dentro de **E-PROTO-1**: nova stack entrega bubble com label do agente (`🎯 Orquestrador`, `🔬 Metodologista`).
+  - Falta de transparência sobre qual agente está falando → detalhe dentro de **E-PROTO-1**: nova stack entrega bubble com label do agente.
   - Feedback de processamento (blur opaco do Streamlit) → resolvido por **E-PROTO-1** — stack nova substitui o mecanismo.
-  - Relação chat ↔ evento de geração / histórico confuso → **E-PROTO-3** (versões visíveis) + **E-PROTO-4** (painel seccionado com edição).
+  - Relação chat ↔ evento de geração / histórico confuso → **E-PROTO-2** (painel seccionado com edição inline e geração por seção).
   - Carregamento inicial lento → **E-PROTO-1** — cold start aceitável vira critério da ADR da stack.
-- **Escopo declinado:** proposta de E-PROTO-6 (higiene de UX no Streamlit) foi declinada — trabalho transitório que morreria com E-PROTO-1 (migração de stack). Único item que sobrevive à stack nova é o ajuste de prompt acima, listado como trabalho preparatório.
+  - Artigo gerado raso ou pouco aderente ao contexto técnico → **E-PROTO-3** (Metodologista provocando lacunas, métricas e evidências antes da geração).
+- **Escopo declinado:**
+  - **Persistência do artigo entre sessões** e **Pendências entre sessões** foram movidas para o MVP-ENSAIO. Pendência sem persistência não atravessa nada (dependência conceitual dura), e juntar persistência + UI nova + stack nova + Metodologista neste milestone configuraria o anti-padrão milestone-balaio (ver [planning_guidelines.md](../../docs/process/refinement/planning_guidelines.md)).
+  - **Histórico/versões do artigo** sai do escopo do Protótipo. Re-geração sobrescreve o artigo focal; comparação entre estados anteriores fica para iteração futura quando houver demanda.
+  - **Higiene de UX no Streamlit** continua declinada — stack nova substitui o mecanismo.
+  - **Múltiplos artigos em paralelo** vai para Ideias Futuras.
+- **Princípio de viabilização (do escopo declinado):** mesmo sem persistência, estado do artigo + conversa vivem em estruturas serializáveis no core (visão §7), para que o MVP troque a camada de armazenamento sem refazer o domínio.
 - **Sizing:** avaliação real (e eventual quebra em sub-milestones `ALPHA`/`BETA`) fica para quando a EM skill avaliar, antes do dispatch.
 
 ### MVP-ENSAIO (stub)
 
-- **Objetivo:** a definir quando o milestone for refinado. Direção provável: habilitar uso por colegas próximos sem o desenvolvedor do lado — upload de artefatos do experimento, experiência de refinamento *ongoing* entre sessões longas e preparação mínima para compartilhamento.
+- **Objetivo:** habilitar uso por colegas próximos sem o desenvolvedor do lado, em fluxo assíncrono real — persistência do artigo entre sessões, pendências como entidade que atravessa o tempo, upload de artefatos do experimento e preparação mínima para outro rodar.
 - **Estágio:** MVP — Colegas Usam
 - **Produto:** Ensaio
-- **Épicos agrupados:** E-MVP-1, E-MVP-2, E-MVP-3
-- **Dependências de core:** [C-ENSAIO-4](../../docs/ROADMAP.md) (Ingestão de arquivos anexados)
+- **Épicos agrupados:** E-MVP-1 (Persistência), E-MVP-2 (Pendências entre sessões), E-MVP-3 (Upload de artefatos), E-MVP-4 (Preparação mínima para outro rodar)
+- **Dependências de core:** [C-ENSAIO-4](../../docs/ROADMAP.md) (Ingestão de arquivos anexados) — pré-requisito de E-MVP-3
 - **Branch associada:** `milestone/mvp-ensaio`
 - **Status dos épicos:** todos em `🌱 Visão`
-- **Nota:** milestone declarativo. Avaliação de sizing e quebra acontecem antes do dispatch.
+- **Re-escopo (2026-04):** persistência (antigo E-PROTO-3) e pendências entre sessões (antigo E-PROTO-2) migraram do Protótipo para cá, por dependência conceitual entre si e por coerência com o critério de saída do MVP (outros usam, em sessões múltiplas). O antigo "E-MVP-2: Experiência de Refinamento *ongoing*" foi dissolvido — persistência e pendências viraram épicos próprios; histórico detalhado entre sessões foi para Ideias Futuras.
+- **Nota:** milestone declarativo. Critérios e detalhamento ficam para refinamento próprio quando o Protótipo amadurecer. Avaliação de sizing e quebra acontecem antes do dispatch.
 
 ---
 
@@ -132,76 +139,95 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 #### ÉPICO E-PROTO-1: Migração de Stack da Interface
 
-**Objetivo:** Decidir e implementar nova stack da interface do Ensaio, substituindo Streamlit. Primeira frente do Protótipo — a escolha exata de stack é parte do refinamento deste épico.
+**Objetivo:** Substituir o Streamlit da POC por uma stack adequada ao uso de verdade — exibição decente, transparência sobre qual agente está falando, feedback de processamento que não bloqueia a tela e cold start aceitável. A escolha exata de stack é parte do refinamento deste épico (ADR registra trade-offs e decisão).
 
-**Status:** 🌱 Visão
+**Status:** 📐 Funcionalidades esboçadas
 
----
-
-#### ÉPICO E-PROTO-2: Entidade Pendência no Produto
-
-**Objetivo:** Item que fica aberto entre sessões. Sistema e Usuário podem criar. Pendências aparecem quando Usuário volta ao Ensaio, viabilizando o fluxo assíncrono.
-
-**Status:** 🌱 Visão
-
-**Nota:** Pendência é **entidade em incubação** — vive no Ensaio até que outro produto precise dela (ver [core/docs/architecture/data-models/ontology.md](../../core/docs/architecture/data-models/ontology.md), seção "Entidades em Incubação").
+### Funcionalidades (esboço):
+- 1.1 ADR de Stack — registra opções avaliadas (web app dedicada, IDE plugin, desktop, etc.), critérios (cold start, ergonomia de chat + painel lateral, custo de manutenção, alinhamento com fases futuras) e decisão.
+- 1.2 Esqueleto da Nova Stack — entrypoint, layout base (chat + painel de artigo) e ciclo de vida da sessão na nova tecnologia, substituindo `products/ensaio/app/` em Streamlit.
+- 1.3 Transparência de Agente no Chat — cada bubble exibe label de quem fala (`🎯 Orquestrador`, `📐 Estruturador`, `🔬 Metodologista`, `✍️ Writer`, `👤 Você`).
+- 1.4 Feedback de Processamento Decente — indicador visual durante chamada de agente que não bloqueia a tela inteira nem esconde o histórico (substitui blur opaco do Streamlit).
 
 ---
 
-#### ÉPICO E-PROTO-3: Persistência do Artigo com Versões
+#### ÉPICO E-PROTO-2: Rascunho Progressivo por Seção (Modo Híbrido)
 
-**Objetivo:** Artigo sobrevive ao fim da sessão. Versões permitem rollback e comparação entre estados anteriores.
+**Objetivo:** Materializar o modo de escrita híbrido (visão §4) dentro de uma sessão — painel exibe o artigo seccionado, Usuário gera/regenera seções individualmente e edita o markdown inline. Rascunho evolui acompanhando a conversa, em vez de ser gerado de uma vez no final como na POC.
 
-**Status:** 🌱 Visão
-
----
-
-#### ÉPICO E-PROTO-4: UI de Artigo em Construção
-
-**Objetivo:** Painel com seções do artigo, status por seção, edição inline do markdown. Viabiliza o modo de escrita híbrido (rascunho progressivo que evolui com a conversa).
-
-**Status:** 🌱 Visão
+**Status:** 📐 Funcionalidades esboçadas
 
 **Dependências:**
-- E-PROTO-1 (nova stack), E-PROTO-3 (persistência)
+- E-PROTO-1 (nova stack — sem ela não há painel decente)
+- [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção no core)
+
+### Funcionalidades (esboço):
+- 2.1 Painel Seccionado — substitui o markdown plano do POC; cada seção do artigo é renderizada como bloco individual, com título visível.
+- 2.2 Geração e Regeneração por Seção — botões "Gerar seção X" / "Regenerar seção X" invocam Writer no escopo da seção, consumindo histórico conversacional + artigo focal + contexto de produto.
+- 2.3 Edição Inline de Seção — Usuário edita o markdown de uma seção diretamente no painel, sem regenerar; alterações entram no estado e são preservadas em regenerações futuras de outras seções.
+- 2.4 Status por Seção — sinalização visual leve do estado (vazia / rascunho gerado / editada pelo Usuário) para guiar onde focar.
 
 ---
 
-#### ÉPICO E-PROTO-5: Metodologista Aplicado ao Ensaio
+#### ÉPICO E-PROTO-3: Metodologista Aplicado ao Ensaio
 
-**Objetivo:** Metodologista (agente do core existente) passa a identificar lacunas de produção no contexto do Ensaio — métricas ausentes, evidências faltantes, afirmações sem suporte — via parametrização de contexto, sem código específico por produto.
+**Objetivo:** Trazer o Metodologista (agente do core existente, parado desde a POC) para o grafo do Ensaio, parametrizado via `product_context`, para provocar ativamente sobre lacunas de rigor — métricas ausentes, evidências faltantes, afirmações sem suporte. Endereça a expectativa de que ao final do Protótipo o sistema empurre o artigo para evoluir com qualidade, não só ajude a transcrever o que foi dito.
 
-**Status:** 🌱 Visão
+**Status:** 📐 Funcionalidades esboçadas
 
 **Dependências:**
-- E-POC-2 (parametrização de contexto)
+- E-POC-2 (parametrização de contexto — já entregue)
+- E-PROTO-1 (nova stack — para que a provocação tenha distinção visual no chat)
+
+### Funcionalidades (esboço):
+- 3.1 Inclusão do Metodologista no Grafo do Ensaio — atualizar `products/ensaio/app/graph.py` para compor Orquestrador + Estruturador + Metodologista; nó recebe `product_context` por configurable.
+- 3.2 Postura de Provocação Seletiva — Metodologista não fala a cada turno; intervém quando a conversa toca em metodologia, resultados ou afirmações sem suporte (critério em prompt + integração no grafo). Evita ruído conversacional.
+- 3.3 Provocação Ativa sobre Lacunas — produz perguntas/sugestões observáveis sobre métricas ausentes, evidências faltantes e afirmações sem suporte, ancoradas no que o Usuário disse na conversa e no contexto do produto.
+- 3.4 Reforço da Coerência do Artigo com o Contexto — provocações do Metodologista entram como sinal para o Writer (via histórico + artigo focal), elevando a aderência do artigo gerado ao experimento descrito. Inclui ajuste fino dos prompts do Orquestrador/Estruturador/Writer no contexto Ensaio (qualidade conversacional dos agentes existentes).
 
 ---
 
 ### ⏳ Fase MVP — Colegas Usam
 
-#### ÉPICO E-MVP-1: Upload de Arquivos do Experimento
+#### ÉPICO E-MVP-1: Persistência do Artigo entre Sessões
+
+**Objetivo:** Artigo (e estado mínimo da conversa associado) sobrevive ao fim da sessão. Usuário fecha o app e, na próxima abertura, retoma o artigo de onde parou. Origem: re-escopo de 2026-04 — antes era E-PROTO-3 no Protótipo, migrado para o MVP por dependência conceitual com pendências e por coerência com o critério de saída ("outros usam, em sessões múltiplas").
+
+**Status:** 🌱 Visão
+
+**Dependências:**
+- E-PROTO-2 (estado do artigo já estruturado por seção)
+
+---
+
+#### ÉPICO E-MVP-2: Pendências entre Sessões como Entidade Central
+
+**Objetivo:** Pendência (item aberto entre sessões — pergunta sem resposta, evidência a coletar, rascunho esperando revisão, sugestão de agente aguardando decisão) vira superfície principal da tela inicial. Sistema e Usuário podem criar; Usuário fecha pendências ao longo das sessões. Viabiliza o fluxo assíncrono real (visão §3, §6). Origem: re-escopo de 2026-04 — antes era E-PROTO-2 no Protótipo.
+
+**Status:** 🌱 Visão
+
+**Nota:** Pendência é **entidade em incubação** — vive no Ensaio até que outro produto precise dela (ver [core/docs/architecture/data-models/ontology.md](../../core/docs/architecture/data-models/ontology.md), seção "Entidades em Incubação").
+
+**Dependências:**
+- E-MVP-1 (persistência — pendência sem persistência não atravessa nada)
+- E-PROTO-3 (Metodologista — principal produtor sistêmico de pendências de rigor)
+
+---
+
+#### ÉPICO E-MVP-3: Upload de Arquivos do Experimento
 
 **Objetivo:** Usuário anexa notebook, README, CSV, imagens de gráfico. Agentes leem e usam esses artefatos como contexto para a conversa e para o Writer.
 
 **Status:** 🌱 Visão
 
----
-
-#### ÉPICO E-MVP-2: Experiência de Refinamento *Ongoing*
-
-**Objetivo:** Sessões longas maduras — pendências persistentes, rascunhos atuais, histórico do que mudou entre sessões. Refinamento contínuo do artigo ao longo de semanas.
-
-**Status:** 🌱 Visão
-
 **Dependências:**
-- E-PROTO-2 (pendências), E-PROTO-3 (persistência), E-PROTO-4 (UI de artigo)
+- [C-ENSAIO-4](../../docs/ROADMAP.md) (Ingestão de arquivos anexados no core)
 
 ---
 
-#### ÉPICO E-MVP-3: Preparação para Compartilhamento com Colegas
+#### ÉPICO E-MVP-4: Preparação Mínima para Outro Rodar
 
-**Objetivo:** Setup mínimo para outra pessoa usar o Ensaio sem o desenvolvedor do lado. Forma exata (deploy, empacotamento local, etc.) é decidida no refinamento deste épico.
+**Objetivo:** Setup suficiente para colega próximo usar o Ensaio sem desenvolvedor do lado — instruções de execução, mensagens de erro inteligíveis, estado previsível. Sem polish: onboarding gamificado, deploy hospedado real, telemetria e mensagens de erro elaboradas ficam para Ideias Futuras / pós-MVP. Forma exata (rodagem local + Tailscale, empacotamento simples, etc.) é decidida no refinamento deste épico.
 
 **Status:** 🌱 Visão
 
@@ -211,9 +237,13 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 Backlog sem compromisso. Entram em planejamento quando fizer sentido, geralmente após o MVP.
 
+- **Múltiplos artigos em paralelo:** Usuário trabalha em vários artigos simultaneamente, alterna entre eles, vê dashboard de progresso por artigo. (Re-escopo 2026-04: explicitamente fora do Protótipo e do MVP — único artigo em andamento por vez basta para validar uso por colega próximo.)
+- **Histórico detalhado de mudanças entre sessões:** "o que mudou desde minha última sessão" — diff conversacional, histórico de versões do artigo por seção, log de pendências fechadas/abertas. (Re-escopo 2026-04: extraído do antigo E-MVP-2 "Refinamento *ongoing*"; estado atual + última pendência aberta basta para o MVP.)
+- **Versões/rollback do artigo:** comparação entre estados anteriores do artigo, voltar para uma versão anterior de uma seção. (Re-escopo 2026-04: re-geração sobrescreve o artigo focal no Protótipo e no MVP; histórico estruturado de versões só quando houver demanda real.)
+- **Deploy hospedado, multi-tenant, autenticação real:** Ensaio rodando como serviço, sem o colega precisar instalar nada localmente. (Re-escopo 2026-04: explicitamente pós-MVP — para o MVP, rodagem local + Tailscale ou similar basta.)
+- **Polish de produto (UX/onboarding/telemetria):** onboarding gamificado, mensagens de erro elaboradas, telemetria de uso, tutoriais embutidos. (Re-escopo 2026-04: explicitamente pós-MVP — para o MVP basta sistema previsível e mensagens de erro inteligíveis.)
 - **Integração com Git:** leitura direta do repositório do experimento (código, histórico de commits, arquivos) para alimentar conversa e Writer sem uploads manuais.
 - **One-pager como formato de saída alternativo:** suporte explícito ao UC2 (divulgação rápida) — formato compacto ao lado do artigo completo.
-- **Múltiplas sessões de trabalho:** navegar entre vários artigos em construção simultaneamente.
 - **Formatos além de markdown:** exportação para LaTeX, Word e outros formatos de publicação.
 - **Calibração institucional:** sistema aprende com artigos de referência e práticas consolidadas da ICT — estilo, estruturas recorrentes, padrões de rigor, referências conhecidas.
 - **Hub navegando entre Revelar e Ensaio:** ponto de entrada unificado do super-sistema, com transição entre produtos preservando contexto.

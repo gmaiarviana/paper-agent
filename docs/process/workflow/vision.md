@@ -157,10 +157,38 @@ o épico até o operador devolver.
 Produtos (Revelar, Ensaio, ...) são o que o paper-agent entrega ao usuário
 final. Workflow é como o paper-agent é construído. Agentes do core
 (Orquestrador, Metodologista, ...) são runtime do produto. Skills (Scrum
-Master, QA, TL, PO, RTE, PM, EM) são ferramentas do workflow.
+Master, QA, TL, PO, RTE, PM, EM, Cleanup) são ferramentas do workflow.
 
 Skills não viram agentes do core. Agentes do core não viram skills. Estão
 em eixos diferentes.
+
+## Padrão Emergente: Skill em Action
+
+Introduzido em W-PROTO-6 com `skills/cleanup/`. **Primeira skill** do
+paper-agent que não é carregada por Claude Code Web durante o fluxo de
+implementação, mas por uma GitHub Action (`.github/workflows/milestone-cleanup.yml`)
+disparada por evento de repositório (no caso, merge de PR de milestone).
+
+A skill em si (`skill.md`) permanece autocontida — pode rodar em Claude Code
+Web manualmente como fallback. O que muda é o trigger: evento → Action →
+Claude Code → skill, em vez de dev → Claude Code Web → skill.
+
+**Quando usar o padrão:**
+- Tarefa é determinística o suficiente pra rodar sem operador presente.
+- Trigger é um evento de repositório (merge, push, schedule cron, label).
+- Output é confinado a arquivos específicos (escopo de escrita explícito na skill).
+
+**Quando NÃO usar:**
+- Tarefa exige julgamento arquitetural ou negociação com dev (extração de
+  conhecimento permanente é o exemplo canônico — TL/Dev decidem na fase de
+  implementação, W-PROTO-7).
+- Output é amplo o suficiente pra arriscar reescrita criativa.
+
+Candidatas futuras (não desenhadas — virarão épicos quando houver sinal):
+varredura de débito técnico em schedule, atualização de
+`docs/process/sizing/history.jsonl` com `loc_actual` real após merge,
+sinalização de drift em ROADMAPs. Cada uma vira épico próprio quando
+oportunidade real surgir.
 
 ## Horizonte
 

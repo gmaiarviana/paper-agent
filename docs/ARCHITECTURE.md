@@ -379,12 +379,25 @@ paper-agent/
 ├── .env.example           # Template de variáveis de ambiente
 ├── requirements.txt       # Dependências Python
 ├── README.md              # Getting Started
+├── .github/
+│   └── workflows/         # GitHub Actions
+│       ├── test-unit.yml         # CI dos testes unitários
+│       └── milestone-cleanup.yml # Cleanup pós-merge (W-PROTO-6) — invoca skills/cleanup
+├── skills/                # Skills do fluxo autônomo (1 skill = 1 gate ou 1 automação)
+│   ├── pm/                # Refinamento tático dentro da branch
+│   ├── em/                # Sizing FIT/TIGHT/OVERFLOW
+│   ├── scrum-master/      # Plano de tasks por épico
+│   ├── qa/                # Gate técnico per-funcionalidade
+│   ├── tl/                # Gate arquitetural per-funcionalidade
+│   ├── po/                # Gate de critérios de aceite per-funcionalidade
+│   ├── rte/               # Fechamento do milestone + abertura da PR
+│   └── cleanup/           # Faxina pós-merge (W-PROTO-6, executa via Action)
 ├── docs/                  # Pack inicial e processo
 │   ├── CONSTITUTION.md    # Princípios e processo
 │   ├── ARCHITECTURE.md    # Visão arquitetural (este arquivo)
 │   ├── ROADMAP.md         # Épicos e melhorias do core
 │   ├── CONTEXT_INDEX.md   # Mapa código↔doc
-│   └── process/           # refinement/, implementation/, autonomous/
+│   └── process/           # refinement/, implementation/, autonomous/, sizing/, workflow/
 ├── products/revelar/ROADMAP.md  # Épicos e melhorias do Revelar
 │
 ├── core/                  # Core compartilhado
