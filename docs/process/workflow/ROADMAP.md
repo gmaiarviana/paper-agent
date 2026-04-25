@@ -37,7 +37,8 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
   W-POC-4 ✅.
 - **Nota:** dívida residual da reforma de milestone (M4-restante, M5, M6
   e dívidas declaradas em W-POC-3) vive na fase Protótipo, distribuída
-  entre `PROTO-WORKFLOW-DOC` (W-PROTO-1..4 — saneamento documental) e
+  entre `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1/2/3 — saneamento
+  documental; re-quebrado de 4 para 3 épicos em 2026-04-25) e
   `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5..7 — refinamento do ciclo
   de encerramento). O antigo `docs/process/refactor-backlog.md` foi
   migrado para este ROADMAP e removido.
@@ -62,20 +63,107 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
 
 ### PROTO-WORKFLOW-DOC
 
-- **Objetivo:** saneamento documental residual da reforma de milestone
-  — reescrever arquivos de `docs/process/autonomous/` e
-  `docs/process/refinement/` para o modelo de milestone, migrar
-  template de `delivery-report.md`, fechar cross-references e limpar
-  ponteiros quebrados. Segunda unidade coerente da fase Protótipo do
-  Workflow, independente de `PROTO-WORKFLOW-ENCERRAMENTO`.
+- **Status:** 🧭 Jornada alinhada (desde 2026-04-25)
+- **Objetivo:** consolidar a reforma de milestone na documentação do
+  fluxo de desenvolvimento — absorver as cirurgias do
+  `PROTO-WORKFLOW-ENCERRAMENTO` em reescritas coerentes per-milestone
+  (em `docs/process/autonomous/`), migrar
+  `skills/rte/templates/delivery-report.md` pro shape de milestone (já
+  incluindo a Seção 🎯 Validação introduzida pelo W-PROTO-5), e fechar
+  ponteiros quebrados e referências desatualizadas em arquivos
+  periféricos. Saneamento prospectivo: o valor é destravar conforto pro
+  próximo refinamento estratégico (MVP-WORKFLOW e milestones de
+  produto futuros) e pro próximo dispatch autônomo.
 - **Estágio:** Protótipo
-- **Épicos agrupados:** W-PROTO-1, W-PROTO-2, W-PROTO-3, W-PROTO-4
+- **Jornada alvo:** quando o operador rodar o próximo refinamento
+  estratégico ou disparar o próximo dispatch autônomo após este
+  milestone, nenhum arquivo de processo do workflow contradiz outro
+  nem força tradução mental do modelo per-funcionalidade pro modelo
+  per-milestone. Sintoma observável: dispara o próximo milestone e o
+  agente roda sem encontrar instrução conflitante entre `dispatch.md`,
+  `workflow.md`, `delivery.md`, `epic_completion.md`,
+  `autonomous_readiness.md` e `delivery-report.md`.
+- **Escopo declinado:**
+  - ✅ Reescrita per-milestone dos arquivos de `docs/process/autonomous/`,
+    absorvendo cirurgias do W-PROTO-5/6/7.
+  - ✅ Migração do template `delivery-report.md` (shape de milestone +
+    Seção 🎯).
+  - ✅ Saneamento residual em arquivos periféricos que ainda referenciam
+    vocabulário antigo (`planning_guidelines.md` em ponto específico,
+    `implementation/overview.md`, `.github/copilot-instructions.md`).
+  - ❌ Não revisa `skills/<role>/skill.md` (já reescritos em W-POC-3 e
+    W-PROTO-5/6/7).
+  - ❌ Não toca `epic_completion.md`, `autonomous_readiness.md`,
+    `starter.md`, `refinement/overview.md`, `dispatch.md`,
+    `CONTEXT_INDEX.md`, `ARCHITECTURE.md`, `README.md` — diagnóstico
+    de 2026-04-25 confirmou que estão limpos.
+  - ❌ Não inclui o padrão "Skill em Action" como tema arquitetural —
+    esse é eixo de workflow, não de produto, e não cabe em
+    `ARCHITECTURE.md`/`CONTEXT_INDEX.md`.
+  - ❌ Não roda a transição 🏗️→✅ do `PROTO-WORKFLOW-ENCERRAMENTO`
+    (responsabilidade da skill `cleanup` via Action; pendente de
+    configuração do secret `ANTHROPIC_API_KEY`).
+- **Glossário ancorado:**
+  - **Modelo per-milestone:** vocabulário canônico do fluxo após a
+    reforma — branch `milestone/<id>`, N commits no milestone (padrão:
+    um por épico), ids `<ESTAGIO>-<PRODUTO>` (ex.: `POC-ENSAIO`).
+    Substitui o **modelo per-funcionalidade** (branch `feature/X.Y-`,
+    "1 commit por funcionalidade", ids como `C-ENSAIO-2`) usado no
+    POC-WORKFLOW original.
+  - **Cirurgia órfã:** edição pontual feita por um épico (W-PROTO-5/6/7)
+    em arquivo cujo restante ainda fala vocabulário antigo. Cria
+    contradição interna ao arquivo. Este milestone existe pra absorver
+    todas as cirurgias órfãs em reescrita coerente.
+  - **Saneamento documental:** ato de remover marcas do vocabulário
+    antigo + corrigir ponteiros quebrados + garantir consistência
+    entre arquivos de processo. Não é refactor de código nem mudança
+    de comportamento.
+  - **Dívida da reforma:** itens M4-restante/M5/M6 da reforma original
+    (declarados na Nota do `POC-WORKFLOW`) + dívida inline declarada
+    pelo W-POC-3 sobre `delivery-report.md` (commit `7cde7d9`).
+- **Acoplamentos sinalizados:**
+  - **PROTO-WORKFLOW-ENCERRAMENTO mergeado:** consumiu boa parte do
+    escopo originalmente previsto pra `epic_completion.md` e parte de
+    `workflow.md`/`delivery.md` via cirurgias. Re-quebra de 4 → 3
+    épicos em 2026-04-25 reflete esse consumo.
+  - **Faxina pendente do PROTO-WORKFLOW-ENCERRAMENTO:** a transição
+    🏗️→✅ desse milestone (e dos W-PROTO-5/6/7) ainda não rodou —
+    skill `cleanup` precisa do secret `ANTHROPIC_API_KEY`. Vai gerar
+    diff em `docs/process/workflow/ROADMAP.md` em algum momento. Não
+    bloqueia este milestone, mas a ordem ideal é faxina antes (evita
+    rebase no mesmo arquivo).
+  - **Pré-requisito do MVP-WORKFLOW:** doc consistente é insumo do
+    próximo refinamento estratégico (MVP-WORKFLOW) e dos refinamentos
+    táticos (PM skill, quando criada). Sem PROTO-DOC, esses processos
+    leem instrução contraditória.
+- **Épicos agrupados:** W-PROTO-DOC-1, W-PROTO-DOC-2, W-PROTO-DOC-3
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-doc`
-- **Status dos épicos:** W-PROTO-1 🌱 Visão, W-PROTO-2 🌱 Visão,
-  W-PROTO-3 🌱 Visão, W-PROTO-4 🌱 Visão.
-- **Nota:** pendente de refinamento tático (não bloqueia
-  `PROTO-WORKFLOW-ENCERRAMENTO`).
+- **Status dos épicos:** W-PROTO-DOC-1 🌱 Visão, W-PROTO-DOC-2 🌱
+  Visão, W-PROTO-DOC-3 🌱 Visão.
+- **Feedback do estágio anterior endereçado:**
+  - Dívida M4-restante/M5/M6 da reforma de milestone original — vinha
+    da Nota do `POC-WORKFLOW`. W-PROTO-DOC-1 absorve a parte residual
+    em `docs/process/autonomous/`.
+  - Dívida inline declarada pelo W-POC-3 (commit `7cde7d9`) sobre
+    `delivery-report.md` no shape antigo. W-PROTO-DOC-2 fecha.
+  - Cirurgias órfãs do W-PROTO-5/6/7 em arquivos de processo, geradas
+    pela própria fase Protótipo — W-PROTO-DOC-1 e W-PROTO-DOC-2 fazem
+    a costura.
+  - Drift pontual descoberto no diagnóstico de 2026-04-25: refs
+    quebradas pra `../development/` (diretório inexistente) em
+    `workflow.md`/`delivery.md`; exemplos `C-ENSAIO-2`/`feature/11.1-11.2`
+    em `session_conventions.md`/`implementation/overview.md`/
+    `.github/copilot-instructions.md`. W-PROTO-DOC-1 e W-PROTO-DOC-3
+    fecham.
+- **Nota:** milestone refinado a 🧭 Jornada alinhada em 2026-04-25 na
+  branch `claude/refine-workflow-milestone-N22pL`. Re-quebra de 4
+  épicos (W-PROTO-1/2/3/4) pra 3 (W-PROTO-DOC-1/2/3) feita após
+  diagnóstico do estado real do repo: PROTO-ENCERRAMENTO mergeado
+  consumiu o escopo principal de W-PROTO-2 (`epic_completion.md`
+  ficou limpo) e reduziu o escopo dos demais. Épicos seguem em 🌱
+  Visão pendentes de refinamento tático (alvo `🔍 Detalhes definidos`
+  via PM skill ou via Claude Web).
 
 ### MVP-WORKFLOW
 
@@ -223,109 +311,91 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Protótipo
 
-> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-1, 2, 3, 4).
+> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1, 2, 3).
 
-#### ÉPICO W-PROTO-1: Reescrita por milestone dos arquivos operacionais de `docs/process/autonomous/`
+#### ÉPICO W-PROTO-DOC-1: Reescrita per-milestone de `docs/process/autonomous/`
 
 **Milestone:** `PROTO-WORKFLOW-DOC`
 
-**Objetivo:** alinhar `workflow.md` (corpo abaixo do diagrama),
-`overview.md`, `delivery.md` e `session_conventions.md` ao modelo de
-milestone. Hoje esses arquivos ainda descrevem decisão/entrega
-per-funcionalidade (`feature/X.Y-nome`, "dispara pela manhã / valida à
-noite" por funcionalidade, um commit por funcionalidade). A reescrita
-passa a descrever loop por épico dentro do milestone, gates QA/TL/PO
-per-funcionalidade operando dentro do loop, RTE fechando o milestone
-com notificação única, e `session_conventions.md` §2 explicitando que
-um milestone tem N commits (padrão: um por épico) na branch
-`milestone/<id-em-caixa-baixa>`. Política de 3 reprovações consecutivas
-no mesmo gate do mesmo épico (já fixada em `dispatch.md` via W-POC-1)
-ganha descrição detalhada em `workflow.md`.
+**Objetivo:** absorver as cirurgias órfãs do W-PROTO-5/6/7 em
+reescrita coerente per-milestone de `workflow.md`, `delivery.md`,
+`overview.md` e `session_conventions.md` — hoje esses arquivos
+misturam descrição per-funcionalidade (modelo POC original:
+`feature/X.Y-`, "dispara pela manhã / valida à noite" por
+funcionalidade, "1 commit por funcionalidade") com edições pontuais
+do PROTO-ENCERRAMENTO (estado terminal "PR aberta", bloco "Extração
+pendente", skill `cleanup` via Action). A reescrita unifica o
+vocabulário no modelo per-milestone (branch `milestone/<id>`, loop
+por épico, gates per-funcionalidade dentro do loop, RTE abre PR como
+estado terminal da fase de implementação, extração como passo do
+implementador, faxina como Action pós-merge). Inclui correção das 5
+referências quebradas pra `../development/` em `workflow.md` (linhas
+65, 66, 191) e `delivery.md` (linhas 31, 133) — diretório correto é
+`../implementation/`. Inclui troca do exemplo `C-ENSAIO-2` em
+`session_conventions.md` por id de milestone moderno.
 
 **Status:** 🌱 Visão
 
-**Dependências:** W-POC-3 (semântica operacional já está nos skill.md;
-os arquivos de `docs/process/autonomous/` são a descrição humana desse
-mesmo modelo)
+**Dependências:** W-POC-3 (semântica operacional nos skill.md);
+PROTO-WORKFLOW-ENCERRAMENTO mergeado (cirurgias a absorver). Não
+bloqueia W-PROTO-DOC-2.
 
 **Migra de:** reforma de milestone (branch `refactor/fluxo-milestone`,
-2026-04)
+2026-04) + cirurgias do PROTO-WORKFLOW-ENCERRAMENTO (commits
+`d00fcfa`, `7ada1c5`, `7aee439`).
 
-#### ÉPICO W-PROTO-2: Distinção estratégico × tático em `docs/process/refinement/`
+#### ÉPICO W-PROTO-DOC-2: Migração do template `skills/rte/templates/delivery-report.md` pro shape de milestone
 
 **Milestone:** `PROTO-WORKFLOW-DOC`
 
-**Objetivo:** promover a distinção refinamento estratégico (Claude
-Web, fora da branch, antes do dispatch) × refinamento tático (PM
-skill, dentro da branch do milestone) de callout isolado para conteúdo
-de primeira classe ao longo de `docs/process/refinement/`. Tocar:
-`planning_guidelines.md` (callout vira seção própria + sub-seção
-"Processo de Refinamento Autônomo (PM Skill)" irmã de "Processo de
-Refinamento com Claude Web"; revisar exemplos para cobrir os dois
-caminhos); `starter.md` (explicitar que o pack cobre apenas o
-estratégico; nova seção "Contexto consumido pela PM skill"); `overview.md`
-(ajustar "Quando usar"); `autonomous_readiness.md` (deixar claro que o
-checklist é consumido pela PM skill como programa executável);
-`epic_completion.md` (ajuste pontual: ciclo pode ser acionado pela RTE
-em bulk para todos os épicos do milestone).
-
-**Status:** 🌱 Visão
-
-**Dependências:** W-POC-3 (PM skill estável operacionalmente); idealmente
-após W-PROTO-1 para manter coerência entre `autonomous/` e
-`refinement/`, mas não bloqueante.
-
-**Migra de:** reforma de milestone (branch `refactor/fluxo-milestone`,
-2026-04)
-
-#### ÉPICO W-PROTO-3: Migração do template `skills/rte/templates/delivery-report.md` para shape de milestone
-
-**Milestone:** `PROTO-WORKFLOW-DOC`
-
-**Objetivo:** reescrever o template de relatório de entrega para
-acomodar N épicos em sub-seções, em vez do formato atual (uma
-funcionalidade isolada). A skill RTE (`skills/rte/skill.md` Passo 5,
+**Objetivo:** reescrever o template de relatório de entrega pra
+acomodar N épicos em sub-seções (em vez do formato atual: uma
+funcionalidade isolada com `feature/X.Y-nome`), preservando a Seção
+🎯 Validação introduzida cirurgicamente pelo W-PROTO-5. Densidade
+estimada ~55% do arquivo. A skill RTE (`skills/rte/skill.md` Passo 5,
 reescrita em W-POC-3) já opera sobre milestone inteiro e consolida N
 épicos na mensagem final, mas preenche um template ainda no shape
-antigo. Dívida declarada inline no próprio `skill.md` durante W-POC-3.
+antigo. Ao concluir, remover a nota de dívida declarada inline no
+topo do template (linhas 1-3 atuais).
 
 **Status:** 🌱 Visão
 
-**Dependências:** W-POC-3 (RTE já opera por milestone; o template é o
-último ponto do fluxo ainda não-migrado)
+**Dependências:** W-POC-3 (RTE já opera por milestone); W-PROTO-5
+mergeado (Seção 🎯 a preservar). Não bloqueia W-PROTO-DOC-1.
 
-**Migra de:** dívida declarada em commit `7cde7d9` (W-POC-3)
+**Migra de:** dívida declarada inline pelo W-POC-3 (commit `7cde7d9`)
++ dívida declarada inline pelo W-PROTO-5 (commit `d00fcfa`) sobre
+absorção da Seção 🎯 no shape de milestone.
 
-#### ÉPICO W-PROTO-4: Cross-references e saneamento documental pós-reforma
+#### ÉPICO W-PROTO-DOC-3: Saneamento residual em arquivos periféricos
 
 **Milestone:** `PROTO-WORKFLOW-DOC`
 
-**Objetivo:** fechar pontas periféricas para que o grep do repositório
-fique coerente e a reforma de milestone não deixe ponteiros quebrados.
-Tocar: `docs/CONTEXT_INDEX.md` (tema "Desenvolvimento e Processo" lista
-as 7 skills — PM, EM, Scrum Master, Dev, QA, TL, PO, RTE — e referencia
-`docs/process/sizing/`; linha nova no MAPA RÁPIDO DE DECISÃO para
-"Implementar milestone de produto"); `docs/ARCHITECTURE.md` (seção
-"Estrutura do Projeto": `skills/` passa de 5 para 7 entradas +
-`docs/process/sizing/`); `.github/copilot-instructions.md` (Modo A
-referencia shape novo de `current_implementation.md`; exemplo
-`C-ENSAIO-2` vira `POC-ENSAIO` ou similar); `README.md` (linha ~195
-menciona `sizing/` se oportuno); `docs/process/implementation/overview.md`
-(nota curta declarando que fluxo manual opera em funcionalidade/épico e
-é complementar ao autônomo que opera em milestone). Micro-dívidas:
-typo `IImplementado` pós-M1; inconsistência "5 arquivos essenciais"
-(`planning_guidelines.md` linha 32) vs pack de 6 em `starter.md`. Fechar
-com varredura `grep -rn` por "Planning Skill", "Validation Skill",
-"planning/skill.md", "validation/skill.md", "feature/X.Y-" e corrigir
-o que sobrou.
+**Objetivo:** fechar pontas periféricas que ainda referenciam
+vocabulário antigo, identificadas no diagnóstico de 2026-04-25. Tocar:
+`docs/process/refinement/planning_guidelines.md` (template de épico
+em estado `🏗️ Em andamento` ainda menciona `**Branch:** feature/X.Y-nome`
+— atualizar pra `milestone/<id>`); `docs/process/implementation/overview.md`
+(exemplo de mensagem de checkpoint refere `feature/11.1-11.2` —
+modernizar pra contexto que distingue fluxo manual via Cursor de
+fluxo autônomo via Claude Code Web); `.github/copilot-instructions.md`
+(Modo A descreve semântica per-funcionalidade ao extrair de
+`current_implementation.md` — atualizar pro shape aninhado introduzido
+em W-POC-2; exemplo `C-ENSAIO-2` vira `POC-ENSAIO`). Encerrar com
+varredura `grep -rn` por "feature/X.Y-", "Planning Skill", "Validation
+Skill", "planning/skill.md", "validation/skill.md" e corrigir
+remanescentes. Se a varredura identificar drift adicional em
+`docs/CONTEXT_INDEX.md` ou `docs/ARCHITECTURE.md` (limpos no
+diagnóstico de 2026-04-25), corrigir aqui também.
 
 **Status:** 🌱 Visão
 
-**Dependências:** W-PROTO-1 e W-PROTO-2 (varredura final faz sentido
-depois que os arquivos operacionais e de refinamento foram migrados)
+**Dependências:** W-PROTO-DOC-1 e W-PROTO-DOC-2 (varredura final faz
+sentido depois que os arquivos operacionais e o template foram
+migrados).
 
-**Migra de:** reforma de milestone (branch `refactor/fluxo-milestone`,
-2026-04)
+**Migra de:** dívidas residuais da reforma de milestone + diagnóstico
+de 2026-04-25 (branch `claude/refine-workflow-milestone-N22pL`).
 
 #### ÉPICO W-PROTO-5: Validação async — PR antes da aprovação, Copilot como validador local
 
@@ -1050,11 +1120,13 @@ encerramento) e foram agrupados no milestone
 W-PROTO-6 (infra de automação). Os três foram refinados em conjunto
 em 2026-04-24 na branch `claude/continue-workflow-implementation-5PKVa`
 e estão em `🔍 Detalhes definidos` — prontos para dispatch autônomo
-via Claude Code Web (a gatilhar pelo operador). W-PROTO-1/2/3/4
+via Claude Code Web (a gatilhar pelo operador). W-PROTO-DOC-1/2/3
 (dívida documental da reforma de milestone) vivem em
-`PROTO-WORKFLOW-DOC` e permanecem em `🌱 Visão` pendentes de
-refinamento tático; os dois milestones da fase Protótipo são
-independentes e podem ser executados em qualquer ordem.
+`PROTO-WORKFLOW-DOC`, milestone refinado a `🧭 Jornada alinhada` em
+2026-04-25 (branch `claude/refine-workflow-milestone-N22pL`); os
+épicos individuais permanecem em `🌱 Visão` pendentes de refinamento
+tático. Os dois milestones da fase Protótipo são independentes e
+podem ser executados em qualquer ordem.
 
 A quebra da fase Protótipo do Workflow em dois milestones
 (`PROTO-WORKFLOW-ENCERRAMENTO` e `PROTO-WORKFLOW-DOC`) foi aplicada
@@ -1064,6 +1136,16 @@ erro do milestone-balaio se repita, foi introduzido um checklist de
 coerência no refinamento estratégico em
 `docs/process/refinement/planning_guidelines.md` (seção "Checklist
 de coerência para declarar um milestone").
+
+A re-quebra do `PROTO-WORKFLOW-DOC` (4 épicos → 3) em 2026-04-25
+seguiu o mesmo princípio: diagnóstico do estado real do repo após
+PROTO-WORKFLOW-ENCERRAMENTO mergeado revelou que `epic_completion.md`
+(alvo principal do antigo W-PROTO-2) ficou limpo via cirurgias do
+W-PROTO-7/6, e que o escopo dos demais arquivos diminuiu. Os
+referenciamentos a "W-PROTO-1" e "W-PROTO-3" no detalhamento dos
+épicos W-PROTO-5/6/7 mantidos como histórico vivo do refinamento de
+2026-04-24 — serão removidos naturalmente quando a skill `cleanup`
+enxugar esses épicos pós-merge.
 
 **Observação sobre evolução da EM skill.** A EM skill hoje decide
 sobre tamanho (FIT/TIGHT/OVERFLOW) com base em LOC e risco, rodando
