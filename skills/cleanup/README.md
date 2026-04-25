@@ -85,6 +85,20 @@ Arquivos lidos:
 - Secret `ANTHROPIC_API_KEY` configurado em `Settings → Secrets and variables → Actions` do repo. Sem isso, a Action falha no setup do Claude Code.
 - A Action oficial Claude Code da Anthropic precisa estar disponível no marketplace (ver `.github/workflows/milestone-cleanup.yml` para o nome exato em uso).
 
+## 8. OBSERVABILIDADE DE CUSTO
+
+Cada execução da Action grava uma linha em `docs/process/workflow/cleanup_runs.jsonl` com:
+
+```json
+{"timestamp": "...", "milestone_id": "...", "pr": "...", "run_id": "...",
+ "mode_a_outcome": "success|failure", "input_tokens": N, "output_tokens": N,
+ "api_calls": N}
+```
+
+A captura é **best-effort**: lê `${{ steps.claude.outputs.execution_file }}`, soma `input_tokens`/`output_tokens` por chamada e faz append no JSONL. Falha de parse não interrompe o cleanup — o run apenas fica sem entrada no log. Custo em USD não é calculado no workflow (preço por modelo muda); cálculo ad-hoc lendo o JSONL com a tabela de pricing corrente da Anthropic.
+
+Análise sugerida quando houver ≥5 runs: `jq` no JSONL para mediana de tokens por milestone, identificar outliers, calibrar expectativa de custo da fase de higiene.
+
 ---
 
 ## 8. PADRÃO "SKILL EM ACTION"

@@ -88,6 +88,7 @@ jobs:
       # - anthropics/claude-code-action@v1
       # - anthropics/claude-code-base-action@v1
       - name: Run cleanup skill via Claude Code
+        id: claude
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -152,6 +153,58 @@ jobs:
             PR original: ${{ steps.vars.outputs.merged_pr_url }}
             Merge SHA: ${{ steps.vars.outputs.merge_sha }}
 
+      # Custo por run — best-effort. Action expõe `execution_file` (JSONL com
+      # tokens por chamada da API); somamos input_tokens/output_tokens e
+      # gravamos uma linha em docs/process/workflow/cleanup_runs.jsonl. Custo
+      # em USD não é calculado aqui (preço por modelo muda); tokens crus +
+      # contexto são suficientes para análise ad-hoc. Falha de parse não
+      # interrompe o workflow (continue-on-error).
+      - name: Capturar tokens do run (best-effort)
+        id: cost_log
+        if: always()
+        continue-on-error: true
+        run: |
+          EXEC_FILE="${{ steps.claude.outputs.execution_file }}"
+          if [ -z "$EXEC_FILE" ] || [ ! -f "$EXEC_FILE" ]; then
+            echo "execution_file ausente ou inacessível — pulando log de custo."
+            exit 0
+          fi
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          STATS=$(jq -s -c '
+            [.. | objects | select(has("input_tokens") or has("output_tokens") or (.usage? | type == "object"))] |
+            {
+              input_tokens:  ([.[] | (.input_tokens  // .usage.input_tokens  // 0)] | add),
+              output_tokens: ([.[] | (.output_tokens // .usage.output_tokens // 0)] | add),
+              api_calls: length
+            }
+          ' "$EXEC_FILE" 2>/dev/null) || STATS='{"input_tokens":null,"output_tokens":null,"api_calls":null}'
+          mkdir -p docs/process/workflow
+          jq -c -n \
+            --arg ts "$TIMESTAMP" \
+            --arg mid "${MILESTONE_ID}" \
+            --arg pr "${MERGED_PR_URL}" \
+            --arg run "${{ github.run_id }}" \
+            --arg outcome "${{ steps.mode_a.outcome }}" \
+            --argjson stats "$STATS" \
+            '{timestamp:$ts, milestone_id:$mid, pr:$pr, run_id:$run, mode_a_outcome:$outcome} + $stats' \
+            >> docs/process/workflow/cleanup_runs.jsonl
+          echo "Linha appendada em docs/process/workflow/cleanup_runs.jsonl:"
+          tail -n 1 docs/process/workflow/cleanup_runs.jsonl
+
+      - name: Commitar log de custo em main
+        if: always() && steps.cost_log.outcome == 'success'
+        continue-on-error: true
+        run: |
+          if git diff --quiet -- docs/process/workflow/cleanup_runs.jsonl; then
+            echo "Sem mudanças no log de custo — nada a commitar."
+            exit 0
+          fi
+          # Sincroniza com main antes de pushar (mode_a já pode ter pushado).
+          git pull --rebase origin main || true
+          git add docs/process/workflow/cleanup_runs.jsonl
+          git commit -m "chore(cleanup): log run ${{ github.run_id }} (${MILESTONE_ID})"
+          git push origin main
+
       - name: Resumo da execução
         if: always()
         run: |
@@ -159,3 +212,4 @@ jobs:
           echo "PR original: ${MERGED_PR_URL}"
           echo "Modo A status: ${{ steps.mode_a.outcome }}"
           echo "No changes (idempotência): ${{ steps.mode_a.outputs.no_changes }}"
+          echo "Cost log status: ${{ steps.cost_log.outcome }}"
