@@ -52,8 +52,8 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
 - **Épicos agrupados:** W-PROTO-5, W-PROTO-6, W-PROTO-7
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-encerramento`
-- **Status dos épicos:** W-PROTO-5 🔍 Detalhes definidos, W-PROTO-6
-  🔍 Detalhes definidos, W-PROTO-7 🔍 Detalhes definidos.
+- **Status dos épicos:** W-PROTO-5 🏗️ Em andamento, W-PROTO-6 🏗️ Em
+  andamento, W-PROTO-7 🏗️ Em andamento.
 - **Nota:** unidade lógica descoberta durante refinamento
   (2026-04-24) — os três épicos dividem o rito de `epic_completion.md`
   e foram refinados em conjunto na branch
@@ -316,7 +316,7 @@ estado terminal: "PR aberta, pending review"). Dev valida a PR com
 auxílio do GitHub Copilot colando uma seção padronizada do body da PR
 como prompt. Aprovação = merge.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🏗️ Em andamento
 
 **Dependências:** nenhuma (refinamento operacional do ciclo de
 encerramento; não bloqueia nem é bloqueado por W-PROTO-1/2/3/4; é
@@ -550,7 +550,7 @@ na main (direto ou via PR secundária, conforme branch protection).
 Primeira skill do projeto executada via GitHub Action em vez de via
 Claude Code Web — estabelece o padrão para automações futuras.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🏗️ Em andamento
 
 **Dependências:**
 - **W-PROTO-7** — bloqueante. Extração precisa sair do rito de
@@ -814,7 +814,7 @@ abertura de PR. `epic_completion.md` passa a cobrir só enxugamento +
 transição (partes determinísticas que a Action de W-PROTO-6 consegue
 executar).
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🏗️ Em andamento
 
 **Dependências:** nenhuma própria. É pré-requisito de conteúdo (não
 de código) para W-PROTO-6 — a Action de cleanup só pode assumir

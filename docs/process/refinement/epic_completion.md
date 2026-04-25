@@ -46,6 +46,15 @@ Dois movimentos determinísticos em ordem: **enxugamento** (o que restou no épi
 
 - [ ] Épico marcado como `✅ Implementado` no ROADMAP somente após enxugamento completo.
 
+> **Automação (W-PROTO-6).** Os dois passos acima — Enxugamento e Transição de estado — são **executados automaticamente** pela skill `skills/cleanup/skill.md` via `.github/workflows/milestone-cleanup.yml` no merge da PR de milestone. A Action carrega Claude Code, aplica as regras determinísticas a partir das variáveis `MILESTONE_ID`, `MERGED_PR_URL`, `MERGE_SHA` extraídas do evento, e commita o resultado (modo A direto em main; modo B via PR secundária se branch protection bloquear).
+>
+> **Fallback manual:** se a Action falhar (timeout, branch protection inesperada, erro de API, secret `ANTHROPIC_API_KEY` ausente), o dev pode rodar a mesma skill em sessão Claude Code Web sobre `main` pós-merge:
+> 1. Carregar `skills/cleanup/skill.md` + `docs/process/current_implementation.md` (no commit do merge).
+> 2. Passar manualmente as três variáveis (`MILESTONE_ID`, `MERGED_PR_URL`, `MERGE_SHA`).
+> 3. Skill aplica os mesmos passos; dev autoriza o commit direto em main.
+>
+> A skill é idempotente — segunda execução é no-op nos blocos já enxugados, então rodar Action + fallback é seguro.
+
 ## Quando Aplicar
 
 Ao final da implementação de um milestone, depois que o código foi mergeado e validado, e antes de transitar o status dos épicos no ROADMAP para `✅ Implementado`. Enquanto o ciclo não for completado, os épicos do milestone permanecem em `🏗️ Em andamento` — mesmo que o código já esteja em `main`.

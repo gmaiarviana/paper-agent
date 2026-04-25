@@ -1,0 +1,161 @@
+name: Milestone Cleanup
+
+# W-PROTO-6 — automação da fase de higiene pós-merge.
+#
+# Dispara no merge de uma PR cuja branch de origem comece com `milestone/`.
+# Carrega `skills/cleanup/skill.md` via Action oficial Claude Code da Anthropic
+# e aplica enxugamento + transição de estado nos ROADMAPs afetados.
+#
+# Pré-requisito operacional: secret ANTHROPIC_API_KEY configurado em
+# Settings → Secrets and variables → Actions.
+#
+# Modo A (preferido): commit direto em main.
+# Modo B (fallback automático se branch protection bloquear): PR secundária
+# via peter-evans/create-pull-request.
+#
+# Para rodar manualmente (debug ou re-run de uma execução falha), use o
+# trigger `workflow_dispatch` abaixo passando os três inputs.
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      milestone_id:
+        description: "ID do milestone (ex.: PROTO-WORKFLOW-ENCERRAMENTO)"
+        required: true
+        type: string
+      merged_pr_url:
+        description: "URL da PR mergeada"
+        required: true
+        type: string
+      merge_sha:
+        description: "SHA do merge commit"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  cleanup:
+    # Pula se PR foi fechada sem merge ou se branch não é de milestone (no
+    # trigger pull_request). workflow_dispatch sempre roda.
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+       startsWith(github.event.pull_request.head.ref, 'milestone/'))
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main (full history)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Extrair variáveis do contexto
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            MILESTONE_ID="${{ inputs.milestone_id }}"
+            MERGED_PR_URL="${{ inputs.merged_pr_url }}"
+            MERGE_SHA="${{ inputs.merge_sha }}"
+          else
+            HEAD_REF="${{ github.event.pull_request.head.ref }}"
+            # milestone/proto-workflow-encerramento -> PROTO-WORKFLOW-ENCERRAMENTO
+            MILESTONE_ID=$(echo "${HEAD_REF#milestone/}" | tr '[:lower:]' '[:upper:]')
+            MERGED_PR_URL="${{ github.event.pull_request.html_url }}"
+            MERGE_SHA="${{ github.event.pull_request.merge_commit_sha }}"
+          fi
+          echo "milestone_id=$MILESTONE_ID" >> "$GITHUB_OUTPUT"
+          echo "merged_pr_url=$MERGED_PR_URL" >> "$GITHUB_OUTPUT"
+          echo "merge_sha=$MERGE_SHA" >> "$GITHUB_OUTPUT"
+          echo "MILESTONE_ID=$MILESTONE_ID" >> "$GITHUB_ENV"
+          echo "MERGED_PR_URL=$MERGED_PR_URL" >> "$GITHUB_ENV"
+          echo "MERGE_SHA=$MERGE_SHA" >> "$GITHUB_ENV"
+
+      - name: Configurar git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # Carrega Claude Code via Action oficial da Anthropic.
+      # Nome/versão exatos: confirmar no marketplace antes do primeiro run real.
+      # Candidatos no momento do refinamento (W-PROTO-6, 2026-04-24):
+      # - anthropics/claude-code-action@v1
+      # - anthropics/claude-code-base-action@v1
+      - name: Run cleanup skill via Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Carregue e siga integralmente skills/cleanup/skill.md.
+
+            Variáveis de contexto:
+            - MILESTONE_ID=${{ steps.vars.outputs.milestone_id }}
+            - MERGED_PR_URL=${{ steps.vars.outputs.merged_pr_url }}
+            - MERGE_SHA=${{ steps.vars.outputs.merge_sha }}
+
+            Aplique enxugamento dos épicos do milestone e transição de estado
+            nos ROADMAPs afetados. Não toque em nenhum arquivo fora de
+            ROADMAP.md. Aborte se houver gates abertos ou Extração pendente
+            no current_implementation.md mergeado.
+
+            Não commite nem pushe — esta etapa apenas edita os arquivos
+            localmente. O passo seguinte do workflow resolve o staging,
+            commit e push (modo A direto em main, modo B PR secundária se
+            branch protection bloquear).
+
+      - name: Tentar commit direto em main (modo A)
+        id: mode_a
+        continue-on-error: true
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "no_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Sem alterações — skill foi no-op (idempotência)."
+            exit 0
+          fi
+          git add -A "*ROADMAP.md"
+          git commit -m "chore(cleanup): faxina pós-merge ${MILESTONE_ID}
+
+          Aplicado por skills/cleanup/skill.md via .github/workflows/milestone-cleanup.yml.
+
+          PR original: ${MERGED_PR_URL}
+          Merge SHA: ${MERGE_SHA}"
+          git push origin main
+
+      - name: Fallback modo B — PR secundária (se modo A falhou)
+        if: steps.mode_a.outcome == 'failure' && steps.mode_a.outputs.no_changes != 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: cleanup/${{ steps.vars.outputs.milestone_id }}-${{ github.run_id }}
+          base: main
+          title: "chore(cleanup): faxina pós-merge ${{ steps.vars.outputs.milestone_id }}"
+          body: |
+            Cleanup automático pós-merge gerado por
+            `.github/workflows/milestone-cleanup.yml` (modo B — branch
+            protection bloqueou commit direto em main).
+
+            - Milestone: `${{ steps.vars.outputs.milestone_id }}`
+            - PR original: ${{ steps.vars.outputs.merged_pr_url }}
+            - Merge SHA: `${{ steps.vars.outputs.merge_sha }}`
+
+            Aprovar e mergear (auto-merge se habilitado).
+          commit-message: |
+            chore(cleanup): faxina pós-merge ${{ steps.vars.outputs.milestone_id }}
+
+            Aplicado por skills/cleanup/skill.md via .github/workflows/milestone-cleanup.yml.
+
+            PR original: ${{ steps.vars.outputs.merged_pr_url }}
+            Merge SHA: ${{ steps.vars.outputs.merge_sha }}
+
+      - name: Resumo da execução
+        if: always()
+        run: |
+          echo "=== Cleanup ${MILESTONE_ID} ==="
+          echo "PR original: ${MERGED_PR_URL}"
+          echo "Modo A status: ${{ steps.mode_a.outcome }}"
+          echo "No changes (idempotência): ${{ steps.mode_a.outputs.no_changes }}"
