@@ -26,14 +26,15 @@ ROADMAP descreve o futuro — épicos, critérios e detalhes que ainda não exis
 
 ## Checklist de Fechamento
 
-Três movimentos em ordem: **extração** (conhecimento permanente sai do épico), **enxugamento** (o que restou no épico é podado), **transição de estado** (épico assume `✅ Implementado`).
+Dois movimentos determinísticos em ordem: **enxugamento** (o que restou no épico é podado) e **transição de estado** (épico assume `✅ Implementado`).
 
-### Extração
-
-- [ ] Comportamento novo de agente documentado em `core/docs/agents/<agente>/`.
-- [ ] Decisão arquitetural registrada em `docs/ARCHITECTURE.md` ou `core/docs/architecture/`.
-- [ ] Novo fluxo ou padrão documentado no doc técnico relevante.
-- [ ] Alteração de visão atualizada em `products/<produto>/docs/vision.md` ou `core/docs/vision/`.
+> **Onde foi parar a Extração? (W-PROTO-7).** A extração de conhecimento permanente (novo padrão em `docs/ARCHITECTURE.md`/`core/docs/architecture/`, comportamento em `core/docs/agents/<agente>/`, notas em `.claudecode.md`) **deixou de ser passo do rito pós-merge** e virou responsabilidade da fase de implementação. Ato distribuído:
+>
+> - **TL identifica** o que merece virar conhecimento permanente (sub-seção 3.5 de `skills/tl/skill.md`) e registra item no bloco `## Extração pendente` de `current_implementation.md` ao aprovar cada funcionalidade. Item vazio é declarado explicitamente por épico.
+> - **Dev executa** as edições, antes de iniciar a próxima funcionalidade ou no último commit do épico, marcando `[x]` no bloco "Extração pendente".
+> - **RTE confirma** no Passo 1 (gate de entrada) que o bloco "Extração pendente" não tem `- [ ]` aberto. Se houver, aborta e devolve ao Dev.
+>
+> Quando o ciclo abaixo roda (pós-merge), todo conhecimento permanente já foi gravado.
 
 ### Enxugamento
 
@@ -43,7 +44,7 @@ Três movimentos em ordem: **extração** (conhecimento permanente sai do épico
 
 ### Transição de estado
 
-- [ ] Épico marcado como `✅ Implementado` no ROADMAP somente após extração e enxugamento completos.
+- [ ] Épico marcado como `✅ Implementado` no ROADMAP somente após enxugamento completo.
 
 ## Quando Aplicar
 
@@ -56,6 +57,8 @@ Ao final da implementação de um milestone, depois que o código foi mergeado e
 ## Retroatividade
 
 O ciclo aplica apenas a épicos fechados a partir da introdução deste processo. Épicos anteriormente marcados como concluídos permanecem no estado em que estão; não há migração retroativa.
+
+> **Retroatividade de W-PROTO-7.** Épicos já em `🏗️ Em andamento` no momento da implementação de W-PROTO-7 ficaram sem o bloco "Extração pendente" no `current_implementation.md` (template já havia sido gerado). Não há aplicação retroativa: dev segue o rito antigo (extração manual no fechamento) para esses casos. A partir do primeiro milestone disparado pós-W-PROTO-7, o template gerado pela Scrum Master Skill já inclui o bloco — então TL/Dev/RTE seguem o novo contrato.
 
 ## Referência Cruzada
 

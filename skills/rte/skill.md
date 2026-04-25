@@ -40,8 +40,9 @@ Ler `docs/process/current_implementation.md` e confirmar:
 - [ ] Seção `## Status dos Gates (nível milestone)` tem os itens "Scrum Master", "EM", "Loop por épico concluído" marcados `[x]` (e "PM" `[x]` ou `➖` conforme aplicável)
 - [ ] **Cada bloco** `### Épico <ID>` tem `Status: ✅ Implementado` (fechado pelo PO ao aprovar a última funcionalidade de cada épico)
 - [ ] **Cada tabela** `#### Gates por funcionalidade` tem **todas** as células Dev/QA/TL/PO marcadas como `✅` (ou `➖` quando explicitamente declarado não-aplicável pelo Scrum Master)
+- [ ] **Bloco `## Extração pendente`** (W-PROTO-7) não contém nenhum `- [ ]` aberto. Cada épico do milestone tem ou (a) todos os itens marcados `- [x]` ou (b) declaração explícita `(vazio — TL não identificou conhecimento permanente neste épico)`. Bloco do épico totalmente sem entrada = TL não passou pelo épico inteiro = aborta.
 
-Qualquer `❌`, `⏳`, épico não-`✅`, ou célula vazia? **Abortar** com mensagem ao dev:
+Qualquer `❌`, `⏳`, épico não-`✅`, célula vazia, **ou item `- [ ]` em "Extração pendente"**? **Abortar** com mensagem ao dev:
 ```
 🛑 RTE abortada — milestone incompleto.
 
@@ -49,7 +50,11 @@ Estado da tabela de gates:
 - Épico <ID-EPICO-1>: <resumo por funcionalidade, com células pendentes/reprovadas>
 - Épico <ID-EPICO-2>: ...
 
-RTE não entrega milestone parcial. Retome o loop por épico até todas as funcionalidades fecharem (ou até a escalação por 3 reprovações abortar oficialmente).
+Extração pendente (W-PROTO-7) — itens abertos:
+- Épico <ID-EPICO>: <arquivo-alvo>: <descrição>
+- ...
+
+RTE não entrega milestone parcial nem com extração aberta. Dev executa os itens `- [ ]`, marca `[x]`, e redispacha; ou retome o loop por épico até todas as funcionalidades fecharem.
 
 Veja current_implementation.md para detalhes.
 ```

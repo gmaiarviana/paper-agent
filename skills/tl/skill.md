@@ -85,11 +85,41 @@ Ao iniciar o gate, registrar em `current_implementation.md` → "Evidências de 
 - Mudou comando/setup? `README.md` foi atualizado?
 - Mudou contrato compartilhado? `docs/ARCHITECTURE.md` foi atualizado?
 
-#### 3.5 Anti-duplicação (CONSTITUTION §6)
+#### 3.5 Identificação de conhecimento permanente (W-PROTO-7)
+
+Esta sub-seção move a **Extração** do rito pós-merge (`docs/process/refinement/epic_completion.md`) pra dentro da fase de implementação. Você decide o que merece virar conhecimento permanente; Dev executa em commit subsequente; RTE confere antes de abrir a PR.
+
+Para a funcionalidade atual, identificar se a entrega gera **conhecimento permanente** que o código sozinho não expressa. Tipos previstos (não-exaustivo, ver `epic_completion.md` "Três Tipos de Conteúdo"):
+- **Padrão arquitetural novo** → `docs/ARCHITECTURE.md` ou `core/docs/architecture/<tema>.md`
+- **Comportamento novo de agente** → `core/docs/agents/<agente>/<arquivo>.md`
+- **Decisão técnica reutilizável** ou nota operacional → `.claudecode.md`
+- **Mudança em visão** → `products/<produto>/docs/vision.md` ou `core/docs/vision/`
+
+Critério: **outro épico futuro precisaria saber disso** sem reler este código? Se sim, é permanente. Se a info se esgota nesta funcionalidade (ex.: detalhes específicos de uma chamada interna, justificativa de PR), **não** é permanente — fica no commit/PR e some.
+
+**Registro (obrigatório a cada aprovação):**
+Você grava em `current_implementation.md` → bloco `## Extração pendente` (template da Scrum Master), na sub-seção `### Épico <ID-EPICO-ATUAL>`:
+
+```markdown
+- [ ] `<arquivo-alvo>`: <o que gravar em 1 linha>
+```
+
+Item registrado fica `- [ ]`; Dev marca `[x]` ao executar. Você cita arquivo-alvo + descrição curta do que gravar.
+
+**Convenção de fechamento por épico:** ao aprovar a **última funcionalidade do épico atual**, se nada foi identificado durante todo o épico, declarar explicitamente:
+
+```markdown
+### Épico <ID-EPICO-ATUAL>
+- (vazio — TL não identificou conhecimento permanente neste épico)
+```
+
+Bloco do épico **totalmente vazio** (sem essa declaração) sinaliza que o épico ainda não fechou pelo TL — o que faz a RTE abortar.
+
+#### 3.6 Anti-duplicação (CONSTITUTION §6)
 - Spec não foi copiada entre docs (deve ser referenciada)
 - README/ROADMAP/ARCHITECTURE respeitam a tabela de responsabilidade do `.claudecode.md`
 
-#### 3.6 Débito técnico
+#### 3.7 Débito técnico
 - TODO/FIXME novos têm contexto (não vagos)
 - Sem dependência circular nova
 - Sem hack temporário sem comentário ou issue
@@ -102,6 +132,8 @@ Caso contrário → APROVA.
 Atualizar `current_implementation.md`:
 - **Célula TL da funcionalidade atual** na tabela `#### Gates por funcionalidade — Épico <ID>`: `✅` se aprovado, `❌` se rejeitado.
 - Linha de evidência `[TL] skills/tl/skill.md <status> ... | épico <ID> | funcionalidade <N.M>` já adicionada no Passo 1.
+- **Se aprovado, e identificou item permanente em 3.5:** acrescentar item `- [ ]` na sub-seção `### Épico <ID-EPICO-ATUAL>` do bloco `## Extração pendente`. Citar arquivo-alvo + descrição curta.
+- **Se aprovado e é a última funcionalidade do épico atual, e nenhum item foi identificado durante o épico inteiro:** declarar explicitamente `(vazio — TL não identificou conhecimento permanente neste épico)` na sub-seção do épico no bloco "Extração pendente".
 - **Se rejeitado:** acrescentar linha em "Histórico de Reprovações":
   ```
   <YYYY-MM-DD HH:MM> | épico <ID-EPICO> | funcionalidade <N.M> | gate TL | <motivo curto>
@@ -162,6 +194,7 @@ Ação: devolver ao Dev. NÃO seguir para PO. Loop do milestone continua na mesm
 - ✅ Toda observação cita padrão (`docs/ARCHITECTURE.md`, módulo análogo, doc específica, ou o campo "Padrão a seguir" do bloco da funcionalidade)
 - ✅ Em caso de rejeição: cada desvio aponta arquivo + padrão esperado + referência, e uma linha em "Histórico de Reprovações" com o par `(épico, funcionalidade)`
 - ✅ Sem categoria intermediária ("aprovado com observações" é inválido)
+- ✅ Em caso de aprovação: bloco `## Extração pendente` do épico atual recebeu item `- [ ]` quando aplicável; ou declaração `(vazio — TL não identificou conhecimento permanente neste épico)` ao fechar a última funcionalidade do épico sem itens identificados
 
 ## CRITÉRIOS DE FALHA
 

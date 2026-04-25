@@ -66,10 +66,12 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 - ✅ Seguir [quality_rules.md](../development/quality_rules.md) (anti-redundância, padrões)
 - ✅ Atualizar docs estruturais quando alterar estrutura
 - ✅ Commits incrementais e descritivos
+- ✅ **Executar itens abertos em `## Extração pendente`** (W-PROTO-7) antes de iniciar a próxima funcionalidade ou no último commit do épico. Marcar `- [x]` após executar. RTE aborta se houver `- [ ]` aberto no gate de entrada.
 
 **Não deve:**
 - ❌ Inventar funcionalidades fora do plano
 - ❌ Criar docs extras sem necessidade (ver anti-padrões em CONSTITUTION)
+- ❌ Avançar para a próxima funcionalidade do **mesmo épico** com item `- [ ]` aberto referente à funcionalidade anterior já aprovada pelo TL
 
 **Saída:** código + testes + docs atualizadas, prontos para QA.
 
@@ -112,6 +114,7 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 - ✅ Sem duplicação de informação entre docs (ver `.claudecode.md` e CONSTITUTION §6)
 - ✅ Estrutura de pastas e nomenclatura coerente com convenções existentes
 - ✅ Decisões técnicas documentadas onde apropriado
+- ✅ **Identificar conhecimento permanente** (padrão arquitetural novo, comportamento de agente, decisão reutilizável) e registrar em `current_implementation.md` → bloco `## Extração pendente` da sub-seção do épico atual (W-PROTO-7). Ao fechar o último gate do épico sem itens identificados, declarar explicitamente `(vazio — TL não identificou conhecimento permanente neste épico)`. Detalhes em `skills/tl/skill.md` §3.5.
 
 **Reprova quando:**
 - ❌ Introduziu padrão divergente sem justificativa
