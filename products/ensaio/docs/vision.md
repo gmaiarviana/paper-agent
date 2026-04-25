@@ -79,8 +79,8 @@ O processo de produção de um artigo pode durar semanas. Usuário não precisa 
 
 **Quando esse fluxo aparece:**
 - **POC:** ainda não existe (POC roda em sessão única e descartável).
-- **Protótipo:** é onde o fluxo assíncrono nasce de verdade — persistência, pendências e rascunhos acumulados entre sessões.
-- **MVP:** o fluxo já está maduro para outros pesquisadores usarem sem tutoria do desenvolvedor.
+- **Protótipo:** ainda não existe — sessão continua única e descartável, mas a qualidade dentro dela sobe substancialmente (modo híbrido, Metodologista provocando, stack adequada). Persistência e pendências entre sessões foram adiadas para o MVP por coerência de escopo: nascem **junto** do uso por outros pesquisadores.
+- **MVP:** é onde o fluxo assíncrono nasce de verdade — persistência do artigo, pendências e rascunhos acumulados entre sessões, casados com upload de artefatos e uso por colegas próximos.
 
 ## 4. Modo de Escrita Híbrido
 
@@ -121,8 +121,8 @@ Decisão arquitetural registrada em `core/docs/agents/writer/design.md`.
 Pendência = item que permanece aberto entre sessões: pergunta sem resposta, evidência a coletar, rascunho esperando revisão, sugestão de agente aguardando decisão do Usuário.
 
 - **Viabiliza o fluxo assíncrono (seção 3):** cada sessão abre, trabalha e fecha pendências; é o estado que atravessa o tempo entre sessões.
-- **Entidade central no Protótipo e MVP:** é onde o Usuário para a sessão, é onde o sistema retoma na próxima, é a superfície principal da tela inicial.
-- **Não existe na POC:** POC roda em sessão única, sem persistência — não há entre-sessões onde pendência faria sentido.
+- **Entidade central no MVP:** é onde o Usuário para a sessão, é onde o sistema retoma na próxima, é a superfície principal da tela inicial.
+- **Não existe na POC nem no Protótipo:** ambos rodam em sessão única, sem persistência — não há entre-sessões onde pendência faria sentido. A entidade nasce **junto** com persistência no MVP, por dependência conceitual dura (pendência sem persistência não atravessa nada).
 - **Status: em incubação no Ensaio.** Vive no produto por enquanto; será promovida ao core quando o segundo produto do super-sistema precisar dela (provavelmente Produtor Científico, que herda a natureza multi-sessão).
 
 Registro no core: `core/docs/architecture/data-models/ontology.md` (seção "Entidades em Incubação").
@@ -177,31 +177,46 @@ Os dois casos de uso são servidos pelo mesmo sistema — a diferença está no 
 
 ## 10. Escopo Protótipo
 
-**Objetivo:** a ideia funciona e o próprio desenvolvedor usa de verdade no fluxo real dele.
+**Objetivo:** a ideia funciona e o próprio desenvolvedor usa de verdade no fluxo real dele — em sessão única, mas com qualidade substancialmente maior que a POC (exibição decente, modo híbrido de co-produção, Metodologista provocando lacunas).
 
 **Adiciona ao POC:**
-- Persistência do artigo entre sessões
-- Rascunho progressivo por seção (modo de escrita híbrido real — §4)
-- Pendências entre sessões como entidade central (§6)
-- Metodologista aplicado ao Ensaio (provocação sobre lacunas, métricas, evidências)
-- Migração de stack da interface (decidida no refinamento do Protótipo — §7)
+- Migração de stack da interface (decidida no refinamento do Protótipo — §7), entregando exibição decente, transparência sobre qual agente está falando e feedback de processamento
+- Rascunho progressivo por seção (modo de escrita híbrido real — §4), com painel seccionado e edição inline
+- Metodologista aplicado ao Ensaio (provocação sobre lacunas, métricas, evidências), garantindo que o artigo evolua com qualidade
 
 **Ainda fora:**
-- ❌ Upload de artefatos (continua no MVP)
+- ❌ Persistência do artigo entre sessões (vai pro MVP — §11)
+- ❌ Pendências entre sessões (vai pro MVP — §11; depende de persistência)
+- ❌ Fluxo assíncrono real (vai pro MVP — §3)
+- ❌ Upload de artefatos (MVP)
+- ❌ Múltiplos artigos em paralelo (Ideias Futuras — ver ROADMAP)
 - ❌ Calibração institucional (pós-MVP)
 - ❌ Integração Git (pós-MVP)
 - ❌ Researcher / Curator (iterações futuras)
 
-**Critério de saída do Protótipo:** o desenvolvedor consegue transformar seus próprios experimentos em artigos sem depender de conhecimento interno do código.
+**Princípio de viabilização:** mesmo sem persistência, lógica de domínio (estado do artigo, decisões dos agentes) vive no core em estruturas serializáveis (ver §7). Adicionar persistência no MVP troca a camada de armazenamento, sem refazer o domínio.
+
+**Critério de saída do Protótipo:** o desenvolvedor consegue transformar seus próprios experimentos em artigos sem depender de conhecimento interno do código, dentro de uma sessão.
 
 ## 11. Escopo MVP
 
-**Objetivo:** outros pesquisadores (colegas próximos) usam sem o desenvolvedor do lado.
+**Objetivo:** outros pesquisadores (colegas próximos) usam sem o desenvolvedor do lado, em fluxo assíncrono real (sessões múltiplas ao longo de semanas).
 
 **Adiciona ao Protótipo:**
+- Persistência do artigo entre sessões (estado sobrevive a fechar/abrir o app)
+- Pendências como entidade que atravessa sessões (§6) — superfície principal da tela inicial
+- Fluxo assíncrono real (§3) — Usuário volta ao Ensaio e retoma de onde parou, com pendências e rascunhos esperando
 - Upload de artefatos do experimento: notebook, README, CSV, imagens de gráfico
-- Experiência de refinamento *ongoing* madura (pendências, rascunhos e conversa em fluxo estável)
-- Preparação mínima para uso por outros: onboarding básico, mensagens de erro claras, estado previsível
+- Preparação mínima para uso por outros: instruções de execução, mensagens de erro inteligíveis, estado previsível
+
+**Ainda fora (vai para Ideias Futuras / pós-MVP):**
+- ❌ Histórico detalhado do que mudou entre sessões (basta estado atual + última pendência aberta)
+- ❌ Deploy hospedado, multi-tenant, autenticação real (rodagem local + Tailscale ou similar basta)
+- ❌ Polish de UX (onboarding gamificado, telemetria, mensagens de erro elaboradas)
+- ❌ Múltiplos artigos em paralelo
+- ❌ Calibração institucional
+- ❌ Integração Git
+- ❌ Researcher / Curator
 
 **Critério de saída do MVP:** colega próximo consegue usar o Ensaio sem tutorial ao vivo do desenvolvedor.
 
