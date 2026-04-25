@@ -1,6 +1,8 @@
 # Relatório de Entrega — Funcionalidade <X.Y> - <nome>
 
 > **Template usado pela RTE Skill.** Copiar para o relatório final substituindo todos os placeholders. Output final **não pode** conter `<...>`.
+>
+> **Dívida W-PROTO-3:** este template ainda reflete o shape anterior à reforma de milestone (uma funcionalidade isolada). W-PROTO-5 acrescentou a Seção 🎯 Validação como bloco copy-paste pro body da PR. W-PROTO-3 reescreverá o template inteiro para shape de milestone (N épicos em sub-seções) e poderá consolidar a Seção 🎯 ali — por ora, o bloco abaixo é o ponto de verdade.
 
 ---
 
@@ -107,6 +109,42 @@ pytest -m integration             # se aplicável
 
 ---
 
+## Seção 🎯 Validação (copy-paste para o body da PR)
+
+> **Bloco fixo introduzido por W-PROTO-5.** A RTE preenche os placeholders varrendo `current_implementation.md` (critérios PO ✅) e o ROADMAP (lista de épicos do milestone), copia para o body da PR criada via `mcp__github__create_pull_request` e referencia esse mesmo body na mensagem final ao dev.
+
+```markdown
+## 🎯 Validação (copie tudo abaixo e envie ao Copilot)
+
+Você é revisor técnico desta PR. Valide o diff (`main...HEAD`) contra os
+critérios abaixo. Para cada critério: ✅ (atende), ⚠️ (atende com
+ressalva — justifique), ❌ (não atende — aponte arquivo/linha).
+Reporte em markdown.
+
+### Contexto
+- Milestone: <ID> — <nome>
+- Épicos entregues: <lista com IDs>
+- Arquivo detalhado de validação: `<caminho>/validation-<id>.md`
+
+### Critérios de aceite (consolidados do ROADMAP)
+
+**Épico <ID-1>:**
+1. <critério>
+2. <critério>
+
+**Épico <ID-2>:**
+1. <critério>
+
+### Comportamentos "não deve"
+- <item>
+
+### Formato de retorno esperado
+- Tabela `Critério | Status | Observação`
+- Seção "Riscos adicionais" (opcional)
+```
+
+---
+
 ## Próximo Passo
 
-▶️ **Dev cria o PR pela interface do GitHub.** Template é aplicado automaticamente. RTE **não cria PR** e **não mergeia** — sempre exige aprovação humana.
+▶️ **RTE cria a PR via `mcp__github__create_pull_request`** com o body acima já preenchido (Seção 🎯 + checklist de gates + links). Dev revisa colando a Seção 🎯 no GitHub Copilot, aprova e mergeia pela interface — RTE **não mergeia**.

@@ -235,6 +235,23 @@ Itens que PM e/ou Scrum Master resolveram consultando docs/código, com fonte.
 
 ---
 
+## Extração pendente
+
+> Itens identificados pelo TL durante os gates como conhecimento permanente a gravar em docs estruturais. Dev executa antes da próxima funcionalidade/épico (ou no último commit do épico). RTE aborta se houver `- [ ]` pendente quando rodar o gate de entrada. Bloco introduzido em W-PROTO-7.
+
+Formato por épico (TL preenche; vazio inicial):
+
+### Épico <ID-EPICO-1>
+- [ ] `<arquivo-alvo>`: <o que gravar em 1 linha>
+- [x] `<arquivo-alvo>`: <o que gravar — feito por Dev>
+
+### Épico <ID-EPICO-2>
+- (vazio — TL não identificou conhecimento permanente neste épico)
+
+> **Convenção:** quando TL fecha o último gate da última funcionalidade do épico sem ter identificado nada permanente, registra explicitamente `(vazio — TL não identificou conhecimento permanente neste épico)` no bloco do épico. Bloco totalmente sem entrada por épico = TL ainda não passou pelo épico inteiro = RTE aborta.
+
+---
+
 ## Status dos Gates (nível milestone)
 
 Gates únicos por milestone. Gates QA/TL/PO são per-funcionalidade — ver tabelas "Gates por funcionalidade" em cada épico acima.
