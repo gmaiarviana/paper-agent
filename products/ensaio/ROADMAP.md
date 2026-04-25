@@ -63,12 +63,13 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### PROTO-ENSAIO
 
-- **Status:** `📐 Funcionalidades esboçadas`
+- **Status:** `📐 Funcionalidades esboçadas` (E-PROTO-1 em `🔍 Detalhes definidos`)
 - **Objetivo:** elevar a **qualidade da experiência dentro de uma sessão** usando coerentemente capacidades que já temos (Metodologista parado no core, Writer evoluindo para por-seção) num chassi de stack adequado. Protótipo continua em sessão única e descartável (igual à POC) — persistência, pendências e fluxo assíncrono migram para o MVP por coerência de escopo (ver [vision.md §§3, 6, 10, 11](docs/vision.md)). Único artigo em andamento por vez; múltiplos artigos ficam em Ideias Futuras.
 - **Estágio:** Protótipo — Usuário usa de verdade
 - **Produto:** Ensaio
-- **Épicos agrupados:** E-PROTO-1, E-PROTO-2, E-PROTO-3 (todos em `📐 Funcionalidades esboçadas` — critérios de aceite para próxima sessão de refinamento)
-- **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção) — pré-requisito de E-PROTO-2.
+- **Épicos agrupados:** E-PROTO-1 (`🔍 Detalhes definidos`), E-PROTO-2, E-PROTO-3 (estes dois em `📐 Funcionalidades esboçadas`)
+- **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção) — pré-requisito de E-PROTO-2. **C-ENSAIO-3 precisa estar em `🔍 Detalhes definidos` antes de E-PROTO-2 ir para fluxo autônomo**, porque o contrato `Article` seccionado (estrutura serializável no core, princípio de viabilização §7) emerge do refinamento de C-ENSAIO-3 e é consumido por E-PROTO-2.
+- **Decisão de stack (saída do refinamento de E-PROTO-1.1):** Reflex (Python full-stack). ADR registrada em [products/ensaio/docs/adr/001-stack-do-prototipo.md](docs/adr/001-stack-do-prototipo.md).
 - **Branch associada:** `milestone/proto-ensaio`
 - **Glossário do produto:** termos "Usuário" (jornada) e "Pesquisador" (persona) ancorados em [products/ensaio/docs/vision.md §13](docs/vision.md).
 - **Jornada alvo (alta-nível):** Usuário abre o app → começa nova sessão sobre o experimento → conversa flui no chat com transparência sobre qual agente está falando (`🎯 Orquestrador`, `🔬 Metodologista`) e feedback de processamento decente → Metodologista provoca quando a conversa toca em metodologia (lacunas, métricas, evidências) → clica "Gerar artigo" / "Gerar seção X" / "Regenerar seção X" → painel seccionado mostra o artigo em construção com status por seção e edição inline do markdown → ao final, exporta/copia o artigo. Sessão é descartável (recarregar zera tudo); persistência fica para o MVP.
@@ -137,17 +138,161 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### ⏳ Fase Protótipo — Desenvolvedor Usa
 
-#### ÉPICO E-PROTO-1: Migração de Stack da Interface
+#### ÉPICO E-PROTO-1: Migração de Stack da Interface (Reflex)
 
-**Objetivo:** Substituir o Streamlit da POC por uma stack adequada ao uso de verdade — exibição decente, transparência sobre qual agente está falando, feedback de processamento que não bloqueia a tela e cold start aceitável. A escolha exata de stack é parte do refinamento deste épico (ADR registra trade-offs e decisão).
+**Objetivo:** Substituir o Streamlit da POC por **Reflex** (Python full-stack, decisão registrada em ADR — funcionalidade 1.1) — exibição decente, transparência sobre qual agente está falando, feedback de processamento que não bloqueia a tela e cold start aceitável. Garante o princípio de viabilização (§7 vision): estado do artigo + conversa em estruturas serializáveis no backend, UI burra renderizando view.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-### Funcionalidades (esboço):
-- 1.1 ADR de Stack — registra opções avaliadas (web app dedicada, IDE plugin, desktop, etc.), critérios (cold start, ergonomia de chat + painel lateral, custo de manutenção, alinhamento com fases futuras) e decisão.
-- 1.2 Esqueleto da Nova Stack — entrypoint, layout base (chat + painel de artigo) e ciclo de vida da sessão na nova tecnologia, substituindo `products/ensaio/app/` em Streamlit.
-- 1.3 Transparência de Agente no Chat — cada bubble exibe label de quem fala (`🎯 Orquestrador`, `📐 Estruturador`, `🔬 Metodologista`, `✍️ Writer`, `👤 Você`).
-- 1.4 Feedback de Processamento Decente — indicador visual durante chamada de agente que não bloqueia a tela inteira nem esconde o histórico (substitui blur opaco do Streamlit).
+**Dependências:** nenhuma (épico de saída do milestone — destrava E-PROTO-2 e E-PROTO-3).
+
+### Funcionalidades:
+
+#### 1.1 ADR de Stack
+
+- **Descrição:** Registra a decisão por **Reflex** com opções avaliadas, trade-offs e critérios atendidos. Saída textual; sem código.
+- **Critérios de Aceite:**
+  - Deve criar ADR em `products/ensaio/docs/adr/001-stack-do-prototipo.md` no formato canônico (Contexto, Opções avaliadas, Decisão, Consequências, Referências).
+  - Deve listar pelo menos 4 opções avaliadas com trade-offs por critério: cold start, ergonomia (chat + painel lateral), princípio de viabilização §7 (UI burra, estado serializável), custo de manutenção. Opções: Streamlit melhorado, Chainlit, Reflex, Next.js + FastAPI.
+  - Deve explicitar Reflex como decisão e justificar pelos critérios.
+  - Deve referenciar `products/ensaio/docs/vision.md §7` e `docs/process/refinement/planning_guidelines.md` (definição de Protótipo).
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `products/ensaio/docs/adr/001-stack-do-prototipo.md`
+  - **Arquivos a modificar:** nenhum (ROADMAP já referencia o ADR no bloco PROTO-ENSAIO).
+  - **Contratos/Shapes:** N/A (doc).
+  - **Integração:** doc consultivo, sem integração executável.
+  - **Template de referência:** formato ADR padrão (Contexto / Opções / Decisão / Consequências) — não há ADR prévio no repo; primeiro do produto.
+  - **Acoplamentos verificados:** N/A.
+  - **Dependências de ordem:** primeiro a executar (define alvo das demais funcionalidades).
+  - **Escopo de teste:** revisão humana (doc).
+
+#### 1.2 Esqueleto da Nova Stack (Reflex)
+
+- **Descrição:** Substitui `products/ensaio/app/chat.py` (Streamlit) por entrypoint Reflex com layout chat + painel de artigo, mantendo o ciclo de sessão única descartável da POC e preservando o `product_config.py` (loader do `product.yaml`) e o `graph.py` (composição do grafo do Ensaio).
+- **Critérios de Aceite:**
+  - Deve haver entrypoint Reflex executável via `reflex run` a partir de `products/ensaio/`.
+  - Deve renderizar layout de duas colunas: chat à esquerda (proporção ~3), painel do artigo à direita (proporção ~2), equivalente ao 60/40 do POC.
+  - Deve carregar `products/ensaio/config/product.yaml` no boot da app via `load_product_context()` (preservado) e injetar `product_context` em toda invocação do grafo.
+  - Deve manter sessão única descartável: recarregar a página zera todo o estado (mensagens, focal_argument, current_article).
+  - Deve invocar `create_ensaio_graph()` (preservado) sem alterar contrato do core.
+  - Deve invocar `writer_node` diretamente fora do grafo (preservado, padrão de `core/docs/agents/writer/design.md`).
+  - Deve remover o app Streamlit completamente: `products/ensaio/app/chat.py`, `products/ensaio/app/components/article_panel.py`, `products/ensaio/app/components/chat_input.py`, `products/ensaio/app/components/generate_button.py`.
+  - Não deve importar nada de `products/revelar/` (rompe acoplamento atual com `chat_history.py` do Revelar — ver `chat.py:37`).
+  - Deve atualizar `products/ensaio/README.md` com instruções de execução (`reflex run`).
+  - Deve adicionar `reflex>=0.6` (versão a fixar no momento da implementação) em `requirements.txt`.
+- **Detalhes de execução:**
+  - **Arquivos a criar:**
+    - `products/ensaio/app/main.py` — entrypoint Reflex (define `rx.App` + página principal).
+    - `products/ensaio/app/state.py` — `EnsaioState(rx.State)` com campos serializáveis.
+    - `products/ensaio/app/components/chat_panel.py` — coluna esquerda (lista de mensagens + input).
+    - `products/ensaio/app/components/article_panel.py` — coluna direita (markdown render + botão Gerar/Regenerar).
+    - `products/ensaio/rxconfig.py` — config do Reflex (app_name="ensaio").
+  - **Arquivos a modificar:**
+    - `requirements.txt` — adicionar `reflex>=0.6`.
+    - `products/ensaio/README.md` — substituir instruções `streamlit run` por `reflex run`.
+  - **Arquivos a remover:**
+    - `products/ensaio/app/chat.py`
+    - `products/ensaio/app/components/article_panel.py`
+    - `products/ensaio/app/components/chat_input.py`
+    - `products/ensaio/app/components/generate_button.py`
+  - **Arquivos preservados (sem mudança):**
+    - `products/ensaio/app/graph.py`
+    - `products/ensaio/app/product_config.py`
+    - `products/ensaio/config/product.yaml`
+  - **Contratos/Shapes — `EnsaioState`:**
+    ```python
+    class EnsaioState(rx.State):
+        messages: list[dict]              # [{role, agent, content, timestamp}]
+        langchain_history: list           # serializável (lista de dicts {type, content})
+        focal_argument: dict | None       # output do Estruturador
+        current_article: str | None       # markdown do Writer
+        processing_agent: str | None      # nome do agente em execução (orchestrator/structurer/writer); None quando ocioso
+        is_generating_article: bool       # toggle do botão Gerar/Regenerar
+        thread_id: str                    # uuid da sessão (gerado no on_load)
+        error_message: str | None         # erro do último turno (mostrado como bubble do assistente)
+    ```
+  - **Integração:**
+    - Entrypoint: `reflex run` lê `rxconfig.py`; Reflex compila frontend e sobe backend FastAPI embutido.
+    - Boot: `EnsaioState.on_load` carrega `product_context` via `load_product_context()` e gera `thread_id`.
+    - Turno do chat: event handler `EnsaioState.send_message` invoca `create_ensaio_graph().invoke(state, config={"configurable": {"thread_id": ..., "product_context": ...}})` em background task; atualiza `messages` + `langchain_history` + `focal_argument` ao retornar.
+    - Geração de artigo: event handler `EnsaioState.generate_article` invoca `writer_node({...})` direto, com `messages=langchain_history`, `focal_argument`, `previous_article=current_article`, `product_context=...`.
+  - **Template de referência:** Reflex docs oficiais (chat app exemplo); não há análogo interno em Reflex.
+  - **Acoplamentos verificados:**
+    - `products/ensaio/app/graph.py` — usado via `create_ensaio_graph()`; sem mudança (POC validou contrato).
+    - `products/ensaio/app/product_config.py` — usado via `load_product_context()`; sem mudança.
+    - `core.agents.writer.nodes.writer_node` — invocação direta preservada.
+    - `core.agents.orchestrator.state.MultiAgentState` — consumido como dict no `state` do grafo.
+    - **Acoplamento removido:** `products/revelar/app/components/chat_history.py` (atualmente importado em `chat.py:37`) — Reflex tem componente próprio.
+  - **Dependências de ordem:** depende de 1.1 (ADR confirma stack); 1.3 e 1.4 estendem este esqueleto.
+  - **Escopo de teste:**
+    - **Unit:** `tests/products/ensaio/unit/test_ensaio_state.py` — testa serialização do `EnsaioState`, acúmulo de `messages`, reset em on_load.
+    - **Validação manual via script:** `scripts/ensaio/flows/validate_reflex_skeleton.py` — sobe app, abre browser headless (ou guia manual), envia mensagem, verifica que histórico aparece e que `focal_argument` atualiza no state.
+    - **Smoke:** `tests/products/ensaio/integration/smoke/test_app_boots.py` — importa `main.py` e instancia `rx.App` sem erro (não roda servidor).
+
+#### 1.3 Transparência de Agente no Chat
+
+- **Descrição:** Cada bubble do chat exibe label de quem fala. Requer anexar metadata de agente nas `AIMessage` produzidas pelos nós do core.
+- **Critérios de Aceite:**
+  - Deve renderizar label visível em cada bubble: `🎯 Orquestrador`, `📐 Estruturador`, `🔬 Metodologista`, `✍️ Writer`, `👤 Você`.
+  - Deve identificar o agente a partir de `AIMessage.additional_kwargs["agent"]` (string: `"orchestrator"`, `"structurer"`, `"methodologist"`, `"writer"`).
+  - Deve exibir estilo distinto (cor de borda ou ícone) entre bubbles do usuário e dos agentes.
+  - Deve mapear agente desconhecido (`additional_kwargs` ausente) para label genérico `🤖 Sistema` em vez de quebrar.
+  - **Não deve** quebrar o Revelar: mensagens consumidas pelo Revelar continuam funcionais com `additional_kwargs` ignorados (campo extra é transparente no consumo atual via `chat_history.py`).
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum.
+  - **Arquivos a modificar:**
+    - `core/agents/orchestrator/nodes.py` — em `nodes.py:1033`, trocar `AIMessage(content=message)` por `AIMessage(content=message, additional_kwargs={"agent": "orchestrator"})`.
+    - `core/agents/structurer/nodes.py` — `nodes.py:351` e `nodes.py:534`: anexar `additional_kwargs={"agent": "structurer"}` nos dois pontos.
+    - `core/agents/methodologist/nodes.py` — anexar `additional_kwargs={"agent": "methodologist"}` nas `AIMessage` retornadas (inspecionar pontos exatos durante implementação).
+    - `core/agents/writer/nodes.py` — Writer não retorna `messages` (retorna `{"article": ...}`), mas a representação no chat é gerada pelo produto. Documentar no painel do artigo o label `✍️ Writer` quando o artigo aparece/atualiza (sem alterar `nodes.py`).
+    - `products/ensaio/app/components/chat_panel.py` — render lê `msg["agent"]` e mapeia para label.
+    - `products/ensaio/app/state.py` — `send_message` lê `last_msg.additional_kwargs.get("agent")` e armazena em `messages[-1]["agent"]`.
+  - **Contratos/Shapes:**
+    - `AIMessage.additional_kwargs`: `{"agent": "orchestrator" | "structurer" | "methodologist"}`.
+    - `EnsaioState.messages[i]`: `{role: "user"|"assistant", agent: str|None, content: str, timestamp: str}`.
+    - Mapa label: `{"orchestrator": "🎯 Orquestrador", "structurer": "📐 Estruturador", "methodologist": "🔬 Metodologista", "writer": "✍️ Writer", None: "🤖 Sistema"}` em `products/ensaio/app/components/chat_panel.py`.
+  - **Integração:** o produto consome `AIMessage.additional_kwargs["agent"]` ao processar `result["messages"]` do grafo; sem mudança no contrato do `MultiAgentState`.
+  - **Template de referência:** padrão LangChain `AIMessage(content=..., additional_kwargs={...})` — uso oficial de metadados extras.
+  - **Acoplamentos verificados — código compartilhado entre produtos:**
+    - **Consumidor afetado: Revelar** (usa `core.agents.{orchestrator,structurer,methodologist}.nodes` via `core.agents.multi_agent_graph`).
+    - **Como verificar regressão:** rodar suite atual de testes do core (`tests/core/`) sem modificações; `additional_kwargs` é campo opcional em LangChain — leitores que não consomem ignoram. Validação manual: subir Revelar, conduzir conversa de 3-5 turnos, confirmar que renderização e `chat_history.py` continuam idênticos.
+    - **Refatoração prévia necessária:** nenhuma — `additional_kwargs` já é campo nativo de `AIMessage`.
+  - **Dependências de ordem:** depende de 1.2 (esqueleto Reflex com `chat_panel`).
+  - **Escopo de teste:**
+    - **Unit:** `tests/core/unit/agents/orchestrator/test_orchestrator_emits_agent_metadata.py`, idem para structurer e methodologist — instanciar nó, invocar com state mínimo, asseverar `result["messages"][-1].additional_kwargs["agent"]` correto.
+    - **Unit:** `tests/products/ensaio/unit/test_chat_panel_label.py` — mapeamento `agent → label` (incluindo fallback `None → 🤖 Sistema`).
+    - **Integration (não-regressão Revelar):** rodar `tests/products/revelar/` existente sem modificações; deve passar 100%.
+    - **Validação manual:** abrir Ensaio, enviar 3-5 mensagens, verificar labels corretos; abrir Revelar, fluxo equivalente, verificar ausência de regressão visual.
+
+#### 1.4 Feedback de Processamento Decente
+
+- **Descrição:** Indicador visual durante chamada de agente que não bloqueia o histórico nem cobre a tela com overlay opaco. Substitui o blur do Streamlit.
+- **Critérios de Aceite:**
+  - Deve exibir indicador "{ícone do agente} {nome} processando..." enquanto `EnsaioState.processing_agent` é não-nulo.
+  - Deve identificar o agente em processamento (heurística inicial: rótulo do nó atual disparado, baseada na rota do grafo — Orquestrador é sempre o primeiro; Estruturador quando o Orquestrador roteia para ele; Writer quando botão Gerar é acionado).
+  - Deve permitir scroll do histórico durante processamento (sem overlay modal).
+  - Deve desabilitar input e botões de geração enquanto `processing_agent` não é nulo (evita disparo duplo), mas sem ocultar o histórico.
+  - Não deve usar `rx.spinner` em overlay full-screen.
+  - Deve limpar `processing_agent` ao final de cada turno (sucesso ou erro).
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum (componente vive em `chat_panel.py`).
+  - **Arquivos a modificar:**
+    - `products/ensaio/app/state.py` — campos `processing_agent: str | None`, `is_generating_article: bool`; event handlers `send_message` e `generate_article` setam/limpam o campo.
+    - `products/ensaio/app/components/chat_panel.py` — exibe indicador inline abaixo da última mensagem quando `processing_agent` não é nulo.
+    - `products/ensaio/app/components/article_panel.py` — exibe "✍️ Writer redigindo..." inline no painel quando `is_generating_article` é true.
+  - **Contratos/Shapes:**
+    - `processing_agent: Literal["orchestrator", "structurer", "methodologist", "writer"] | None`.
+    - Mapa de labels reaproveitado de 1.3.
+  - **Integração:**
+    - `send_message`: setar `processing_agent="orchestrator"` antes do `graph.invoke`; após retorno, decidir entre limpar (rota terminou em `END` direto) ou setar `"structurer"` (não aplicável aqui — graph.invoke é síncrono no fim do turno; campo limpo no `finally`).
+    - Para granularidade real (mostrar transição Orquestrador → Estruturador no mesmo turno), adicionar callback no grafo (`graph.invoke(..., config={"callbacks": [...]})`) — **simplificação aceita:** Protótipo mostra apenas o nome do "agente que iniciou o turno"; transição intra-turno fica para iteração futura. Registrar a simplificação no commit.
+    - `generate_article`: setar `is_generating_article=True` + `processing_agent="writer"` antes; limpar no `finally`.
+  - **Template de referência:** padrão `rx.cond` + `rx.background_task` em event handlers Reflex.
+  - **Acoplamentos verificados:** somente `EnsaioState`; nenhum acoplamento com core.
+  - **Dependências de ordem:** depende de 1.2 (esqueleto) e 1.3 (mapa de labels reusado).
+  - **Escopo de teste:**
+    - **Unit:** `tests/products/ensaio/unit/test_state_processing_lifecycle.py` — verifica que `processing_agent` é setado antes da chamada e limpo no finally (mock do `graph.invoke`).
+    - **Validação manual:** subir app, enviar mensagem, confirmar indicador inline, scroll do histórico funcional, input desabilitado durante processamento, indicador some ao terminar.
 
 ---
 
@@ -159,7 +304,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 **Dependências:**
 - E-PROTO-1 (nova stack — sem ela não há painel decente)
-- [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção no core)
+- [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção no core) — **deve estar em `🔍 Detalhes definidos` antes de E-PROTO-2 ir para fluxo autônomo**, porque o contrato `Article` seccionado (estrutura serializável no core, princípio de viabilização §7 da vision) emerge do refinamento de C-ENSAIO-3 e é consumido pelo painel + state do Ensaio.
 
 ### Funcionalidades (esboço):
 - 2.1 Painel Seccionado — substitui o markdown plano do POC; cada seção do artigo é renderizada como bloco individual, com título visível.
@@ -184,6 +329,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 - 3.2 Postura de Provocação Seletiva — Metodologista não fala a cada turno; intervém quando a conversa toca em metodologia, resultados ou afirmações sem suporte (critério em prompt + integração no grafo). Evita ruído conversacional.
 - 3.3 Provocação Ativa sobre Lacunas — produz perguntas/sugestões observáveis sobre métricas ausentes, evidências faltantes e afirmações sem suporte, ancoradas no que o Usuário disse na conversa e no contexto do produto.
 - 3.4 Reforço da Coerência do Artigo com o Contexto — provocações do Metodologista entram como sinal para o Writer (via histórico + artigo focal), elevando a aderência do artigo gerado ao experimento descrito. Inclui ajuste fino dos prompts do Orquestrador/Estruturador/Writer no contexto Ensaio (qualidade conversacional dos agentes existentes).
+- 3.5 Provocação sobre Dimensões do Artigo — Metodologista pergunta/recomenda quando alguma das 4 dimensões em que o Writer opera (contexto, intenção, formato, estrutura — ver [core/docs/agents/overview.md](../../core/docs/agents/overview.md)) não está declarada ou clara na conversa. Endereça `vision.md §4` ("provocação sobre dimensões do artigo" como central no Protótipo). Mesma postura seletiva de 3.2/3.3, escopo distinto (dimensões do Writer ↔ lacunas de rigor).
 
 ---
 
