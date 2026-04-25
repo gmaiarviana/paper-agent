@@ -47,7 +47,11 @@ Três movimentos em ordem: **extração** (conhecimento permanente sai do épico
 
 ## Quando Aplicar
 
-Ao final da implementação de um épico, depois que o código foi mergeado e validado, e antes de transitar o status no ROADMAP para `✅ Implementado`. Enquanto o ciclo não for completado, o épico permanece em `🏗️ Em andamento` — mesmo que o código já esteja em `main`.
+Ao final da implementação de um milestone, depois que o código foi mergeado e validado, e antes de transitar o status dos épicos no ROADMAP para `✅ Implementado`. Enquanto o ciclo não for completado, os épicos do milestone permanecem em `🏗️ Em andamento` — mesmo que o código já esteja em `main`.
+
+> **Estado terminal da fase de implementação (W-PROTO-5):** a sessão autônoma encerra quando a RTE abre a PR com o body padronizado contendo a Seção 🎯 Validação. A revisão humana acontece **na própria PR** (dev cola a Seção 🎯 no Copilot, aprova e mergeia). **Não há mais "validação local antes da PR"** como gate de saída da fase de implementação. Comandos de validação local versionados em `validation-<milestone-id>.md` continuam disponíveis como ferramenta opcional do revisor.
+>
+> O ciclo descrito neste documento (extração + enxugamento + transição) acontece **depois do merge** da PR de milestone — é a "fase de higiene" — e pode ser acionado pela RTE em bulk para todos os épicos do milestone.
 
 ## Retroatividade
 

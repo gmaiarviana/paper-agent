@@ -13,7 +13,7 @@ Você roda **uma única vez, no fim do milestone**. Não roda por funcionalidade
 
 Seu output precisa ser **mastigado**: o dev abre a notificação à noite, copia comandos, decide go/no-go. Sem reconstruir contexto, sem caçar arquivos, sem adivinhar.
 
-Você **não cria PR**. Você **não mergeia**. Você **não roda testes**. Você **não entrega milestone parcial** — aborta ou entrega completo.
+Você **abre a PR** com body padronizado contendo a Seção 🎯 Validação (copy-paste pronto pro Copilot). Você **não mergeia**. Você **não roda testes**. Você **não entrega milestone parcial** — aborta ou entrega completo. A abertura da PR é o estado terminal da fase de implementação; a revisão humana acontece depois.
 
 ---
 
@@ -23,8 +23,8 @@ Você **não cria PR**. Você **não mergeia**. Você **não roda testes**. Voc�
 2. **Comandos prontos.** Sempre com nome real da branch de milestone substituído. Sem placeholders no output final.
 3. **Resumo executivo objetivo.** Números reais (arquivos, commits, testes) sobre o milestone todo — não estimativas.
 4. **Critérios go/no-go explícitos.** O dev não deveria precisar pensar em "como aprovar" — só checar os itens.
-5. **Sem PR automático.** Mensagem final deixa claro que dev cria PR pela interface.
-6. **Sem merge automático.** Mesmo que pareça trivial. Aprovação humana obrigatória.
+5. **Abre PR com body padronizado.** Após o push, gera `validation-<milestone>.md` (mesmo commit que abre a PR) e cria a PR via `mcp__github__create_pull_request` (ou `gh pr create` como fallback). Body contém **obrigatoriamente** a Seção 🎯 Validação completa, sem placeholders.
+6. **Sem merge automático.** Mesmo que pareça trivial. Aprovação humana obrigatória — dev revisa via Copilot na PR e mergeia pela interface do GitHub.
 7. **Branch é de milestone.** `milestone/<id-em-caixa-baixa>`. Nunca `feature/X.Y`. Um único push ao final da branch inteira — não push por funcionalidade nem por épico.
 8. **Mensagem única.** Um único `[RTE] skill carregada: ...` ao início, uma única mensagem consolidada ao final cobrindo os N épicos. Não emitir mensagem por épico.
 
@@ -112,15 +112,82 @@ Bloco copy-paste com:
 
 **Substituir TODOS os placeholders** (nome real da branch de milestone, comandos do produto). Output não pode conter `<...>`.
 
+### Passo 6.5 — Gerar `validation-<milestone>.md` e abrir a PR
+
+**6.5.a — Gerar arquivo de validação versionado.**
+
+Criar `validation-<milestone-id>.md` no diretório apropriado:
+- Milestone de produto → `products/<produto>/docs/validation-<milestone-id>.md`
+- Milestone de core/workflow → `docs/process/workflow/validation-<milestone-id>.md`
+
+Estrutura obrigatória (espelha `products/ensaio/docs/poc_validation.md` como referência de estilo):
+- Cabeçalho com público (dev revisor), quando usar, estrutura.
+- Seção "Preparação do ambiente" (checkout, venv, deps).
+- Seção "Testes unitários" (comandos determinísticos extraídos do Passo 6).
+- Um bloco por épico do milestone, com sub-seção por funcionalidade (`N.M — <nome>`), contendo "O que rodar" (comandos) + "O que observar" (comportamento esperado, derivado dos critérios PO ✅ e dos comportamentos "não deve" do ROADMAP).
+- Seção final "Critérios de aprovação" com checklist agregado.
+
+Commitar este arquivo no **mesmo commit** que prepara a PR (ainda na branch `milestone/<id>`); fica versionado junto com a entrega.
+
+**6.5.b — Construir Seção 🎯 Validação (body da PR).**
+
+Template fixo, preencher os placeholders varrendo `current_implementation.md` (critérios PO ✅ por funcionalidade) e o ROADMAP (lista de épicos do milestone):
+
+```markdown
+## 🎯 Validação (copie tudo abaixo e envie ao Copilot)
+
+Você é revisor técnico desta PR. Valide o diff (`main...HEAD`) contra os
+critérios abaixo. Para cada critério: ✅ (atende), ⚠️ (atende com
+ressalva — justifique), ❌ (não atende — aponte arquivo/linha).
+Reporte em markdown.
+
+### Contexto
+- Milestone: <ID> — <nome>
+- Épicos entregues: <lista com IDs>
+- Arquivo detalhado de validação: `<caminho>/validation-<id>.md`
+
+### Critérios de aceite (consolidados do ROADMAP)
+
+**Épico <ID-1>:**
+1. <critério>
+2. <critério>
+
+**Épico <ID-2>:**
+1. <critério>
+
+### Comportamentos "não deve"
+- <item>
+
+### Formato de retorno esperado
+- Tabela `Critério | Status | Observação`
+- Seção "Riscos adicionais" (opcional)
+```
+
+**6.5.c — Body completo da PR.**
+
+Além da Seção 🎯, o body deve conter:
+- Título: `<tipo>(<escopo>): <resumo do milestone> (<ID-MILESTONE>)` (commits do milestone informam o tipo predominante).
+- Branch de origem: `milestone/<id-em-caixa-baixa>`; destino: `main`.
+- Checklist de gates: cópia da tabela final consolidada de `current_implementation.md`.
+- Link para o relatório completo (`docs/process/current_implementation.md`).
+- Link para `validation-<id>.md` recém-versionado.
+
+**6.5.d — Criar a PR.**
+
+Usar `mcp__github__create_pull_request` (preferido) com `head=milestone/<id>`, `base=main`, body construído acima. Em caso de erro, fallback para `gh pr create`. Capturar o número da PR e a URL — vão para a mensagem do Passo 7.
+
+**Não tentar mergear.** Aprovação humana segue obrigatória.
+
 ### Passo 7 — Notificar o dev (mensagem única consolidando N épicos)
 Mensagem final no formato canônico de `docs/process/implementation/delivery.md`, adaptado para milestone:
 - Identificação do **milestone** (não funcionalidade)
 - Status agregado: "<N> épicos fechados, <M> funcionalidades validadas"
 - Lista enxuta por épico: `<ID-EPICO>: <M_epico> funcionalidades ✅`
-- Link mental para o relatório completo (`docs/process/current_implementation.md`)
+- **Link da PR aberta no Passo 6.5** (URL + número) e instrução explícita: copiar a Seção 🎯 do body, enviar ao Copilot, mergear via interface do GitHub
+- Link mental para o relatório completo (`docs/process/current_implementation.md`) e para `validation-<id>.md`
 - Resumo de 1-2 linhas sobre o milestone
 
-Uma única mensagem, ao fim do fluxo. O dev valida o milestone inteiro e decide go/no-go.
+Uma única mensagem, ao fim do fluxo. Estado terminal da fase de implementação: **PR aberta**, pending review humana.
 
 ---
 
@@ -147,7 +214,18 @@ Uma única mensagem, ao fim do fluxo. O dev valida o milestone inteiro e decide 
 
 ✅ Gates por funcionalidade: todas Dev/QA/TL/PO ✅ (detalhe no relatório)
 
-📋 Comandos de validação local (copie e cole):
+🔗 PR aberta: #<N> — <URL>
+📄 Validation file: <caminho>/validation-<id>.md
+
+▶️ Próximo passo:
+  1. Abra a PR #<N>.
+  2. Copie a **Seção 🎯 Validação** do body e envie ao GitHub Copilot.
+  3. Cole a tabela de retorno do Copilot como comentário na PR.
+  4. (Opcional) Rode os comandos de validação local listados em
+     validation-<id>.md.
+  5. Aprove e mergeie pela interface do GitHub se tudo OK.
+
+📋 Comandos de validação local (opcional, copie e cole):
 
 # 1. Baixar branch do milestone
 git fetch origin
@@ -166,15 +244,13 @@ pytest -m integration             # se aplicável
 <comando específico do produto>
 
 🔍 Critérios go/no-go (checklist do dev, milestone inteiro):
-- [ ] Comandos rodam sem erro
-- [ ] Critérios de aceite de cada funcionalidade observados manualmente
-  (lista completa no relatório, agrupada por épico)
+- [ ] Tabela do Copilot na PR sem ❌
+- [ ] (Opcional) Comandos rodam sem erro
+- [ ] Critérios de aceite de cada funcionalidade observados (relatório do Copilot ou manual)
 - [ ] Comportamentos "não deve" não ocorreram em nenhuma funcionalidade
 - [ ] Sem warnings críticos
 
 📄 Relatório completo: docs/process/current_implementation.md
-
-▶️ Próximo passo: você valida o milestone, cria o PR pela interface do GitHub e mergeia se tudo OK.
 ```
 
 ---
@@ -184,8 +260,10 @@ pytest -m integration             # se aplicável
 - ✅ Todas as funcionalidades de todos os épicos do milestone confirmadas com Dev/QA/TL/PO `✅` antes de rodar
 - ✅ Branch `milestone/<id>` publicada com push único e acessível
 - ✅ `current_implementation.md` marcado como RTE ✅ (no bloco "Status dos Gates (nível milestone)") com bloco "Resumo Final do Milestone"
+- ✅ `validation-<id>.md` versionado no repo (mesmo commit que abre a PR), cobrindo todos os épicos
+- ✅ PR aberta com body contendo Seção 🎯 Validação completa, sem placeholders
 - ✅ Relatório no template preenchido sem campos vazios, cobrindo os N épicos
-- ✅ Mensagem única ao dev sem placeholders, com nome real da branch de milestone e comandos prontos cobrindo o milestone inteiro
+- ✅ Mensagem única ao dev sem placeholders, com nome real da branch + número/URL da PR
 - ✅ Resumo executivo com números reais (não estimativas)
 
 ## CRITÉRIOS DE FALHA
@@ -195,7 +273,8 @@ pytest -m integration             # se aplicável
 - ❌ Fez push de `feature/X.Y` em vez de `milestone/<id>`
 - ❌ Emitiu mensagem por épico em vez de mensagem única consolidada
 - ❌ Output final contém `<placeholder>` ou `[ID]` não substituído
-- ❌ Tentou criar PR ou mergear automaticamente
+- ❌ Abriu PR sem Seção 🎯 Validação completa (sem critérios consolidados, com placeholders, sem link para validation-<id>.md)
+- ❌ Tentou mergear automaticamente
 - ❌ Rodou testes (não é seu papel)
 - ❌ Inventou status de gate ou número de arquivos
 

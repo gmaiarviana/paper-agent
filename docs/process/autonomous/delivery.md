@@ -26,25 +26,29 @@
 
 ---
 
-## 2. AO RECEBER NOTIFICAÇÃO DE TASK PRONTA (À NOITE)
+## 2. AO RECEBER NOTIFICAÇÃO DE PR ABERTA (À NOITE)
 
-A RTE Skill notifica o dev no formato definido em [development/delivery.md](../development/delivery.md):
+A RTE Skill abre a PR (estado terminal da fase de implementação após W-PROTO-5) e notifica o dev no formato definido em [development/delivery.md](../development/delivery.md):
 
 ```
-✅ Branch pronta! Você pode criar o PR pela interface do GitHub.
+✅ Milestone pronto! PR #<N> aberta para revisão humana.
 
-📋 Comandos de validação (copie e cole):
-[comandos com nome real da branch]
+🔗 PR: <URL>
+📄 Validation file: <caminho>/validation-<id>.md
 
-🔍 Validações esperadas:
-[critérios de aceite + comportamentos a observar]
+▶️ Próximo passo:
+  1. Abrir a PR.
+  2. Copiar a Seção 🎯 Validação do body e enviar ao GitHub Copilot.
+  3. Colar a tabela de retorno do Copilot como comentário na PR.
+  4. (Opcional) Rodar comandos de validação local de validation-<id>.md.
+  5. Aprovar e mergear pela interface do GitHub.
 ```
 
 ### O que fazer
-1. **Ler relatório dos gates:** verificar `docs/process/current_implementation.md` (status QA/TL/PO)
-2. **Rodar comandos de validação local** (próxima seção)
-3. **Validar critérios de aceite** manualmente
-4. **Decidir:** aprovar merge OU devolver com feedback
+1. **Abrir a PR aberta pela RTE** e ler o body (gates consolidados + Seção 🎯 + links).
+2. **Copiar a Seção 🎯 Validação** e enviar ao GitHub Copilot. Colar a tabela de retorno como comentário na PR.
+3. **(Opcional)** rodar comandos de validação local listados em `validation-<id>.md` se quiser checar manualmente alguma funcionalidade.
+4. **Decidir:** aprovar e mergear pela interface OU devolver feedback no próprio PR (nova rodada autônoma a partir do diff atual da branch).
 
 ---
 
@@ -101,10 +105,12 @@ Aprove o merge quando **TODOS** estes critérios forem atendidos:
 
 ## 5. CRIAÇÃO DO PR
 
-Mesma regra do fluxo manual:
-- ✅ Dev cria PR **manualmente** pela interface do GitHub
-- ✅ Template (`.github/PULL_REQUEST_TEMPLATE.md`) é aplicado automaticamente
-- ❌ Skills **não** criam PR via `gh pr create`
+A regra mudou em W-PROTO-5: agora a **RTE abre a PR**, não o dev.
+
+- ✅ **RTE cria a PR** via `mcp__github__create_pull_request` (fallback: `gh pr create`) com body padronizado contendo Seção 🎯 Validação + checklist de gates + links para `current_implementation.md` e `validation-<id>.md`.
+- ✅ **Dev revisa na PR** colando a Seção 🎯 no Copilot, decidindo aprovar/devolver, e mergeando pela interface do GitHub se OK.
+- ✅ Template fixo (`.github/PULL_REQUEST_TEMPLATE.md`) é sobrescrito pelo body da RTE — nenhuma mudança operacional no template.
+- ❌ RTE **não mergeia** — aprovação humana segue obrigatória.
 
 ---
 
