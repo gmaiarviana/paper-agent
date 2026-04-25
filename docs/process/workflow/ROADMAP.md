@@ -139,8 +139,8 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
 - **Épicos agrupados:** W-PROTO-DOC-1, W-PROTO-DOC-2, W-PROTO-DOC-3
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-doc`
-- **Status dos épicos:** W-PROTO-DOC-1 🌱 Visão, W-PROTO-DOC-2 🌱
-  Visão, W-PROTO-DOC-3 🌱 Visão.
+- **Status dos épicos:** W-PROTO-DOC-1 🌱 Visão, W-PROTO-DOC-2 🔍
+  Detalhes definidos, W-PROTO-DOC-3 🌱 Visão.
 - **Feedback do estágio anterior endereçado:**
   - Dívida M4-restante/M5/M6 da reforma de milestone original — vinha
     da Nota do `POC-WORKFLOW`. W-PROTO-DOC-1 absorve a parte residual
@@ -358,7 +358,7 @@ reescrita em W-POC-3) já opera sobre milestone inteiro e consolida N
 antigo. Ao concluir, remover a nota de dívida declarada inline no
 topo do template (linhas 1-3 atuais).
 
-**Status:** 🌱 Visão
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:** W-POC-3 (RTE já opera por milestone); W-PROTO-5
 mergeado (Seção 🎯 a preservar). Não bloqueia W-PROTO-DOC-1.
@@ -366,6 +366,92 @@ mergeado (Seção 🎯 a preservar). Não bloqueia W-PROTO-DOC-1.
 **Migra de:** dívida declarada inline pelo W-POC-3 (commit `7cde7d9`)
 + dívida declarada inline pelo W-PROTO-5 (commit `d00fcfa`) sobre
 absorção da Seção 🎯 no shape de milestone.
+
+##### a) Arquivos a modificar
+
+- `skills/rte/templates/delivery-report.md` — reescrita (~55% do
+  conteúdo; shape completo descrito em b).
+- `skills/rte/skill.md` — **cirurgia única:** remover nota de dívida
+  na linha ~109 ("A reforma do template é o épico W-PROTO-3 em
+  `docs/process/workflow/ROADMAP.md`"); instrução de preenchimento do
+  Passo 5 permanece inalterada (já descreve milestone-level).
+
+**Arquivos a criar:** nenhum.
+
+##### b) Novo shape do template
+
+Seção por seção — o que muda e o que permanece:
+
+| Seção | Antes | Depois |
+|-------|-------|--------|
+| Nota do topo (linhas 3-5) | dívida W-PROTO-3 | **removida** |
+| Título | `Funcionalidade <X.Y> - <nome>` | `Milestone <ID> — <nome>` |
+| Identificação > `Funcionalidade` | campo `Funcionalidade: X.Y` | `Milestone: <ID> — <nome>` |
+| Identificação > `Branch` | `feature/X.Y-nome` | `milestone/<id-em-caixa-baixa>` |
+| Status dos Gates | 1 tabela única (6 linhas: skills) | **1 bloco `### Épico <ID>` por épico** com tabela `Funcionalidade × Dev/QA/TL/PO` |
+| Resumo Executivo | sem decomposição | adiciona campo `Épicos entregues: <N> (<IDs>)` + bloco `Por épico:` com 1 linha por épico |
+| Critérios de Aceite | 1 tabela única | **1 sub-seção `### Épico <ID> — <nome>` com tabela própria** |
+| Notas Técnicas | sem estrutura por épico | sub-seção `### Épico <ID>` por épico; omitir épico sem observações |
+| Histórico de Reprovações | sem referência ao épico | adicionar `(<épico ID> / func. N.M)` no item de reprovação |
+| Comandos de Validação > `git checkout` | `feature/X.Y-nome` | `milestone/<id-em-caixa-baixa>` |
+| Comandos de Validação > `source venv` | `venv/bin/activate` | `.venv/bin/activate` |
+| Critérios Go/No-Go | foca em "rodaram sem erro" | incorpora fluxo Copilot como primário, local como opcional (alinhado com W-PROTO-5) |
+| Seção 🎯 Validação (linhas 112-150) | **preservada** | **preservada sem alteração** |
+| Próximo Passo | "RTE cria a PR via `mcp__github__...`" | "Dev revisa a PR — RTE **não** mergeia" |
+
+##### c) Integração
+
+O template é lido pela RTE Skill no Passo 5 (`skills/rte/skill.md:100`)
+para gerar o relatório de entrega ao final de cada milestone. Após a
+reescrita, o Passo 5 não precisa de nenhuma adaptação — as instruções
+já descrevem preenchimento por milestone (compatível com novo shape).
+
+**Template de referência para estilo:**
+- `products/ensaio/docs/poc_validation.md` — granularidade e estilo
+  por bloco de épico/funcionalidade.
+- Seção "TEMPLATE DE `current_implementation.md`" em
+  `skills/scrum-master/skill.md` — shape de tabela funcionalidade ×
+  gates como modelo para a seção "Status dos Gates por Épico".
+
+##### d) Acoplamentos verificados
+
+- `skills/rte/skill.md` Passo 5 (linhas 100-109): instrução já opera
+  por milestone; compatível com novo shape sem reescrita. Linha ~109
+  tem nota de dívida "W-PROTO-3" a remover (única alteração neste
+  arquivo).
+- Nenhum outro arquivo aponta para `delivery-report.md` diretamente
+  (verificado via `grep -rn "delivery-report" .` — apenas
+  `skills/rte/skill.md:100` e `skills/rte/README.md`).
+- `skills/rte/README.md` — menciona o template em linguagem descritiva
+  (não injeta placeholders); não precisa de alteração.
+
+##### e) Sequência e testes
+
+**Dependências de ordem:** nenhuma — pode ser executado antes ou depois
+de W-PROTO-DOC-1, independentemente.
+
+**Escopo de teste (documental):**
+- `grep "feature/X.Y" skills/rte/templates/delivery-report.md` →
+  zero resultados.
+- `grep "W-PROTO-3\|dívida\|Funcionalidade <X.Y>" skills/rte/templates/delivery-report.md skills/rte/skill.md` →
+  zero resultados.
+- Diff visual: bloco da Seção 🎯 Validação (linhas 112-150 atuais)
+  idêntico ao original — nenhuma linha alterada.
+
+**Critérios de aceite observáveis:**
+- [ ] Título do template: `Milestone <ID> — <nome>` (não
+  `Funcionalidade <X.Y>`).
+- [ ] Seção Identificação: campo `Milestone` presente; `Branch:
+  milestone/<id-em-caixa-baixa>`.
+- [ ] Seção "Status dos Gates" tem 1 bloco por épico com tabela
+  `Funcionalidade × Dev/QA/TL/PO`.
+- [ ] Seção "Critérios de Aceite" tem sub-seção por épico.
+- [ ] Seção "Resumo Executivo" inclui `Por épico:`.
+- [ ] Nota de dívida do topo removida.
+- [ ] `skills/rte/skill.md` linha ~109: referência a "W-PROTO-3"
+  removida.
+- [ ] Seção 🎯 Validação presente e inalterada (diff vazio nesse bloco).
+- [ ] Seção "Próximo Passo" descreve revisão humana da PR, não criação.
 
 #### ÉPICO W-PROTO-DOC-3: Saneamento residual em arquivos periféricos
 
