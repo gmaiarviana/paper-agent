@@ -5,7 +5,7 @@
 
 ## Documentos
 
-- [vision.md](vision.md) — missão e filosofia do workflow
+- [vision.md](vision.md) — missão, princípios, forma da plataforma e horizonte do workflow
 - [ROADMAP.md](ROADMAP.md) — milestones e épicos do processo
 
 ## Relação com outras pastas

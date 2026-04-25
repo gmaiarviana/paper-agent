@@ -79,10 +79,14 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
 
 ### MVP-WORKFLOW
 
-- **Objetivo:** priorização autônoma rodando. Skill orquestradora
-  escolhe tarefa do dia a partir de backlog curado; Claude Code Routine
-  dispara execução uma vez por dia; operador recebe relatório executivo
-  no formato "trabalhamos isso hoje, faz sentido? para validar faça XYZ".
+- **Objetivo:** priorização autônoma rodando, materializada como POC
+  mínimo da plataforma de workflow (ver
+  [Forma da Plataforma](vision.md#forma-da-plataforma)). POC alimenta
+  uma fila a partir do encerramento de implementação (W-PROTO-5: PR
+  aberta = item) — com tipos de itens convivendo (decisão, escalação,
+  PR pra revisar, proposta, relatório "trabalhamos isso hoje"). Kanban,
+  chat focado, Proponente (1×/dia) e refinador autônomo (contínuo)
+  entram em incrementos seguintes. Operador valida via fila, sem SLA.
 - **Estágio:** MVP
 - **Épicos agrupados:** a definir em refinamento estratégico
 - **Dependências de core:** nenhuma
@@ -90,6 +94,24 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
 - **Status dos épicos:** milestone em declaração — épicos serão
   definidos em refinamento estratégico via Claude Web após ambos os
   milestones da fase Protótipo fecharem.
+- **Tensões pra refinamento estratégico** (discussão de 2026-04-25 ao
+  mergear `vision.md` e `platform-vision.md`):
+  - **(a) Quem cria itens "PR pra revisar"?** Inclinação: RTE no mesmo
+    passo em que abre PR (W-PROTO-5 estendido). Alternativa: observador
+    da plataforma observa a PR aberta e publica item.
+  - **(b) Auto-regulação por capacidade (~20 itens).** Gatilho duro
+    (autônomo trava de criar) ou soft (só prioriza)? Limite por tipo de
+    item ou agregado?
+  - **(c) Proponente no POC mínimo da plataforma?** Inclinação: fora —
+    entra em incremento posterior pra manter POC realmente mínimo.
+  - **(d) Reconstrução da fila se plataforma cair.** Validar na
+    implementação que varrer markdown + estado de PRs reconstrói a fila
+    deterministicamente — teste prático do princípio "markdown é fonte
+    da verdade".
+- **Fora do MVP (longo prazo):** outros fluxos do workflow
+  (observar/auditar/reorganizar) e workflow como produto desacoplado
+  multi-repo vivem no [Horizonte de vision.md](vision.md#horizonte) e
+  não estruturam decisões deste milestone.
 
 ## 📋 Épicos Planejados
 
