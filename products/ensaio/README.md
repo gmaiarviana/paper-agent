@@ -25,15 +25,20 @@ Ensaio é **produto próprio com app próprio**, paralelo ao Revelar. Compartilh
 
 ## Status
 
-POC ✅ implementada e validada manualmente (milestone POC-ENSAIO — C-ENSAIO-2, E-POC-1, E-POC-2, E-POC-3).
+Protótipo em implementação (milestone PROTO-ENSAIO):
+- ✅ POC-ENSAIO concluída (C-ENSAIO-2, E-POC-1, E-POC-2, E-POC-3)
+- Stack migrada de Streamlit para **Reflex** (ADR em `docs/adr/001-stack-do-prototipo.md`)
+- Rascunho progressivo por seção, Metodologista integrado
 
-Executar localmente:
+## Executar localmente
 
 ```bash
-python -m streamlit run products/ensaio/app/chat.py
+# A partir de products/ensaio/
+cd products/ensaio
+reflex run
 ```
 
-Requer apenas `ANTHROPIC_API_KEY` no `.env`. Modelo padrão pode ser trocado via `LLM_MODEL` no `.env`.
+Requer `ANTHROPIC_API_KEY` no `.env` (raiz do projeto). Modelo padrão pode ser trocado via `LLM_MODEL` no `.env`.
 
 ## Documentação
 

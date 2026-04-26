@@ -31,10 +31,16 @@ from core.prompts.writer import (
     WRITER_PROMPT_V1,
 )
 
+# Re-exportar prompt de provocação do Metodologista (E-PROTO-3.1)
+from core.prompts.methodologist_provocation import (
+    METHODOLOGIST_PROVOCATION_PROMPT_V1,
+)
+
 __all__ = [
     # Metodologista
     "METHODOLOGIST_AGENT_SYSTEM_PROMPT_V1",
     "METHODOLOGIST_DECIDE_PROMPT_V2",
+    "METHODOLOGIST_PROVOCATION_PROMPT_V1",
     # Orquestrador
     "ORCHESTRATOR_SOCRATIC_PROMPT_V1",
     # Estruturador

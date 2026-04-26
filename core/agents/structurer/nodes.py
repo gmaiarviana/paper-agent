@@ -150,7 +150,7 @@ IMPORTANTE: Você é COLABORATIVO, não rejeita ideias, apenas estrutura o pensa
     )
 
     # Passar config para funções auxiliares
-    node_config = {"system_prompt": system_prompt, "model_name": model_name, "langgraph_config": config, "trace_id": trace_id, "structured_logger": structured_logger, "start_time": start_time}
+    node_config = {"system_prompt": system_prompt, "model_name": model_name, "langgraph_config": config, "trace_id": trace_id, "structured_logger": structured_logger, "start_time": start_time, "product_context": product_context}
 
     try:
         if is_refinement_mode:
@@ -212,6 +212,20 @@ def _structure_initial_question(state: MultiAgentState, config: dict) -> dict:
     system_prompt = config["system_prompt"]
     model_name = config["model_name"]
 
+    # Extrair product_context para instrução condicional de seções de artigo
+    product_context = config.get("product_context")
+    article_sections_field = (
+        ',\n    "article_sections": ["Título 1", "Título 2", ...]'
+        if product_context
+        else ""
+    )
+    article_sections_note = (
+        '\nOPCIONAL: quando tiver contexto suficiente para propor a estrutura do artigo, '
+        'inclua "article_sections" com a lista de títulos de seções em português.'
+        if product_context
+        else ""
+    )
+
     # Criar prompt de estruturação usando config do YAML
     structuring_prompt = f"""{system_prompt}
 
@@ -225,13 +239,13 @@ Extraia e estruture os seguintes elementos da observação acima:
 2. **Problema**: Qual problema, gap ou fenômeno está sendo observado?
 3. **Contribuição potencial**: Como essa observação pode contribuir para academia ou prática?
 4. **Questão de pesquisa estruturada**: Transforme a observação em uma questão de pesquisa clara
-
+{article_sections_note}
 RESPONDA EM JSON:
 {{
     "context": "descrição do contexto da observação",
     "problem": "descrição do problema ou gap identificado",
     "contribution": "possível contribuição acadêmica ou prática",
-    "structured_question": "questão de pesquisa estruturada baseada na observação"
+    "structured_question": "questão de pesquisa estruturada baseada na observação"{article_sections_field}
 }}
 
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
@@ -262,6 +276,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
             )
 
     # Parse da resposta
+    article_sections: list = []
     try:
         structured_data = extract_json_from_llm_response(response.content)
 
@@ -269,11 +284,16 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
         problem = structured_data.get("problem", "Problema não identificado")
         contribution = structured_data.get("contribution", "Contribuição potencial não identificada")
         structured_question = structured_data.get("structured_question", state['user_input'])
+        article_sections = structured_data.get("article_sections", [])
+        if not isinstance(article_sections, list):
+            article_sections = []
 
         logger.debug(f"Contexto: {context}")
         logger.debug(f"Problema: {problem}")
         logger.debug(f"Contribuição: {contribution}")
         logger.debug(f"Questão estruturada: {structured_question}")
+        if article_sections:
+            logger.info(f"Seções propostas: {article_sections}")
 
         # Validar que pelo menos a questão foi gerada
         if not structured_question or structured_question == state['user_input']:
@@ -348,11 +368,15 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
     logger.info("=== NÓ STRUCTURER: Finalizado ===\n")
 
     # Criar AIMessage com o conteúdo da estruturação para histórico
+    ak: dict = {"agent": "structurer"}
+    if article_sections:
+        ak["article_sections"] = article_sections
     ai_message = AIMessage(
         content=f"Questão estruturada: {structured_question}\n\n"
                 f"Contexto: {context}\n"
                 f"Problema: {problem}\n"
-                f"Contribuição potencial: {contribution}"
+                f"Contribuição potencial: {contribution}",
+        additional_kwargs=ak,
     )
 
     return {
@@ -536,7 +560,8 @@ Retorne APENAS JSON com: context, problem, contribution, structured_question, ad
                 f"Gaps endereçados: {', '.join(addressed_gaps)}\n"
                 f"Contexto: {context}\n"
                 f"Problema: {problem}\n"
-                f"Contribuição potencial: {contribution}"
+                f"Contribuição potencial: {contribution}",
+        additional_kwargs={"agent": "structurer"},
     )
 
     return {

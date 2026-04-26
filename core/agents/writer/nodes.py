@@ -182,3 +182,116 @@ def writer_node(
     logger.info("=== NÓ WRITER: artigo gerado (%d chars) ===", len(article))
 
     return {"article": article}
+
+
+# ---------------------------------------------------------------------------
+# writer_section_node — C-ENSAIO-3.2
+# ---------------------------------------------------------------------------
+
+_SECTION_PROMPT = """\
+Você é o Escritor, especialista em artigos técnico-científicos em markdown.
+
+{product_context_section}
+
+## TAREFA
+
+Redigir o corpo da seção **{section_title}** do artigo.
+
+Regras:
+- Retorne APENAS o corpo markdown da seção, sem repetir o cabeçalho `## {section_title}`.
+- Tom técnico e sóbrio; parágrafos curtos; português do Brasil.
+- Preserve blocos de código, tabelas e saídas de terminal em fences markdown.
+- Nunca invente números, resultados quantitativos ou citações não fornecidas.
+{refinement_instruction}
+
+{focal_argument_section}
+
+{article_context_section}
+
+{conversation_section}
+"""
+
+
+def _format_article_context(article_context: Optional[str]) -> str:
+    if not article_context or not article_context.strip():
+        return ""
+    return (
+        "## OUTRAS SEÇÕES JÁ REDIGIDAS\n\n"
+        f"{article_context.strip()}\n\n---\n"
+    )
+
+
+def _format_refinement_instruction(current_body: str) -> str:
+    if not current_body or not current_body.strip():
+        return ""
+    return (
+        "- Esta é uma REGENERAÇÃO: o rascunho anterior está no histórico "
+        "conversacional. Incorpore o feedback do pesquisador sem repetir "
+        "o conteúdo anterior literalmente."
+    )
+
+
+def writer_section_node(
+    state: Dict[str, Any],
+    config: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Gera ou regenera o corpo de uma seção individual do artigo.
+
+    Args:
+        state: dict com as chaves ``messages``, ``focal_argument``,
+            ``section_title``, ``current_body``, ``article_context``,
+            ``product_context``. Chaves ausentes são tratadas como None/"".
+        config: ignorado na V1 (compatibilidade com assinatura LangGraph).
+            ``product_context`` via ``config.configurable`` é aceito como
+            fallback quando não vem no ``state``.
+
+    Returns:
+        dict com a chave ``section_content`` (str) — corpo markdown da seção,
+        sem cabeçalho ``## Título``.
+    """
+    messages = state.get("messages")
+    focal_argument = state.get("focal_argument")
+    section_title = state.get("section_title", "Seção")
+    current_body = state.get("current_body", "")
+    article_context = state.get("article_context", "")
+    product_context = state.get("product_context")
+
+    if product_context is None and config:
+        product_context = config.get("configurable", {}).get("product_context")
+
+    logger.info(
+        "=== NÓ WRITER_SECTION: seção='%s' modo=%s ===",
+        section_title,
+        "refinamento" if current_body else "geração",
+    )
+
+    model_name = _load_model_name()
+
+    filled_prompt = (
+        _SECTION_PROMPT
+        .replace("{product_context_section}", _format_product_context(product_context))
+        .replace("{section_title}", section_title)
+        .replace("{refinement_instruction}", _format_refinement_instruction(current_body))
+        .replace("{focal_argument_section}", _format_focal_argument(focal_argument))
+        .replace("{article_context_section}", _format_article_context(article_context))
+        .replace("{conversation_section}", _format_conversation(messages))
+    )
+
+    llm = create_anthropic_client(model=model_name, temperature=0.2)
+    response = llm.invoke([HumanMessage(content=filled_prompt)])
+
+    content = response.content if hasattr(response, "content") else str(response)
+    if isinstance(content, list):
+        content = "".join(
+            block.get("text", "") if isinstance(block, dict) else str(block)
+            for block in content
+        )
+    content = (content or "").strip()
+
+    logger.info(
+        "=== NÓ WRITER_SECTION: seção '%s' gerada (%d chars) ===",
+        section_title,
+        len(content),
+    )
+
+    return {"section_content": content}

@@ -776,3 +776,111 @@ def force_decision_collaborative(
             error=e
         )
         raise
+
+
+# ---------------------------------------------------------------------------
+# methodologist_provocation_node — E-PROTO-3.1, 3.5
+# ---------------------------------------------------------------------------
+
+def methodologist_provocation_node(
+    state: dict,
+    config: Optional[RunnableConfig] = None,
+) -> dict:
+    """Nó conversacional de provocação metodológica (E-PROTO-3.1).
+
+    Separado de ``decide_collaborative`` — não retorna veredito, apenas
+    uma pergunta ou sugestão sobre lacunas metodológicas, métricas ausentes,
+    afirmações sem suporte ou dimensões do artigo não declaradas.
+
+    Input (campos de MultiAgentState usados):
+        messages:       list[BaseMessage]
+        focal_argument: dict | None
+        product_context via config.configurable
+
+    Output:
+        messages: [AIMessage(content=..., additional_kwargs={"agent": "methodologist"})]
+    """
+    from core.prompts.methodologist_provocation import METHODOLOGIST_PROVOCATION_PROMPT_V1
+
+    messages = state.get("messages", [])
+    focal_argument = state.get("focal_argument")
+
+    product_context: Optional[str] = None
+    if config is not None:
+        if isinstance(config, dict):
+            product_context = config.get("configurable", {}).get("product_context")
+        else:
+            try:
+                product_context = config.configurable.get("product_context")  # type: ignore[attr-defined]
+            except AttributeError:
+                pass
+
+    logger.info("=== NÓ METHODOLOGIST_PROVOCATION: iniciando provocação ===")
+
+    # Formatar seções do prompt
+    def _fmt_product_ctx(ctx: Optional[str]) -> str:
+        if not ctx or not ctx.strip():
+            return ""
+        return f"## CONTEXTO DO PRODUTO\n\n{ctx.strip()}\n\n---"
+
+    def _fmt_focal(fa: Optional[dict]) -> str:
+        if not fa:
+            return ""
+        lines = []
+        for k in ("intent", "subject", "population", "metrics", "article_type"):
+            v = fa.get(k)
+            if v and v not in ("not specified", "unclear"):
+                lines.append(f"- **{k}**: {v}")
+        if not lines:
+            return ""
+        return "## ARGUMENTO FOCAL\n\n" + "\n".join(lines) + "\n\n---"
+
+    def _fmt_conversation(msgs: list) -> str:
+        if not msgs:
+            return "## HISTÓRICO\n\n(sem mensagens ainda)"
+        parts = []
+        for m in msgs:
+            if hasattr(m, "type"):
+                role = m.type
+                content = m.content or ""
+            elif isinstance(m, dict):
+                role = m.get("role") or m.get("type") or "message"
+                content = m.get("content", "")
+            else:
+                role, content = "message", str(m)
+            parts.append(f"[{role}]\n{content}")
+        return "## HISTÓRICO DA CONVERSA\n\n" + "\n\n".join(parts)
+
+    filled_prompt = (
+        METHODOLOGIST_PROVOCATION_PROMPT_V1
+        .replace("{product_context_section}", _fmt_product_ctx(product_context))
+        .replace("{focal_argument_section}", _fmt_focal(focal_argument))
+        .replace("{conversation_section}", _fmt_conversation(messages))
+    )
+
+    try:
+        model_name = get_agent_model("methodologist")
+    except ConfigLoadError:
+        model_name = get_anthropic_model()
+
+    llm = create_anthropic_client(model=model_name, temperature=0.3)
+    response = invoke_with_retry(
+        llm=llm,
+        messages=[HumanMessage(content=filled_prompt)],
+        agent_name="methodologist-provocation",
+    )
+
+    content = response.content if hasattr(response, "content") else str(response)
+    if isinstance(content, list):
+        content = "".join(
+            b.get("text", "") if isinstance(b, dict) else str(b) for b in content
+        )
+    content = (content or "O contexto está bem descrito. Continue.").strip()
+
+    logger.info("=== NÓ METHODOLOGIST_PROVOCATION: provocação gerada (%d chars) ===", len(content))
+
+    return {
+        "messages": [
+            AIMessage(content=content, additional_kwargs={"agent": "methodologist"})
+        ]
+    }
