@@ -7,7 +7,7 @@
 ## Identificação
 
 - **Funcionalidade:** X.Y - <nome>
-- **Branch:** feature/X.Y-nome
+- **Branch:** milestone/<id-em-caixa-baixa>
 - **Executado em:** YYYY-MM-DD HH:MM
 - **Tentativa nº:** <N> (esta funcionalidade já passou por QA <N-1> vezes)
 

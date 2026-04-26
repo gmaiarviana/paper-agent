@@ -64,7 +64,7 @@ Cada épico percorre até oito estados. Os mesmos estados aplicam-se ao campo "S
 
 ### PROTO-WORKFLOW-DOC
 
-- **Status:** 🔍 Detalhes definidos (desde 2026-04-26)
+- **Status:** 🔀 Em revisão
 - **Objetivo:** consolidar a reforma de milestone na documentação do
   fluxo de desenvolvimento — absorver as cirurgias do
   `PROTO-WORKFLOW-ENCERRAMENTO` em reescritas coerentes per-milestone
@@ -140,8 +140,8 @@ Cada épico percorre até oito estados. Os mesmos estados aplicam-se ao campo "S
 - **Épicos agrupados:** W-PROTO-DOC-1, W-PROTO-DOC-2, W-PROTO-DOC-3
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-doc`
-- **Status dos épicos:** W-PROTO-DOC-1 🔍 Detalhes definidos,
-  W-PROTO-DOC-2 🔍 Detalhes definidos, W-PROTO-DOC-3 🔍 Detalhes definidos.
+- **Status dos épicos:** W-PROTO-DOC-1 🔀 Em revisão,
+  W-PROTO-DOC-2 🔀 Em revisão, W-PROTO-DOC-3 🔀 Em revisão.
 - **Feedback do estágio anterior endereçado:**
   - Dívida M4-restante/M5/M6 da reforma de milestone original — vinha
     da Nota do `POC-WORKFLOW`. W-PROTO-DOC-1 absorve a parte residual
@@ -336,7 +336,7 @@ referências quebradas pra `../development/` em `workflow.md` (linhas
 `../implementation/`. Inclui troca do exemplo `C-ENSAIO-2` em
 `session_conventions.md` por id de milestone moderno.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão
 
 **Dependências:** W-POC-3 (semântica operacional nos skill.md);
 PROTO-WORKFLOW-ENCERRAMENTO mergeado (cirurgias a absorver). Não
@@ -484,7 +484,7 @@ reescrita em W-POC-3) já opera sobre milestone inteiro e consolida N
 antigo. Ao concluir, remover a nota de dívida declarada inline no
 topo do template (linhas 1-3 atuais).
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão
 
 **Dependências:** W-POC-3 (RTE já opera por milestone); W-PROTO-5
 mergeado (Seção 🎯 a preservar). Não bloqueia W-PROTO-DOC-1.
@@ -600,7 +600,7 @@ remanescentes. Se a varredura identificar drift adicional em
 `docs/CONTEXT_INDEX.md` ou `docs/ARCHITECTURE.md` (limpos no
 diagnóstico de 2026-04-25), corrigir aqui também.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão
 
 **Dependências:** W-PROTO-DOC-1 e W-PROTO-DOC-2 (varredura final faz
 sentido depois que os arquivos operacionais e o template foram

@@ -8,7 +8,7 @@
 
 ## 1. O QUE É O MODO AUTÔNOMO
 
-Modo de operação onde o dev **dispara uma funcionalidade pela manhã** via Claude Code Web e **valida o resultado à noite**, com skills automáticas conduzindo Scrum Master → Dev → QA → TL → PO → RTE.
+Modo de operação onde o dev **dispara um milestone pela manhã** via Claude Code Web e **valida o resultado à noite**, com skills automáticas conduzindo Scrum Master → Dev → QA → TL → PO → RTE.
 
 **Diferencial:** o dev não acompanha cada checkpoint. As skills atuam como gates de qualidade no lugar das aprovações explícitas do fluxo manual.
 
@@ -20,7 +20,7 @@ Modo de operação onde o dev **dispara uma funcionalidade pela manhã** via Cla
 **Pela manhã:**
 - ✅ Escolher funcionalidade do ROADMAP (épico em `🔍 Detalhes definidos`)
 - ✅ Disparar via `docs/process/autonomous/dispatch.md` em claude.ai/code
-- ✅ Garantir que branch alvo segue padrão `feature/X.Y-nome`
+- ✅ Garantir que branch alvo segue padrão `milestone/<id-em-caixa-baixa>`
 
 **À noite (ao receber notificação):**
 - ✅ Rodar comandos de validação local fornecidos pelo RTE Skill
@@ -30,7 +30,7 @@ Modo de operação onde o dev **dispara uma funcionalidade pela manhã** via Cla
 **Não faz:**
 - ❌ Acompanhar checkpoints intermediários
 - ❌ Aprovar cada decisão arquitetural pequena
-- ❌ Criar PR manualmente (o fluxo autônomo já entrega branch pronta)
+- ❌ Criar PR (a RTE cria automaticamente via `mcp__github__create_pull_request`)
 
 ### Skills Automáticas (Gates)
 - **Scrum Master Skill:** lê ROADMAP, quebra a funcionalidade em tarefas, esclarece dúvidas técnicas (consulta docs antes de assumir).
@@ -51,7 +51,7 @@ Cada skill é um gate: se reprovar, devolve para a etapa anterior antes de avan�
 | **Refinamento** | Claude Web → prompts → Cursor | Scrum Master Skill (autônomo, sobre épico já detalhado) |
 | **Aprovação por checkpoint** | Explícita do dev | Gates QA/TL/PO automáticos |
 | **Validação intermediária** | Dev valida a cada checkpoint | Skills validam; dev só valida no final |
-| **PR** | Dev cria pela interface | Branch pronta + comandos para dev validar |
+| **PR** | Dev cria pela interface | RTE abre PR com Seção 🎯 Validação; dev revisa colando no Copilot e mergeia |
 | **Quando usar** | Épicos novos, decisões arquiteturais em aberto | Funcionalidade com detalhes de execução fechados |
 
 ---

@@ -61,7 +61,7 @@ git checkout <nome-real-da-branch>
 - [ ] Comentários em código complexo
 
 **Git:**
-- [ ] Branch criada: `feature/X.Y-nome-funcionalidade`
+- [ ] Branch criada: `milestone/<id-em-caixa-baixa>`
 - [ ] Commits organizados (se houver vários)
 - [ ] Push realizado para branch remota
 - [ ] **Dev notificado que branch está pronta** (dev cria PR pela interface)
@@ -97,8 +97,8 @@ git checkout <nome-real-da-branch>
 git fetch origin
 
 # Criar ou atualizar branch local a partir da remota
-git checkout feature/X.Y-nome-funcionalidade
-git pull origin feature/X.Y-nome-funcionalidade
+git checkout milestone/<id-em-caixa-baixa>
+git pull origin milestone/<id-em-caixa-baixa>
 
 # Instalar/atualizar dependências (se houver mudanças)
 [comando específico: npm install; poetry install; etc]

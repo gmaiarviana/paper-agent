@@ -9,11 +9,9 @@
 ## 1. COMO DISPARAR (PELA MANHÃ)
 
 ### Passos
-1. **Escolher funcionalidade:** abrir ROADMAP (core ou produto) e identificar `X.Y` em épico `🔍 Detalhes definidos`.
+1. **Escolher milestone:** abrir ROADMAP do produto ou workflow e identificar o `<ID>` do próximo milestone a executar.
 2. **Abrir Claude Code Web:** [claude.ai/code](https://claude.ai/code) no repositório `paper-agent`.
-3. **Preencher dispatch:** copiar `docs/process/autonomous/dispatch.md` e substituir placeholders:
-   - `[Funcionalidade X.Y]` → identificador real (ex: `11.3`)
-   - `feature/X.Y-nome` → nome real da branch (ex: `feature/11.3-snapshot-detection`)
+3. **Preencher dispatch:** copiar `docs/process/autonomous/dispatch.md` e substituir o milestone alvo em linguagem natural.
 4. **Disparar:** enviar o prompt e fechar a sessão. As skills assumem dali pra frente.
 
 ### Critérios para disparar com segurança
@@ -28,7 +26,7 @@
 
 ## 2. AO RECEBER NOTIFICAÇÃO DE PR ABERTA (À NOITE)
 
-A RTE Skill abre a PR (estado terminal da fase de implementação após W-PROTO-5) e notifica o dev no formato definido em [development/delivery.md](../development/delivery.md):
+A RTE Skill abre a PR (estado terminal da fase de implementação após W-PROTO-5) e notifica o dev no formato definido em [implementation/delivery.md](../implementation/delivery.md):
 
 ```
 ✅ Milestone pronto! PR #<N> aberta para revisão humana.
@@ -59,11 +57,11 @@ A RTE Skill já entrega os comandos prontos. Estrutura típica:
 ```bash
 # 1. Baixar branch
 git fetch origin
-git checkout feature/X.Y-nome
-git pull origin feature/X.Y-nome
+git checkout milestone/<id-em-caixa-baixa>
+git pull origin milestone/<id-em-caixa-baixa>
 
 # 2. Preparar ambiente
-source venv/bin/activate           # Linux/Mac
+source .venv/bin/activate           # Linux/Mac
 # .\venv\Scripts\Activate.ps1     # Windows
 pip install -r requirements.txt   # se houver mudanças em deps
 
@@ -130,4 +128,4 @@ Esses inputs alimentam refinamentos futuros das skills e dos guidelines.
 - Detalhe das skills (Scrum Master/QA/TL/PO/RTE) → [workflow.md](workflow.md)
 - Template de dispatch → `docs/process/autonomous/dispatch.md`
 - Convenções operacionais (segredos, granularidade de commits) → [session_conventions.md](session_conventions.md)
-- Mensagem final padrão (compartilhada com fluxo manual) → [development/delivery.md](../development/delivery.md)
+- Mensagem final padrão (compartilhada com fluxo manual) → [implementation/delivery.md](../implementation/delivery.md)

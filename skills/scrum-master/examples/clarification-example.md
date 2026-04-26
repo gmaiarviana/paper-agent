@@ -11,7 +11,7 @@ Dispatch Autônomo - Funcionalidade 11.3
 
 Funcionalidade: 11.3 - Detecção de Maturidade via Snapshots
 Roadmap: docs/ROADMAP.md
-Branch: feature/11.3-snapshot-detection
+Branch: milestone/<id-em-caixa-baixa>
 Modo: Autônomo
 ```
 
@@ -61,7 +61,7 @@ Modo: Autônomo
 🛑 Scrum Master bloqueado — esclarecimentos necessários
 
 Funcionalidade: 11.3 - Detecção de Maturidade via Snapshots
-Branch alvo: feature/11.3-snapshot-detection
+Branch alvo: milestone/<id-em-caixa-baixa>
 
 Já consultei:
 - docs/ROADMAP.md (funcionalidade 11.3)

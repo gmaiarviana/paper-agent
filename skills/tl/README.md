@@ -43,7 +43,7 @@ Rejeita **automaticamente** se **qualquer** item ocorrer:
 
 ## 4. INPUT ESPERADO
 
-- Branch `feature/X.Y-nome` aprovada por QA
+- Branch `milestone/<id-em-caixa-baixa>` aprovada por QA
 - `current_implementation.md` com `QA ✅`
 - ROADMAP da funcionalidade
 - `docs/ARCHITECTURE.md` + specs do tema afetado (via `docs/CONTEXT_INDEX.md`)

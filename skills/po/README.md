@@ -43,7 +43,7 @@ Rejeita **automaticamente** se **qualquer** item ocorrer:
 
 ## 4. INPUT ESPERADO
 
-- Branch `feature/X.Y-nome` aprovada por QA + TL
+- Branch `milestone/<id-em-caixa-baixa>` aprovada por QA + TL
 - `current_implementation.md` com `QA ✅` e `TL ✅`
 - Mapeamento crítério ↔ task gerado por Scrum Master
 - ROADMAP da funcionalidade

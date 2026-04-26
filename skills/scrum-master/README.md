@@ -36,7 +36,7 @@ A skill executa, em ordem:
 ## 3. INPUT ESPERADO
 
 - Funcionalidade `X.Y` (id do ROADMAP)
-- Branch alvo (`feature/X.Y-nome`)
+- Branch alvo (`milestone/<id-em-caixa-baixa>`)
 - Roadmap aplicável (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`)
 
 Geralmente vem preenchido via `docs/process/autonomous/dispatch.md`.
