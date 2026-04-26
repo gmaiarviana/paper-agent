@@ -31,7 +31,7 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
 | ÉPICO 1 (Pesquisador) | 🌱 Visão | — (não vinculado) | — |
 | C-ENSAIO-1 (Parametrização de Contexto) | 🌱 Visão | POC-ENSAIO | Ensaio |
 | C-ENSAIO-2 (Writer versão inicial) | ✅ Implementado | POC-ENSAIO | Ensaio |
-| C-ENSAIO-3 (Writer por seção) | 🌱 Visão | PROTO-ENSAIO | Ensaio |
+| C-ENSAIO-3 (Writer por seção) | 🔍 Detalhes definidos | PROTO-ENSAIO | Ensaio |
 | C-ENSAIO-4 (Ingestão de arquivos anexados) | 🌱 Visão | MVP-ENSAIO | Ensaio |
 | C-ENSAIO-5 (Pendência — condicional) | 🌱 Visão (condicional) | — (sem milestone até segundo consumidor aparecer) | — |
 | C-ENSAIO-6 (Componentes de UI — condicional) | 🌱 Visão (condicional) | — (sem milestone até gatilho de ativação) | — |
@@ -89,12 +89,83 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
 
 #### ÉPICO C-ENSAIO-3: Writer Gera por Seção (Evolução)
 
-**Objetivo:** Writer evolui para gerar artigo seção por seção em vez de bloco único, permitindo refinamento granular.
+**Objetivo:** Writer evolui para gerar artigo seção por seção em vez de bloco único, permitindo refinamento granular. Entrega dois artefatos: (1) o contrato `Article`/`Section` como estrutura serializável no core (princípio de viabilização §7 da visão do Ensaio), consumido pelo produto; (2) o nó `writer_section_node`, análogo stateless ao `writer_node` existente, que opera no escopo de uma única seção.
 
-**Status:** 🌱 Visão
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:**
-- C-ENSAIO-2 (Writer versão inicial)
+- C-ENSAIO-2 (Writer versão inicial) — já entregue
+
+### Funcionalidades:
+
+#### C-ENSAIO-3.1: Contrato `Article` e `Section` no core
+
+- **Descrição:** Define os tipos `Section` e `Article` em `core/agents/writer/models.py`. Estrutura serializável que vive no core e é consumida pelo produto Ensaio (e futuramente pelo Produtor Científico).
+- **Critérios de Aceite:**
+  - Deve definir `Section` como `TypedDict` com campos `title: str`, `body: str`, `status: Literal["empty", "draft", "edited"]`
+  - Deve definir `Article = list[Section]`
+  - Deve ser importável via `from core.agents.writer.models import Article, Section`
+  - Deve serializar para JSON sem transformações adicionais (dict nativo do Python)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `core/agents/writer/models.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    from typing import TypedDict, Literal
+    class Section(TypedDict):
+        title: str
+        body: str
+        status: Literal["empty", "draft", "edited"]
+
+    Article = list[Section]
+    ```
+  - **Integração:** importado diretamente pelo produto via `from core.agents.writer.models import Article, Section`; não entra em nenhum grafo LangGraph
+  - **Template de referência:** sem análogo no repositório (primeiro TypedDict de domínio no core)
+  - **Acoplamentos verificados:** arquivo novo sem dependências internas além do `typing` da stdlib; nenhum produto afetado
+  - **Dependências de ordem:** primeiro a executar — C-ENSAIO-3.2 depende deste contrato
+  - **Escopo de teste:**
+    - **Unit:** `tests/core/unit/agents/writer/test_article_models.py` — instanciar `Section` com campos válidos; verificar que `json.dumps` não lança exceção; verificar `Article` como lista de Sections
+
+#### C-ENSAIO-3.2: `writer_section_node` no core
+
+- **Descrição:** Novo nó stateless em `core/agents/writer/nodes.py` que gera ou regenera o corpo de uma seção individual dado o histórico conversacional, o argumento focal, o título da seção-alvo e o contexto do artigo já redigido (outras seções). Não modifica `writer_node`.
+- **Critérios de Aceite:**
+  - Deve aceitar `{messages, focal_argument, section_title, current_body, article_context, product_context}` e retornar `{section_content: str}`
+  - `section_title` é o nome da seção a redigir (ex.: `"Metodologia"`)
+  - `current_body` é `""` para geração inicial ou conteúdo existente para regeneração (modo refinamento)
+  - `article_context` é um resumo em texto das outras seções já redigidas (pode ser `""` se nenhuma)
+  - Em modo refinamento (`current_body` não-vazio), deve incorporar feedback da conversa recente sem devolver o cabeçalho da seção
+  - Deve retornar apenas o corpo markdown da seção, sem o `## Título` repetido
+  - `writer_node` existente deve passar seus testes sem modificação (não-regressão obrigatória)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum (função adicionada ao fim de `core/agents/writer/nodes.py`)
+  - **Arquivos a modificar:** `core/agents/writer/nodes.py` — adicionar `writer_section_node` ao final
+  - **Contratos/Shapes:**
+    ```python
+    def writer_section_node(state: dict) -> dict:
+        """
+        Input (dict):
+            messages:        list[BaseMessage] | list[dict]
+            focal_argument:  dict | None
+            section_title:   str
+            current_body:    str   # "" = geração; não-vazio = refinamento
+            article_context: str   # resumo das demais seções; "" se nenhuma
+            product_context: str | None
+
+        Output (dict):
+            section_content: str   # corpo markdown da seção, sem cabeçalho
+        """
+    ```
+  - **Integração:** invocado diretamente pelo produto (`writer_section_node({...})`), mesmo padrão do `writer_node`; não entra no grafo LangGraph
+  - **Template de referência:** `writer_node` em `core/agents/writer/nodes.py` — mesma estrutura (stateless, prompt + invoke, retorno dict)
+  - **Acoplamentos verificados:**
+    - `core/agents/memory/config_loader.py` — reusar `get_agent_prompt`, `get_agent_model` (padrão existente no `writer_node`)
+    - `core/utils/config.py` — reusar `create_anthropic_client`, `get_anthropic_model`
+    - **Produto afetado:** Ensaio (consumidor direto — adição não quebra `writer_node`). Revelar não usa Writer.
+  - **Dependências de ordem:** depende de C-ENSAIO-3.1 (tipos `Section`/`Article` para documentação de contrato); pode ser implementado em paralelo na prática
+  - **Escopo de teste:**
+    - **Unit:** `tests/core/unit/agents/writer/test_writer_section_node.py` — mock do LLM; verificar que `section_content` é string não-vazia; verificar que `current_body` não-vazio ativa instrução de refinamento no prompt; verificar não-regressão do `writer_node` (rodar testes existentes em `tests/core/unit/test_writer.py`)
+    - **Validação manual via script:** `scripts/core/flows/validate_writer_section.py` — invocar `writer_section_node` com state mínimo (`section_title="Metodologia"`, 1 mensagem), verificar saída markdown coerente
 
 ---
 
