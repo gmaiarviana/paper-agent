@@ -63,12 +63,12 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### PROTO-ENSAIO
 
-- **Status:** `📐 Funcionalidades esboçadas` (E-PROTO-1 em `🔍 Detalhes definidos`)
+- **Status:** `🔍 Detalhes definidos` — todos os épicos em `🔍 Detalhes definidos`
 - **Objetivo:** elevar a **qualidade da experiência dentro de uma sessão** usando coerentemente capacidades que já temos (Metodologista parado no core, Writer evoluindo para por-seção) num chassi de stack adequado. Protótipo continua em sessão única e descartável (igual à POC) — persistência, pendências e fluxo assíncrono migram para o MVP por coerência de escopo (ver [vision.md §§3, 6, 10, 11](docs/vision.md)). Único artigo em andamento por vez; múltiplos artigos ficam em Ideias Futuras.
 - **Estágio:** Protótipo — Usuário usa de verdade
 - **Produto:** Ensaio
-- **Épicos agrupados:** E-PROTO-1 (`🔍 Detalhes definidos`), E-PROTO-2, E-PROTO-3 (estes dois em `📐 Funcionalidades esboçadas`)
-- **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção) — pré-requisito de E-PROTO-2. **C-ENSAIO-3 precisa estar em `🔍 Detalhes definidos` antes de E-PROTO-2 ir para fluxo autônomo**, porque o contrato `Article` seccionado (estrutura serializável no core, princípio de viabilização §7) emerge do refinamento de C-ENSAIO-3 e é consumido por E-PROTO-2.
+- **Épicos agrupados:** E-PROTO-1, E-PROTO-2, E-PROTO-3 (todos em `🔍 Detalhes definidos`)
+- **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção) — pré-requisito de E-PROTO-2; já em `🔍 Detalhes definidos`.
 - **Decisão de stack (saída do refinamento de E-PROTO-1.1):** Reflex (Python full-stack). ADR registrada em [products/ensaio/docs/adr/001-stack-do-prototipo.md](docs/adr/001-stack-do-prototipo.md).
 - **Branch associada:** `milestone/proto-ensaio`
 - **Glossário do produto:** termos "Usuário" (jornada) e "Pesquisador" (persona) ancorados em [products/ensaio/docs/vision.md §13](docs/vision.md).
@@ -298,38 +298,319 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 #### ÉPICO E-PROTO-2: Rascunho Progressivo por Seção (Modo Híbrido)
 
-**Objetivo:** Materializar o modo de escrita híbrido (visão §4) dentro de uma sessão — painel exibe o artigo seccionado, Usuário gera/regenera seções individualmente e edita o markdown inline. Rascunho evolui acompanhando a conversa, em vez de ser gerado de uma vez no final como na POC.
+**Objetivo:** Materializar o modo de escrita híbrido (visão §4) dentro de uma sessão — o Estruturador propõe a estrutura do artigo no chat, o painel exibe as seções propostas, e o Usuário gera/regenera o conteúdo de cada seção individualmente e edita inline. Rascunho evolui acompanhando a conversa, em vez de ser gerado de uma vez no final.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:**
-- E-PROTO-1 (nova stack — sem ela não há painel decente)
-- [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção no core) — **deve estar em `🔍 Detalhes definidos` antes de E-PROTO-2 ir para fluxo autônomo**, porque o contrato `Article` seccionado (estrutura serializável no core, princípio de viabilização §7 da vision) emerge do refinamento de C-ENSAIO-3 e é consumido pelo painel + state do Ensaio.
+- E-PROTO-1 (nova stack Reflex — `EnsaioState` e `article_panel.py` existem)
+- [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção — `writer_section_node` e tipos `Article`/`Section` disponíveis)
 
-### Funcionalidades (esboço):
-- 2.1 Painel Seccionado — substitui o markdown plano do POC; cada seção do artigo é renderizada como bloco individual, com título visível.
-- 2.2 Geração e Regeneração por Seção — botões "Gerar seção X" / "Regenerar seção X" invocam Writer no escopo da seção, consumindo histórico conversacional + artigo focal + contexto de produto.
-- 2.3 Edição Inline de Seção — Usuário edita o markdown de uma seção diretamente no painel, sem regenerar; alterações entram no estado e são preservadas em regenerações futuras de outras seções.
-- 2.4 Status por Seção — sinalização visual leve do estado (vazia / rascunho gerado / editada pelo Usuário) para guiar onde focar.
+### Funcionalidades:
+
+#### 2.0 Proposta de Estrutura pelo Estruturador
+
+- **Descrição:** Quando o contexto conversacional é suficiente, o Estruturador propõe a estrutura do artigo (lista de títulos de seções) no chat, em linguagem natural. A proposta é extraída pelo produto e popula o painel de artigo com seções vazias. Aprovação é implícita: o Usuário continua a conversa ou pede ajustes via chat (Estruturador re-propõe).
+- **Critérios de Aceite:**
+  - Deve atualizar `EnsaioState.current_article` com lista de `Section` vazias (`body=""`, `status="empty"`) quando o Estruturador inclui `article_sections` na sua resposta
+  - Deve preservar o `current_article` existente se o Estruturador não incluir `article_sections` no turno (nem todo turno do Estruturador propõe estrutura)
+  - Deve sobrescrever `current_article` quando o Estruturador re-propõe estrutura (somente se todas as seções ainda estiverem em `status="empty"` — preserva trabalho já feito)
+  - Não deve exibir botão "Gerar estrutura" — a proposta emerge da conversa
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum
+  - **Arquivos a modificar:**
+    - `core/agents/structurer/nodes.py` — quando `product_context` sinaliza contexto Ensaio e o Estruturador produz outline, incluir `additional_kwargs={"agent": "structurer", "article_sections": ["Título 1", "Título 2", ...]}` na `AIMessage` retornada. Seções somente incluídas quando o LLM decidir propor estrutura (instrução via `product_context`); turnos sem proposta retornam `additional_kwargs={"agent": "structurer"}` sem `article_sections`.
+    - `products/ensaio/config/product.yaml` — adicionar instrução ao `focus`: Estruturador deve propor estrutura de seções (em português) quando tiver contexto suficiente do experimento.
+    - `products/ensaio/app/state.py` — em `send_message`, após `graph.invoke`, inspecionar `result["messages"]`; se última AIMessage do structurer tiver `additional_kwargs.get("article_sections")` e `current_article` estiver vazio ou todo `"empty"`, popular `current_article`.
+  - **Contratos/Shapes:**
+    ```python
+    # core/agents/structurer/nodes.py — AIMessage com outline:
+    AIMessage(
+        content="Proposta de estrutura: ...",
+        additional_kwargs={
+            "agent": "structurer",
+            "article_sections": ["Introdução", "Metodologia", "Resultados", "Discussão", "Conclusão"]
+        }
+    )
+
+    # products/ensaio/app/state.py — extração em send_message:
+    last_structurer_msg = next(
+        (m for m in reversed(result["messages"])
+         if isinstance(m, AIMessage) and m.additional_kwargs.get("agent") == "structurer"),
+        None
+    )
+    if last_structurer_msg:
+        sections = last_structurer_msg.additional_kwargs.get("article_sections", [])
+        all_empty = all(s["status"] == "empty" for s in (self.current_article or []))
+        if sections and (not self.current_article or all_empty):
+            self.current_article = [
+                {"title": t, "body": "", "status": "empty"} for t in sections
+            ]
+    ```
+  - **Integração:** `additional_kwargs` no Structurer segue o padrão estabelecido em E-PROTO-1.3 (`agent`); Revelar ignora `article_sections` (campo extra é transparente — verificado em E-PROTO-1.3)
+  - **Template de referência:** E-PROTO-1.3 (padrão `additional_kwargs` no Structurer)
+  - **Acoplamentos verificados:**
+    - `core/agents/structurer/nodes.py` — arquivo compartilhado com Revelar. Adição de `article_sections` em `additional_kwargs` é transparente para o Revelar (não lê o campo). **Não-regressão:** rodar `tests/products/revelar/` deve passar 100%.
+    - `products/ensaio/config/product.yaml` — instrução adicional ao Orquestrador/Estruturador no contexto Ensaio; sem impacto em Revelar.
+  - **Dependências de ordem:** primeiro a executar — 2.1 renderiza o que 2.0 popula
+  - **Escopo de teste:**
+    - **Unit:** `tests/products/ensaio/unit/test_state_structurer_outline.py` — mock de `graph.invoke` retornando AIMessage com `article_sections`; verificar que `current_article` é populado; verificar que turno sem `article_sections` não sobrescreve `current_article` existente; verificar que re-proposta só sobrescreve se tudo `"empty"`
+    - **Não-regressão Revelar:** rodar `tests/products/revelar/` sem modificações; deve passar 100%
+    - **Validação manual:** conduzir conversa sobre experimento; verificar que painel se popula quando Estruturador propõe estrutura; pedir ajuste ("use seção de Limitações"); verificar re-proposta; iniciar geração de seção; verificar que nova proposta não sobrescreve
+
+#### 2.1 Painel Seccionado
+
+- **Descrição:** Substitui o markdown plano da POC por um painel que renderiza cada seção do artigo como bloco individual com cabeçalho visível e indicador de status. Seções chegam via 2.0 (proposta do Estruturador); painel é vazio até a primeira proposta.
+- **Critérios de Aceite:**
+  - Deve renderizar cada `Section` de `EnsaioState.current_article` como bloco separado: `title` como cabeçalho, `body` como markdown
+  - Deve exibir indicador de status por seção: `"empty"` → placeholder "Clique em Gerar"; `"draft"` → badge "Rascunho"; `"edited"` → badge "Editado"
+  - Deve exibir mensagem "Aguardando proposta de estrutura..." quando `current_article` é `None` ou lista vazia (orienta o Usuário a continuar a conversa)
+  - Deve manter proporção ~2/5 do layout (coluna direita)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum
+  - **Arquivos a modificar:** `products/ensaio/app/components/article_panel.py` — refatorar render de markdown plano para iteração sobre lista de `Section` via `rx.foreach`
+  - **Contratos/Shapes:**
+    - `EnsaioState.current_article: list[Section] | None` — substitui `str | None` do E-PROTO-1.2
+    - `Section` importado de `core.agents.writer.models`
+    - Mapa de status → label: `{"empty": "Clique em Gerar", "draft": "Rascunho", "edited": "Editado"}`
+  - **Integração:** `article_panel.py` lê `EnsaioState.current_article` via `rx.State`; renderiza com `rx.foreach`
+  - **Template de referência:** padrão `rx.foreach` da documentação Reflex
+  - **Acoplamentos verificados:** mudança de `str` para `list[Section]` em `current_article` requer remover o event handler `generate_article` herdado de E-PROTO-1.2 (substituído por `generate_section` de 2.2)
+  - **Dependências de ordem:** depende de 2.0 (que popula o state) — 2.2, 2.3 e 2.4 estendem este painel
+  - **Escopo de teste:**
+    - **Unit:** `tests/products/ensaio/unit/test_article_panel_sections.py` — renderizar lista com 0, 1 e N sections; verificar badge correto para cada status; verificar mensagem de estado vazio
+    - **Validação manual:** painel exibe "Aguardando..." antes da proposta; exibe seções após 2.0; badges corretos
+
+#### 2.2 Geração e Regeneração por Seção
+
+- **Descrição:** Botões "Gerar" / "Regenerar" por seção invocam `writer_section_node` no escopo daquela seção. As seções já existem no painel (propostas pelo Estruturador em 2.0); estes botões preenchem o conteúdo de cada uma.
+- **Critérios de Aceite:**
+  - Deve exibir botão "Gerar" por seção quando `body == ""`; botão "Regenerar" quando `body != ""`
+  - Deve invocar `writer_section_node({messages, focal_argument, section_title, current_body, article_context, product_context})`
+  - `article_context` deve ser construído a partir das demais seções já redigidas (resumo em texto simples, excluindo a seção-alvo)
+  - Deve atualizar `current_article[i]["body"]` e setar `status="draft"` ao retornar
+  - Deve exibir indicador de processamento inline para a seção em geração (reaproveitando `processing_agent="writer"` de E-PROTO-1.4)
+  - Deve preservar edições das outras seções durante regeneração de uma seção específica
+  - Deve desabilitar todos os botões de geração enquanto `processing_agent` não é nulo (evita disparo duplo)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum
+  - **Arquivos a modificar:**
+    - `products/ensaio/app/state.py` — event handler `generate_section(section_index: int)`; helper `_build_article_context(article, exclude_index)` (função privada no módulo)
+    - `products/ensaio/app/components/article_panel.py` — botões por seção que disparam `EnsaioState.generate_section(i)`
+  - **Contratos/Shapes:**
+    ```python
+    async def generate_section(self, section_index: int):
+        section = self.current_article[section_index]
+        article_context = _build_article_context(self.current_article, exclude_index=section_index)
+        self.processing_agent = "writer"
+        try:
+            result = writer_section_node({
+                "messages": self.langchain_history,
+                "focal_argument": self.focal_argument,
+                "section_title": section["title"],
+                "current_body": section["body"],
+                "article_context": article_context,
+                "product_context": self._product_context,
+            })
+            self.current_article[section_index]["body"] = result["section_content"]
+            self.current_article[section_index]["status"] = "draft"
+        finally:
+            self.processing_agent = None
+    ```
+  - **Integração:** `writer_section_node` importado diretamente (mesmo padrão do `writer_node` na POC)
+  - **Template de referência:** event handler `generate_article` em `state.py` (E-PROTO-1.2)
+  - **Acoplamentos verificados:**
+    - `writer_section_node` de C-ENSAIO-3.2
+    - `processing_agent` de E-PROTO-1.4 (reaproveitado sem mudança de contrato)
+  - **Dependências de ordem:** depende de 2.1 (painel) e C-ENSAIO-3.2 (`writer_section_node`)
+  - **Escopo de teste:**
+    - **Unit:** `tests/products/ensaio/unit/test_state_generate_section.py` — mock de `writer_section_node`; verificar que índice correto é atualizado; que outras seções não mudam; que `processing_agent` é limpo no finally; que disparo duplo é bloqueado
+    - **Validação manual:** gerar seção 1; verificar que seção 2 não muda; regenerar seção 1; verificar atualização correta
+
+#### 2.3 Edição Inline de Seção
+
+- **Descrição:** Usuário edita o markdown de uma seção diretamente no painel, sem regenerar; alteração entra no estado com status `"edited"`.
+- **Critérios de Aceite:**
+  - Deve permitir edição do corpo de uma seção via `rx.textarea` inline (toggle entre modo view e modo edição)
+  - Deve atualizar `current_article[i]["body"]` ao sair do campo (on_blur)
+  - Deve setar `current_article[i]["status"] = "edited"` na primeira edição manual
+  - Edição manual deve ser preservada quando outras seções são regeneradas
+  - Não deve triggerar regeneração automática — edição é ação exclusiva do Usuário
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum
+  - **Arquivos a modificar:**
+    - `products/ensaio/app/state.py` — event handler `update_section_content(section_index: int, content: str)`; campo auxiliar `editing_section_index: int | None` para controle de toggle
+    - `products/ensaio/app/components/article_panel.py` — renderizar `rx.textarea` quando `editing_section_index == i`, caso contrário renderizar markdown
+  - **Contratos/Shapes:**
+    ```python
+    def update_section_content(self, section_index: int, content: str):
+        self.current_article[section_index]["body"] = content
+        self.current_article[section_index]["status"] = "edited"
+        self.editing_section_index = None
+    ```
+  - **Integração:** event handler simples, sem chamada ao core
+  - **Template de referência:** padrão `rx.textarea` com `on_blur` em Reflex
+  - **Acoplamentos verificados:** somente `EnsaioState`; nenhum acoplamento com core
+  - **Dependências de ordem:** depende de 2.1 (painel seccionado)
+  - **Escopo de teste:**
+    - **Unit:** `tests/products/ensaio/unit/test_state_section_edit.py` — verificar que `status` vira `"edited"`; que conteúdo é atualizado; que outras seções não são tocadas
+    - **Validação manual:** editar seção 2; regenerar seção 1; verificar que edição da seção 2 persiste com badge "Editado"
+
+#### 2.4 Status por Seção
+
+- **Descrição:** Sinalização visual inline do estado de cada seção (vazia / rascunho / editada) para guiar o Usuário sobre onde focar.
+- **Critérios de Aceite:**
+  - Deve exibir badge inline no cabeçalho de cada seção baseado em `Section.status`
+  - Badge deve ser visível sem hover
+  - Não deve interferir com botões de geração ou campo de edição
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum
+  - **Arquivos a modificar:** `products/ensaio/app/components/article_panel.py` — badge junto ao título (implementado como parte de 2.1; listado separadamente por ser comportamento distinto)
+  - **Contratos/Shapes:** mapa `{"empty": "—", "draft": "Rascunho", "edited": "Editado"}` (mesmo de 2.1)
+  - **Integração:** puramente visual; lê `Section.status` do estado
+  - **Template de referência:** mapa de labels de agente em `chat_panel.py` (E-PROTO-1.3)
+  - **Acoplamentos verificados:** somente `EnsaioState.current_article`
+  - **Dependências de ordem:** implementado junto com 2.1
+  - **Escopo de teste:** coberto pelos testes de 2.1
 
 ---
 
 #### ÉPICO E-PROTO-3: Metodologista Aplicado ao Ensaio
 
-**Objetivo:** Trazer o Metodologista (agente do core existente, parado desde a POC) para o grafo do Ensaio, parametrizado via `product_context`, para provocar ativamente sobre lacunas de rigor — métricas ausentes, evidências faltantes, afirmações sem suporte. Endereça a expectativa de que ao final do Protótipo o sistema empurre o artigo para evoluir com qualidade, não só ajude a transcrever o que foi dito.
+**Objetivo:** Trazer o Metodologista (agente do core existente, parado desde a POC) para o grafo do Ensaio, num modo conversacional de provocação — métricas ausentes, evidências faltantes, afirmações sem suporte, dimensões do artigo não declaradas. Endereça a expectativa de que ao final do Protótipo o sistema empurre o artigo para evoluir com qualidade, não só ajude a transcrever o que foi dito.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Nota arquitetural:** o Metodologista existente opera em modo de decisão pontual (`decide_collaborative` → `approved/needs_refinement/rejected`). Para o Ensaio é criado um nó separado, `methodologist_provocation_node`, com prompt próprio focado em provocação contínua ao longo da conversa. O `decide_collaborative` permanece inalterado.
+
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:**
 - E-POC-2 (parametrização de contexto — já entregue)
-- E-PROTO-1 (nova stack — para que a provocação tenha distinção visual no chat)
+- E-PROTO-1 (nova stack — para que a provocação tenha distinção visual no chat via `additional_kwargs["agent"]`)
 
-### Funcionalidades (esboço):
-- 3.1 Inclusão do Metodologista no Grafo do Ensaio — atualizar `products/ensaio/app/graph.py` para compor Orquestrador + Estruturador + Metodologista; nó recebe `product_context` por configurable.
-- 3.2 Postura de Provocação Seletiva — Metodologista não fala a cada turno; intervém quando a conversa toca em metodologia, resultados ou afirmações sem suporte (critério em prompt + integração no grafo). Evita ruído conversacional.
-- 3.3 Provocação Ativa sobre Lacunas — produz perguntas/sugestões observáveis sobre métricas ausentes, evidências faltantes e afirmações sem suporte, ancoradas no que o Usuário disse na conversa e no contexto do produto.
-- 3.4 Reforço da Coerência do Artigo com o Contexto — provocações do Metodologista entram como sinal para o Writer (via histórico + artigo focal), elevando a aderência do artigo gerado ao experimento descrito. Inclui ajuste fino dos prompts do Orquestrador/Estruturador/Writer no contexto Ensaio (qualidade conversacional dos agentes existentes).
-- 3.5 Provocação sobre Dimensões do Artigo — Metodologista pergunta/recomenda quando alguma das 4 dimensões em que o Writer opera (contexto, intenção, formato, estrutura — ver [core/docs/agents/overview.md](../../core/docs/agents/overview.md)) não está declarada ou clara na conversa. Endereça `vision.md §4` ("provocação sobre dimensões do artigo" como central no Protótipo). Mesma postura seletiva de 3.2/3.3, escopo distinto (dimensões do Writer ↔ lacunas de rigor).
+### Funcionalidades:
+
+#### 3.1 `methodologist_provocation_node` no core
+
+- **Descrição:** Novo nó stateless em `core/agents/methodologist/nodes.py`, separado do `decide_collaborative` existente. Opera em modo conversacional: dado o histórico e o argumento focal, produz uma provocação (pergunta ou sugestão) sobre lacunas metodológicas, métricas ausentes, afirmações sem suporte ou dimensões do artigo não declaradas.
+- **Critérios de Aceite:**
+  - Deve aceitar `MultiAgentState` (via dict) com `messages` e `focal_argument`; respeitar `product_context` via `config.configurable.product_context`
+  - Deve retornar `{"messages": [AIMessage(content=provocação, additional_kwargs={"agent": "methodologist"})]}`
+  - Deve produzir provocação conversacional em linguagem natural quando identifica lacuna
+  - Quando não há lacuna identificável, deve retornar mensagem neutra curta (ex.: "Parece que o contexto está bem descrito. Continue.") — nunca retornar vazio ou erro
+  - Não deve retornar veredito (`aprovado`/`rejeitado`) — apenas perguntas ou sugestões
+  - Não deve modificar `decide_collaborative` nem nenhuma função existente em `nodes.py`
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `core/prompts/methodologist_provocation.py` — prompt `METHODOLOGIST_PROVOCATION_PROMPT_V1`
+  - **Arquivos a modificar:** `core/agents/methodologist/nodes.py` — adicionar `methodologist_provocation_node` ao final
+  - **Contratos/Shapes:**
+    ```python
+    def methodologist_provocation_node(state: dict, config: RunnableConfig | None = None) -> dict:
+        """
+        Input (campos de MultiAgentState usados):
+            messages:       list[BaseMessage]
+            focal_argument: dict | None
+            product_context via config.configurable
+
+        Output:
+            messages: [AIMessage(content=..., additional_kwargs={"agent": "methodologist"})]
+        """
+    ```
+  - **Integração:** registrado como nó `"methodologist"` no grafo do Ensaio por 3.2; invocado quando `route_from_orchestrator` retorna `"methodologist"`
+  - **Template de referência:** estrutura do `writer_section_node` de C-ENSAIO-3.2 (stateless, prompt + invoke, retorno dict de messages)
+  - **Acoplamentos verificados:**
+    - `decide_collaborative` — não tocado; nós independentes no mesmo arquivo
+    - **Consumidores do arquivo `methodologist/nodes.py`:** core multi-agent graph (Revelar usa `decide_collaborative`); adição ao final do arquivo não quebra imports existentes
+    - **Não-regressão Revelar:** `decide_collaborative` permanece inalterado; rodar `tests/products/revelar/` deve passar 100%
+  - **Dependências de ordem:** primeiro a executar em E-PROTO-3 — 3.2 registra este nó no grafo
+  - **Escopo de teste:**
+    - **Unit:** `tests/core/unit/agents/methodologist/test_methodologist_provocation_node.py` — mock do LLM; verificar `additional_kwargs["agent"] == "methodologist"`; verificar que output é lista com 1 AIMessage; rodar testes existentes do methodologist (não-regressão do `decide_collaborative`)
+    - **Não-regressão Revelar:** rodar `tests/products/revelar/` sem modificações; deve passar 100%
+
+#### 3.2 Inclusão do Metodologista no Grafo do Ensaio
+
+- **Descrição:** Atualizar `products/ensaio/app/graph.py` para registrar `methodologist_provocation_node` como nó `"methodologist"` e remover o bloqueio que desviava essa rota para o usuário.
+- **Critérios de Aceite:**
+  - Deve registrar `methodologist_provocation_node` como nó `"methodologist"` no grafo
+  - Deve remover o bloco `if destination == "methodologist": return "user"` de `_route`
+  - Após execução do nó, deve rotear para END (Metodologista fala e devolve ao Usuário, sem loop)
+  - Deve preservar a rota `"structurer" → END` existente sem alteração
+  - `create_ensaio_graph()` deve manter assinatura e contrato inalterados
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum
+  - **Arquivos a modificar:** `products/ensaio/app/graph.py`
+  - **Contratos/Shapes:**
+    ```python
+    # _route após mudança — sem bloqueio:
+    def _route(state: MultiAgentState) -> str:
+        return route_from_orchestrator(state)  # "structurer", "methodologist" ou "user"
+
+    # no grafo:
+    graph.add_node("methodologist", methodologist_provocation_node)
+    graph.add_edge("methodologist", END)
+    ```
+  - **Integração:** `route_from_orchestrator` já retorna `"methodologist"` quando o Orquestrador sugere o agente; o grafo só precisava desbloquear o caminho
+  - **Template de referência:** registro de `structurer_node` no mesmo `graph.py`
+  - **Acoplamentos verificados:**
+    - `route_from_orchestrator` em `core/agents/orchestrator/router.py` — sem mudança; já suporta `"methodologist"` no retorno
+    - `methodologist_provocation_node` de 3.1 — dependência direta
+  - **Dependências de ordem:** depende de 3.1
+  - **Escopo de teste:**
+    - **Unit:** `tests/products/ensaio/unit/test_ensaio_graph_methodologist.py` — instanciar grafo; verificar que nó `"methodologist"` existe; verificar que a rota `"methodologist"` não vai diretamente para END sem passar pelo nó
+    - **Validação manual via script:** adaptar `scripts/ensaio/flows/validate_graph.py` para verificar que grafo compila com o nó Metodologista
+
+#### 3.3 Postura de Provocação Seletiva
+
+- **Descrição:** O Orquestrador é orientado a sugerir o Metodologista seletivamente — apenas quando a conversa toca em metodologia, resultados ou afirmações sem suporte — via ajuste do `product_context` do Ensaio.
+- **Critérios de Aceite:**
+  - Deve ajustar `products/ensaio/config/product.yaml` para instruir o Orquestrador a sugerir o Metodologista apenas em turnos com conteúdo metodológico
+  - O Orquestrador não deve sugerir o Metodologista em turnos puramente descritivos ou de contexto geral
+  - Deve produzir ao menos 1 provocação por sessão quando o Usuário descreve experimento com resultados quantitativos (critério de validação manual)
+  - Não deve modificar o prompt base do Orquestrador em `core/prompts/` — apenas o conteúdo do `product.yaml`
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum
+  - **Arquivos a modificar:** `products/ensaio/config/product.yaml` — expandir campo `focus` com instrução de roteamento seletivo para Metodologista
+  - **Contratos/Shapes:** campo `focus` é string livre injetada via `{product_context_section}` no prompt do Orquestrador; sem schema formal
+  - **Integração:** `load_product_context()` lê o YAML e injeta na invocação do grafo — sem mudança de código, só conteúdo do YAML
+  - **Template de referência:** `products/ensaio/config/product.yaml` atual
+  - **Acoplamentos verificados:** `products/ensaio/app/product_config.py` — sem mudança; lê YAML e devolve string. Revelar tem YAML próprio sem acoplamento.
+  - **Dependências de ordem:** depende de 3.2 (Metodologista no grafo)
+  - **Escopo de teste:**
+    - **Validação manual:** conduzir sessão sobre experimento com resultado quantitativo; verificar que Metodologista aparece perguntando sobre métricas; verificar que não aparece em turno de contexto geral puro
+    - Comportamento conversacional não tem teste automatizado neste nível (aceitável no Protótipo)
+
+#### 3.4 Reforço da Coerência do Artigo com o Contexto
+
+- **Descrição:** Provocações do Metodologista entram no histórico conversacional e automaticamente informam o Writer na próxima geração. Complementar: ajuste fino do `product_context` para reduzir promessas vazias do Orquestrador identificadas na POC ("vou validar...", "verificarei...").
+- **Critérios de Aceite:**
+  - Deve verificar em validação manual que artigo gerado após provocação do Metodologista incorpora a resposta do Usuário
+  - Deve ajustar `product_context` para reduzir promessas vazias do Orquestrador (feedback da validação da POC)
+  - O Writer não precisa de mudança de código — já consome o histórico integralmente
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum
+  - **Arquivos a modificar:** `products/ensaio/config/product.yaml` — acrescentar instrução anti-promessa-vazia ao `focus` (junto com 3.3, no mesmo arquivo)
+  - **Contratos/Shapes:** mesmo que 3.3 (campo `focus` no YAML)
+  - **Integração:** histórico conversacional já é passado ao Writer integralmente; nenhuma mudança de código
+  - **Acoplamentos verificados:** nenhum novo
+  - **Dependências de ordem:** implementado junto com 3.3
+  - **Escopo de teste:**
+    - **Validação manual:** gerar artigo antes e depois de turno com Metodologista; verificar que versão posterior é mais densa em metodologia
+
+#### 3.5 Provocação sobre Dimensões do Artigo
+
+- **Descrição:** O prompt do `methodologist_provocation_node` cobre também as 4 dimensões em que o Writer opera (contexto, intenção, formato, estrutura — ver `core/docs/agents/overview.md`): quando alguma não está clara na conversa, o Metodologista pergunta. Mesma postura seletiva de 3.3.
+- **Critérios de Aceite:**
+  - O prompt `METHODOLOGIST_PROVOCATION_PROMPT_V1` deve cobrir as 4 dimensões do Writer além das lacunas de rigor
+  - Quando intenção do artigo não está declarada, deve perguntar (ex.: "Este artigo é para informar resultados ou propor uma abordagem?")
+  - Mesma postura seletiva — não provoca sobre dimensões a cada turno
+  - Não requer nó ou arquivo adicional (coberto no prompt de 3.1)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum além do prompt de 3.1
+  - **Arquivos a modificar:** `core/prompts/methodologist_provocation.py` — garantir que `METHODOLOGIST_PROVOCATION_PROMPT_V1` cobre as 4 dimensões além das lacunas de rigor; dimensões referenciadas de `core/docs/agents/overview.md`
+  - **Contratos/Shapes:** coberto pelo contrato de 3.1
+  - **Integração:** mesma que 3.1
+  - **Acoplamentos verificados:** `core/docs/agents/overview.md` consultado durante escrita do prompt (referência documental)
+  - **Dependências de ordem:** implementado junto com 3.1
+  - **Escopo de teste:** coberto pela validação manual de 3.3 (verificar provocação sobre intenção quando não declarada)
 
 ---
 
