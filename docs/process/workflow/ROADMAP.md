@@ -63,7 +63,7 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
 
 ### PROTO-WORKFLOW-DOC
 
-- **Status:** 🧭 Jornada alinhada (desde 2026-04-25)
+- **Status:** 🔍 Detalhes definidos (desde 2026-04-26)
 - **Objetivo:** consolidar a reforma de milestone na documentação do
   fluxo de desenvolvimento — absorver as cirurgias do
   `PROTO-WORKFLOW-ENCERRAMENTO` em reescritas coerentes per-milestone
@@ -140,7 +140,7 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-doc`
 - **Status dos épicos:** W-PROTO-DOC-1 🔍 Detalhes definidos,
-  W-PROTO-DOC-2 🔍 Detalhes definidos, W-PROTO-DOC-3 🌱 Visão.
+  W-PROTO-DOC-2 🔍 Detalhes definidos, W-PROTO-DOC-3 🔍 Detalhes definidos.
 - **Feedback do estágio anterior endereçado:**
   - Dívida M4-restante/M5/M6 da reforma de milestone original — vinha
     da Nota do `POC-WORKFLOW`. W-PROTO-DOC-1 absorve a parte residual
@@ -598,7 +598,7 @@ remanescentes. Se a varredura identificar drift adicional em
 `docs/CONTEXT_INDEX.md` ou `docs/ARCHITECTURE.md` (limpos no
 diagnóstico de 2026-04-25), corrigir aqui também.
 
-**Status:** 🌱 Visão
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:** W-PROTO-DOC-1 e W-PROTO-DOC-2 (varredura final faz
 sentido depois que os arquivos operacionais e o template foram
@@ -606,6 +606,128 @@ migrados).
 
 **Migra de:** dívidas residuais da reforma de milestone + diagnóstico
 de 2026-04-25 (branch `claude/refine-workflow-milestone-N22pL`).
+
+##### a) Arquivos a modificar
+
+- `docs/process/refinement/planning_guidelines.md`
+- `docs/process/implementation/overview.md`
+- `.github/copilot-instructions.md`
+
+**Arquivos a criar:** nenhum.
+
+##### b) Mudanças por arquivo
+
+**`docs/process/refinement/planning_guidelines.md` — 1 edit:**
+
+Linha 427, dentro do bloco de código do template de épico em estado
+`🏗️ Em andamento`:
+
+```
+**Branch:** feature/X.Y-nome (ou conjunto de branches, conforme o caso)
+```
+→
+```
+**Branch:** milestone/<id-em-caixa-baixa>
+```
+
+A observação "(ou conjunto de branches, conforme o caso)" é herança do
+modelo per-funcionalidade e não se aplica ao modelo per-milestone —
+remover junto com a troca.
+
+**`docs/process/implementation/overview.md` — 2 edits + nota:**
+
+Este arquivo descreve o padrão de mensagem de checkpoint do fluxo
+**manual** (Cursor). Os exemplos usam branches no formato
+`feature/11.1-11.2` (modelo antigo).
+
+1. Linha 50: `Branch pronta: feature/11.1-11.2` →
+   `Branch pronta: milestone/<id-em-caixa-baixa>`
+2. Linha 78: `Branch pronta: feature/11.6-11.8` →
+   `Branch pronta: milestone/<id-em-caixa-baixa>`
+
+Adicionar, após o último exemplo (linha ~88, antes do `---`), nota
+curta distinguindo contexto de uso:
+
+```markdown
+> **Nota:** no **fluxo autônomo** (Claude Code Web), esta mensagem
+> de checkpoint é gerada pelos gates (QA/TL/PO/RTE) — o agente não
+> a emite manualmente. O formato acima aplica-se ao fluxo **manual**
+> via Cursor.
+```
+
+**`.github/copilot-instructions.md` — 2 edits:**
+
+1. Linha 28 (Modo B, exemplo de épico):
+   `(ex: "C-ENSAIO-2")` → `(ex: "POC-ENSAIO")`
+
+2. Linhas 49-51 (Modo A, extração de `current_implementation.md`):
+   ```
+   - Funcionalidade/épico (cabeçalho)
+   - Arquivos modificados (seção "Resumo Final" da RTE Skill)
+   - Critérios de aceite declarados pelo PO
+   ```
+   →
+   ```
+   - Milestone e épicos entregues (cabeçalho + blocos `### Épico`)
+   - Arquivos modificados (seção "Resumo Final do Milestone")
+   - Critérios de aceite por épico (células PO ✅ nas tabelas de gates)
+   ```
+
+##### c) Varredura de fechamento
+
+Após implementar as edições acima, rodar:
+
+```bash
+grep -rn "feature/X\.Y-\|feature/[0-9][0-9]*\." \
+  docs/ .github/ skills/ --include="*.md" \
+  | grep -v "docs/process/workflow/ROADMAP.md"
+```
+
+```bash
+grep -rn "Planning Skill\|Validation Skill\|planning/skill\.md\|validation/skill\.md" \
+  . --include="*.md" \
+  | grep -v "docs/process/workflow/ROADMAP.md"
+```
+
+Ambos devem retornar zero resultados. Resultado limpo = épico fechado.
+Se a varredura encontrar drift adicional em `docs/CONTEXT_INDEX.md`
+ou `docs/ARCHITECTURE.md`, corrigir no mesmo commit.
+
+##### d) Integração
+
+Edições são auto-contidas — arquivos periféricos sem dependências de
+import. `planning_guidelines.md` é lido por sessões de refinamento;
+`overview.md` é lido pelo Dev no fluxo manual; `copilot-instructions.md`
+é lido pelo Copilot no VS Code. Nenhum artefato gerado.
+
+**Template de referência:** `docs/process/autonomous/dispatch.md`
+(vocabulário per-milestone já estabelecido) como guia de linguagem.
+
+##### e) Acoplamentos verificados
+
+- "Planning Skill", "Validation Skill", "planning/skill.md",
+  "validation/skill.md": zero ocorrências reais no repo — apenas no
+  texto da spec do ROADMAP (grep executado em 2026-04-26). Sem edição
+  necessária além das listadas.
+- `docs/CONTEXT_INDEX.md` e `docs/ARCHITECTURE.md`: limpos no
+  diagnóstico de 2026-04-25; revalidar na varredura de fechamento.
+
+**Dependências de ordem:** executar após W-PROTO-DOC-1 e W-PROTO-DOC-2
+implementados, para que a varredura final capture o estado limpo do
+repo.
+
+**Escopo de teste:** varredura `grep` descrita em c) retorna zero
+resultados.
+
+**Critérios de aceite observáveis:**
+- [ ] `planning_guidelines.md` linha ~427: `milestone/<id-em-caixa-baixa>`
+  (sem `feature/X.Y-nome`, sem a observação de conjunto de branches).
+- [ ] `implementation/overview.md`: ambos os exemplos de branch usam
+  `milestone/<id-em-caixa-baixa>`; nota de contexto manual/autônomo
+  adicionada.
+- [ ] `copilot-instructions.md` linha ~28: exemplo usa `POC-ENSAIO`;
+  Modo A extração refere shape aninhado (milestone + épicos).
+- [ ] Varredura de fechamento retorna zero resultados.
 
 #### ÉPICO W-PROTO-5: Validação async — PR antes da aprovação, Copilot como validador local
 
