@@ -21,8 +21,6 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 
 **EM é sempre o primeiro gate de sizing** antes do Scrum Master. Decide FIT/TIGHT/OVERFLOW segundo [docs/process/sizing/heuristic.md](../sizing/heuristic.md); OVERFLOW sempre devolve ao dev com proposta de quebra — nunca aceita silenciosamente. Detalhes em [skills/em/README.md](../../../skills/em/README.md).
 
-> **Nota sobre este arquivo.** O conteúdo operacional abaixo (gates QA/TL/PO com decisão per-funcionalidade, mensagens "dispara pela manhã / valida à noite", regras de reprovação por funcionalidade) ainda reflete o modelo anterior à reforma de milestone. Reescrita completa para operar por milestone é o épico W-PROTO-1 em [docs/process/workflow/ROADMAP.md](../workflow/ROADMAP.md). Enquanto isso, a semântica operacional viva está nos `skill.md` (reescritos em W-POC-3).
-
 ---
 
 ## 1. SCRUM MASTER SKILL
@@ -62,8 +60,8 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 **Objetivo:** implementar tarefas do plano seguindo `docs/process/implementation/`.
 
 **Deve:**
-- ✅ Seguir [implementation.md](../development/implementation.md) (TDD pragmático, ciclo Red-Green-Refactor)
-- ✅ Seguir [quality_rules.md](../development/quality_rules.md) (anti-redundância, padrões)
+- ✅ Seguir [implementation.md](../implementation/implementation.md) (TDD pragmático, ciclo Red-Green-Refactor)
+- ✅ Seguir [quality_rules.md](../implementation/quality_rules.md) (anti-redundância, padrões)
 - ✅ Atualizar docs estruturais quando alterar estrutura
 - ✅ Commits incrementais e descritivos
 - ✅ **Executar itens abertos em `## Extração pendente`** (W-PROTO-7) antes de iniciar a próxima funcionalidade ou no último commit do épico. Marcar `- [x]` após executar. RTE aborta se houver `- [ ]` aberto no gate de entrada.
@@ -187,7 +185,7 @@ O fluxo autônomo manipula três estados de execução do épico no ROADMAP:
 ## REGRAS DE REPROVAÇÃO E LOOP
 
 - Cada gate registra reprovações em `current_implementation.md`
-- Após **3 reprovações consecutivas** no mesmo gate → aplicar regra de bloqueio de [blockers.md](../development/blockers.md) e devolver ao dev
+- Após **3 reprovações consecutivas** no mesmo gate → aplicar regra de bloqueio de [blockers.md](../implementation/blockers.md) e devolver ao dev
 - Reprovação de TL ou PO **nunca** é resolvida pulando o gate; sempre volta ao Dev (ou Scrum Master, conforme natureza)
 
 ---

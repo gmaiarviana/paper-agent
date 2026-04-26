@@ -47,7 +47,7 @@ Ao finalizar checkpoint (conjunto de funcionalidades), fornecer:
 **Exemplo de mensagem ao fim de checkpoint:**
 ```
 ✅ Checkpoint 1 concluído (Features 11.1 + 11.2)
-Branch pronta: feature/11.1-11.2
+Branch pronta: milestone/<id-em-caixa-baixa>
 
 ✅ Validação automática:
 - Sintaxe Python: OK (5 arquivos)
@@ -75,7 +75,7 @@ Aguardando sua validação para prosseguir ao Checkpoint 2.
 **Exemplo de mensagem ao fim do ÚLTIMO checkpoint:**
 ```
 ✅ Checkpoint 3 concluído (Features 11.6 + 11.7 + 11.8)
-Branch pronta: feature/11.6-11.8
+Branch pronta: milestone/<id-em-caixa-baixa>
 
 [... validações automáticas ...]
 
@@ -84,6 +84,11 @@ Branch pronta: feature/11.6-11.8
 
 Aguardando sua validação final.
 ```
+
+> **Nota:** no **fluxo autônomo** (Claude Code Web), esta mensagem
+> de checkpoint é gerada pelos gates (QA/TL/PO/RTE) — o agente não
+> a emite manualmente. O formato acima aplica-se ao fluxo **manual**
+> via Cursor.
 
 ---
 

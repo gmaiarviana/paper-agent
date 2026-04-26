@@ -45,7 +45,7 @@ Rejeita **automaticamente** se **qualquer** item ocorrer:
 
 ## 4. INPUT ESPERADO
 
-- Branch `feature/X.Y-nome` com commits da implementação
+- Branch `milestone/<id-em-caixa-baixa>` com commits da implementação
 - `docs/process/current_implementation.md` com Dev marcado ✅
 - Acesso ao ambiente para rodar `pytest`
 

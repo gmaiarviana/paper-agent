@@ -1,47 +1,57 @@
-# Relatório de Entrega — Funcionalidade <X.Y> - <nome>
+# Relatório de Entrega — Milestone <ID> — <nome>
 
 > **Template usado pela RTE Skill.** Copiar para o relatório final substituindo todos os placeholders. Output final **não pode** conter `<...>`.
->
-> **Dívida W-PROTO-3:** este template ainda reflete o shape anterior à reforma de milestone (uma funcionalidade isolada). W-PROTO-5 acrescentou a Seção 🎯 Validação como bloco copy-paste pro body da PR. W-PROTO-3 reescreverá o template inteiro para shape de milestone (N épicos em sub-seções) e poderá consolidar a Seção 🎯 ali — por ora, o bloco abaixo é o ponto de verdade.
 
 ---
 
 ## Identificação
 
-- **Funcionalidade:** X.Y - <nome conforme ROADMAP>
-- **Roadmap:** <docs/ROADMAP.md | products/<produto>/ROADMAP.md>
-- **Branch:** feature/X.Y-nome
+- **Milestone:** <ID> — <nome conforme ROADMAP>
+- **Roadmap:** <docs/process/workflow/ROADMAP.md | products/<produto>/ROADMAP.md>
+- **Branch:** milestone/<id-em-caixa-baixa>
+- **Épicos entregues:** <N> (<IDs separados por vírgula>)
 - **Modo:** Autônomo
 - **Dispatch recebido em:** YYYY-MM-DD
 - **Entrega gerada em:** YYYY-MM-DD HH:MM
 
 ---
 
-## Status dos Gates
+## Status dos Gates por Épico
 
-| Gate | Status | Data | Observações |
-|------|--------|------|-------------|
-| Scrum Master | ✅ | YYYY-MM-DD | <ex: 1 esclarecimento devolvido ao dev e respondido> |
-| Dev | ✅ | YYYY-MM-DD | <N commits, N tasks concluídas> |
-| QA | ✅ | YYYY-MM-DD | <N testes rodados, 0 falhas> |
-| TL | ✅ | YYYY-MM-DD | <aprovado / aprovado com observações> |
-| PO | ✅ | YYYY-MM-DD | <N/N critérios cobertos> |
-| RTE | ✅ | YYYY-MM-DD | (esta etapa) |
+### Épico <ID-1> — <nome>
+
+| Funcionalidade | Dev | QA | TL | PO |
+|----------------|-----|----|----|-----|
+| N.1 — <nome> | ✅ | ✅ | ✅ | ✅ |
+| N.2 — <nome> | ✅ | ✅ | ✅ | ✅ |
+
+### Épico <ID-2> — <nome>
+
+| Funcionalidade | Dev | QA | TL | PO |
+|----------------|-----|----|----|-----|
+| M.1 — <nome> | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
 ## Resumo Executivo
 
-- **Implementou:** <descrição em 1-2 linhas do que foi entregue>
+- **Implementou:** <descrição em 1-2 linhas do que foi entregue no milestone>
+- **Épicos entregues:** <N> (<IDs>)
 - **Arquivos modificados:** <N total> (<X> código, <Y> testes, <Z> docs)
 - **Linhas alteradas:** +<add> / -<del>
 - **Commits:** <N>
 - **Testes:** <N novos> | <total rodado>
 - **Custo aproximado dos gates (se aplicável):** <USD>
 
+**Por épico:**
+- <ID-1>: <resumo em 1 linha do que foi entregue>
+- <ID-2>: <resumo em 1 linha do que foi entregue>
+
 ---
 
 ## Critérios de Aceite (do ROADMAP)
+
+### Épico <ID-1> — <nome>
 
 | # | Critério | Cobertura | Onde validar |
 |---|---------|-----------|-------------|
@@ -49,15 +59,23 @@
 | 2 | <critério literal> | ✅ Manual | <comando ou rota> |
 | 3 | <critério literal> | ✅ Teste + Manual | <ambos> |
 
+### Épico <ID-2> — <nome>
+
+| # | Critério | Cobertura | Onde validar |
+|---|---------|-----------|-------------|
+| 1 | <critério literal> | ✅ Teste | tests/core/unit/<arquivo>:<linha> |
+
 ---
 
 ## Notas Técnicas (do TL)
+
+### Épico <ID-1>
 
 - <observação arquitetural relevante, se houve>
 - <decisão técnica documentada e onde está documentada>
 - <ponto de atenção para review humano>
 
-(remover seção se não houve observações)
+(omitir épico sem observações)
 
 ---
 
@@ -65,7 +83,7 @@
 
 (transcrever do `current_implementation.md`; vazio se ciclo limpo)
 
-- <YYYY-MM-DD HH:MM> — <Gate> reprovou: <motivo>. Resolvido por: <ação>.
+- <YYYY-MM-DD HH:MM> — <Gate> reprovou (<épico ID> / func. N.M): <motivo>. Resolvido por: <ação>.
 
 ---
 
@@ -74,11 +92,11 @@
 ```bash
 # 1. Baixar branch
 git fetch origin
-git checkout feature/X.Y-nome
-git pull origin feature/X.Y-nome
+git checkout milestone/<id-em-caixa-baixa>
+git pull origin milestone/<id-em-caixa-baixa>
 
 # 2. Preparar ambiente
-source venv/bin/activate
+source .venv/bin/activate
 pip install -r requirements.txt   # se deps mudaram
 
 # 3. Rodar testes
@@ -93,17 +111,21 @@ pytest -m integration             # se aplicável
 
 ## Critérios Go/No-Go
 
-**Aprovar merge quando TODOS os itens forem ✅:**
+**Fluxo primário — revisão via Copilot na PR (W-PROTO-5):**
+- [ ] Abrir a PR e copiar a Seção 🎯 Validação do body
+- [ ] Enviar ao GitHub Copilot e colar a tabela de retorno como comentário na PR
+- [ ] Nenhum ❌ sem justificativa no retorno do Copilot
 
+**Fluxo opcional — validação local:**
 - [ ] Comandos de validação rodaram sem erro
-- [ ] Critério 1 observado manualmente
-- [ ] Critério 2 observado manualmente
-- [ ] Critério 3 observado manualmente
 - [ ] Comportamentos "não deve" do ROADMAP não ocorreram
 - [ ] Sem warnings críticos no console
-- [ ] Documentação estrutural atualizada (se aplicável)
 
-**Caso algum item falhe:**
+**Aprovação final:**
+- [ ] Documentação estrutural atualizada (se aplicável)
+- Aprovar e mergear pela interface do GitHub quando os critérios acima forem ✅
+
+**Caso algum critério falhe:**
 - ❌ Não mergeie.
 - ❌ Devolva via Claude Code Web (nova rodada autônoma) OU traga para Cursor (fluxo manual) se exigir decisão arquitetural.
 
@@ -147,4 +169,4 @@ Reporte em markdown.
 
 ## Próximo Passo
 
-▶️ **RTE cria a PR via `mcp__github__create_pull_request`** com o body acima já preenchido (Seção 🎯 + checklist de gates + links). Dev revisa colando a Seção 🎯 no GitHub Copilot, aprova e mergeia pela interface — RTE **não mergeia**.
+▶️ **Dev revisa a PR** — colar a Seção 🎯 no GitHub Copilot, avaliar o retorno e mergear pela interface do GitHub se OK. RTE **não mergeia**.

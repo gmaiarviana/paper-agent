@@ -8,7 +8,7 @@
 
 - **Funcionalidade:** X.Y - <nome literal do ROADMAP>
 - **Roadmap:** <docs/ROADMAP.md | products/<produto>/ROADMAP.md>
-- **Branch:** feature/X.Y-nome
+- **Branch:** milestone/<id-em-caixa-baixa>
 - **Avaliado em:** YYYY-MM-DD HH:MM
 - **Tentativa nº:** <N>
 

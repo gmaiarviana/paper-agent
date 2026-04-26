@@ -30,7 +30,7 @@ Invocada automaticamente pelo fluxo autônomo após **PO Skill aprovar**. Se alg
 A skill executa, em ordem:
 
 1. **Verifica gates anteriores** — confirma QA/TL/PO ✅ em `current_implementation.md`.
-2. **Garante branch publicada** — `git push -u origin feature/X.Y-nome` (com retry conforme guidelines).
+2. **Garante branch publicada** — `git push -u origin milestone/<id-em-caixa-baixa>` (com retry conforme guidelines).
 3. **Coleta dados da entrega** — arquivos modificados, número de commits, escopo dos testes.
 4. **Atualiza `current_implementation.md`** — marca RTE ✅ e sintetiza status final.
 5. **Gera relatório de entrega** — usando [templates/delivery-report.md](templates/delivery-report.md).
@@ -43,14 +43,14 @@ A skill executa, em ordem:
 ## 4. INPUT ESPERADO
 
 - `current_implementation.md` com QA/TL/PO marcados como ✅
-- Branch `feature/X.Y-nome` com commits referentes à funcionalidade
+- Branch `milestone/<id-em-caixa-baixa>` com commits referentes à funcionalidade
 - ROADMAP atualizado se a funcionalidade foi marcada como concluída
 
 ---
 
 ## 5. OUTPUT PRODUZIDO
 
-- ✅ Branch `feature/X.Y-nome` com push confirmado
+- ✅ Branch `milestone/<id-em-caixa-baixa>` com push confirmado
 - ✅ `current_implementation.md` com RTE ✅ e resumo final
 - ✅ Relatório de entrega no formato de [templates/delivery-report.md](templates/delivery-report.md)
 - ✅ Mensagem ao dev com:

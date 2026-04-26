@@ -49,7 +49,7 @@ Eventuais blocos reutilizáveis para tarefas técnicas recorrentes (ex: criar no
 Skills não se invocam diretamente. Elas se comunicam via **artefatos compartilhados**:
 
 - **`docs/process/current_implementation.md`** — plano + status de cada gate. Scrum Master escreve; demais skills leem e atualizam.
-- **Branch git `feature/X.Y-nome`** — código + commits. Dev escreve; QA/TL/PO leem; RTE entrega.
+- **Branch git `milestone/<id-em-caixa-baixa>`** — código + commits. Dev escreve; QA/TL/PO leem; RTE entrega.
 - **ROADMAP.md** (core ou produto) — fonte da verdade da funcionalidade. Todas leem; PO confronta com a entrega.
 
 **Regra:** se uma skill precisa de informação que outra produziu, ela busca no artefato — nunca assume estado de memória entre skills.

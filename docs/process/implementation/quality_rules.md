@@ -193,7 +193,7 @@ Finalizando...
    - README.md (sem mudanças necessárias)
    - docs/ARCHITECTURE.md (novos endpoints documentados)
    - ROADMAP.md (3.2 marcado como completo)
-✅ Push realizado: feature/3.2-sistema-relatorios
+✅ Push realizado: milestone/<id-em-caixa-baixa>
 
 🎉 Branch pronta! Você pode criar o PR pela interface do GitHub.
 📋 O template de PR será aplicado automaticamente.
@@ -202,7 +202,7 @@ Finalizando...
 
 # Baixar branch
 git fetch origin
-git checkout feature/3.2-sistema-relatorios
+git checkout milestone/<id-em-caixa-baixa>
 
 # Ativar ambiente virtual (Windows)
 .\venv\Scripts\Activate.ps1

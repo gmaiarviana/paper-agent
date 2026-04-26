@@ -71,14 +71,13 @@ Seguir padrão já usado no repo (`git log --oneline`):
 
 **Exemplo:**
 ```
-feat(core/writer): add Writer agent (C-ENSAIO-2)
+feat(workflow/encerramento): fechar ciclo de encerramento autônomo (W-PROTO-5)
 
-- 2.1: writer_node em core/agents/writer/nodes.py
-- 2.2: WRITER_PROMPT_V1 em core/prompts/writer.py
-- 2.3: core/config/agents/writer.yaml
-- 2.4: suporte a previous_article para refinamento externo
+- 5.1: estado terminal "PR aberta" em skills/rte/skill.md
+- 5.2: Seção 🎯 Validação adicionada ao body da PR
+- 5.3: postura async documentada em docs/process/autonomous/workflow.md
 
-Épico C-ENSAIO-2 do docs/ROADMAP.md.
+Épico W-PROTO-5 do docs/process/workflow/ROADMAP.md.
 ```
 
 ### Atualização do ROADMAP
@@ -94,7 +93,7 @@ Antes de começar a codar, a sessão confirma que tem:
 - [ ] Épico(s) em `🔍 Detalhes definidos` no ROADMAP
 - [ ] Templates de referência apontados nos "Detalhes de execução" de cada funcionalidade
 - [ ] Dependências de core já implementadas (ou serão implementadas nesta sessão em ordem correta)
-- [ ] Branch `claude/<slug>` ou `feature/<id>-<slug>` criada e ativa
+- [ ] Branch `milestone/<id-em-caixa-baixa>` criada e ativa
 - [ ] Plano de validação (arquivo `<produto>/docs/poc_validation.md` ou equivalente) com esqueleto pronto
 
 Se algum item falhar → reportar ao dev e **parar** antes de começar a implementação.

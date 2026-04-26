@@ -106,8 +106,6 @@ Preencher [templates/delivery-report.md](templates/delivery-report.md) com:
 - Comandos de validação local (próximo passo)
 - Critérios go/no-go
 
-> **Dívida conhecida:** o template `templates/delivery-report.md` ainda pode estar no shape antigo (uma funcionalidade). Se o preenchimento ficar grande, acomodar N épicos em sub-seções dentro do mesmo documento. A reforma do template é o épico W-PROTO-3 em `docs/process/workflow/ROADMAP.md`.
-
 ### Passo 6 — Montar comandos de validação local
 Bloco copy-paste com:
 1. Baixar branch: `git fetch origin` + `git checkout milestone/<id-em-caixa-baixa>` + `git pull`

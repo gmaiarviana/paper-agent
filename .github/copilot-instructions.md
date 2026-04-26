@@ -25,7 +25,7 @@ Fonte de verdade: esse arquivo (tem gates, diff, critérios, comandos).
 ### Modo B — Validação avulsa (manual / sem fluxo autônomo)
 Sinal: `current_implementation.md` NÃO existe.
 Fonte de verdade: ROADMAP (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`)
-— o dev precisa te dizer qual funcionalidade/épico (ex: "C-ENSAIO-2").
+— o dev precisa te dizer qual funcionalidade/épico (ex: "POC-ENSAIO").
 Se o dev não disser, **pergunte** antes de continuar.
 
 ---
@@ -47,9 +47,9 @@ pip install -r requirements.txt
 ### 2. Montar o resumo "o que mudou + o que observar"
 
 **Modo A:** abrir `docs/process/current_implementation.md` e extrair:
-- Funcionalidade/épico (cabeçalho)
-- Arquivos modificados (seção "Resumo Final" da RTE Skill)
-- Critérios de aceite declarados pelo PO
+- Milestone e épicos entregues (cabeçalho + blocos `### Épico`)
+- Arquivos modificados (seção "Resumo Final do Milestone")
+- Critérios de aceite por épico (células PO ✅ nas tabelas de gates)
 
 **Modo B:** localizar o épico/funcionalidade no ROADMAP correto e extrair:
 - Título + objetivo
