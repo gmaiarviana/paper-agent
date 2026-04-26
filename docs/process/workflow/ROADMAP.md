@@ -6,15 +6,16 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 ## 🧭 Estados dos Épicos
 
-Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "Status" do milestone. Detalhes em [docs/process/refinement/planning_guidelines.md](../refinement/planning_guidelines.md).
+Cada épico percorre até oito estados. Os mesmos estados aplicam-se ao campo "Status" do milestone. Detalhes em [docs/process/refinement/planning_guidelines.md](../refinement/planning_guidelines.md).
 
 - **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
 - **`🧭 Jornada alinhada`** — objetivo refinado + rationale (o que é / o que não é) + glossário ancorado + acoplamentos sinalizados; jornada alvo e escopo declinados (para milestone). Funcionalidades ainda não esboçadas. Aguarda refinamento.
 - **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
 - **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
 - **`🔍 Detalhes definidos`** — checklist em [autonomous_readiness.md](../refinement/autonomous_readiness.md) aplicado. Pronto para fluxo autônomo via Claude Code Web.
-- **`🏗️ Em andamento`** — implementação em curso, até o ciclo de fechamento.
-- **`✅ Implementado`** — ciclo de fechamento executado (ver [epic_completion.md](../refinement/epic_completion.md)).
+- **`🏗️ Em andamento`** — implementação em curso, até a RTE abrir a PR.
+- **`🔀 Em revisão`** — PR aberta, aguardando aprovação humana. Setado pela RTE ao abrir a PR do milestone.
+- **`✅ Implementado`** — ciclo de fechamento executado (ver [epic_completion.md](../refinement/epic_completion.md)). Setado pela Cleanup skill após o merge.
 
 > **Retroatividade:** épicos concluídos antes da introdução do modelo de estados permanecem em formato simplificado (título ✅ + 1-2 linhas de resumo) e não são reclassificados retroativamente. O modelo aplica-se a épicos em andamento e futuros.
 
@@ -312,6 +313,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 ### ⏳ Fase Protótipo
 
 > **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1, 2, 3).
+> **Épicos órfãos (sem milestone):** W-PROTO-8, W-PROTO-9 — aguardam agrupamento em refinamento estratégico.
 
 #### ÉPICO W-PROTO-DOC-1: Reescrita per-milestone de `docs/process/autonomous/`
 
@@ -1430,6 +1432,38 @@ documental, todos os critérios são textualmente verificáveis.
 
 **Migra de:** refinamento iniciado em 2026-04-24 na branch
 `claude/continue-workflow-implementation-5PKVa`.
+
+#### ÉPICO W-PROTO-8: RTE cria PR com escopo completo e confirmação de encerramento
+
+**Milestone:** a definir em refinamento estratégico
+
+**Objetivo:** garantir que a RTE skill crie a PR automaticamente ao final de cada sessão autônoma, com body refletindo o escopo de **todos** os commits da branch (não apenas o primeiro), precedida de confirmação explícita de encerramento de sessão. Elimina o risco de o dev abrir a PR manualmente sem o body padronizado com a Seção 🎯 Validação.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** W-PROTO-5 mergeado (introduziu a criação de PR pela RTE; este épico corrige a materialização)
+
+### Funcionalidades (esboço):
+- **8.1 Diagnóstico e correção da invocação de `mcp__github__create_pull_request`** — identificar por que a RTE não está criando a PR na prática; corrigir a chamada ou o fluxo de autenticação/permissão.
+- **8.2 Body da PR reflete escopo de todos os commits da branch** — construído a partir de `git diff main...HEAD` (todos os commits do milestone), não do HEAD isolado. Quando o dev abre a PR manualmente, o GitHub mostra apenas o primeiro commit; a RTE precisa construir o body completo via API independentemente do comportamento padrão do GitHub.
+- **8.3 Confirmação explícita antes de criar a PR** — RTE exibe resumo do que vai criar (milestone, épicos, número de commits, diff summary) e aguarda confirmação do dev antes de chamar `mcp__github__create_pull_request`. Marca o encerramento explícito da sessão autônoma.
+
+---
+
+#### ÉPICO W-PROTO-9: Desacoplar descrição dos estados 📋 e 🔍 do agente de execução
+
+**Milestone:** a definir em refinamento estratégico
+
+**Objetivo:** remover a âncora "para Cursor" / "para Claude Code Web" das descrições dos estados 📋 Critérios definidos e 🔍 Detalhes definidos. Os estados passam a expressar **grau de detalhe e tipo de ambiguidade** resolvida pelo refinamento — independente da ferramenta que implementa. A escolha do fluxo (manual ou autônomo) continua sendo determinada pelo estado do épico, mas a descrição não instrui qual agente usar.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** nenhuma
+
+### Funcionalidades (esboço):
+- **9.1 Atualizar descrições em `docs/CONSTITUTION.md` e `docs/process/refinement/planning_guidelines.md`** — 📋 passa a descrever "critérios de aceite definidos; suficiente para implementação onde ambiguidades de execução podem ser resolvidas em tempo real pelo implementador"; 🔍 passa a descrever "detalhes de execução fechados; suficiente para implementação sem necessidade de julgamento arquitetural durante a sessão".
+- **9.2 Atualizar referências em docs de processo** — varrer `docs/process/autonomous/`, `docs/process/workflow/ROADMAP.md`, skill.md de cada gate e demais arquivos que descrevem os fluxos como "via Cursor" ou "via Claude Code Web"; substituir por linguagem centrada no grau de detalhe do épico.
+- **9.3 Validar consistência** — varredura por "Cursor" em contexto de gate de execução; confirmar que nenhum doc instrui escolher o fluxo pelo agente em vez de pelo estado do épico.
 
 ---
 
