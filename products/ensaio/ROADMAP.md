@@ -298,7 +298,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 #### ÉPICO E-PROTO-2: Rascunho Progressivo por Seção (Modo Híbrido)
 
-**Objetivo:** Materializar o modo de escrita híbrido (visão §4) dentro de uma sessão — painel exibe o artigo seccionado, Usuário gera/regenera seções individualmente e edita o markdown inline. Rascunho evolui acompanhando a conversa, em vez de ser gerado de uma vez no final como na POC.
+**Objetivo:** Materializar o modo de escrita híbrido (visão §4) dentro de uma sessão — o Estruturador propõe a estrutura do artigo no chat, o painel exibe as seções propostas, e o Usuário gera/regenera o conteúdo de cada seção individualmente e edita inline. Rascunho evolui acompanhando a conversa, em vez de ser gerado de uma vez no final.
 
 **Status:** 🔍 Detalhes definidos
 
@@ -308,34 +308,82 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### Funcionalidades:
 
+#### 2.0 Proposta de Estrutura pelo Estruturador
+
+- **Descrição:** Quando o contexto conversacional é suficiente, o Estruturador propõe a estrutura do artigo (lista de títulos de seções) no chat, em linguagem natural. A proposta é extraída pelo produto e popula o painel de artigo com seções vazias. Aprovação é implícita: o Usuário continua a conversa ou pede ajustes via chat (Estruturador re-propõe).
+- **Critérios de Aceite:**
+  - Deve atualizar `EnsaioState.current_article` com lista de `Section` vazias (`body=""`, `status="empty"`) quando o Estruturador inclui `article_sections` na sua resposta
+  - Deve preservar o `current_article` existente se o Estruturador não incluir `article_sections` no turno (nem todo turno do Estruturador propõe estrutura)
+  - Deve sobrescrever `current_article` quando o Estruturador re-propõe estrutura (somente se todas as seções ainda estiverem em `status="empty"` — preserva trabalho já feito)
+  - Não deve exibir botão "Gerar estrutura" — a proposta emerge da conversa
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum
+  - **Arquivos a modificar:**
+    - `core/agents/structurer/nodes.py` — quando `product_context` sinaliza contexto Ensaio e o Estruturador produz outline, incluir `additional_kwargs={"agent": "structurer", "article_sections": ["Título 1", "Título 2", ...]}` na `AIMessage` retornada. Seções somente incluídas quando o LLM decidir propor estrutura (instrução via `product_context`); turnos sem proposta retornam `additional_kwargs={"agent": "structurer"}` sem `article_sections`.
+    - `products/ensaio/config/product.yaml` — adicionar instrução ao `focus`: Estruturador deve propor estrutura de seções (em português) quando tiver contexto suficiente do experimento.
+    - `products/ensaio/app/state.py` — em `send_message`, após `graph.invoke`, inspecionar `result["messages"]`; se última AIMessage do structurer tiver `additional_kwargs.get("article_sections")` e `current_article` estiver vazio ou todo `"empty"`, popular `current_article`.
+  - **Contratos/Shapes:**
+    ```python
+    # core/agents/structurer/nodes.py — AIMessage com outline:
+    AIMessage(
+        content="Proposta de estrutura: ...",
+        additional_kwargs={
+            "agent": "structurer",
+            "article_sections": ["Introdução", "Metodologia", "Resultados", "Discussão", "Conclusão"]
+        }
+    )
+
+    # products/ensaio/app/state.py — extração em send_message:
+    last_structurer_msg = next(
+        (m for m in reversed(result["messages"])
+         if isinstance(m, AIMessage) and m.additional_kwargs.get("agent") == "structurer"),
+        None
+    )
+    if last_structurer_msg:
+        sections = last_structurer_msg.additional_kwargs.get("article_sections", [])
+        all_empty = all(s["status"] == "empty" for s in (self.current_article or []))
+        if sections and (not self.current_article or all_empty):
+            self.current_article = [
+                {"title": t, "body": "", "status": "empty"} for t in sections
+            ]
+    ```
+  - **Integração:** `additional_kwargs` no Structurer segue o padrão estabelecido em E-PROTO-1.3 (`agent`); Revelar ignora `article_sections` (campo extra é transparente — verificado em E-PROTO-1.3)
+  - **Template de referência:** E-PROTO-1.3 (padrão `additional_kwargs` no Structurer)
+  - **Acoplamentos verificados:**
+    - `core/agents/structurer/nodes.py` — arquivo compartilhado com Revelar. Adição de `article_sections` em `additional_kwargs` é transparente para o Revelar (não lê o campo). **Não-regressão:** rodar `tests/products/revelar/` deve passar 100%.
+    - `products/ensaio/config/product.yaml` — instrução adicional ao Orquestrador/Estruturador no contexto Ensaio; sem impacto em Revelar.
+  - **Dependências de ordem:** primeiro a executar — 2.1 renderiza o que 2.0 popula
+  - **Escopo de teste:**
+    - **Unit:** `tests/products/ensaio/unit/test_state_structurer_outline.py` — mock de `graph.invoke` retornando AIMessage com `article_sections`; verificar que `current_article` é populado; verificar que turno sem `article_sections` não sobrescreve `current_article` existente; verificar que re-proposta só sobrescreve se tudo `"empty"`
+    - **Não-regressão Revelar:** rodar `tests/products/revelar/` sem modificações; deve passar 100%
+    - **Validação manual:** conduzir conversa sobre experimento; verificar que painel se popula quando Estruturador propõe estrutura; pedir ajuste ("use seção de Limitações"); verificar re-proposta; iniciar geração de seção; verificar que nova proposta não sobrescreve
+
 #### 2.1 Painel Seccionado
 
-- **Descrição:** Substitui o markdown plano da POC por um painel que renderiza cada seção do artigo como bloco individual com cabeçalho visível e indicador de status.
+- **Descrição:** Substitui o markdown plano da POC por um painel que renderiza cada seção do artigo como bloco individual com cabeçalho visível e indicador de status. Seções chegam via 2.0 (proposta do Estruturador); painel é vazio até a primeira proposta.
 - **Critérios de Aceite:**
   - Deve renderizar cada `Section` de `EnsaioState.current_article` como bloco separado: `title` como cabeçalho, `body` como markdown
-  - Deve exibir indicador de status por seção: `"empty"` → placeholder "Seção não gerada"; `"draft"` → badge "Rascunho"; `"edited"` → badge "Editado"
-  - Deve exibir mensagem "Nenhuma seção ainda — clique em Gerar para começar" quando `current_article` é `None` ou lista vazia
-  - Deve manter proporção ~2/5 do layout (coluna direita, equivalente ao painel do POC)
+  - Deve exibir indicador de status por seção: `"empty"` → placeholder "Clique em Gerar"; `"draft"` → badge "Rascunho"; `"edited"` → badge "Editado"
+  - Deve exibir mensagem "Aguardando proposta de estrutura..." quando `current_article` é `None` ou lista vazia (orienta o Usuário a continuar a conversa)
+  - Deve manter proporção ~2/5 do layout (coluna direita)
 - **Detalhes de execução:**
   - **Arquivos a criar:** nenhum
   - **Arquivos a modificar:** `products/ensaio/app/components/article_panel.py` — refatorar render de markdown plano para iteração sobre lista de `Section` via `rx.foreach`
   - **Contratos/Shapes:**
-    - `EnsaioState.current_article: list[Section] | None` — substitui `str | None` do E-PROTO-1.2 (mudança de tipo no state)
+    - `EnsaioState.current_article: list[Section] | None` — substitui `str | None` do E-PROTO-1.2
     - `Section` importado de `core.agents.writer.models`
-    - Mapa de status → label: `{"empty": "—", "draft": "Rascunho", "edited": "Editado"}`
+    - Mapa de status → label: `{"empty": "Clique em Gerar", "draft": "Rascunho", "edited": "Editado"}`
   - **Integração:** `article_panel.py` lê `EnsaioState.current_article` via `rx.State`; renderiza com `rx.foreach`
-  - **Template de referência:** padrão `rx.foreach` da documentação Reflex (lista dinâmica de componentes)
-  - **Acoplamentos verificados:**
-    - Mudança de `str` para `list[Section]` em `EnsaioState.current_article` requer atualizar `generate_article` (E-PROTO-1.2) para retornar lista em vez de string — escopo deste épico
-    - `writer_section_node` de C-ENSAIO-3.2 substituirá a chamada direta ao `writer_node` em `generate_article`
-  - **Dependências de ordem:** primeiro a executar — 2.2, 2.3 e 2.4 estendem este painel
+  - **Template de referência:** padrão `rx.foreach` da documentação Reflex
+  - **Acoplamentos verificados:** mudança de `str` para `list[Section]` em `current_article` requer remover o event handler `generate_article` herdado de E-PROTO-1.2 (substituído por `generate_section` de 2.2)
+  - **Dependências de ordem:** depende de 2.0 (que popula o state) — 2.2, 2.3 e 2.4 estendem este painel
   - **Escopo de teste:**
     - **Unit:** `tests/products/ensaio/unit/test_article_panel_sections.py` — renderizar lista com 0, 1 e N sections; verificar badge correto para cada status; verificar mensagem de estado vazio
-    - **Validação manual:** painel exibe seções individualmente com badges corretos; estado vazio exibe mensagem esperada
+    - **Validação manual:** painel exibe "Aguardando..." antes da proposta; exibe seções após 2.0; badges corretos
 
 #### 2.2 Geração e Regeneração por Seção
 
-- **Descrição:** Botões "Gerar" / "Regenerar" por seção invocam `writer_section_node` no escopo daquela seção, consumindo histórico conversacional + argumento focal + contexto do artigo + contexto do produto.
+- **Descrição:** Botões "Gerar" / "Regenerar" por seção invocam `writer_section_node` no escopo daquela seção. As seções já existem no painel (propostas pelo Estruturador em 2.0); estes botões preenchem o conteúdo de cada uma.
 - **Critérios de Aceite:**
   - Deve exibir botão "Gerar" por seção quando `body == ""`; botão "Regenerar" quando `body != ""`
   - Deve invocar `writer_section_node({messages, focal_argument, section_title, current_body, article_context, product_context})`
@@ -347,7 +395,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 - **Detalhes de execução:**
   - **Arquivos a criar:** nenhum
   - **Arquivos a modificar:**
-    - `products/ensaio/app/state.py` — adicionar event handler `generate_section(section_index: int)`; adicionar helper `_build_article_context(article, exclude_index)` (função privada no módulo)
+    - `products/ensaio/app/state.py` — event handler `generate_section(section_index: int)`; helper `_build_article_context(article, exclude_index)` (função privada no módulo)
     - `products/ensaio/app/components/article_panel.py` — botões por seção que disparam `EnsaioState.generate_section(i)`
   - **Contratos/Shapes:**
     ```python
@@ -374,7 +422,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
   - **Acoplamentos verificados:**
     - `writer_section_node` de C-ENSAIO-3.2
     - `processing_agent` de E-PROTO-1.4 (reaproveitado sem mudança de contrato)
-  - **Dependências de ordem:** depende de 2.1 (painel seccionado) e C-ENSAIO-3.2 (`writer_section_node`)
+  - **Dependências de ordem:** depende de 2.1 (painel) e C-ENSAIO-3.2 (`writer_section_node`)
   - **Escopo de teste:**
     - **Unit:** `tests/products/ensaio/unit/test_state_generate_section.py` — mock de `writer_section_node`; verificar que índice correto é atualizado; que outras seções não mudam; que `processing_agent` é limpo no finally; que disparo duplo é bloqueado
     - **Validação manual:** gerar seção 1; verificar que seção 2 não muda; regenerar seção 1; verificar atualização correta
