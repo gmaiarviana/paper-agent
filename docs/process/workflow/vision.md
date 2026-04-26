@@ -33,6 +33,10 @@ plataforma (fila, kanban, chat focado, processos de fundo).
   leitura e direcionamento — não estado próprio.
 - **Evolução incremental.** Primeiro fluxo entra em POC antes do segundo
   ser desenhado. Sem arquitetura especulativa.
+- **A aposta é na clareza.** Objetivos bem definidos tornam a implementação
+  o passo mais simples do processo — não o mais crítico. Este sistema
+  concentra esforço onde o impacto é maior: no pensamento que antecede a
+  execução.
 
 ## Eixo de Estágios
 
@@ -90,6 +94,18 @@ chat tem dois shapes por dentro: condução de refinamento a partir do
 estado atual, ou resposta a uma escalação pontual do agente. Em ambos,
 chega com prompt pré-montado e contexto carregado — o operador não
 monta nada.
+
+### Interação por voz (médio prazo)
+
+A plataforma conversa com o operador. O modelo canônico é o briefing
+proativo: ao entrar, o sistema relata o estado do dia em linguagem
+natural — decisões pendentes com contexto e impacto, atualizações de
+implementações em curso, novas ideias ou propostas — e pergunta onde
+focar. O operador responde em voz ou texto; a plataforma mapeia a
+intenção para a ação correspondente.
+
+A voz é o canal do briefing e do diálogo, o espaço onde a decisão se
+forma. A execução tem botão; o pensamento tem voz.
 
 ## Processos de Fundo
 
@@ -201,3 +217,11 @@ oportunidade real surgir.
   dispatch sabe qual repo, skills versionadas por destino) ficam pra
   refinamento quando o sinal aparecer concretamente. Não estrutura
   nenhuma decisão atual.
+- **Refinamento autônomo com autonomia crescente.** O refinador ganha
+  capacidade de tomar pequenas decisões com base na filosofia, visão de
+  produto e padrões acumulados do operador — chegando ao operador apenas
+  quando a decisão realmente importa. A autonomia cresce com a maturidade
+  dos produtos e a confiança que se acumula. Guardrails e ambientes de
+  experimentação fazem parte dessa evolução — espaço para o sistema
+  arriscar com segurança. A autonomia se expande passo a passo, guiada
+  pela experiência real com os produtos.
