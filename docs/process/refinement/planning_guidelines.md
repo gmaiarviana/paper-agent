@@ -157,9 +157,9 @@ Cada prompt é enxuto mas claro, deixando Cursor pensar também.
 - Épicos em `🌱 Visão` aguardam priorização + clareza técnica
 - Remover do backlog é tão válido quanto adicionar (não há apego)
 
-### Seis Estados de Refinamento
+### Estados de Refinamento
 
-Um épico percorre até sete estados no ROADMAP. Os cinco primeiros são de refinamento progressivo; os dois últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo. **Os mesmos estados aplicam-se ao campo "Status" do milestone** — milestone em `🧭 Jornada alinhada` significa objetivo, jornada e escopo declinados, glossário ancorado e mapeamento de feedback do estágio anterior consolidados, com lista de épicos definida (mesmo que individualmente em estados anteriores).
+Um épico percorre até oito estados no ROADMAP. Os cinco primeiros são de refinamento progressivo; os três últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo. **Os mesmos estados aplicam-se ao campo "Status" do milestone** — milestone em `🧭 Jornada alinhada` significa objetivo, jornada e escopo declinados, glossário ancorado e mapeamento de feedback do estágio anterior consolidados, com lista de épicos definida (mesmo que individualmente em estados anteriores).
 
 > **Nota — onde o refinamento acontece.** Até `📋 Critérios definidos`, o refinamento sempre é estratégico, via Claude Web, antes de qualquer milestone em execução. Já a transição de `🌱`/`📐`/`📋` para `🔍 Detalhes definidos` pode acontecer em duas situações distintas: (a) externamente, via Claude Web, como preparação antecipada; ou (b) dentro da branch de um milestone já disparado, via PM skill (skill a ser criada em M3b da reforma do fluxo), como parte do próprio fluxo autônomo. Ambos caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
 
@@ -179,10 +179,13 @@ Estado intermediário útil quando um épico foi quebrado a partir de uma visão
 Além dos critérios de aceite, tem contratos de dados explicitados, arquivos-alvo listados, mecanismo de integração descrito, acoplamentos verificados e escopo de testes definido. **Pré-requisito para o fluxo autônomo via Claude Code Web**, onde o agente não deve tomar decisões arquiteturais em tempo de implementação.
 
 **`🏗️ Em andamento`** — épico em implementação.
-Permanece neste estado desde o momento em que o dev pega o épico até o ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md` ser completado.
+Permanece neste estado desde o momento em que o dev pega o épico até a RTE skill abrir a PR ao final do fluxo autônomo.
+
+**`🔀 Em revisão`** — PR aberta, aguardando aprovação humana.
+A RTE skill atualiza o ROADMAP para este estado ao abrir a PR do milestone. Diferencia "código entregue e sob revisão" de "ainda implementando". O épico permanece aqui até o merge acontecer e a Cleanup skill executar o ciclo de fechamento.
 
 **`✅ Implementado`** — código entregue e ciclo de fechamento executado.
-Checklist em `docs/process/refinement/epic_completion.md` foi aplicado na íntegra.
+Checklist em `docs/process/refinement/epic_completion.md` foi aplicado na íntegra. Transição feita pela Cleanup skill após o merge.
 
 ### Alvo de Refinamento
 
@@ -238,10 +241,11 @@ Os detalhes específicos de cada ajuste por estágio moram em `docs/process/refi
 
 ### Estados de Execução
 
-- **`🏗️ Em andamento`** — épico em implementação (inclui o ciclo de fechamento até sua conclusão).
-- **`✅ Implementado`** — ciclo de fechamento executado. Ver `docs/process/refinement/epic_completion.md`.
+- **`🏗️ Em andamento`** — épico em implementação (até a RTE abrir a PR do milestone).
+- **`🔀 Em revisão`** — PR aberta. Setado pela RTE ao final do fluxo autônomo; aguarda aprovação humana e merge.
+- **`✅ Implementado`** — ciclo de fechamento executado. Ver `docs/process/refinement/epic_completion.md`. Setado pela Cleanup skill após o merge.
 
-**Claude Code só implementa funcionalidades de épicos em `📋 Critérios definidos` (fluxo manual) ou `🔍 Detalhes definidos` (fluxo autônomo). Ao iniciar a implementação, o épico transita para `🏗️ Em andamento`; ao final do ciclo de fechamento, para `✅ Implementado`.**
+**Claude Code só implementa funcionalidades de épicos em `📋 Critérios definidos` (fluxo manual) ou `🔍 Detalhes definidos` (fluxo autônomo). Ao iniciar a implementação, o épico transita para `🏗️ Em andamento`; ao RTE abrir a PR, para `🔀 Em revisão`; ao final do ciclo de fechamento pós-merge, para `✅ Implementado`.**
 
 ---
 
@@ -305,15 +309,16 @@ O checklist estratégico é a primeira linha de defesa — quando falha, a **EM 
 
 ### 📍 PRÓXIMOS PASSOS
 
-**Épicos percorrem até sete estados:**
+**Épicos percorrem até oito estados:**
 
 - **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
 - **`🧭 Jornada alinhada`** — objetivo refinado + rationale + glossário ancorado + acoplamentos sinalizados; jornada e escopo declinados (para milestone). Aguarda refinamento.
 - **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
 - **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
 - **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Pronto para fluxo autônomo via Claude Code Web.
-- **`🏗️ Em andamento`** — implementação em curso (até concluir o ciclo de fechamento).
-- **`✅ Implementado`** — ciclo de fechamento executado (ver `epic_completion.md`).
+- **`🏗️ Em andamento`** — implementação em curso (até a RTE abrir a PR).
+- **`🔀 Em revisão`** — PR aberta, aguardando aprovação humana. Setado pela RTE ao abrir a PR.
+- **`✅ Implementado`** — ciclo de fechamento executado (ver `epic_completion.md`). Setado pela Cleanup skill após o merge.
 
 **Fluxo:**
 ```
@@ -326,7 +331,9 @@ Ideia → Épico (🌱 Visão)
       → Épico (🔍 Detalhes definidos) — executável em fluxo autônomo
       → dev pega
       → Épico (🏗️ Em andamento)
-      → ciclo de fechamento (epic_completion)
+      → RTE abre PR
+      → Épico (🔀 Em revisão)
+      → merge + Cleanup skill
       → Épico (✅ Implementado)
 ```
 
@@ -339,7 +346,7 @@ Resumo enxuto (1-2 linhas) dos últimos épicos. Remove manualmente quando acumu
 
 ---
 
-## Template: Épico nos Seis Estados
+## Template: Épico nos Estados de Refinamento e Execução
 
 O épico evolui acumulando conteúdo a cada estado. Cada estado é o anterior acrescido de novo bloco.
 
@@ -419,12 +426,27 @@ Saída de refinamento com alvo `🔍`. Todo o conteúdo de `📋 Critérios defi
 
 ### Estado `🏗️ Em andamento`
 
-Dev pegou o épico. Status atualizado ao iniciar a implementação; permanece até o ciclo de fechamento em `epic_completion.md` ser concluído.
+Dev pegou o épico. Status atualizado ao iniciar a implementação; permanece até a RTE skill abrir a PR ao final do fluxo autônomo.
 
 ```markdown
 ## ÉPICO X: Nome Descritivo
 **Status:** 🏗️ Em andamento — desde YYYY-MM-DD
-**Branch:** feature/X.Y-nome (ou conjunto de branches, conforme o caso)
+**Branch:** milestone/<id-em-caixa-baixa>
+
+**Objetivo:** [...]
+
+### Funcionalidades:
+[conteúdo do estado anterior preservado — critérios + detalhes de execução]
+```
+
+### Estado `🔀 Em revisão`
+
+RTE skill abriu a PR do milestone. Status atualizado pela RTE ao final do fluxo autônomo, junto com o commit de `validation-<milestone>.md`. Permanece até o merge e execução da Cleanup skill.
+
+```markdown
+## ÉPICO X: Nome Descritivo
+**Status:** 🔀 Em revisão — PR #N (<URL>)
+**Branch:** milestone/<id-em-caixa-baixa>
 
 **Objetivo:** [...]
 
@@ -512,11 +534,13 @@ Resumo enxuto (1-2 linhas) do que foi entregue. Detalhes, critérios e execuçã
 
 Ao iniciar implementação: status do épico transita para `🏗️ Em andamento`.
 
-Ao concluir o ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md`:
-1. Marque o título do épico com ✅ e atualize status para `✅ Implementado`
-2. Resuma em 1-2 linhas o que foi entregue
-3. Remova detalhes (objetivo, critérios, sub-funcionalidades)
-4. Mova para "✅ Concluído Recentemente"
+Quando a RTE skill abre a PR do milestone: status transita automaticamente para `🔀 Em revisão` (RTE atualiza o ROADMAP no mesmo commit do `validation-<milestone>.md`).
+
+Após o merge e execução da Cleanup skill (ciclo de fechamento pós-merge):
+1. Cleanup marca o título do épico com ✅ e atualiza status para `✅ Implementado`
+2. Cleanup resume em 1-2 linhas o que foi entregue (a partir do "Objetivo" original)
+3. Cleanup remove detalhes (objetivo, critérios, sub-funcionalidades)
+4. Cleanup move para "✅ Concluído Recentemente"
 
 Exemplo:
 

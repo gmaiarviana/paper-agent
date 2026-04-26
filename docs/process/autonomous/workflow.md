@@ -174,14 +174,13 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 
 ## TRANSIÇÃO DE ESTADO DO ÉPICO
 
-O fluxo autônomo manipula dois estados de execução do épico no ROADMAP:
+O fluxo autônomo manipula três estados de execução do épico no ROADMAP:
 
-- **`🏗️ Em andamento`** — marcado assim que a Scrum Master Skill conclui (a partir daí o épico está sob implementação pelas skills). Permanece neste estado durante Dev → QA → TL → PO → RTE e até o ciclo de fechamento ser concluído.
-- **`✅ Implementado`** — **não é acionado pelo fluxo autônomo.** A transição exige a execução do ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md` (extração de conhecimento permanente + poda do ROADMAP) e é feita após validar o resultado final.
+- **`🏗️ Em andamento`** — marcado assim que a Scrum Master Skill conclui (a partir daí o épico está sob implementação pelas skills). Permanece neste estado durante Dev → QA → TL → PO → RTE, até a RTE abrir a PR.
+- **`🔀 Em revisão`** — **acionado pela RTE skill ao abrir a PR do milestone.** A RTE atualiza o status de todos os épicos do milestone no ROADMAP no mesmo commit que gera o `validation-<milestone>.md`, antes do push final. Diferencia "código pronto e sob revisão humana" de "ainda implementando".
+- **`✅ Implementado`** — **não é acionado pelo fluxo autônomo.** A transição exige a execução do ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md` (extração de conhecimento permanente + poda do ROADMAP) e é feita pela **Cleanup skill** após o merge.
 
-> **Estado terminal da fase de implementação (W-PROTO-5):** "PR aberta", **não** "Dev validou". A sessão autônoma encerra com a RTE abrindo a PR; o épico segue em `🏗️ Em andamento` até a fase de higiene rodar (cf. `epic_completion.md`).
-
-Mesmo com código mergeado e validado, o épico permanece em `🏗️ Em andamento` até o ciclo de `epic_completion.md` ser aplicado.
+> **Estado terminal da fase de implementação (W-PROTO-5):** "PR aberta" = épico em `🔀 Em revisão`. A sessão autônoma encerra com a RTE abrindo a PR e transitando os épicos para `🔀`; a Cleanup skill (pós-merge) transita para `✅ Implementado`.
 
 ---
 

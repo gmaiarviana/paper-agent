@@ -179,9 +179,56 @@ Além da Seção 🎯, o body deve conter:
 
 **6.5.d — Criar a PR.**
 
-Usar `mcp__github__create_pull_request` (preferido) com `head=milestone/<id>`, `base=main`, body construído acima. Em caso de erro, fallback para `gh pr create`. Capturar o número da PR e a URL — vão para a mensagem do Passo 7.
+Usar `mcp__github__create_pull_request` (preferido) com `head=milestone/<id>`, `base=main`, body construído acima. Em caso de erro, fallback para `gh pr create`. Capturar o número da PR e a URL — vão para o Passo 6.5.e e para a mensagem do Passo 7.
 
 **Não tentar mergear.** Aprovação humana segue obrigatória.
+
+**6.5.e — Transitar épicos para `🔀 Em revisão` no ROADMAP.**
+
+Para cada épico do milestone, localizar o bloco no(s) ROADMAP(s) (grep por `### <MILESTONE_ID>` e campo `**Milestone:**`) e atualizar o campo `**Status:**`:
+
+```
+**Status:** 🔀 Em revisão — PR #<N> (<URL>)
+```
+
+Commitar esta atualização (junto com o `validation-<milestone>.md` do Passo 6.5.a, se ainda não commitado, ou como commit separado imediatamente após) na branch `milestone/<id>`, antes do push final. Mensagem de commit:
+
+```
+chore(rte): épicos em 🔀 Em revisão — PR #<N>
+```
+
+Este é o último commit da branch antes do merge humano. O campo fica visível no ROADMAP para qualquer um que consulte o estado atual dos épicos.
+
+### Passo 6.75 — Registrar participação das skills em `skills/audit_log.jsonl`
+
+Ler `docs/process/current_implementation.md` e extrair:
+- Bloco "Evidências de carregamento de skill": quais skills foram carregadas (linhas `[LOADED]`) e quais puladas (linhas `[SKIPPED]`).
+- Bloco "Status dos Gates (nível milestone)": resultado de cada gate (✅ / ❌ acumulado no histórico de reprovações).
+- Bloco "Histórico de Reprovações": contar reprovações por skill.
+- Bloco por épico: número de funcionalidades aprovadas por QA/TL/PO, extrações de conhecimento do TL (bloco `## Extração pendente` com `- [x]`).
+
+Construir entrada JSON e **appender** ao final de `skills/audit_log.jsonl` (criar o arquivo se não existir):
+
+```json
+{
+  "timestamp": "<ISO-8601 atual>",
+  "milestone_id": "<MILESTONE_ID>",
+  "pr_url": "<URL da PR>",
+  "epics_count": <N>,
+  "features_count": <M>,
+  "skills": {
+    "pm":            {"status": "<executed|skipped>", "reason_skipped": "<texto ou null>", "epics_refined": <N ou null>},
+    "em":            {"status": "<executed|skipped>", "sizing_result": "<FIT|TIGHT|OVERFLOW ou null>"},
+    "scrum-master":  {"status": "executed", "tasks_planned": <N>},
+    "qa":            {"status": "executed", "approvals": <N>, "rejections": <N>},
+    "tl":            {"status": "executed", "approvals": <N>, "rejections": <N>, "knowledge_extractions": <N>},
+    "po":            {"status": "executed", "approvals": <N>, "rejections": <N>},
+    "rte":           {"status": "executed"}
+  }
+}
+```
+
+Campos numéricos que não for possível extrair com certeza: registrar `null` (não inventar). Appender com `\n` ao final do arquivo.
 
 ### Passo 7 — Notificar o dev (mensagem única consolidando N épicos)
 Mensagem final no formato canônico de `docs/process/implementation/delivery.md`, adaptado para milestone:
@@ -205,7 +252,7 @@ Uma única mensagem, ao fim do fluxo. Estado terminal da fase de implementação
 - Milestone: <ID> — <nome em 1 linha do ROADMAP>
 - Estágio: <POC | Protótipo | MVP>
 - Branch: milestone/<id-em-caixa-baixa>
-- Épicos fechados: <N>
+- Épicos fechados: <N> (todos em 🔀 Em revisão no ROADMAP)
 - Funcionalidades validadas: <M>
 - Arquivos modificados (milestone): <N> (<X> código, <Y> testes, <Z> docs)
 - Linhas alteradas: +<add> / -<del>
@@ -221,6 +268,15 @@ Uma única mensagem, ao fim do fluxo. Estado terminal da fase de implementação
 
 🔗 PR aberta: #<N> — <URL>
 📄 Validation file: <caminho>/validation-<id>.md
+
+🤖 Participação das skills (esta sessão):
+- <⏭️ PM: Pulado — <razão> | ✅ PM: <N> épicos refinados até 🔍>
+- ✅ EM: <FIT|TIGHT> — <estimativa se disponível>
+- ✅ Scrum Master: <N> tarefas planejadas
+- ✅ QA: <N> aprovações<, <N> reprovações resolvidas>
+- ✅ TL: <N> aprovações<, <N> extrações de conhecimento><, <N> reprovações resolvidas>
+- ✅ PO: <N> aprovações<, <N> reprovações resolvidas>
+- ✅ RTE: PR aberta, épicos transitados para 🔀 Em revisão
 
 ▶️ Próximo passo:
   1. Abra a PR #<N>.
@@ -267,8 +323,10 @@ pytest -m integration             # se aplicável
 - ✅ `current_implementation.md` marcado como RTE ✅ (no bloco "Status dos Gates (nível milestone)") com bloco "Resumo Final do Milestone"
 - ✅ `validation-<id>.md` versionado no repo (mesmo commit que abre a PR), cobrindo todos os épicos
 - ✅ PR aberta com body contendo Seção 🎯 Validação completa, sem placeholders
+- ✅ Épicos do milestone transitados para `🔀 Em revisão` no(s) ROADMAP(s), com link da PR
+- ✅ Entrada appended em `skills/audit_log.jsonl` com participação das skills desta sessão
 - ✅ Relatório no template preenchido sem campos vazios, cobrindo os N épicos
-- ✅ Mensagem única ao dev sem placeholders, com nome real da branch + número/URL da PR
+- ✅ Mensagem única ao dev sem placeholders, com nome real da branch + número/URL da PR + seção "Participação das skills"
 - ✅ Resumo executivo com números reais (não estimativas)
 
 ## CRITÉRIOS DE FALHA
@@ -279,6 +337,8 @@ pytest -m integration             # se aplicável
 - ❌ Emitiu mensagem por épico em vez de mensagem única consolidada
 - ❌ Output final contém `<placeholder>` ou `[ID]` não substituído
 - ❌ Abriu PR sem Seção 🎯 Validação completa (sem critérios consolidados, com placeholders, sem link para validation-<id>.md)
+- ❌ Não transitou os épicos para `🔀 Em revisão` no ROADMAP após abrir a PR
+- ❌ Não appendou entrada em `skills/audit_log.jsonl`
 - ❌ Tentou mergear automaticamente
 - ❌ Rodou testes (não é seu papel)
 - ❌ Inventou status de gate ou número de arquivos
