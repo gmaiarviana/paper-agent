@@ -1,0 +1,13 @@
+model_list:
+  # Wildcard pattern: qualquer model_name comecando com "claude-"
+  # eh repassado pra Anthropic. Sintaxe correta no LiteLLM moderno usa "*"
+  # (NAO "<model_name>" — esse era da doc antiga e nao eh interpretado).
+  - model_name: "claude-*"
+    litellm_params:
+      model: "anthropic/claude-*"
+      api_key: os.environ/ANTHROPIC_API_KEY_BACKEND
+
+litellm_settings:
+  drop_params: true
+  request_timeout: 300
+  num_retries: 0

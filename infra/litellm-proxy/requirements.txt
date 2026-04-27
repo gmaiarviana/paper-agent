@@ -1,0 +1,3 @@
+# Pin LiteLLM. A versao 1.83.x trava em /v1/messages no Windows (loop interno
+# em route_llm_request). 1.74.15 e estavel para o uso com Claude Code.
+litellm[proxy]==1.74.15
