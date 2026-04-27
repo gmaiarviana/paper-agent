@@ -1,24 +1,19 @@
-"""Grafo LangGraph do produto Ensaio (E-POC-1.3).
+"""Grafo LangGraph do produto Ensaio (PROTO-ENSAIO).
 
-Compõe um grafo conversacional próprio a partir dos nós do core
-(``orchestrator_node`` e ``structurer_node``) — sem Metodologista e sem
-Writer. O Writer é invocado diretamente pelo app quando o pesquisador clica
-em "Gerar artigo" (ver ``generate_button.py``).
+Compõe um grafo conversacional próprio a partir dos nós do core:
+Orquestrador → Estruturador | Metodologista → END.
+
+O Writer é invocado diretamente pelo estado Reflex (``state.py``) — não
+entra no grafo conversacional (ver ``core/docs/agents/writer/design.md``).
 
 Princípio do super-sistema (ver ``core/docs/vision/super_system.md``): o
-produto compõe seu próprio grafo; o core expõe nós individuais. O Ensaio
-não reusa ``create_multi_agent_graph`` do core — reusa apenas os nós.
+produto compõe seu próprio grafo; o core expõe nós individuais.
 
-Comportamento do roteamento:
-    - ``route_from_orchestrator`` retorna "structurer", "methodologist",
-      "user" ou algo inválido.
-    - Neste grafo, "methodologist" é mapeado para END (Ensaio não tem
-      Metodologista na POC — ver E-POC-3, critério "Não deve invocar o
-      Metodologista neste épico"). Quando o Orquestrador sugerir
-      Metodologista, a sugestão é absorvida silenciosamente e o controle
-      retorna ao usuário.
-    - "structurer" → vai para o Estruturador e dali direto para END (sem
-      Metodologista encadeado no fluxo do Ensaio).
+Roteamento:
+    - ``route_from_orchestrator`` retorna "structurer", "methodologist" ou "user".
+    - "structurer" → Estruturador → END
+    - "methodologist" → Metodologista (provocação) → END  (E-PROTO-3.2)
+    - "user" → END (Orquestrador responde diretamente)
 """
 
 from __future__ import annotations
@@ -30,6 +25,7 @@ from typing import Any
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
 
+from core.agents.methodologist.nodes import methodologist_provocation_node
 from core.agents.orchestrator.nodes import orchestrator_node
 from core.agents.orchestrator.router import route_from_orchestrator
 from core.agents.orchestrator.state import MultiAgentState
@@ -46,18 +42,14 @@ def _default_db_path() -> Path:
 
 
 def _route(state: MultiAgentState) -> str:
-    destination = route_from_orchestrator(state)
-    # Ensaio POC não invoca Metodologista — absorver sugestão e voltar ao usuário.
-    if destination == "methodologist":
-        return "user"
-    return destination
+    return route_from_orchestrator(state)
 
 
 def create_ensaio_graph(
     checkpointer: Any | None = None,
     db_path: Path | None = None,
 ):
-    """Compila o grafo conversacional do Ensaio.
+    """Compila o grafo conversacional do Ensaio (PROTO-ENSAIO).
 
     Args:
         checkpointer: checkpointer customizado (útil em testes e no script
@@ -72,6 +64,7 @@ def create_ensaio_graph(
     graph = StateGraph(MultiAgentState)
     graph.add_node("orchestrator", orchestrator_node)
     graph.add_node("structurer", structurer_node)
+    graph.add_node("methodologist", methodologist_provocation_node)
 
     graph.set_entry_point("orchestrator")
 
@@ -80,12 +73,13 @@ def create_ensaio_graph(
         _route,
         {
             "structurer": "structurer",
+            "methodologist": "methodologist",
             "user": END,
         },
     )
 
-    # Sem Metodologista: o Estruturador encerra o turno e volta ao usuário.
     graph.add_edge("structurer", END)
+    graph.add_edge("methodologist", END)
 
     if checkpointer is None:
         path = db_path or _default_db_path()

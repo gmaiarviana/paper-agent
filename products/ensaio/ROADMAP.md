@@ -53,14 +53,14 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 ### PROTO-ENSAIO
 
-- **Status:** `🔍 Detalhes definidos` — todos os épicos em `🔍 Detalhes definidos`
+- **Status:** `✅ Implementado` — validação manual executada (2026-04), app sobe e funciona, seções geradas, labels de agente visíveis
 - **Objetivo:** elevar a **qualidade da experiência dentro de uma sessão** usando coerentemente capacidades que já temos (Metodologista parado no core, Writer evoluindo para por-seção) num chassi de stack adequado. Protótipo continua em sessão única e descartável (igual à POC) — persistência, pendências e fluxo assíncrono migram para o MVP por coerência de escopo (ver [vision.md §§3, 6, 10, 11](docs/vision.md)). Único artigo em andamento por vez; múltiplos artigos ficam em Ideias Futuras.
 - **Estágio:** Protótipo — Usuário usa de verdade
 - **Produto:** Ensaio
 - **Épicos agrupados:** E-PROTO-1, E-PROTO-2, E-PROTO-3 (todos em `🔍 Detalhes definidos`)
 - **Dependências de core:** [C-ENSAIO-3](../../docs/ROADMAP.md) (Writer por seção) — pré-requisito de E-PROTO-2; já em `🔍 Detalhes definidos`.
 - **Decisão de stack (saída do refinamento de E-PROTO-1.1):** Reflex (Python full-stack). ADR registrada em [products/ensaio/docs/adr/001-stack-do-prototipo.md](docs/adr/001-stack-do-prototipo.md).
-- **Branch associada:** `milestone/proto-ensaio`
+- **Branch associada:** `claude/implement-essay-prototype-uFkkP`
 - **Glossário do produto:** termos "Usuário" (jornada) e "Pesquisador" (persona) ancorados em [products/ensaio/docs/vision.md §13](docs/vision.md).
 - **Jornada alvo (alta-nível):** Usuário abre o app → começa nova sessão sobre o experimento → conversa flui no chat com transparência sobre qual agente está falando (`🎯 Orquestrador`, `🔬 Metodologista`) e feedback de processamento decente → Metodologista provoca quando a conversa toca em metodologia (lacunas, métricas, evidências) → clica "Gerar artigo" / "Gerar seção X" / "Regenerar seção X" → painel seccionado mostra o artigo em construção com status por seção e edição inline do markdown → ao final, exporta/copia o artigo. Sessão é descartável (recarregar zera tudo); persistência fica para o MVP.
 - **Feedback do POC endereçado por este milestone:**
@@ -77,6 +77,37 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
   - **Múltiplos artigos em paralelo** vai para Ideias Futuras.
 - **Princípio de viabilização (do escopo declinado):** mesmo sem persistência, estado do artigo + conversa vivem em estruturas serializáveis no core (visão §7), para que o MVP troque a camada de armazenamento sem refazer o domínio.
 - **Sizing:** avaliação real (e eventual quebra em sub-milestones `ALPHA`/`BETA`) fica para quando a EM skill avaliar, antes do dispatch.
+
+### PROTO-ENSAIO-2 (stub)
+
+- **Objetivo:** Tornar o raciocínio dos agentes visível e dar ao Usuário voz antes que decisões virem estado. Endereça: Metodologista invisível; Estruturador que decidiu sozinho sem expor racional; mensagens que não deixam claro o que mudou; impossibilidade de colapsar seções.
+- **Estágio:** Protótipo
+- **Produto:** Ensaio
+- **Status:** `🌱 Visão`
+- **Feedback capturado (validação PROTO-ENSAIO):**
+  - Metodologista existe mas não aparece no chat
+  - Estruturador propôs seções sem expor racional nem pedir confirmação
+  - "Vou estruturar essa nova questão de pesquisa" — usuário não entendeu o que mudou
+  - Mensagem do Estruturador longa sem sinalizar o que o sistema fez
+  - Seções do artigo não podem ser colapsadas/expandidas
+- **Épicos planejados (a detalhar no refinamento):** E-PROTO2-1 Co-decisão da Estrutura, E-PROTO2-2 Visibilidade do Metodologista, E-PROTO2-3 Mensagens com "o que mudou", E-PROTO2-4 Colapsar/expandir seções
+- **Dependências:** PROTO-ENSAIO ✅
+- **Branch associada:** `milestone/proto-ensaio-2` (a criar)
+
+### PROTO-ENSAIO-3 (stub)
+
+- **Objetivo:** Garantir qualidade antes de gerar, não depois. Endereça: Writer que gera sem contexto suficiente; ausência de ordem de geração; loop de refinamento por seção inexistente.
+- **Estágio:** Protótipo
+- **Produto:** Ensaio
+- **Status:** `🌱 Visão`
+- **Feedback capturado (validação PROTO-ENSAIO):**
+  - Sistema não verifica se tem contexto suficiente antes de gerar uma seção
+  - Não há ordenamento (conclusão deveria vir por último)
+  - Usuário não tem como indicar o que está bom/ruim em cada seção para refinar
+  - Favorecer qualidade sobre quantidade
+- **Épicos planejados (a detalhar no refinamento):** E-PROTO3-1 Guardrails de contexto por seção, E-PROTO3-2 Ordem de geração guiada, E-PROTO3-3 Loop de refinamento por seção
+- **Dependências:** PROTO-ENSAIO-2 (transparência deve estar resolvida antes de trabalhar qualidade)
+- **Branch associada:** `milestone/proto-ensaio-3` (a criar)
 
 ### MVP-ENSAIO (stub)
 
@@ -132,7 +163,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 **Objetivo:** Substituir o Streamlit da POC por **Reflex** (Python full-stack, decisão registrada em ADR — funcionalidade 1.1) — exibição decente, transparência sobre qual agente está falando, feedback de processamento que não bloqueia a tela e cold start aceitável. Garante o princípio de viabilização (§7 vision): estado do artigo + conversa em estruturas serializáveis no backend, UI burra renderizando view.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** ✅ Implementado — branch `claude/implement-essay-prototype-uFkkP`
 
 **Dependências:** nenhuma (épico de saída do milestone — destrava E-PROTO-2 e E-PROTO-3).
 
@@ -290,7 +321,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 **Objetivo:** Materializar o modo de escrita híbrido (visão §4) dentro de uma sessão — o Estruturador propõe a estrutura do artigo no chat, o painel exibe as seções propostas, e o Usuário gera/regenera o conteúdo de cada seção individualmente e edita inline. Rascunho evolui acompanhando a conversa, em vez de ser gerado de uma vez no final.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** ✅ Implementado — branch `claude/implement-essay-prototype-uFkkP`
 
 **Dependências:**
 - E-PROTO-1 (nova stack Reflex — `EnsaioState` e `article_panel.py` existem)
@@ -471,7 +502,7 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 
 **Nota arquitetural:** o Metodologista existente opera em modo de decisão pontual (`decide_collaborative` → `approved/needs_refinement/rejected`). Para o Ensaio é criado um nó separado, `methodologist_provocation_node`, com prompt próprio focado em provocação contínua ao longo da conversa. O `decide_collaborative` permanece inalterado.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** ✅ Implementado — branch `claude/implement-essay-prototype-uFkkP`
 
 **Dependências:**
 - E-POC-2 (parametrização de contexto — já entregue)

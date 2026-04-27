@@ -1,33 +1,139 @@
-"""Painel do artigo do Ensaio (E-POC-1.5).
+"""Painel de artigo seccionado do Ensaio em Reflex (E-PROTO-1.2, 2.1, 2.2, 2.3, 2.4).
 
-Renderiza o markdown do artigo gerado (quando existe) na coluna direita do
-layout 60/40. Mantém o artigo anterior visível até que o pesquisador peça
-regeneração — não renderiza placeholders de "em construção" fora dessa
-semântica.
+Renderiza as seções propostas pelo Estruturador com botões de geração por
+seção, badges de status e edição inline de markdown.
 """
 
 from __future__ import annotations
 
-import streamlit as st
+import reflex as rx
+
+from products.ensaio.app.state import EnsaioState
 
 
-def render_article_panel() -> None:
-    """Exibe o artigo atual em ``st.session_state.current_article``.
+def _status_badge(status: str) -> rx.Component:
+    return rx.match(
+        status,
+        ("empty", rx.badge("—", color_scheme="gray", size="1")),
+        ("draft", rx.badge("Rascunho", color_scheme="orange", size="1")),
+        ("edited", rx.badge("Editado", color_scheme="green", size="1")),
+        rx.badge(status, size="1"),
+    )
 
-    Quando ``current_article`` é ``None``, mostra um placeholder discreto
-    (texto, sem skeleton animado) convidando à geração. Quando existe,
-    renderiza o markdown completo.
-    """
-    st.subheader("📄 Artigo")
 
-    current_article = st.session_state.get("current_article")
+def _section_card(section: dict) -> rx.Component:
+    """Renderiza uma seção do artigo com controles de geração e edição."""
+    return rx.box(
+        # Cabeçalho da seção com badge de status
+        rx.hstack(
+            rx.heading(section["title"], size="3"),
+            _status_badge(section["status"]),
+            justify="between",
+            align="center",
+            width="100%",
+        ),
+        # Conteúdo: placeholder ou markdown
+        rx.cond(
+            section["body"] == "",
+            rx.text(
+                "Clique em Gerar para redigir esta seção.",
+                color_scheme="gray",
+                size="2",
+                style={"font_style": "italic"},
+                margin_y="8px",
+            ),
+            rx.box(
+                rx.markdown(section["body"]),
+                margin_y="8px",
+            ),
+        ),
+        # Botão de geração — usa section["index"] armazenado no estado
+        rx.button(
+            rx.cond(section["body"] == "", "Gerar", "Regenerar"),
+            on_click=EnsaioState.generate_section(section["index"]),
+            disabled=EnsaioState.processing_agent != "",
+            size="1",
+            color_scheme="blue",
+            variant="soft",
+            margin_top="8px",
+        ),
+        padding="16px",
+        border="1px solid var(--gray-4)",
+        border_radius="8px",
+        margin_bottom="12px",
+        background="white",
+    )
 
-    if not current_article:
-        st.caption(
-            "O artigo aparece aqui quando você clicar em **Gerar artigo**. "
-            "Você pode pedir ajustes em linguagem natural no chat e regenerar "
-            "a qualquer momento."
-        )
-        return
 
-    st.markdown(current_article)
+def article_panel() -> rx.Component:
+    return rx.flex(
+        # Cabeçalho
+        rx.box(
+            rx.heading("📄 Artigo em construção", size="4"),
+            rx.text(
+                "Seções propostas pelo Estruturador. "
+                "Gere cada seção individualmente.",
+                size="2",
+                color_scheme="gray",
+            ),
+            padding="16px",
+            border_bottom="1px solid var(--gray-4)",
+        ),
+        # Indicador de Writer em processamento
+        rx.cond(
+            EnsaioState.processing_agent == "writer",
+            rx.box(
+                rx.hstack(
+                    rx.spinner(size="1"),
+                    rx.text("✍️ Writer redigindo...", size="2", color_scheme="gray"),
+                    spacing="2",
+                    align="center",
+                ),
+                padding="8px 16px",
+                border_bottom="1px solid var(--gray-4)",
+            ),
+            rx.fragment(),
+        ),
+        # Conteúdo do painel
+        rx.box(
+            rx.cond(
+                EnsaioState.current_article.length() > 0,
+                rx.box(
+                    rx.foreach(EnsaioState.current_article, _section_card),
+                    padding="16px",
+                ),
+                # Estado vazio — aguardando proposta do Estruturador
+                rx.center(
+                    rx.vstack(
+                        rx.icon("file_text", size=32, color="var(--gray-8)"),
+                        rx.text(
+                            "Aguardando proposta de estrutura...",
+                            color_scheme="gray",
+                            size="3",
+                            text_align="center",
+                        ),
+                        rx.text(
+                            "Continue conversando sobre seu experimento. "
+                            "Quando o Estruturador tiver contexto suficiente, "
+                            "ele proporá as seções do artigo.",
+                            color_scheme="gray",
+                            size="2",
+                            text_align="center",
+                            max_width="280px",
+                        ),
+                        align="center",
+                        spacing="3",
+                    ),
+                    height="100%",
+                    padding="40px",
+                ),
+            ),
+            overflow_y="auto",
+            flex="1",
+        ),
+        direction="column",
+        height="100vh",
+        width="40%",
+        background="var(--gray-1)",
+        overflow="hidden",
+    )

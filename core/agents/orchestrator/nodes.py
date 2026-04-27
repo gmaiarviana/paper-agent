@@ -1030,7 +1030,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
     logger.info("=== NÓ ORCHESTRATOR SOCRÁTICO: Finalizado ===\n")
 
     # Criar AIMessage com a mensagem conversacional para histórico
-    ai_message = AIMessage(content=message)
+    ai_message = AIMessage(content=message, additional_kwargs={"agent": "orchestrator"})
 
     # Criar snapshot se argumento maduro (Épico 9.3)
     # Silencioso: não notifica usuário, apenas log interno

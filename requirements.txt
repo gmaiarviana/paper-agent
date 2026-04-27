@@ -8,8 +8,9 @@ langchain-core>=0.2.0
 # Environment variables management
 python-dotenv>=1.0.0
 
-# Web interface (optional)
-streamlit>=1.30.0
+# Web interfaces
+streamlit>=1.30.0   # Revelar
+reflex>=0.6.0       # Ensaio (PROTO-ENSAIO)
 
 # CLI formatting and colors
 colorama>=0.4.6

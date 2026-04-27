@@ -1,5 +1,6 @@
-"""App Streamlit do produto Ensaio (POC).
+"""App Reflex do produto Ensaio (PROTO-ENSAIO).
 
-Esqueleto de app próprio que reusa agentes do core (Orquestrador, Estruturador,
-Writer) via injeção de contexto de produto. Ver products/ensaio/ROADMAP.md.
+Expõe a instância rx.App para o runner do Reflex (app_name="app" em rxconfig.py).
 """
+
+from products.ensaio.app.app import app  # noqa: F401
