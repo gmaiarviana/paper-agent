@@ -36,7 +36,7 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 
 **Se a verificação falhar — abortar imediatamente:**
 - Se o épico está em `🌱 Visão` ou `📐 Funcionalidades esboçadas` → devolver ao dev com mensagem: "Épico precisa de sessão de refinamento antes do dispatch autônomo. Ver `docs/process/refinement/planning_guidelines.md`."
-- Se o épico está em `📋 Critérios definidos` → devolver ao dev com mensagem: "Épico em `📋 Critérios definidos`. Sessão de refinamento com alvo `🔍 Detalhes definidos` é feita manualmente via Claude Web, aplicando o checklist de `docs/process/refinement/autonomous_readiness.md`, antes de redispachar."
+- Se o épico está em `📋 Critérios definidos` → devolver ao dev com mensagem: "Épico em `📋 Critérios definidos`. Refinamento com alvo `🔍 Detalhes definidos` é necessário antes de redispachar — via PM skill (se milestone ativo) ou via sessão estratégica. Checklist em `docs/process/refinement/autonomous_readiness.md`."
 - Em todos os casos, a skill **não tenta suprir a lacuna inventando detalhes**.
 
 **Deve (após gate de entrada aprovado):**
@@ -48,7 +48,7 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 
 **Não deve:**
 - ❌ Tomar decisões arquiteturais novas (se necessário, abortar e devolver ao dev)
-- ❌ Refinar épico (refinamento em qualquer alvo — `📋` ou `🔍` — é manual, via Claude Web)
+- ❌ Refinar épico durante a sessão de implementação (refinamento tático é papel da PM skill; estratégico acontece em sessão separada — ambos antes do dispatch)
 - ❌ Avançar para Dev se a funcionalidade não estiver em épico `🔍 Detalhes definidos`
 
 **Saída:** plano em `current_implementation.md` + lista de tarefas.

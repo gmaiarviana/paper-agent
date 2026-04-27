@@ -92,7 +92,7 @@ Protocolo detalhado em `skills/README.md`.
 ## RESTRIÇÕES DO FLUXO AUTÔNOMO
 
 - **Escopo:** fluxo opera sobre o **milestone inteiro**. Commits vão para `milestone/<id>`; `main` recebe o milestone apenas após aval humano explícito.
-- **Refinamento estratégico não acontece aqui.** Visão → milestones/épicos em `🌱`/`🧭`/`📐` é Claude Web, externo ao repo. Se o milestone alvo não existir no ROADMAP, abortar.
+- **Refinamento estratégico não acontece aqui.** Visão → milestones/épicos em `🌱`/`🧭`/`📐` é processo separado (refinador autônomo ou sessão estratégica), não parte do fluxo de implementação. Se o milestone alvo não existir no ROADMAP, abortar.
 - **Refinamento tático acontece dentro da branch.** PM skill leva épicos `🌱`/`🧭`/`📐`/`📋` a `🔍` antes da EM rodar o sizing.
 - **Sem novas decisões arquiteturais.** Se o fluxo topar decisão em aberto não coberta por refinamento, abortar e devolver.
 - **Sem PR automático.** A RTE prepara a branch e comandos; o PR é criação humana.
