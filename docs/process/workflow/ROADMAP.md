@@ -172,41 +172,73 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   `claude/refine-workflow-stage-ApETn`. Independentes entre si —
   podem ser implementados em qualquer ordem.
 
-### MVP-WORKFLOW
+### PROTO-WORKFLOW-PLATAFORMA
 
-- **Objetivo:** priorização autônoma rodando, materializada como POC
-  mínimo da plataforma de workflow (ver
-  [Forma da Plataforma](vision.md#forma-da-plataforma)). POC alimenta
-  uma fila a partir do encerramento de implementação (W-PROTO-5: PR
-  aberta = item) — com tipos de itens convivendo (decisão, escalação,
-  PR pra revisar, proposta, relatório "trabalhamos isso hoje"). Kanban,
-  chat focado, Proponente (1×/dia) e refinador autônomo (contínuo)
-  entram em incrementos seguintes. Operador valida via fila, sem SLA.
-- **Estágio:** MVP
-- **Épicos agrupados:** a definir em refinamento estratégico
+- **Objetivo:** central de acompanhamento da plataforma de workflow —
+  kanban com todos os estados de épicos de todos os ROADMAPs
+  configurados, ações contextuais por estado (dispatch para 🔍,
+  acompanhamento de 🏗️/🔀, direcionamento de refinamento para estados
+  pré-execução). Operador visualiza o estado de todos os épicos e é
+  direcionado para a próxima ação sem precisar ler o ROADMAP à mão.
+- **Estágio:** Protótipo
+- **Épicos agrupados:** W-PROTO-PLAT-1, W-PROTO-PLAT-2,
+  W-PROTO-PLAT-3, W-PROTO-PLAT-4
 - **Dependências de core:** nenhuma
-- **Branch associada:** `milestone/mvp-workflow`
-- **Status dos épicos:** milestone em declaração — épicos serão
-  definidos em refinamento estratégico via Claude Web após ambos os
-  milestones da fase Protótipo fecharem.
-- **Tensões pra refinamento estratégico** (discussão de 2026-04-25 ao
-  mergear `vision.md` e `platform-vision.md`):
-  - **(a) Quem cria itens "PR pra revisar"?** Inclinação: RTE no mesmo
-    passo em que abre PR (W-PROTO-5 estendido). Alternativa: observador
-    da plataforma observa a PR aberta e publica item.
+- **Branch associada:** `milestone/proto-workflow-plataforma`
+- **Status dos épicos:** W-PROTO-PLAT-1 📋, W-PROTO-PLAT-2 📋,
+  W-PROTO-PLAT-3 📋, W-PROTO-PLAT-4 📋.
+- **Nota:** milestone refinado em 2026-04-27 na branch
+  `claude/refine-workflow-mvp-tu06p`. Épicos em `📋 Critérios
+  definidos` — prontos para fluxo manual via Cursor. Refinamento
+  tático (via PM skill ou Claude Web) leva a `🔍 Detalhes definidos`
+  antes do dispatch autônomo.
+
+### MVP-WORKFLOW-PLATAFORMA
+
+- **Objetivo:** plataforma com fila de decisões populada
+  automaticamente por eventos de estado do repo e das PRs, e chat
+  focado por item com contexto pré-carregado. Operador chega e
+  encontra a próxima decisão esperando, sem montar a fila
+  manualmente.
+- **Estágio:** MVP
+- **Épicos agrupados:** W-MVP-PLAT-1, W-MVP-PLAT-2, W-MVP-PLAT-3
+- **Dependências de core:** nenhuma; depende de
+  PROTO-WORKFLOW-PLATAFORMA (scaffold e kanban como base)
+- **Branch associada:** `milestone/mvp-workflow-plataforma`
+- **Status dos épicos:** W-MVP-PLAT-1 📐, W-MVP-PLAT-2 📐,
+  W-MVP-PLAT-3 📐.
+- **Tensões para refinamento estratégico:**
+  - **(a) Quem cria itens "PR pra revisar"?** Inclinação: RTE no
+    mesmo passo em que abre PR (W-PROTO-5 estendido). Alternativa:
+    observador da plataforma detecta PR aberta via GitHub API.
   - **(b) Auto-regulação por capacidade (~20 itens).** Gatilho duro
-    (autônomo trava de criar) ou soft (só prioriza)? Limite por tipo de
-    item ou agregado?
-  - **(c) Proponente no POC mínimo da plataforma?** Inclinação: fora —
-    entra em incremento posterior pra manter POC realmente mínimo.
-  - **(d) Reconstrução da fila se plataforma cair.** Validar na
-    implementação que varrer markdown + estado de PRs reconstrói a fila
-    deterministicamente — teste prático do princípio "markdown é fonte
-    da verdade".
-- **Fora do MVP (longo prazo):** outros fluxos do workflow
-  (observar/auditar/reorganizar) e workflow como produto desacoplado
-  multi-repo vivem no [Horizonte de vision.md](vision.md#horizonte) e
-  não estruturam decisões deste milestone.
+    (autônomo trava de criar) ou soft (só prioriza)? Limite por tipo
+    de item ou agregado?
+  - **(c) Reconstrução da fila se plataforma cair.** Varrer markdown
+    + estado de PRs deve reconstruir a fila deterministicamente —
+    teste prático do princípio "markdown é fonte da verdade".
+- **Nota:** milestone declarado em 2026-04-27. Épicos em `📐
+  Funcionalidades esboçadas` — aguardam refinamento estratégico antes
+  do dispatch.
+
+### MVP-WORKFLOW-REFINADOR
+
+- **Objetivo:** refinador autônomo como processo de fundo — avança
+  épicos de 🌱/📐 sem supervisão contínua, para limpo ao travar, e
+  deposita resultado na fila da plataforma como item de decisão.
+- **Estágio:** MVP
+- **Épicos agrupados:** W-MVP-REF-1, W-MVP-REF-2
+- **Dependências de core:** nenhuma; depende de
+  MVP-WORKFLOW-PLATAFORMA (fila como destino dos itens produzidos)
+- **Branch associada:** `milestone/mvp-workflow-refinador`
+- **Status dos épicos:** W-MVP-REF-1 📐, W-MVP-REF-2 📐.
+- **Fora do MVP (longo prazo):** Proponente (1×/dia), voice
+  interface e workflow como produto desacoplado multi-repo vivem no
+  [Horizonte de vision.md](vision.md#horizonte) e não estruturam
+  decisões destes milestones.
+- **Nota:** milestone declarado em 2026-04-27. Épicos em `📐
+  Funcionalidades esboçadas` — aguardam refinamento estratégico antes
+  do dispatch.
 
 ## 📋 Épicos Planejados
 
@@ -318,7 +350,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Protótipo
 
-> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1, 2, 3) · `PROTO-WORKFLOW-AJUSTES` (W-PROTO-8, W-PROTO-9).
+> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1, 2, 3) · `PROTO-WORKFLOW-AJUSTES` (W-PROTO-8, W-PROTO-9) · `PROTO-WORKFLOW-PLATAFORMA` (W-PROTO-PLAT-1..4).
 
 #### ÉPICO W-PROTO-DOC-1: Reescrita per-milestone de `docs/process/autonomous/`
 
@@ -1648,6 +1680,202 @@ documental, todos os critérios são textualmente verificáveis.
 - **Escopo de teste:**
   - `grep -n "Tipos de sessão" docs/CONSTITUTION.md` → 1 resultado
   - Links dos dois docs resolvem
+
+---
+
+#### ÉPICO W-PROTO-PLAT-1: Scaffold da plataforma
+
+**Milestone:** `PROTO-WORKFLOW-PLATAFORMA`
+
+**Objetivo:** estrutura Streamlit funcionando localmente, lendo ROADMAPs do repo e com navegação básica entre as views da plataforma.
+
+**Status:** 📋 Critérios definidos
+
+**Dependências:** nenhuma
+
+### Funcionalidades:
+
+#### 1.1: App Streamlit com configuração e navegação
+
+- **Descrição:** App Streamlit estruturado com arquivo de configuração declarando quais ROADMAPs ler, leitura defensiva dos arquivos e navegação entre as views dos épicos seguintes.
+- **Critérios de Aceite:**
+  - Deve iniciar com `streamlit run` a partir do repo raiz sem erros
+  - Deve ler ROADMAPs configurados sem travar se algum estiver ausente ou malformado
+  - Deve ter estrutura de navegação entre as views dos épicos W-PROTO-PLAT-2, 3 e 4
+  - Deve ter arquivo de configuração declarando quais ROADMAPs ler e qual repo GitHub usar
+  - Deve funcionar em modo local sem dependência de serviço externo além de acesso de leitura ao GitHub
+
+---
+
+#### ÉPICO W-PROTO-PLAT-2: Kanban completo
+
+**Milestone:** `PROTO-WORKFLOW-PLATAFORMA`
+
+**Objetivo:** view com todos os épicos de todos os ROADMAPs configurados organizados por estado e milestone, numa única superfície de leitura.
+
+**Status:** 📋 Critérios definidos
+
+**Dependências:** W-PROTO-PLAT-1 (scaffold com leitura de ROADMAPs)
+
+### Funcionalidades:
+
+#### 2.1: Kanban de estados por milestone
+
+- **Descrição:** Colunas para todos os 8 estados, cards agrupados por milestone e atualizados ao recarregar a página.
+- **Critérios de Aceite:**
+  - Deve exibir todos os 8 estados como colunas (🌱 → ✅)
+  - Deve agrupar cards por milestone dentro de cada coluna; épicos órfãos ficam em grupo "Sem milestone"
+  - Cada card deve exibir: id, título e milestone de origem
+  - Deve consolidar épicos de todos os ROADMAPs configurados numa única view
+  - Deve atualizar ao recarregar a página (live refresh não obrigatório)
+  - Deve ser navegável com 20+ épicos ativos sem degradação visual
+
+---
+
+#### ÉPICO W-PROTO-PLAT-3: Ações de implementação
+
+**Milestone:** `PROTO-WORKFLOW-PLATAFORMA`
+
+**Objetivo:** ações contextuais nos cards de estados de execução (🔍/🏗️/🔀/✅) para o operador despachar, acompanhar e revisar sem precisar sair da plataforma.
+
+**Status:** 📋 Critérios definidos
+
+**Dependências:** W-PROTO-PLAT-2 (kanban com cards clicáveis)
+
+### Funcionalidades:
+
+#### 3.1: Dispatch para épicos em 🔍
+
+- **Descrição:** Ao clicar num card em 🔍, exibe prompt de dispatch clipboard-ready com o milestone e instrução de execução para colar no Claude Code Web.
+- **Critérios de Aceite:**
+  - Deve exibir prompt de dispatch clipboard-ready ao selecionar épico em 🔍
+  - O prompt deve identificar o milestone e indicar o alvo em linguagem natural (padrão `dispatch.md`)
+  - Deve ter botão de copiar para clipboard
+
+#### 3.2: Status e links para 🏗️, 🔀 e ✅
+
+- **Descrição:** Cards em 🏗️ exibem branch com link; cards em 🔀 exibem link para a PR; cards em ✅ exibem resumo sem ações.
+- **Critérios de Aceite:**
+  - Para 🏗️: deve exibir nome da branch associada com link para o GitHub
+  - Para 🔀: deve exibir link direto para a PR (lido da anotação `🔀 Em revisão — PR #N` no ROADMAP)
+  - Para ✅: deve exibir resumo do épico sem ações disponíveis
+
+---
+
+#### ÉPICO W-PROTO-PLAT-4: Direcionamento de refinamento
+
+**Milestone:** `PROTO-WORKFLOW-PLATAFORMA`
+
+**Objetivo:** ações contextuais nos cards de estados pré-execução (🌱/🧭/📐/📋) que orientam o operador sobre o próximo passo de refinamento e geram o prompt de sessão pronto para usar.
+
+**Status:** 📋 Critérios definidos
+
+**Dependências:** W-PROTO-PLAT-2 (kanban com cards clicáveis)
+
+### Funcionalidades:
+
+#### 4.1: Exibição de próximo passo por estado
+
+- **Descrição:** Ao clicar num card em estado pré-execução, exibe o que falta para avançar ao próximo estado com base nas definições de `planning_guidelines.md`.
+- **Critérios de Aceite:**
+  - Para 🌱: deve indicar que o próximo passo é refinamento com alvo 🧭 ou 📐 e listar os 6 arquivos essenciais da sessão
+  - Para 🧭/📐: deve indicar que o próximo passo é refinamento com alvo 📋 e listar os 6 arquivos essenciais
+  - Para 📋: deve indicar que o próximo passo é atingir 🔍 e apontar para `autonomous_readiness.md` como checklist do alvo
+
+#### 4.2: Geração de prompt de refinamento clipboard-ready
+
+- **Descrição:** Gera prompt de refinamento com o contexto mínimo necessário para abrir a sessão, sem executar o refinamento.
+- **Critérios de Aceite:**
+  - Deve gerar prompt incluindo: id do épico, estado atual, alvo de refinamento e lista dos arquivos a carregar na sessão
+  - Para épicos em 📋: prompt deve mencionar `autonomous_readiness.md` como checklist do alvo 🔍
+  - Deve ter botão de copiar para clipboard
+  - Não executa refinamento — apenas prepara o contexto para o operador iniciar manualmente
+
+---
+
+### ⏳ Fase MVP
+
+> **Milestones:** `MVP-WORKFLOW-PLATAFORMA` (W-MVP-PLAT-1..3) · `MVP-WORKFLOW-REFINADOR` (W-MVP-REF-1..2).
+
+#### ÉPICO W-MVP-PLAT-1: Fila de decisões automática
+
+**Milestone:** `MVP-WORKFLOW-PLATAFORMA`
+
+**Objetivo:** fila populada automaticamente por eventos de estado — épico chegou em 🔍, PR aberta, agente escalou bloqueio — sem que o operador monte a fila à mão.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** PROTO-WORKFLOW-PLATAFORMA (scaffold e kanban como base)
+
+### Funcionalidades (esboço):
+- **1.1 Detecção de eventos de estado** — monitora mudanças nos ROADMAPs e estado de PRs e gera itens de fila correspondentes.
+- **1.2 Shape mínimo de item de fila** — título, contexto, tipo (dispatch/review/escalação) e ação esperada.
+- **1.3 Ordenação e exibição da fila** — operador vê itens em ordem de prioridade; limpa no próprio ritmo.
+
+---
+
+#### ÉPICO W-MVP-PLAT-2: Chat focado por item
+
+**Milestone:** `MVP-WORKFLOW-PLATAFORMA`
+
+**Objetivo:** clicar num item da fila abre sessão com contexto pré-montado para aquele item específico — sem o operador montar o contexto manualmente.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** W-MVP-PLAT-1 (fila com itens clicáveis)
+
+### Funcionalidades (esboço):
+- **2.1 Montagem de contexto por tipo de item** — para dispatch: milestone + dispatch.md; para refinamento: épico + 6 arquivos essenciais; para revisão: PR + épicos do milestone.
+- **2.2 Abertura de chat com contexto carregado** — prompt pré-montado pronto para iniciar a sessão correspondente.
+
+---
+
+#### ÉPICO W-MVP-PLAT-3: Auto-regulação da fila
+
+**Milestone:** `MVP-WORKFLOW-PLATAFORMA`
+
+**Objetivo:** plataforma sinaliza quando a fila está próxima do limite e pausa criação de novos itens autônomos até o operador liberar espaço.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** W-MVP-PLAT-1 (fila existente)
+
+### Funcionalidades (esboço):
+- **3.1 Indicador de capacidade** — exibe contagem atual vs. limite (~20 itens); alerta visual ao se aproximar.
+- **3.2 Pausa de criação autônoma** — quando limite atingido, novos itens autônomos não são criados até o operador reduzir a fila.
+
+---
+
+#### ÉPICO W-MVP-REF-1: Refinador autônomo
+
+**Milestone:** `MVP-WORKFLOW-REFINADOR`
+
+**Objetivo:** processo de fundo que pega épicos disponíveis (🌱/📐) e avança o refinamento até onde consegue sem aprovação, tomando microdecisões proporcionais ao estágio. Quando trava, escala para a fila.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** MVP-WORKFLOW-PLATAFORMA (fila como destino de escalações e resultados)
+
+### Funcionalidades (esboço):
+- **1.1 Seleção de épico disponível** — identifica épicos em 🌱/📐 sem claim do operador e com dependências satisfeitas.
+- **1.2 Execução do refinamento autônomo** — avança o estado do épico aplicando as regras de planning_guidelines; toma microdecisões onde a visão é clara.
+- **1.3 Escalação ao travar** — quando encontra decisão que requer o operador, para e deposita item de fila com contexto.
+
+---
+
+#### ÉPICO W-MVP-REF-2: Parada limpa e registro
+
+**Milestone:** `MVP-WORKFLOW-REFINADOR`
+
+**Objetivo:** ao encerrar ciclo (por conclusão ou bloqueio), refinador deposita resultado na fila como item de decisão e não deixa trabalho órfão.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** W-MVP-REF-1 (refinador autônomo existente), W-MVP-PLAT-1 (fila como destino)
+
+### Funcionalidades (esboço):
+- **2.1 Item de resultado na fila** — ao concluir ou bloquear, cria item de fila descrevendo o que foi feito e o que falta.
+- **2.2 Registro de progresso** — atualiza estado do épico no ROADMAP ao encerrar ciclo; não deixa épico em estado inconsistente.
 
 ---
 
