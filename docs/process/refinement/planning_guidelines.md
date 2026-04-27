@@ -21,9 +21,9 @@ Definições trabalhadas para este projeto, no eixo **"quem usa"** (complementa 
 
 **Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais ao estágio. POC tolera Streamlit e gambiarras; Protótipo exige fluxo navegável pelo próprio dev; MVP exige que outro ser humano consiga usar sem tutorial ao vivo.
 
-## Processo de Refinamento com Claude Web
+## Sessão Estratégica de Refinamento
 
-Este projeto usa Claude Web como consultor estratégico para refinar épicos e discutir comportamentos. O processo é documentado aqui para garantir consistência.
+Sessão colaborativa com operador para decisões estruturais — quebrar visão em milestones, resolver tensões arquiteturais, definir escopo de fase. Caminho secundário; o caminho principal é a PM skill via Claude Code Web (acesso direto ao repo, sem upload manual de contexto).
 
 ### Input Esperado
 Você fornece ao Claude Web:
@@ -79,6 +79,21 @@ Claude Web gera prompts separados para Cursor executar:
 - PROMPT 3: docs/ARCHITECTURE.md (se necessário)
 
 Cada prompt é enxuto mas claro, deixando Cursor pensar também.
+
+### Rito de Encerramento de Sessão de Refinamento
+
+Antes de commitar, o agente apresenta:
+
+**Tópicos discutidos:**
+- [x] <tópico> → <resolução / onde documentado>
+- [x] <tópico> → <decisão tomada>
+
+**Itens em aberto (se houver):**
+- [ ] <item> → <próximo passo>
+
+**Regra:** item `[ ]` sem próximo passo bloqueia o commit. Operador
+decide na sessão: resolve, registra como épico/backlog, ou descarta
+explicitamente.
 
 ### Otimização do Workflow: Usando Cursor para Análises
 
@@ -173,10 +188,10 @@ Estado intermediário entre `🌱` e `📐`. Captura entendimento compartilhado 
 Estado intermediário útil quando um épico foi quebrado a partir de uma visão e as funcionalidades já emergiram, mas os critérios de aceite ainda não foram discutidos funcionalidade a funcionalidade. Não é executável por nenhum fluxo.
 
 **`📋 Critérios definidos`** — funcionalidades com critérios de aceite claros e testáveis.
-Épico tem funcionalidades delimitadas, critérios de aceite observáveis, trade-offs discutidos. **Suficiente para o fluxo manual via Cursor**, onde o desenvolvedor resolve ambiguidades de execução à medida que aparecem.
+Épico tem funcionalidades delimitadas, critérios de aceite observáveis, trade-offs discutidos. **Suficiente para implementação onde o implementador pode resolver ambiguidades de execução em tempo real.**
 
 **`🔍 Detalhes definidos`** — passou pelo checklist em `docs/process/refinement/autonomous_readiness.md`.
-Além dos critérios de aceite, tem contratos de dados explicitados, arquivos-alvo listados, mecanismo de integração descrito, acoplamentos verificados e escopo de testes definido. **Pré-requisito para o fluxo autônomo via Claude Code Web**, onde o agente não deve tomar decisões arquiteturais em tempo de implementação.
+Além dos critérios de aceite, tem contratos de dados explicitados, arquivos-alvo listados, mecanismo de integração descrito, acoplamentos verificados e escopo de testes definido. **Pré-requisito para implementação sem necessidade de julgamento arquitetural durante a sessão.**
 
 **`🏗️ Em andamento`** — épico em implementação.
 Permanece neste estado desde o momento em que o dev pega o épico até a RTE skill abrir a PR ao final do fluxo autônomo.
@@ -201,7 +216,7 @@ O Claude Web conduz as perguntas até chegar ao alvo declarado, sem parar em est
 
 - **Quanto contexto enviar:** pack inicial de 6 arquivos basta para alvos até `📋 Critérios definidos`; chegar a `🔍 Detalhes definidos` exige também inspeção de código e consulta a `autonomous_readiness.md`.
 - **Quais artefatos são produzidos:** funcionalidades, critérios, detalhes de execução — proporcionais ao alvo.
-- **Qual fluxo de execução o épico habilita ao final:** manual via Cursor a partir de `📋 Critérios definidos`; autônomo via Claude Code Web a partir de `🔍 Detalhes definidos`.
+- **Qual fluxo de execução o épico habilita ao final:** manual a partir de `📋 Critérios definidos`; autônomo a partir de `🔍 Detalhes definidos`.
 
 ### Quando Refinar um Épico
 
@@ -236,8 +251,8 @@ Os detalhes específicos de cada ajuste por estágio moram em `docs/process/refi
 
 - **`🌱 Visão`** — apenas objetivo. Aguarda refinamento. Nenhum fluxo de execução disponível.
 - **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento. Nenhum fluxo de execução disponível.
-- **`📋 Critérios definidos`** — critérios de aceite definidos. Apto ao fluxo manual via Cursor.
-- **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Apto ao fluxo autônomo via Claude Code Web.
+- **`📋 Critérios definidos`** — critérios de aceite definidos. Apto ao fluxo manual.
+- **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Apto ao fluxo autônomo.
 
 ### Estados de Execução
 
@@ -314,8 +329,8 @@ O checklist estratégico é a primeira linha de defesa — quando falha, a **EM 
 - **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
 - **`🧭 Jornada alinhada`** — objetivo refinado + rationale + glossário ancorado + acoplamentos sinalizados; jornada e escopo declinados (para milestone). Aguarda refinamento.
 - **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
-- **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
-- **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Pronto para fluxo autônomo via Claude Code Web.
+- **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual.
+- **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Pronto para fluxo autônomo.
 - **`🏗️ Em andamento`** — implementação em curso (até a RTE abrir a PR).
 - **`🔀 Em revisão`** — PR aberta, aguardando aprovação humana. Setado pela RTE ao abrir a PR.
 - **`✅ Implementado`** — ciclo de fechamento executado (ver `epic_completion.md`). Setado pela Cleanup skill após o merge.
@@ -572,8 +587,8 @@ Processo: Fazer → Validar → Commit → Iterar
 ### Antes de Começar
 1. Verifique dúvidas ou decisões em aberto
 2. Confirme o estado do épico no ROADMAP:
-   - **Fluxo manual via Cursor:** mínimo `📋 Critérios definidos`
-   - **Fluxo autônomo via Claude Code Web:** exige `🔍 Detalhes definidos` (checklist `autonomous_readiness.md` aplicado)
+   - **Fluxo manual:** mínimo `📋 Critérios definidos`
+   - **Fluxo autônomo:** exige `🔍 Detalhes definidos` (checklist `autonomous_readiness.md` aplicado)
 3. Alinhe o escopo com o usuário
 4. Ao iniciar, atualize o status do épico para `🏗️ Em andamento`
 

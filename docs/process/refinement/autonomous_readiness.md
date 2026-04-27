@@ -1,6 +1,6 @@
 # Autonomous Readiness Checklist
 
-> **Propósito:** este checklist descreve os itens que uma sessão de refinamento com alvo `🔍 Detalhes definidos` deve cobrir. Atingir `🔍 Detalhes definidos` é pré-requisito para o fluxo autônomo via Claude Code Web.
+> **Propósito:** este checklist descreve os itens que uma sessão de refinamento com alvo `🔍 Detalhes definidos` deve cobrir. Atingir `🔍 Detalhes definidos` é pré-requisito para o fluxo autônomo.
 
 ## Contexto
 
@@ -98,7 +98,7 @@ Sob demanda, quando uma sessão de refinamento declara alvo `🔍 Detalhes defin
 
 ## Saída
 
-Épico marcado como `🔍 Detalhes definidos` no ROADMAP correspondente (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`). Esse estado é o pré-requisito para o dispatch autônomo (`docs/process/autonomous/dispatch.md`). Épicos em `📋 Critérios definidos` continuam elegíveis para o fluxo manual via Cursor.
+Épico marcado como `🔍 Detalhes definidos` no ROADMAP correspondente (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`). Esse estado é o pré-requisito para o dispatch autônomo (`docs/process/autonomous/dispatch.md`). Épicos em `📋 Critérios definidos` continuam elegíveis para o fluxo manual.
 
 ## Referências
 
