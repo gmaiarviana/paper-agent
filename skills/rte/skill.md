@@ -134,14 +134,20 @@ Commitar este arquivo no **mesmo commit** que prepara a PR (ainda na branch `mil
 
 **6.5.b — Construir Seção 🎯 Validação (body da PR).**
 
-Template fixo, preencher os placeholders usando os dados coletados em **Passo 3** (`git diff --name-status main...HEAD`, `git log main..HEAD --oneline`) — não HEAD isolado. Varrer `current_implementation.md` (critérios PO ✅ por funcionalidade) e o ROADMAP (lista de **todos** os épicos do milestone):
+Template fixo, preencher os placeholders usando os dados coletados em **Passo 3** (`git diff --name-status main...HEAD`, `git log main..HEAD --oneline`) — não HEAD isolado. Varrer `current_implementation.md` (critérios PO ✅ por funcionalidade) e o ROADMAP (lista de **todos** os épicos do milestone).
+
+**Regra de escrita de critérios:** quando o critério envolve uma lista de itens (ex.: parâmetros obrigatórios, campos de um template), enumerar os itens diretamente no critério — não apenas referenciar o arquivo. Isso permite verificação item a item sem leitura de contexto estendido do arquivo-alvo.
 
 ```markdown
 ## 🎯 Validação (copie tudo abaixo e envie ao Copilot)
 
 Você é revisor técnico desta PR. Valide o diff (`main...HEAD`) contra os
-critérios abaixo. Para cada critério: ✅ (atende), ⚠️ (atende com
-ressalva — justifique), ❌ (não atende — aponte arquivo/linha).
+critérios abaixo. Para cada critério: ✅ (atende), ⚠️ (atende, mas há
+risco com cenário de falha real identificável — descreva a sessão que
+quebra), ❌ (não atende — aponte arquivo/linha).
+Observações de consistência/estilo sem cenário de falha → "Riscos adicionais
+(baixa prioridade)", não ⚠️ na tabela. ⚠️ sempre requer ação: corrigir
+antes do merge ou criar épico no backlog — nunca ignorar silenciosamente.
 Reporte em markdown.
 
 ### Contexto
@@ -165,7 +171,7 @@ Iterar sobre **todos** os épicos do milestone na ordem do milestone:
 
 ### Formato de retorno esperado
 - Tabela `Critério | Status | Observação`
-- Seção "Riscos adicionais" (opcional)
+- Seção "Riscos adicionais (baixa prioridade)" (para observações sem cenário de falha)
 ```
 
 **6.5.c — Body completo da PR.**
