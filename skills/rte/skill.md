@@ -123,12 +123,49 @@ Criar `validation-<milestone-id>.md` no diretório apropriado:
 - Milestone de produto → `products/<produto>/docs/validation-<milestone-id>.md`
 - Milestone de core/workflow → `docs/process/workflow/validation-<milestone-id>.md`
 
-Estrutura obrigatória (espelha `products/ensaio/docs/poc_validation.md` como referência de estilo):
-- Cabeçalho com público (dev revisor), quando usar, estrutura.
+**Regra anti-viés (não-negociável).** As entradas saem **apenas** dos critérios de aceite PO ✅ (em `current_implementation.md`) e dos comportamentos "não deve" do ROADMAP. **Não consultar** o diff (`git diff main...HEAD`), nomes de arquivo do código, assinatura de função, conteúdo de prompt no source, nem qualquer detalhe de implementação para decidir o que validar. Se o critério não está no ROADMAP, não vira entrada. O dev que executar este arquivo não deve precisar abrir nenhum arquivo de código-fonte.
+
+**Proibido em qualquer roteiro:**
+- "inspecionar `<arquivo>.py`", "confirmar em `git diff`", "verificar import", "rodar `grep -r`"
+- "abrir log e procurar prompt montado", "checar se YAML tem chave X"
+- Qualquer passo que peça leitura de código-fonte para aprovar/reprovar
+
+Esses checks já são feitos pelo Copilot no body da PR (Seção 🎯) e pelos gates QA/TL. O `validation-<id>.md` é exclusivamente experiência observável (UI, console, comando de terminal com output de tela).
+
+**Estrutura obrigatória** (referência de estilo: [templates/validation.md](templates/validation.md)):
+- Cabeçalho com público (dev revisor), quando usar, princípio anti-viés.
 - Seção "Preparação do ambiente" (checkout, venv, deps).
 - Seção "Testes unitários" (comandos determinísticos extraídos do Passo 6).
-- Um bloco por épico do milestone, com sub-seção por funcionalidade (`N.M — <nome>`), contendo "O que rodar" (comandos) + "O que observar" (comportamento esperado, derivado dos critérios PO ✅ e dos comportamentos "não deve" do ROADMAP).
+- Um bloco por épico do milestone, com sub-seção por funcionalidade (`N.M — <nome>`).
 - Seção final "Critérios de aprovação" com checklist agregado.
+
+**Contrato de cada roteiro de funcionalidade.** Para cada critério de aceite PO ✅, gerar **um** roteiro com quatro campos obrigatórios e literais:
+
+1. **Critério de aceite** — copiar literal do ROADMAP (sem parafrasear).
+
+2. **Gatilho** — sequência de ações exatas e copy-pasteáveis. Exemplos válidos:
+   - `Abra http://localhost:3000 no navegador.`
+   - `Cole exatamente este prompt no chat: "Quero estruturar um artigo sobre X. Métricas: tempo caiu de A para B."`
+   - `Clique no botão "Gerar" da seção "Introdução" no painel direito.`
+   - `Pressione F5 na aba do navegador.`
+   Exemplos inválidos: "envie uma mensagem qualquer", "interaja com o app", "teste o cenário", "experimente regenerar".
+
+3. **Resultado esperado** — o que aparece na tela, em texto literal sempre que possível. Exemplos válidos:
+   - `Cada bolha do chat exibe um destes labels exatos: "🎯 Orquestrador", "📐 Estruturador", "📐 Metodologista", "✍️ Writer", "👤 Você".`
+   - `O painel direito sai de "Aguardando proposta de estrutura..." para uma lista com pelo menos 3 seções, cada uma com badge "Clique em Gerar".`
+   - `O badge da seção muda de "Clique em Gerar" para "Rascunho" e o conteúdo markdown aparece abaixo do título.`
+   Exemplos inválidos: "comportamento conforme o esperado", "tudo funciona", "conversa flui naturalmente".
+
+4. **Sinal de falha** — o que indica que quebrou, em termos visíveis. Exemplos válidos:
+   - `Falha: bolha sem label, label diferente dos cinco listados, ou label vazio.`
+   - `Falha: painel direito continua mostrando "Aguardando proposta..." após 30 segundos, ou seções já existentes são sobrescritas ao gerar uma nova.`
+   - `Falha: traceback aparece no console do navegador, ou tela trava com overlay opaco que impede scroll do chat.`
+
+**Critérios subjetivos (estilo, tom, qualidade de escrita)** podem ter "Resultado esperado" em prosa, mas **devem incluir um exemplo positivo e um negativo** literais para o dev calibrar. Ex.: `Positivo: "Observo variação de ±5% sem IC. Recomendo: (a) calcular IC 95%, (b) teste t pareado." | Negativo (falha): "Vou analisar a metodologia."`.
+
+**Não enumerar corner cases.** Cobrir o caminho feliz de cada critério + os comportamentos "não deve" do ROADMAP. Se o milestone introduz invariante crítica que merece simulação adicional (ex.: erro de backend não pode comer mensagem do usuário), pode adicionar **um** roteiro extra explícito por funcionalidade — máximo. Não inventar variações.
+
+**Prompts de chat para apps conversacionais.** Quando a funcionalidade é validada por conversa em uma UI (Ensaio, Revelar), incluir o **texto literal do prompt** que o dev cola no chat — escrito pela RTE, com contexto fictício mas plausível, dimensionado para acionar o critério. Cada critério que envolva conversa precisa de pelo menos um prompt copy-pasteável. Não pedir ao dev para "escrever um prompt sobre X" — esse trabalho é da RTE.
 
 Commitar este arquivo no **mesmo commit** que prepara a PR (ainda na branch `milestone/<id>`); fica versionado junto com a entrega.
 
@@ -351,7 +388,7 @@ pytest -m integration             # se aplicável
 - ✅ Todas as funcionalidades de todos os épicos do milestone confirmadas com Dev/QA/TL/PO `✅` antes de rodar
 - ✅ Branch `milestone/<id>` publicada com push único e acessível
 - ✅ `current_implementation.md` marcado como RTE ✅ (no bloco "Status dos Gates (nível milestone)") com bloco "Resumo Final do Milestone"
-- ✅ `validation-<id>.md` versionado no repo (mesmo commit que abre a PR), cobrindo todos os épicos
+- ✅ `validation-<id>.md` versionado no repo (mesmo commit que abre a PR), cobrindo todos os épicos, com cada roteiro contendo Critério/Gatilho/Resultado/Falha literais e zero passos de inspeção de código-fonte
 - ✅ PR aberta com body contendo Seção 🎯 Validação completa, sem placeholders
 - ✅ Épicos do milestone transitados para `🔀 Em revisão` no(s) ROADMAP(s), com link da PR
 - ✅ Entrada appended em `skills/audit_log.jsonl` com participação das skills desta sessão
@@ -369,6 +406,9 @@ pytest -m integration             # se aplicável
 - ❌ Abriu PR sem Seção 🎯 Validação completa (sem critérios consolidados, com placeholders, sem link para validation-<id>.md)
 - ❌ Não transitou os épicos para `🔀 Em revisão` no ROADMAP após abrir a PR
 - ❌ Não appendou entrada em `skills/audit_log.jsonl`
+- ❌ Gerou `validation-<id>.md` com passos de inspeção de código (`git diff`, `grep`, "ler `<arquivo>.py`", "checar log do prompt montado") — viés de implementação proibido
+- ❌ Gerou roteiro com gatilho vago ("envie uma mensagem", "interaja com o app") ou resultado esperado em prosa não-literal ("funciona como esperado") — contrato Critério/Gatilho/Resultado/Falha literais é obrigatório
+- ❌ Pediu ao dev escrever o próprio prompt de chat para validar funcionalidade conversacional — RTE escreve o prompt literal
 - ❌ Tentou mergear automaticamente
 - ❌ Rodou testes (não é seu papel)
 - ❌ Inventou status de gate ou número de arquivos
@@ -378,5 +418,6 @@ pytest -m integration             # se aplicável
 **Ver também:**
 - README humano da skill → [README.md](README.md)
 - Template do relatório → [templates/delivery-report.md](templates/delivery-report.md)
+- Template do `validation-<id>.md` → [templates/validation.md](templates/validation.md)
 - Mensagem final compartilhada com fluxo manual → `docs/process/implementation/delivery.md`
 - Como o dev valida → `docs/process/autonomous/delivery.md`
