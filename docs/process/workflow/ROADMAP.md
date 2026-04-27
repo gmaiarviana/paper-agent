@@ -166,6 +166,23 @@ Cada épico percorre até oito estados. Os mesmos estados aplicam-se ao campo "S
   Visão pendentes de refinamento tático (alvo `🔍 Detalhes definidos`
   via PM skill ou via Claude Web).
 
+### PROTO-WORKFLOW-AJUSTES
+
+- **Objetivo:** consolidar dois ajustes de qualidade na fase Protótipo —
+  corrigir a criação de PR pela RTE para ser autônoma e com escopo
+  completo de todos os commits do milestone; desacoplar as descrições
+  dos estados de épico das ferramentas de execução e nomear formalmente
+  os dois tipos de sessão (implementação e refinamento).
+- **Estágio:** Protótipo
+- **Épicos agrupados:** W-PROTO-8, W-PROTO-9
+- **Dependências de core:** nenhuma
+- **Branch associada:** `milestone/proto-workflow-ajustes`
+- **Status dos épicos:** W-PROTO-8 🔍 Detalhes definidos, W-PROTO-9
+  🔍 Detalhes definidos
+- **Nota:** épicos refinados em 2026-04-27 na branch
+  `claude/refine-workflow-stage-ApETn`. Independentes entre si —
+  podem ser implementados em qualquer ordem.
+
 ### MVP-WORKFLOW
 
 - **Objetivo:** priorização autônoma rodando, materializada como POC
@@ -312,8 +329,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Protótipo
 
-> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1, 2, 3).
-> **Épicos órfãos (sem milestone):** W-PROTO-8, W-PROTO-9 — aguardam agrupamento em refinamento estratégico.
+> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1, 2, 3) · `PROTO-WORKFLOW-AJUSTES` (W-PROTO-8, W-PROTO-9).
 
 #### ÉPICO W-PROTO-DOC-1: Reescrita per-milestone de `docs/process/autonomous/`
 
@@ -1433,37 +1449,216 @@ documental, todos os critérios são textualmente verificáveis.
 **Migra de:** refinamento iniciado em 2026-04-24 na branch
 `claude/continue-workflow-implementation-5PKVa`.
 
-#### ÉPICO W-PROTO-8: RTE cria PR com escopo completo e confirmação de encerramento
+#### ÉPICO W-PROTO-8: RTE cria PR com escopo completo e encerramento estruturado
 
-**Milestone:** a definir em refinamento estratégico
+**Milestone:** `PROTO-WORKFLOW-AJUSTES`
 
-**Objetivo:** garantir que a RTE skill crie a PR automaticamente ao final de cada sessão autônoma, com body refletindo o escopo de **todos** os commits da branch (não apenas o primeiro), precedida de confirmação explícita de encerramento de sessão. Elimina o risco de o dev abrir a PR manualmente sem o body padronizado com a Seção 🎯 Validação.
+**Objetivo:** garantir que a RTE skill crie a PR de forma autônoma e confiável ao final de cada sessão de implementação, com body refletindo o escopo de **todos** os commits do milestone (não apenas o primeiro), precedida de output estruturado mostrando o que está sendo entregue. Paralelamente, formalizar em `planning_guidelines.md` o rito de encerramento de sessão de **refinamento** — padrão análogo pelo qual o agente confirma, antes de commitar docs atualizados, que todos os tópicos discutidos tiveram resolução documentada.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PROTO-5 mergeado (introduziu a criação de PR pela RTE; este épico corrige a materialização)
+**Dependências:** W-PROTO-5 mergeado (introduziu a criação de PR pela RTE; este épico corrige e complementa a materialização)
 
-### Funcionalidades (esboço):
-- **8.1 Diagnóstico e correção da invocação de `mcp__github__create_pull_request`** — identificar por que a RTE não está criando a PR na prática; corrigir a chamada ou o fluxo de autenticação/permissão.
-- **8.2 Body da PR reflete escopo de todos os commits da branch** — construído a partir de `git diff main...HEAD` (todos os commits do milestone), não do HEAD isolado. Quando o dev abre a PR manualmente, o GitHub mostra apenas o primeiro commit; a RTE precisa construir o body completo via API independentemente do comportamento padrão do GitHub.
-- **8.3 Confirmação explícita antes de criar a PR** — RTE exibe resumo do que vai criar (milestone, épicos, número de commits, diff summary) e aguarda confirmação do dev antes de chamar `mcp__github__create_pull_request`. Marca o encerramento explícito da sessão autônoma.
+### Funcionalidades:
+
+#### 8.1 Diagnóstico e correção da invocação de `mcp__github__create_pull_request`
+
+- **Descrição:** Identificar por que a RTE não está criando a PR de forma autônoma na prática e corrigir o Passo 6.5.d da skill. A skill já descreve a invocação, mas execuções reais evidenciaram que a PR está sendo criada manualmente.
+- **Critérios de aceite:**
+  - Deve identificar a causa-raiz da falha (parâmetro ausente, autenticação, fallback não acionado, ou outro)
+  - Deve atualizar Passo 6.5.d com parâmetros obrigatórios explícitos (`title`, `head`, `base`, `body`) e qualquer flag adicional identificada como necessária
+  - Deve garantir que o fallback `gh pr create` tem parâmetros equivalentes documentados
+  - Próximo milestone autônomo deve encerrar com PR criada pela RTE sem intervenção manual
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `skills/rte/skill.md` — Passo 6.5.d
+  - **O que inspecionar durante implementação:** parâmetros exatos de `mcp__github__create_pull_request` (title obrigatório?); erros de escopo/permissão do token; se a causa é a ausência do parâmetro `title` (não mencionado explicitamente em 6.5.d); chamadas reais ao tool no histórico de sessões anteriores como referência de parâmetros funcionais
+  - **Template de referência:** chamadas reais a `mcp__github__create_pull_request` no histórico de sessões desta branch
+  - **Acoplamentos verificados:** somente `skills/rte/skill.md` — documental, sem código executável
+  - **Dependências de ordem:** primeiro a executar — 8.2 e 8.3.a dependem da invocação funcionando para serem testáveis
+- **Escopo de teste:**
+  - **Validação manual:** próximo milestone autônomo cria PR sem intervenção do dev; URL da PR aparece no output da RTE
+
+#### 8.2 Body da PR reflete escopo de todos os commits do milestone (main...HEAD)
+
+- **Descrição:** O body da PR deve ser construído a partir dos dados coletados em Passo 3 (`git diff main...HEAD`), cobrindo todos os commits do milestone. O Passo 3 já coleta os dados corretos; Passo 6.5.b e 6.5.c precisam instruir explicitamente que usam esses dados — não HEAD isolado nem o template padrão do GitHub.
+- **Critérios de aceite:**
+  - Deve Passo 6.5.c referenciar explicitamente os dados do Passo 3 como fonte para o body
+  - Deve a Seção 🎯 Validação consolidar critérios de aceite de **todos** os épicos do milestone (não apenas o primeiro)
+  - Não deve conter `<...>` (placeholders) no output final — instrução reforçada em 6.5.c
+  - PR do próximo milestone deve conter todos os N épicos no body
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `skills/rte/skill.md` — Passo 6.5.b e Passo 6.5.c
+  - **Contratos/shapes:**
+    - Instrução em 6.5.c: "usar os dados coletados em Passo 3 (`git diff --name-status main...HEAD`, `git log main..HEAD --oneline`) para construir o body — não HEAD isolado"
+    - Seção 🎯 Validação: iterar sobre **todos** os épicos do milestone; consolidar critérios PO ✅ de cada épico na ordem do milestone
+  - **Template de referência:** Passo 3 da própria skill (coleta correta já existe) como modelo da origem dos dados
+  - **Acoplamentos verificados:** somente `skills/rte/skill.md`
+  - **Dependências de ordem:** independente de 8.1 em implementação; testável apenas após 8.1 funcionar
+- **Escopo de teste:**
+  - **Validação manual:** PR criada tem Seção 🎯 com critérios de todos os épicos do milestone; body não tem placeholders
+
+#### 8.3.a Output estruturado da RTE antes de criar a PR (sessão de implementação)
+
+- **Descrição:** Antes de executar Passo 6.5.d (criar PR), a RTE emite no output da sessão um resumo estruturado do que está sendo entregue: milestone, épicos, commits, arquivos. Não bloqueante — puramente informativo para o dev que recebe a notificação.
+- **Critérios de aceite:**
+  - Deve exibir resumo com: milestone ID, lista de épicos, número de commits, número de arquivos modificados — dados reais do Passo 3
+  - Não deve aguardar input do dev (não bloqueante)
+  - Deve deixar explícito que a PR será criada a seguir
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `skills/rte/skill.md` — adicionar sub-passo entre Passo 6.5.b e Passo 6.5.d
+  - **Contratos/shapes — formato do resumo:**
+    ```
+    📦 Entregando milestone <ID>
+    - Épicos: <lista de IDs>
+    - Commits: <N> (<log --oneline resumido>)
+    - Arquivos: <N total>
+    Criando PR...
+    ```
+  - **Integração:** output emitido como texto da sessão; parte da sequência do Passo 6.5
+  - **Template de referência:** mensagem de aborto do Passo 1 como modelo de output estruturado da skill
+  - **Acoplamentos verificados:** somente `skills/rte/skill.md`
+  - **Dependências de ordem:** pode ser implementado antes de 8.1; testável apenas após 8.1 funcionar
+- **Escopo de teste:**
+  - **Validação manual:** output da sessão RTE contém o resumo antes da URL da PR; nenhum placeholder
+
+#### 8.3.b Rito de encerramento de sessão de refinamento
+
+- **Descrição:** Documentar em `planning_guidelines.md` o padrão de encerramento de sessão de refinamento. Antes de commitar atualizações de ROADMAP, o agente apresenta: (a) tópicos discutidos e como cada um foi resolvido ou documentado; (b) itens que ficaram em aberto com próximo passo explícito. Regra: item sem resolução documentada bloqueia o commit.
+- **Critérios de aceite:**
+  - Deve `planning_guidelines.md` ter seção "Rito de Encerramento de Sessão de Refinamento" após a seção "Output Gerado"
+  - Deve o checklist cobrir: tópicos discutidos × resolução/destino; itens abertos × próximo passo
+  - Deve a regra "não commita com item aberto sem próximo passo" estar explícita
+  - Deve o formato ser uma checklist de leitura rápida (uma linha por tópico; tópicos menores podem ser agrupados)
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `docs/process/refinement/planning_guidelines.md` — nova seção após "Output Gerado"
+  - **Contratos/shapes — formato do checklist:**
+    ```markdown
+    ### Rito de Encerramento de Sessão de Refinamento
+
+    Antes de commitar, o agente apresenta:
+
+    **Tópicos discutidos:**
+    - [x] <tópico> → <resolução / onde documentado>
+    - [x] <tópico> → <decisão tomada>
+
+    **Itens em aberto (se houver):**
+    - [ ] <item> → <próximo passo>
+
+    **Regra:** item `[ ]` sem próximo passo bloqueia o commit. Operador
+    decide na sessão: resolve, registra como épico/backlog, ou descarta
+    explicitamente.
+    ```
+  - **Integração:** padrão descrito em doc de refinamento; sem integração com skills de implementação
+  - **Template de referência:** seção "Output Gerado" da mesma `planning_guidelines.md` como modelo de nível de detalhe; checklist de gates de `current_implementation.md` como modelo de formato
+  - **Acoplamentos verificados:** somente `docs/process/refinement/planning_guidelines.md` — documental
+  - **Dependências de ordem:** independente das demais funcionalidades do épico
+- **Escopo de teste:**
+  - **Validação manual:** a sessão de refinamento que implementar este épico aplica o rito ao encerrar; verificar que todos os tópicos discutidos têm linha no checklist
 
 ---
 
-#### ÉPICO W-PROTO-9: Desacoplar descrição dos estados 📋 e 🔍 do agente de execução
+#### ÉPICO W-PROTO-9: Desacoplar estados de épico das ferramentas + nomear tipos de sessão
 
-**Milestone:** a definir em refinamento estratégico
+**Milestone:** `PROTO-WORKFLOW-AJUSTES`
 
-**Objetivo:** remover a âncora "para Cursor" / "para Claude Code Web" das descrições dos estados 📋 Critérios definidos e 🔍 Detalhes definidos. Os estados passam a expressar **grau de detalhe e tipo de ambiguidade** resolvida pelo refinamento — independente da ferramenta que implementa. A escolha do fluxo (manual ou autônomo) continua sendo determinada pelo estado do épico, mas a descrição não instrui qual agente usar.
+**Objetivo:** (a) remover das descrições dos estados `📋` e `🔍` a âncora nas ferramentas específicas ("via Cursor" / "via Claude Code Web"), tornando os estados expressão de grau de detalhe e tipo de ambiguidade resolvida; (b) eliminar a redundância do bloco de estados copiado em todos os ROADMAPs, consolidando a definição em um único lugar com referência por link; (c) nomear formalmente os dois tipos de sessão (implementação e refinamento) em `CONSTITUTION.md`.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:** nenhuma
 
-### Funcionalidades (esboço):
-- **9.1 Atualizar descrições em `docs/CONSTITUTION.md` e `docs/process/refinement/planning_guidelines.md`** — 📋 passa a descrever "critérios de aceite definidos; suficiente para implementação onde ambiguidades de execução podem ser resolvidas em tempo real pelo implementador"; 🔍 passa a descrever "detalhes de execução fechados; suficiente para implementação sem necessidade de julgamento arquitetural durante a sessão".
-- **9.2 Atualizar referências em docs de processo** — varrer `docs/process/autonomous/`, `docs/process/workflow/ROADMAP.md`, skill.md de cada gate e demais arquivos que descrevem os fluxos como "via Cursor" ou "via Claude Code Web"; substituir por linguagem centrada no grau de detalhe do épico.
-- **9.3 Validar consistência** — varredura por "Cursor" em contexto de gate de execução; confirmar que nenhum doc instrui escolher o fluxo pelo agente em vez de pelo estado do épico.
+### Funcionalidades:
+
+#### 9.1 Atualizar descrição de 📋 e 🔍 nos docs canônicos
+
+- **Descrição:** Substituir "via Cursor" e "via Claude Code Web" das descrições dos estados `📋 Critérios definidos` e `🔍 Detalhes definidos` em `planning_guidelines.md` e `CONSTITUTION.md`. As seções que descrevem os **fluxos** ("Manual (Cursor)", "Autônomo (Claude Code Web)" em §1 "Fluxos Disponíveis") **não mudam** — a âncora de ferramenta é válida na descrição dos fluxos, não na descrição dos estados.
+- **Critérios de aceite:**
+  - `planning_guidelines.md`: `📋` não menciona "via Cursor" na descrição do estado; `🔍` não menciona "via Claude Code Web" na descrição do estado
+  - `CONSTITUTION.md`: "Alvo `📋` basta para o fluxo manual" (sem "via Cursor"); "Alvo `🔍` é pré-requisito do fluxo autônomo" (sem "via Claude Code Web")
+  - Seções "Fluxos Disponíveis" e "Como Implementamos" mantêm "Cursor" e "Claude Code Web" como labels dos fluxos — não mudam
+- **Detalhes de execução:**
+  - **Arquivos a modificar:**
+    - `docs/process/refinement/planning_guidelines.md` — seção "Estados de Refinamento", definições de `📋` e `🔍`
+    - `docs/CONSTITUTION.md` — §1 "Como Refinamos", bullets de alvo `📋` e `🔍`
+  - **Contratos/shapes — novas descrições:**
+    - `📋` em `planning_guidelines.md`: "**Suficiente para implementação onde o implementador pode resolver ambiguidades de execução em tempo real.**" (remover "para o fluxo manual via Cursor")
+    - `🔍` em `planning_guidelines.md`: "**Pré-requisito para implementação sem necessidade de julgamento arquitetural durante a sessão.**" (remover "para o fluxo autônomo via Claude Code Web")
+    - `CONSTITUTION.md`: "Alvo `📋 Critérios definidos` basta para o fluxo manual." (remover "via Cursor"); "Alvo `🔍 Detalhes definidos` é pré-requisito do fluxo autônomo;" (remover "via Claude Code Web"; manter restante da linha)
+  - **Template de referência:** descrições dos estados `🌱`, `🧭` e `📐` em `planning_guidelines.md` — nenhum menciona ferramenta específica; servem como modelo de linguagem
+  - **Acoplamentos verificados:** documental, sem imports cross-arquivo
+  - **Dependências de ordem:** primeiro a executar — 9.2 depende da fonte canônica estar atualizada
+- **Escopo de teste:**
+  - `grep -n "via Cursor\|via Claude Code Web" docs/process/refinement/planning_guidelines.md docs/CONSTITUTION.md` → zero resultados nas linhas das descrições de estados (pode retornar resultados em seções de fluxo — esperado e correto)
+
+#### 9.2 Substituir bloco de estados nos 6 ROADMAPs por linha de referência
+
+- **Descrição:** Cada ROADMAP tem um bloco "### 🧭 Estados dos Épicos" com ~10 linhas repetindo as descrições dos estados. Substituir por uma linha de referência para `planning_guidelines.md`. Elimina redundância estrutural — próxima mudança nas descrições precisará editar apenas 1 arquivo.
+- **Critérios de aceite:**
+  - Nenhum dos 6 ROADMAPs tem bloco "### 🧭 Estados dos Épicos" com conteúdo duplicado
+  - Todos têm linha de referência com path relativo correto para `planning_guidelines.md`
+  - Nota de retroatividade (`> **Retroatividade:**...`) preservada onde existir — não faz parte do bloco de estados
+- **Detalhes de execução:**
+  - **Arquivos a modificar:**
+    - `docs/ROADMAP.md`
+    - `docs/process/workflow/ROADMAP.md`
+    - `products/ensaio/ROADMAP.md`
+    - `products/revelar/ROADMAP.md`
+    - `products/prisma-verbal/ROADMAP.md`
+    - `products/produtor-cientifico/ROADMAP.md`
+  - **Contratos/shapes:** remover o bloco completo (desde `### 🧭 Estados dos Épicos` até o separador seguinte) e substituir por:
+    ```markdown
+    > **🧭 Estados dos épicos:** ver [planning_guidelines.md](<path-relativo>) para definições completas.
+    ```
+    Paths relativos por arquivo:
+    - `docs/ROADMAP.md` → `process/refinement/planning_guidelines.md`
+    - `docs/process/workflow/ROADMAP.md` → `../refinement/planning_guidelines.md`
+    - `products/*/ROADMAP.md` → `../../docs/process/refinement/planning_guidelines.md`
+  - **Template de referência:** notas de referência no topo de cada ROADMAP (`> **📖 Status Atual:** ...`) como modelo de formato de linha de referência
+  - **Acoplamentos verificados:** nenhum arquivo importa o conteúdo dos blocos; puramente descritivos
+  - **Dependências de ordem:** após 9.1 (fonte canônica atualizada antes de eliminar as cópias)
+- **Escopo de teste:**
+  - `grep -rn "### 🧭 Estados dos Épicos" docs/ products/ --include="*.md"` → zero resultados
+  - Verificar que os links de referência resolvem corretamente (path relativo válido por arquivo)
+
+#### 9.3 Varrer docs de processo por tool-name no contexto de estado
+
+- **Descrição:** Varrer `docs/process/autonomous/` e skills dos gates por ocorrências de "via Cursor" / "via Claude Code Web" **no contexto de descrição de estado de épico** (não no contexto de descrição de fluxo — essas permanecem). Corrigir as ocorrências encontradas.
+- **Critérios de aceite:**
+  - `grep -rn "📋.*Cursor\|🔍.*Claude Code\|Cursor.*📋\|Claude Code.*🔍" docs/ skills/ --include="*.md"` → zero resultados
+  - Ocorrências de "Cursor" e "Claude Code Web" em seções que descrevem fluxos (não estados) permanecem intactas
+- **Detalhes de execução:**
+  - **Arquivos suspeitos a inspecionar:**
+    - `docs/process/autonomous/workflow.md` — seção "SCRUM MASTER SKILL" menciona "Sessão de refinamento com alvo `🔍 Detalhes definidos` é feita manualmente via Claude Web" → verificar se há âncora ao state; corrigir se houver
+    - `docs/process/autonomous/overview.md` — tabela de diferenças: verificar referências a Cursor/Claude Code Web no contexto de estados
+    - Skills dos gates — verificar se alguma instrui escolher fluxo pelo agente em vez de pelo estado
+  - **Arquivos a criar:** nenhum
+  - **Acoplamentos verificados:** edições auto-contidas em docs de processo
+  - **Dependências de ordem:** após 9.1 e 9.2
+- **Escopo de teste:**
+  - Grep descrito nos critérios de aceite → zero resultados
+
+#### 9.4 Nomear os dois tipos de sessão em CONSTITUTION.md
+
+- **Descrição:** Adicionar parágrafo curto em `CONSTITUTION.md` §1 "Como Implementamos" nomeando formalmente os dois tipos de sessão. Estabelece o conceito canonicamente e aponta para os docs de cada fluxo; não duplica conteúdo.
+- **Critérios de aceite:**
+  - `CONSTITUTION.md` §1 tem os dois tipos de sessão nomeados com links para seus docs de fluxo
+  - Cada tipo cobre: natureza (autônoma/colaborativa), o que produz, como encerra
+  - Parágrafo é curto (4-6 linhas) — não duplica conteúdo dos docs linkados
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `docs/CONSTITUTION.md` — inserir em "Como Implementamos", após o bullet "Commits estratégicos (não obrigatórios)"
+  - **Contratos/shapes — novo bloco:**
+    ```markdown
+    **Tipos de sessão:**
+    - **Sessão de implementação** — autônoma; produz código e docs; encerra com PR criada pela RTE. Detalhes: `docs/process/autonomous/workflow.md`.
+    - **Sessão de refinamento** — colaborativa (operador + agente); produz atualizações de ROADMAP; encerra com rito de encerramento de sessão (`docs/process/refinement/planning_guidelines.md`).
+    ```
+  - **Integração:** documental auto-contida; `workflow.md` e `planning_guidelines.md` existem como destinos dos links
+  - **Template de referência:** bullets existentes em "Como Implementamos" como modelo de estilo e brevidade
+  - **Acoplamentos verificados:** destinos dos links existem
+  - **Dependências de ordem:** independente das demais funcionalidades; pode ir por último
+- **Escopo de teste:**
+  - `grep -n "Tipos de sessão" docs/CONSTITUTION.md` → 1 resultado
+  - Links dos dois docs resolvem
 
 ---
 
@@ -1491,8 +1686,10 @@ via Claude Code Web (a gatilhar pelo operador). W-PROTO-DOC-1/2/3
 `PROTO-WORKFLOW-DOC`, milestone refinado a `🧭 Jornada alinhada` em
 2026-04-25 (branch `claude/refine-workflow-milestone-N22pL`); os
 épicos individuais permanecem em `🌱 Visão` pendentes de refinamento
-tático. Os dois milestones da fase Protótipo são independentes e
-podem ser executados em qualquer ordem.
+tático. Os três milestones da fase Protótipo são independentes entre si e
+podem ser executados em qualquer ordem. W-PROTO-8 e W-PROTO-9 formam
+`PROTO-WORKFLOW-AJUSTES`, refinados em 2026-04-27 na branch
+`claude/refine-workflow-stage-ApETn`; ambos em `🔍 Detalhes definidos`.
 
 A quebra da fase Protótipo do Workflow em dois milestones
 (`PROTO-WORKFLOW-ENCERRAMENTO` e `PROTO-WORKFLOW-DOC`) foi aplicada
@@ -1530,5 +1727,5 @@ não pegou). Primeiro instrumento de detecção é o próprio checklist
 estratégico introduzido nesta reforma.
 
 Épicos MVP ainda não foram desenhados — ficam a definir em refinamento
-estratégico após ambos os milestones da fase Protótipo fecharem, com
+estratégico após os milestones da fase Protótipo fecharem, com
 aprendizado real no bolso.
