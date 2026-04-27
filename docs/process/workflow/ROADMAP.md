@@ -166,8 +166,8 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Épicos agrupados:** W-PROTO-8, W-PROTO-9
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-ajustes`
-- **Status dos épicos:** W-PROTO-8 🏗️ Em andamento, W-PROTO-9
-  🏗️ Em andamento
+- **Status dos épicos:** W-PROTO-8 🔀 Em revisão — PR #93, W-PROTO-9
+  🔀 Em revisão — PR #93
 - **Nota:** épicos refinados em 2026-04-27 na branch
   `claude/refine-workflow-stage-ApETn`. Independentes entre si —
   podem ser implementados em qualquer ordem.
