@@ -41,8 +41,8 @@ foreach ($line in (Get-Content $envFile)) {
         continue
     }
     Set-Item -Path "Env:$k" -Value $v
-    if ($k -eq 'ANTHROPIC_API_KEY_BACKEND') {
-        Write-Host "[OK] ANTHROPIC_API_KEY_BACKEND carregada" -ForegroundColor Green
+    if ($k -in @('ANTHROPIC_API_KEY_BACKEND', 'OPENWEBUI_API_KEY', 'OPENWEBUI_BASE_URL')) {
+        Write-Host "[OK] $k carregada" -ForegroundColor Green
     }
 }
 Remove-Item Env:ANTHROPIC_BASE_URL -ErrorAction SilentlyContinue

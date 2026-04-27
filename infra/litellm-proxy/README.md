@@ -3,10 +3,12 @@
 Setup local opcional que coloca um proxy [LiteLLM](https://github.com/BerriAI/litellm)
 entre o **Claude Code** (CLI da Anthropic) e a API real, permitindo:
 
-- Trocar o backend Anthropic por outro provedor compatível (ex: OpenWebUI, Azure
-  OpenAI, Ollama) **sem mexer no Claude Code**.
-- Logar/auditar todas as requests.
-- Cachear, aplicar rate limit, observar uso por modelo.
+- Rodar o Claude Code contra um backend OpenAI-compatible (default:
+  **OpenWebUI da Atlântico** em `chat.alia.atlantico.com.br`) sem o time
+  precisar de chave Anthropic individual. LiteLLM traduz Anthropic ↔ OpenAI
+  (incluindo tool calls).
+- Trocar de provedor (Anthropic, Azure, Ollama, etc) editando só o YAML.
+- Logar/auditar todas as requests, aplicar rate limit, observar uso por modelo.
 
 > **Independente do projeto.** Esta pasta é uma ferramenta de desenvolvimento.
 > Pode ser apagada inteira sem quebrar o `paper-agent`.
@@ -18,7 +20,9 @@ entre o **Claude Code** (CLI da Anthropic) e a API real, permitindo:
 - Windows + PowerShell 5+
 - Python 3.10+ com `venv` criada na raiz do projeto (`.venv`)
 - Claude Code instalado (`npm i -g @anthropic-ai/claude-code` ou similar)
-- Uma chave válida da Anthropic (ou de qualquer outro backend compatível)
+- Uma chave do **OpenWebUI** (default) — gerar em
+  `https://chat.alia.atlantico.com.br` → Settings → Account → API Keys.
+  Alternativamente, chave da Anthropic se trocar o backend no YAML.
 
 ---
 
@@ -42,13 +46,21 @@ pip install -r infra\litellm-proxy\requirements.txt
 No `.env` da raiz (use `.env.example` como base) defina:
 
 ```
-ANTHROPIC_API_KEY_BACKEND=sk-ant-api03-...    # chave real do backend
-ANTHROPIC_BASE_URL=http://localhost:4000      # opcional, só pra clientes Python
+# Backend OpenWebUI (default)
+OPENWEBUI_API_KEY=sk-...                            # chave do OpenWebUI
+OPENWEBUI_BASE_URL=https://chat.alia.atlantico.com.br/api
+
+# Opcional: roteia clientes SDK/CLI pro proxy local
+ANTHROPIC_BASE_URL=http://localhost:4000
 ```
 
 A variável `ANTHROPIC_BASE_URL` é **lida apenas por clientes** (SDK Python,
 Claude Code). O script `start-proxy.ps1` ignora ela ao iniciar o LiteLLM —
 caso contrário, o proxy chamaria a si mesmo em loop.
+
+> Se quiser voltar pro backend Anthropic direto, edite `litellm-config.yaml`
+> trocando `model: openai/...` por `model: anthropic/claude-*` e
+> `api_key: os.environ/OPENWEBUI_API_KEY` por `os.environ/ANTHROPIC_API_KEY_BACKEND`.
 
 ---
 
@@ -108,15 +120,23 @@ $env:PYTHONIOENCODING = "utf-8"; $env:PYTHONUTF8 = "1"
 ```
 
 ### "Unauthorized" / 401 / "API key invalid"
-A chave em `ANTHROPIC_API_KEY_BACKEND` no `.env` está errada ou expirada. Teste
-direto com a Anthropic:
+A chave em `OPENWEBUI_API_KEY` no `.env` está errada ou expirada. Teste direto
+no OpenWebUI:
 ```powershell
-curl https://api.anthropic.com/v1/messages -H "x-api-key: sk-ant-..." -H "anthropic-version: 2023-06-01" -H "content-type: application/json" -d '{"model":"claude-haiku-4-5-20251001","max_tokens":16,"messages":[{"role":"user","content":"ok"}]}'
+curl https://chat.alia.atlantico.com.br/api/chat/completions `
+  -H "Authorization: Bearer sk-..." -H "Content-Type: application/json" `
+  -d '{"model":"ollama/ministral-3:14b","messages":[{"role":"user","content":"ok"}]}'
 ```
+
+### Modelo retorna 404 / "model not found"
+O nome em `litellm-config.yaml` (`openai/ollama/ministral-3:14b`) precisa
+existir em `https://chat.alia.atlantico.com.br/api/models`. Lista atual:
+- `ollama/llama3.2:3b` (rápido, leve)
+- `ollama/ministral-3:14b` (default — texto e instruções)
 
 ### Quero apagar tudo
 1. Apague esta pasta `infra/litellm-proxy/`.
-2. Remova `ANTHROPIC_API_KEY_BACKEND` e `ANTHROPIC_BASE_URL` do `.env`.
+2. Remova `OPENWEBUI_API_KEY`, `OPENWEBUI_BASE_URL` e `ANTHROPIC_BASE_URL` do `.env`.
 3. `pip uninstall litellm litellm-proxy-extras`
 
 ---
@@ -132,20 +152,22 @@ curl https://api.anthropic.com/v1/messages -H "x-api-key: sk-ant-..." -H "anthro
 │ localhost:   │     resposta Anthropic     │                    │
 │ 4000         │                            └─────────┬──────────┘
 └──────────────┘                                      │
-                                                      │ POST /v1/messages
-                                                      │ x-api-key: <chave real>
+                                                      │ POST /chat/completions
+                                                      │ Authorization: Bearer <chave>
                                                       ▼
-                                           ┌────────────────────┐
-                                           │  api.anthropic.com │
-                                           │  (ou OpenWebUI,    │
-                                           │   Azure, Ollama…)  │
-                                           └────────────────────┘
+                                           ┌────────────────────────────┐
+                                           │  chat.alia.atlantico.com.br│
+                                           │  /api  (OpenWebUI default) │
+                                           │                            │
+                                           │  ou api.anthropic.com,     │
+                                           │  Azure, Ollama local…      │
+                                           └────────────────────────────┘
 ```
 
 A configuração do roteamento está em [`litellm-config.yaml`](./litellm-config.yaml).
-O wildcard `claude-*` cobre todos os modelos da família Claude. Para trocar de
-backend (ex: OpenWebUI), edite só esse arquivo — o Claude Code não precisa
-saber.
+O wildcard `claude-*` casa qualquer model_name que o Claude Code envie e
+roteia tudo pro backend único definido lá. Para trocar de backend, edite só
+esse arquivo — o Claude Code não precisa saber.
 
 ---
 

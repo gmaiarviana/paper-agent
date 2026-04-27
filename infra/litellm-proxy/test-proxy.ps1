@@ -24,18 +24,21 @@ try {
 Write-Host ""
 Write-Host "=== TESTE 2: POST /v1/messages (formato Anthropic) ===" -ForegroundColor Cyan
 
+# O LiteLLM proxy roda sem master_key, entao o x-api-key do cliente eh ignorado.
+# Qualquer string serve. Mas vamos puxar a chave real do backend pra ficar realista.
 $apiKey = $null
 foreach ($line in (Get-Content $envFile)) {
     if ($line -match '^\s*#' -or $line -match '^\s*$') { continue }
     $parts = $line -split '=', 2
-    if ($parts[0].Trim() -eq 'ANTHROPIC_API_KEY_BACKEND') {
+    $k = $parts[0].Trim()
+    if ($k -in @('OPENWEBUI_API_KEY', 'ANTHROPIC_API_KEY_BACKEND')) {
         $apiKey = $parts[1].Trim().Trim('"')
         break
     }
 }
 
 if (-not $apiKey) {
-    Write-Host "[FAIL] ANTHROPIC_API_KEY_BACKEND nao encontrada no .env" -ForegroundColor Red
+    Write-Host "[FAIL] nenhuma chave de backend (OPENWEBUI_API_KEY ou ANTHROPIC_API_KEY_BACKEND) encontrada no .env" -ForegroundColor Red
     exit 1
 }
 
