@@ -25,10 +25,9 @@ Ensaio é **produto próprio com app próprio**, paralelo ao Revelar. Compartilh
 
 ## Status
 
-Protótipo em implementação (milestone PROTO-ENSAIO):
 - ✅ POC-ENSAIO concluída (C-ENSAIO-2, E-POC-1, E-POC-2, E-POC-3)
-- Stack migrada de Streamlit para **Reflex** (ADR em `docs/adr/001-stack-do-prototipo.md`)
-- Rascunho progressivo por seção, Metodologista integrado
+- ✅ PROTO-ENSAIO concluído (E-PROTO-1, E-PROTO-2, E-PROTO-3) — stack em **Reflex** (ADR em `docs/adr/001-stack-do-prototipo.md`), rascunho progressivo por seção, Metodologista integrado em modo provocação
+- 🌱 Próximos: PROTO-ENSAIO-2 (transparência de raciocínio), PROTO-ENSAIO-3 (qualidade por seção), MVP-ENSAIO
 
 ## Executar localmente
 
