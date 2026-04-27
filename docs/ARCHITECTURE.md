@@ -86,21 +86,28 @@ Produtos são **serviços desacoplados** que consomem core via APIs.
 
 ### Padrões de composição Core ↔ Produto
 
-Dois padrões consolidados pela POC do Ensaio, aplicáveis a futuros produtos:
+Padrões consolidados pelos milestones do Ensaio (POC e Protótipo), aplicáveis a futuros produtos:
 
 **1. Produto compõe o próprio grafo a partir de nós do core.**
-O core expõe nós individuais (`orchestrator_node`, `structurer_node`, `writer_node`, etc.); o produto monta o `StateGraph` que faz sentido para seu fluxo em vez de reusar `create_multi_agent_graph`. O Ensaio compõe Orquestrador + Estruturador (sem Metodologista, com Writer fora do grafo), mapeando rotas incompatíveis para `END` — ver `products/ensaio/app/graph.py`. Revelar continua usando `create_multi_agent_graph` como um caso particular desse padrão.
+O core expõe nós individuais (`orchestrator_node`, `structurer_node`, `writer_node`, etc.); o produto monta o `StateGraph` que faz sentido para seu fluxo em vez de reusar `create_multi_agent_graph`. O Ensaio compõe Orquestrador + Estruturador + Metodologista (Writer fora do grafo, invocado sob demanda) — ver `products/ensaio/app/graph.py`. Revelar continua usando `create_multi_agent_graph` como um caso particular desse padrão.
 
 **2. Injeção de contexto de produto via `config.configurable`.**
-Agentes do core não conhecem nomes de produtos. Cada nó lê `config.configurable.product_context` (string em prosa livre) e, quando presente, substitui o placeholder `{product_context_section}` no prompt por uma seção "## CONTEXTO DO PRODUTO". Quando ausente, a seção some e o comportamento é idêntico ao histórico — backward compatible. O produto carrega sua string de um YAML próprio (ex.: `products/ensaio/config/product.yaml`, campo único `focus`) e injeta em toda invocação do grafo. Implementado em `core/prompts/{orchestrator,structurer,writer}.py` e nos nós correspondentes.
+Agentes do core não conhecem nomes de produtos. Cada nó lê `config.configurable.product_context` (string em prosa livre) e, quando presente, substitui o placeholder `{product_context_section}` no prompt por uma seção "## CONTEXTO DO PRODUTO". Quando ausente, a seção some e o comportamento é idêntico ao histórico — backward compatible. O produto carrega sua string de um YAML próprio (ex.: `products/ensaio/config/product.yaml`, campo único `focus`) e injeta em toda invocação do grafo. Implementado em `core/prompts/{orchestrator,structurer,writer,methodologist_provocation}.py` e nos nós correspondentes.
+
+**3. Transparência de agente via `AIMessage.additional_kwargs["agent"]`.**
+Nós do core anexam `additional_kwargs={"agent": "<nome>"}` nas `AIMessage` que produzem (`"orchestrator"`, `"structurer"`, `"methodologist"`, `"writer"`). O produto consumidor lê esse metadado para distinguir o autor do bubble no chat (label, ícone, cor de borda). `additional_kwargs` é campo nativo de `BaseMessage` no LangChain — leitores que não consomem o campo o ignoram, então o padrão é transparente para Revelar (não regrede). Estruturador também usa o mesmo `additional_kwargs` para anexar `article_sections: list[str]` quando propõe estrutura no chat do Ensaio — campo extra opcional, ignorado por outros consumidores. Implementado em `core/agents/{orchestrator,structurer,methodologist}/nodes.py`; consumido em `products/ensaio/app/components/chat_panel.py` e `products/ensaio/app/state.py`.
+
+**4. Composição multi-modo do mesmo agente.**
+Um agente do core pode expor mais de um nó stateless quando produtos diferentes precisam de modos distintos. Exemplos: Writer com `writer_node` (artigo inteiro, V1) e `writer_section_node` (seção individual); Metodologista com `decide_collaborative` (veredito pontual, usado pelo Revelar) e `methodologist_provocation_node` (provocação conversacional, usado pelo Ensaio). Os nós dividem o conhecimento metodológico/redacional subjacente mas operam em momentos distintos da jornada — o produto consumidor escolhe qual invocar.
 
 ## Escopo Atual
 
 **Sistema Multi-Agente Conversacional:**
 - **Orquestrador:** Facilitador conversacional que mantém diálogo, detecta necessidades e sugere agentes
 - **Estruturador:** Organiza ideias vagas e refina questões baseado em feedback estruturado
-- **Metodologista:** Valida rigor científico em modo colaborativo (approved/needs_refinement/rejected)
-- **Interface conversacional:** Web app Streamlit
+- **Metodologista:** Dois modos — decisão pontual `decide_collaborative` (approved/needs_refinement/rejected, usado pelo Revelar) e provocação conversacional `methodologist_provocation_node` (uma pergunta por vez sobre lacunas metodológicas, usado pelo Ensaio)
+- **Writer:** Dois nós stateless — `writer_node` (artigo inteiro em uma passada) e `writer_section_node` (seção individual com `article_context`); produto consumidor escolhe o modo conforme o fluxo
+- **Interfaces conversacionais:** Revelar em Streamlit; Ensaio em Reflex (decisão registrada em `products/ensaio/docs/adr/001-stack-do-prototipo.md`)
 - **Interface CLI:** Ferramenta de desenvolvimento (congelada, backend compartilhado)
 
 **Estado compartilhado:**

@@ -17,15 +17,55 @@ Agente especializado em avaliar **coerência lógica** de hipóteses e argumento
 - Sugerir fortalecimento de fundamentos frágeis
 - **Adaptar rigor ao contexto** (científico vs negócio vs pessoal)
 
-## Modo de Operação
-Opera em modo **colaborativo**:
-- `approved`: Argumentação sólida e coerente
-- `needs_refinement`: Lacunas identificadas, sugere melhorias
-- `rejected`: Contradição lógica fundamental
+## Modos de Operação
 
-**Importante:** Metodologista não impõe formato acadêmico. Valida **lógica**, não **estilo**.
+O Metodologista expõe **dois nós independentes** em `core/agents/methodologist/nodes.py`. Ambos coexistem no mesmo agente porque dividem o conhecimento metodológico subjacente, mas operam em momentos distintos da jornada do produto.
 
-**⚠️ NOTA IMPORTANTE:** O Metodologista é chamado **automaticamente** pelo Orquestrador quando o contexto é suficiente para validação metodológica. O Orquestrador faz curadoria do resultado e apresenta ao usuário em tom coeso, sem necessidade de negociação prévia.
+**1. Decisão pontual — `decide_collaborative` (modo histórico, usado pelo Revelar):**
+- `approved`: Argumentação sólida e coerente.
+- `needs_refinement`: Lacunas identificadas, sugere melhorias via campo `improvements`.
+- `rejected`: Contradição lógica fundamental.
+- Veredito explícito sobre a hipótese; chamado pelo Orquestrador quando o contexto está pronto para avaliação.
+
+**2. Provocação conversacional — `methodologist_provocation_node` (E-PROTO-3, usado pelo Ensaio):**
+- Não retorna veredito — devolve uma `AIMessage` com pergunta ou sugestão sobre lacunas.
+- Convive ao longo da conversa, em postura **seletiva** (sugerido pelo Orquestrador apenas quando o turno toca em metodologia, métricas ou afirmações sem suporte).
+- Detalhes em `## Modo Provocação Conversacional` abaixo.
+
+**Importante:** Metodologista não impõe formato acadêmico em nenhum dos modos. Valida **lógica**, não **estilo**.
+
+**⚠️ NOTA IMPORTANTE:** O Metodologista é chamado **automaticamente** pelo Orquestrador quando o contexto é suficiente para validação metodológica (decisão pontual) ou quando a conversa tangencia rigor metodológico (provocação). O Orquestrador faz curadoria do resultado e apresenta ao usuário em tom coeso, sem necessidade de negociação prévia.
+
+## Modo Provocação Conversacional (E-PROTO-3)
+
+Nó stateless `methodologist_provocation_node`, separado e independente de `decide_collaborative`. Foi introduzido para o Protótipo do Ensaio, onde o Metodologista precisa **acompanhar** a conversa em vez de emitir veredito sobre uma hipótese fechada.
+
+**Contrato:**
+- **Input** (`MultiAgentState` consumido como dict):
+  - `messages: list[BaseMessage]` — histórico conversacional.
+  - `focal_argument: dict | None` — argumento focal estruturado quando disponível.
+  - `product_context` — injetado via `config.configurable.product_context` (mesmo padrão dos demais nós do core; ver `docs/ARCHITECTURE.md`, "Injeção de Contexto de Produto").
+- **Output:**
+  ```python
+  {"messages": [AIMessage(content=..., additional_kwargs={"agent": "methodologist"})]}
+  ```
+  - Sempre lista com **uma** AIMessage; nunca vazio.
+  - Sem campos `status`/`improvements`/`clarifications` — provocar não é decidir.
+  - `additional_kwargs["agent"]` permite que o produto consumidor distinga o autor do bubble (padrão de transparência de agente, ver `docs/ARCHITECTURE.md`).
+
+**Dimensões cobertas pelo prompt** (`core/prompts/methodologist_provocation.py`, `METHODOLOGIST_PROVOCATION_PROMPT_V1`):
+1. Métricas e evidências (afirmação tem números? resultados quantificados?).
+2. Rigor metodológico (método descrito, passos reproduzíveis, condições/ferramentas declaradas).
+3. Afirmações sem suporte (conclusões além dos dados, palavras absolutas sem embasamento).
+4. Quatro dimensões do artigo no estilo do Writer — contexto, intenção, formato, estrutura (ver `core/docs/agents/writer/design.md`).
+
+**Postura definida no prompt:**
+- Uma pergunta por vez — nunca lista.
+- Seletivo: provoca apenas quando há lacuna real e relevante.
+- Quando contexto está bem descrito, devolve frase curta neutra (ex.: `"O contexto está bem descrito. Continue."`) — nunca retorna vazio.
+- Tom colaborativo, sem rodeios e sem mencionar "Metodologista" em primeira pessoa.
+
+**Não-regressão:** o nó `methodologist_provocation_node` não toca em `decide_collaborative` nem em qualquer função existente do arquivo. Revelar continua usando o caminho histórico sem mudança.
 
 ## Implementação Atual
 
