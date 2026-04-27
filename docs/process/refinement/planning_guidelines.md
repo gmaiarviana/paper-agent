@@ -33,12 +33,13 @@ Você fornece ao Claude Web:
 
 ### Claude Web Deve
 
-> **Nota — refinamento estratégico vs tático.** A partir da reforma em curso (milestone como unidade de entrega), o refinamento se divide em duas modalidades:
+> **Nota — modalidades de refinamento.** O refinamento se divide em três modalidades, em ordem de prioridade:
 >
-> - **Estratégico (Claude Web, externo ao repo):** quebra uma visão em milestones e/ou épicos em `🌱 Visão`/`📐 Funcionalidades esboçadas`, e leva épicos a `📋 Critérios definidos` ou `🔍 Detalhes definidos` **antes de existir milestone em execução**. É o processo descrito nesta seção.
-> - **Tático (PM skill, dentro da branch do milestone):** leva épicos de um milestone já disparado que ainda estão em `🌱` ou `📐` até `🔍 Detalhes definidos`, aplicando o checklist de `autonomous_readiness.md`. A PM skill (a ser criada em M3b da reforma do fluxo) consome o mesmo checklist, mas opera dentro de sessão do Claude Code Web, com acesso direto ao repo, sem gerar prompts para Cursor.
+> - **Tático (PM skill, dentro da branch do milestone):** caminho principal. Leva épicos de um milestone já disparado de `🌱`/`📐`/`📋` até `🔍 Detalhes definidos` dentro da própria sessão de Claude Code Web, com acesso direto ao repo. Não requer upload manual de contexto.
+> - **Autônomo (refinador autônomo, processo de fundo):** caminho em construção (W-MVP-REF-1). Avança épicos sem supervisão contínua; escala ao operador apenas quando encontra decisão estrutural.
+> - **Estratégico (sessão externa com operador):** caminho secundário, para decisões de alto nível que exigem alinhamento humano — quebrar uma visão em milestones, resolver tensões arquiteturais, definir escopo de fase. Claude Web é uma das ferramentas possíveis; o que define o caminho é a necessidade de alinhamento, não a ferramenta. Não requer upload manual quando conduzido via plataforma (chat focado com contexto pré-carregado, W-MVP-PLAT-2).
 >
-> Ambos produzem o mesmo estado final no ROADMAP (épico em `🔍`). O que muda é **quem refina** e **onde o resultado é commitado** (fora da branch do milestone, no caso estratégico; dentro, no caso tático).
+> Todos produzem o mesmo estado final no ROADMAP (épico em `🔍`). O que muda é **quem refina**, **quando** e **quanto contexto o operador precisa fornecer manualmente**.
 
 ### Postura do Refinamento
 
@@ -176,7 +177,7 @@ explicitamente.
 
 Um épico percorre até oito estados no ROADMAP. Os cinco primeiros são de refinamento progressivo; os três últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo. **Os mesmos estados aplicam-se ao campo "Status" do milestone** — milestone em `🧭 Jornada alinhada` significa objetivo, jornada e escopo declinados, glossário ancorado e mapeamento de feedback do estágio anterior consolidados, com lista de épicos definida (mesmo que individualmente em estados anteriores).
 
-> **Nota — onde o refinamento acontece.** Até `📋 Critérios definidos`, o refinamento sempre é estratégico, via Claude Web, antes de qualquer milestone em execução. Já a transição de `🌱`/`📐`/`📋` para `🔍 Detalhes definidos` pode acontecer em duas situações distintas: (a) externamente, via Claude Web, como preparação antecipada; ou (b) dentro da branch de um milestone já disparado, via PM skill (skill a ser criada em M3b da reforma do fluxo), como parte do próprio fluxo autônomo. Ambos caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
+> **Nota — onde o refinamento acontece.** Qualquer estado pode ser avançado por qualquer modalidade (ver nota acima). Não há restrição de "até 📋 só via sessão estratégica" — a PM skill pode levar um épico de `🌱` a `🔍` em uma única passada se tiver contexto suficiente. O que determina o caminho é a natureza da decisão: mecânica (PM skill ou autônomo) vs. estrutural (sessão estratégica com operador). Todos os caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
 
 **`🌱 Visão`** — apenas objetivo definido.
 Estado inicial de qualquer épico promovido a partir do backlog ou produzido por uma sessão do tipo "me quebra essa ideia em épicos a partir da visão". Captura intenção e valor de negócio; não é executável por nenhum fluxo.

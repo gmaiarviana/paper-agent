@@ -1,6 +1,6 @@
 # Refinement Starter Pack
 
-> **📌 Objetivo:** Lista autoritativa de arquivos para arrastar ao Claude Web ao iniciar refinamento de qualquer épico, de qualquer produto.
+> **📌 Objetivo:** Lista de arquivos para sessões de refinamento estratégico (caminho secundário). O caminho principal é a PM skill via Claude Code Web, que lê o repo diretamente sem upload manual. Use este pack quando a sessão exigir alinhamento humano fora do fluxo autônomo.
 
 O Claude Web não tem acesso ao repositório. Esse pack dá a ele o mínimo necessário para entender princípios, arquitetura, épicos e — via mapa temático — saber onde pedir o resto.
 

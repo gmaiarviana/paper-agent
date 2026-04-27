@@ -1778,9 +1778,9 @@ documental, todos os critérios são textualmente verificáveis.
 
 - **Descrição:** Ao clicar num card em estado pré-execução, exibe o que falta para avançar ao próximo estado com base nas definições de `planning_guidelines.md`.
 - **Critérios de Aceite:**
-  - Para 🌱: deve indicar que o próximo passo é refinamento com alvo 🧭 ou 📐 e listar os 6 arquivos essenciais da sessão
-  - Para 🧭/📐: deve indicar que o próximo passo é refinamento com alvo 📋 e listar os 6 arquivos essenciais
+  - Para 🌱/🧭/📐: deve indicar que o próximo passo é refinamento e qual o alvo (📋 ou 🔍)
   - Para 📋: deve indicar que o próximo passo é atingir 🔍 e apontar para `autonomous_readiness.md` como checklist do alvo
+  - Não deve listar arquivos para upload manual — o refinamento é delegado à PM skill ou sessão estratégica via plataforma
 
 #### 4.2: Geração de prompt de refinamento clipboard-ready
 
