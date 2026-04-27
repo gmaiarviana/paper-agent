@@ -21,9 +21,9 @@ Definições trabalhadas para este projeto, no eixo **"quem usa"** (complementa 
 
 **Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais ao estágio. POC tolera Streamlit e gambiarras; Protótipo exige fluxo navegável pelo próprio dev; MVP exige que outro ser humano consiga usar sem tutorial ao vivo.
 
-## Processo de Refinamento com Claude Web
+## Sessão Estratégica de Refinamento
 
-Este projeto usa Claude Web como consultor estratégico para refinar épicos e discutir comportamentos. O processo é documentado aqui para garantir consistência.
+Sessão colaborativa com operador para decisões estruturais — quebrar visão em milestones, resolver tensões arquiteturais, definir escopo de fase. Caminho secundário; o caminho principal é a PM skill via Claude Code Web (acesso direto ao repo, sem upload manual de contexto).
 
 ### Input Esperado
 Você fornece ao Claude Web:
