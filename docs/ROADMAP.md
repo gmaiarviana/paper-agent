@@ -6,17 +6,7 @@
 
 > **📖 Visão:** Para entender a filosofia do sistema, consulte [core/docs/vision/system_philosophy.md](../core/docs/vision/system_philosophy.md).
 
-### 🧭 Estados dos Épicos
-
-Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "Status" do milestone. Detalhes em [process/refinement/planning_guidelines.md](process/refinement/planning_guidelines.md).
-
-- **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
-- **`🧭 Jornada alinhada`** — objetivo refinado + rationale (o que é / o que não é) + glossário ancorado + acoplamentos sinalizados; jornada alvo e escopo declinados (para milestone). Funcionalidades ainda não esboçadas. Aguarda refinamento.
-- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
-- **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
-- **`🔍 Detalhes definidos`** — checklist em [autonomous_readiness.md](process/refinement/autonomous_readiness.md) aplicado. Pronto para fluxo autônomo via Claude Code Web.
-- **`🏗️ Em andamento`** — implementação em curso, até o ciclo de fechamento.
-- **`✅ Implementado`** — ciclo de fechamento executado (ver [epic_completion.md](process/refinement/epic_completion.md)).
+> **🧭 Estados dos épicos:** ver [planning_guidelines.md](process/refinement/planning_guidelines.md) para definições completas.
 
 > **Retroatividade:** épicos concluídos antes da introdução do modelo de estados permanecem em formato simplificado (título ✅ + 1-2 linhas de resumo) e não são reclassificados retroativamente. O modelo aplica-se a épicos em andamento e futuros.
 
@@ -219,7 +209,7 @@ Cada épico percorre até sete estados. Os mesmos estados aplicam-se ao campo "S
 
 ## 📝 Observações
 
-**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`; fluxo autônomo via Claude Code Web exige `🔍 Detalhes definidos`.
+**Regra:** fluxo manual exige épico em `📋 Critérios definidos`; fluxo autônomo exige `🔍 Detalhes definidos`.
 
 > Para o processo completo de refinamento, consulte [planning_guidelines.md](process/refinement/planning_guidelines.md). Para a prontidão ao fluxo autônomo (alvo `🔍`), consulte [autonomous_readiness.md](process/refinement/autonomous_readiness.md). Para o fechamento do épico (saída), consulte [epic_completion.md](process/refinement/epic_completion.md).
 

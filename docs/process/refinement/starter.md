@@ -65,7 +65,7 @@ O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. 
 - **Produto:** funcionalidades delimitadas, critérios de aceite observáveis, trade-offs discutidos.
 - **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos.
 - **Quando acontece:** quando o épico se torna prioritário.
-- **Estado resultante do épico:** `📋 Critérios definidos` — apto ao fluxo manual via Cursor.
+- **Estado resultante do épico:** `📋 Critérios definidos` — apto ao fluxo manual.
 
 ### Alvo `🔍 Detalhes definidos` (refinamento profundo — detalhes)
 
@@ -73,7 +73,7 @@ O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. 
 - **Produto:** arquivos-alvo com caminho completo, contratos/shapes, mecanismo de integração, acoplamentos verificados, escopo de testes.
 - **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos + **inspeção de código relevante** (via Cursor, ou como trechos específicos pedidos ao Claude Web) + checklist em [`autonomous_readiness.md`](autonomous_readiness.md). A inspeção de código é parte obrigatória deste alvo, não opcional.
 - **Quando acontece:** sob demanda, pouco antes de disparar o fluxo autônomo para o épico específico. Aplicar preventivamente em todos os épicos é desperdício — o trabalho perde-se se o épico for repriorizado.
-- **Estado resultante do épico:** `🔍 Detalhes definidos` — apto ao fluxo autônomo via Claude Code Web ([`dispatch.md`](../autonomous/dispatch.md)).
+- **Estado resultante do épico:** `🔍 Detalhes definidos` — apto ao fluxo autônomo ([`dispatch.md`](../autonomous/dispatch.md)).
 
 > Atalho permitido: uma única sessão pode ir direto de `🌱 Visão` para `📋` ou `🔍`, desde que o alvo declarado seja esse e o contexto correspondente seja enviado.
 

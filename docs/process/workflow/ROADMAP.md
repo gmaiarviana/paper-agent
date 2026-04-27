@@ -4,18 +4,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 > Visão completa em [vision.md](vision.md).
 
-## 🧭 Estados dos Épicos
-
-Cada épico percorre até oito estados. Os mesmos estados aplicam-se ao campo "Status" do milestone. Detalhes em [docs/process/refinement/planning_guidelines.md](../refinement/planning_guidelines.md).
-
-- **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
-- **`🧭 Jornada alinhada`** — objetivo refinado + rationale (o que é / o que não é) + glossário ancorado + acoplamentos sinalizados; jornada alvo e escopo declinados (para milestone). Funcionalidades ainda não esboçadas. Aguarda refinamento.
-- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
-- **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual via Cursor.
-- **`🔍 Detalhes definidos`** — checklist em [autonomous_readiness.md](../refinement/autonomous_readiness.md) aplicado. Pronto para fluxo autônomo via Claude Code Web.
-- **`🏗️ Em andamento`** — implementação em curso, até a RTE abrir a PR.
-- **`🔀 Em revisão`** — PR aberta, aguardando aprovação humana. Setado pela RTE ao abrir a PR do milestone.
-- **`✅ Implementado`** — ciclo de fechamento executado (ver [epic_completion.md](../refinement/epic_completion.md)). Setado pela Cleanup skill após o merge.
+> **🧭 Estados dos épicos:** ver [planning_guidelines.md](../refinement/planning_guidelines.md) para definições completas.
 
 > **Retroatividade:** épicos concluídos antes da introdução do modelo de estados permanecem em formato simplificado (título ✅ + 1-2 linhas de resumo) e não são reclassificados retroativamente. O modelo aplica-se a épicos em andamento e futuros.
 
@@ -177,8 +166,8 @@ Cada épico percorre até oito estados. Os mesmos estados aplicam-se ao campo "S
 - **Épicos agrupados:** W-PROTO-8, W-PROTO-9
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-ajustes`
-- **Status dos épicos:** W-PROTO-8 🔍 Detalhes definidos, W-PROTO-9
-  🔍 Detalhes definidos
+- **Status dos épicos:** W-PROTO-8 🏗️ Em andamento, W-PROTO-9
+  🏗️ Em andamento
 - **Nota:** épicos refinados em 2026-04-27 na branch
   `claude/refine-workflow-stage-ApETn`. Independentes entre si —
   podem ser implementados em qualquer ordem.
@@ -1664,8 +1653,8 @@ documental, todos os critérios são textualmente verificáveis.
 
 ## 📚 Observações
 
-**Regra:** fluxo manual via Cursor exige épico em `📋 Critérios definidos`;
-fluxo autônomo via Claude Code Web exige `🔍 Detalhes definidos`.
+**Regra:** fluxo manual exige épico em `📋 Critérios definidos`;
+fluxo autônomo exige `🔍 Detalhes definidos`.
 
 W-POC-1 e W-POC-2 foram executados manualmente via Claude Code (fora do
 fluxo autônomo) na branch `claude/create-workflow-docs-6CR73` porque o

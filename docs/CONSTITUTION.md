@@ -16,7 +16,7 @@ Princípios não-negociáveis para trabalhar com este projeto.
 - Discussão > especulação antecipada
 - Épicos percorrem até oito estados no ROADMAP: `🌱 Visão` → `🧭 Jornada alinhada` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `🔀 Em revisão` → `✅ Implementado`. Modelo completo em `docs/process/refinement/planning_guidelines.md`.
 - Toda sessão de refinamento começa com um **alvo declarado** (o estado ao qual o épico deve chegar). O refinador — Claude Web (estratégico) ou PM skill (tático, dentro da branch do milestone) — conduz as perguntas até atingir o alvo, sem parar em estados intermediários.
-- Alvo `📋 Critérios definidos` basta para o fluxo manual via Cursor.
+- Alvo `📋 Critérios definidos` basta para o fluxo manual.
 - Alvo `🔍 Detalhes definidos` é pré-requisito do fluxo autônomo; guiado pelo checklist em `docs/process/refinement/autonomous_readiness.md`. Aplicado sob demanda, épico a épico — pelo Claude Web antes do milestone existir, ou pela PM skill dentro da branch do milestone quando o milestone é disparado com épicos ainda em `🌱` ou `📐`.
 - Fechamento do épico (extração de conhecimento permanente + poda do ROADMAP) segue `docs/process/refinement/epic_completion.md` antes de marcar como `✅ Implementado`.
 - Funcionalidades detalhadas aceleram implementação.
@@ -27,6 +27,10 @@ Princípios não-negociáveis para trabalhar com este projeto.
 - TDD pragmático (lógica crítica sim, UI não)
 - Validação incremental obrigatória
 - Commits estratégicos (não obrigatórios)
+
+**Tipos de sessão:**
+- **Sessão de implementação** — autônoma; produz código e docs; encerra com PR criada pela RTE. Detalhes: `docs/process/autonomous/workflow.md`.
+- **Sessão de refinamento** — colaborativa (operador + agente); produz atualizações de ROADMAP; encerra com rito de encerramento de sessão (`docs/process/refinement/planning_guidelines.md`).
 
 ### Fluxos Disponíveis
 Dois modos coexistem; o dev escolhe por funcionalidade. Cada modo exige um estado mínimo do épico no ROADMAP:

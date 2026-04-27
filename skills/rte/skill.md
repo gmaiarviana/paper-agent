@@ -134,7 +134,7 @@ Commitar este arquivo no **mesmo commit** que prepara a PR (ainda na branch `mil
 
 **6.5.b — Construir Seção 🎯 Validação (body da PR).**
 
-Template fixo, preencher os placeholders varrendo `current_implementation.md` (critérios PO ✅ por funcionalidade) e o ROADMAP (lista de épicos do milestone):
+Template fixo, preencher os placeholders usando os dados coletados em **Passo 3** (`git diff --name-status main...HEAD`, `git log main..HEAD --oneline`) — não HEAD isolado. Varrer `current_implementation.md` (critérios PO ✅ por funcionalidade) e o ROADMAP (lista de **todos** os épicos do milestone):
 
 ```markdown
 ## 🎯 Validação (copie tudo abaixo e envie ao Copilot)
@@ -150,6 +150,8 @@ Reporte em markdown.
 - Arquivo detalhado de validação: `<caminho>/validation-<id>.md`
 
 ### Critérios de aceite (consolidados do ROADMAP)
+
+Iterar sobre **todos** os épicos do milestone na ordem do milestone:
 
 **Épico <ID-1>:**
 1. <critério>
@@ -168,16 +170,40 @@ Reporte em markdown.
 
 **6.5.c — Body completo da PR.**
 
+Usar os dados coletados em **Passo 3** como fonte — não HEAD isolado. Output não pode conter `<...>` (placeholders).
+
 Além da Seção 🎯, o body deve conter:
-- Título: `<tipo>(<escopo>): <resumo do milestone> (<ID-MILESTONE>)` (commits do milestone informam o tipo predominante).
+- Título: `<tipo>(<escopo>): <resumo do milestone> (<ID-MILESTONE>)` (commits do `git log main..HEAD --oneline` do Passo 3 informam o tipo predominante).
 - Branch de origem: `milestone/<id-em-caixa-baixa>`; destino: `main`.
 - Checklist de gates: cópia da tabela final consolidada de `current_implementation.md`.
 - Link para o relatório completo (`docs/process/current_implementation.md`).
 - Link para `validation-<id>.md` recém-versionado.
 
+**6.5.c.1 — Output estruturado antes de criar a PR.**
+
+Antes de criar a PR, emitir no output da sessão (não bloqueante — não aguardar input do dev):
+
+```
+📦 Entregando milestone <ID>
+- Épicos: <lista de IDs>
+- Commits: <N> (<git log --oneline resumido do Passo 3>)
+- Arquivos: <N total do git diff --shortstat do Passo 3>
+Criando PR...
+```
+
+Usar dados reais do Passo 3. Substituir todos os placeholders.
+
 **6.5.d — Criar a PR.**
 
-Usar `mcp__github__create_pull_request` (preferido) com `head=milestone/<id>`, `base=main`, body construído acima. Em caso de erro, fallback para `gh pr create`. Capturar o número da PR e a URL — vão para o Passo 6.5.e e para a mensagem do Passo 7.
+Usar `mcp__github__create_pull_request` (preferido) com os parâmetros obrigatórios explícitos:
+- `owner`: owner do repositório
+- `repo`: nome do repositório
+- `title`: `"<tipo>(<escopo>): <resumo do milestone> (<ID-MILESTONE>)"` (sem placeholders — derivado dos commits do Passo 3)
+- `head`: `"milestone/<id-em-caixa-baixa>"`
+- `base`: `"main"`
+- `body`: body completo construído nos Passos 6.5.b–6.5.c
+
+Em caso de erro de `mcp__github__create_pull_request`, fallback para `gh pr create --title "<título>" --head "milestone/<id>" --base "main" --body "<body>"`. Capturar o número da PR e a URL — vão para o Passo 6.5.e e para a mensagem do Passo 7.
 
 **Não tentar mergear.** Aprovação humana segue obrigatória.
 
