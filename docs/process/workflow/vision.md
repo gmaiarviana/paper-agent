@@ -47,8 +47,8 @@ Workflow segue o eixo "quem usa" do CONSTITUTION, adaptado para processo:
   Fechado em `POC-WORKFLOW`.
 - **Protótipo:** o fluxo da POC está estável, o operador usa no dia a dia
   real. Fluxos adicionais começam a aparecer. Ainda sem priorização
-  autônoma. Em curso em `PROTO-WORKFLOW-ENCERRAMENTO` e
-  `PROTO-WORKFLOW-DOC`.
+  autônoma. Milestones em curso e roadmap detalhado em
+  [ROADMAP.md](ROADMAP.md).
 - **MVP:** priorização autônoma rodando, materializada como POC mínimo da
   plataforma. Operador só valida. Detalhado abaixo em "Forma da
   Plataforma".
