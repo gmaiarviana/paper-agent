@@ -8,31 +8,11 @@ from __future__ import annotations
 
 import reflex as rx
 
-from products.ensaio.app.state import EnsaioState, _agent_label
-
-_AGENT_LABELS: dict[str, str] = {
-    "orchestrator": "🎯 Orquestrador",
-    "structurer": "📐 Estruturador",
-    "methodologist": "🔬 Metodologista",
-    "writer": "✍️ Writer",
-    "user": "👤 Você",
-}
-
-_PROCESSING_LABELS: dict[str, str] = {
-    "orchestrator": "🎯 Orquestrador processando...",
-    "structurer": "📐 Estruturador processando...",
-    "methodologist": "🔬 Metodologista processando...",
-    "writer": "✍️ Writer redigindo...",
-}
-
-
-def _label_for_agent(agent: str) -> str:
-    return _AGENT_LABELS.get(agent, "🤖 Sistema")
+from products.ensaio.app.state import EnsaioState
 
 
 def _message_bubble(msg: dict) -> rx.Component:
     is_user = msg["role"] == "user"
-    agent = msg.get("agent") or ("user" if is_user else None)
     label = rx.cond(
         is_user,
         "👤 Você",
@@ -144,7 +124,7 @@ def chat_panel() -> rx.Component:
                 rx.button(
                     "Enviar",
                     on_click=EnsaioState.send_message,
-                    is_disabled=EnsaioState.processing_agent != "",
+                    disabled=EnsaioState.processing_agent != "",
                     color_scheme="blue",
                     width="100%",
                 ),

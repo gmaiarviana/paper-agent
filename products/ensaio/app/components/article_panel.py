@@ -47,13 +47,11 @@ def _section_card(section: dict) -> rx.Component:
                 margin_y="8px",
             ),
         ),
-        # Botão de geração
+        # Botão de geração — usa section["index"] armazenado no estado
         rx.button(
             rx.cond(section["body"] == "", "Gerar", "Regenerar"),
-            on_click=EnsaioState.generate_section(
-                EnsaioState.current_article.index(section)
-            ),
-            is_disabled=EnsaioState.processing_agent != "",
+            on_click=EnsaioState.generate_section(section["index"]),
+            disabled=EnsaioState.processing_agent != "",
             size="1",
             color_scheme="blue",
             variant="soft",

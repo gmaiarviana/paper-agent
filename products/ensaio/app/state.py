@@ -168,7 +168,8 @@ class EnsaioState(rx.State):
                     or all(s.get("status") == "empty" for s in current_article)
                 ):
                     article_sections_update = [
-                        {"title": t, "body": "", "status": "empty"} for t in secs
+                        {"title": t, "body": "", "status": "empty", "index": i}
+                        for i, t in enumerate(secs)
                     ]
 
             new_lh = langchain_history + [

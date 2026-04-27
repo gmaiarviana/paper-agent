@@ -44,7 +44,6 @@ def index() -> rx.Component:
 
 
 app = rx.App(
-    state=EnsaioState,
     theme=rx.theme(appearance="light", accent_color="blue"),
 )
 app.add_page(index, on_load=EnsaioState.initialize, route="/")
