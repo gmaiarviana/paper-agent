@@ -98,52 +98,94 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   da plataforma: `tools/workflow_platform/` (top-level novo, fora
   de `products/`, coerente com [`vision.md`](vision.md)).
 
-### MVP-WORKFLOW-PLATAFORMA
+### PROTO-WORKFLOW-FILA
 
-- **Objetivo:** plataforma com fila de decisões populada
-  automaticamente por eventos de estado do repo e das PRs, e chat
-  focado por item com contexto pré-carregado. Operador chega e
-  encontra a próxima decisão esperando, sem montar a fila
-  manualmente.
-- **Estágio:** MVP
-- **Épicos agrupados:** W-MVP-PLAT-1, W-MVP-PLAT-2, W-MVP-PLAT-3
+- **Objetivo:** plataforma ganha fila reativa de decisões + chat focado
+  por item + auto-regulação básica. Sinais óbvios do repo (PR aberta,
+  épico chegou em estado-gatilho, branch parou) viram itens de fila por
+  regra determinística — sem agente proativo ainda. Operador atende na
+  ordem que escolher; ordenação simples (recência ou manual).
+- **Estágio:** Protótipo
+- **Épicos agrupados:** W-PROTO-FILA-1, W-PROTO-FILA-2, W-PROTO-FILA-3
 - **Dependências de core:** nenhuma; depende de
-  PROTO-WORKFLOW-PLATAFORMA (scaffold e kanban como base)
-- **Branch associada:** `milestone/mvp-workflow-plataforma`
-- **Status dos épicos:** W-MVP-PLAT-1 📐, W-MVP-PLAT-2 📐,
-  W-MVP-PLAT-3 📐.
+  PROTO-WORKFLOW-PLATAFORMA (kanban e scaffold como base)
+- **Branch associada:** `milestone/proto-workflow-fila`
+- **Status dos épicos:** W-PROTO-FILA-1 📐, W-PROTO-FILA-2 📐,
+  W-PROTO-FILA-3 📐.
 - **Tensões para refinamento estratégico:**
   - **(a) Quem cria itens "PR pra revisar"?** Inclinação: RTE no
     mesmo passo em que abre PR (W-PROTO-5 estendido). Alternativa:
     observador da plataforma detecta PR aberta via GitHub API.
-  - **(b) Auto-regulação por capacidade (~20 itens).** Gatilho duro
-    (autônomo trava de criar) ou soft (só prioriza)? Limite por tipo
-    de item ou agregado?
+  - **(b) Auto-regulação por capacidade (~20 itens).** No Protótipo,
+    auto-regulação é simples (alerta visual ao se aproximar do limite)
+    — gatilho duro de pausa só ganha sentido no MVP, quando há agente
+    proativo criando itens.
   - **(c) Reconstrução da fila se plataforma cair.** Varrer markdown
     + estado de PRs deve reconstruir a fila deterministicamente —
     teste prático do princípio "markdown é fonte da verdade".
-- **Nota:** milestone declarado em 2026-04-27. Épicos em `📐
-  Funcionalidades esboçadas` — aguardam refinamento estratégico antes
-  do dispatch.
+- **Nota:** milestone declarado em 2026-04-28 — absorve o conteúdo
+  do antigo MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo
+  porque é fila **reativa** (regra determinística), não curada por
+  agente. Curadoria por porta-voz vive no MVP.
 
-### MVP-WORKFLOW-REFINADOR
+### MVP-WORKFLOW-REFINAMENTO
 
-- **Objetivo:** refinador autônomo como processo de fundo — avança
-  épicos de 🌱/📐 sem supervisão contínua, para limpo ao travar, e
-  deposita resultado na fila da plataforma como item de decisão.
+- **Objetivo:** fluxo de refinamento autônomo standalone — PM skill
+  desacoplada do dispatch de implementação, operando em sessão própria.
+  Avança épicos pré-🔍 em saltos pequenos (um estado por vez), branch
+  persiste por épico em refinamento, PR por épico ao chegar no alvo.
+  Qualidade do refinamento (exemplos canônicos, modo iterativo, registro
+  de feedback) embutida no escopo.
 - **Estágio:** MVP
 - **Épicos agrupados:** W-MVP-REF-1, W-MVP-REF-2
 - **Dependências de core:** nenhuma; depende de
-  MVP-WORKFLOW-PLATAFORMA (fila como destino dos itens produzidos)
-- **Branch associada:** `milestone/mvp-workflow-refinador`
+  PROTO-WORKFLOW-FILA (fila reativa como destino de bloqueios e
+  conclusões)
+- **Branch associada:** `milestone/mvp-workflow-refinamento`
 - **Status dos épicos:** W-MVP-REF-1 📐, W-MVP-REF-2 📐.
-- **Fora do MVP (longo prazo):** Proponente (1×/dia), voice
-  interface e workflow como produto desacoplado multi-repo vivem no
-  [Horizonte de vision.md](vision.md#horizonte) e não estruturam
-  decisões destes milestones.
-- **Nota:** milestone declarado em 2026-04-27. Épicos em `📐
-  Funcionalidades esboçadas` — aguardam refinamento estratégico antes
-  do dispatch.
+- **Princípios não-negociáveis (vindos da vision):**
+  - Saltos pequenos — um estado por vez, sem pular 🌱→🔍 numa passada.
+  - Branch persiste por épico em refinamento.
+  - PR por épico (não por milestone) ao concluir; exceção declarada
+    para coerência cross-épico do mesmo milestone.
+  - Pacing por bandwidth do operador — autônomo não acelera o que o
+    operador não consegue revisar com qualidade.
+- **Nota:** milestone declarado em 2026-04-27 (originalmente como
+  MVP-WORKFLOW-REFINADOR), reescopado em 2026-04-28 para refletir o
+  modelo papéis-vs-fluxos. Refinador deixa de ser "papel" — é executor
+  do fluxo de refinamento. Épicos em `📐 Funcionalidades esboçadas` —
+  aguardam refinamento estratégico antes do dispatch.
+
+### MVP-WORKFLOW-PROPONENTE
+
+- **Objetivo:** introduz os dois papéis novos do MVP — proponente
+  (orquestrador proativo que escolhe e dispara fluxos ~1×/dia) +
+  porta-voz (curador de atenção com agência decisória sobre bloqueios
+  pequenos). Mecânica de bloqueio proponente↔porta-voz operando.
+  Priorização autônoma rodando.
+- **Estágio:** MVP
+- **Épicos agrupados:** W-MVP-PROP-1, W-MVP-PROP-2
+- **Dependências de core:** nenhuma; depende de
+  MVP-WORKFLOW-REFINAMENTO (proponente precisa do fluxo de
+  refinamento standalone como uma das opções de disparo) e
+  PROTO-WORKFLOW-FILA (fila como destino do que o porta-voz escala)
+- **Branch associada:** `milestone/mvp-workflow-proponente`
+- **Status dos épicos:** W-MVP-PROP-1 📐, W-MVP-PROP-2 📐.
+- **Tensões para refinamento estratégico:**
+  - **(a) Onde vive o repertório do porta-voz?** Markdown único
+    (`docs/process/workflow/portavoz_repertorio.md`), distribuído por
+    tema, ou consultado sob demanda dos docs existentes (filosofia,
+    visão, orientações)? Princípio: markdown é fonte da verdade — mas
+    formato canônico precisa ser definido.
+  - **(b) Cadência do proponente.** Vision diz ~1×/dia. Cron, gatilho
+    de evento, ou disparo manual do operador? POC pode ser manual.
+  - **(c) Auto-regulação dura no MVP.** Quando o agente proativo cria
+    itens, faz sentido endurecer o limite (~20 itens) — pausa real,
+    não só alerta.
+- **Nota:** milestone declarado em 2026-04-28. Substitui o antigo
+  MVP-WORKFLOW-PLATAFORMA conceitualmente — papéis novos, não fila
+  nova. Épicos em `📐 Funcionalidades esboçadas` — aguardam refinamento
+  estratégico antes do dispatch.
 
 ## 📋 Épicos Planejados
 
@@ -255,7 +297,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Protótipo
 
-> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1, 2, 3) · `PROTO-WORKFLOW-AJUSTES` (W-PROTO-8, W-PROTO-9) · `PROTO-WORKFLOW-PLATAFORMA` (W-PROTO-PLAT-1..4).
+> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1, 2, 3) · `PROTO-WORKFLOW-AJUSTES` (W-PROTO-8, W-PROTO-9) · `PROTO-WORKFLOW-PLATAFORMA` (W-PROTO-PLAT-1..4) · `PROTO-WORKFLOW-FILA` (W-PROTO-FILA-1..3).
 
 #### ÉPICO W-PROTO-DOC-1: Reescrita per-milestone de `docs/process/autonomous/`
 
@@ -733,89 +775,129 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ---
 
-### ⏳ Fase MVP
+#### ÉPICO W-PROTO-FILA-1: Detecção reativa de eventos e shape de item
 
-> **Milestones:** `MVP-WORKFLOW-PLATAFORMA` (W-MVP-PLAT-1..3) · `MVP-WORKFLOW-REFINADOR` (W-MVP-REF-1..2).
+**Milestone:** `PROTO-WORKFLOW-FILA`
 
-#### ÉPICO W-MVP-PLAT-1: Fila de decisões automática
-
-**Milestone:** `MVP-WORKFLOW-PLATAFORMA`
-
-**Objetivo:** fila populada automaticamente por eventos de estado — épico chegou em 🔍, PR aberta, agente escalou bloqueio — sem que o operador monte a fila à mão.
+**Objetivo:** regras determinísticas convertem sinais óbvios do repo em itens de fila com shape padronizado — PR aberta, épico chegou em estado-gatilho, branch parou. Sem julgamento agentic; só mapeamento sinal→item.
 
 **Status:** 📐 Funcionalidades esboçadas
 
 **Dependências:** PROTO-WORKFLOW-PLATAFORMA (scaffold e kanban como base)
 
 ### Funcionalidades (esboço):
-- **1.1 Detecção de eventos de estado** — monitora mudanças nos ROADMAPs e estado de PRs e gera itens de fila correspondentes.
-- **1.2 Shape mínimo de item de fila** — título, contexto, tipo (dispatch/review/escalação) e ação esperada.
-- **1.3 Ordenação e exibição da fila** — operador vê itens em ordem de prioridade; limpa no próprio ritmo.
+- **1.1 Shape mínimo de item de fila** — título, contexto, tipo (dispatch/review/escalação), ação esperada, ponteiro pra origem (épico, PR, branch).
+- **1.2 Detecção de eventos** — monitora ROADMAPs (mudanças de estado) + estado de PRs + branches abertas; gera itens correspondentes.
+- **1.3 Reconstrução determinística** — varrer markdown + estado de PRs reconstrói a fila do zero (teste prático do princípio "markdown é fonte da verdade").
 
 ---
 
-#### ÉPICO W-MVP-PLAT-2: Chat focado por item
+#### ÉPICO W-PROTO-FILA-2: Exibição da fila + chat focado por item
 
-**Milestone:** `MVP-WORKFLOW-PLATAFORMA`
+**Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** clicar num item da fila abre sessão com contexto pré-montado para aquele item específico — sem o operador montar o contexto manualmente.
+**Objetivo:** operador vê fila reativa na plataforma e, ao clicar num item, abre sessão com contexto pré-montado para aquele item.
 
 **Status:** 📐 Funcionalidades esboçadas
 
-**Dependências:** W-MVP-PLAT-1 (fila com itens clicáveis)
+**Dependências:** W-PROTO-FILA-1 (itens existentes)
 
 ### Funcionalidades (esboço):
-- **2.1 Montagem de contexto por tipo de item** — para dispatch: milestone + dispatch.md; para refinamento: épico + 6 arquivos essenciais; para revisão: PR + épicos do milestone.
-- **2.2 Abertura de chat com contexto carregado** — prompt pré-montado pronto para iniciar a sessão correspondente.
+- **2.1 View da fila** — lista ordenada (recência ou manual no Protótipo); cards com tipo, título, ação esperada.
+- **2.2 Montagem de contexto por tipo** — pra dispatch: milestone + dispatch.md; pra refinamento: épico + pack inicial; pra revisão: PR + épicos do milestone.
+- **2.3 Abertura de chat com contexto** — prompt pré-montado pronto para iniciar a sessão correspondente.
 
 ---
 
-#### ÉPICO W-MVP-PLAT-3: Auto-regulação da fila
+#### ÉPICO W-PROTO-FILA-3: Auto-regulação básica (alerta visual)
 
-**Milestone:** `MVP-WORKFLOW-PLATAFORMA`
+**Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** plataforma sinaliza quando a fila está próxima do limite e pausa criação de novos itens autônomos até o operador liberar espaço.
+**Objetivo:** plataforma sinaliza visualmente quando a fila se aproxima do limite cognitivo (~20 itens). Sem pausa dura — só alerta. Pausa real só faz sentido no MVP, quando há agente proativo criando itens.
 
 **Status:** 📐 Funcionalidades esboçadas
 
-**Dependências:** W-MVP-PLAT-1 (fila existente)
+**Dependências:** W-PROTO-FILA-1 (fila existente)
 
 ### Funcionalidades (esboço):
-- **3.1 Indicador de capacidade** — exibe contagem atual vs. limite (~20 itens); alerta visual ao se aproximar.
-- **3.2 Pausa de criação autônoma** — quando limite atingido, novos itens autônomos não são criados até o operador reduzir a fila.
+- **3.1 Contagem e indicador** — exibe contagem atual vs. limite alvo (~20 itens) na sidebar.
+- **3.2 Alerta de aproximação** — sinalização visual ao chegar perto do limite; sem ação automática.
 
 ---
 
-#### ÉPICO W-MVP-REF-1: Refinador autônomo
+### ⏳ Fase MVP
 
-**Milestone:** `MVP-WORKFLOW-REFINADOR`
+> **Milestones:** `MVP-WORKFLOW-REFINAMENTO` (W-MVP-REF-1..2) · `MVP-WORKFLOW-PROPONENTE` (W-MVP-PROP-1..2).
 
-**Objetivo:** processo de fundo que pega épicos disponíveis (🌱/📐) e avança o refinamento até onde consegue sem aprovação, tomando microdecisões proporcionais ao estágio. Quando trava, escala para a fila.
+#### ÉPICO W-MVP-REF-1: Fluxo de refinamento autônomo standalone
+
+**Milestone:** `MVP-WORKFLOW-REFINAMENTO`
+
+**Objetivo:** PM skill operando em sessão própria (desacoplada do dispatch de implementação), avançando épico pré-🔍 em saltos pequenos — um estado por vez, com commits intermediários na branch do épico. Sessão pode ser disparada manualmente (ponto de partida) e, depois, pelo proponente.
 
 **Status:** 📐 Funcionalidades esboçadas
 
-**Dependências:** MVP-WORKFLOW-PLATAFORMA (fila como destino de escalações e resultados)
+**Dependências:** PROTO-WORKFLOW-FILA (fila reativa como destino de bloqueios e conclusões)
 
 ### Funcionalidades (esboço):
-- **1.1 Seleção de épico disponível** — identifica épicos em 🌱/📐 sem claim do operador e com dependências satisfeitas.
-- **1.2 Execução do refinamento autônomo** — avança o estado do épico aplicando as regras de planning_guidelines; toma microdecisões onde a visão é clara.
-- **1.3 Escalação ao travar** — quando encontra decisão que requer o operador, para e deposita item de fila com contexto.
+- **1.1 PM skill standalone** — extrai PM skill do dispatch de implementação; cria modo de operação isolado, com sessão e branch próprias por épico.
+- **1.2 Saltos pequenos com commit por estado** — agente avança um estado por vez (ex.: 📐→📋), comita progresso, e segue. Não pula 🌱→🔍 numa passada.
+- **1.3 Branch persiste por épico em refinamento** — múltiplas sessões podem comitar estado intermediário na mesma branch; não se cria branch nova por sessão.
+- **1.4 Qualidade do refinamento** — exemplos canônicos, modo iterativo, registro de feedback do operador como repertório consultável em sessões seguintes.
 
 ---
 
-#### ÉPICO W-MVP-REF-2: Parada limpa e registro
+#### ÉPICO W-MVP-REF-2: Parada limpa, PR por épico, registro
 
-**Milestone:** `MVP-WORKFLOW-REFINADOR`
+**Milestone:** `MVP-WORKFLOW-REFINAMENTO`
 
-**Objetivo:** ao encerrar ciclo (por conclusão ou bloqueio), refinador deposita resultado na fila como item de decisão e não deixa trabalho órfão.
+**Objetivo:** ao concluir refinamento (chegou no alvo) ou ao travar, agente para limpo. Conclusão = abre PR por épico (default) ou PR cross-épico declarada (exceção). Bloqueio = commit do estado parcial + chama porta-voz (mecânica que vive em MVP-WORKFLOW-PROPONENTE).
 
 **Status:** 📐 Funcionalidades esboçadas
 
-**Dependências:** W-MVP-REF-1 (refinador autônomo existente), W-MVP-PLAT-1 (fila como destino)
+**Dependências:** W-MVP-REF-1 (fluxo standalone existente)
 
 ### Funcionalidades (esboço):
-- **2.1 Item de resultado na fila** — ao concluir ou bloquear, cria item de fila descrevendo o que foi feito e o que falta.
-- **2.2 Registro de progresso** — atualiza estado do épico no ROADMAP ao encerrar ciclo; não deixa épico em estado inconsistente.
+- **2.1 PR por épico ao concluir** — quando épico chega no alvo com clareza, abre PR (granularidade que cabe na bandwidth de revisão do operador). Body da PR descreve saltos de estado feitos e decisões tomadas.
+- **2.2 Exceção PR cross-épico** — quando refinamento de A revela ajuste necessário em B (mesmo milestone), agente declara explicitamente; PR cobre A + ajustes mínimos em B; body da PR sinaliza coerência cross-épico.
+- **2.3 Bloqueio = commit + sinal** — ao travar, agente comita estado parcial e gera sinal pro porta-voz (mecânica em W-MVP-PROP-2). No MVP-WORKFLOW-REFINAMENTO sozinho (antes do proponente existir), bloqueio cai como item de fila reativa do Protótipo.
+- **2.4 Pacing por bandwidth** — agente respeita limite de épicos em refinamento ativo simultâneo (configurável); não inicia novo se o operador já tem N PRs de refinamento esperando revisão.
+
+---
+
+#### ÉPICO W-MVP-PROP-1: Proponente — orquestrador proativo
+
+**Milestone:** `MVP-WORKFLOW-PROPONENTE`
+
+**Objetivo:** papel novo (não agente novo) que olha o sistema (visão, backlog, ROADMAPs, sinais do dia) e propõe o próximo movimento ~1×/dia, escolhendo e disparando o fluxo apropriado na prioridade certa. Combina as skills existentes para produzir trabalho útil.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** MVP-WORKFLOW-REFINAMENTO (proponente precisa do fluxo de refinamento standalone como uma das opções de disparo) · PROTO-WORKFLOW-FILA (fila como destino das propostas e relatórios)
+
+### Funcionalidades (esboço):
+- **1.1 Leitura do sistema** — varre ROADMAPs, backlog, branches abertas, fila atual; identifica oportunidades por prioridade declarada (implementar refinado > refinar pré-🔍 > transformar visão em backlog).
+- **1.2 Disparo de fluxo apropriado** — para cada oportunidade priorizada, escolhe entre fluxo de refinamento ou de implementação; dispara como sessão autônoma com escopo declarado.
+- **1.3 Catálogo de tipos de proposta** — implementar épico em 🔍, refinar épico pré-🔍, transformar item da visão em épico novo, propor POC de ideia mencionada, mapear dependências entre épicos, gerar relatório executivo do dia.
+- **1.4 Cadência configurável** — POC pode ser disparo manual; MVP avança para schedule (cron) ou gatilho de evento. A definir no refinamento.
+
+---
+
+#### ÉPICO W-MVP-PROP-2: Porta-voz — curador de atenção com agência
+
+**Milestone:** `MVP-WORKFLOW-PROPONENTE`
+
+**Objetivo:** filtro inteligente entre o sistema e o operador. Recebe consultas do proponente em bloqueios; lê estado-do-mundo; cura a fila. Tem agência decisória sobre bloqueios pequenos, baseada em filosofia/visão/orientações acumuladas. Escala apenas o que escapa do repertório.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** W-MVP-PROP-1 (proponente existente, gerando bloqueios) · PROTO-WORKFLOW-FILA (fila como destino do que escala)
+
+### Funcionalidades (esboço):
+- **2.1 Mecânica de bloqueio proponente↔porta-voz** — proponente chama porta-voz com contexto do bloqueio + pede recomendação; porta-voz responde "siga com X", "abra alternativa Y" ou "escala para operador".
+- **2.2 Repertório consultável do porta-voz** — markdown canônico (formato a definir no refinamento) com filosofia, visão, orientações acumuladas. Resposta do operador a escalações vira repertório novo.
+- **2.3 Curadoria da fila** — porta-voz ordena/agrupa/filtra itens; aplica auto-regulação dura (~20 itens) — pausa real, não só alerta como no Protótipo.
+- **2.4 Temporização** — porta-voz decide quando interromper o operador; junta perguntas correlatas; escala atenção certa na hora certa.
 
 ---
 
@@ -827,10 +909,26 @@ fluxo autônomo exige `🔍 Detalhes definidos`.
 Os milestones da fase Protótipo `PROTO-WORKFLOW-ENCERRAMENTO`,
 `PROTO-WORKFLOW-DOC` e `PROTO-WORKFLOW-AJUSTES` foram mergeados em
 sequência (PRs #83, #90 e #93). `PROTO-WORKFLOW-PLATAFORMA` está em
-`🔍 Detalhes definidos` — apto ao fluxo autônomo. Os milestones MVP
-(`MVP-WORKFLOW-PLATAFORMA` e `MVP-WORKFLOW-REFINADOR`) têm épicos
-esboçados em `📐` aguardando refinamento estratégico após
-`PROTO-WORKFLOW-PLATAFORMA` fechar.
+`🔍 Detalhes definidos` — apto ao fluxo autônomo. `PROTO-WORKFLOW-FILA`
+(absorve o conteúdo do antigo MVP-WORKFLOW-PLATAFORMA, reposicionado
+como Protótipo) tem épicos em `📐` aguardando refinamento estratégico
+após `PROTO-WORKFLOW-PLATAFORMA` fechar. Os milestones MVP
+(`MVP-WORKFLOW-REFINAMENTO` e `MVP-WORKFLOW-PROPONENTE`) têm épicos
+em `📐` aguardando refinamento estratégico após `PROTO-WORKFLOW-FILA`
+fechar.
+
+**Reorganização 2026-04-28 (papéis vs fluxos).** A vision foi reescrita
+para separar **papéis** (operador, proponente, porta-voz) de **fluxos**
+(refinamento, implementação, encerramento, futuros). Antes o
+"refinador autônomo" e o "implementador" apareciam como papéis; agora
+são executores de fluxos via skills. Consequências no ROADMAP:
+- antigo `MVP-WORKFLOW-PLATAFORMA` foi movido pra Protótipo como
+  `PROTO-WORKFLOW-FILA` (fila reativa, sem agente proativo);
+- antigo `MVP-WORKFLOW-REFINADOR` virou `MVP-WORKFLOW-REFINAMENTO`
+  (fluxo standalone, princípios novos: saltos pequenos, branch
+  persiste, PR por épico);
+- novo `MVP-WORKFLOW-PROPONENTE` introduz os dois papéis novos
+  (proponente + porta-voz) com mecânica de bloqueio entre eles.
 
 **Padronização do campo `**Milestone:**` em ROADMAPs.** O parser
 de W-PROTO-PLAT-1.1 trata épicos sem campo `**Milestone:** <id>`
