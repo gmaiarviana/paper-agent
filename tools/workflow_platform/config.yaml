@@ -1,0 +1,10 @@
+github:
+  owner: gmaiarviana
+  repo: paper-agent
+roadmaps:
+  - docs/ROADMAP.md
+  - docs/process/workflow/ROADMAP.md
+  - products/revelar/ROADMAP.md
+  - products/ensaio/ROADMAP.md
+  - products/prisma-verbal/ROADMAP.md
+  - products/produtor-cientifico/ROADMAP.md
