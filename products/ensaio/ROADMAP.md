@@ -62,21 +62,56 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 - **Branch associada:** `claude/implement-essay-prototype-uFkkP`
 - **Status dos épicos:** ✅ Implementados (E-PROTO-1, E-PROTO-2, E-PROTO-3) — PR #97 (merge `1d592d0`, 2026-04-27), validação manual executada
 
-### PROTO-ENSAIO-2 (stub)
+### PROTO-ENSAIO-2
 
-- **Objetivo:** Tornar o raciocínio dos agentes visível e dar ao Usuário voz antes que decisões virem estado. Endereça: Metodologista invisível; Estruturador que decidiu sozinho sem expor racional; mensagens que não deixam claro o que mudou; impossibilidade de colapsar seções.
+- **Objetivo:** Tornar visível o raciocínio dos agentes e dar ao Usuário voz antes que decisões dos agentes virem estado. Ataca pontos em que o PROTO-ENSAIO produziu sessão funcional mas opaca: Estruturador decidindo sozinho, Metodologista com papel embolado e por isso ausente, mensagens longas que escondem o que mudou, painel de seções sem accordion.
 - **Estágio:** Protótipo
 - **Produto:** Ensaio
-- **Status:** `🌱 Visão`
-- **Feedback capturado (validação PROTO-ENSAIO):**
-  - Metodologista existe mas não aparece no chat
-  - Estruturador propôs seções sem expor racional nem pedir confirmação
-  - "Vou estruturar essa nova questão de pesquisa" — usuário não entendeu o que mudou
-  - Mensagem do Estruturador longa sem sinalizar o que o sistema fez
-  - Seções do artigo não podem ser colapsadas/expandidas
-- **Épicos planejados (a detalhar no refinamento):** E-PROTO2-1 Co-decisão da Estrutura, E-PROTO2-2 Visibilidade do Metodologista, E-PROTO2-3 Mensagens com "o que mudou", E-PROTO2-4 Colapsar/expandir seções
+- **Status:** `🧭 Jornada alinhada`
+- **Épicos agrupados:** E-PROTO2-1, E-PROTO2-2, E-PROTO2-3, E-PROTO2-4
 - **Dependências:** PROTO-ENSAIO ✅
 - **Branch associada:** `milestone/proto-ensaio-2` (a criar)
+
+**Jornada alvo (sessão ideal pós-milestone):**
+
+Usuário descreve experimento. Em algum momento — emergente da conversa, não em ordem fixa — o Metodologista provoca sobre escopo e qualidade da mensagem: tese central, evidência, intenção do artigo. Em outro momento, o Estruturador **propõe** storytelling com racional curto; a proposta aparece como bubble especial com aceitar / editar leve / recusar, e só vira `current_article` após o aceite. Mensagens dos agentes que tocam estado vêm com manchete pequena ("📐 Estrutura proposta", "🎯 Foco atualizado", "🔬 Lacuna apontada") acima do texto, deixando claro o que aconteceu antes do Usuário ler tudo. No painel direito, seções ficam colapsadas por padrão; o Usuário expande aquelas em que está trabalhando.
+
+**O que é:**
+- Co-decisão da estrutura (proposta → confirmação/edição → estado).
+- Limpeza dos prompts do core: Estruturador cobre storytelling; Metodologista cobre escopo + qualidade. Sobreposição atual (Metodologista falando de estrutura/formato) é eliminada.
+- Manchete de "o que mudou" em mensagens de agentes que tocam estado.
+- Colapsar/expandir seções, colapsado por padrão.
+
+**O que não é:**
+- Persistência entre sessões (MVP-ENSAIO).
+- Loop de refinamento por seção / guardrails de contexto / ordem de geração de seção (PROTO-ENSAIO-3).
+- Histórico ou diff entre versões da estrutura (Ideias Futuras).
+- Gatilhos determinísticos de invocação dos agentes (ver restrição de fluidez abaixo).
+
+**Restrição dura — conversa fluida:**
+
+A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua decidindo *quando* convocar quem; o milestone **não impõe ordem mandatória entre Metodologista e Estruturador**. O milestone entrega clareza de papéis e gatilhos legíveis, não máquina de passos. Esta restrição é não-negociável: implementação que amarre sequência fixa Metodologista→Estruturador no grafo viola o escopo.
+
+**Glossário ancorado:**
+- **Storytelling (Estruturador):** decisão sobre ordem e sequência do que será dito. *Como* contar.
+- **Escopo / qualidade da mensagem (Metodologista):** decisão sobre tese central, evidência, intenção do artigo. *O que* é dito e se sustenta.
+- **Co-decisão de estrutura:** ciclo proposta → aceitar/editar/recusar → commit no estado. Substitui o commit automático atual em `products/ensaio/app/state.py:159-173`.
+- **Manchete de mudança ("what changed"):** linha curta no bubble que sumariza qual estado foi tocado, antes do conteúdo livre. Campo aditivo em `AIMessage.additional_kwargs`.
+
+**Acoplamentos com core:**
+- E-PROTO2-1: prompt e contrato de saída do Estruturador (`core/agents/structurer/`).
+- E-PROTO2-2: prompt do Metodologista (`core/prompts/methodologist_provocation.py`); postura do Orquestrador em `products/ensaio/config/product.yaml`.
+- E-PROTO2-3: contrato `change_summary` em `AIMessage.additional_kwargs` (aditivo, opcional, cruza core ↔ produto).
+- E-PROTO2-4: puro UI (`products/ensaio/app/components/article_panel.py`), sem acoplamento com core.
+
+**Feedback do estágio anterior endereçado:**
+- "Estruturador propôs sem expor racional nem pedir confirmação" (validação PROTO-ENSAIO) → E-PROTO2-1.
+- "Mensagem do Estruturador longa sem sinalizar o que o sistema fez" → E-PROTO2-3.
+- "'Vou estruturar essa nova questão de pesquisa' — usuário não entendeu o que mudou" → E-PROTO2-3.
+- "Metodologista existe mas não aparece no chat" → E-PROTO2-2 (papel afiado torna a presença legível quando convocado).
+- "Seções do artigo não podem ser colapsadas/expandidas" → E-PROTO2-4.
+
+**Nota:** milestone em `🧭 Jornada alinhada` — épicos individualmente em `📐 Funcionalidades esboçadas`. Critérios de aceite ficam para refinamento tático pela PM skill dentro da branch. Sizing avaliado antes do dispatch.
 
 ### PROTO-ENSAIO-3 (stub)
 
@@ -170,6 +205,66 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 **Entregue:** Novo nó `methodologist_provocation_node` no core (separado e independente do `decide_collaborative` existente, que permanece inalterado), registrado como nó `"methodologist"` no grafo do Ensaio. Postura seletiva via instrução no `product.yaml` — Orquestrador sugere o Metodologista quando a conversa toca em metodologia, métricas ou afirmações sem suporte. Prompt cobre lacunas de rigor + as 4 dimensões do Writer (contexto, intenção, formato, estrutura).
 
 **Referências:** `core/agents/methodologist/nodes.py` (`methodologist_provocation_node`), `core/prompts/methodologist_provocation.py` (`METHODOLOGIST_PROVOCATION_PROMPT_V1`), `products/ensaio/app/graph.py` (registro do nó), `products/ensaio/config/product.yaml` (postura seletiva + anti-promessa-vazia).
+
+---
+
+#### ÉPICO E-PROTO2-1: Co-decisão da Estrutura (storytelling)
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Objetivo:** Tornar a estrutura proposta pelo Estruturador um ato de co-decisão. O Estruturador propõe storytelling com racional curto; a proposta vira bubble especial e só comita em `current_article` após o Usuário aceitar (com possibilidade de edição leve antes).
+
+### Funcionalidades (esboço):
+- E-PROTO2-1.1 Proposta sem commit — Estruturador entrega seções e racional via `additional_kwargs`; `state.py` deixa de escrever direto em `current_article`, passa a manter uma proposta pendente.
+- E-PROTO2-1.2 Bubble de proposta pendente com ações aceitar / editar / recusar.
+- E-PROTO2-1.3 Edição leve da proposta antes do aceite — renomear, reordenar, remover, adicionar seções.
+- E-PROTO2-1.4 Prompt do Estruturador afiado para storytelling apenas — sai cobertura de métricas/evidências/intenção (migra para E-PROTO2-2).
+
+**Dependências:** PROTO-ENSAIO ✅. Acoplado a E-PROTO2-2 (limpeza de prompts é trabalho conjunto entre Estruturador e Metodologista).
+
+---
+
+#### ÉPICO E-PROTO2-2: Metodologista com escopo e qualidade afiados
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Objetivo:** Dar ao Metodologista papel claro e único — escopo e qualidade da mensagem. Eliminar a sobreposição atual com o Estruturador, deixando o Metodologista provocar sobre tese central, evidência, afirmação sem suporte e intenção do artigo. Visibilidade emerge da clareza de papel quando o Orquestrador convoca, não de gatilhos determinísticos no grafo.
+
+### Funcionalidades (esboço):
+- E-PROTO2-2.1 Prompt do Metodologista limpo — cobre só escopo + qualidade da mensagem (sai "estrutura" e "formato"; entra ênfase em tese, evidência, intenção do artigo).
+- E-PROTO2-2.2 Postura do Orquestrador em `product.yaml` revisada para refletir os papéis novos — sem amarrar ordem entre Metodologista e Estruturador.
+- E-PROTO2-2.3 Sem gancho determinístico no grafo — roteamento permanece via Orquestrador. Restrição de fluidez do milestone respeitada.
+
+**Dependências:** PROTO-ENSAIO ✅. Acoplado a E-PROTO2-1 (limpeza de prompts é trabalho conjunto).
+
+---
+
+#### ÉPICO E-PROTO2-3: Manchete "o que mudou" em mensagens de agente
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Objetivo:** Cada mensagem de agente que toca estado passa a vir com manchete pequena acima do conteúdo, sumarizando qual estado foi tocado (estrutura proposta, foco atualizado, lacuna apontada). Usuário deixa de precisar ler parágrafo inteiro para descobrir o que aconteceu.
+
+### Funcionalidades (esboço):
+- E-PROTO2-3.1 Contrato `change_summary` em `AIMessage.additional_kwargs` — campo aditivo, opcional. Agentes que mudam estado preenchem; agentes em turno conversacional puro não preenchem.
+- E-PROTO2-3.2 Renderização da manchete no bubble — header curto + conteúdo abaixo. Quando o campo está ausente, bubble fica como hoje.
+- E-PROTO2-3.3 Casos cobertos no marco do milestone — Estruturador propondo/atualizando estrutura, mudança de `focal_argument`, Metodologista apontando lacuna.
+
+**Dependências:** PROTO-ENSAIO ✅.
+
+---
+
+#### ÉPICO E-PROTO2-4: Colapsar/expandir seções no painel
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Objetivo:** Painel de seções deixa de renderizar tudo expandido. Toggle por seção, todas colapsadas por padrão no estado inicial. Usuário foca no que está trabalhando.
+
+### Funcionalidades (esboço):
+- E-PROTO2-4.1 Accordion no painel — cada seção colapsa/expande individualmente.
+- E-PROTO2-4.2 Estado inicial — todas colapsadas. Sem persistir preferência (sessão é descartável até MVP-ENSAIO).
+
+**Dependências:** PROTO-ENSAIO ✅. Puro UI, sem acoplamento com core.
 
 ---
 
