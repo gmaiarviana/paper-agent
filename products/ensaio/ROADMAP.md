@@ -67,8 +67,8 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 - **Objetivo:** Tornar visível o raciocínio dos agentes e dar ao Usuário voz antes que decisões dos agentes virem estado. Ataca pontos em que o PROTO-ENSAIO produziu sessão funcional mas opaca: Estruturador decidindo sozinho, Metodologista com papel embolado e por isso ausente, mensagens longas que escondem o que mudou, painel de seções sem accordion.
 - **Estágio:** Protótipo
 - **Produto:** Ensaio
-- **Status:** `🧭 Jornada alinhada`
-- **Épicos agrupados:** E-PROTO2-1, E-PROTO2-2, E-PROTO2-3, E-PROTO2-4
+- **Status:** `📋 Critérios definidos`
+- **Épicos agrupados:** E-PROTO2-1, E-PROTO2-2, E-PROTO2-3, E-PROTO2-4 — todos em `📋 Critérios definidos`
 - **Dependências:** PROTO-ENSAIO ✅
 - **Branch associada:** `milestone/proto-ensaio-2` (a criar)
 
@@ -111,7 +111,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 - "Metodologista existe mas não aparece no chat" → E-PROTO2-2 (papel afiado torna a presença legível quando convocado).
 - "Seções do artigo não podem ser colapsadas/expandidas" → E-PROTO2-4.
 
-**Nota:** milestone em `🧭 Jornada alinhada` — épicos individualmente em `📐 Funcionalidades esboçadas`. Critérios de aceite ficam para refinamento tático pela PM skill dentro da branch. Sizing avaliado antes do dispatch.
+**Nota:** milestone em `📋 Critérios definidos` — apto ao fluxo manual. Para disparo autônomo, sessão adicional com alvo `🔍 Detalhes definidos` aplicando o checklist de `autonomous_readiness.md`. Sizing avaliado antes do dispatch.
 
 ### PROTO-ENSAIO-3 (stub)
 
@@ -210,15 +210,45 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-1: Co-decisão da Estrutura (storytelling)
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 📋 Critérios definidos
 
 **Objetivo:** Tornar a estrutura proposta pelo Estruturador um ato de co-decisão. O Estruturador propõe storytelling com racional curto; a proposta vira bubble especial e só comita em `current_article` após o Usuário aceitar (com possibilidade de edição leve antes).
 
-### Funcionalidades (esboço):
-- E-PROTO2-1.1 Proposta sem commit — Estruturador entrega seções e racional via `additional_kwargs`; `state.py` deixa de escrever direto em `current_article`, passa a manter uma proposta pendente.
-- E-PROTO2-1.2 Bubble de proposta pendente com ações aceitar / editar / recusar.
-- E-PROTO2-1.3 Edição leve da proposta antes do aceite — renomear, reordenar, remover, adicionar seções.
-- E-PROTO2-1.4 Prompt do Estruturador afiado para storytelling apenas — sai cobertura de métricas/evidências/intenção (migra para E-PROTO2-2).
+### Funcionalidades:
+
+#### E-PROTO2-1.1 Proposta sem commit
+- **Descrição:** Estruturador deixa de comitar direto em `current_article`. Output passa a ser uma proposta pendente, mantida em campo separado do estado, aguardando ação do Usuário.
+- **Critérios de Aceite:**
+  - Quando o Estruturador entrega `article_sections` em `additional_kwargs`, o estado armazena em `pending_structure_proposal` (novo campo em `EnsaioState`) e **não** escreve em `current_article`
+  - `current_article` só é atualizado quando o Usuário aceita (ou edita-e-aceita) a proposta
+  - Re-proposições do Estruturador substituem a proposta pendente; não há fila de propostas
+  - Painel direito continua refletindo `current_article` — fica vazio até o aceite
+  - Não regredimos comportamento existente: aceite produz o mesmo `current_article` que o auto-commit atual produzia
+
+#### E-PROTO2-1.2 Bubble de proposta com ações
+- **Descrição:** Proposta pendente é renderizada como bubble especial no chat, visualmente distinto de mensagem conversacional, com ações aceitar / editar / recusar.
+- **Critérios de Aceite:**
+  - Bubble especial mostra: lista das seções propostas, racional curto do Estruturador, três botões (Aceitar / Editar / Recusar)
+  - **Aceitar** comita `pending_structure_proposal` em `current_article` e limpa o pendente
+  - **Recusar** limpa `pending_structure_proposal` sem tocar `current_article`; bubble é substituído por nota curta no histórico
+  - Bubble é distinguível dos bubbles de conversa por borda/fundo dedicado
+  - Enquanto a proposta está pendente, o input do chat continua habilitado (não bloqueia conversa)
+
+#### E-PROTO2-1.3 Edição leve da proposta
+- **Descrição:** Antes de aceitar, Usuário pode editar a lista — renomear, reordenar, remover, adicionar seções.
+- **Critérios de Aceite:**
+  - Botão **Editar** abre a lista em modo editável: campo de texto por seção, controles de mover acima/abaixo, remover seção, adicionar seção ao final
+  - Confirmar a edição comita a versão editada em `current_article`
+  - Cancelar a edição volta à proposta original, ainda pendente
+  - Lista editada vazia (todas removidas) bloqueia o aceite com mensagem inline
+
+#### E-PROTO2-1.4 Prompt do Estruturador afiado para storytelling
+- **Descrição:** Prompt do Estruturador deixa de cobrir métricas, evidências, intenção e crenças populares (esses tópicos migram para o Metodologista — E-PROTO2-2). Foca exclusivamente em ordenação e sequência das seções e ganha campo de racional.
+- **Critérios de Aceite:**
+  - `core/prompts/structurer.py` remove instruções sobre métricas, evidências, intenção do artigo e detecção de crença popular
+  - Mantém: estruturação em seções via `article_sections` adequadas ao tipo de trabalho (empírico/revisão/posicionamento)
+  - Adiciona: instrução para preencher `rationale` curto (≤2 frases) em `additional_kwargs`, justificando a ordem proposta
+  - Estruturador não deve gerar perguntas metodológicas em sua mensagem (área do Metodologista)
 
 **Dependências:** PROTO-ENSAIO ✅. Acoplado a E-PROTO2-2 (limpeza de prompts é trabalho conjunto entre Estruturador e Metodologista).
 
@@ -226,14 +256,35 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-2: Metodologista com escopo e qualidade afiados
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 📋 Critérios definidos
 
 **Objetivo:** Dar ao Metodologista papel claro e único — escopo e qualidade da mensagem. Eliminar a sobreposição atual com o Estruturador, deixando o Metodologista provocar sobre tese central, evidência, afirmação sem suporte e intenção do artigo. Visibilidade emerge da clareza de papel quando o Orquestrador convoca, não de gatilhos determinísticos no grafo.
 
-### Funcionalidades (esboço):
-- E-PROTO2-2.1 Prompt do Metodologista limpo — cobre só escopo + qualidade da mensagem (sai "estrutura" e "formato"; entra ênfase em tese, evidência, intenção do artigo).
-- E-PROTO2-2.2 Postura do Orquestrador em `product.yaml` revisada para refletir os papéis novos — sem amarrar ordem entre Metodologista e Estruturador.
-- E-PROTO2-2.3 Sem gancho determinístico no grafo — roteamento permanece via Orquestrador. Restrição de fluidez do milestone respeitada.
+### Funcionalidades:
+
+#### E-PROTO2-2.1 Prompt do Metodologista limpo
+- **Descrição:** Prompt de provocação do Metodologista deixa de cobrir "Formato (IMRaD, etc)" e "Estrutura (seções)" — território do Estruturador. Ganha **Tese central** como dimensão própria.
+- **Critérios de Aceite:**
+  - `core/prompts/methodologist_provocation.py` remove os bullets "Formato" e "Estrutura" da seção "Dimensões do artigo"
+  - Adiciona dimensão **Tese central** (afirmação principal que sustenta o artigo) — explícita, não só implícita em "afirmações sem suporte"
+  - Preserva: métricas/evidências, rigor metodológico, afirmações sem suporte, contexto, intenção
+  - Postura inalterada: uma pergunta por vez, seletivo, tom colaborativo, nunca retorna vazio, nunca menciona "Metodologista" em primeira pessoa
+  - Output continua sendo uma única pergunta em pt-BR ou frase curta de aceite
+
+#### E-PROTO2-2.2 Postura do Orquestrador em `product.yaml` revisada
+- **Descrição:** `products/ensaio/config/product.yaml` reescreve a postura do Orquestrador para refletir os papéis afiados — Estruturador = storytelling; Metodologista = escopo e qualidade da mensagem. Sem prescrever ordem entre eles.
+- **Critérios de Aceite:**
+  - Postura do Estruturador é descrita como **storytelling** (ordem e sequência de seções), explicitamente sem cobrir contexto/problema/contribuição (que migra para o Metodologista)
+  - Trigger do Metodologista é alargado: "tese central sem suporte, evidência, intenção do artigo, afirmação não fundamentada", além de métricas/quantitativo
+  - Nenhum texto prescreve ordem Metodologista→Estruturador ou Estruturador→Metodologista
+  - Postura "anti-promessa-vazia" do Orquestrador permanece inalterada
+
+#### E-PROTO2-2.3 Sem gancho determinístico no grafo (aceite negativo)
+- **Descrição:** Verificação de que o roteamento entre agentes permanece via Orquestrador, sem edges fixas no grafo. Não introduz código novo.
+- **Critérios de Aceite:**
+  - `products/ensaio/app/graph.py` mantém `route_from_orchestrator` como único decisor entre `structurer | methodologist | user`
+  - Nenhuma edge nova é adicionada entre `methodologist` e `structurer`
+  - Documentado na PR de fechamento que a restrição de fluidez do milestone foi respeitada
 
 **Dependências:** PROTO-ENSAIO ✅. Acoplado a E-PROTO2-1 (limpeza de prompts é trabalho conjunto).
 
@@ -241,28 +292,63 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-3: Manchete "o que mudou" em mensagens de agente
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 📋 Critérios definidos
 
 **Objetivo:** Cada mensagem de agente que toca estado passa a vir com manchete pequena acima do conteúdo, sumarizando qual estado foi tocado (estrutura proposta, foco atualizado, lacuna apontada). Usuário deixa de precisar ler parágrafo inteiro para descobrir o que aconteceu.
 
-### Funcionalidades (esboço):
-- E-PROTO2-3.1 Contrato `change_summary` em `AIMessage.additional_kwargs` — campo aditivo, opcional. Agentes que mudam estado preenchem; agentes em turno conversacional puro não preenchem.
-- E-PROTO2-3.2 Renderização da manchete no bubble — header curto + conteúdo abaixo. Quando o campo está ausente, bubble fica como hoje.
-- E-PROTO2-3.3 Casos cobertos no marco do milestone — Estruturador propondo/atualizando estrutura, mudança de `focal_argument`, Metodologista apontando lacuna.
+### Funcionalidades:
 
-**Dependências:** PROTO-ENSAIO ✅.
+#### E-PROTO2-3.1 Contrato `change_summary` em `additional_kwargs`
+- **Descrição:** Campo aditivo, opcional, em `AIMessage.additional_kwargs`. Agentes que tocam estado preenchem; agentes em turno conversacional puro não preenchem.
+- **Critérios de Aceite:**
+  - Tipo do campo: string curta em pt-BR, ≤80 caracteres
+  - Quando ausente ou vazio, bubble renderiza como hoje (sem manchete)
+  - Quando presente, manchete aparece acima do conteúdo do bubble
+  - Campo é puramente aditivo — não substitui nem altera nenhum outro campo de `additional_kwargs`
+  - Estado `messages` em `state.py` propaga o campo opcional do `AIMessage.additional_kwargs` para o dict serializado da mensagem
+
+#### E-PROTO2-3.2 Renderização da manchete no bubble
+- **Descrição:** `_message_bubble` em `chat_panel.py` lê `change_summary` do dict da mensagem e renderiza header curto acima do conteúdo.
+- **Critérios de Aceite:**
+  - Manchete aparece acima do label de agente, em peso/tamanho menor que o conteúdo principal
+  - Quando `change_summary` é falsy/ausente, header não é renderizado (bubble fica como hoje)
+  - Mensagens do usuário nunca mostram manchete (campo só faz sentido para `AIMessage`)
+
+#### E-PROTO2-3.3 Três casos cobertos no marco do milestone
+- **Descrição:** Os três produtores de mudança de estado preenchem `change_summary` ao final do milestone. Outros agentes ou turnos puramente conversacionais não preenchem.
+- **Critérios de Aceite:**
+  - Estruturador propondo/atualizando estrutura (`structurer_node`) → manchete tipo "📐 Estrutura proposta"
+  - Mudança de `focal_argument` no Orquestrador (`orchestrator_node`) → manchete tipo "🎯 Foco atualizado" — só quando o foco efetivamente muda em relação ao turno anterior
+  - Metodologista apontando lacuna (`methodologist_provocation_node`) → manchete tipo "🔬 Lacuna apontada" — não preenche quando responde "contexto está bem descrito"
+  - Orquestrador em turno conversacional puro (sem mudança de foco) **não** preenche o campo
+
+**Dependências:** PROTO-ENSAIO ✅. Acoplado a E-PROTO2-1 (proposta de estrutura é um dos casos do 3.3).
 
 ---
 
 #### ÉPICO E-PROTO2-4: Colapsar/expandir seções no painel
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 📋 Critérios definidos
 
 **Objetivo:** Painel de seções deixa de renderizar tudo expandido. Toggle por seção, todas colapsadas por padrão no estado inicial. Usuário foca no que está trabalhando.
 
-### Funcionalidades (esboço):
-- E-PROTO2-4.1 Accordion no painel — cada seção colapsa/expande individualmente.
-- E-PROTO2-4.2 Estado inicial — todas colapsadas. Sem persistir preferência (sessão é descartável até MVP-ENSAIO).
+### Funcionalidades:
+
+#### E-PROTO2-4.1 Accordion no painel
+- **Descrição:** `article_panel.py` substitui `_section_card` (sempre expandido) por componente colapsável. Cada seção colapsa/expande individualmente.
+- **Critérios de Aceite:**
+  - Cada seção tem header clicável que alterna entre colapsado e expandido
+  - Header colapsado mostra: título da seção, badge de status, indicador visual de expansão (ex.: chevron)
+  - Conteúdo expandido mostra: corpo da seção (placeholder ou markdown) e botão Gerar/Regenerar
+  - Toggle por seção é independente: expandir uma seção não afeta as outras
+  - Edição inline (E-PROTO-2.3) continua funcionando dentro da seção expandida
+
+#### E-PROTO2-4.2 Estado inicial colapsado
+- **Descrição:** Todas as seções iniciam colapsadas no primeiro render. Sem persistência de preferência de expansão (sessão descartável até MVP-ENSAIO).
+- **Critérios de Aceite:**
+  - No primeiro render após aceite da proposta de estrutura, todas as seções estão colapsadas
+  - Recarregar a página volta tudo a colapsado (consistente com sessão descartável)
+  - Estado de expansão vive local ao componente do painel — não polui `EnsaioState`
 
 **Dependências:** PROTO-ENSAIO ✅. Puro UI, sem acoplamento com core.
 
