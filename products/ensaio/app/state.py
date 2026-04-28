@@ -14,7 +14,9 @@ import asyncio
 import logging
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
+
+SectionStatus = Literal["empty", "draft", "edited"]
 
 import reflex as rx
 from langchain_core.messages import AIMessage, HumanMessage
