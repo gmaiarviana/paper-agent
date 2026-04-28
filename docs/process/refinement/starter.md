@@ -85,8 +85,3 @@ Tudo que não está no pack inicial está mapeado em `docs/CONTEXT_INDEX.md` —
 
 - **`README.md`** — Útil para setup humano, não para refinamento estratégico.
 - **Docs de arquitetura/agentes** — Pedir sob demanda via `CONTEXT_INDEX.md` (senão explode o contexto inicial).
-
----
-
-**Versão:** 2.0
-**Substitui:** Listas inconsistentes em CONSTITUTION §7, planning_guidelines, CONTEXT_INDEX.
