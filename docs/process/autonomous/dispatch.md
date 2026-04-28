@@ -2,6 +2,7 @@
 
 > **📌 Uso:** dispare o fluxo autônomo em [claude.ai/code](https://claude.ai/code) sobre o repositório `paper-agent` com uma frase em linguagem natural que identifique o **milestone** alvo.
 > **📌 Pré-requisito:** o milestone alvo existe no ROADMAP do produto (seção `## 🎯 Milestones`). Épicos em `🌱 Visão`, `🧭 Jornada alinhada` ou `📐 Funcionalidades esboçadas` são refinados pela PM skill dentro da branch; épicos em `🔍 Detalhes definidos` seguem direto.
+> **📌 Escopo do disparo:** a frase de dispatch autoriza o ciclo **inteiro** PM (cond) → EM → SM → Dev → QA → TL → PO → **RTE (abre PR)**. Não é preciso confirmar a abertura da PR caso a caso — é o estado terminal do fluxo. Merge segue proibido sem revisão humana. Detalhes em [`CLAUDE.md`](../../../CLAUDE.md) e [`workflow.md`](workflow.md).
 > **📌 Documentação completa:** `docs/process/autonomous/`
 
 ---
