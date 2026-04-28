@@ -452,7 +452,7 @@ Avalie esta questão e retorne APENAS o JSON com status, justification e improve
                 try:
                     temp_data = extract_json_from_llm_response(response.content)
                     temp_status = temp_data.get("status", "unknown")
-                except:
+                except Exception:
                     temp_status = "unknown"
 
                 register_execution(
