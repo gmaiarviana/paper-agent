@@ -206,11 +206,22 @@ Validação em 2026-04-28 com `anthropic.Anthropic().messages.create(tools=[...]
 Implicação: **Claude Code CLI fica praticamente inutilizável via proxy hoje** — qualquer pedido que exija Read/Edit/Bash/etc. (i.e. quase tudo) vai falhar ou alucinar. O caminho está reservado pra texto; pra trabalho real ainda precisa rodar contra Anthropic direta.
 
 **Caminhos a investigar (refinamento futuro):**
+
+*Caminho 1 — debugar o LiteLLM proxy (Claude Code continua sendo a CLI):*
 - Subir o proxy com `--detailed_debug` e inspecionar payload outbound: confirmar se LiteLLM dropa `tools`, traduz mal, ou se o backend (OpenWebUI) está dropando antes de chegar no Ollama.
 - Avaliar se há config no `litellm-config.yaml` (parâmetro de tradução, modo de compatibilidade) que preserve tools.
 - Testar versões do LiteLLM entre 1.74.15 e 1.83.x procurando uma que conserte tool calling sem trazer o loop do Windows.
-- Considerar trocar de proxy (alternativas: `oneapi`, gateway custom mínimo) — escalada se LiteLLM não tiver fix.
 - Como último recurso, abrir issue upstream em [BerriAI/litellm](https://github.com/BerriAI/litellm) com o repro mínimo.
+
+*Caminho 2 — trocar a CLI por uma que fale OpenAI nativamente:*
+- **`opencode`** ([sst/opencode](https://github.com/sst/opencode)) é um agente CLI open-source com suporte nativo a backends OpenAI-compatible. Um colega relatou bons resultados rodando `opencode` contra OpenWebUI. Como não precisa da tradução Anthropic↔OpenAI, contorna o bug do proxy de raiz.
+- Trade-off: troca de fluxo (não é mais Claude Code; comandos, skills, MCPs e session conventions deste repositório foram desenhados pro Claude Code). Avaliar se o Paper Agent depende de features específicas do Claude Code (slash commands, skills, hooks) que `opencode` não tem ou tem em formato diferente — isso decide se é "alternativa total" ou "alternativa para tarefas específicas".
+- POC sugerida: rodar `opencode` contra `OPENWEBUI_BASE_URL` com `ollama/ministral-3:14b`, executar tarefa real (ex.: ler arquivo + editar), comparar UX com Claude Code via proxy.
+
+*Caminho 3 — outros proxies de tradução (escalada se ambos acima falharem):*
+- Alternativas conhecidas: `oneapi`, gateway custom mínimo. Maior custo de manutenção, só vale se 1 e 2 não fecharem.
+
+**Decisão a tomar no refinamento:** caminho 1 vs. 2 não é mutuamente exclusivo, mas a escolha define qual investimento prioritário — debug do proxy é mais barato no início; adoção de `opencode` reposiciona ferramentas/convenções deste repo. Depende de quanto Claude Code é "feature do projeto" vs. "shell intercambiável".
 
 **Não autorizado neste item:**
 - Apagar/reformar `infra/litellm-proxy/` antes do diagnóstico — ele continua útil pro fluxo de texto e como base do debug.
