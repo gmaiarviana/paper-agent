@@ -19,6 +19,7 @@
 | Épico Core | Status | Milestone consumidor | Produto |
 |------------|--------|----------------------|---------|
 | ÉPICO 1 (Pesquisador) | 🌱 Visão | — (não vinculado) | — |
+| ÉPICO 2 (Camada Compartilhada de Invocação de LLM) | 🌱 Visão | — (higiene técnica, não vinculado a produto) | — |
 | C-ENSAIO-1 (Parametrização de Contexto) | 🌱 Visão | POC-ENSAIO | Ensaio |
 | C-ENSAIO-2 (Writer versão inicial) | ✅ Implementado | POC-ENSAIO | Ensaio |
 | C-ENSAIO-3 (Writer por seção) | ✅ Implementado | PROTO-ENSAIO | Ensaio |
@@ -48,6 +49,27 @@
 **Próximos Passos:**
 - Discutir comportamento e interface antes do refinamento
 - Definir integração com Observer e catálogo de conceitos
+
+---
+
+#### ÉPICO 2: Camada Compartilhada de Invocação de LLM
+
+**Objetivo:** Eliminar a duplicação do boilerplate de chamada a LLM espalhado pelos agentes do core. Hoje cada agente reimplementa `_get_llm` + `extract_json_from_llm_response` + `register_execution` + try/except (~13 cópias), bypassa a abstração de provider importando `ChatAnthropic` direto, e mascara erros com `except Exception:` genéricos. Consolidar numa única camada (`core/utils/llm_runner.py`) que encapsule provider selection, retry, parsing JSON, validação Pydantic e tracking de execução — tornando troca de modelo, mudança de provider e mudança de instrumentação um fix em um lugar só.
+
+**Status:** 🌱 Visão
+
+**Origem:** auditoria técnica em `claude/scan-core-technical-debt-zNlv2` (2026-04-28), recomendação prioritária. Detalhes técnicos e itens relacionados em [docs/backlog.md §G1](backlog.md#g1-higienização-da-camada-de-llm-core).
+
+**Escopo provisório (a refinar):**
+- Função `run_agent(agent_name, prompt, schema, config) -> (parsed, raw)` consumida por todos os nós que chamam LLM hoje.
+- Restaurar `_detect_provider` como ponto único de seleção de cliente (parar de importar `ChatAnthropic` direto nos agentes).
+- Hooks padronizados de logging/tracking que tornem `G1.2` (consolidação de logging) e `G1.3` (defaults YAML) cabíveis no mesmo épico ou em sequência imediata.
+
+**Dependências:** nenhuma (refator interno do core).
+
+**Próximos Passos:**
+- Sessão de refinamento para definir contrato exato de `run_agent`, estratégia de migração agente-a-agente e critério de "feito".
+- Decidir se G1.2 (logging) e G1.3 (YAML defaults) entram no mesmo épico ou ficam em épicos separados subsequentes.
 
 ---
 
