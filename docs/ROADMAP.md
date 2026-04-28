@@ -19,7 +19,7 @@
 | Épico Core | Status | Milestone consumidor | Produto |
 |------------|--------|----------------------|---------|
 | ÉPICO 1 (Pesquisador) | 🌱 Visão | — (não vinculado) | — |
-| ÉPICO 2 (Backend de Modelo Local — OpenWebUI) | 🌱 Visão | — (não vinculado) | — |
+| ÉPICO 2 (Backend de Modelo Local nos Produtos/Core — OpenWebUI) | 🌱 Visão | — (não vinculado) | — |
 | C-ENSAIO-1 (Parametrização de Contexto) | 🌱 Visão | POC-ENSAIO | Ensaio |
 | C-ENSAIO-2 (Writer versão inicial) | ✅ Implementado | POC-ENSAIO | Ensaio |
 | C-ENSAIO-3 (Writer por seção) | ✅ Implementado | PROTO-ENSAIO | Ensaio |
@@ -52,44 +52,49 @@
 
 ---
 
-#### ÉPICO 2: Backend de Modelo Local (OpenWebUI / Ollama)
+#### ÉPICO 2: Backend de Modelo Local nos Produtos/Core (OpenWebUI / Ollama)
 
-**Objetivo:** Permitir que produtos do super-sistema (Ensaio, Revelar, futuros) e os agentes do core rodem contra modelos locais servidos pelo **OpenWebUI da Atlântico** (`chat.alia.atlantico.com.br/api`) em vez de chamarem a Anthropic API direta. Convivência com o backend Anthropic continua sendo requisito (CI, fallback, ambientes sem proxy).
+**Escopo:** este épico é sobre o **runtime dos produtos e agentes do core do Paper Agent** — Writer, Estruturador, Metodologista e os apps Ensaio/Revelar passarem a chamar modelos locais servidos pelo OpenWebUI da Atlântico (`chat.alia.atlantico.com.br/api`) em vez da API Anthropic direta. **Não cobre** o uso do Claude Code CLI contra OpenWebUI — esse caminho é tooling de desenvolvimento e está tratado em [`docs/process/workflow/ROADMAP.md`](process/workflow/ROADMAP.md).
+
+**Objetivo:** trocar o provedor de modelo dos agentes/produtos sem regressão funcional. Convivência com o backend Anthropic continua sendo requisito (CI, fallback, ambientes sem infra local).
 
 **Status:** 🌱 Visão
 
 **Motivação:**
-- Soberania de modelo: rodar contra infra Atlântico, sem chave Anthropic individual por dev.
-- Caminho técnico já validado parcialmente: `infra/litellm-proxy/` traduz Anthropic ↔ OpenAI e funciona contra o OpenWebUI no fluxo Claude Code CLI.
-- Tentativa anterior em `products/ensaio/` mostrou que reusar o proxy dá tração mas precisa decisão arquitetural antes de virar caminho oficial dos produtos (proxy hoje é declarado "ferramenta de dev independente" — promovê-lo a runtime de produto é mudança de status).
+- Soberania de modelo: produtos rodando contra infra Atlântico, sem chave Anthropic individual por dev.
+- Tentativa anterior em `products/ensaio/` (2026-04-28) chegou a apontar `ANTHROPIC_BASE_URL` pro proxy LiteLLM local — abriu app mas as chamadas falharam, sem decisão arquitetural firme. Esta entrada captura o que já se sabe pra próxima tentativa não tropeçar igual.
 
 **Certezas iniciais:**
-- Env vars `OPENWEBUI_API_KEY` e `OPENWEBUI_BASE_URL` já existem e são reusáveis.
-- Cliente Anthropic SDK aceita ser desviado para o proxy via `ANTHROPIC_BASE_URL=http://localhost:4000` (smoke test verde no Claude Code CLI).
-- Params Anthropic-only (`context_management`, `cache_control`, `thinking`, `anthropic_beta`) precisam ser dropados quando o backend é OpenAI-compatible.
+- Env vars `OPENWEBUI_API_KEY` e `OPENWEBUI_BASE_URL` já existem.
 - Modelos disponíveis hoje no backend: `ollama/ministral-3:14b` (default texto/instruções) e `ollama/llama3.2:3b` (rápido, leve).
-- **Tool calling funciona em `ollama/ministral-3:14b`** quando a chamada vai em formato OpenAI direto contra `OPENWEBUI_BASE_URL/chat/completions`: prova empírica em 2026-04-28 com 2 tools (`get_local_status`, `get_current_time_by_utc_offset`) — modelo escolheu a tool correta, montou args válidos, recebeu o `tool` result no histórico e gerou resposta final coerente. Esse resultado **invalida** a hipótese inicial de que Ollama small models não suportariam tool calling.
-- LiteLLM 1.83.x quebra em loop no Windows; pin em 1.74.15 é parte do contrato atual.
+- Params Anthropic-only (`context_management`, `cache_control`, `thinking`, `anthropic_beta`) precisam ser dropados quando o backend é OpenAI-compatible.
+
+**Evidências empíricas (2026-04-28):**
+- ✅ **Tool calling no `ollama/ministral-3:14b` em formato OpenAI cru funciona.** Teste batendo direto em `OPENWEBUI_BASE_URL/chat/completions` com 2 tools (`get_local_status`, `get_current_time_by_utc_offset`) — modelo escolheu a tool correta, montou args válidos, recebeu o tool result no histórico e gerou resposta final coerente. Invalida a hipótese inicial de que Ollama small models não suportariam tool calling.
+- ❌ **Tool calling via proxy LiteLLM em formato Anthropic NÃO é preservado.** Mesmo modelo, mesma intenção, agora chamado via Anthropic SDK (`anthropic.Anthropic().messages.create(tools=[...])`) com `ANTHROPIC_BASE_URL=http://localhost:4000`: resposta volta com `blocks=['text']` e `stop_reason=end_turn` em vez de `tool_use`. A tradução Anthropic→OpenAI do LiteLLM proxy não está chegando com os tools no backend. Esse é provavelmente o motivo da tentativa do Ensaio ter quebrado — agentes que dependem de tool calling (Metodologista usa `ask_user`, Estruturador idem) regridem silenciosamente: viram texto livre.
+- ⚠️ Texto puro via proxy (sem tools) funciona normalmente — a regressão é específica de tool calling.
+
+**Implicação arquitetural:** o caminho "Anthropic SDK + proxy LiteLLM" parece **inviável** como rota oficial dos produtos enquanto a tradução de tools não for preservada. O caminho que ganha tração é **cliente OpenAI-compatible direto** no core, com abstração de provider — mas exige refator do uso atual de `langchain_anthropic` (Writer chama via `ChatAnthropic`).
 
 **Lacunas que ainda exigem prova empírica:**
-- Tool calling **via proxy LiteLLM no formato Anthropic** (ou seja, SDK Anthropic → proxy → OpenWebUI): o teste verde acima foi formato OpenAI cru, não tocou na camada de tradução. Precisa validar antes de adotar o caminho do proxy como oficial nos produtos.
-- JSON estruturado / output determinístico em `ollama/ministral-3:14b` para os outputs do Writer e do Estruturador.
-- Comportamento dos agentes do core que dependem de prompt caching e thinking (hoje desativados no proxy via `drop_params`) — perda de qualidade ainda não medida.
+- JSON estruturado / output determinístico em `ollama/ministral-3:14b` para Writer e Estruturador.
+- Comportamento dos agentes que dependem de prompt caching e thinking (perda de qualidade ainda não medida).
+- Se há flag/versão do LiteLLM que preserve tool calling na tradução Anthropic→OpenAI (descartar definitivamente o caminho do proxy só depois disso).
 
 **Decisões a tomar no refinamento:**
-- **Caminho técnico:** proxy LiteLLM como dependência runtime do produto **vs.** cliente OpenAI-compatible direto no core (sem proxy). Com tool calling provado em formato OpenAI direto, o caminho "cliente direto" ganhou tração — mas exige refator de `core/` pra abstrair provider e uma decisão sobre como conviver com `langchain_anthropic` (que o Writer usa hoje).
-- **Onde mora o switch** (Anthropic real vs. OpenWebUI): só `LLM_MODEL` + `ANTHROPIC_BASE_URL`, ou abstração explícita em `core/utils/config.py` / camada de provider.
-- **Cobertura do `litellm-config.yaml`:** hoje só `claude-*` (wildcard) e `ollama/ministral-3:14b` estão como model groups. Pedir `ollama/llama3.2:3b` retorna 400 ("no healthy deployments") — registrado em `validate_writer` em 2026-04-28. Decidir se mantemos só ministral como default oficial ou expandimos a lista.
-- **Custo e métricas:** `core/utils/cost_tracker.py` precisa lidar com nomes de modelo não-Anthropic sem explodir.
-- **Piso de qualidade por agente:** quais agentes do core podem rodar em Ollama local sem regressão perceptível, e quais ainda exigem Sonnet/Opus.
+- Confirmar caminho **cliente OpenAI direto + abstração de provider** vs. tentar resgatar o caminho do proxy.
+- Onde mora o switch: `LLM_MODEL` puro ou abstração explícita em `core/utils/config.py` / camada de provider.
+- Como `langchain_anthropic` (usado pelo Writer hoje) convive com a abstração: continua existindo só pro provider Anthropic, ou é substituído por algo provider-agnostic.
+- `core/utils/cost_tracker.py` precisa lidar com nomes de modelo não-Anthropic sem explodir.
+- Piso de qualidade por agente: quais aceitam Ollama local sem regressão e quais ainda exigem Sonnet/Opus.
 
 **Não autorizado neste épico:**
 - Remover suporte ao backend Anthropic direto.
-- Deletar/mover `infra/litellm-proxy/` antes da decisão sobre caminho técnico (proxy continua viável até o épico fechar).
+- Mexer em `infra/litellm-proxy/` (essa pasta é dev tooling do Claude Code CLI; ver workflow ROADMAP).
 
 **Próximos Passos:**
-- Sessão de refinamento para escolher entre proxy vs. cliente direto.
-- Smoke tests por agente do core (Estruturador, Metodologista, Writer) contra cada modelo disponível, registrando onde tool calling/JSON mode quebra.
+- Sessão de refinamento para fechar a abstração de provider.
+- Smoke tests por agente do core contra cada modelo disponível, registrando onde tool calling/JSON mode quebra.
 
 ---
 

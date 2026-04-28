@@ -187,6 +187,36 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   nova. Épicos em `📐 Funcionalidades esboçadas` — aguardam refinamento
   estratégico antes do dispatch.
 
+## 🛠️ Tooling de Desenvolvimento
+
+### Claude Code CLI via OpenWebUI (proxy LiteLLM)
+
+**Status:** 🌱 Visão (parcialmente operacional — texto sim, tool calling **quebrado**)
+
+**Escopo:** este item é sobre **a CLI do Claude Code rodando contra modelos do OpenWebUI da Atlântico** em vez da API Anthropic. **Não cobre** o uso de OpenWebUI dentro do produto Paper Agent — esse caminho é runtime de produto e está tratado em [`docs/ROADMAP.md`](../../ROADMAP.md) (ÉPICO 2).
+
+**Estado atual:**
+- `infra/litellm-proxy/` está montado e o `test-proxy.ps1` passa: health + `/v1/messages` (texto) + wildcard `claude-*`. Smoke test verde **só pra texto puro**.
+- Configurado via `.env`: `OPENWEBUI_API_KEY`, `OPENWEBUI_BASE_URL`, `ANTHROPIC_BASE_URL=http://localhost:4000`. `setup-claude-code.ps1` ativa a sessão.
+- Pin obrigatório: LiteLLM 1.74.15 (1.83.x quebra em loop no Windows).
+
+**Problema aberto — tool calling não atravessa o proxy:**
+Validação em 2026-04-28 com `anthropic.Anthropic().messages.create(tools=[...])` apontando para o proxy retorna `blocks=['text']` + `stop_reason=end_turn` em vez de `tool_use`. O LiteLLM não está preservando os tools na tradução Anthropic→OpenAI. Sintoma observável no CLI: ao mandar "oi" em uma sessão, o modelo devolve um JSON imitando uma `action` em vez de responder normal — efeito clássico de tool spec chegando no system prompt mas sem canal de emissão de tool calls.
+
+Implicação: **Claude Code CLI fica praticamente inutilizável via proxy hoje** — qualquer pedido que exija Read/Edit/Bash/etc. (i.e. quase tudo) vai falhar ou alucinar. O caminho está reservado pra texto; pra trabalho real ainda precisa rodar contra Anthropic direta.
+
+**Caminhos a investigar (refinamento futuro):**
+- Subir o proxy com `--detailed_debug` e inspecionar payload outbound: confirmar se LiteLLM dropa `tools`, traduz mal, ou se o backend (OpenWebUI) está dropando antes de chegar no Ollama.
+- Avaliar se há config no `litellm-config.yaml` (parâmetro de tradução, modo de compatibilidade) que preserve tools.
+- Testar versões do LiteLLM entre 1.74.15 e 1.83.x procurando uma que conserte tool calling sem trazer o loop do Windows.
+- Considerar trocar de proxy (alternativas: `oneapi`, gateway custom mínimo) — escalada se LiteLLM não tiver fix.
+- Como último recurso, abrir issue upstream em [BerriAI/litellm](https://github.com/BerriAI/litellm) com o repro mínimo.
+
+**Não autorizado neste item:**
+- Apagar/reformar `infra/litellm-proxy/` antes do diagnóstico — ele continua útil pro fluxo de texto e como base do debug.
+
+---
+
 ## 📋 Épicos Planejados
 
 ### ⏳ Fase POC
