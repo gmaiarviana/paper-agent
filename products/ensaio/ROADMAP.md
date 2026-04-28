@@ -67,8 +67,8 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 - **Objetivo:** Tornar visível o raciocínio dos agentes e dar ao Usuário voz antes que decisões dos agentes virem estado. Ataca pontos em que o PROTO-ENSAIO produziu sessão funcional mas opaca: Estruturador decidindo sozinho, Metodologista com papel embolado e por isso ausente, mensagens longas que escondem o que mudou, painel de seções sem accordion.
 - **Estágio:** Protótipo
 - **Produto:** Ensaio
-- **Status:** `📋 Critérios definidos`
-- **Épicos agrupados:** E-PROTO2-1, E-PROTO2-2, E-PROTO2-3, E-PROTO2-4 — todos em `📋 Critérios definidos`
+- **Status:** `🔍 Detalhes definidos`
+- **Épicos agrupados:** E-PROTO2-1, E-PROTO2-2, E-PROTO2-3, E-PROTO2-4 — todos em `🔍 Detalhes definidos`
 - **Dependências:** PROTO-ENSAIO ✅
 - **Branch associada:** `milestone/proto-ensaio-2` (a criar)
 
@@ -98,10 +98,10 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 - **Co-decisão de estrutura:** ciclo proposta → aceitar/editar/recusar → commit no estado. Substitui o commit automático atual em `products/ensaio/app/state.py:159-173`.
 - **Manchete de mudança ("what changed"):** linha curta no bubble que sumariza qual estado foi tocado, antes do conteúdo livre. Campo aditivo em `AIMessage.additional_kwargs`.
 
-**Acoplamentos com core:**
-- E-PROTO2-1: prompt e contrato de saída do Estruturador (`core/agents/structurer/`).
-- E-PROTO2-2: prompt do Metodologista (`core/prompts/methodologist_provocation.py`); postura do Orquestrador em `products/ensaio/config/product.yaml`.
-- E-PROTO2-3: contrato `change_summary` em `AIMessage.additional_kwargs` (aditivo, opcional, cruza core ↔ produto).
+**Acoplamentos com core (verificados):**
+- E-PROTO2-1: campo condicional `rationale` em `core/agents/structurer/nodes.py:217-227` (gated por `product_context`, mesmo padrão de `article_sections`). `core/prompts/structurer.py` **não é tocado** — `STRUCTURER_REFINEMENT_PROMPT_V1` só roda no fluxo de refinamento V2/V3 do Revelar; Ensaio nunca cai lá. Postura no `products/ensaio/config/product.yaml`.
+- E-PROTO2-2: prompt em `core/prompts/methodologist_provocation.py`. **Verificado em `core/docs/agents/methodologist/responsibilities.md:41,68`:** `methodologist_provocation_node` é exclusivo do Ensaio; Revelar usa `decide_collaborative` em outro caminho. Mudança é segura para Revelar.
+- E-PROTO2-3: contrato `change_summary` em `AIMessage.additional_kwargs` (aditivo, opcional, cruza core ↔ produto). Produtores: `core/agents/structurer/nodes.py:371-380` (já gated por `product_context` para Ensaio), `core/agents/methodologist/nodes.py:882-885` (Ensaio-only), `core/agents/orchestrator/nodes.py:1033` (compartilhado — só preenche quando `focal_argument` muda; Revelar não regride porque o campo é puramente aditivo).
 - E-PROTO2-4: puro UI (`products/ensaio/app/components/article_panel.py`), sem acoplamento com core.
 
 **Feedback do estágio anterior endereçado:**
@@ -111,7 +111,13 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 - "Metodologista existe mas não aparece no chat" → E-PROTO2-2 (papel afiado torna a presença legível quando convocado).
 - "Seções do artigo não podem ser colapsadas/expandidas" → E-PROTO2-4.
 
-**Nota:** milestone em `📋 Critérios definidos` — apto ao fluxo manual. Para disparo autônomo, sessão adicional com alvo `🔍 Detalhes definidos` aplicando o checklist de `autonomous_readiness.md`. Sizing avaliado antes do dispatch.
+**Nota:** milestone em `🔍 Detalhes definidos` — apto ao fluxo autônomo. Checklist de `docs/process/refinement/autonomous_readiness.md` aplicado nas seis categorias; ajuste por estágio Protótipo respeitado. Sizing avaliado antes do dispatch.
+
+**Ordem de execução entre épicos (sizing-friendly):**
+1. E-PROTO2-2 primeiro — limpa territórios via prompt do Metodologista e `product.yaml`. Pré-requisito conceitual para E-PROTO2-1 (Estruturador só fica afiado depois do Metodologista assumir escopo/qualidade).
+2. E-PROTO2-1 depois — co-decisão com proposta pendente, bubble especial, edição leve, `rationale` condicional. Integra naturalmente com E-PROTO2-3.3 (manchete "📐 Estrutura proposta").
+3. E-PROTO2-3 em paralelo a E-PROTO2-1 — contrato e render do `change_summary`; três produtores cobertos no fim do milestone.
+4. E-PROTO2-4 por último — accordion no painel é puro UI e não bloqueia o restante.
 
 ### PROTO-ENSAIO-3 (stub)
 
@@ -210,7 +216,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-1: Co-decisão da Estrutura (storytelling)
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Objetivo:** Tornar a estrutura proposta pelo Estruturador um ato de co-decisão. O Estruturador propõe storytelling com racional curto; a proposta vira bubble especial e só comita em `current_article` após o Usuário aceitar (com possibilidade de edição leve antes).
 
@@ -224,6 +230,15 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - Re-proposições do Estruturador substituem a proposta pendente; não há fila de propostas
   - Painel direito continua refletindo `current_article` — fica vazio até o aceite
   - Não regredimos comportamento existente: aceite produz o mesmo `current_article` que o auto-commit atual produzia
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/state.py` (linhas 64-83 — adicionar campo; 159-194 — substituir lógica de auto-commit; novos event handlers).
+  - **Arquivos a criar:** nenhum.
+  - **Contratos/Shapes:** `EnsaioState.pending_structure_proposal: dict | None`, formato `{"sections": list[str], "rationale": str}` ou `None`. Em `initialize`, valor inicial é `None`. Quando `current_article` é commitado, o pendente é zerado.
+  - **Integração:** no event handler `send_message`, a partir da linha 159 (já existente), em vez de escrever em `article_sections_update` quando o Estruturador propõe, o código grava em `pending_structure_proposal_update` e **não** atualiza `current_article`. Dois novos event handlers `accept_structure_proposal()` e `reject_structure_proposal()` lidam com a transição (chamados pelos botões da bubble — E-PROTO2-1.2).
+  - **Template de referência:** padrão de event handler em background atual em `state.py:115-210` (`send_message`); padrão de event handler síncrono em `state.py:266-280` (`start_editing_section`, `update_section_content`).
+  - **Acoplamentos verificados:** state.py linha 165-173 é a única origem do auto-commit. Painel direito (`article_panel.py:99-130`) já lida graciosamente com `current_article` vazio, mostrando "Aguardando proposta de estrutura..." — mensagem permanece adequada enquanto a proposta está pendente.
+  - **Dependências de ordem:** vem antes de E-PROTO2-1.2 (a bubble lê `pending_structure_proposal`).
+  - **Escopo de teste:** unit em `state.py` (event handlers `accept_structure_proposal` / `reject_structure_proposal` produzem updates corretos); validação manual via sessão real (proposta vem, bubble aparece, aceitar comita, recusar limpa).
 
 #### E-PROTO2-1.2 Bubble de proposta com ações
 - **Descrição:** Proposta pendente é renderizada como bubble especial no chat, visualmente distinto de mensagem conversacional, com ações aceitar / editar / recusar.
@@ -233,6 +248,15 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - **Recusar** limpa `pending_structure_proposal` sem tocar `current_article`; bubble é substituído por nota curta no histórico
   - Bubble é distinguível dos bubbles de conversa por borda/fundo dedicado
   - Enquanto a proposta está pendente, o input do chat continua habilitado (não bloqueia conversa)
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/components/chat_panel.py` (renderização condicional acima do input ou intercalada com `messages` por timestamp).
+  - **Arquivos a criar:** `products/ensaio/app/components/proposal_bubble.py` — componente `_proposal_bubble()` que recebe `EnsaioState.pending_structure_proposal` e renderiza lista + racional + botões.
+  - **Contratos/Shapes:** componente lê `EnsaioState.pending_structure_proposal` e despacha `EnsaioState.accept_structure_proposal` / `EnsaioState.reject_structure_proposal` / `EnsaioState.start_editing_proposal` (este último delega para E-PROTO2-1.3).
+  - **Integração:** `chat_panel.py` envolve a área de mensagens com `rx.cond(EnsaioState.pending_structure_proposal != None, _proposal_bubble(), rx.fragment())` posicionado logo acima do input do chat (após `_processing_indicator` ou junto a ele). Bubble persiste enquanto pendente, some no aceite/recusa.
+  - **Template de referência:** estrutura visual em `chat_panel.py:14-50` (`_message_bubble`). Distinção visual via `border="2px solid var(--accent-9)"`, fundo `var(--accent-2)` e ícone `📐` no header.
+  - **Acoplamentos verificados:** componente é puro de UI; só lê estado e despacha eventos. `_message_bubble` continua intacto.
+  - **Dependências de ordem:** depende de E-PROTO2-1.1.
+  - **Escopo de teste:** validação manual via sessão real (bubble aparece quando Estruturador propõe, três botões funcionam, distinguível de mensagens normais).
 
 #### E-PROTO2-1.3 Edição leve da proposta
 - **Descrição:** Antes de aceitar, Usuário pode editar a lista — renomear, reordenar, remover, adicionar seções.
@@ -241,22 +265,41 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - Confirmar a edição comita a versão editada em `current_article`
   - Cancelar a edição volta à proposta original, ainda pendente
   - Lista editada vazia (todas removidas) bloqueia o aceite com mensagem inline
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/state.py` (campos e event handlers de edição), `products/ensaio/app/components/proposal_bubble.py` (criado em 1.2 — ganha modo editável).
+  - **Arquivos a criar:** nenhum (compartilha `proposal_bubble.py` com 1.2).
+  - **Contratos/Shapes:** novos campos no `EnsaioState`: `editing_proposal: bool = False`, `proposal_draft: list[str] = []` (cópia mutável das seções enquanto edita), `proposal_rationale_draft: str = ""`. Event handlers: `start_editing_proposal()`, `update_proposal_section(index: int, value: str)`, `move_proposal_section(index: int, direction: int)`, `remove_proposal_section(index: int)`, `add_proposal_section()`, `confirm_proposal_edit()`, `cancel_proposal_edit()`.
+  - **Integração:** botão Editar em 1.2 chama `start_editing_proposal` → estado abre painel editável (textareas por seção + botões ⬆️ ⬇️ 🗑️ por linha + botão "+ Adicionar seção"). Reordenação via dois botões de seta (drag & drop em Reflex puro é caro; descarte explícito). `confirm_proposal_edit` valida `len(proposal_draft) > 0` e comita em `current_article`; `cancel_proposal_edit` zera os drafts e volta a 1.2 sem mudança.
+  - **Template de referência:** padrão de edição inline já em `article_panel.py:24-65` (`_section_card` com botões). Botões mover/remover seguem padrão `rx.button(..., size="1", variant="soft")`.
+  - **Acoplamentos verificados:** edição é local ao bubble; `current_article` só é tocado no `confirm_proposal_edit`.
+  - **Dependências de ordem:** depende de E-PROTO2-1.1 e 1.2.
+  - **Escopo de teste:** unit em event handlers de edição (mover, remover, adicionar produzem `proposal_draft` correto); validação manual (renomear, reordenar, remover, adicionar, confirmar, cancelar).
 
-#### E-PROTO2-1.4 Prompt do Estruturador afiado para storytelling
-- **Descrição:** Prompt do Estruturador deixa de cobrir métricas, evidências, intenção e crenças populares (esses tópicos migram para o Metodologista — E-PROTO2-2). Foca exclusivamente em ordenação e sequência das seções e ganha campo de racional.
+#### E-PROTO2-1.4 Estruturador afiado para storytelling (via product.yaml + campo condicional)
+- **Descrição:** A especialização do Estruturador para storytelling do Ensaio acontece **na fronteira do produto**, não no core. Postura no `product.yaml` orienta cobertura exclusiva de ordem/sequência, e um campo `rationale` condicional ao `product_context` é adicionado ao prompt inline do `structurer_node` — mesmo padrão do `article_sections` existente, garantindo que Revelar não regrida.
 - **Critérios de Aceite:**
-  - `core/prompts/structurer.py` remove instruções sobre métricas, evidências, intenção do artigo e detecção de crença popular
-  - Mantém: estruturação em seções via `article_sections` adequadas ao tipo de trabalho (empírico/revisão/posicionamento)
-  - Adiciona: instrução para preencher `rationale` curto (≤2 frases) em `additional_kwargs`, justificando a ordem proposta
-  - Estruturador não deve gerar perguntas metodológicas em sua mensagem (área do Metodologista)
+  - `products/ensaio/config/product.yaml` (postura do Estruturador): redesenhada em E-PROTO2-2.2 para descrever **storytelling apenas**, sem cobrir contexto/problema/contribuição (que migra para o Metodologista)
+  - `core/agents/structurer/nodes.py:217-227` ganha bloco condicional `rationale_field` análogo a `article_sections_field` — só presente quando `product_context` está setado (Ensaio); ausente para Revelar
+  - `core/agents/structurer/nodes.py:287-296` parseia `rationale` da resposta JSON quando presente; `core/agents/structurer/nodes.py:371-380` propaga em `additional_kwargs["rationale"]`
+  - **Não toca** `core/prompts/structurer.py` nem `core/config/agents/structurer.yaml` (esses moldam o fluxo Revelar; mudança ali quebraria o caminho `_refine_question`)
+  - Estruturador no Ensaio entrega seções + racional curto; Estruturador no Revelar continua entregando context/problem/contribution/structured_question como hoje
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `core/agents/structurer/nodes.py` (linhas 217-227 — adicionar `rationale_field` e `rationale_note` condicionais; linhas 280-296 — parsear `rationale`; linhas 371-380 — propagar em `additional_kwargs`). `products/ensaio/config/product.yaml` (postura do Estruturador, ver E-PROTO2-2.2).
+  - **Arquivos a criar:** nenhum.
+  - **Contratos/Shapes:** JSON do Estruturador ganha campo `"rationale": str` opcional (≤2 frases, pt-BR) quando `product_context` está presente. `additional_kwargs` ganha `rationale: str` quando o LLM o devolve, ausente caso contrário.
+  - **Integração:** mesmo padrão de `article_sections` (linhas 217-227, 287-296, 371-380). Bloco `rationale_field` injeta em formato JSON; `rationale_note` instrui o LLM a preencher; parser respeita ausência (default `""`); propagação em `additional_kwargs` é gated por presença não-vazia.
+  - **Template de referência:** o próprio `article_sections` em `nodes.py:217-227, 287-296, 371-380` — réplica direta do padrão.
+  - **Acoplamentos verificados:** Revelar não passa `product_context` (verificado em `products/revelar/app/components/chat_input.py:23-25` — usa `create_multi_agent_graph` sem `configurable.product_context`). Logo, `article_sections_field` e o novo `rationale_field` ficam vazios para Revelar; comportamento legado preservado bit-a-bit. `STRUCTURER_REFINEMENT_PROMPT_V1` permanece intocado — caminho `_refine_question` é Revelar puro.
+  - **Dependências de ordem:** acoplado a E-PROTO2-2.2 (postura no product.yaml). Independente das demais funcionalidades de E-PROTO2-1; `rationale` é consumido visualmente em E-PROTO2-1.2 (bubble).
+  - **Escopo de teste:** unit em `structurer_node` validando que `additional_kwargs["rationale"]` aparece quando `product_context` está presente e o JSON traz o campo, e está ausente quando não há `product_context` (cobre não-regressão de Revelar). Validação manual via sessão real do Ensaio.
 
-**Dependências:** PROTO-ENSAIO ✅. Acoplado a E-PROTO2-2 (limpeza de prompts é trabalho conjunto entre Estruturador e Metodologista).
+**Dependências:** PROTO-ENSAIO ✅. Acoplado a E-PROTO2-2 (limpeza de prompts é trabalho conjunto entre Estruturador e Metodologista; postura do Estruturador está em E-PROTO2-2.2).
 
 ---
 
 #### ÉPICO E-PROTO2-2: Metodologista com escopo e qualidade afiados
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Objetivo:** Dar ao Metodologista papel claro e único — escopo e qualidade da mensagem. Eliminar a sobreposição atual com o Estruturador, deixando o Metodologista provocar sobre tese central, evidência, afirmação sem suporte e intenção do artigo. Visibilidade emerge da clareza de papel quando o Orquestrador convoca, não de gatilhos determinísticos no grafo.
 
@@ -270,6 +313,15 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - Preserva: métricas/evidências, rigor metodológico, afirmações sem suporte, contexto, intenção
   - Postura inalterada: uma pergunta por vez, seletivo, tom colaborativo, nunca retorna vazio, nunca menciona "Metodologista" em primeira pessoa
   - Output continua sendo uma única pergunta em pt-BR ou frase curta de aceite
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `core/prompts/methodologist_provocation.py` (linhas 30-34 da seção "Dimensões do artigo").
+  - **Arquivos a criar:** nenhum.
+  - **Contratos/Shapes:** prompt é string. Output do nó é `AIMessage(content=str, additional_kwargs={"agent": "methodologist", ...})` — formato inalterado.
+  - **Integração:** prompt é carregado em `core/agents/methodologist/nodes.py:803` (import) e usado em :854-858. Mudança é puramente textual; nenhuma alteração no `methodologist_provocation_node`.
+  - **Template de referência:** estrutura atual do próprio prompt — manter postura, dimensões 1-3, sub-bullets de Contexto/Intenção; trocar Formato/Estrutura por **Tese central**.
+  - **Acoplamentos verificados:** `methodologist_provocation_node` é exclusivo do Ensaio (`core/docs/agents/methodologist/responsibilities.md:41,68`). `decide_collaborative` (Revelar) está em outro nó e usa outros prompts (`METHODOLOGIST_DECIDE_PROMPT_V2`, `core/config/agents/methodologist.yaml`) — não tocado. Mudança não regride Revelar.
+  - **Dependências de ordem:** independente; pré-requisito conceitual de E-PROTO2-1.4 e E-PROTO2-2.2 (territórios afiados primeiro).
+  - **Escopo de teste:** validação manual via sessão real (Metodologista provoca sobre tese/evidência/intenção quando convocado, sem mencionar formato/estrutura). Sem teste automatizado de prompt — escopo de Protótipo aceita validação manual.
 
 #### E-PROTO2-2.2 Postura do Orquestrador em `product.yaml` revisada
 - **Descrição:** `products/ensaio/config/product.yaml` reescreve a postura do Orquestrador para refletir os papéis afiados — Estruturador = storytelling; Metodologista = escopo e qualidade da mensagem. Sem prescrever ordem entre eles.
@@ -278,6 +330,16 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - Trigger do Metodologista é alargado: "tese central sem suporte, evidência, intenção do artigo, afirmação não fundamentada", além de métricas/quantitativo
   - Nenhum texto prescreve ordem Metodologista→Estruturador ou Estruturador→Metodologista
   - Postura "anti-promessa-vazia" do Orquestrador permanece inalterada
+  - Adiciona instrução para o Estruturador preencher campo `rationale` (≤2 frases) ao propor `article_sections` — habilita E-PROTO2-1.4
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/config/product.yaml` (linhas 25-46 — postura do Orquestrador e do Estruturador).
+  - **Arquivos a criar:** nenhum.
+  - **Contratos/Shapes:** YAML continua tendo a única chave obrigatória `focus`. Texto da postura continua em prosa livre injetado via `config.configurable.product_context`.
+  - **Integração:** `product_context` é injetado nos prompts do Orquestrador, Estruturador e Writer em runtime via `{product_context_section}` (E-POC-2.3). Nenhuma mudança em código consumidor.
+  - **Template de referência:** estrutura atual do próprio `product.yaml:25-53` — preservar formato em prosa numerada com seções "POSTURA OBRIGATÓRIA DO ORQUESTRADOR" / "POSTURA DO ESTRUTURADOR".
+  - **Acoplamentos verificados:** Revelar não passa `product_context` (verificado em `products/revelar/app/components/chat_input.py:23-25`); mudança no YAML não afeta Revelar. `core/prompts/orchestrator.py` e `core/prompts/structurer.py` (e o YAML do Estruturador) já têm o placeholder `{product_context_section}` que vira string vazia para Revelar.
+  - **Dependências de ordem:** depende de E-PROTO2-2.1 (papéis afiados primeiro no prompt do Metodologista, depois traduzidos para a postura do produto).
+  - **Escopo de teste:** validação manual via sessão real (Orquestrador sugere o Metodologista também em pontas de tese/intenção, não só métricas; Estruturador foca em ordem de seções; nenhuma sequência fixa entre os dois).
 
 #### E-PROTO2-2.3 Sem gancho determinístico no grafo (aceite negativo)
 - **Descrição:** Verificação de que o roteamento entre agentes permanece via Orquestrador, sem edges fixas no grafo. Não introduz código novo.
@@ -285,6 +347,20 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - `products/ensaio/app/graph.py` mantém `route_from_orchestrator` como único decisor entre `structurer | methodologist | user`
   - Nenhuma edge nova é adicionada entre `methodologist` e `structurer`
   - Documentado na PR de fechamento que a restrição de fluidez do milestone foi respeitada
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** nenhum (aceite negativo).
+  - **Arquivos a criar:** nenhum.
+  - **Contratos/Shapes:** N/A — verificação documental.
+  - **Integração:** confirmar visualmente em `products/ensaio/app/graph.py:65-82` que continuam existindo apenas:
+    - `graph.add_node("structurer", structurer_node)`
+    - `graph.add_node("methodologist", methodologist_provocation_node)`
+    - `route_from_orchestrator` como condicional única
+    - Edges `structurer → END` e `methodologist → END`
+    - **Nenhuma** edge de `structurer → methodologist` ou `methodologist → structurer`
+  - **Template de referência:** estado atual do próprio `graph.py` é o template — não regrir.
+  - **Acoplamentos verificados:** `route_from_orchestrator` é Ensaio-only (definido em `products/ensaio/app/graph.py`); não compartilhado com Revelar.
+  - **Dependências de ordem:** verificação no fim da implementação do milestone.
+  - **Escopo de teste:** revisão de código na PR de fechamento. Sem teste automatizado adicional — verificação é documental.
 
 **Dependências:** PROTO-ENSAIO ✅. Acoplado a E-PROTO2-1 (limpeza de prompts é trabalho conjunto).
 
@@ -292,7 +368,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-3: Manchete "o que mudou" em mensagens de agente
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Objetivo:** Cada mensagem de agente que toca estado passa a vir com manchete pequena acima do conteúdo, sumarizando qual estado foi tocado (estrutura proposta, foco atualizado, lacuna apontada). Usuário deixa de precisar ler parágrafo inteiro para descobrir o que aconteceu.
 
@@ -306,6 +382,17 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - Quando presente, manchete aparece acima do conteúdo do bubble
   - Campo é puramente aditivo — não substitui nem altera nenhum outro campo de `additional_kwargs`
   - Estado `messages` em `state.py` propaga o campo opcional do `AIMessage.additional_kwargs` para o dict serializado da mensagem
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/state.py:181-189` (event handler `send_message` — extrai `change_summary` do `additional_kwargs` e inclui no dict da mensagem). Nenhuma mudança em core nesta funcionalidade.
+  - **Arquivos a criar:** nenhum.
+  - **Contratos/Shapes:**
+    - `AIMessage.additional_kwargs["change_summary"]: str` — pt-BR, ≤80 caracteres, opcional. Ausente significa turno conversacional puro.
+    - `EnsaioState.messages[i]: dict` ganha chave opcional `"change_summary": str`. Quando ausente, a chave **pode** estar ausente do dict (não precisa default `""`).
+  - **Integração:** em `state.py:181-189`, ao montar o dict da mensagem do assistente, adicionar `"change_summary": getattr(last, "additional_kwargs", {}).get("change_summary", "")` e renderização condicional cuida do resto.
+  - **Template de referência:** padrão já presente em `state.py:154` (`agent_key = getattr(last, "additional_kwargs", {}).get("agent")`).
+  - **Acoplamentos verificados:** campo é puramente aditivo em `additional_kwargs`. Revelar não consome o `messages` do Ensaio (estados isolados por produto). Outros agentes do core continuam funcionando sem preencher.
+  - **Dependências de ordem:** vem antes de E-PROTO2-3.2 e 3.3.
+  - **Escopo de teste:** unit em `send_message` (mensagem com `change_summary` no `additional_kwargs` aparece no dict; sem o campo, não aparece).
 
 #### E-PROTO2-3.2 Renderização da manchete no bubble
 - **Descrição:** `_message_bubble` em `chat_panel.py` lê `change_summary` do dict da mensagem e renderiza header curto acima do conteúdo.
@@ -313,6 +400,15 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - Manchete aparece acima do label de agente, em peso/tamanho menor que o conteúdo principal
   - Quando `change_summary` é falsy/ausente, header não é renderizado (bubble fica como hoje)
   - Mensagens do usuário nunca mostram manchete (campo só faz sentido para `AIMessage`)
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/components/chat_panel.py:14-50` (`_message_bubble`).
+  - **Arquivos a criar:** nenhum.
+  - **Contratos/Shapes:** lê `msg["change_summary"]` (string opcional, default ausente). Renderiza header acima do label de agente apenas quando truthy.
+  - **Integração:** dentro de `_message_bubble`, antes do bloco do label, adicionar `rx.cond(msg.get("change_summary", ""), rx.text(msg["change_summary"], size="1", weight="medium", color_scheme="accent"), rx.fragment())`. Sem mudança no resto do bubble.
+  - **Template de referência:** padrão `rx.cond(...)` já usado para `is_user` e `_processing_indicator` em `chat_panel.py:54-73`.
+  - **Acoplamentos verificados:** componente é puro UI; só lê dict da mensagem.
+  - **Dependências de ordem:** depende de E-PROTO2-3.1.
+  - **Escopo de teste:** validação manual via sessão real (manchete aparece em mensagens de agente que tocam estado, não aparece em conversa pura, não aparece em mensagens do usuário).
 
 #### E-PROTO2-3.3 Três casos cobertos no marco do milestone
 - **Descrição:** Os três produtores de mudança de estado preenchem `change_summary` ao final do milestone. Outros agentes ou turnos puramente conversacionais não preenchem.
@@ -321,6 +417,21 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - Mudança de `focal_argument` no Orquestrador (`orchestrator_node`) → manchete tipo "🎯 Foco atualizado" — só quando o foco efetivamente muda em relação ao turno anterior
   - Metodologista apontando lacuna (`methodologist_provocation_node`) → manchete tipo "🔬 Lacuna apontada" — não preenche quando responde "contexto está bem descrito"
   - Orquestrador em turno conversacional puro (sem mudança de foco) **não** preenche o campo
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `core/agents/structurer/nodes.py:371-380` (preencher quando `article_sections` está presente — manchete "📐 Estrutura proposta"); `core/agents/methodologist/nodes.py:882-885` (preencher quando o conteúdo não é a frase curta de aceite — manchete "🔬 Lacuna apontada"); `core/agents/orchestrator/nodes.py:1033` (preencher quando `focal_argument` mudar em relação ao turno anterior — manchete "🎯 Foco atualizado").
+  - **Arquivos a criar:** nenhum.
+  - **Contratos/Shapes:** três produtores; cada um adiciona `additional_kwargs["change_summary"]: str`. Strings ≤80 chars, em pt-BR, com emoji e prefixo curto.
+  - **Integração:**
+    - Estruturador: dentro do bloco onde `article_sections` é detectado (linha 372), também setar `ak["change_summary"] = "📐 Estrutura proposta"`.
+    - Metodologista: detectar se `content` é a frase de aceite ("O contexto está bem descrito. Continue.") — se não for, preencher `additional_kwargs["change_summary"] = "🔬 Lacuna apontada"`.
+    - Orquestrador: detectar mudança de `focal_argument` comparando com o anterior; quando muda em pelo menos um campo não-vazio, setar `additional_kwargs["change_summary"] = "🎯 Foco atualizado"`.
+  - **Template de referência:** linha 371-373 do Estruturador (já popula `additional_kwargs` condicionalmente).
+  - **Acoplamentos verificados:**
+    - Mudança no Estruturador (`structurer/nodes.py`) é compartilhada com Revelar. Como `change_summary` só é setado quando `article_sections` está presente (e isso só acontece com `product_context` — Ensaio), Revelar não recebe o campo. ✅
+    - Mudança no Metodologista (`methodologist/nodes.py`) é em `methodologist_provocation_node`, exclusivo do Ensaio (`responsibilities.md:41,68`). ✅
+    - Mudança no Orquestrador (`orchestrator/nodes.py`) é compartilhada com Revelar. Campo é puramente aditivo — `additional_kwargs` aceita chaves arbitrárias; Revelar não lê `change_summary` (lê `agent`). Sem regressão. ✅
+  - **Dependências de ordem:** depende de E-PROTO2-3.1 e 3.2 (contrato e render). Acoplado a E-PROTO2-1.1 — quando o Estruturador propõe e o estado vira `pending_structure_proposal`, a manchete "📐 Estrutura proposta" naturalmente acompanha o bubble especial.
+  - **Escopo de teste:** unit nos três produtores (manchete presente nos casos esperados; ausente em conversa pura). Validação manual via sessão real.
 
 **Dependências:** PROTO-ENSAIO ✅. Acoplado a E-PROTO2-1 (proposta de estrutura é um dos casos do 3.3).
 
@@ -328,7 +439,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-4: Colapsar/expandir seções no painel
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Objetivo:** Painel de seções deixa de renderizar tudo expandido. Toggle por seção, todas colapsadas por padrão no estado inicial. Usuário foca no que está trabalhando.
 
@@ -342,6 +453,15 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - Conteúdo expandido mostra: corpo da seção (placeholder ou markdown) e botão Gerar/Regenerar
   - Toggle por seção é independente: expandir uma seção não afeta as outras
   - Edição inline (E-PROTO-2.3) continua funcionando dentro da seção expandida
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/components/article_panel.py:24-65` (substituir `_section_card` por componente accordion).
+  - **Arquivos a criar:** nenhum.
+  - **Contratos/Shapes:** uso de `rx.accordion.root` + `rx.accordion.item` (Reflex 0.9 — `https://reflex.dev/docs/library/disclosure/accordion`). `type="multiple"` no root (várias seções podem estar abertas simultaneamente). Cada item tem `value=str(section["index"])` para identificação.
+  - **Integração:** `_section_card(section)` retorna um `rx.accordion.item` em vez de `rx.box`. O `rx.foreach(EnsaioState.current_article, _section_card)` passa a estar dentro de um `rx.accordion.root(...)`. Header colapsado: `rx.accordion.header` com `title + badge + chevron` via `rx.accordion.trigger`. Conteúdo expandido: `rx.accordion.content` com placeholder/markdown + botões.
+  - **Template de referência:** documentação oficial do Reflex em `https://reflex.dev/docs/library/disclosure/accordion`. Componente análogo no projeto: estrutura atual de `_section_card` em `article_panel.py:24-65` (preservar lógica interna, trocar invólucro).
+  - **Acoplamentos verificados:** edição inline (E-PROTO-2.3) usa `EnsaioState.editing_section_index` — é independente do estado de expansão. Toggle de expansão é interno ao Radix; não vaza para `EnsaioState`.
+  - **Dependências de ordem:** independente das demais funcionalidades. Pode ser implementado por último.
+  - **Escopo de teste:** validação manual (toggle por seção independente, edição funciona dentro da seção expandida, regenerar funciona, badge atualiza).
 
 #### E-PROTO2-4.2 Estado inicial colapsado
 - **Descrição:** Todas as seções iniciam colapsadas no primeiro render. Sem persistência de preferência de expansão (sessão descartável até MVP-ENSAIO).
@@ -349,6 +469,15 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - No primeiro render após aceite da proposta de estrutura, todas as seções estão colapsadas
   - Recarregar a página volta tudo a colapsado (consistente com sessão descartável)
   - Estado de expansão vive local ao componente do painel — não polui `EnsaioState`
+- **Detalhes de execução:**
+  - **Arquivos a modificar:** `products/ensaio/app/components/article_panel.py` (mesma área de E-PROTO2-4.1; configuração do `default_value=[]` no accordion root).
+  - **Arquivos a criar:** nenhum.
+  - **Contratos/Shapes:** `rx.accordion.root(default_value=[], type="multiple", collapsible=True)` — array vazio significa nenhum item aberto.
+  - **Integração:** parâmetro `default_value=[]` no construtor do accordion root. Estado de expansão é gerenciado internamente pelo componente Radix; não persiste em `EnsaioState` nem em localStorage.
+  - **Template de referência:** documentação do Reflex já citada em 4.1.
+  - **Acoplamentos verificados:** sessão é descartável (declarado em PROTO-ENSAIO-2 e na vision). Sem persistência é consistente com o estágio.
+  - **Dependências de ordem:** depende de E-PROTO2-4.1.
+  - **Escopo de teste:** validação manual (após aceite da estrutura, todas seções iniciam colapsadas; recarregar a página volta tudo a colapsado).
 
 **Dependências:** PROTO-ENSAIO ✅. Puro UI, sem acoplamento com core.
 

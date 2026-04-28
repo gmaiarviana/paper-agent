@@ -143,6 +143,20 @@ A promoção é decisão consciente, registrada como épico no docs/ROADMAP.md (
 
 O princípio de desacoplamento core ↔ produto continua valendo: o core não conhece produtos específicos, mesmo quando hospeda componentes que atendem a vários deles.
 
+### Política de Breaking Changes em Código Compartilhado
+
+**Princípio:** débito técnico é o custo a evitar; breaking change em produto consumidor é aceitável quando a alternativa não-breaking exige workaround, lógica condicional gratuita ou duplicação.
+
+Nenhum produto do super-sistema está em produção. Preservar comportamento legado a qualquer custo acumula dívida no core (camadas de compatibilidade, gates condicionais permanentes, prompts inflados com instruções inúteis a alguns consumidores). Quando o caminho não-breaking gera limpeza maior do que o caminho breaking, opte pelo breaking.
+
+**Pré-requisitos para breaking change:**
+
+1. **Declaração explícita na PR:** descrição lista os produtos consumidores impactados e como cada um foi afetado (UI quebrou, prompt mudou de output, contrato de estado mudou).
+2. **Entrada de backlog em cada produto afetado:** `products/<produto>/ROADMAP.md` ganha item descrevendo o que foi quebrado e o que precisa ser feito para recuperar o produto. Sem isso, a quebra é defeito do refinamento — produto consumidor pode descobrir o problema depois e não saber o porquê.
+3. **Verificação manual:** alguém roda o produto afetado e confirma se o comportamento esperado se mantém ou se quebrou de forma compatível com o backlog. Esse ônus é do refinamento que propõe a quebra, não do produto consumidor.
+
+**Quando preferir não-breaking mesmo assim:** se a divergência entre produtos é genuinamente local e o gate é o **padrão estabelecido** do código (ex.: campo condicional ao `product_context`, mesmo padrão de outros campos opcionais), o não-breaking é mais limpo. O critério é "isto é workaround ou é o padrão do projeto?". Padrão estabelecido permanece; workaround para evitar atualizar consumidor é débito.
+
 ### Produtos Consomem Core via API
 
 **Exemplo: Revelar**
