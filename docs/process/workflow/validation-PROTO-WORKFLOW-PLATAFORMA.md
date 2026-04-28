@@ -175,10 +175,25 @@ pytest tests/tools/workflow_platform/ -v
 1. Clique no card `W-PROTO-PLAT-1`.
 
 **Resultado esperado:**
-- Abaixo do kanban, abre seção com cabeçalho `## W-PROTO-PLAT-1 — Scaffold da plataforma` e legenda `Estado: 🔍 · Milestone: PROTO-WORKFLOW-PLATAFORMA`.
+- **Acima** do kanban (no topo da página, dentro de um container com borda), abre seção com cabeçalho `## W-PROTO-PLAT-1 — Scaffold da plataforma` e legenda `Estado: 🔍 · Milestone: PROTO-WORKFLOW-PLATAFORMA`.
 
 **Sinal de falha:**
-- Nada acontece ao clicar, ou painel não traz cabeçalho com id/título/milestone.
+- Nada acontece ao clicar, ou painel não traz cabeçalho com id/título/milestone, **ou** o painel só aparece muito abaixo do kanban (deveria aparecer no topo da página, acima do kanban).
+
+---
+
+**Critério de aceite (regressão da plataforma):** o painel de detalhe deve ser visível sem scroll após o clique.
+
+**Gatilho:**
+1. Role a página até o topo (Ctrl+Home).
+2. Clique em um card qualquer no kanban.
+
+**Resultado esperado:**
+- Após o clique, sem scrollar, o painel de detalhe está visível imediatamente acima do kanban (com borda, header `## <ID> — <título>` e botão `✕ Fechar` no canto superior direito).
+- Botão `✕ Fechar` limpa a seleção e oculta o painel.
+
+**Sinal de falha:**
+- Painel só aparece se o usuário scrollar para baixo (defeito reportado em validação anterior).
 
 ---
 

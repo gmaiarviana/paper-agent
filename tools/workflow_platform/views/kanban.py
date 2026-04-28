@@ -1,7 +1,9 @@
 """View Kanban — 8 colunas por estado, cards agrupados por milestone.
 
-Card clicado salva ``selected_epic_id`` em ``st.session_state`` e dispara
-o painel de detalhe (``views/card_detail.render_card_detail``).
+Card clicado salva ``selected_epic_id`` em ``st.session_state``; o painel
+de detalhe é renderizado em ``app._render_detail_panel`` acima do kanban
+(não abaixo) — o kanban é alto e o detail abaixo ficaria fora da viewport
+após o ``st.rerun`` que segue o clique.
 
 Roteiro de validação manual:
     1. Abrir o app com config default; verificar 8 colunas visíveis
@@ -43,6 +45,8 @@ _STATE_LABELS: dict[EpicState, str] = {
 
 NO_MILESTONE_LABEL = "Sem milestone"
 
+CARD_TITLE_MAX_LEN = 60
+
 
 def group_by_milestone(epics: list[Epic]) -> "OrderedDict[str, list[Epic]]":
     """Agrupa épicos por ``milestone_id`` preservando a ordem de aparição.
@@ -64,37 +68,52 @@ def group_by_milestone(epics: list[Epic]) -> "OrderedDict[str, list[Epic]]":
     return grouped
 
 
-def _render_card(epic: Epic, column_index: int, position: int) -> None:
-    label_lines = [f"**{epic.id}**", epic.title[:80]]
-    label = "\n\n".join(label_lines)
+def card_button_label(epic: Epic, *, selected: bool = False) -> str:
+    """Constrói o label do st.button para o card.
 
+    Mantém uma única linha legível: ``id — title``, eventualmente truncado.
+    Evitamos `**bold**` e quebras de parágrafo no label porque st.button
+    preserva esses caracteres literais em algumas versões do Streamlit.
+    """
+    title = epic.title
+    if len(title) > CARD_TITLE_MAX_LEN:
+        title = title[: CARD_TITLE_MAX_LEN - 1].rstrip() + "…"
+    prefix = "● " if selected else ""
+    return f"{prefix}{epic.id} — {title}"
+
+
+def _render_card(epic: Epic, column_index: int, position: int, selected_id: str | None) -> None:
+    is_selected = (selected_id == epic.id)
     key = f"epic-card-{column_index}-{position}-{epic.id}"
-    if st.button(label, key=key, use_container_width=True):
+    label = card_button_label(epic, selected=is_selected)
+    button_type = "primary" if is_selected else "secondary"
+    if st.button(label, key=key, use_container_width=True, type=button_type):
         st.session_state["selected_epic_id"] = epic.id
         st.session_state["selected_milestone_id"] = epic.milestone_id
+        st.rerun()
 
 
 def render_kanban(roadmaps: list[ParsedRoadmap]) -> None:
     """Renderiza 8 colunas; em cada coluna agrupa epics por ``milestone_id``."""
     all_epics: list[Epic] = [e for r in roadmaps for e in r.epics]
+    selected_id = st.session_state.get("selected_epic_id")
 
     columns = st.columns(len(KANBAN_COLUMN_ORDER))
 
-    for col_idx, (state, column) in enumerate(zip(KANBAN_COLUMN_ORDER, columns)):
-        column.markdown(f"### {_STATE_LABELS[state]}")
-        column.caption(f"{sum(1 for e in all_epics if e.state == state)} épicos")
+    for col_idx, state in enumerate(KANBAN_COLUMN_ORDER):
+        with columns[col_idx]:
+            st.markdown(f"### {_STATE_LABELS[state]}")
+            epics_in_state = [e for e in all_epics if e.state == state]
+            st.caption(f"{len(epics_in_state)} épicos")
 
-        epics_in_state = [e for e in all_epics if e.state == state]
-        grouped = group_by_milestone(epics_in_state)
+            grouped = group_by_milestone(epics_in_state)
+            if not grouped:
+                st.caption("_(vazio)_")
+                continue
 
-        if not grouped:
-            column.caption("_(vazio)_")
-            continue
-
-        position = 0
-        for milestone_id, epics in grouped.items():
-            with column.container():
+            position = 0
+            for milestone_id, epics in grouped.items():
                 st.markdown(f"**{milestone_id}**")
                 for epic in epics:
-                    _render_card(epic, col_idx, position)
+                    _render_card(epic, col_idx, position, selected_id)
                     position += 1

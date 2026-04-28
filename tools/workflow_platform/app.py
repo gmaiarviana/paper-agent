@@ -95,6 +95,38 @@ def _find_selected_epic(roadmaps: list[ParsedRoadmap], epic_id: str | None):
     return None
 
 
+def _render_detail_panel(
+    roadmaps: list[ParsedRoadmap], config: PlatformConfig
+) -> None:
+    """Renderiza o painel de detalhe acima do kanban, se houver épico selecionado.
+
+    O painel fica antes do kanban (e não depois) porque o kanban é alto — 8
+    colunas com cards empilhados — e o detail abaixo ficaria fora da viewport
+    após o ``st.rerun`` que acompanha cada clique.
+    """
+    selected_id = st.session_state.get("selected_epic_id")
+    selected = _find_selected_epic(roadmaps, selected_id)
+    if selected is None:
+        return
+
+    all_epics = [e for r in roadmaps for e in r.epics]
+    in_milestone = [
+        e for e in all_epics
+        if selected.milestone_id and e.milestone_id == selected.milestone_id
+    ]
+
+    with st.container(border=True):
+        cols = st.columns([6, 1])
+        with cols[1]:
+            if st.button("✕ Fechar", key="close-detail", use_container_width=True):
+                st.session_state.pop("selected_epic_id", None)
+                st.session_state.pop("selected_milestone_id", None)
+                st.rerun()
+        with cols[0]:
+            render_card_detail(selected, in_milestone, config)
+    st.markdown("---")
+
+
 def main() -> None:
     config, roadmaps = _load_state()
 
@@ -106,18 +138,9 @@ def main() -> None:
 
     _render_sidebar(config, roadmaps)
 
-    render_kanban(roadmaps)
+    _render_detail_panel(roadmaps, config)
 
-    selected_id = st.session_state.get("selected_epic_id")
-    selected = _find_selected_epic(roadmaps, selected_id)
-    if selected is not None:
-        all_epics = [e for r in roadmaps for e in r.epics]
-        in_milestone = [
-            e for e in all_epics
-            if selected.milestone_id and e.milestone_id == selected.milestone_id
-        ]
-        st.markdown("---")
-        render_card_detail(selected, in_milestone, config)
+    render_kanban(roadmaps)
 
 
 if __name__ == "__main__":
