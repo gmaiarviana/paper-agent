@@ -1,13 +1,15 @@
-"""Painel de chat do Ensaio em Reflex (E-PROTO-1.2, 1.3, 1.4).
+"""Painel de chat do Ensaio em Reflex (E-PROTO-1.2, 1.3, 1.4, PROTO-ENSAIO-2).
 
 Renderiza o histórico de mensagens com label de agente em cada bubble,
-indicador de processamento inline e campo de entrada.
+indicador de processamento inline, manchete "o que mudou" (E-PROTO2-3.2),
+bubble especial de proposta de estrutura (E-PROTO2-1.2) e campo de entrada.
 """
 
 from __future__ import annotations
 
 import reflex as rx
 
+from products.ensaio.app.components.proposal_bubble import proposal_bubble
 from products.ensaio.app.state import EnsaioState
 
 
@@ -26,7 +28,27 @@ def _message_bubble(msg: dict) -> rx.Component:
         ),
     )
 
+    # E-PROTO2-3.2: manchete "o que mudou" acima do label de agente.
+    # Mensagens do usuário nunca exibem manchete (campo só faz sentido para AIMessage).
+    change_summary = msg.get("change_summary", "")
+    headline = rx.cond(
+        is_user,
+        rx.fragment(),
+        rx.cond(
+            change_summary != "",
+            rx.text(
+                change_summary,
+                size="1",
+                weight="medium",
+                color_scheme="blue",
+                margin_bottom="2px",
+            ),
+            rx.fragment(),
+        ),
+    )
+
     return rx.box(
+        headline,
         rx.text(
             label,
             size="1",
@@ -95,6 +117,10 @@ def chat_panel() -> rx.Component:
             flex="1",
             padding="8px 0",
         ),
+        # Bubble especial de proposta de estrutura (E-PROTO2-1.2). Persiste
+        # acima do input enquanto pendente; some no aceite/recusa. Input do
+        # chat continua habilitado durante a proposta — não bloqueia conversa.
+        proposal_bubble(),
         # Área de erro
         rx.cond(
             EnsaioState.error_message != "",

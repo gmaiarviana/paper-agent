@@ -879,8 +879,16 @@ def methodologist_provocation_node(
 
     logger.info("=== NÓ METHODOLOGIST_PROVOCATION: provocação gerada (%d chars) ===", len(content))
 
+    # E-PROTO2-3.3: manchete "🔬 Lacuna apontada" quando o Metodologista
+    # provoca uma lacuna. Frase curta de aceite ("contexto bem descrito")
+    # não toca estado e não preenche manchete.
+    ak: dict = {"agent": "methodologist"}
+    accept_phrase = "o contexto está bem descrito"
+    if accept_phrase not in content.lower():
+        ak["change_summary"] = "🔬 Lacuna apontada"
+
     return {
         "messages": [
-            AIMessage(content=content, additional_kwargs={"agent": "methodologist"})
+            AIMessage(content=content, additional_kwargs=ak)
         ]
     }

@@ -225,6 +225,19 @@ def _structure_initial_question(state: MultiAgentState, config: dict) -> dict:
         if product_context
         else ""
     )
+    # E-PROTO2-1.4: racional curto da proposta de estrutura — gated por product_context.
+    rationale_field = (
+        ',\n    "rationale": "1-2 frases em pt-BR explicando por que essa sequência conta a história"'
+        if product_context
+        else ""
+    )
+    rationale_note = (
+        '\nQuando preencher "article_sections", preencha também "rationale" com '
+        '1-2 frases (≤2 frases, em pt-BR) explicando por que essa ordem conta a '
+        'história do experimento. Sem "article_sections", omita "rationale".'
+        if product_context
+        else ""
+    )
 
     # Criar prompt de estruturação usando config do YAML
     structuring_prompt = f"""{system_prompt}
@@ -239,13 +252,13 @@ Extraia e estruture os seguintes elementos da observação acima:
 2. **Problema**: Qual problema, gap ou fenômeno está sendo observado?
 3. **Contribuição potencial**: Como essa observação pode contribuir para academia ou prática?
 4. **Questão de pesquisa estruturada**: Transforme a observação em uma questão de pesquisa clara
-{article_sections_note}
+{article_sections_note}{rationale_note}
 RESPONDA EM JSON:
 {{
     "context": "descrição do contexto da observação",
     "problem": "descrição do problema ou gap identificado",
     "contribution": "possível contribuição acadêmica ou prática",
-    "structured_question": "questão de pesquisa estruturada baseada na observação"{article_sections_field}
+    "structured_question": "questão de pesquisa estruturada baseada na observação"{article_sections_field}{rationale_field}
 }}
 
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
@@ -277,6 +290,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
 
     # Parse da resposta
     article_sections: list = []
+    rationale: str = ""
     try:
         structured_data = extract_json_from_llm_response(response.content)
 
@@ -287,6 +301,8 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
         article_sections = structured_data.get("article_sections", [])
         if not isinstance(article_sections, list):
             article_sections = []
+        rationale_raw = structured_data.get("rationale", "")
+        rationale = rationale_raw.strip() if isinstance(rationale_raw, str) else ""
 
         logger.debug(f"Contexto: {context}")
         logger.debug(f"Problema: {problem}")
@@ -371,6 +387,10 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional."""
     ak: dict = {"agent": "structurer"}
     if article_sections:
         ak["article_sections"] = article_sections
+        # E-PROTO2-3.3: manchete "o que mudou" acompanha a proposta de estrutura.
+        ak["change_summary"] = "📐 Estrutura proposta"
+    if rationale:
+        ak["rationale"] = rationale
     ai_message = AIMessage(
         content=f"Questão estruturada: {structured_question}\n\n"
                 f"Contexto: {context}\n"

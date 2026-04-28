@@ -1,7 +1,8 @@
-"""Painel de artigo seccionado do Ensaio em Reflex (E-PROTO-1.2, 2.1, 2.2, 2.3, 2.4).
+"""Painel de artigo seccionado do Ensaio em Reflex (E-PROTO-1.2, 2.1, 2.2, 2.3, 2.4, PROTO-ENSAIO-2).
 
-Renderiza as seções propostas pelo Estruturador com botões de geração por
-seção, badges de status e edição inline de markdown.
+Renderiza as seções propostas pelo Estruturador como accordion (E-PROTO2-4):
+cada seção colapsa/expande individualmente, todas iniciam colapsadas. Mantém
+botões de geração por seção, badges de status e edição inline de markdown.
 """
 
 from __future__ import annotations
@@ -21,18 +22,21 @@ def _status_badge(status: str) -> rx.Component:
     )
 
 
-def _section_card(section: dict) -> rx.Component:
-    """Renderiza uma seção do artigo com controles de geração e edição."""
+def _section_header(section: dict) -> rx.Component:
+    """Header colapsável: título + badge de status."""
+    return rx.hstack(
+        rx.heading(section["title"], size="3"),
+        _status_badge(section["status"]),
+        justify="between",
+        align="center",
+        width="100%",
+        padding_right="8px",
+    )
+
+
+def _section_body(section: dict) -> rx.Component:
+    """Conteúdo expandido: corpo + botão Gerar/Regenerar."""
     return rx.box(
-        # Cabeçalho da seção com badge de status
-        rx.hstack(
-            rx.heading(section["title"], size="3"),
-            _status_badge(section["status"]),
-            justify="between",
-            align="center",
-            width="100%",
-        ),
-        # Conteúdo: placeholder ou markdown
         rx.cond(
             section["body"] == "",
             rx.text(
@@ -47,7 +51,6 @@ def _section_card(section: dict) -> rx.Component:
                 margin_y="8px",
             ),
         ),
-        # Botão de geração — usa section["index"] armazenado no estado
         rx.button(
             rx.cond(section["body"] == "", "Gerar", "Regenerar"),
             on_click=EnsaioState.generate_section(section["index"]),
@@ -57,11 +60,21 @@ def _section_card(section: dict) -> rx.Component:
             variant="soft",
             margin_top="8px",
         ),
-        padding="16px",
+        padding="0 16px 16px 16px",
+    )
+
+
+def _section_item(section: dict) -> rx.Component:
+    """Item individual do accordion: header colapsável + corpo."""
+    return rx.accordion.item(
+        header=_section_header(section),
+        content=_section_body(section),
+        value=section["index"].to_string(),
+        margin_bottom="8px",
         border="1px solid var(--gray-4)",
         border_radius="8px",
-        margin_bottom="12px",
         background="white",
+        overflow="hidden",
     )
 
 
@@ -98,8 +111,17 @@ def article_panel() -> rx.Component:
         rx.box(
             rx.cond(
                 EnsaioState.current_article.length() > 0,
+                # E-PROTO2-4: accordion colapsado por padrão (default_value=[]),
+                # múltiplas seções podem estar abertas simultaneamente.
                 rx.box(
-                    rx.foreach(EnsaioState.current_article, _section_card),
+                    rx.accordion.root(
+                        rx.foreach(EnsaioState.current_article, _section_item),
+                        type="multiple",
+                        collapsible=True,
+                        default_value=[],
+                        width="100%",
+                        variant="ghost",
+                    ),
                     padding="16px",
                 ),
                 # Estado vazio — aguardando proposta do Estruturador
