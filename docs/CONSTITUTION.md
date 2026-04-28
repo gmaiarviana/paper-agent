@@ -27,6 +27,7 @@ Princípios não-negociáveis para trabalhar com este projeto.
 - TDD pragmático (lógica crítica sim, UI não)
 - Validação incremental obrigatória
 - Commits estratégicos (não obrigatórios)
+- **Sem gambiarra para postergar limpeza.** Nada está em produção; débito técnico se paga agora, não depois. Workaround para evitar atualizar consumidor (camada de compatibilidade gratuita, condicional permanente, código morto "por garantia", `TODO` sem dono) é débito e não entra. Padrão estabelecido do projeto não é gambiarra — o critério é "isto é workaround ou é o padrão do projeto?".
 
 **Tipos de sessão:**
 - **Sessão de implementação** — autônoma; produz código e docs; encerra com PR criada pela RTE. Detalhes: `docs/process/autonomous/workflow.md`.
