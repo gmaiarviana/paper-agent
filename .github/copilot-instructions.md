@@ -18,11 +18,13 @@ e decide. Nada além disso sem pedido explícito.
 
 ## Dois modos de validação
 
-### Modo A — Branch saiu do fluxo autônomo
+**Default: Modo A.** Detecte com `test -f docs/process/current_implementation.md` em silêncio. Só caia em Modo B se o arquivo **não** existir. **Não pergunte ao dev qual modo** — a presença do arquivo decide.
+
+### Modo A — Branch saiu do fluxo autônomo (default)
 Sinal: `docs/process/current_implementation.md` existe na branch.
 Fonte de verdade: esse arquivo (tem gates, diff, critérios, comandos).
 
-### Modo B — Validação avulsa (manual / sem fluxo autônomo)
+### Modo B — Validação avulsa (fallback, sem fluxo autônomo)
 Sinal: `current_implementation.md` NÃO existe.
 Fonte de verdade: ROADMAP (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`)
 — o dev precisa te dizer qual funcionalidade/épico (ex: "POC-ENSAIO").
