@@ -114,7 +114,6 @@ def process_turn(
         logger.info(f"Etapas puladas (Agentic RAG): {skipped}")
 
     # 1. Extrair informacoes semanticas via LLM
-    # TODO: Usar flags para chamar extratores individuais
     logger.info("Extraindo informacoes semanticas...")
     extracted = extract_all(
         user_input=user_input,
