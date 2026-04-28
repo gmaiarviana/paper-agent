@@ -71,10 +71,13 @@
 
 **Evidências empíricas (2026-04-28):**
 - ✅ **Tool calling no `ollama/ministral-3:14b` em formato OpenAI cru funciona.** Teste batendo direto em `OPENWEBUI_BASE_URL/chat/completions` com 2 tools (`get_local_status`, `get_current_time_by_utc_offset`) — modelo escolheu a tool correta, montou args válidos, recebeu o tool result no histórico e gerou resposta final coerente. Invalida a hipótese inicial de que Ollama small models não suportariam tool calling.
-- ❌ **Tool calling via proxy LiteLLM em formato Anthropic NÃO é preservado.** Mesmo modelo, mesma intenção, agora chamado via Anthropic SDK (`anthropic.Anthropic().messages.create(tools=[...])`) com `ANTHROPIC_BASE_URL=http://localhost:4000`: resposta volta com `blocks=['text']` e `stop_reason=end_turn` em vez de `tool_use`. A tradução Anthropic→OpenAI do LiteLLM proxy não está chegando com os tools no backend. Esse é provavelmente o motivo da tentativa do Ensaio ter quebrado — agentes que dependem de tool calling (Metodologista usa `ask_user`, Estruturador idem) regridem silenciosamente: viram texto livre.
-- ⚠️ Texto puro via proxy (sem tools) funciona normalmente — a regressão é específica de tool calling.
+- ✅ **Tool calling via proxy LiteLLM em formato Anthropic também é preservado** — debug Copilot ponta-a-ponta em 2026-04-28 mostrou `tools` chegando intacto nas 4 etapas do pipeline (pré-call → tradução Anthropic→OpenAI → POST outbound → resposta convertida de volta como `tool_use`). Cliente recebe `content=[ToolUseBlock(...)]` corretamente em casos simples (1 tool, prompt direto).
+- ⚠️ **Errata sobre evidência anterior:** um probe inicial (Anthropic SDK + tools=[ask_user] + pergunta vaga sem system prompt) retornou `blocks=['text']` e foi registrado como "proxy não preserva tool calling". Releitura indica que foi **falso negativo** por design fraco do probe — pergunta vaga + tool meta + sem nudge fizeram o modelo escolher texto. O proxy não estava quebrado; o modelo só optou por não usar a tool.
 
-**Implicação arquitetural:** o caminho "Anthropic SDK + proxy LiteLLM" parece **inviável** como rota oficial dos produtos enquanto a tradução de tools não for preservada. O caminho que ganha tração é **cliente OpenAI-compatible direto** no core, com abstração de provider — mas exige refator do uso atual de `langchain_anthropic` (Writer chama via `ChatAnthropic`).
+**Implicação arquitetural revisada:** o caminho "Anthropic SDK + proxy LiteLLM" **continua viável** em termos de fidelidade técnica de tool calling. A escolha entre proxy vs. cliente OpenAI-compatible direto vira decisão de **arquitetura/dependência**, não de capacidade técnica:
+- *A favor do cliente OpenAI direto:* sem dependência de processo extra rodando, sem hops de tradução, sem versão de LiteLLM pinada, controle total sobre payloads.
+- *A favor do proxy:* zero refator no código atual dos agentes (`ChatAnthropic` continua funcionando), troca de provider sem mexer em `core/`, observabilidade centralizada de chamadas LLM.
+- *Variáveis ainda não medidas:* qualidade dos modelos locais para os agentes específicos (Writer, Estruturador, Metodologista) e perda de features Anthropic-only dropadas (`cache_control`, `thinking`, `anthropic_beta`).
 
 **Lacunas que ainda exigem prova empírica:**
 - JSON estruturado / output determinístico em `ollama/ministral-3:14b` para Writer e Estruturador.
@@ -82,9 +85,9 @@
 - Se há flag/versão do LiteLLM que preserve tool calling na tradução Anthropic→OpenAI (descartar definitivamente o caminho do proxy só depois disso).
 
 **Decisões a tomar no refinamento:**
-- Confirmar caminho **cliente OpenAI direto + abstração de provider** vs. tentar resgatar o caminho do proxy.
+- Escolher entre **cliente OpenAI direto + abstração de provider** vs. **manter Anthropic SDK + apontar pro proxy LiteLLM**. Decisão agora é trade-off real, não forçada por bug.
 - Onde mora o switch: `LLM_MODEL` puro ou abstração explícita em `core/utils/config.py` / camada de provider.
-- Como `langchain_anthropic` (usado pelo Writer hoje) convive com a abstração: continua existindo só pro provider Anthropic, ou é substituído por algo provider-agnostic.
+- Como `langchain_anthropic` (usado pelo Writer hoje) convive com a escolha: se for proxy, continua intocado; se for cliente direto, vira parte do refator.
 - `core/utils/cost_tracker.py` precisa lidar com nomes de modelo não-Anthropic sem explodir.
 - Piso de qualidade por agente: quais aceitam Ollama local sem regressão e quais ainda exigem Sonnet/Opus.
 
