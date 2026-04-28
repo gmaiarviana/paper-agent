@@ -87,13 +87,16 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   W-PROTO-PLAT-3, W-PROTO-PLAT-4
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-plataforma`
-- **Status dos épicos:** W-PROTO-PLAT-1 📋, W-PROTO-PLAT-2 📋,
-  W-PROTO-PLAT-3 📋, W-PROTO-PLAT-4 📋.
-- **Nota:** milestone refinado em 2026-04-27 na branch
-  `claude/refine-workflow-mvp-tu06p`. Épicos em `📋 Critérios
-  definidos` — prontos para fluxo manual via Cursor. Refinamento
-  tático (via PM skill ou Claude Web) leva a `🔍 Detalhes definidos`
-  antes do dispatch autônomo.
+- **Status dos épicos:** W-PROTO-PLAT-1 🔍, W-PROTO-PLAT-2 🔍,
+  W-PROTO-PLAT-3 🔍, W-PROTO-PLAT-4 🔍.
+- **Nota:** milestone refinado a `📋` em 2026-04-27 na branch
+  `claude/refine-workflow-mvp-tu06p` e refinado a `🔍` em 2026-04-27
+  na branch `claude/refine-workflow-milestone-pRAed`. Todos os
+  épicos atendem ao checklist de
+  [`autonomous_readiness.md`](../refinement/autonomous_readiness.md)
+  e o milestone está apto ao fluxo autônomo. Localização do código
+  da plataforma: `tools/workflow_platform/` (top-level novo, fora
+  de `products/`, coerente com [`vision.md`](vision.md)).
 
 ### MVP-WORKFLOW-PLATAFORMA
 
@@ -340,21 +343,129 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** estrutura Streamlit funcionando localmente, lendo ROADMAPs do repo e com navegação básica entre as views da plataforma.
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:** nenhuma
 
+**Localização:** todo o código vive em `tools/workflow_platform/` — top-level novo, fora de `products/`, coerente com [vision.md](vision.md) ("workflow é processo, não produto"). Stack: Streamlit (já em `requirements.txt`).
+
 ### Funcionalidades:
 
-#### 1.1: App Streamlit com configuração e navegação
+#### 1.1: App Streamlit com configuração, modelo e parser
 
-- **Descrição:** App Streamlit estruturado com arquivo de configuração declarando quais ROADMAPs ler, leitura defensiva dos arquivos e navegação entre as views dos épicos seguintes.
+- **Descrição:** App Streamlit estruturado com arquivo de configuração declarando quais ROADMAPs ler, modelo de dados (Epic, Milestone, EpicState), parser defensivo de ROADMAP markdown e entrypoint que renderiza placeholder do kanban (preenchido em W-PROTO-PLAT-2). Esta funcionalidade entrega o substrato comum consumido pelos épicos seguintes.
 - **Critérios de Aceite:**
-  - Deve iniciar com `streamlit run` a partir do repo raiz sem erros
-  - Deve ler ROADMAPs configurados sem travar se algum estiver ausente ou malformado
-  - Deve ter estrutura de navegação entre as views dos épicos W-PROTO-PLAT-2, 3 e 4
-  - Deve ter arquivo de configuração declarando quais ROADMAPs ler e qual repo GitHub usar
-  - Deve funcionar em modo local sem dependência de serviço externo além de acesso de leitura ao GitHub
+  1. Deve iniciar com `streamlit run tools/workflow_platform/app.py` a partir do repo raiz sem erros
+  2. Deve ler ROADMAPs configurados sem travar se algum estiver ausente ou malformado (registra warning no UI e segue)
+  3. Deve ter arquivo de configuração `tools/workflow_platform/config.yaml` declarando lista de ROADMAPs (paths relativos ao repo root) e repo GitHub (`owner/repo`)
+  4. Deve expor função `parse_roadmap(path: str) -> ParsedRoadmap` com saída tipada (Epic, Milestone)
+  5. Deve funcionar em modo local sem dependência de serviço externo (acesso de leitura ao GitHub é só via URL nos cards, não via API)
+  6. Parser deve reconhecer os 8 estados via emoji prefix do campo `**Status:** <emoji> ...` e extrair PR URL do estado `🔀 Em revisão — PR #N (URL)`
+- **Detalhes de execução:**
+  - **Arquivos a criar:**
+    - `tools/__init__.py`
+    - `tools/workflow_platform/__init__.py`
+    - `tools/workflow_platform/app.py`
+    - `tools/workflow_platform/config.yaml`
+    - `tools/workflow_platform/config_loader.py`
+    - `tools/workflow_platform/models.py`
+    - `tools/workflow_platform/parser.py`
+    - `tests/tools/__init__.py`
+    - `tests/tools/workflow_platform/__init__.py`
+    - `tests/tools/workflow_platform/test_parser.py`
+    - `tests/tools/workflow_platform/test_config_loader.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/models.py
+    from dataclasses import dataclass, field
+    from enum import Enum
+
+    class EpicState(Enum):
+        VISION = "🌱"          # 🌱 Visão
+        ALIGNED = "🧭"         # 🧭 Jornada alinhada
+        SKETCHED = "📐"        # 📐 Funcionalidades esboçadas
+        CRITERIA = "📋"        # 📋 Critérios definidos
+        DETAILED = "🔍"        # 🔍 Detalhes definidos
+        IN_PROGRESS = "🏗️"     # 🏗️ Em andamento
+        IN_REVIEW = "🔀"       # 🔀 Em revisão
+        DONE = "✅"            # ✅ Implementado
+
+    @dataclass
+    class Epic:
+        id: str                       # ex: "W-PROTO-PLAT-1"
+        title: str                    # ex: "Scaffold da plataforma"
+        state: EpicState
+        roadmap_path: str             # path do ROADMAP de origem
+        milestone_id: str | None      # do campo `**Milestone:** <id>`; None se ausente
+        branch: str | None            # do campo `**Branch:** <branch>`; só em 🏗️/🔀
+        pr_number: int | None         # extraído de "PR #N" no status; só em 🔀
+        pr_url: str | None            # extraído de URL no status; só em 🔀
+        raw_status_line: str          # linha original `**Status:** ...` para debug
+
+    @dataclass
+    class Milestone:
+        id: str                       # ex: "PROTO-WORKFLOW-PLATAFORMA"
+        roadmap_path: str
+        objective: str | None         # campo `**Objetivo:**` do bloco
+        epic_ids: list[str] = field(default_factory=list)
+
+    @dataclass
+    class ParsedRoadmap:
+        path: str
+        epics: list[Epic]
+        milestones: list[Milestone]
+        warnings: list[str]           # malformações tolerada (status faltando, etc.)
+    ```
+    ```yaml
+    # tools/workflow_platform/config.yaml — default
+    github:
+      owner: gmaiarviana
+      repo: paper-agent
+    roadmaps:
+      - docs/ROADMAP.md
+      - docs/process/workflow/ROADMAP.md
+      - products/revelar/ROADMAP.md
+      - products/ensaio/ROADMAP.md
+      - products/prisma-verbal/ROADMAP.md
+      - products/produtor-cientifico/ROADMAP.md
+    ```
+    ```python
+    # tools/workflow_platform/config_loader.py
+    @dataclass
+    class PlatformConfig:
+        github_owner: str
+        github_repo: str
+        roadmaps: list[str]            # paths absolutos resolvidos a partir do repo root
+
+    def load_config(repo_root: Path | None = None) -> PlatformConfig: ...
+    ```
+    ```python
+    # tools/workflow_platform/parser.py
+    def parse_roadmap(path: str) -> ParsedRoadmap: ...
+    # Implementação: regex sobre linhas do markdown.
+    # Marcadores reconhecidos:
+    #   ^#### ÉPICO (?P<id>[A-Z][A-Z0-9-]+): (?P<title>.+)$  ou
+    #   ^### ✅ ÉPICO ...                                     ou
+    #   ^## ✅ ÉPICO ...                                      (cabeçalhos legados)
+    #   ^\*\*Status:\*\* (?P<emoji>🌱|🧭|📐|📋|🔍|🏗️|🔀|✅)
+    #   ^\*\*Milestone:\*\* `?(?P<id>[A-Z0-9-]+)`?
+    #   ^\*\*Branch:\*\* `?(?P<branch>[^`\n]+)`?
+    # Status em 🔀 contém "PR #(?P<n>\d+)" e opcionalmente "(?P<url>https?://[^)]+)".
+    # Épico sem **Status:** vira warning e é ignorado.
+    # Milestones lidos de "### <ID>" sob "## 🎯 Milestones" se existir; senão lista vazia.
+    ```
+  - **Integração:** `app.py` carrega config via `load_config()`, itera `config.roadmaps` chamando `parse_roadmap(path)`, agrega `list[ParsedRoadmap]` em `st.session_state` e renderiza placeholder de kanban (preenchido em W-PROTO-PLAT-2). Warnings são exibidos em `st.sidebar.expander("Avisos do parser")`.
+  - **Template de referência:** `products/revelar/app/dashboard.py` — entrypoint Streamlit com `st.set_page_config`, sidebar e funções `render_*`. Reusar a mesma estrutura (header, sidebar, área principal); estado em `st.session_state`.
+  - **Acoplamentos verificados:**
+    - `streamlit>=1.30.0` (já em `requirements.txt`)
+    - `pyyaml` (não está em `requirements.txt`) — **adicionar `pyyaml>=6.0` à `requirements.txt`** como sub-tarefa desta funcionalidade
+    - **Produto afetado:** nenhum. Top-level novo, isolado de `products/`, `core/` e `skills/`.
+    - **ROADMAPs lidos:** mudanças nos ROADMAPs existentes não são feitas por este épico — apenas leitura. Padronização do campo `**Milestone:** <id>` em ROADMAPs de produtos (Revelar, core) fica registrada como observação no fim do milestone e não é dependência (parser tolera ausência).
+  - **Dependências de ordem:** primeiro a executar; W-PROTO-PLAT-2/3/4 dependem desta funcionalidade.
+  - **Escopo de teste:**
+    - **Unit:** `tests/tools/workflow_platform/test_parser.py` — fixture com markdown sintético cobrindo (a) épico em cada um dos 8 estados; (b) status `🔀 Em revisão — PR #93 (https://github.com/gmaiarviana/paper-agent/pull/93)` extrai `pr_number=93` e `pr_url`; (c) épico sem `**Milestone:**` produz `milestone_id=None`; (d) ROADMAP malformado (sem cabeçalho de épico, sem status) gera warning sem exceção; (e) ROADMAP do core (`docs/ROADMAP.md`) não tem seção `## 🎯 Milestones` → `milestones=[]` sem warning. `tests/tools/workflow_platform/test_config_loader.py` — config.yaml válido carrega; campos faltando geram exceção clara.
+    - **Validação manual:** `streamlit run tools/workflow_platform/app.py` exibe header, lista os 6 ROADMAPs configurados na sidebar, exibe contagem total de épicos parseados e expander de warnings. Roteiro registrado inline na docstring do `app.py`.
 
 ---
 
@@ -364,7 +475,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** view com todos os épicos de todos os ROADMAPs configurados organizados por estado e milestone, numa única superfície de leitura.
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:** W-PROTO-PLAT-1 (scaffold com leitura de ROADMAPs)
 
@@ -372,14 +483,42 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 #### 2.1: Kanban de estados por milestone
 
-- **Descrição:** Colunas para todos os 8 estados, cards agrupados por milestone e atualizados ao recarregar a página.
+- **Descrição:** Colunas para todos os 8 estados, cards agrupados por milestone dentro de cada coluna, e atualização ao recarregar a página. Card é selecionável (st.button) e dispara as ações contextuais de W-PROTO-PLAT-3/4.
 - **Critérios de Aceite:**
-  - Deve exibir todos os 8 estados como colunas (🌱 → ✅)
-  - Deve agrupar cards por milestone dentro de cada coluna; épicos órfãos ficam em grupo "Sem milestone"
-  - Cada card deve exibir: id, título e milestone de origem
-  - Deve consolidar épicos de todos os ROADMAPs configurados numa única view
-  - Deve atualizar ao recarregar a página (live refresh não obrigatório)
-  - Deve ser navegável com 20+ épicos ativos sem degradação visual
+  1. Deve exibir todas as 8 colunas na ordem `🌱 → 🧭 → 📐 → 📋 → 🔍 → 🏗️ → 🔀 → ✅`
+  2. Deve agrupar cards por milestone dentro de cada coluna; épicos com `milestone_id=None` ficam num grupo final "Sem milestone"
+  3. Cada card deve exibir: `id`, `title`, e `milestone_id` (ou "Sem milestone")
+  4. Deve consolidar épicos de todos os ROADMAPs configurados numa única view
+  5. Deve atualizar ao recarregar a página (live refresh não obrigatório; botão "🔄 Recarregar" na sidebar invalida `st.session_state` e re-parseia)
+  6. Deve ser navegável com 20+ épicos ativos sem degradação visual (validação manual com fixture sintética)
+  7. Card clicado guarda `selected_epic_id` em `st.session_state` e abre painel de detalhe lateral via `st.expander` ou área inferior (consumido por W-PROTO-PLAT-3/4)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/views/__init__.py`, `tools/workflow_platform/views/kanban.py`
+  - **Arquivos a modificar:** `tools/workflow_platform/app.py` — substituir o placeholder pelo `render_kanban()` real
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/views/kanban.py
+    KANBAN_COLUMN_ORDER: list[EpicState] = [
+        EpicState.VISION, EpicState.ALIGNED, EpicState.SKETCHED,
+        EpicState.CRITERIA, EpicState.DETAILED,
+        EpicState.IN_PROGRESS, EpicState.IN_REVIEW, EpicState.DONE,
+    ]
+
+    def render_kanban(roadmaps: list[ParsedRoadmap]) -> None:
+        """Renderiza 8 colunas; em cada coluna, agrupa epics por milestone_id.
+        Clique num card grava st.session_state['selected_epic_id'] e
+        st.session_state['selected_milestone_id'] (= milestone_id do épico)."""
+    ```
+  - **Integração:** `app.py` chama `render_kanban(parsed_roadmaps)` na área principal. Após o kanban, se houver `selected_epic_id` em `session_state`, chama `render_card_detail(selected_epic, ...)` (definido em W-PROTO-PLAT-3/4).
+  - **Template de referência:** `products/revelar/app/dashboard.py` — uso de `st.columns()` e `st.container()` por bloco; cards visuais via `st.markdown` com leve estilização inline.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/models.py` (EpicState, Epic, Milestone) — definido em W-PROTO-PLAT-1
+    - `tools/workflow_platform/parser.py` (ParsedRoadmap) — definido em W-PROTO-PLAT-1
+    - **Produto afetado:** nenhum. View nova, isolada do código de produtos.
+  - **Dependências de ordem:** depende de W-PROTO-PLAT-1.1 (parser e models existentes); precede W-PROTO-PLAT-3.1/3.2/4.1/4.2 (que rodam dentro do painel de detalhe acionado pelo card).
+  - **Escopo de teste:**
+    - **Unit:** sem teste automatizado para a função de render (UI Streamlit). Testar apenas helper de agrupamento se for extraído (ex.: `group_by_milestone(epics: list[Epic]) -> dict[str | None, list[Epic]]` em `tools/workflow_platform/views/kanban.py`) em `tests/tools/workflow_platform/test_kanban.py`.
+    - **Validação manual:** roteiro inline na docstring de `render_kanban` — (a) abrir o app com config default; verificar 8 colunas visíveis; (b) verificar que épicos do workflow ROADMAP aparecem agrupados em "PROTO-WORKFLOW-PLATAFORMA"; (c) verificar que épicos do Revelar (sem campo `**Milestone:**`) aparecem em "Sem milestone"; (d) carregar fixture com 25 épicos sintéticos e confirmar layout legível.
 
 ---
 
@@ -389,27 +528,109 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** ações contextuais nos cards de estados de execução (🔍/🏗️/🔀/✅) para o operador despachar, acompanhar e revisar sem precisar sair da plataforma.
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:** W-PROTO-PLAT-2 (kanban com cards clicáveis)
 
 ### Funcionalidades:
 
-#### 3.1: Dispatch para épicos em 🔍
+#### 3.1: Dispatch (sempre por milestone) para épicos em 🔍
 
-- **Descrição:** Ao clicar num card em 🔍, exibe prompt de dispatch clipboard-ready com o milestone e instrução de execução para colar no Claude Code Web.
+- **Descrição:** Ao selecionar um card em `🔍`, o painel de detalhe gera prompt de dispatch clipboard-ready do **milestone-pai** do épico (não do épico individual). Coerente com [`dispatch.md`](../autonomous/dispatch.md), que opera sempre sobre milestone inteiro. Se o milestone do épico tem outros épicos em estados pré-`🔍` (`🌱`/`🧭`/`📐`/`📋`), o prompt vem com aviso "PM skill será disparada para refinar X, Y antes de EM"; se algum estiver em `🏗️`/`🔀`/`✅`, exibe alerta "milestone em execução/concluído — dispatch não recomendado" e desabilita o botão.
 - **Critérios de Aceite:**
-  - Deve exibir prompt de dispatch clipboard-ready ao selecionar épico em 🔍
-  - O prompt deve identificar o milestone e indicar o alvo em linguagem natural (padrão `dispatch.md`)
-  - Deve ter botão de copiar para clipboard
+  1. Deve exibir prompt de dispatch clipboard-ready ao selecionar épico em `🔍`
+  2. O prompt deve referenciar o `milestone_id` (não o `epic.id`) e usar linguagem natural conforme [`dispatch.md`](../autonomous/dispatch.md) §1 (ex.: ``"implementa o `<MILESTONE_ID>`"``)
+  3. Se algum épico do mesmo milestone está em `🌱`/`🧭`/`📐`/`📋`, listar esses ids no prompt como "PM skill refinará: <ids>"
+  4. Se algum épico do mesmo milestone está em `🏗️`/`🔀`/`✅`, exibir alerta visual e desabilitar botão de copy
+  5. Se o épico tem `milestone_id=None`, exibir mensagem "épico sem milestone declarado — não pode ser despachado"; sem prompt
+  6. Deve ter botão "📋 Copiar prompt" usando `st.code(...)` ou componente equivalente que permita seleção/cópia
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/prompts/__init__.py`, `tools/workflow_platform/prompts/dispatch.py`, `tools/workflow_platform/views/card_detail.py`, `tests/tools/workflow_platform/test_dispatch_prompt.py`
+  - **Arquivos a modificar:** `tools/workflow_platform/app.py` — invocar `render_card_detail(selected_epic, all_epics, config)` após o kanban
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/prompts/dispatch.py
+    @dataclass
+    class DispatchPromptResult:
+        prompt_text: str | None        # None se milestone_id ausente ou em execução
+        warnings: list[str]            # ex.: "milestone tem épicos em 📋: W-PROTO-PLAT-2"
+        blocked: bool                  # True se há épico em 🏗️/🔀/✅ no milestone
+
+    def build_dispatch_prompt(
+        epic: Epic,
+        all_epics_in_milestone: list[Epic],
+    ) -> DispatchPromptResult: ...
+    ```
+    Exemplo de prompt produzido para `epic.milestone_id="PROTO-WORKFLOW-PLATAFORMA"` com todos em `🔍`:
+    ```
+    implementa o PROTO-WORKFLOW-PLATAFORMA
+    ```
+    Com épicos em `📋`:
+    ```
+    implementa o PROTO-WORKFLOW-PLATAFORMA
+
+    Nota: PM skill refinará os épicos abaixo (📋 → 🔍) antes da EM rodar:
+    - W-PROTO-PLAT-3
+    ```
+  - **Integração:** `views/card_detail.py` chama `build_dispatch_prompt()` quando `selected_epic.state == EpicState.DETAILED`. Filtra `all_epics_in_milestone = [e for e in epics if e.milestone_id == selected_epic.milestone_id]`.
+  - **Template de referência:** sem análogo direto. Estrutura similar a um helper puro: input dataclass → output dataclass com warnings, sem side effects (espelha `tools/` puro).
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/models.py` (Epic, EpicState) — W-PROTO-PLAT-1
+    - `docs/process/autonomous/dispatch.md` — formato textual `"implementa o <ID>"` é cópia direta dos exemplos do dispatch.md
+    - **Produto afetado:** nenhum
+  - **Dependências de ordem:** depende de W-PROTO-PLAT-2.1 (kanban com card clicável). 3.1 e 3.2 podem ser implementadas em paralelo (ambas vivem em `views/card_detail.py`).
+  - **Escopo de teste:**
+    - **Unit:** `test_dispatch_prompt.py` — (a) milestone com todos em `🔍` produz prompt simples sem aviso e `blocked=False`; (b) milestone com 1 épico em `📋` adiciona seção "PM skill refinará"; (c) milestone com 1 épico em `🏗️` retorna `blocked=True`; (d) `milestone_id=None` retorna `prompt_text=None` com warning.
+    - **Validação manual:** clicar em card de épico em `🔍` no app rodando; verificar prompt clipboard-ready coerente com `dispatch.md`.
 
 #### 3.2: Status e links para 🏗️, 🔀 e ✅
 
-- **Descrição:** Cards em 🏗️ exibem branch com link; cards em 🔀 exibem link para a PR; cards em ✅ exibem resumo sem ações.
+- **Descrição:** Painel de detalhe exibe links de acompanhamento conforme estado: `🏗️` → branch no GitHub; `🔀` → PR no GitHub; `✅` → resumo enxuto do épico (texto pós-cleanup do ROADMAP) sem ações.
 - **Critérios de Aceite:**
-  - Para 🏗️: deve exibir nome da branch associada com link para o GitHub
-  - Para 🔀: deve exibir link direto para a PR (lido da anotação `🔀 Em revisão — PR #N` no ROADMAP)
-  - Para ✅: deve exibir resumo do épico sem ações disponíveis
+  1. Para `🏗️`: exibe `epic.branch` como link `https://github.com/<owner>/<repo>/tree/<branch>` (owner/repo do `config.yaml`)
+  2. Para `🔀`: exibe link para `epic.pr_url` (se parseado), ou monta `https://github.com/<owner>/<repo>/pull/<epic.pr_number>` se só `pr_number` estiver disponível
+  3. Para `✅`: exibe título e resumo (corpo do bloco do épico no ROADMAP, primeiros 500 chars) sem botões de ação
+  4. Se `epic.branch=None` em `🏗️`: exibe aviso "branch não declarada no ROADMAP — verifique campo `**Branch:**`" sem quebrar
+  5. Se `epic.pr_url=None` e `epic.pr_number=None` em `🔀`: exibe aviso análogo
+- **Detalhes de execução:**
+  - **Arquivos a criar:** já cobertos por 3.1 (`tools/workflow_platform/views/card_detail.py`)
+  - **Arquivos a modificar:** `tools/workflow_platform/views/card_detail.py` — adicionar branches por estado dentro do mesmo `render_card_detail`. `tools/workflow_platform/parser.py` — estender para guardar `body_excerpt: str` em `Epic` (primeiros 500 chars do bloco do épico) usado pelo branch `✅`.
+  - **Contratos/Shapes:**
+    ```python
+    # extensão em models.py
+    @dataclass
+    class Epic:
+        # ... campos definidos em W-PROTO-PLAT-1.1
+        body_excerpt: str = ""        # primeiros ~500 chars do bloco; usado em ✅
+    ```
+    ```python
+    # tools/workflow_platform/views/card_detail.py
+    def render_card_detail(
+        epic: Epic,
+        all_epics_in_milestone: list[Epic],
+        config: PlatformConfig,
+    ) -> None:
+        """Roteia por epic.state. Estados pré-execução chamam W-PROTO-PLAT-4.x;
+        🔍 chama build_dispatch_prompt + botão copy; 🏗️/🔀/✅ rendem links/resumo."""
+    ```
+    Helper puro para construir URLs:
+    ```python
+    def github_branch_url(owner: str, repo: str, branch: str) -> str:
+        return f"https://github.com/{owner}/{repo}/tree/{branch}"
+
+    def github_pr_url(owner: str, repo: str, pr_number: int) -> str:
+        return f"https://github.com/{owner}/{repo}/pull/{pr_number}"
+    ```
+  - **Integração:** `card_detail.render_card_detail` é o único ponto de entrada do painel; faz dispatch interno por `epic.state`. URLs construídas a partir de `config.github_owner` e `config.github_repo`.
+  - **Template de referência:** uso de `st.link_button` ou `st.markdown` com link clicável (padrão Streamlit; ver `products/revelar/app/dashboard.py`).
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/models.py` e `config_loader.py` — W-PROTO-PLAT-1
+    - **Mudança no parser:** adicionar `body_excerpt` é extensão, não breaking change — testes do parser de 1.1 continuam passando, novo teste cobre o campo
+    - **Produto afetado:** nenhum
+  - **Dependências de ordem:** depende de W-PROTO-PLAT-2.1 e da parte do parser de W-PROTO-PLAT-1.1. A extensão de `body_excerpt` é dependência interna desta funcionalidade.
+  - **Escopo de teste:**
+    - **Unit:** `test_parser.py` (extensão) — `body_excerpt` capturado para épico em `✅`. Helpers `github_branch_url`/`github_pr_url` testados via fixture.
+    - **Validação manual:** rodar app; clicar em épico real em `🔀` (qualquer dos PROTO-WORKFLOW-* já mergeados); confirmar link da PR abre o GitHub.
 
 ---
 
@@ -419,7 +640,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** ações contextuais nos cards de estados pré-execução (🌱/🧭/📐/📋) que orientam o operador sobre o próximo passo de refinamento e geram o prompt de sessão pronto para usar.
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
 **Dependências:** W-PROTO-PLAT-2 (kanban com cards clicáveis)
 
@@ -427,20 +648,88 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 #### 4.1: Exibição de próximo passo por estado
 
-- **Descrição:** Ao clicar num card em estado pré-execução, exibe o que falta para avançar ao próximo estado com base nas definições de `planning_guidelines.md`.
+- **Descrição:** Ao selecionar um card em estado pré-execução, o painel de detalhe exibe o próximo estado-alvo do épico e qual fluxo de refinamento se aplica, com base no mapa fixo de transições de [`planning_guidelines.md`](../refinement/planning_guidelines.md).
 - **Critérios de Aceite:**
-  - Para 🌱/🧭/📐: deve indicar que o próximo passo é refinamento e qual o alvo (📋 ou 🔍)
-  - Para 📋: deve indicar que o próximo passo é atingir 🔍 e apontar para `autonomous_readiness.md` como checklist do alvo
-  - Não deve listar arquivos para upload manual — o refinamento é delegado à PM skill ou sessão estratégica via plataforma
+  1. Para `🌱`: exibe "Próximo alvo: `🧭 Jornada alinhada` ou `📐 Funcionalidades esboçadas`. Refinamento via PM skill (no fluxo autônomo) ou sessão estratégica."
+  2. Para `🧭`: exibe "Próximo alvo: `📐 Funcionalidades esboçadas` ou `📋 Critérios definidos`. Refinamento via PM skill ou sessão estratégica."
+  3. Para `📐`: exibe "Próximo alvo: `📋 Critérios definidos`. Refinamento via PM skill ou sessão estratégica."
+  4. Para `📋`: exibe "Próximo alvo: `🔍 Detalhes definidos` (apto ao fluxo autônomo). Checklist do alvo: [`autonomous_readiness.md`](../refinement/autonomous_readiness.md)."
+  5. Não deve listar arquivos para upload manual — refinamento é delegado à PM skill ou sessão estratégica via plataforma
+  6. Texto de cada estado deve apontar via link para o ponto correspondente em `planning_guidelines.md`
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/prompts/refinement.py` (compartilhado com 4.2 — define o mapa de transições + builder do prompt), `tests/tools/workflow_platform/test_refinement_prompt.py`
+  - **Arquivos a modificar:** `tools/workflow_platform/views/card_detail.py` — adicionar branch por estado pré-execução (`🌱`/`🧭`/`📐`/`📋`)
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/prompts/refinement.py
+    @dataclass
+    class NextStepInfo:
+        target_states: list[EpicState]    # ex.: [SKETCHED, CRITERIA] para 🧭
+        guidance_text: str                # texto curto exibido no painel
+        readiness_checklist: bool         # True para 📋 (aponta autonomous_readiness.md)
+
+    NEXT_STEP_MAP: dict[EpicState, NextStepInfo] = {
+        EpicState.VISION:    NextStepInfo(target_states=[EpicState.ALIGNED, EpicState.SKETCHED], ...),
+        EpicState.ALIGNED:   NextStepInfo(target_states=[EpicState.SKETCHED, EpicState.CRITERIA], ...),
+        EpicState.SKETCHED:  NextStepInfo(target_states=[EpicState.CRITERIA], ...),
+        EpicState.CRITERIA:  NextStepInfo(target_states=[EpicState.DETAILED], readiness_checklist=True, ...),
+    }
+
+    def get_next_step(epic: Epic) -> NextStepInfo | None:
+        """Retorna NextStepInfo para estados pré-execução; None caso contrário."""
+    ```
+  - **Integração:** `views/card_detail.py` chama `get_next_step(epic)` quando o estado está em `{🌱, 🧭, 📐, 📋}`; renderiza `guidance_text` e link condicional para `autonomous_readiness.md`.
+  - **Template de referência:** sem análogo direto. Padrão "estado → info" via dict imutável é convencional.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/models.py` (Epic, EpicState) — W-PROTO-PLAT-1
+    - `docs/process/refinement/planning_guidelines.md` — fonte canônica das transições; mudanças no mapa de estados exigem atualização aqui (registrar como nota inline em `refinement.py`)
+    - **Produto afetado:** nenhum
+  - **Dependências de ordem:** 4.1 e 4.2 dividem `prompts/refinement.py`; 4.1 entrega `NEXT_STEP_MAP` + `get_next_step`, 4.2 reusa para gerar prompt. Implementar 4.1 primeiro.
+  - **Escopo de teste:**
+    - **Unit:** `test_refinement_prompt.py` — (a) `get_next_step(epic_em_📋)` retorna `target_states=[DETAILED]` e `readiness_checklist=True`; (b) `get_next_step(epic_em_🏗️)` retorna `None`; (c) `NEXT_STEP_MAP` cobre os 4 estados pré-execução.
+    - **Validação manual:** clicar em épicos em cada um dos 4 estados pré-execução no app; verificar texto e link.
 
 #### 4.2: Geração de prompt de refinamento clipboard-ready
 
-- **Descrição:** Gera prompt de refinamento com o contexto mínimo necessário para abrir a sessão, sem executar o refinamento.
+- **Descrição:** Gera prompt de refinamento com o contexto mínimo para o operador abrir uma sessão de refinamento (estratégica ou via PM skill em Claude Code Web). Inclui `epic.id`, estado atual, alvo, `roadmap_path` e ponteiros para os documentos canônicos. **Não executa o refinamento** — só monta o texto.
 - **Critérios de Aceite:**
-  - Deve gerar prompt incluindo: id do épico, estado atual, alvo de refinamento e lista dos arquivos a carregar na sessão
-  - Para épicos em 📋: prompt deve mencionar `autonomous_readiness.md` como checklist do alvo 🔍
-  - Deve ter botão de copiar para clipboard
-  - Não executa refinamento — apenas prepara o contexto para o operador iniciar manualmente
+  1. Deve gerar prompt incluindo: `epic.id`, `epic.title`, `epic.state.name`, alvo (`NextStepInfo.target_states`), `epic.roadmap_path` e ponteiros para `planning_guidelines.md` e `starter.md`
+  2. Para épico em `📋`: prompt cita explicitamente `autonomous_readiness.md` como checklist do alvo `🔍`
+  3. Deve ter botão "📋 Copiar prompt" via `st.code(...)` (mesmo padrão de 3.1)
+  4. Não executa refinamento — apenas prepara o contexto
+  5. Para épicos em estados de execução (`🔍`/`🏗️`/`🔀`/`✅`): função retorna `None` e a UI não exibe o painel de refinamento
+- **Detalhes de execução:**
+  - **Arquivos a criar:** já cobertos por 4.1 (`tools/workflow_platform/prompts/refinement.py`, `tests/.../test_refinement_prompt.py`)
+  - **Arquivos a modificar:** `tools/workflow_platform/prompts/refinement.py` — adicionar `build_refinement_prompt`. `tools/workflow_platform/views/card_detail.py` — exibir prompt + botão copy nos estados pré-execução.
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/prompts/refinement.py
+    def build_refinement_prompt(epic: Epic) -> str | None:
+        """Retorna prompt textual; None para estados de execução.
+        Template fixo, sem invocação de LLM."""
+    ```
+    Exemplo de prompt produzido para `epic.id="W-PROTO-PLAT-1"`, `state=📋`:
+    ```
+    Refinar o épico W-PROTO-PLAT-1 ("Scaffold da plataforma") até 🔍 Detalhes definidos.
+
+    Estado atual: 📋 Critérios definidos
+    Alvo: 🔍 Detalhes definidos
+    ROADMAP de origem: docs/process/workflow/ROADMAP.md
+
+    Aplicar checklist em docs/process/refinement/autonomous_readiness.md.
+    Convenções da sessão em docs/process/refinement/planning_guidelines.md.
+    Pack inicial de contexto em docs/process/refinement/starter.md.
+    ```
+  - **Integração:** `views/card_detail.py` chama `build_refinement_prompt(epic)` quando `get_next_step(epic) is not None`. Exibe via `st.code()` com botão de copy no canto superior direito (padrão Streamlit).
+  - **Template de referência:** `tools/workflow_platform/prompts/dispatch.py` (W-PROTO-PLAT-3.1) — mesma estrutura de helper puro retornando texto.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/models.py` e `prompts/refinement.NEXT_STEP_MAP` — definidos em W-PROTO-PLAT-1 e 4.1
+    - Paths `planning_guidelines.md`, `autonomous_readiness.md`, `starter.md` — caminhos relativos fixos no template; mudança nesses caminhos quebra prompts (registrar como nota inline)
+    - **Produto afetado:** nenhum
+  - **Dependências de ordem:** depende de 4.1 (`NEXT_STEP_MAP`)
+  - **Escopo de teste:**
+    - **Unit:** `test_refinement_prompt.py` (extensão) — (a) prompt para épico em `📋` contém "autonomous_readiness.md"; (b) prompt para épico em `🌱` não menciona `autonomous_readiness.md`; (c) `build_refinement_prompt(epic_em_🏗️)` retorna `None`; (d) prompt contém `epic.id`, `epic.title` e `roadmap_path`.
+    - **Validação manual:** clicar em épicos em cada estado pré-execução no app; copiar o prompt; colar em editor e conferir conteúdo.
 
 ---
 
@@ -537,10 +826,19 @@ fluxo autônomo exige `🔍 Detalhes definidos`.
 
 Os milestones da fase Protótipo `PROTO-WORKFLOW-ENCERRAMENTO`,
 `PROTO-WORKFLOW-DOC` e `PROTO-WORKFLOW-AJUSTES` foram mergeados em
-sequência (PRs #83, #90 e #93). `PROTO-WORKFLOW-PLATAFORMA` permanece
-em `📋 Critérios definidos`. Os milestones MVP (`MVP-WORKFLOW-PLATAFORMA`
-e `MVP-WORKFLOW-REFINADOR`) têm épicos esboçados em `📐` aguardando
-refinamento estratégico após os milestones de Protótipo fecharem.
+sequência (PRs #83, #90 e #93). `PROTO-WORKFLOW-PLATAFORMA` está em
+`🔍 Detalhes definidos` — apto ao fluxo autônomo. Os milestones MVP
+(`MVP-WORKFLOW-PLATAFORMA` e `MVP-WORKFLOW-REFINADOR`) têm épicos
+esboçados em `📐` aguardando refinamento estratégico após
+`PROTO-WORKFLOW-PLATAFORMA` fechar.
+
+**Padronização do campo `**Milestone:**` em ROADMAPs.** O parser
+de W-PROTO-PLAT-1.1 trata épicos sem campo `**Milestone:** <id>`
+como órfãos ("Sem milestone"). Hoje os ROADMAPs do Revelar e do
+core (`docs/ROADMAP.md`) não usam o campo de forma consistente —
+ROADMAPs do workflow e do Ensaio já usam. Padronizar é trabalho
+fora deste milestone; vira épico próprio quando houver atrito real
+no uso da plataforma.
 
 **Bootstrap manual da convenção "sessão = milestone coerente":** a
 quebra da fase Protótipo em milestones temáticos foi aplicada
