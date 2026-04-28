@@ -95,7 +95,7 @@ Protocolo detalhado em `skills/README.md`.
 - **Refinamento estratégico não acontece aqui.** Visão → milestones/épicos em `🌱`/`🧭`/`📐` é processo separado (refinador autônomo ou sessão estratégica), não parte do fluxo de implementação. Se o milestone alvo não existir no ROADMAP, abortar.
 - **Refinamento tático acontece dentro da branch.** PM skill leva épicos `🌱`/`🧭`/`📐`/`📋` a `🔍` antes da EM rodar o sizing.
 - **Sem novas decisões arquiteturais.** Se o fluxo topar decisão em aberto não coberta por refinamento, abortar e devolver.
-- **Sem PR automático.** A RTE prepara a branch e comandos; o PR é criação humana.
+- **PR aberta pela RTE, mergeada por humano.** A RTE abre a PR via `mcp__github__create_pull_request` com a Seção 🎯 Validação no body (W-PROTO-5). Aprovação e merge seguem humanos — RTE nunca mergeia.
 - **Escalação:** 3 reprovações consecutivas no mesmo gate do mesmo épico abortam o milestone inteiro e notificam o dev (sem agregar entre épicos distintos).
 - **Notificação única no fim.** Gates intermediários são silenciosos; a RTE consolida tudo em uma mensagem só quando o último épico fecha.
 

@@ -251,6 +251,7 @@ Os detalhes específicos de cada ajuste por estágio moram em `docs/process/refi
 ### Estados de Refinamento (antes do código)
 
 - **`🌱 Visão`** — apenas objetivo. Aguarda refinamento. Nenhum fluxo de execução disponível.
+- **`🧭 Jornada alinhada`** — objetivo refinado, rationale e escopo declinados; glossário ancorado e acoplamentos sinalizados (para milestone, jornada alvo + escopo + mapeamento de feedback do estágio anterior). Aguarda refinamento. Nenhum fluxo de execução disponível.
 - **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento. Nenhum fluxo de execução disponível.
 - **`📋 Critérios definidos`** — critérios de aceite definidos. Apto ao fluxo manual.
 - **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Apto ao fluxo autônomo.

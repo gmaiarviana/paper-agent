@@ -36,7 +36,7 @@ Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qu
 - **Refinamento em massa** — alvo `🌱 Visão` ou `📐 Funcionalidades esboçadas`, aplicado a múltiplos épicos de uma vez. Produz várias entradas no ROADMAP a partir de uma visão.
 - **Refinamento profundo** — alvo `📋 Critérios definidos` ou `🔍 Detalhes definidos`, aplicado a um épico específico que se aproxima da implementação.
 
-O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. O alvo `🔍 Detalhes definidos` exige contexto adicional — inspeção de código relevante + checklist específico. O modelo completo dos sete estados de um épico vive em [`planning_guidelines.md`](planning_guidelines.md).
+O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. O alvo `🔍 Detalhes definidos` exige contexto adicional — inspeção de código relevante + checklist específico. O modelo completo dos oito estados de um épico vive em [`planning_guidelines.md`](planning_guidelines.md).
 
 ### Alvo `🌱 Visão` (refinamento em massa — nível título)
 

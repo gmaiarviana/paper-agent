@@ -82,7 +82,12 @@ feat(workflow/encerramento): fechar ciclo de encerramento autônomo (W-PROTO-5)
 
 ### Atualização do ROADMAP
 
-Mudar status do épico para `🏗️ Em andamento` no **início** da implementação e para `✅ Implementado` no commit final do épico. Pode entrar no mesmo commit do épico ou em um commit de docs separado — fica a critério da sessão, desde que o status esteja correto ao final.
+A sessão autônoma manipula apenas duas transições de status no ROADMAP:
+
+- **`🏗️ Em andamento`** — setado no **início** da implementação do épico.
+- **`🔀 Em revisão`** — setado pela **RTE** ao abrir a PR do milestone, no mesmo commit que gera `validation-<milestone>.md`.
+
+A transição para **`✅ Implementado`** **não é responsabilidade do fluxo autônomo** — é executada pela Cleanup skill (via GitHub Action `milestone-cleanup.yml`) após o merge da PR. Detalhes em [`docs/process/refinement/epic_completion.md`](../refinement/epic_completion.md).
 
 ---
 
