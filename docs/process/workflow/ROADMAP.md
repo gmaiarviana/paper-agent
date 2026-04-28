@@ -87,8 +87,8 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   W-PROTO-PLAT-3, W-PROTO-PLAT-4
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-plataforma`
-- **Status dos épicos:** W-PROTO-PLAT-1 🔍, W-PROTO-PLAT-2 🔍,
-  W-PROTO-PLAT-3 🔍, W-PROTO-PLAT-4 🔍.
+- **Status dos épicos:** W-PROTO-PLAT-1 🔀, W-PROTO-PLAT-2 🔀,
+  W-PROTO-PLAT-3 🔀, W-PROTO-PLAT-4 🔀.
 - **Nota:** milestone refinado a `📋` em 2026-04-27 na branch
   `claude/refine-workflow-mvp-tu06p` e refinado a `🔍` em 2026-04-27
   na branch `claude/refine-workflow-milestone-pRAed`. Todos os
@@ -385,7 +385,9 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** estrutura Streamlit funcionando localmente, lendo ROADMAPs do repo e com navegação básica entre as views da plataforma.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #106 (https://github.com/gmaiarviana/paper-agent/pull/106)
+
+**Branch:** `claude/implement-workflow-prototype-BtiaJ`
 
 **Dependências:** nenhuma
 
@@ -517,7 +519,9 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** view com todos os épicos de todos os ROADMAPs configurados organizados por estado e milestone, numa única superfície de leitura.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #106 (https://github.com/gmaiarviana/paper-agent/pull/106)
+
+**Branch:** `claude/implement-workflow-prototype-BtiaJ`
 
 **Dependências:** W-PROTO-PLAT-1 (scaffold com leitura de ROADMAPs)
 
@@ -570,7 +574,9 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** ações contextuais nos cards de estados de execução (🔍/🏗️/🔀/✅) para o operador despachar, acompanhar e revisar sem precisar sair da plataforma.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #106 (https://github.com/gmaiarviana/paper-agent/pull/106)
+
+**Branch:** `claude/implement-workflow-prototype-BtiaJ`
 
 **Dependências:** W-PROTO-PLAT-2 (kanban com cards clicáveis)
 
@@ -682,7 +688,9 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** ações contextuais nos cards de estados pré-execução (🌱/🧭/📐/📋) que orientam o operador sobre o próximo passo de refinamento e geram o prompt de sessão pronto para usar.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #106 (https://github.com/gmaiarviana/paper-agent/pull/106)
+
+**Branch:** `claude/implement-workflow-prototype-BtiaJ`
 
 **Dependências:** W-PROTO-PLAT-2 (kanban com cards clicáveis)
 
