@@ -31,7 +31,7 @@ O Claude Web não tem acesso ao repositório. Esse pack dá a ele o mínimo nece
 
 ## 🎯 Alvos de Refinamento
 
-Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qual o épico (ou conjunto de épicos) deve chegar ao fim da sessão. Sessões se dividem em dois tipos conforme o alvo:
+Toda sessão de refinamento opera com um **alvo definido** — o estado ao qual o épico (ou conjunto de épicos) deve chegar ao fim da sessão. O alvo pode ser declarado pelo usuário ao abrir a sessão **ou** inferido pelo agente a partir da camada que ainda não está clara e confirmado conversacionalmente antes do primeiro edit (ver regra (b) em [`planning_guidelines.md`](planning_guidelines.md)). Sessões se dividem em dois tipos conforme o alvo:
 
 - **Refinamento em massa** — alvo `🌱 Visão` ou `📐 Funcionalidades esboçadas`, aplicado a múltiplos épicos de uma vez. Produz várias entradas no ROADMAP a partir de uma visão.
 - **Refinamento profundo** — alvo `📋 Critérios definidos` ou `🔍 Detalhes definidos`, aplicado a um épico específico que se aproxima da implementação.

@@ -205,15 +205,19 @@ Checklist em `docs/process/refinement/epic_completion.md` foi aplicado na ínteg
 
 ### Alvo de Refinamento
 
-Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qual o épico deve chegar ao fim da sessão.
+Toda sessão de refinamento opera com um **alvo definido** — o estado ao qual o épico deve chegar ao fim da sessão. **O alvo não precisa ser declarado pelo usuário antes da sessão começar.** Tratar "alvo declarado" como gate de abertura é cerimônia que contradiz a regra (b) acima ("confirmação conversacional antes de edit, não antes de começar"): o alvo natural emerge da camada que ainda não está clara — o agente pode inferir, propor e confirmar antes do primeiro edit, sem travar a conversa.
 
-Formas típicas de declarar o alvo:
+Formas típicas de chegar ao alvo:
+- **Declaração explícita do usuário** ao abrir a sessão: "Levar Épico X até `🔍`."
+- **Inferência do agente** a partir do estado atual + contexto, com confirmação leve antes do primeiro edit: *"o épico está em `📐`, parece que faz sentido levar até `📋` nesta sessão — segue?"*
+
+Formas típicas de declarar o alvo (quando explícito):
 - "Quebrar esta visão em N épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas`."
 - "Levar Milestone X (e/ou seus épicos) até `🧭 Jornada alinhada`."
 - "Levar Épico X até `📋 Critérios definidos`."
 - "Levar Épico X até `🔍 Detalhes definidos`."
 
-O Claude Web conduz as perguntas até chegar ao alvo declarado, sem parar em estados intermediários. O alvo define:
+Uma vez definido (declarado ou inferido+confirmado), o Claude Web conduz as perguntas até chegar ao alvo, sem parar em estados intermediários. O alvo define:
 
 - **Quanto contexto enviar:** pack inicial de 6 arquivos basta para alvos até `📋 Critérios definidos`; chegar a `🔍 Detalhes definidos` exige também inspeção de código e consulta a `autonomous_readiness.md`.
 - **Quais artefatos são produzidos:** funcionalidades, critérios, detalhes de execução — proporcionais ao alvo.
