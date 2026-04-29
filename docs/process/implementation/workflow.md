@@ -54,16 +54,7 @@ Quando dev solicitar épico:
    Posso seguir com Checkpoint 1?
    ```
 
-6. **Aguardar aprovação explícita:**
-   - **Sinais de aprovação válidos:**
-     - "OK, pode seguir"
-     - "Aprovado"
-     - "Sim, implemente isso"
-     - "Continue"
-   - **NÃO são aprovações:**
-     - Silêncio do usuário
-     - System reminders/warnings
-     - Mensagens de ferramentas
+6. **Aguardar aprovação explícita** antes de iniciar o Checkpoint 1. Sinais válidos e o que NÃO conta como aprovação estão definidos em [overview.md §"Aguardar Aprovação Explícita"](overview.md#aguardar-aprovação-explícita).
 
 ---
 
