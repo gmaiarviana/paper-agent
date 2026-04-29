@@ -167,10 +167,13 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 ### PROTO-WORKFLOW-FILA
 
 - **Objetivo:** plataforma ganha fila reativa de decisões + chat focado
-  por item + auto-regulação básica. Sinais óbvios do repo (PR aberta,
-  épico chegou em estado-gatilho, branch parou) viram itens de fila por
-  regra determinística — sem agente proativo ainda. Operador atende na
-  ordem que escolher; ordenação simples (recência ou manual).
+  por item + auto-regulação básica. Sinais óbvios do repo (épico em
+  🔍 esperando dispatch, PR de milestone aberta, branch parada) viram
+  itens de fila por regra determinística — sem agente proativo ainda.
+  Operador atende na ordem que escolher; ordenação por recência da
+  detecção. Fonte da verdade: markdown + estado git/GitHub. Sem
+  persistência própria — fila é view derivada, reconstruída do zero
+  a cada render.
 - **Estágio:** Protótipo
 - **Épicos agrupados:** W-PROTO-FILA-1, W-PROTO-FILA-2, W-PROTO-FILA-3
 - **Dependências de core:** nenhuma; depende de
@@ -178,22 +181,54 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
 - **Status dos épicos:** W-PROTO-FILA-1 📐, W-PROTO-FILA-2 📐,
-  W-PROTO-FILA-3 📐.
-- **Tensões para refinamento estratégico:**
-  - **(a) Quem cria itens "PR pra revisar"?** Inclinação: RTE no
-    mesmo passo em que abre PR (W-PROTO-5 estendido). Alternativa:
-    observador da plataforma detecta PR aberta via GitHub API.
-  - **(b) Auto-regulação por capacidade (~20 itens).** No Protótipo,
-    auto-regulação é simples (alerta visual ao se aproximar do limite)
-    — gatilho duro de pausa só ganha sentido no MVP, quando há agente
-    proativo criando itens.
-  - **(c) Reconstrução da fila se plataforma cair.** Varrer markdown
-    + estado de PRs deve reconstruir a fila deterministicamente —
-    teste prático do princípio "markdown é fonte da verdade".
+  W-PROTO-FILA-3 📐 (refinamento tático em progresso —
+  decisões estratégicas abaixo já fechadas).
+- **Decisões de refinamento estratégico (2026-04-29):**
+  - **(a) Detecção reativa unificada na própria plataforma.** Os 3
+    tipos de item (DISPATCH, REVIEW, STALE_BRANCH) são detectados
+    pelo módulo `tools/workflow_platform/queue/detect.py`, lendo
+    apenas o estado-do-mundo (ROADMAPs parseados + `git ls-remote` /
+    `git for-each-ref`). RTE **não** ganha responsabilidade nova de
+    criar item de fila — coerente com o princípio "markdown é fonte
+    da verdade": se o ROADMAP marca o épico em 🔀 com PR #N (já
+    feito hoje pela RTE em W-PROTO-8), a detecção REVIEW resolve. A
+    alternativa "RTE estendida" foi descartada porque (i) acopla
+    criação de fila ao fechamento de milestone, (ii) duplica fonte
+    da verdade (RTE escreve no ROADMAP **e** num registro de fila),
+    (iii) fila não cobriria PRs abertas manualmente fora do fluxo
+    autônomo.
+  - **(b) Auto-regulação no Protótipo é alerta visual sem pausa
+    dura.** Limite alvo declarado: 20 itens (vision §"Fila").
+    Aproximação: 15 itens (75% — buffer de 5). Pausa real (gatilho
+    duro que impede o agente de criar itens) só ganha sentido no
+    MVP, quando há proponente criando itens proativamente. No
+    Protótipo, todos os itens vêm de detecção determinística do
+    estado-do-mundo — não dá pra "pausar a detecção", o que existe é
+    o que existe.
+  - **(c) Reconstrução determinística é propriedade do design, não
+    funcionalidade separada.** Como a fila não tem persistência
+    própria e cada render parte do estado-do-mundo, a reconstrução
+    é trivial por construção. W-PROTO-FILA-1.3 vira o **teste**
+    explícito desse invariante: fixture com snapshot do estado-do-
+    mundo + asserção `detect_all(snapshot) == detect_all(snapshot)`.
+    Garante que a detecção é função pura do estado.
+- **Tipos de item (Protótipo):**
+  - `DISPATCH` — milestone com todos épicos em 🔍 (apto a dispatch),
+    sem épicos em 🏗️/🔀/✅. Ação esperada: copiar prompt de
+    dispatch e rodar em sessão autônoma.
+  - `REVIEW` — PR de milestone aberta (épicos em 🔀). Ação esperada:
+    abrir PR, colar Seção 🎯 no Copilot, decidir merge.
+  - `STALE_BRANCH` — branch ativa há mais de 7 dias sem PR aberta e
+    sem épico em 🏗️/🔀 referenciando-a. Ação esperada: confirmar
+    se é trabalho concluído sem PR (abrir), abandonado (deletar)
+    ou bloqueado (resgatar).
 - **Nota:** milestone declarado em 2026-04-28 — absorve o conteúdo
   do antigo MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo
   porque é fila **reativa** (regra determinística), não curada por
-  agente. Curadoria por porta-voz vive no MVP.
+  agente. Curadoria por porta-voz vive no MVP. Refinado a `🔍` em
+  2026-04-29 na branch `claude/optimize-dev-workflow-aiYYj` —
+  apto ao fluxo autônomo após `PROTO-WORKFLOW-FAXINA` mergear
+  (dependência declarada).
 
 ### MVP-WORKFLOW-DOC
 
