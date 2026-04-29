@@ -71,6 +71,34 @@ sem material pra decidir em cima.
 - Disparo ambíguo de milestone — perguntar identificação antes de agir
   (limite já declarado na seção anterior).
 
+### Sub-regra: checkpoint em sessões de produção em volume
+
+Em sessão que produz volume (refinamento de épicos a `🔍`, design de
+skill, reescrita grande de doc), pausar e expor decisões ao operador
+**somente** quando uma decisão dispara pelo menos **um** dos 4 gatilhos:
+
+1. **Conflita ou reduz canon.** Decisão diverge do que `vision.md`,
+   `CONSTITUTION.md` ou ROADMAP do produto declaram (ex.: cortar item
+   listado, adotar shape diferente do declarado, mudar princípio).
+2. **Propaga via default.** Decisão fixa valor que vira default em
+   múltiplos lugares (threshold, limite, prazo, cardinalidade).
+3. **Muda escopo.** Decisão adiciona, remove ou regrupa funcionalidades
+   além do pedido original — cardinalidade de épicos, fronteira entre
+   milestones, tipos.
+4. **É assimétrica.** Decisão fácil agora, custosa de reverter depois
+   (escolha de doc canônico, dependência cross-épico, estrutura de
+   pastas).
+
+Sem nenhum gatilho ativo → seguir sem pausar. Detalhe operacional (nome
+de variável, formato de string, cor hex, estrutura interna de teste)
+não dispara.
+
+**Antipadrão concreto a evitar:** refinar 3 épicos seguidos a `🔍` sem
+surfaçar uma única decisão dos 4 gatilhos ao operador, mesmo quando
+várias estão presentes. Quando o checkpoint dispara, expor as decisões
+no formato canônico da regra-pai (recomendação + por quê + trade-off +
+pergunta final) — não como lista solta.
+
 ---
 
 ## Referências canônicas

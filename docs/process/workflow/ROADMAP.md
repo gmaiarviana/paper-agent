@@ -167,33 +167,91 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 ### PROTO-WORKFLOW-FILA
 
 - **Objetivo:** plataforma ganha fila reativa de decisões + chat focado
-  por item + auto-regulação básica. Sinais óbvios do repo (PR aberta,
-  épico chegou em estado-gatilho, branch parou) viram itens de fila por
-  regra determinística — sem agente proativo ainda. Operador atende na
-  ordem que escolher; ordenação simples (recência ou manual).
+  por item + auto-regulação básica. Sinais óbvios do repo (épico em
+  🔍 esperando dispatch, PR de milestone aberta, branch parada) viram
+  itens de fila por regra determinística — sem agente proativo ainda.
+  Operador atende na ordem que escolher; ordenação por recência da
+  detecção. Fonte da verdade: markdown + estado git/GitHub. Sem
+  persistência própria — fila é view derivada, reconstruída do zero
+  a cada render.
 - **Estágio:** Protótipo
-- **Épicos agrupados:** W-PROTO-FILA-1, W-PROTO-FILA-2, W-PROTO-FILA-3
+- **Épicos agrupados:** W-PROTO-FILA-1, W-PROTO-FILA-2,
+  W-PROTO-FILA-3, W-PROTO-FILA-4
 - **Dependências de core:** nenhuma; depende de
   PROTO-WORKFLOW-PLATAFORMA (kanban e scaffold como base) e
   PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
-- **Status dos épicos:** W-PROTO-FILA-1 📐, W-PROTO-FILA-2 📐,
-  W-PROTO-FILA-3 📐.
-- **Tensões para refinamento estratégico:**
-  - **(a) Quem cria itens "PR pra revisar"?** Inclinação: RTE no
-    mesmo passo em que abre PR (W-PROTO-5 estendido). Alternativa:
-    observador da plataforma detecta PR aberta via GitHub API.
-  - **(b) Auto-regulação por capacidade (~20 itens).** No Protótipo,
-    auto-regulação é simples (alerta visual ao se aproximar do limite)
-    — gatilho duro de pausa só ganha sentido no MVP, quando há agente
-    proativo criando itens.
-  - **(c) Reconstrução da fila se plataforma cair.** Varrer markdown
-    + estado de PRs deve reconstruir a fila deterministicamente —
-    teste prático do princípio "markdown é fonte da verdade".
+- **Status dos épicos:** W-PROTO-FILA-1 🔍, W-PROTO-FILA-2 🔍,
+  W-PROTO-FILA-3 🔍, W-PROTO-FILA-4 📐 (refinamento estratégico
+  pendente — esboço com 3 funcionalidades + tensões declaradas).
+- **Decisões de refinamento estratégico (2026-04-29):**
+  - **(a) Detecção reativa unificada na própria plataforma.** Os 3
+    tipos de item (DISPATCH, REVIEW, STALE_BRANCH) são detectados
+    pelo módulo `tools/workflow_platform/queue/detect.py`, lendo
+    apenas o estado-do-mundo (ROADMAPs parseados + `git ls-remote` /
+    `git for-each-ref`). RTE **não** ganha responsabilidade nova de
+    criar item de fila — coerente com o princípio "markdown é fonte
+    da verdade": se o ROADMAP marca o épico em 🔀 com PR #N (já
+    feito hoje pela RTE em W-PROTO-8), a detecção REVIEW resolve. A
+    alternativa "RTE estendida" foi descartada porque (i) acopla
+    criação de fila ao fechamento de milestone, (ii) duplica fonte
+    da verdade (RTE escreve no ROADMAP **e** num registro de fila),
+    (iii) fila não cobriria PRs abertas manualmente fora do fluxo
+    autônomo.
+  - **(b) Auto-regulação no Protótipo é alerta visual sem pausa
+    dura.** Limite alvo declarado: 20 itens (vision §"Fila").
+    Aproximação: 15 itens (75% — buffer de 5). Pausa real (gatilho
+    duro que impede o agente de criar itens) só ganha sentido no
+    MVP, quando há proponente criando itens proativamente. No
+    Protótipo, todos os itens vêm de detecção determinística do
+    estado-do-mundo — não dá pra "pausar a detecção", o que existe é
+    o que existe.
+  - **(c) Reconstrução determinística é propriedade do design, não
+    funcionalidade separada.** Como a fila não tem persistência
+    própria e cada render parte do estado-do-mundo, a reconstrução
+    é trivial por construção. W-PROTO-FILA-1.3 vira o **teste**
+    explícito desse invariante: fixture com snapshot do estado-do-
+    mundo + asserção `detect_all(snapshot) == detect_all(snapshot)`.
+    Garante que a detecção é função pura do estado.
+- **Tipos de item (Protótipo):** cinco tipos cobrem todos os pontos
+  de ação que o operador tem hoje sem proponente — implementação,
+  revisão, manutenção de branches, refinamento tático, faxina
+  pós-merge. Os tipos restantes da vision §"Fila" (escalada,
+  proposta, relatório executivo) chegam no MVP com o
+  proponente/porta-voz.
+  - `DISPATCH` — milestone com todos épicos em 🔍 (apto a dispatch),
+    sem épicos em 🏗️/🔀/✅. Ação esperada: copiar prompt de
+    dispatch e rodar em sessão autônoma.
+  - `REVIEW` — PR de milestone aberta (épicos em 🔀). Ação esperada:
+    abrir PR, colar Seção 🎯 no Copilot, decidir merge.
+  - `STALE_BRANCH` — branch ativa há mais de N dias (N configurável
+    via `config.yaml`, default 7) sem PR aberta e sem épico em
+    🏗️/🔀 referenciando-a. Ação esperada: confirmar se é trabalho
+    concluído sem PR (abrir), abandonado (deletar) ou bloqueado
+    (resgatar).
+  - `REFINE` — épico em 📐 ou 📋 esperando refinamento tático para
+    chegar a 🔍. Ação esperada: copiar prompt de refinamento (reuso
+    de `build_refinement_prompt` de W-PROTO-PLAT-4.2) e rodar em
+    sessão de refinamento. Estados 🌱/🧭 ficam fora — sinal de
+    "pronto pra avançar" não é determinístico nesses estados,
+    pedem sessão estratégica humana, não item reativo de fila.
+  - `CLEANUP` — épico em ✅ que ainda não foi limpo do ROADMAP
+    (Cleanup skill não rodou — automação pós-merge ainda não
+    configurada no Protótipo). Ação esperada: rodar
+    `skills/cleanup/skill.md` manualmente; ela move conteúdo
+    histórico do épico para fora do ROADMAP e a coluna ✅ do kanban
+    volta a ficar vazia. Resolve mecanicamente o ruído visual de
+    "✅ acumulando no kanban" sem precisar mexer em `EpicState`.
 - **Nota:** milestone declarado em 2026-04-28 — absorve o conteúdo
   do antigo MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo
   porque é fila **reativa** (regra determinística), não curada por
-  agente. Curadoria por porta-voz vive no MVP.
+  agente. Curadoria por porta-voz vive no MVP. FILA-1/2/3 refinados
+  a `🔍` em 2026-04-29 na branch `claude/optimize-dev-workflow-aiYYj`.
+  FILA-4 declarado na mesma sessão a partir de feedback real de uso
+  da plataforma (escopo absorvido do que iria virar
+  `PROTO-WORKFLOW-PLAT-UX` separado — sem dependência cross-milestone).
+  Apto ao fluxo autônomo após FILA-4 chegar a `🔍` **e**
+  `PROTO-WORKFLOW-FAXINA` mergear.
 
 ### MVP-WORKFLOW-DOC
 
@@ -900,33 +958,326 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** regras determinísticas convertem sinais óbvios do repo em itens de fila com shape padronizado — PR aberta, épico chegou em estado-gatilho, branch parou. Sem julgamento agentic; só mapeamento sinal→item.
+**Objetivo:** módulo de detecção lê estado-do-mundo (ROADMAPs parseados + branches do remote) e produz lista determinística de itens de fila por regra fixa. Sem persistência própria — fila é função pura do estado. Cobre 5 tipos no Protótipo: DISPATCH (milestone apto), REVIEW (PR aberta), REFINE (épico em 📐/📋 pedindo refinamento tático), CLEANUP (épico em ✅ esperando faxina), STALE_BRANCH (branch parada).
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** PROTO-WORKFLOW-PLATAFORMA (scaffold e kanban como base)
+**Dependências:** W-PROTO-PLAT-1 (parser de ROADMAP + `Epic`/`Milestone`/`ParsedRoadmap`); decisões estratégicas no bloco do milestone PROTO-WORKFLOW-FILA (3 tipos de item, fonte determinística).
 
-### Funcionalidades (esboço):
-- **1.1 Shape mínimo de item de fila** — título, contexto, tipo (dispatch/review/escalação), ação esperada, ponteiro pra origem (épico, PR, branch).
-- **1.2 Detecção de eventos** — monitora ROADMAPs (mudanças de estado) + estado de PRs + branches abertas; gera itens correspondentes.
-- **1.3 Reconstrução determinística** — varrer markdown + estado de PRs reconstrói a fila do zero (teste prático do princípio "markdown é fonte da verdade").
+### Termos e contratos
+
+- **Item de fila:** entrada tipada produzida pela detecção; carrega ponteiro tipado pra origem (`SourcePointer`) e instruções de ação esperada para o operador.
+- **Estado-do-mundo:** união de (a) `list[ParsedRoadmap]` carregada pelo scaffold + (b) lista de branches do remote com timestamp do último commit (via `git for-each-ref` em refs `refs/remotes/origin/`).
+- **Detecção determinística:** função pura `state → list[QueueItem]`, sem efeitos colaterais nem leitura de relógio (a não ser para `detected_at`, que é parte da entrada lógica e não da função).
+
+### Funcionalidades:
+
+#### 1.1: Shape mínimo de item de fila
+
+- **Descrição:** Define `QueueItem`, `ItemType` e `SourcePointer` (tagged union). `QueueItem` carrega título, contexto curto, ação esperada, ponteiro tipado e timestamp. Shape único pra os 3 tipos do Protótipo, com ponteiro discriminado por tipo.
+- **Critérios de Aceite:**
+  1. Deve definir `ItemType` enum com os 5 valores: `DISPATCH`, `REVIEW`, `REFINE`, `CLEANUP`, `STALE_BRANCH`
+  2. Deve definir `QueueItem` dataclass com campos `id`, `type`, `title`, `context`, `expected_action`, `source_pointer`, `detected_at`
+  3. `id` deve ser estável e derivado do gatilho (ex.: `"dispatch:PROTO-WORKFLOW-FAXINA"`, `"review:pr-93"`, `"refine:W-MVP-DOC-1"`, `"cleanup:W-PROTO-PLAT-1"`, `"stale:claude/foo-bar"`) — duas chamadas de detecção sobre o mesmo estado produzem mesmo `id`
+  4. `source_pointer` deve ser tagged union (`EpicPointer` | `PRPointer` | `BranchPointer` | `RefinePointer` | `CleanupPointer`) com tipo coerente com `ItemType` (DISPATCH→`EpicPointer`, REVIEW→`PRPointer`, REFINE→`RefinePointer`, CLEANUP→`CleanupPointer`, STALE_BRANCH→`BranchPointer`)
+  5. Tentar instanciar `QueueItem(type=DISPATCH, source_pointer=BranchPointer(...))` deve falhar via runtime check em `__post_init__` ou validação pydantic-style (não silenciar inconsistência)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/queue/__init__.py`, `tools/workflow_platform/queue/models.py`, `tests/tools/workflow_platform/test_queue_models.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/queue/models.py
+    from dataclasses import dataclass
+    from datetime import datetime
+    from enum import Enum
+
+    class ItemType(Enum):
+        DISPATCH = "dispatch"
+        REVIEW = "review"
+        REFINE = "refine"
+        CLEANUP = "cleanup"
+        STALE_BRANCH = "stale_branch"
+
+    @dataclass(frozen=True)
+    class EpicPointer:
+        milestone_id: str
+        roadmap_path: str
+        epic_ids: list[str]            # todos os épicos do milestone (DISPATCH é por milestone)
+
+    @dataclass(frozen=True)
+    class PRPointer:
+        pr_number: int
+        pr_url: str
+        milestone_id: str | None       # se identificável; senão None
+
+    @dataclass(frozen=True)
+    class BranchPointer:
+        branch_name: str
+        last_commit_at: datetime
+        days_stale: int
+
+    @dataclass(frozen=True)
+    class RefinePointer:
+        epic_id: str                   # REFINE é por épico, não por milestone
+        roadmap_path: str
+        current_state: EpicState       # 📐 ou 📋
+        target_state: EpicState        # próximo alvo (📋 ou 🔍) — vem de NEXT_STEP_MAP de PLAT-4.1
+
+    @dataclass(frozen=True)
+    class CleanupPointer:
+        epic_id: str                   # épico em ✅ aguardando faxina
+        roadmap_path: str
+        title: str                     # título do épico (pra prompt humano)
+
+    SourcePointer = EpicPointer | PRPointer | BranchPointer | RefinePointer | CleanupPointer
+
+    @dataclass(frozen=True)
+    class QueueItem:
+        id: str
+        type: ItemType
+        title: str
+        context: str
+        expected_action: str
+        source_pointer: SourcePointer
+        detected_at: datetime
+
+        def __post_init__(self) -> None:
+            expected = {
+                ItemType.DISPATCH:     EpicPointer,
+                ItemType.REVIEW:       PRPointer,
+                ItemType.REFINE:       RefinePointer,
+                ItemType.CLEANUP:      CleanupPointer,
+                ItemType.STALE_BRANCH: BranchPointer,
+            }[self.type]
+            if not isinstance(self.source_pointer, expected):
+                raise TypeError(f"{self.type} expects {expected.__name__}")
+    ```
+  - **Integração:** módulo puro de modelos. Consumido por `queue/detect.py` (1.2) e `views/queue.py` (W-PROTO-FILA-2).
+  - **Template de referência:** `tools/workflow_platform/models.py` (`Epic`, `Milestone`, `ParsedRoadmap` em W-PROTO-PLAT-1) — mesmo padrão de dataclasses imutáveis.
+  - **Acoplamentos verificados:**
+    - Stdlib only (`dataclasses`, `datetime`, `enum`); sem deps novas.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** primeiro do épico; precede 1.2 e 1.3.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_models.py` — (a) `QueueItem(type=DISPATCH, source_pointer=EpicPointer(...))` instancia; (b) `QueueItem(type=DISPATCH, source_pointer=BranchPointer(...))` levanta `TypeError`; (c) dois `QueueItem` com mesmo `id`+campos são iguais (frozen+`@dataclass(eq=True)` default).
+
+#### 1.2: Detecção dos 3 tipos a partir do estado-do-mundo
+
+- **Descrição:** módulo `queue/detect.py` expõe função `detect_all_items(state) -> list[QueueItem]` que internamente chama `detect_dispatch_items`, `detect_review_items` e `detect_stale_branch_items`. Cada detector é função pura sobre o input. Lista de branches do remote vem via helper que encapsula `git for-each-ref`.
+- **Critérios de Aceite:**
+  1. `detect_dispatch_items(roadmaps)` deve gerar 1 item por milestone com **todos** os épicos em `🔍` e nenhum em `🏗️`/`🔀`/`✅`; milestones sem milestone_id ou com pelo menos 1 épico em estado de execução não geram item
+  2. `detect_review_items(roadmaps)` deve gerar 1 item por PR número-distinto encontrado no estado `🔀` dos épicos; agrupa épicos do mesmo `pr_number` num só item (lista de `epic_ids` no contexto)
+  3. `detect_stale_branch_items(branches, threshold_days)` deve gerar item para cada branch do remote com `last_commit_at` há > `threshold_days`, **excluindo** branches referenciadas por algum épico em `🏗️`/`🔀` (campo `**Branch:**`) e excluindo `main`. `threshold_days` é parâmetro injetado (default 7); o caller lê de `config.yaml` campo `stale_branch_threshold_days` ou usa default
+  4. `detect_refine_items(roadmaps)` deve gerar 1 item por épico em estado `📐` ou `📋`; `target_state` calculado via `NEXT_STEP_MAP` de W-PROTO-PLAT-4.1; estados `🌱`/`🧭` **excluídos** (sinal de avanço não é determinístico, exigem sessão estratégica)
+  5. `detect_cleanup_items(roadmaps)` deve gerar 1 item por épico em estado `✅` no ROADMAP; cada item carrega `CleanupPointer(epic_id, roadmap_path, title)` para uso no prompt de cleanup manual
+  6. `detect_all_items(state)` deve retornar união ordenada por `detected_at` desc, depois `type` na ordem de prioridade `DISPATCH > REVIEW > REFINE > CLEANUP > STALE_BRANCH`; se múltiplos itens têm mesmo `detected_at` e mesmo tipo, ordem por `id` lexicográfico
+  7. Função helper `list_remote_branches() -> list[RemoteBranch]` deve usar `subprocess.run(["git", "for-each-ref", "--format=%(refname:short)|%(committerdate:iso8601)", "refs/remotes/origin/"])` e parsear `(name, last_commit_at)`; falhas de subprocess são propagadas (não silenciadas)
+  8. `detect_all_items` deve ser **idempotente sobre estado fixo:** chamar com mesmo `state` produz lista igual em conteúdo (ignorando `detected_at` que recebe `now()` da chamada — ver 1.3 para fix de determinismo total)
+  9. `config.yaml` ganha campo opcional `stale_branch_threshold_days: 7` no scope desta funcionalidade; ausência mantém default 7 sem warning
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/queue/detect.py`, `tools/workflow_platform/queue/git_helper.py`, `tests/tools/workflow_platform/test_queue_detect.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/queue/git_helper.py
+    @dataclass(frozen=True)
+    class RemoteBranch:
+        name: str                      # ex.: "claude/foo-bar" (sem prefixo "origin/")
+        last_commit_at: datetime
+
+    def list_remote_branches() -> list[RemoteBranch]:
+        """git for-each-ref --format=%(refname:short)|%(committerdate:iso8601) refs/remotes/origin/"""
+
+    # tools/workflow_platform/queue/detect.py
+    @dataclass(frozen=True)
+    class WorldState:
+        roadmaps: list[ParsedRoadmap]
+        remote_branches: list[RemoteBranch]
+        now: datetime                  # injetado para determinismo (ver 1.3)
+
+    def detect_dispatch_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_review_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_refine_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_cleanup_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_stale_branch_items(state: WorldState, threshold_days: int = 7) -> list[QueueItem]: ...
+    def detect_all_items(state: WorldState, threshold_days: int = 7) -> list[QueueItem]: ...
+    ```
+  - **Integração:** o caller (`views/queue.py` em W-PROTO-FILA-2) constrói `WorldState` agregando `parsed_roadmaps` (já em `st.session_state` via PLAT-1) + `list_remote_branches()` + `datetime.now()`. Chama `detect_all_items(state)`. Sem cache; reconstrução por render é o método primário.
+  - **Template de referência:** `tools/workflow_platform/prompts/dispatch.py` (W-PROTO-PLAT-3.1) — mesmo padrão "input dataclass → output tipado, sem side effect".
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/models.py` (Epic, EpicState, ParsedRoadmap) — W-PROTO-PLAT-1.
+    - `tools/workflow_platform/queue/models.py` (QueueItem etc.) — FILA-1.1.
+    - `subprocess` (stdlib) para `git for-each-ref`; sem deps externas novas.
+    - **`git fetch` é responsabilidade do caller**, não do detector. View (FILA-2.1) chama `git fetch origin --prune` antes de instanciar `WorldState`. Detector lê o que está no remote local.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 1.1; precede 1.3.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_detect.py` — (a) milestone com todos `🔍` gera 1 DISPATCH com `EpicPointer.epic_ids` populado; (b) milestone com 1 épico em `🏗️` não gera DISPATCH; (c) 2 épicos do mesmo milestone em `🔀` com mesmo `pr_number=93` geram **1** REVIEW (não 2); (d) branch com `last_commit_at` há 10 dias gera STALE; branch com 3 dias não gera; (e) branch referenciada por épico em `🏗️` é excluída de STALE; (f) `main` é sempre excluída; (g) ordenação: DISPATCH antes de REVIEW antes de STALE quando `detected_at` é igual.
+    - **Integration:** sem teste de integração; helper `list_remote_branches` é mockável via `monkeypatch.setattr(subprocess, "run", ...)`.
+
+#### 1.3: Garantia de determinismo via fixture-snapshot
+
+- **Descrição:** teste explícito do invariante "detect_all_items é função pura do estado". Fixture com `WorldState` fixo (ROADMAPs sintéticos + branches mockadas + `now` cravado) é passada duas vezes ao detector; resultado precisa ser idêntico item-a-item. Materializa o princípio "markdown é fonte da verdade".
+- **Critérios de Aceite:**
+  1. Fixture `make_world_state_fixture()` em `tests/tools/workflow_platform/fixtures/world_state.py` retorna `WorldState` com pelo menos: 2 ROADMAPs sintéticos (1 com milestone apto a DISPATCH, 1 com épicos em `🔀` pareados a PR), 4 branches mockadas (2 stale, 1 ativa, 1 referenciada por épico em `🏗️`), `now` fixo (`datetime(2026, 4, 29, 12, 0, 0)`)
+  2. Teste `test_detect_is_deterministic` chama `detect_all_items(state)` duas vezes consecutivas e afirma `result_a == result_b` (campos completos, incluindo `detected_at`)
+  3. Teste `test_detect_snapshot` compara saída com snapshot esperado serializado (lista de `QueueItem` com 3 itens: 1 DISPATCH, 1 REVIEW, 1 STALE_BRANCH); snapshot vive em `tests/tools/workflow_platform/fixtures/expected_queue_snapshot.json`
+  4. Mudança no código de detecção que altera shape ou regra deve quebrar `test_detect_snapshot` — atualizar snapshot é decisão consciente, não acidental
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tests/tools/workflow_platform/fixtures/__init__.py`, `tests/tools/workflow_platform/fixtures/world_state.py`, `tests/tools/workflow_platform/fixtures/expected_queue_snapshot.json`, `tests/tools/workflow_platform/test_queue_determinism.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    # tests/tools/workflow_platform/fixtures/world_state.py
+    def make_world_state_fixture() -> WorldState: ...
+
+    # tests/tools/workflow_platform/test_queue_determinism.py
+    def test_detect_is_deterministic():
+        state = make_world_state_fixture()
+        assert detect_all_items(state) == detect_all_items(state)
+
+    def test_detect_snapshot():
+        state = make_world_state_fixture()
+        actual = [_serialize(item) for item in detect_all_items(state)]
+        expected = json.loads(SNAPSHOT_PATH.read_text())
+        assert actual == expected
+    ```
+  - **Integração:** teste-only. Snapshot é commitado no repo; atualização exige rodar script `python -m tests.tools.workflow_platform.fixtures.regenerate_snapshot` (helper documentado inline no teste).
+  - **Template de referência:** snapshot testing convencional; sem dep de `pytest-snapshot` ou `syrupy` — usar `json.dumps(..., sort_keys=True, indent=2)` direto pra evitar dep nova.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/detect.py` e `models.py` — FILA-1.1, 1.2.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 1.1 e 1.2.
+  - **Escopo de teste:**
+    - **Unit:** os próprios testes desta funcionalidade.
+    - **Validação manual:** rodar `pytest tests/tools/workflow_platform/test_queue_determinism.py -v` localmente; ambos testes passam.
+
+**Fora do escopo:**
+- Ordenação avançada (importância, urgência) — Protótipo é só `detected_at` desc + tipo.
+- Persistência de "claim do operador" (mexeu num épico, agente solta) — escopo MVP.
+- Tipos de item adicionais (escalação, proposta do proponente) — chegam no MVP.
 
 ---
 
-#### ÉPICO W-PROTO-FILA-2: Exibição da fila + chat focado por item
+#### ÉPICO W-PROTO-FILA-2: Exibição da fila + prompt focado por item
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** operador vê fila reativa na plataforma e, ao clicar num item, abre sessão com contexto pré-montado para aquele item.
+**Objetivo:** plataforma ganha tab "📋 Fila" (default ao abrir o app) que renderiza os `QueueItem`s detectados em FILA-1 como cards clicáveis. Clicar num item abre painel de detalhe com prompt clipboard-ready específico do tipo, reusando os builders de prompt de PLAT-3.1 (DISPATCH) e PLAT-4.2 (REFINE) e adicionando builders novos para REVIEW, CLEANUP e STALE_BRANCH.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Gap consciente declarado:** vision §"Chat focado" descreve chat síncrono dentro da plataforma com "prompt pré-montado e contexto carregado". No Protótipo o chat é prompt clipboard-ready + cole-em-sessão-autônoma (mesmo padrão de PLAT-3.1/4.2); chat embutido de verdade fica para o MVP, junto com proponente/porta-voz. A plataforma é leitura + direcionamento; sessão de fato roda em Claude Code Web.
 
-**Dependências:** W-PROTO-FILA-1 (itens existentes)
+**Status:** 🔍 Detalhes definidos
 
-### Funcionalidades (esboço):
-- **2.1 View da fila** — lista ordenada (recência ou manual no Protótipo); cards com tipo, título, ação esperada.
-- **2.2 Montagem de contexto por tipo** — pra dispatch: milestone + dispatch.md; pra refinamento: épico + pack inicial; pra revisão: PR + épicos do milestone.
-- **2.3 Abertura de chat com contexto** — prompt pré-montado pronto para iniciar a sessão correspondente.
+**Dependências:** W-PROTO-FILA-1 (modelos e detecção); W-PROTO-PLAT-2.1 (estrutura de tabs / sidebar do app); W-PROTO-PLAT-3.1 (`build_dispatch_prompt` reusado).
+
+### Funcionalidades:
+
+#### 2.1: View da fila como tab default
+
+- **Descrição:** `app.py` ganha layout de tabs `st.tabs(["📋 Fila", "🗂️ Kanban"])` — fila default. View da fila chama `detect_all_items(state)` a cada render, agrupa visualmente por tipo (DISPATCH primeiro, REVIEW depois, STALE_BRANCH por último), e renderiza cards. Botão "🔄 Recarregar fila" na sidebar invalida `st.session_state.queue_world_state` e força re-detecção (incluindo `git fetch origin --prune`).
+- **Critérios de Aceite:**
+  1. App abre com tab "📋 Fila" ativa por default; tab "🗂️ Kanban" continua acessível em segundo plano com renderização inalterada
+  2. Cada card exibe: emoji do tipo (`📤` DISPATCH / `🔀` REVIEW / `🌱` STALE_BRANCH), `title`, `context` (1-2 linhas), `expected_action` (em destaque)
+  3. Cards são clicáveis (`st.button` com chave única `f"queue_card_{item.id}"`); clique grava `st.session_state["selected_queue_item_id"]` e abre painel de detalhe inline (expander ou área inferior, espelhando padrão do kanban em PLAT-2)
+  4. Cards são agrupados visualmente por `ItemType` com cabeçalho de seção (`st.subheader("📤 Dispatch (N)")`); cada cabeçalho mostra contagem do tipo
+  5. Botão "🔄 Recarregar fila" na sidebar limpa `st.session_state.queue_world_state` e re-instancia `WorldState` (incluindo subprocess `git fetch origin --prune`); falha de fetch é exibida em `st.warning` mas não impede renderização (usa state local)
+  6. Fila vazia exibe placeholder amigável: "Sem itens na fila — nada esperando ação no momento."
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/views/queue.py`, `tests/tools/workflow_platform/test_queue_view.py` (apenas helpers puros — render Streamlit não é testado direto, igual W-PROTO-PLAT-2)
+  - **Arquivos a modificar:** `tools/workflow_platform/app.py` — substituir chamada direta a `render_kanban` pelo bloco de tabs; adicionar botão de recarga na sidebar; gerenciar `st.session_state.queue_world_state` (lazy load).
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/views/queue.py
+    TYPE_HEADERS: dict[ItemType, tuple[str, str]] = {
+        ItemType.DISPATCH:     ("📤", "Dispatch"),
+        ItemType.REVIEW:       ("🔀", "Review"),
+        ItemType.STALE_BRANCH: ("🌱", "Stale branches"),
+    }
+
+    def render_queue(items: list[QueueItem], config: PlatformConfig) -> None:
+        """Renderiza fila agrupada por tipo. Clique grava selected_queue_item_id."""
+
+    def group_by_type(items: list[QueueItem]) -> dict[ItemType, list[QueueItem]]:
+        """Helper puro testável; preserva ordenação interna."""
+
+    def build_world_state(roadmaps: list[ParsedRoadmap]) -> WorldState:
+        """Wrapper que chama list_remote_branches() e datetime.now()."""
+    ```
+  - **Integração:** `app.py` carrega `parsed_roadmaps` (via PLAT-1), monta tabs, na tab fila chama `build_world_state` (com cache em `session_state`) → `detect_all_items` → `render_queue`. Após `render_queue`, se há `selected_queue_item_id`, chama `render_queue_item_detail` (definido em 2.2).
+  - **Template de referência:** `tools/workflow_platform/views/kanban.py` (W-PROTO-PLAT-2.1) — uso de `st.session_state` para seleção de card, padrão de `render_*` puro.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/{models,detect}.py` — FILA-1.1/1.2.
+    - `tools/workflow_platform/views/kanban.py` (PLAT-2) — coexistência via tabs; render do kanban inalterado.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de FILA-1.1/1.2; precede 2.2.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_view.py` — `group_by_type` retorna dict com 3 chaves (mesmo se vazias); ordem interna preservada do input.
+    - **Validação manual:** abrir app com fixture sintética (mesmo de FILA-1.3); verificar (a) tab fila default; (b) cards agrupados; (c) clique seleciona; (d) recarga dispara fetch.
+
+#### 2.2: Builders de prompt por tipo de item
+
+- **Descrição:** módulo `prompts/queue_item.py` expõe `build_prompt_for_item(item) -> str` que despacha por `item.type`. DISPATCH reusa `build_dispatch_prompt` (PLAT-3.1); REFINE reusa `build_refinement_prompt` (PLAT-4.2). REVIEW, CLEANUP e STALE_BRANCH têm builders novos com texto fixo parametrizado pelos campos do pointer. Painel de detalhe (`render_queue_item_detail`) exibe o prompt em `st.code()` com botão copy nativo do Streamlit.
+- **Critérios de Aceite:**
+  1. `build_prompt_for_item(item)` retorna string copy-pasteável; nunca `None` (item válido sempre tem prompt)
+  2. Para DISPATCH: prompt é o output de `build_dispatch_prompt` (formato `"implementa o <MILESTONE_ID>"` + nota de PM skill se aplicável); reusa builder de PLAT-3.1 sem duplicação de lógica
+  3. Para REFINE: prompt é o output de `build_refinement_prompt` de PLAT-4.2; reusa builder existente sem duplicação
+  4. Para REVIEW: prompt contém literal `"Revisar PR #<N>: <URL>"` + instrução `"Abra a PR, copie a Seção 🎯 Validação do body, cole no GitHub Copilot, e decida merge."`
+  5. Para CLEANUP: prompt contém literal `"Rodar Cleanup skill manualmente para o épico <ID> ('<TITLE>') em <ROADMAP_PATH>."` + instrução `"Carregue skills/cleanup/skill.md e siga o protocolo. Cleanup move conteúdo histórico do épico pra fora do ROADMAP; coluna ✅ do kanban volta a ficar vazia."`
+  6. Para STALE_BRANCH: prompt contém literal `"Branch <NAME> parada há <DAYS> dias sem PR aberta."` + 3 opções enumeradas: `(a) trabalho concluído sem PR — abrir PR / (b) abandonado — git push origin --delete <NAME> / (c) bloqueado — resgatar contexto e seguir`
+  7. `render_queue_item_detail(item, config, all_epics)` exibe prompt via `st.code(prompt, language=None)` (botão copy nativo do Streamlit) + título do item + ponteiro tipado renderizado como link (PR URL clicável, branch link via `github_branch_url` de PLAT-3.2, milestone como referência ao kanban)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/prompts/queue_item.py`, `tests/tools/workflow_platform/test_queue_item_prompt.py`
+  - **Arquivos a modificar:** `tools/workflow_platform/views/queue.py` — adicionar `render_queue_item_detail`.
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/prompts/queue_item.py
+    def build_prompt_for_item(
+        item: QueueItem,
+        all_epics_by_milestone: dict[str, list[Epic]] | None = None,
+        epic_lookup: dict[str, Epic] | None = None,
+    ) -> str:
+        """Despacha por item.type. DISPATCH precisa de all_epics_by_milestone
+        para reusar build_dispatch_prompt; REFINE precisa de epic_lookup
+        para reusar build_refinement_prompt; REVIEW/CLEANUP/STALE_BRANCH
+        ignoram (constroem do próprio pointer)."""
+
+    def _build_review_prompt(p: PRPointer) -> str: ...
+    def _build_cleanup_prompt(p: CleanupPointer) -> str: ...
+    def _build_stale_branch_prompt(p: BranchPointer) -> str: ...
+    ```
+    Exemplo de prompt REVIEW:
+    ```
+    Revisar PR #93: https://github.com/gmaiarviana/paper-agent/pull/93
+
+    Abra a PR, copie a Seção 🎯 Validação do body, cole no GitHub Copilot,
+    e decida merge.
+    ```
+    Exemplo de prompt STALE_BRANCH:
+    ```
+    Branch claude/foo-bar parada há 12 dias sem PR aberta.
+
+    Decida:
+    (a) trabalho concluído sem PR — abrir PR via interface do GitHub
+    (b) abandonado — `git push origin --delete claude/foo-bar`
+    (c) bloqueado — resgatar contexto e seguir
+    ```
+  - **Integração:** `views/queue.py::render_queue_item_detail` recebe o item selecionado e chama `build_prompt_for_item`. Para DISPATCH, monta `all_epics_by_milestone` a partir dos `parsed_roadmaps` em `session_state`.
+  - **Template de referência:** `tools/workflow_platform/prompts/dispatch.py` (PLAT-3.1) — mesmo shape de helper puro retornando string.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/prompts/dispatch.py` (PLAT-3.1): `build_dispatch_prompt` reusado para DISPATCH.
+    - `tools/workflow_platform/queue/models.py` (FILA-1.1): `QueueItem`, `SourcePointer`.
+    - `tools/workflow_platform/views/card_detail.py` helpers `github_branch_url`/`github_pr_url` (PLAT-3.2): reusados para links.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 2.1 (`render_queue_item_detail` é chamado por `render_queue`); depende de PLAT-3.1.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_item_prompt.py` — (a) DISPATCH delega corretamente: stub de `build_dispatch_prompt` é chamado com `Epic` esperado; (b) REVIEW contém PR número e URL literais; (c) STALE_BRANCH contém nome, dias e as 3 opções; (d) prompt nunca tem placeholder não-substituído (`re.search(r"<[A-Z_]+>", prompt)` não encontra match).
+    - **Validação manual:** clicar em itens da fila no app (DISPATCH/REVIEW/STALE_BRANCH); copiar cada prompt; conferir conteúdo.
+
+**Fora do escopo:**
+- Chat embutido na plataforma (sessão de Claude Code dentro do app) — escopo MVP.
+- Browser automation pra abrir sessão autônoma direto do clique — escopo MVP.
+- Edição/cancelamento manual de itens da fila — fila é derivada, mexer no estado-do-mundo (ROADMAP, branch) já basta.
 
 ---
 
@@ -934,15 +1285,126 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** plataforma sinaliza visualmente quando a fila se aproxima do limite cognitivo (~20 itens). Sem pausa dura — só alerta. Pausa real só faz sentido no MVP, quando há agente proativo criando itens.
+**Objetivo:** badge na sidebar mostra `<contagem> / 20 itens` com cor que varia por faixa (verde < 15, amarelo 15-19, vermelho ≥ 20). Quando vermelho, banner adicional na tab da fila explica o estado mas não bloqueia ação. Sem pausa dura — Protótipo só sinaliza; pausa real é MVP (proponente é quem ganha capacidade de "parar de criar itens").
+
+**Status:** 🔍 Detalhes definidos
+
+**Dependências:** W-PROTO-FILA-2.1 (view da fila e bloco da sidebar existem).
+
+### Termos e contratos
+
+- **Limite alvo:** 20 itens (declarado em `vision.md` §"Fila" e no bloco do milestone PROTO-WORKFLOW-FILA).
+- **Faixa de aproximação:** 15-19 itens (75% do limite — buffer cognitivo de 5 itens antes do estado crítico).
+- **Estado da fila:** enum `QueueLoadState` com 3 valores: `OK` (< 15), `APPROACHING` (15-19), `OVER_LIMIT` (≥ 20). Constantes literais nesta funcionalidade — mudar exige ajuste consciente do épico.
+
+### Funcionalidades:
+
+#### 3.1: Badge de contagem na sidebar
+
+- **Descrição:** sidebar do app ganha bloco fixo com contagem atual da fila e cor por faixa. Renderiza independente da tab ativa (fila ou kanban). Cor é computada por helper puro `compute_load_state(count)` testável isoladamente.
+- **Critérios de Aceite:**
+  1. Sidebar exibe `📋 Fila: <N>/20` com `N = len(detect_all_items(state))`
+  2. Cor de fundo do bloco: verde (`#d4edda`) se `N < 15`; amarelo (`#fff3cd`) se `15 ≤ N < 20`; vermelho (`#f8d7da`) se `N ≥ 20`
+  3. Helper `compute_load_state(count: int) -> QueueLoadState` é função pura testável; limites são constantes nomeadas (`QUEUE_TARGET_LIMIT = 20`, `QUEUE_APPROACHING_THRESHOLD = 15`)
+  4. Bloco aparece em ambas as tabs (fila e kanban) — leitura primária do operador
+  5. Quando `N == 0`, exibe verde com texto `📋 Fila: 0/20 — sem itens`
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/queue/load.py`, `tests/tools/workflow_platform/test_queue_load.py`
+  - **Arquivos a modificar:** `tools/workflow_platform/app.py` — adicionar `render_queue_load_badge(items)` na sidebar antes da tab area; chamar com `items` já detectados (cache em `session_state`).
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/queue/load.py
+    from enum import Enum
+
+    QUEUE_TARGET_LIMIT = 20
+    QUEUE_APPROACHING_THRESHOLD = 15
+
+    class QueueLoadState(Enum):
+        OK = "ok"
+        APPROACHING = "approaching"
+        OVER_LIMIT = "over_limit"
+
+    LOAD_STATE_COLORS: dict[QueueLoadState, str] = {
+        QueueLoadState.OK:          "#d4edda",
+        QueueLoadState.APPROACHING: "#fff3cd",
+        QueueLoadState.OVER_LIMIT:  "#f8d7da",
+    }
+
+    def compute_load_state(count: int) -> QueueLoadState: ...
+    ```
+  - **Integração:** `app.py` chama `compute_load_state(len(items))` e renderiza via `st.sidebar.markdown` com HTML inline (`unsafe_allow_html=True`) usando `LOAD_STATE_COLORS`. Cache em `session_state` evita re-detecção em re-render Streamlit; recarga manual invalida (PLAT/FILA-2.1).
+  - **Template de referência:** sem análogo direto. Padrão "constantes nomeadas + função pura + dict de mapping" coerente com `tools/workflow_platform/views/kanban.py::KANBAN_COLUMN_ORDER`.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/{models,detect}.py` (FILA-1) — apenas leitura de `len(items)`.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de FILA-1 e FILA-2.1; precede 3.2.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_load.py` — (a) `compute_load_state(0)` = OK; (b) `compute_load_state(14)` = OK; (c) `compute_load_state(15)` = APPROACHING; (d) `compute_load_state(19)` = APPROACHING; (e) `compute_load_state(20)` = OVER_LIMIT; (f) `compute_load_state(50)` = OVER_LIMIT; (g) `LOAD_STATE_COLORS` cobre os 3 valores do enum.
+    - **Validação manual:** rodar app com fixture sintética de 0, 10, 17, 22 itens; confirmar cor da sidebar em cada caso.
+
+#### 3.2: Banner de alerta na tab da fila quando OVER_LIMIT
+
+- **Descrição:** na tab "📋 Fila", quando `compute_load_state(len(items)) == OVER_LIMIT`, renderizar `st.warning` no topo da tab antes da listagem dos cards. Texto curto explicando o estado e ação recomendada. **Não bloqueia** clique nos cards nem renderização — alerta é informacional.
+- **Critérios de Aceite:**
+  1. Banner aparece quando `len(items) >= 20`; ausente quando `< 20`
+  2. Texto literal: `"⚠️ Fila com <N> itens (limite alvo: 20). Considere fechar itens antes de iniciar novos. No MVP, o proponente vai pausar criação automaticamente."`
+  3. Banner é `st.warning(...)` — não `st.error` (não é erro, é sinalização cognitiva)
+  4. Clicar nos cards continua funcionando normalmente; nenhum botão fica desabilitado
+  5. Tab "🗂️ Kanban" não exibe o banner — ele é específico da view da fila
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum (lógica adicionada em `views/queue.py` de FILA-2.1)
+  - **Arquivos a modificar:** `tools/workflow_platform/views/queue.py` — adicionar `render_over_limit_banner(items)` chamado no início de `render_queue` antes do agrupamento por tipo.
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/views/queue.py (extensão)
+    def render_over_limit_banner(items: list[QueueItem]) -> None:
+        """Renderiza st.warning se compute_load_state == OVER_LIMIT.
+        No-op caso contrário."""
+    ```
+  - **Integração:** primeira chamada dentro de `render_queue` após receber a lista; antes de qualquer agrupamento ou render de card.
+  - **Template de referência:** padrão Streamlit `st.warning(...)`; sem análogo customizado.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/load.py` (FILA-3.1): `compute_load_state`, `QueueLoadState`, `QUEUE_TARGET_LIMIT`.
+    - `tools/workflow_platform/views/queue.py` (FILA-2.1): ponto de injeção em `render_queue`.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 3.1 (`compute_load_state`) e de FILA-2.1 (`render_queue` existe).
+  - **Escopo de teste:**
+    - **Unit:** sem teste automatizado (função render Streamlit; lógica condicional já testada em 3.1 via `compute_load_state`).
+    - **Validação manual:** fixture com 22 itens sintéticos confirma banner; fixture com 19 itens confirma ausência. Mesma fixture de 3.1 reusável.
+
+**Fora do escopo:**
+- Pausa dura (gatilho que impede detecção de novos itens) — escopo MVP quando proponente existe.
+- Notificação fora do app (e-mail, sistema operacional) — fora do princípio "plataforma é view derivada".
+- Configurar limite por preferência do operador — escopo de W-PROTO-FILA-4 (persistência de preferências).
+
+---
+
+#### ÉPICO W-PROTO-FILA-4: Configuração persistente + sidebar como painel
+
+**Milestone:** `PROTO-WORKFLOW-FILA`
+
+**Objetivo:** plataforma ganha base de preferências persistidas localmente (JSON git-ignored) e a sidebar deixa de ser leitura passiva — vira painel de filtros + status. Resolve 3 atritos reais reportados após uso da plataforma (PROTO-WORKFLOW-PLATAFORMA em 🔀): (a) operador quer ver só os produtos relevantes, (b) sidebar não agrega valor hoje, (c) status `✅` aparece no kanban como ruído (resolvido mecanicamente pela detecção CLEANUP de FILA-1.2 — operador roda Cleanup skill via item de fila). Substitui o que iria virar milestone `PROTO-WORKFLOW-PLAT-UX` separado — escopo absorvido aqui pra evitar dependência cross-milestone.
 
 **Status:** 📐 Funcionalidades esboçadas
 
-**Dependências:** W-PROTO-FILA-1 (fila existente)
+**Dependências:** W-PROTO-PLAT-1 (`PlatformConfig`, `parse_roadmap`); W-PROTO-FILA-1 (detecção precisa do filtro de produtos como input do `WorldState`); W-PROTO-FILA-2 (sidebar é tocada também por badge da fila e botão recarregar — coordenação no mesmo épico).
 
-### Funcionalidades (esboço):
-- **3.1 Contagem e indicador** — exibe contagem atual vs. limite alvo (~20 itens) na sidebar.
-- **3.2 Alerta de aproximação** — sinalização visual ao chegar perto do limite; sem ação automática.
+### Funcionalidades (esboço — refinamento estratégico para 🔍 em sessão dedicada):
+
+- **4.1 Persistência de preferências (JSON local)** — arquivo `tools/workflow_platform/.preferences.json` (git-ignored via `.gitignore`) carrega/salva preferências do operador. Shape inicial: `{"visible_roadmaps": [...], "stale_branch_threshold_days": 7}`. Helper puro `load_preferences() -> Preferences` / `save_preferences(prefs)`. Falha de leitura (arquivo ausente) retorna defaults sem warning. Tensão a refinar: localização (workspace local vs `~/.workflow_platform/`) — workspace é mais simples; home directory permite múltiplos clones compartilharem prefs.
+- **4.2 Filtro por ROADMAP/produto na detecção** — `WorldState.roadmaps` recebe lista filtrada conforme `preferences.visible_roadmaps`. Quando preferência ausente, todos os ROADMAPs do `config.yaml` são incluídos (compatível com PLAT-1 atual). Detecção de FILA-1.2 não muda — só o caller filtra antes. Tensão a refinar: filtro por produto inteiro vs filtro por ROADMAP específico (alguns produtos têm múltiplos ROADMAPs futuramente).
+- **4.3 Sidebar como painel de filtros + status** — substitui o conteúdo atual da sidebar (lista passiva de ROADMAPs + warnings em expander) por: (i) checkboxes de produto que persistem em `preferences.visible_roadmaps` via 4.1; (ii) badge da fila com cor por faixa (já planejado em FILA-3.1, integra aqui); (iii) botão "🔄 Recarregar" (já planejado em FILA-2.1, integra aqui); (iv) contador compacto de warnings com link para detalhes. Tensão a refinar: warnings ficam como contador clicável ou modal `st.dialog`?
+
+### Decisões pendentes para refinamento estratégico:
+- Localização do JSON de preferências (workspace vs home).
+- Granularidade do filtro (produto vs ROADMAP).
+- Forma de exibir warnings (contador, modal, expander compacto).
+- Se o `stale_branch_threshold_days` move de `config.yaml` (FILA-1.2) para `preferences.json` (4.1), ou se ambos coexistem (config.yaml = default do projeto, preferences = override do operador).
+
+**Fora do escopo:**
+- Configurações futuras além de `visible_roadmaps` e `stale_branch_threshold_days` — entram conforme atrito real aparecer (princípio anti-especulação).
+- Editor de configurações como página separada — sidebar absorve; página dedicada vira épico se a sidebar saturar.
+- Sincronização cross-clone das preferências — fora do escopo do Protótipo (operador roda em 1 máquina por vez).
 
 ---
 
