@@ -462,7 +462,7 @@ Dev pegou o épico. Status atualizado ao iniciar a implementação; permanece at
 
 ### Estado `🔀 Em revisão`
 
-RTE skill abriu a PR do milestone. Status atualizado pela RTE ao final do fluxo autônomo, junto com o commit de `validation-<milestone>.md`. Permanece até o merge e execução da Cleanup skill.
+RTE skill abriu a PR do milestone. Status atualizado pela RTE ao final do fluxo autônomo, junto com o commit de `current_validation.md`. Permanece até o merge e execução da Cleanup skill.
 
 ```markdown
 ## ÉPICO X: Nome Descritivo
@@ -555,7 +555,7 @@ Resumo enxuto (1-2 linhas) do que foi entregue. Detalhes, critérios e execuçã
 
 Ao iniciar implementação: status do épico transita para `🏗️ Em andamento`.
 
-Quando a RTE skill abre a PR do milestone: status transita automaticamente para `🔀 Em revisão` (RTE atualiza o ROADMAP no mesmo commit do `validation-<milestone>.md`).
+Quando a RTE skill abre a PR do milestone: status transita automaticamente para `🔀 Em revisão` (RTE atualiza o ROADMAP no mesmo commit do `current_validation.md`).
 
 Após o merge e execução da Cleanup skill (ciclo de fechamento pós-merge):
 1. Cleanup marca o título do épico com ✅ e atualiza status para `✅ Implementado`

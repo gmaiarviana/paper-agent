@@ -15,7 +15,7 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
                                 └──── reprovou? volta para a etapa anterior ────┘
 ```
 
-**Estado terminal da fase de implementação (W-PROTO-5):** a sessão autônoma encerra na **abertura da PR**, não na validação local do dev. RTE gera `validation-<milestone>.md`, abre PR via `mcp__github__create_pull_request` com Seção 🎯 padronizada no body, e notifica o dev com o link. Revisão humana acontece na PR (Copilot + aprovação manual + merge).
+**Estado terminal da fase de implementação (W-PROTO-5):** a sessão autônoma encerra na **abertura da PR**, não na validação local do dev. RTE gera `docs/process/current_validation.md` (rotativo), abre PR via `mcp__github__create_pull_request` com Seção 🎯 padronizada no body, e notifica o dev com o link. Revisão humana acontece na PR (Copilot + aprovação manual + merge).
 
 **PM é condicional** — roda se o milestone tem ao menos um épico em `🌱 Visão` ou `📐 Funcionalidades esboçadas`. Se todos os épicos já estão em `🔍 Detalhes definidos` (ou superior), PM é **pulado** e o fluxo entra direto no EM. Detalhes em [skills/pm/README.md](../../../skills/pm/README.md).
 
@@ -156,17 +156,17 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 **Deve:**
 - ✅ Garantir branch `milestone/<id-em-caixa-baixa>` com push único realizado
 - ✅ Atualizar `docs/process/current_implementation.md` (marcar checkpoints concluídos, gravar Resumo Final do Milestone)
-- ✅ Gerar `validation-<milestone-id>.md` versionado no mesmo commit que prepara a PR
+- ✅ Gerar `docs/process/current_validation.md` (rotativo, sobrescrito a cada milestone) no mesmo commit que prepara a PR
 - ✅ **Criar PR com body padronizado** via `mcp__github__create_pull_request` (fallback: `gh pr create`); body **obrigatoriamente** contém a Seção 🎯 Validação completa, sem placeholders
 - ✅ Gerar mensagem final no formato definido em [delivery.md](delivery.md), com link da PR e instrução copy-paste ao Copilot
 - ✅ Notificar o dev (canal acordado: notificação Claude Code Web)
 
 **Não deve:**
 - ❌ Mergear automaticamente — aprovação humana segue obrigatória
-- ❌ Abrir PR sem Seção 🎯 completa (critérios consolidados de PO ✅, link para `validation-<id>.md`)
+- ❌ Abrir PR sem Seção 🎯 completa (critérios consolidados de PO ✅, link para `docs/process/current_validation.md`)
 - ❌ Pular gates anteriores ainda que considere "trivial"
 
-**Saída:** PR aberta + `validation-<id>.md` versionado + mensagem final + notificação ao dev.
+**Saída:** PR aberta + `docs/process/current_validation.md` (rotativo) + mensagem final + notificação ao dev.
 
 ---
 
@@ -175,7 +175,7 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 O fluxo autônomo manipula três estados de execução do épico no ROADMAP:
 
 - **`🏗️ Em andamento`** — marcado assim que a Scrum Master Skill conclui (a partir daí o épico está sob implementação pelas skills). Permanece neste estado durante Dev → QA → TL → PO → RTE, até a RTE abrir a PR.
-- **`🔀 Em revisão`** — **acionado pela RTE skill ao abrir a PR do milestone.** A RTE atualiza o status de todos os épicos do milestone no ROADMAP no mesmo commit que gera o `validation-<milestone>.md`, antes do push final. Diferencia "código pronto e sob revisão humana" de "ainda implementando".
+- **`🔀 Em revisão`** — **acionado pela RTE skill ao abrir a PR do milestone.** A RTE atualiza o status de todos os épicos do milestone no ROADMAP no mesmo commit que gera o `current_validation.md`, antes do push final. Diferencia "código pronto e sob revisão humana" de "ainda implementando".
 - **`✅ Implementado`** — **não é acionado pelo fluxo autônomo.** A transição exige a execução do ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md` (extração de conhecimento permanente + poda do ROADMAP) e é feita pela **Cleanup skill** após o merge.
 
 > **Estado terminal da fase de implementação (W-PROTO-5):** "PR aberta" = épico em `🔀 Em revisão`. A sessão autônoma encerra com a RTE abrindo a PR e transitando os épicos para `🔀`; a Cleanup skill (pós-merge) transita para `✅ Implementado`.
