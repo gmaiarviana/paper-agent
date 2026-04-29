@@ -417,5 +417,5 @@ pytest -m integration             # se aplicável
 - README humano da skill → [README.md](README.md)
 - Template do relatório → [templates/delivery-report.md](templates/delivery-report.md)
 - Template do `current_validation.md` → [templates/validation.md](templates/validation.md)
-- Mensagem final compartilhada com fluxo manual → `docs/process/implementation/delivery.md`
+- Mensagem final padrão → `docs/process/implementation/delivery.md`
 - Como o dev valida → `docs/process/autonomous/delivery.md`

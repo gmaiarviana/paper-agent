@@ -574,7 +574,7 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 
 ## Decisões Técnicas Atuais
 
-- **Prioridade para CLI:** Permite automação com agentes (Claude Code / Cursor) sem dependência de navegador
+- **Prioridade para CLI:** Permite automação com agentes (Claude Code Web) sem dependência de navegador
 - **Sem persistência, Docker ou vector DB durante POC:** Para acelerar iteração
 - **Claude Sonnet 4 usado pelo Metodologista:** Para confiabilidade de JSON estruturado
 - **Claude Haiku usado pelo Estruturador:** Custo-benefício para estruturação/refinamento

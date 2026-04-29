@@ -19,7 +19,29 @@ Definições trabalhadas para este projeto, no eixo **"quem usa"** (complementa 
 - **MVP:** **outros** (colegas próximos) usam **sem o desenvolvedor do lado**. Critério de saída: valor validado fora do autor.
 - **Melhorias:** Expansão gradual baseada em feedback de uso real.
 
-**Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais ao estágio. POC tolera Streamlit e gambiarras; Protótipo exige fluxo navegável pelo próprio dev; MVP exige que outro ser humano consiga usar sem tutorial ao vivo.
+**Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais a o estágio. POC tolera Streamlit e gambiarras; Protótipo exige fluxo navegável pelo próprio dev; MVP exige que outro ser humano consiga usar sem tutorial ao vivo.
+
+<a id="estados-de-épico"></a>
+
+## Estados de Épico
+
+Um épico (e o campo "Status" do milestone) percorre até **oito estados** no ROADMAP. Os cinco primeiros são de refinamento progressivo; os três últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo.
+
+> **Fonte canônica.** Esta é a única definição autoritativa dos oito estados no repo. Outros docs referenciam esta seção via [`#estados-de-épico`](#estados-de-épico). Os emojis e nomes aqui são fonte da verdade tanto para texto quanto para o `EpicState` enum em W-PROTO-PLAT-1.1.
+
+### Refinamento (antes do código)
+
+- **`🌱 Visão`** — apenas objetivo definido. Captura intenção e valor de negócio. Não é executável por nenhum fluxo. **Gatilho de transição:** sessão de refinamento com alvo posterior. **Responsável:** refinamento estratégico.
+- **`🧭 Jornada alinhada`** — objetivo refinado; rationale e escopo declinados; glossário ancorado; acoplamentos sinalizados. Para milestone, inclui jornada alvo + mapeamento de feedback do estágio anterior. Funcionalidades ainda não esboçadas. Não é executável. **Gatilho:** sessão com alvo `📐` (ou maior). **Responsável:** refinamento estratégico.
+- **`📐 Funcionalidades esboçadas`** — lista de funcionalidades com descrição curta, sem critérios de aceite. Não é executável. **Gatilho:** sessão com alvo `📋` ou `🔍`. **Responsável:** refinamento estratégico ou PM skill (na branch do milestone).
+- **`📋 Critérios definidos`** — funcionalidades delimitadas, critérios de aceite observáveis e testáveis, trade-offs discutidos. **Passo intermediário até `🔍`** — não habilita execução por si só. **Gatilho:** sessão com alvo `🔍` (checklist `autonomous_readiness.md`). **Responsável:** refinamento estratégico ou PM skill.
+- **`🔍 Detalhes definidos`** — `📋` + contratos de dados explicitados, arquivos-alvo listados, mecanismo de integração descrito, acoplamentos verificados, escopo de testes definido (checklist em `autonomous_readiness.md` aplicado). Pré-requisito do fluxo único de execução. **Gatilho:** dispatch do milestone. **Responsável:** dev (operador) dispara; Scrum Master skill consome.
+
+### Execução
+
+- **`🏗️ Em andamento`** — épico em implementação. Permanece neste estado desde que o dev pega até a RTE abrir a PR do milestone. **Gatilho:** Scrum Master skill conclui plano. **Responsável:** skills do fluxo único (Dev/QA/TL/PO).
+- **`🔀 Em revisão`** — PR aberta; aguarda aprovação humana e merge. Diferencia "código entregue e sob revisão" de "ainda implementando". **Gatilho:** RTE skill abre a PR. **Responsável:** dev (revisão Copilot + merge manual).
+- **`✅ Implementado`** — ciclo de fechamento executado (ver `epic_completion.md`). **Gatilho:** merge da PR. **Responsável:** Cleanup skill.
 
 ## Sessão Estratégica de Refinamento
 
@@ -70,16 +92,8 @@ Antes de iniciar refinamento, identificar o que a visão do produto declara como
 1. **Análise Contextual:** Consultar vision.md, docs/ROADMAP.md ou products/revelar/ROADMAP.md (épicos anteriores), specs técnicas via mapa
 2. **Clarificação:** Fazer perguntas específicas, validar entendimento, apontar trade-offs
 3. **Recomendação:** Oferecer opções + recomendação balizada por vision.md e guidelines
-4. **Gerar Prompts:** Múltiplos prompts (1 por arquivo), instruções enxutas, manter padrões
-5. **Validação:** Confirmar que prompts fazem sentido
-
-### Output Gerado
-Claude Web gera prompts separados para Cursor executar:
-- PROMPT 1: docs/ROADMAP.md ou products/revelar/ROADMAP.md (dependendo do épico)
-- PROMPT 2: docs/[spec técnica]
-- PROMPT 3: docs/ARCHITECTURE.md (se necessário)
-
-Cada prompt é enxuto mas claro, deixando Cursor pensar também.
+4. **Materializar no ROADMAP:** registrar decisões diretamente nos arquivos relevantes (ROADMAP do produto, ARCHITECTURE.md, specs técnicas) ao final da sessão
+5. **Validação:** Confirmar que as edições feitas refletem o alinhamento
 
 ### Rito de Encerramento de Sessão de Refinamento
 
@@ -96,30 +110,13 @@ Antes de commitar, o agente apresenta:
 decide na sessão: resolve, registra como épico/backlog, ou descarta
 explicitamente.
 
-### Otimização do Workflow: Usando Cursor para Análises
+### Modalidades de Refinamento
 
-**Ao invés de enviar todos os arquivos de contexto ao Claude Web**, você pode solicitar ao Cursor para fazer análises do código e gerar insights que facilitam o refinamento:
+Há três modalidades em ordem de prioridade. Todas produzem o mesmo estado final no ROADMAP (épico em `🔍`); o que muda é **quem refina**, **quando** e **quanto contexto o operador precisa fornecer manualmente**.
 
-**Estratégia:**
-- **Antes de ir ao Claude Web:** Use o Cursor para escanear o repositório e fazer análises específicas
-- **Envie ao Claude Web:** Os insights gerados pelo Cursor + os 4 arquivos essenciais (CONSTITUTION, ROADMAP, ARCHITECTURE, planning_guidelines)
-
-**Exemplos de prompts para o Cursor:**
-- "Analise a estrutura atual do sistema de persistência e identifique pontos de extensão para suportar pausar/retomar conversas"
-- "Escanee o código do orquestrador e identifique como ele gerencia estado atualmente"
-- "Analise os padrões de implementação dos agentes existentes para manter consistência no novo épico"
-- "Revise a arquitetura de eventos e sugira como integrar nova funcionalidade X"
-
-**Benefícios:**
-- ✅ Reduz o volume de arquivos enviados ao Claude Web
-- ✅ Cursor tem acesso completo ao código e pode fazer análises profundas
-- ✅ Insights técnicos específicos facilitam decisões no refinamento
-- ✅ Claude Web recebe contexto já processado e focado
-
-**Fluxo recomendado:**
-1. Cursor faz análise técnica do código relevante
-2. Claude Web recebe insights + documentos essenciais para refinamento estratégico
-3. Claude Web gera prompts para Cursor implementar
+1. **Estratégico (Claude Code Web na branch do repo)** — caminho principal hoje. Acesso direto ao repo; refina e materializa no ROADMAP em sessão única, sem upload manual de contexto.
+2. **Estratégico (sessão externa com operador, via Claude Web ou equivalente)** — ferramenta secundária, usada em decisões estruturais que exigem alinhamento humano com contexto fora do repo. Contexto suprido por upload manual (5 arquivos essenciais) ou pela plataforma quando disponível (W-MVP-PLAT-2). Não é mais o caminho primário — premissa "Claude Web não tem acesso ao código" deixou de valer.
+3. **Tático (PM skill dentro da branch do milestone)** — refinamento mecânico de épicos `🌱`/`📐` até `🔍` quando o milestone é disparado.
 
 ### Exemplo de Refinamento Bem Feito
 
@@ -128,16 +125,16 @@ explicitamente.
 **Input do usuário:**
 "Vamos refinar Épico 10. Quero pausar/retomar conversas com contexto preservado."
 
-**Claude Web:**
+**Sessão de refinamento:**
 1. Consulta vision.md (entidade Tópico), ROADMAP (padrão de épicos anteriores)
 2. Pergunta: "Persistência local (SqliteSaver) ou remota (PostgreSQL)? Trade-off: simplicidade vs escalabilidade"
 3. Recomenda: "Começar com SqliteSaver (POC), migrar pra PostgreSQL (MVP se necessário)"
 4. Propõe funcionalidades 10.1-10.5 com critérios de aceite claros
-5. Gera prompts pra Cursor atualizar ROADMAP + criar `docs/architecture/persistence.md` (arquivo será criado durante refinamento, não existe ainda)
+5. Materializa as decisões diretamente no ROADMAP e cria `docs/architecture/persistence.md` (arquivo será criado durante refinamento, não existe ainda)
 
 > **📌 Nota:** Este é um exemplo hipotético de refinamento. O arquivo `docs/architecture/persistence.md` será criado quando o Épico 10 for refinado.
 
-**Resultado:** Épico em `📋 Critérios definidos`, specs criadas, pronto para implementação via fluxo manual. Antes do dispatch autônomo, uma nova sessão de refinamento com alvo `🔍 Detalhes definidos` aplica o checklist de `autonomous_readiness.md`.
+**Resultado:** Épico em `📋 Critérios definidos`, specs criadas. Antes do dispatch autônomo, uma nova sessão de refinamento com alvo `🔍 Detalhes definidos` aplica o checklist de `autonomous_readiness.md` — o fluxo único de execução exige `🔍`.
 
 ---
 
@@ -173,35 +170,11 @@ explicitamente.
 - Épicos em `🌱 Visão` aguardam priorização + clareza técnica
 - Remover do backlog é tão válido quanto adicionar (não há apego)
 
-### Estados de Refinamento
+### Estados — fonte canônica
 
-Um épico percorre até oito estados no ROADMAP. Os cinco primeiros são de refinamento progressivo; os três últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo. **Os mesmos estados aplicam-se ao campo "Status" do milestone** — milestone em `🧭 Jornada alinhada` significa objetivo, jornada e escopo declinados, glossário ancorado e mapeamento de feedback do estágio anterior consolidados, com lista de épicos definida (mesmo que individualmente em estados anteriores).
+Definição completa dos oito estados (descrição, gatilho de transição, responsável) está em [§"Estados de Épico"](#estados-de-épico) acima.
 
-> **Nota — onde o refinamento acontece.** Qualquer estado pode ser avançado por qualquer modalidade (ver nota acima). Não há restrição de "até 📋 só via sessão estratégica" — a PM skill pode levar um épico de `🌱` a `🔍` em uma única passada se tiver contexto suficiente. O que determina o caminho é a natureza da decisão: mecânica (PM skill ou autônomo) vs. estrutural (sessão estratégica com operador). Todos os caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
-
-**`🌱 Visão`** — apenas objetivo definido.
-Estado inicial de qualquer épico promovido a partir do backlog ou produzido por uma sessão do tipo "me quebra essa ideia em épicos a partir da visão". Captura intenção e valor de negócio; não é executável por nenhum fluxo.
-
-**`🧭 Jornada alinhada`** — objetivo refinado, rationale e escopo declinado.
-Estado intermediário entre `🌱` e `📐`. Captura entendimento compartilhado do que o épico/milestone **é** (objetivo aprofundado, o que é / o que não é, terminologia ancorada via glossário, acoplamentos sinalizados); para milestone, inclui jornada alvo, escopo declinado e mapeamento de feedback do estágio anterior. Funcionalidades ainda não esboçadas. Não é executável por nenhum fluxo; valor está em habilitar **commit intermediário de progresso de refinamento** quando reframe é trabalho real e a sessão estratégica não chega a critérios de aceite numa única passada.
-
-**`📐 Funcionalidades esboçadas`** — lista de funcionalidades com descrição curta, sem critérios de aceite.
-Estado intermediário útil quando um épico foi quebrado a partir de uma visão e as funcionalidades já emergiram, mas os critérios de aceite ainda não foram discutidos funcionalidade a funcionalidade. Não é executável por nenhum fluxo.
-
-**`📋 Critérios definidos`** — funcionalidades com critérios de aceite claros e testáveis.
-Épico tem funcionalidades delimitadas, critérios de aceite observáveis, trade-offs discutidos. **Suficiente para implementação onde o implementador pode resolver ambiguidades de execução em tempo real.**
-
-**`🔍 Detalhes definidos`** — passou pelo checklist em `docs/process/refinement/autonomous_readiness.md`.
-Além dos critérios de aceite, tem contratos de dados explicitados, arquivos-alvo listados, mecanismo de integração descrito, acoplamentos verificados e escopo de testes definido. **Pré-requisito para implementação sem necessidade de julgamento arquitetural durante a sessão.**
-
-**`🏗️ Em andamento`** — épico em implementação.
-Permanece neste estado desde o momento em que o dev pega o épico até a RTE skill abrir a PR ao final do fluxo autônomo.
-
-**`🔀 Em revisão`** — PR aberta, aguardando aprovação humana.
-A RTE skill atualiza o ROADMAP para este estado ao abrir a PR do milestone. Diferencia "código entregue e sob revisão" de "ainda implementando". O épico permanece aqui até o merge acontecer e a Cleanup skill executar o ciclo de fechamento.
-
-**`✅ Implementado`** — código entregue e ciclo de fechamento executado.
-Checklist em `docs/process/refinement/epic_completion.md` foi aplicado na íntegra. Transição feita pela Cleanup skill após o merge.
+> **Nota — onde o refinamento acontece.** Qualquer estado pode ser avançado por qualquer modalidade. Não há restrição de "até 📋 só via sessão estratégica" — a PM skill pode levar um épico de `🌱` a `🔍` em uma única passada se tiver contexto suficiente. O que determina o caminho é a natureza da decisão: mecânica (PM skill) vs. estrutural (sessão estratégica). Todos os caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
 
 ### Alvo de Refinamento
 
@@ -221,7 +194,7 @@ Uma vez definido (declarado ou inferido+confirmado), o Claude Web conduz as perg
 
 - **Quanto contexto enviar:** pack inicial de 6 arquivos basta para alvos até `📋 Critérios definidos`; chegar a `🔍 Detalhes definidos` exige também inspeção de código e consulta a `autonomous_readiness.md`.
 - **Quais artefatos são produzidos:** funcionalidades, critérios, detalhes de execução — proporcionais ao alvo.
-- **Qual fluxo de execução o épico habilita ao final:** manual a partir de `📋 Critérios definidos`; autônomo a partir de `🔍 Detalhes definidos`.
+- **Quando o épico fica executável pelo fluxo único:** somente a partir de `🔍 Detalhes definidos`. `📋` é passo intermediário — exige nova sessão com alvo `🔍`.
 
 ### Quando Refinar um Épico
 
@@ -252,21 +225,9 @@ Os detalhes específicos de cada ajuste por estágio moram em `docs/process/refi
 
 ## Categorias de Épicos
 
-### Estados de Refinamento (antes do código)
+A definição autoritativa dos oito estados (refinamento + execução) vive em [§"Estados de Épico"](#estados-de-épico). Esta seção apenas referencia.
 
-- **`🌱 Visão`** — apenas objetivo. Aguarda refinamento. Nenhum fluxo de execução disponível.
-- **`🧭 Jornada alinhada`** — objetivo refinado, rationale e escopo declinados; glossário ancorado e acoplamentos sinalizados (para milestone, jornada alvo + escopo + mapeamento de feedback do estágio anterior). Aguarda refinamento. Nenhum fluxo de execução disponível.
-- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento. Nenhum fluxo de execução disponível.
-- **`📋 Critérios definidos`** — critérios de aceite definidos. Apto ao fluxo manual.
-- **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Apto ao fluxo autônomo.
-
-### Estados de Execução
-
-- **`🏗️ Em andamento`** — épico em implementação (até a RTE abrir a PR do milestone).
-- **`🔀 Em revisão`** — PR aberta. Setado pela RTE ao final do fluxo autônomo; aguarda aprovação humana e merge.
-- **`✅ Implementado`** — ciclo de fechamento executado. Ver `docs/process/refinement/epic_completion.md`. Setado pela Cleanup skill após o merge.
-
-**Claude Code só implementa funcionalidades de épicos em `📋 Critérios definidos` (fluxo manual) ou `🔍 Detalhes definidos` (fluxo autônomo). Ao iniciar a implementação, o épico transita para `🏗️ Em andamento`; ao RTE abrir a PR, para `🔀 Em revisão`; ao final do ciclo de fechamento pós-merge, para `✅ Implementado`.**
+**Claude Code só implementa funcionalidades de épicos em `🔍 Detalhes definidos`. Ao iniciar a implementação, o épico transita para `🏗️ Em andamento`; ao RTE abrir a PR, para `🔀 Em revisão`; ao final do ciclo de fechamento pós-merge, para `✅ Implementado`.**
 
 ---
 
@@ -330,16 +291,7 @@ O checklist estratégico é a primeira linha de defesa — quando falha, a **EM 
 
 ### 📍 PRÓXIMOS PASSOS
 
-**Épicos percorrem até oito estados:**
-
-- **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
-- **`🧭 Jornada alinhada`** — objetivo refinado + rationale + glossário ancorado + acoplamentos sinalizados; jornada e escopo declinados (para milestone). Aguarda refinamento.
-- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
-- **`📋 Critérios definidos`** — critérios de aceite definidos. Pronto para fluxo manual.
-- **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Pronto para fluxo autônomo.
-- **`🏗️ Em andamento`** — implementação em curso (até a RTE abrir a PR).
-- **`🔀 Em revisão`** — PR aberta, aguardando aprovação humana. Setado pela RTE ao abrir a PR.
-- **`✅ Implementado`** — ciclo de fechamento executado (ver `epic_completion.md`). Setado pela Cleanup skill após o merge.
+**Épicos percorrem até oito estados** — definição completa em [§"Estados de Épico"](#estados-de-épico).
 
 **Fluxo:**
 ```
@@ -347,9 +299,9 @@ Ideia → Épico (🌱 Visão)
       → refinamento com alvo 📐
       → Épico (📐 Funcionalidades esboçadas)
       → refinamento com alvo 📋
-      → Épico (📋 Critérios definidos) — executável em fluxo manual
+      → Épico (📋 Critérios definidos) — passo intermediário, não executável
       → refinamento com alvo 🔍 (checklist autonomous_readiness)
-      → Épico (🔍 Detalhes definidos) — executável em fluxo autônomo
+      → Épico (🔍 Detalhes definidos) — executável pelo fluxo único
       → dev pega
       → Épico (🏗️ Em andamento)
       → RTE abre PR
@@ -592,9 +544,7 @@ Processo: Fazer → Validar → Commit → Iterar
 
 ### Antes de Começar
 1. Verifique dúvidas ou decisões em aberto
-2. Confirme o estado do épico no ROADMAP:
-   - **Fluxo manual:** mínimo `📋 Critérios definidos`
-   - **Fluxo autônomo:** exige `🔍 Detalhes definidos` (checklist `autonomous_readiness.md` aplicado)
+2. Confirme o estado do épico no ROADMAP: exige `🔍 Detalhes definidos` (checklist `autonomous_readiness.md` aplicado). `📋 Critérios definidos` é passo intermediário e não habilita execução.
 3. Alinhe o escopo com o usuário
 4. Ao iniciar, atualize o status do épico para `🏗️ Em andamento`
 
@@ -613,8 +563,7 @@ Processo: Fazer → Validar → Commit → Iterar
 - Falta de informação
 - Decisões arquiteturais abertas
 - Múltiplas abordagens possíveis
-- Épico em `🌱 Visão` ou `📐 Funcionalidades esboçadas` (exige refinamento com alvo mínimo `📋 Critérios definidos`)
-- Fluxo autônomo disparado sobre épico em `📋 Critérios definidos` (exige refinamento com alvo `🔍 Detalhes definidos`, guiado por `autonomous_readiness.md`)
+- Épico em `🌱 Visão`, `📐 Funcionalidades esboçadas` ou `📋 Critérios definidos` — exige refinamento com alvo `🔍 Detalhes definidos` (checklist `autonomous_readiness.md`) antes de qualquer dispatch.
 
 ---
 

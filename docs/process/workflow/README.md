@@ -11,8 +11,8 @@
 ## Relação com outras pastas
 
 - `docs/process/refinement/` — subdomínio operacional: como refinamento acontece
-- `docs/process/implementation/` — subdomínio operacional: fluxo manual via Cursor
-- `docs/process/autonomous/` — subdomínio operacional: fluxo autônomo via Claude Code Web
+- `docs/process/implementation/` — subdomínio operacional: guidelines de implementação aplicáveis ao fluxo único de execução
+- `docs/process/autonomous/` — subdomínio operacional: fluxo único de execução via Claude Code Web
 - `docs/process/sizing/` — heurística e histórico de sizing da EM Skill
 
 Este diretório (`workflow/`) é o "meta" — missão e roadmap do processo como um todo. Dívida técnica do workflow é rastreada como épicos dentro do `ROADMAP.md` acima, não em arquivo separado.

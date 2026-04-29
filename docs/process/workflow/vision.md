@@ -97,8 +97,10 @@ abaixo.
 ### Kanban
 
 Ao lado da fila, um **kanban** dá a visão de estado: colunas pelos oito
-estados de épico (🌱→🧭→📐→📋→🔍→🏗️→🔀→✅), agrupadas por milestone,
-cards carregando labels de autonomia. É a leitura primária do sistema.
+estados de épico (definição canônica em [`planning_guidelines.md` §Estados
+de Épico](../refinement/planning_guidelines.md#estados-de-épico)), agrupadas
+por milestone, cards carregando labels de autonomia. É a leitura primária
+do sistema.
 
 ### Chat focado
 

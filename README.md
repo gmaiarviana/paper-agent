@@ -216,7 +216,7 @@ Documentação
 - **Ontologia**: `core/docs/architecture/data-models/ontology.md`
 - **Super-Sistema**: `core/docs/vision/super_system.md`
 
-### Para AI Agents (Claude, Cursor, Claude Code)
+### Para AI Agents (Claude Web, Claude Code Web)
 
 Consulte os documentos essenciais em `docs/`:
 - **docs/CONSTITUTION.md** - Princípios e processo de trabalho

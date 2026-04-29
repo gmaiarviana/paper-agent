@@ -127,7 +127,7 @@ pytest -m integration             # se aplicável
 
 **Caso algum critério falhe:**
 - ❌ Não mergeie.
-- ❌ Devolva via Claude Code Web (nova rodada autônoma) OU traga para Cursor (fluxo manual) se exigir decisão arquitetural.
+- ❌ Devolva via Claude Code Web (nova rodada autônoma) OU refine com a PM skill / abra sessão estratégica externa (Claude Web) se exigir decisão arquitetural.
 
 ---
 

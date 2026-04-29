@@ -20,7 +20,7 @@
 - ✅ Padrão de implementação conhecido (segue épicos anteriores)
 - ✅ Sem decisões arquiteturais em aberto
 
-> Se algum critério acima falhar → use o **fluxo manual** (Claude Web + Cursor).
+> Se algum critério acima falhar → não dispare. Devolva o épico para refinamento (PM skill na branch do milestone, ou sessão estratégica em Claude Web se o que falta exigir alinhamento humano de alto nível) até atingir `🔍 Detalhes definidos` com o checklist de `autonomous_readiness.md` aplicado.
 
 ---
 
@@ -52,26 +52,7 @@ A RTE Skill abre a PR (estado terminal da fase de implementação após W-PROTO-
 
 ## 3. COMANDOS DE VALIDAÇÃO LOCAL
 
-A RTE Skill já entrega os comandos prontos. Estrutura típica:
-
-```bash
-# 1. Baixar branch
-git fetch origin
-git checkout milestone/<id-em-caixa-baixa>
-git pull origin milestone/<id-em-caixa-baixa>
-
-# 2. Preparar ambiente
-source .venv/bin/activate           # Linux/Mac
-# .\venv\Scripts\Activate.ps1     # Windows
-pip install -r requirements.txt   # se houver mudanças em deps
-
-# 3. Rodar testes
-pytest tests/core/unit/ -v
-pytest tests/core/integration/ -v -m integration   # se aplicável
-
-# 4. Rodar aplicação (se mudou interface)
-[comando específico do produto: streamlit run ..., python -m core.tools.cli.chat, etc]
-```
+A RTE entrega o bloco pronto na PR seguindo o [template canônico em quality_rules.md](../implementation/quality_rules.md#template-de-validação-local). Stack do passo 5 (subir a app) detectada via [§"Stacks por produto"](../../../.github/copilot-instructions.md).
 
 ### O que verificar
 - ✅ Testes passam (unit + integration aplicáveis)
@@ -97,7 +78,7 @@ Aprove o merge quando **TODOS** estes critérios forem atendidos:
 - [ ] Documentação estrutural atualizada (ARCHITECTURE/ROADMAP/README quando aplicável)
 
 **Caso algum critério falhe:**
-- ❌ **Não mergeie.** Devolva com feedback no Claude Code Web (nova rodada autônoma) OU traga para Cursor (fluxo manual) se exigir decisão arquitetural.
+- ❌ **Não mergeie.** Devolva com feedback no Claude Code Web (nova rodada autônoma) OU abra sessão estratégica externa (Claude Web) se exigir decisão arquitetural.
 
 ---
 
@@ -128,4 +109,4 @@ Esses inputs alimentam refinamentos futuros das skills e dos guidelines.
 - Detalhe das skills (Scrum Master/QA/TL/PO/RTE) → [workflow.md](workflow.md)
 - Template de dispatch → `docs/process/autonomous/dispatch.md`
 - Convenções operacionais (segredos, granularidade de commits) → [session_conventions.md](session_conventions.md)
-- Mensagem final padrão (compartilhada com fluxo manual) → [implementation/delivery.md](../implementation/delivery.md)
+- Mensagem final padrão → [implementation/delivery.md](../implementation/delivery.md)

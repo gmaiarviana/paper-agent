@@ -1,6 +1,6 @@
 # Overview: Agente Autônomo de Desenvolvimento
 
-## Modo de Operação: Agente Autônomo (Claude Code / Cursor Background)
+## Modo de Operação: Agente Autônomo (Claude Code Web)
 
 ### Seu Papel
 - Implementar funcionalidades completas do roadmap de forma autônoma
@@ -66,6 +66,8 @@ pytest tests/core/unit/models/test_cognitive_model.py -v
 - ✅ Imports não devem quebrar
 - ✅ Sistema deve rodar sem erros
 
+(Exemplo simplificado; template completo em [quality_rules.md](quality_rules.md#template-de-validação-local).)
+
 📄 Atualizei docs/process/current_implementation.md
    (Checkpoint 1 marcado como concluído)
 
@@ -84,11 +86,6 @@ Branch pronta: milestone/<id-em-caixa-baixa>
 
 Aguardando sua validação final.
 ```
-
-> **Nota:** no **fluxo autônomo** (Claude Code Web), esta mensagem
-> de checkpoint é gerada pelos gates (QA/TL/PO/RTE) — o agente não
-> a emite manualmente. O formato acima aplica-se ao fluxo **manual**
-> via Cursor.
 
 ---
 

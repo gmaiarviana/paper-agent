@@ -98,7 +98,7 @@ Sob demanda, quando uma sessão de refinamento declara alvo `🔍 Detalhes defin
 
 ## Saída
 
-Épico marcado como `🔍 Detalhes definidos` no ROADMAP correspondente (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`). Esse estado é o pré-requisito para o dispatch autônomo (`docs/process/autonomous/dispatch.md`). Épicos em `📋 Critérios definidos` continuam elegíveis para o fluxo manual.
+Épico marcado como `🔍 Detalhes definidos` no ROADMAP correspondente (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`). Esse estado é o pré-requisito do dispatch (`docs/process/autonomous/dispatch.md`) — `📋 Critérios definidos` é passo intermediário e ainda não habilita execução.
 
 ## Referências
 

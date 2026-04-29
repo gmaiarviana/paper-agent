@@ -3,6 +3,7 @@
 > **📌 Localização:** `skills/pm/`
 > **📌 Etapa do fluxo:** condicional, antes do EM — `docs/process/autonomous/workflow.md` (a ser reescrito em M4 da reforma do fluxo)
 > **📌 Pré-requisito:** milestone disparado tem ao menos um épico em `🌱 Visão` ou `📐 Funcionalidades esboçadas`. Se todos os épicos do milestone já estão em `🔍 Detalhes definidos` (ou estado posterior), PM é **pulado** — fluxo segue direto para EM.
+> **📌 Estados de épico citados aqui:** definição canônica em [`docs/process/refinement/planning_guidelines.md` §Estados de Épico](../../docs/process/refinement/planning_guidelines.md#estados-de-épico).
 
 ---
 

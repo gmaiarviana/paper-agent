@@ -289,7 +289,7 @@ Aprove o merge quando:
 - [ ] Comportamentos "não deve" do ROADMAP **não** ocorrem (ex: Writer por seção, Metodologista invocado, persistência em disco)
 - [ ] ROADMAPs (core + ensaio) marcam os 4 épicos como `✅ Implementado`
 
-**Se algum critério falhar:** devolver com feedback para nova rodada autônoma, ou trazer para fluxo manual se exigir decisão arquitetural.
+**Se algum critério falhar:** devolver com feedback para nova rodada autônoma, ou abrir sessão estratégica externa (Claude Web) se exigir decisão arquitetural.
 
 ---
 

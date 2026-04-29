@@ -156,16 +156,6 @@ App rodando em: http://localhost:<porta>  (ou: sem app afetada)
 
 ---
 
-## Operação Windows / macOS / Linux
-
-- **`.venv/`** (com ponto) é o diretório padrão. Ativar com:
-  - Linux/Mac: `source .venv/bin/activate`
-  - Windows: `.\.venv\Scripts\Activate.ps1`
-- **Streamlit:** prefira `python -m streamlit run <path>`. O primeiro garante o binário do venv ativo. Se a porta 8501 estiver ocupada, **não troque silenciosamente** — avise o dev.
-- **Foreground** sempre. Se o log mostrar traceback, **pare e reporte**. Não tente consertar.
-
----
-
 ## Quando o dev disser "deu erro"
 
 1. Coletar o log do terminal (últimas 50 linhas) antes de qualquer coisa. Não especular sobre UX sem traceback.

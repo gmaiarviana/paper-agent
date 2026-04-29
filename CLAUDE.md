@@ -3,7 +3,7 @@
 > **Público:** Claude Code (CLI, Web, IDE) operando neste repositório.
 > **Princípio:** estas instruções têm precedência sobre defaults do harness para
 > os comportamentos abaixo. Demais regras (segurança, anti-redundância, processo)
-> continuam vindo de `docs/`, `.claudecode.md` e `.cursorrules`.
+> continuam vindo de `docs/` e `.claudecode.md`.
 
 ---
 
@@ -36,9 +36,9 @@ feito de forma durável aqui.
 
 **Quando confirmar mesmo assim:**
 - Disparo ambíguo (id de milestone não identificável) — perguntar antes.
-- Fluxo manual (Cursor, sessão de refinamento) — defaults restritos do harness
-  e do `.cursorrules` continuam valendo. Esta autorização cobre apenas o modo
-  autônomo descrito em `docs/process/autonomous/`.
+- Refinamento estratégico em sessão externa com Claude Web — defaults restritos
+  do harness continuam valendo nessas sessões. Esta autorização cobre apenas o
+  modo autônomo descrito em `docs/process/autonomous/`.
 
 ---
 
@@ -108,4 +108,3 @@ pergunta final) — não como lista solta.
 - Como o operador valida → [`docs/process/autonomous/delivery.md`](docs/process/autonomous/delivery.md)
 - Spec executável da RTE skill → [`skills/rte/skill.md`](skills/rte/skill.md)
 - Descobertas de dev (ambiente, armadilhas) → [`.claudecode.md`](.claudecode.md)
-- Regras do fluxo manual (Cursor) → [`.cursorrules`](.cursorrules)

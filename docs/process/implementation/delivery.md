@@ -91,61 +91,12 @@ git checkout <nome-real-da-branch>
 
 ### ⚙️ Validação Local (para dev testar antes de mergear)
 
-**1. Baixar e preparar branch:**
-```powershell
-# Buscar branch remota
-git fetch origin
+Ver [template canônico em quality_rules.md](quality_rules.md#template-de-validação-local). Para subir a app, detectar a stack via [`.github/copilot-instructions.md` §"Stacks por produto"](../../../.github/copilot-instructions.md).
 
-# Criar ou atualizar branch local a partir da remota
-git checkout milestone/<id-em-caixa-baixa>
-git pull origin milestone/<id-em-caixa-baixa>
-
-# Instalar/atualizar dependências (se houver mudanças)
-[comando específico: npm install; poetry install; etc]
-```
-
-**2. Rodar aplicação:**
-```powershell
-[comandos específicos baseados no README.md]
-# Exemplo: docker compose up -d
-# Exemplo: npm run dev
-# Exemplo: uvicorn app.main:app --reload
-```
-
-**3. Rodar testes:**
-```powershell
-[comando específico de testes]
-# Exemplo: npm test
-# Exemplo: pytest
-# Exemplo: python -m pytest tests/unit
-```
-
-**4. Validar funcionalidade:**
-
-**Teste Manual 1:**
-- Acesse: `http://localhost:XXXX/rota-especifica`
-- Ação: [descrição exata do que fazer]
-- Resultado esperado: [o que deve acontecer]
-
-**Teste Manual 2:**
-- [outro cenário de teste]
-
-**Teste Manual 3:**
-- [outro cenário de teste]
-
-**Critérios de Aceite:**
+**Critérios de Aceite (preencher por funcionalidade):**
 ✅ [Comportamento 1 deve funcionar]
 ✅ [Comportamento 2 deve funcionar]
 ❌ [Comportamento 3 NÃO deve acontecer]
-
-**5. Encerrar:**
-```powershell
-# Parar aplicação
-[comando específico: docker compose down; Ctrl+C; etc]
-
-# Voltar para branch principal (se quiser)
-git checkout main
-```
 
 ### Notas Técnicas
 [Qualquer observação importante para review]

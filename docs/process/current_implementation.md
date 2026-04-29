@@ -1,9 +1,9 @@
-# Implementação Atual: Milestone PROTO-WORKFLOW-COPILOT-STACK
+# Implementação Atual: Milestone PROTO-WORKFLOW-FAXINA
 
-**Milestone:** PROTO-WORKFLOW-COPILOT-STACK — alinhar `copilot-instructions.md` à mudança de stack do Ensaio (Streamlit → Reflex, ADR 001)
+**Milestone:** PROTO-WORKFLOW-FAXINA — faxina documental do `docs/process/`
 **Produto:** workflow
 **Estágio:** Protótipo
-**Branch:** `claude/implement-copilot-stack-gSUxf` (harness-assigned; equivalente a `milestone/proto-workflow-copilot-stack` no fluxo manual)
+**Branch:** `claude/proto-workflow-faxina-e4irl` (harness-assigned; equivalente a `milestone/proto-workflow-faxina` no fluxo manual)
 **Modo:** Autônomo
 **Dispatch recebido em:** 2026-04-29
 
@@ -11,23 +11,34 @@
 
 ## Contexto do Milestone
 
-**Objetivo:** alinhar `copilot-instructions.md` à mudança de stack do Ensaio (Streamlit → Reflex, ADR 001 de 2026-04-25). Ajuste pequeno e operacional — o Copilot hoje manda Streamlit pros dois produtos e a validação de branches do Ensaio quebra ou roda com comando errado.
+**Objetivo:** faxina documental do `docs/process/` — eliminar drift entre cópias da lista de estados de épico, retirar de `quality_rules.md` o que não é regra do fluxo, enxugar `copilot-instructions.md`, descontinuar a dicotomia "fluxo manual (Cursor) vs autônomo" que não reflete o uso real (operador roda 100% via Claude Code Web), e consolidar o template de "comandos de validação local" duplicado em 3 docs. Faz a casa antes de avançar para a fila reativa.
 
-**Épicos agrupados:** W-PROTO-14
+**Épicos agrupados:** W-PROTO-15, W-PROTO-16, W-PROTO-13, W-PROTO-10, W-PROTO-11 (ordem de execução interna).
 
-**Dependências de core:** nenhuma. Comandos de Reflex já fixados pelo ADR 001 + `products/ensaio/rxconfig.py` — sem input pendente do dev.
+**Dependências de core:** nenhuma.
 
 ---
 
-## Sizing (EM) — 2026-04-29 15:30
+## Sizing (EM) — 2026-04-29 16:19
 
-- Milestone: PROTO-WORKFLOW-COPILOT-STACK (Protótipo, workflow)
-- Épicos avaliados: 1
-- Funcionalidades: 3 (W-PROTO-14: 14.1 + 14.2 + 14.3)
-- Fator de risco médio: 1.0 (sem refator declarado, sem integração com sistema existente, sem dependência core não-✅)
-- Cálculo: 3 × 200 × 1.0 = **600 LOC estimado**
-- Decisão: **FIT** (≤ 3000)
+- Milestone: PROTO-WORKFLOW-FAXINA (Protótipo, workflow)
+- Épicos avaliados: 5
+- Funcionalidades: 18 (W-PROTO-15: 8 + W-PROTO-16: 2 + W-PROTO-13: 3 + W-PROTO-10: 2 + W-PROTO-11: 3)
+- Fator de risco médio: 1.0 (sem refator declarado, sem integração com sistema existente, sem dependência core não-✅; todas as edições são documentais com conteúdo declarado verbatim no ROADMAP)
+- Cálculo: 18 × 200 × 1.0 = **3600 LOC estimado**
+- Decisão: **TIGHT** (3000 < 3600 ≤ 6000)
+- Alerta registrado: milestone aperta o orçamento por volume (18 funcionalidades), mas escopo cirúrgico por funcionalidade reduz risco real — a maioria são deleções ou substituições com texto verbatim já declarado no ROADMAP. Bootstrap defaults (sem histórico FIT-completed na `history.jsonl`).
 - Linha persistida em `docs/process/sizing/history.jsonl`
+
+---
+
+## Ordem de execução interna
+
+1. **W-PROTO-15** primeiro (varre fluxo manual / Cursor / Claude Web do desenho — afeta arquivos que outros tocam).
+2. **W-PROTO-16** depois (congela template canônico de validação antes da reorganização do `quality_rules.md`).
+3. **W-PROTO-13** independente (toca apenas `.github/copilot-instructions.md`).
+4. **W-PROTO-10** depois de 15.1/15.2 (rótulo de `📋` reescrito antes da centralização).
+5. **W-PROTO-11** por último (depende de 15.4 + 16 estarem fechados).
 
 ---
 
@@ -37,51 +48,199 @@ Um bloco por épico, na ordem de execução.
 
 ---
 
-### Épico W-PROTO-14 — Operacionalizar Reflex no fluxo de validação do Copilot
+### Épico W-PROTO-15 — Descontinuar fluxo manual / Cursor / Claude Web do desenho
 
 **Status:** ✅ Implementado
-**Objetivo:** o Ensaio migrou para Reflex no Protótipo (ADR 001), mas `copilot-instructions.md` ainda manda Streamlit pros dois produtos. Validação de branches do Ensaio quebra ou roda com comando errado.
-**Dependências:** ADR 001 (`products/ensaio/docs/adr/001-stack-do-prototipo.md`); `products/ensaio/rxconfig.py`. Coordena com W-PROTO-13.3 (futuro).
+**Objetivo:** o desenho atual carrega dicotomia "fluxo manual (Cursor) vs fluxo autônomo (Claude Code Web)" em ~140 menções espalhadas em 16 arquivos. Operador opera 100% via Claude Code Web; Cursor não está instalado; Claude Web persiste como ferramenta secundária de refinamento estratégico. Absorve W-PROTO-12.
 
 #### Funcionalidades
 
-##### 14.1 — Detecção de stack por produto
-
+##### 15.1 — Reescrever `autonomous/overview.md` para fluxo único
 - **Domain:** docs
-- **Estimativa:** ~25 linhas | risco: baixo
-- **Arquivos esperados:**
-  - modificar: `.github/copilot-instructions.md` (inserir nova §"Stacks por produto" entre linhas 31 e 35)
-- **Padrão a seguir:** conteúdo verbatim declarado em W-PROTO-14.1 do ROADMAP.
-- **Critérios de aceite cobertos:** [W-PROTO-14.1]
-- **Validação:** seção "Stacks por produto" presente; tabela inclui Revelar (Streamlit, 8501-8503) e Ensaio (Reflex, 3000+8000); regra "se branch toca produto fora da tabela, parar e reportar" presente.
+- **Arquivos esperados:** modificar `docs/process/autonomous/overview.md`
+- **Critério de aceite cobertos:** [W-PROTO-15.1]
+- **Validação:** `grep -ni "fluxo manual\|cursor" docs/process/autonomous/overview.md` retorna 0.
 
-##### 14.2 — Comando de subida por stack na §3
-
+##### 15.2 — Reescrever §"Otimização do Workflow" em `planning_guidelines.md`
 - **Domain:** docs
-- **Estimativa:** ~30 linhas | risco: baixo
-- **Arquivos esperados:**
-  - modificar: `.github/copilot-instructions.md` (substituir §3 "Subir a app afetada", linhas 68-96 hoje)
-- **Padrão a seguir:** conteúdo verbatim declarado em W-PROTO-14.2 do ROADMAP.
-- **Critérios de aceite cobertos:** [W-PROTO-14.2]
-- **Validação:** `grep -n "reflex run" .github/copilot-instructions.md` ≥ 1; `grep -n "products/ensaio" .github/copilot-instructions.md` ≥ 1; §3 ramifica visualmente entre Streamlit (Revelar) e Reflex (Ensaio).
+- **Arquivos esperados:** modificar `docs/process/refinement/planning_guidelines.md`
+- **Critério de aceite cobertos:** [W-PROTO-15.2]
+- **Validação:** `grep -ni "Otimização do Workflow.*Cursor\|prompts separados para Cursor\|apto ao fluxo manual" docs/process/refinement/planning_guidelines.md` retorna 0.
 
-##### 14.3 — Liberação de portas por stack
-
+##### 15.3 — Limpar `CONSTITUTION.md`
 - **Domain:** docs
-- **Estimativa:** ~25 linhas | risco: baixo
-- **Arquivos esperados:**
-  - modificar: `.github/copilot-instructions.md` (substituir bloco de liberação de portas hardcoded em 8501-8503 por bloco que cobre Streamlit e Reflex)
-- **Padrão a seguir:** conteúdo verbatim declarado em W-PROTO-14.3 do ROADMAP.
-- **Critérios de aceite cobertos:** [W-PROTO-14.3]
-- **Validação:** `grep -nE "8501|8502|8503|3000|8000" .github/copilot-instructions.md` retorna linhas em §"Liberação de portas"; bloco menciona Streamlit (8501-8503) e Reflex (3000, 8000) explicitamente.
+- **Arquivos esperados:** modificar `docs/CONSTITUTION.md`
+- **Critério de aceite cobertos:** [W-PROTO-15.3]
+- **Validação:** `grep -ni "cursor\|fluxo manual" docs/CONSTITUTION.md` retorna 0.
 
-#### Gates por funcionalidade — Épico W-PROTO-14
+##### 15.4 — Limpar `implementation/overview.md` e `quality_rules.md` (absorve W-PROTO-12)
+- **Domain:** docs
+- **Arquivos esperados:** modificar `docs/process/implementation/overview.md`, `docs/process/implementation/quality_rules.md`
+- **Critério de aceite cobertos:** [W-PROTO-15.4]
+- **Validação:** `grep -ni "Cursor Background\|fluxo manual" docs/process/implementation/overview.md docs/process/implementation/quality_rules.md` retorna 0.
+
+##### 15.5 — Limpar arquivos periféricos
+- **Domain:** docs
+- **Arquivos esperados:** modificar `docs/process/refinement/starter.md`, `docs/process/refinement/overview.md`, `docs/process/autonomous/delivery.md`, `skills/rte/skill.md`, `skills/rte/templates/delivery-report.md`
+- **Critério de aceite cobertos:** [W-PROTO-15.5]
+- **Validação:** `grep -ni "fluxo manual\|via Cursor"` nos 5 arquivos retorna 0.
+
+##### 15.6 — Deletar `.cursorrules`
+- **Domain:** docs
+- **Arquivos esperados:** apagar `.cursorrules`
+- **Critério de aceite cobertos:** [W-PROTO-15.6]
+- **Validação:** `ls .cursorrules` retorna vazio.
+
+##### 15.7 — Atualizar `CLAUDE.md`, `docs/CONTEXT_INDEX.md`, `README.md`
+- **Domain:** docs
+- **Arquivos esperados:** modificar `CLAUDE.md`, `docs/CONTEXT_INDEX.md`, `README.md`
+- **Critério de aceite cobertos:** [W-PROTO-15.7]
+- **Validação:** `grep -ni "cursor" CLAUDE.md docs/CONTEXT_INDEX.md README.md` retorna 0.
+
+##### 15.8 — Varredura final
+- **Domain:** docs
+- **Arquivos esperados:** nenhum (validação de varredura)
+- **Critério de aceite cobertos:** [W-PROTO-15.8]
+- **Validação:** `grep -rni "cursor\|fluxo manual"` no escopo declarado retorna 0 menções (com exceções declaradas).
+
+#### Gates por funcionalidade — Épico W-PROTO-15
+
+| Funcionalidade                                                | Dev | QA | TL | PO |
+|---------------------------------------------------------------|:---:|:--:|:--:|:--:|
+| 15.1 Reescrever `autonomous/overview.md`                      | ✅  | ✅ | ✅ | ✅ |
+| 15.2 Reescrever §"Otimização do Workflow"                     | ✅  | ✅ | ✅ | ✅ |
+| 15.3 Limpar `CONSTITUTION.md`                                 | ✅  | ✅ | ✅ | ✅ |
+| 15.4 Limpar `implementation/overview.md` + `quality_rules.md` | ✅  | ✅ | ✅ | ✅ |
+| 15.5 Limpar arquivos periféricos                              | ✅  | ✅ | ✅ | ✅ |
+| 15.6 Deletar `.cursorrules`                                   | ✅  | ✅ | ✅ | ✅ |
+| 15.7 Atualizar `CLAUDE.md`/CONTEXT_INDEX/README               | ✅  | ✅ | ✅ | ✅ |
+| 15.8 Varredura final                                          | ✅  | ✅ | ✅ | ✅ |
+
+---
+
+### Épico W-PROTO-16 — Consolidar template de "comandos de validação local"
+
+**Status:** ✅ Implementado
+**Objetivo:** template "git fetch / checkout / venv / pytest / [run app]" aparece em 4 arquivos com formatos divergentes. Consolida em fonte única (`quality_rules.md`) e substitui as cópias por referência.
+
+#### Funcionalidades
+
+##### 16.1 — Eleger fonte canônica em `quality_rules.md`
+- **Domain:** docs
+- **Arquivos esperados:** modificar `docs/process/implementation/quality_rules.md`
+- **Critério de aceite cobertos:** [W-PROTO-16.1]
+- **Validação:** §"Template de validação local" presente como cabeçalho navegável; bloco usa `.venv/`; passo 5 referencia W-PROTO-14.
+
+##### 16.2 — Substituir cópias por referência
+- **Domain:** docs
+- **Arquivos esperados:** modificar `docs/process/implementation/delivery.md`, `docs/process/autonomous/delivery.md`, `docs/process/implementation/overview.md`
+- **Critério de aceite cobertos:** [W-PROTO-16.2]
+- **Validação:** os 3 docs apontam para `quality_rules.md#template-de-validação-local`; `git fetch origin` deixa de aparecer em blocos de código nos 3 arquivos (apenas em texto referencial).
+
+#### Gates por funcionalidade — Épico W-PROTO-16
 
 | Funcionalidade                                | Dev | QA | TL | PO |
 |-----------------------------------------------|:---:|:--:|:--:|:--:|
-| 14.1 Detecção de stack por produto            | ✅  | ✅ | ✅ | ✅ |
-| 14.2 Comando de subida por stack na §3        | ✅  | ✅ | ✅ | ✅ |
-| 14.3 Liberação de portas por stack            | ✅  | ✅ | ✅ | ✅ |
+| 16.1 Eleger fonte canônica                    | ✅  | ✅ | ✅ | ✅ |
+| 16.2 Substituir cópias por referência         | ✅  | ✅ | ✅ | ✅ |
+
+---
+
+### Épico W-PROTO-13 — Faxina do `copilot-instructions.md` (concisão pra agente)
+
+**Status:** ✅ Implementado
+**Objetivo:** aplicar princípio "documentação para agente é concisa, não defensiva". Agente trabalha do traceback, não consulta catálogo de erros típicos. 13.1 e 13.2 são **no-ops verificados**; escopo real é 13.3.
+
+#### Funcionalidades
+
+##### 13.1 — §"Erros típicos e orientação" (no-op verificado)
+- **Domain:** docs
+- **Arquivos esperados:** nenhum (já apagada em refinamento anterior)
+- **Critério de aceite cobertos:** [W-PROTO-13.1]
+- **Validação:** `grep -c "Erros típicos\|orientação" .github/copilot-instructions.md` retorna 0.
+
+##### 13.2 — §"Checklist mínimo de POC do Ensaio" (no-op verificado)
+- **Domain:** docs
+- **Arquivos esperados:** nenhum (já apagada em refinamento anterior)
+- **Critério de aceite cobertos:** [W-PROTO-13.2]
+- **Validação:** `grep -c "Checklist mínimo.*POC\|POC do Ensaio" .github/copilot-instructions.md` retorna 0.
+
+##### 13.3 — Apagar §"Operação Windows / macOS / Linux"
+- **Domain:** docs
+- **Arquivos esperados:** modificar `.github/copilot-instructions.md`
+- **Critério de aceite cobertos:** [W-PROTO-13.3]
+- **Validação:** `grep -n "Operação Windows" .github/copilot-instructions.md` retorna 0; §"Quando o dev disser 'deu erro'" intacta.
+
+#### Gates por funcionalidade — Épico W-PROTO-13
+
+| Funcionalidade                                                | Dev | QA | TL | PO |
+|---------------------------------------------------------------|:---:|:--:|:--:|:--:|
+| 13.1 §"Erros típicos" (no-op)                                 | ➖  | ➖ | ➖ | ➖ |
+| 13.2 §"Checklist POC" (no-op)                                 | ➖  | ➖ | ➖ | ➖ |
+| 13.3 Apagar §"Operação Windows / macOS / Linux"               | ✅  | ✅ | ✅ | ✅ |
+
+---
+
+### Épico W-PROTO-10 — Centralizar definição dos estados de épico
+
+**Status:** ✅ Implementado
+**Objetivo:** eliminar drift entre as três cópias da lista canônica dos 8 estados de épico em `planning_guidelines.md`. Drift entre cópias gerou as 3 contradições corrigidas em 2026-04-28.
+
+#### Funcionalidades
+
+##### 10.1 — Bloco canônico único em `planning_guidelines.md`
+- **Domain:** docs
+- **Arquivos esperados:** modificar `docs/process/refinement/planning_guidelines.md`
+- **Critério de aceite cobertos:** [W-PROTO-10.1]
+- **Validação:** uma única seção define os 8 estados; `grep -n "🌱 Visão$" docs/process/refinement/planning_guidelines.md` retorna no máximo 1 bloco.
+
+##### 10.2 — Limpeza de drift cross-doc
+- **Domain:** docs
+- **Arquivos esperados:** modificar `docs/process/refinement/starter.md`, `docs/CONSTITUTION.md`, `docs/process/autonomous/workflow.md`, `docs/process/workflow/vision.md`, `skills/pm/README.md`
+- **Critério de aceite cobertos:** [W-PROTO-10.2]
+- **Validação:** os arquivos abrem com link pra fonte canônica antes de qualquer menção a estado.
+
+#### Gates por funcionalidade — Épico W-PROTO-10
+
+| Funcionalidade                                | Dev | QA | TL | PO |
+|-----------------------------------------------|:---:|:--:|:--:|:--:|
+| 10.1 Bloco canônico único                     | ✅  | ✅ | ✅ | ✅ |
+| 10.2 Limpeza de drift cross-doc               | ✅  | ✅ | ✅ | ✅ |
+
+---
+
+### Épico W-PROTO-11 — Faxina de `quality_rules.md`
+
+**Status:** ✅ Implementado
+**Objetivo:** tirar de `quality_rules.md` (397 linhas) o que não é regra de processo. Mistura princípios + lessons learned do produto Revelar + tutorial defensivo de git pra Windows. Saída: doc com ~185 linhas focado em princípios + anti-redundância + comandos.
+
+#### Funcionalidades
+
+##### 11.1 — Apagar §"Verificação de Conflitos e Prevenção de Perda de Trabalho"
+- **Domain:** docs
+- **Arquivos esperados:** modificar `docs/process/implementation/quality_rules.md`
+- **Critério de aceite cobertos:** [W-PROTO-11.1]
+- **Validação:** `grep -n "Verificação de Conflitos\|Prevenção de Perda" docs/process/implementation/quality_rules.md` retorna 0.
+
+##### 11.2 — Mover §"Diretrizes Aprendidas em Produção" para `products/revelar/docs/`
+- **Domain:** docs
+- **Arquivos esperados:** modificar `docs/process/implementation/quality_rules.md`; criar `products/revelar/docs/llm_implementation_lessons.md`
+- **Critério de aceite cobertos:** [W-PROTO-11.2]
+- **Validação:** `grep -n "Diretrizes Aprendidas em Produção\|Sistemas Conversacionais com LLMs" docs/process/implementation/quality_rules.md` retorna 0; `ls products/revelar/docs/llm_implementation_lessons.md` existe com >40 linhas.
+
+##### 11.3 — Reorganizar o que sobra em ordem coerente
+- **Domain:** docs
+- **Arquivos esperados:** modificar `docs/process/implementation/quality_rules.md` (apenas se 11.1 + 11.2 + 15.4 + 16 deixaram lacunas)
+- **Critério de aceite cobertos:** [W-PROTO-11.3]
+- **Validação:** `wc -l docs/process/implementation/quality_rules.md` retorna ~180-200 linhas.
+
+#### Gates por funcionalidade — Épico W-PROTO-11
+
+| Funcionalidade                                                | Dev | QA | TL | PO |
+|---------------------------------------------------------------|:---:|:--:|:--:|:--:|
+| 11.1 Apagar §"Verificação de Conflitos"                       | ✅  | ✅ | ✅ | ✅ |
+| 11.2 Mover §"Diretrizes Aprendidas"                           | ✅  | ✅ | ✅ | ✅ |
+| 11.3 Reorganizar o que sobra                                  | ✅  | ✅ | ✅ | ✅ |
 
 **Legenda:** ⏳ pendente · ✅ aprovado · ❌ reprovado · ➖ não aplicável
 
@@ -89,78 +248,156 @@ Um bloco por épico, na ordem de execução.
 
 ## Esclarecimentos (resolvidos por consulta)
 
-- ✅ Posição de §"Liberação de portas" — fonte: ROADMAP W-PROTO-14.2 referencia `(ver §"Stacks por produto" + §"Liberação de portas" abaixo)`. Implementado como sub-seção dentro de §3, imediatamente após o parágrafo de detecção de produto, antes dos blocos Streamlit/Reflex — preserva fluxo "detectar → liberar portas → subir app".
-- ✅ Comandos Reflex e portas — fonte: `products/ensaio/rxconfig.py` confirma `frontend_port=3000` e `backend_port=8000`; ADR 001 declara `cd products/ensaio && reflex run`.
+(nenhum até o momento — adicionar conforme aparecerem)
 
 ---
 
 ## Extração pendente
 
-### Épico W-PROTO-14
+### Épico W-PROTO-15
 - (vazio — TL não identificou conhecimento permanente neste épico)
 
-> Épico cirúrgico em arquivo de instruções operacionais; sem padrão arquitetural novo a extrair para `docs/ARCHITECTURE.md` ou similar. ADR 001 já cobre a decisão de stack.
+> Faxina documental do desenho — descontinuou dicotomia "fluxo manual (Cursor) vs autônomo" alinhando o desenho ao uso real (operador opera 100% via Claude Code Web). Sem padrão arquitetural novo; o conceito "fluxo único de execução" já está documentado no próprio escopo do épico (CONSTITUTION + autonomous/overview).
+
+### Épico W-PROTO-16
+- (vazio — TL não identificou conhecimento permanente neste épico)
+
+> Consolidação de template existente em fonte canônica. A âncora `quality_rules.md#template-de-validação-local` é o padrão para futuras referências; observação operacional, não conhecimento arquitetural.
+
+### Épico W-PROTO-13
+- (vazio — TL não identificou conhecimento permanente neste épico)
+
+> Faxina cirúrgica em `.github/copilot-instructions.md`. 13.1 e 13.2 declarados no-ops verificados (seções já apagadas em refinamento anterior); 13.3 removeu seção redundante. Sem padrão arquitetural novo.
+
+### Épico W-PROTO-10
+- (vazio — TL não identificou conhecimento permanente neste épico)
+
+> Centralização de definição dos 8 estados em fonte canônica (`planning_guidelines.md#estados-de-épico`). A âncora é o padrão para futuras referências cross-doc. Sem padrão arquitetural novo — observação operacional.
+
+### Épico W-PROTO-11
+- (vazio — TL não identificou conhecimento permanente neste épico)
+
+> Faxina documental de `quality_rules.md` (397 → 213 linhas). §"Verificação de Conflitos" (tutorial defensivo de git) apagada; §"Diretrizes Aprendidas em Produção" migrada para `products/revelar/docs/llm_implementation_lessons.md` (escopo do produto, não regra do fluxo). 11.3 ficou no-op — ordem natural dos remanescentes já é coerente após 11.1+11.2+15.4+16 não deixarem lacunas.
 
 ---
 
 ## Status dos Gates (nível milestone)
 
-- [x] PM ➖ todos os épicos já em `🔍` no dispatch (2026-04-29 15:30)
-- [x] EM ✅ FIT — 600 LOC estimado (2026-04-29 15:30)
-- [x] Scrum Master ✅ plano para 1 épico / 3 funcionalidades escrito (2026-04-29 15:32)
-- [x] Loop por épico concluído (todas as células Dev/QA/TL/PO ✅)
-- [x] RTE ✅ PR aberta (2026-04-29 15:50)
+- [x] PM ➖ todos os épicos já em `🔍` no dispatch (2026-04-29 16:19)
+- [x] EM ✅ TIGHT — 3600 LOC estimado, 18 funcionalidades em 5 épicos (2026-04-29 16:19)
+- [x] Scrum Master ✅ plano para 5 épicos / 18 funcionalidades escrito (2026-04-29 16:19)
+- [x] Loop por épico concluído (todas as células Dev/QA/TL/PO ✅ ou ➖)
+- [x] RTE ✅ PR aberta (2026-04-29 18:00)
 
 ### Evidências de carregamento de skill
 
 **Únicas por milestone:**
 
 ```
-[PM]  skill pulada: todos os épicos já em `🔍` ➖ 2026-04-29 15:30
-[EM]  skill carregada: skills/em/skill.md ✅ 2026-04-29 15:30
-[SCRUM-MASTER] skill carregada: skills/scrum-master/skill.md ✅ 2026-04-29 15:32
-[RTE] skill carregada: skills/rte/skill.md ✅ 2026-04-29 15:50
+[PM]  skill pulada: todos os épicos já em `🔍` ➖ 2026-04-29 16:19
+[EM]  skill carregada: skills/em/skill.md ✅ 2026-04-29 16:19
+[SCRUM-MASTER] skill carregada: skills/scrum-master/skill.md ✅ 2026-04-29 16:19
+[RTE] skill carregada: skills/rte/skill.md ✅ 2026-04-29 18:00
 ```
 
 **Repetidas por funcionalidade:**
 
 ```
-[QA] skills/qa/skill.md ✅ 2026-04-29 15:38 | épico W-PROTO-14 | funcionalidade 14.1
-[TL] skills/tl/skill.md ✅ 2026-04-29 15:39 | épico W-PROTO-14 | funcionalidade 14.1
-[PO] skills/po/skill.md ✅ 2026-04-29 15:40 | épico W-PROTO-14 | funcionalidade 14.1
-[QA] skills/qa/skill.md ✅ 2026-04-29 15:42 | épico W-PROTO-14 | funcionalidade 14.2
-[TL] skills/tl/skill.md ✅ 2026-04-29 15:43 | épico W-PROTO-14 | funcionalidade 14.2
-[PO] skills/po/skill.md ✅ 2026-04-29 15:44 | épico W-PROTO-14 | funcionalidade 14.2
-[QA] skills/qa/skill.md ✅ 2026-04-29 15:46 | épico W-PROTO-14 | funcionalidade 14.3
-[TL] skills/tl/skill.md ✅ 2026-04-29 15:47 | épico W-PROTO-14 | funcionalidade 14.3
-[PO] skills/po/skill.md ✅ 2026-04-29 15:48 | épico W-PROTO-14 | funcionalidade 14.3
+[QA] skills/qa/skill.md ✅ 2026-04-29 16:35 | épico W-PROTO-15 | funcionalidade 15.1
+[TL] skills/tl/skill.md ✅ 2026-04-29 16:35 | épico W-PROTO-15 | funcionalidade 15.1
+[PO] skills/po/skill.md ✅ 2026-04-29 16:35 | épico W-PROTO-15 | funcionalidade 15.1
+[QA] skills/qa/skill.md ✅ 2026-04-29 16:36 | épico W-PROTO-15 | funcionalidade 15.2
+[TL] skills/tl/skill.md ✅ 2026-04-29 16:36 | épico W-PROTO-15 | funcionalidade 15.2
+[PO] skills/po/skill.md ✅ 2026-04-29 16:36 | épico W-PROTO-15 | funcionalidade 15.2
+[QA] skills/qa/skill.md ✅ 2026-04-29 16:38 | épico W-PROTO-15 | funcionalidade 15.3
+[TL] skills/tl/skill.md ✅ 2026-04-29 16:38 | épico W-PROTO-15 | funcionalidade 15.3
+[PO] skills/po/skill.md ✅ 2026-04-29 16:38 | épico W-PROTO-15 | funcionalidade 15.3
+[QA] skills/qa/skill.md ✅ 2026-04-29 16:40 | épico W-PROTO-15 | funcionalidade 15.4
+[TL] skills/tl/skill.md ✅ 2026-04-29 16:40 | épico W-PROTO-15 | funcionalidade 15.4
+[PO] skills/po/skill.md ✅ 2026-04-29 16:40 | épico W-PROTO-15 | funcionalidade 15.4
+[QA] skills/qa/skill.md ✅ 2026-04-29 16:42 | épico W-PROTO-15 | funcionalidade 15.5
+[TL] skills/tl/skill.md ✅ 2026-04-29 16:42 | épico W-PROTO-15 | funcionalidade 15.5
+[PO] skills/po/skill.md ✅ 2026-04-29 16:42 | épico W-PROTO-15 | funcionalidade 15.5
+[QA] skills/qa/skill.md ✅ 2026-04-29 16:43 | épico W-PROTO-15 | funcionalidade 15.6
+[TL] skills/tl/skill.md ✅ 2026-04-29 16:43 | épico W-PROTO-15 | funcionalidade 15.6
+[PO] skills/po/skill.md ✅ 2026-04-29 16:43 | épico W-PROTO-15 | funcionalidade 15.6
+[QA] skills/qa/skill.md ✅ 2026-04-29 16:45 | épico W-PROTO-15 | funcionalidade 15.7
+[TL] skills/tl/skill.md ✅ 2026-04-29 16:45 | épico W-PROTO-15 | funcionalidade 15.7
+[PO] skills/po/skill.md ✅ 2026-04-29 16:45 | épico W-PROTO-15 | funcionalidade 15.7
+[QA] skills/qa/skill.md ✅ 2026-04-29 16:48 | épico W-PROTO-15 | funcionalidade 15.8
+[TL] skills/tl/skill.md ✅ 2026-04-29 16:48 | épico W-PROTO-15 | funcionalidade 15.8
+[PO] skills/po/skill.md ✅ 2026-04-29 16:48 | épico W-PROTO-15 | funcionalidade 15.8
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:02 | épico W-PROTO-16 | funcionalidade 16.1
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:02 | épico W-PROTO-16 | funcionalidade 16.1
+[PO] skills/po/skill.md ✅ 2026-04-29 17:02 | épico W-PROTO-16 | funcionalidade 16.1
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:05 | épico W-PROTO-16 | funcionalidade 16.2
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:05 | épico W-PROTO-16 | funcionalidade 16.2
+[PO] skills/po/skill.md ✅ 2026-04-29 17:05 | épico W-PROTO-16 | funcionalidade 16.2
+[QA] skills/qa/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.1 (no-op verificado)
+[TL] skills/tl/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.1 (no-op verificado)
+[PO] skills/po/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.1 (no-op verificado)
+[QA] skills/qa/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.2 (no-op verificado)
+[TL] skills/tl/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.2 (no-op verificado)
+[PO] skills/po/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.2 (no-op verificado)
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:13 | épico W-PROTO-13 | funcionalidade 13.3
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:13 | épico W-PROTO-13 | funcionalidade 13.3
+[PO] skills/po/skill.md ✅ 2026-04-29 17:13 | épico W-PROTO-13 | funcionalidade 13.3
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:25 | épico W-PROTO-10 | funcionalidade 10.1
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:25 | épico W-PROTO-10 | funcionalidade 10.1
+[PO] skills/po/skill.md ✅ 2026-04-29 17:25 | épico W-PROTO-10 | funcionalidade 10.1
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:35 | épico W-PROTO-10 | funcionalidade 10.2
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:35 | épico W-PROTO-10 | funcionalidade 10.2
+[PO] skills/po/skill.md ✅ 2026-04-29 17:35 | épico W-PROTO-10 | funcionalidade 10.2
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:45 | épico W-PROTO-11 | funcionalidade 11.1
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:45 | épico W-PROTO-11 | funcionalidade 11.1
+[PO] skills/po/skill.md ✅ 2026-04-29 17:45 | épico W-PROTO-11 | funcionalidade 11.1
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:50 | épico W-PROTO-11 | funcionalidade 11.2
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:50 | épico W-PROTO-11 | funcionalidade 11.2
+[PO] skills/po/skill.md ✅ 2026-04-29 17:50 | épico W-PROTO-11 | funcionalidade 11.2
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:52 | épico W-PROTO-11 | funcionalidade 11.3
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:52 | épico W-PROTO-11 | funcionalidade 11.3
+[PO] skills/po/skill.md ✅ 2026-04-29 17:52 | épico W-PROTO-11 | funcionalidade 11.3
 ```
 
 ---
 
 ## Histórico de Reprovações
 
-(vazio — nenhuma reprovação nesta sessão)
+(vazio — nenhuma reprovação até o momento)
 
 ---
 
 ## Resumo Final do Milestone
 
 **Identificação:**
-- Milestone: PROTO-WORKFLOW-COPILOT-STACK
-- Branch: `claude/implement-copilot-stack-gSUxf`
+- Milestone: PROTO-WORKFLOW-FAXINA
+- Branch: `claude/proto-workflow-faxina-e4irl`
 - Data de fechamento: 2026-04-29
 
 **Números reais (decomposição por épico):**
 
-| Métrica                     | W-PROTO-14 | Total milestone |
-|-----------------------------|:----------:|:---------------:|
-| Funcionalidades aprovadas   | 3          | 3               |
-| Arquivos modificados (código/docs) | 1 (docs)   | 1 (1 docs)      |
-| Testes adicionados          | 0          | 0               |
+| Métrica                            | W-PROTO-15 | W-PROTO-16 | W-PROTO-13 | W-PROTO-10 | W-PROTO-11 | Total milestone |
+|------------------------------------|:----------:|:----------:|:----------:|:----------:|:----------:|:---------------:|
+| Funcionalidades aprovadas          | 8          | 2          | 1 + 2 ➖   | 2          | 3          | 18 (16 ✅, 2 ➖) |
+| Arquivos modificados (docs)        | 26         | 5          | 1          | 10 (sobreposição) | 3 (1 novo) | 33 únicos    |
+| Testes adicionados                 | 0          | 0          | 0          | 0          | 0          | 0               |
 
-**Arquivos modificados (foco do milestone):** `.github/copilot-instructions.md` (escopo declarado do épico). Adicionalmente: `docs/process/current_implementation.md`, `docs/process/current_validation.md`, `docs/process/sizing/history.jsonl`, `docs/process/workflow/ROADMAP.md` (transição para 🔀), `skills/audit_log.jsonl` — gerados/atualizados pelas próprias skills.
+**Totais agregados (origin/main..HEAD):**
+- Arquivos modificados: 33 (32 docs + 1 código novo apenas em `products/revelar/docs/llm_implementation_lessons.md`, que é doc do produto, não código). 0 arquivos de teste.
+- Linhas alteradas: +502 / -666 (saldo -164 linhas — escopo de faxina, deleções predominam)
+- Commits: 5 (1 por épico, padrão do session_conventions.md)
+- `.cursorrules` apagado (-60 linhas adicionais já contadas no -666)
 
-**Notas técnicas (TL):** sem observações arquiteturais — escopo cirúrgico em arquivo de instruções operacionais. Referência ao Reflex (e portas 3000/8000) passa a coexistir com Streamlit (e portas 8501-8503) na mesma doc, com ramificação clara por produto.
+**Arquivos modificados (foco do milestone):**
+- Workflow process docs (15 arquivos): `docs/CONSTITUTION.md`, `docs/CONTEXT_INDEX.md`, `docs/ARCHITECTURE.md`, `docs/process/{refinement,autonomous,implementation,workflow}/*.md`, `docs/process/sizing/history.jsonl`, `docs/testing/test_creation_checklist.md`
+- Skills (8 arquivos): `skills/README.md`, `skills/pm/{README,skill}.md`, `skills/rte/{skill.md,templates/{delivery-report,validation}.md}`
+- Repo-wide (4): `CLAUDE.md`, `README.md`, `.cursorrules` (deletado), `core/docs/tools/cli.md`
+- Copilot instructions: `.github/copilot-instructions.md`
+- Produto Revelar (1 arquivo novo): `products/revelar/docs/llm_implementation_lessons.md` (W-PROTO-11.2)
+- Outras docs de produto: `products/ensaio/docs/poc_validation.md`
+- Artefato de sessão: `docs/process/current_implementation.md`, `docs/process/current_validation.md` (gerado pela RTE)
 
-**Gates: todos ✅** em todas as 3 funcionalidades (Dev/QA/TL/PO).
+**Notas técnicas (TL):** sem observações arquiteturais. O milestone foi 100% faxina documental; a única introdução conceitual foi o termo "fluxo único de execução" (W-PROTO-15) que substitui a dicotomia "fluxo manual (Cursor) vs autônomo" — alinhamento ao uso real do operador. A âncora `quality_rules.md#template-de-validação-local` (W-PROTO-16) e `planning_guidelines.md#estados-de-épico` (W-PROTO-10) são as fontes canônicas para futuras referências cross-doc.
+
+**Gates: todas as 16 funcionalidades efetivas com Dev/QA/TL/PO ✅** (W-PROTO-13.1 e 13.2 marcadas ➖ não-aplicável conforme declaração explícita: seções já apagadas em refinamento anterior, no-ops verificados).
+
