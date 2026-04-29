@@ -286,8 +286,8 @@ Um bloco por épico, na ordem de execução.
 - [x] PM ➖ todos os épicos já em `🔍` no dispatch (2026-04-29 16:19)
 - [x] EM ✅ TIGHT — 3600 LOC estimado, 18 funcionalidades em 5 épicos (2026-04-29 16:19)
 - [x] Scrum Master ✅ plano para 5 épicos / 18 funcionalidades escrito (2026-04-29 16:19)
-- [ ] Loop por épico concluído
-- [ ] RTE
+- [x] Loop por épico concluído (todas as células Dev/QA/TL/PO ✅ ou ➖)
+- [x] RTE ✅ PR aberta (2026-04-29 18:00)
 
 ### Evidências de carregamento de skill
 
@@ -297,6 +297,7 @@ Um bloco por épico, na ordem de execução.
 [PM]  skill pulada: todos os épicos já em `🔍` ➖ 2026-04-29 16:19
 [EM]  skill carregada: skills/em/skill.md ✅ 2026-04-29 16:19
 [SCRUM-MASTER] skill carregada: skills/scrum-master/skill.md ✅ 2026-04-29 16:19
+[RTE] skill carregada: skills/rte/skill.md ✅ 2026-04-29 18:00
 ```
 
 **Repetidas por funcionalidade:**
@@ -368,4 +369,35 @@ Um bloco por épico, na ordem de execução.
 
 ## Resumo Final do Milestone
 
-(a preencher pela RTE)
+**Identificação:**
+- Milestone: PROTO-WORKFLOW-FAXINA
+- Branch: `claude/proto-workflow-faxina-e4irl`
+- Data de fechamento: 2026-04-29
+
+**Números reais (decomposição por épico):**
+
+| Métrica                            | W-PROTO-15 | W-PROTO-16 | W-PROTO-13 | W-PROTO-10 | W-PROTO-11 | Total milestone |
+|------------------------------------|:----------:|:----------:|:----------:|:----------:|:----------:|:---------------:|
+| Funcionalidades aprovadas          | 8          | 2          | 1 + 2 ➖   | 2          | 3          | 18 (16 ✅, 2 ➖) |
+| Arquivos modificados (docs)        | 26         | 5          | 1          | 10 (sobreposição) | 3 (1 novo) | 33 únicos    |
+| Testes adicionados                 | 0          | 0          | 0          | 0          | 0          | 0               |
+
+**Totais agregados (origin/main..HEAD):**
+- Arquivos modificados: 33 (32 docs + 1 código novo apenas em `products/revelar/docs/llm_implementation_lessons.md`, que é doc do produto, não código). 0 arquivos de teste.
+- Linhas alteradas: +502 / -666 (saldo -164 linhas — escopo de faxina, deleções predominam)
+- Commits: 5 (1 por épico, padrão do session_conventions.md)
+- `.cursorrules` apagado (-60 linhas adicionais já contadas no -666)
+
+**Arquivos modificados (foco do milestone):**
+- Workflow process docs (15 arquivos): `docs/CONSTITUTION.md`, `docs/CONTEXT_INDEX.md`, `docs/ARCHITECTURE.md`, `docs/process/{refinement,autonomous,implementation,workflow}/*.md`, `docs/process/sizing/history.jsonl`, `docs/testing/test_creation_checklist.md`
+- Skills (8 arquivos): `skills/README.md`, `skills/pm/{README,skill}.md`, `skills/rte/{skill.md,templates/{delivery-report,validation}.md}`
+- Repo-wide (4): `CLAUDE.md`, `README.md`, `.cursorrules` (deletado), `core/docs/tools/cli.md`
+- Copilot instructions: `.github/copilot-instructions.md`
+- Produto Revelar (1 arquivo novo): `products/revelar/docs/llm_implementation_lessons.md` (W-PROTO-11.2)
+- Outras docs de produto: `products/ensaio/docs/poc_validation.md`
+- Artefato de sessão: `docs/process/current_implementation.md`, `docs/process/current_validation.md` (gerado pela RTE)
+
+**Notas técnicas (TL):** sem observações arquiteturais. O milestone foi 100% faxina documental; a única introdução conceitual foi o termo "fluxo único de execução" (W-PROTO-15) que substitui a dicotomia "fluxo manual (Cursor) vs autônomo" — alinhamento ao uso real do operador. A âncora `quality_rules.md#template-de-validação-local` (W-PROTO-16) e `planning_guidelines.md#estados-de-épico` (W-PROTO-10) são as fontes canônicas para futuras referências cross-doc.
+
+**Gates: todas as 16 funcionalidades efetivas com Dev/QA/TL/PO ✅** (W-PROTO-13.1 e 13.2 marcadas ➖ não-aplicável conforme declaração explícita: seções já apagadas em refinamento anterior, no-ops verificados).
+
