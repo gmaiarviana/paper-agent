@@ -175,13 +175,15 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   persistência própria — fila é view derivada, reconstruída do zero
   a cada render.
 - **Estágio:** Protótipo
-- **Épicos agrupados:** W-PROTO-FILA-1, W-PROTO-FILA-2, W-PROTO-FILA-3
+- **Épicos agrupados:** W-PROTO-FILA-1, W-PROTO-FILA-2,
+  W-PROTO-FILA-3, W-PROTO-FILA-4
 - **Dependências de core:** nenhuma; depende de
   PROTO-WORKFLOW-PLATAFORMA (kanban e scaffold como base) e
   PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
 - **Status dos épicos:** W-PROTO-FILA-1 🔍, W-PROTO-FILA-2 🔍,
-  W-PROTO-FILA-3 🔍.
+  W-PROTO-FILA-3 🔍, W-PROTO-FILA-4 📐 (refinamento estratégico
+  pendente — esboço com 3 funcionalidades + tensões declaradas).
 - **Decisões de refinamento estratégico (2026-04-29):**
   - **(a) Detecção reativa unificada na própria plataforma.** Os 3
     tipos de item (DISPATCH, REVIEW, STALE_BRANCH) são detectados
@@ -211,23 +213,45 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
     explícito desse invariante: fixture com snapshot do estado-do-
     mundo + asserção `detect_all(snapshot) == detect_all(snapshot)`.
     Garante que a detecção é função pura do estado.
-- **Tipos de item (Protótipo):**
+- **Tipos de item (Protótipo):** cinco tipos cobrem todos os pontos
+  de ação que o operador tem hoje sem proponente — implementação,
+  revisão, manutenção de branches, refinamento tático, faxina
+  pós-merge. Os tipos restantes da vision §"Fila" (escalada,
+  proposta, relatório executivo) chegam no MVP com o
+  proponente/porta-voz.
   - `DISPATCH` — milestone com todos épicos em 🔍 (apto a dispatch),
     sem épicos em 🏗️/🔀/✅. Ação esperada: copiar prompt de
     dispatch e rodar em sessão autônoma.
   - `REVIEW` — PR de milestone aberta (épicos em 🔀). Ação esperada:
     abrir PR, colar Seção 🎯 no Copilot, decidir merge.
-  - `STALE_BRANCH` — branch ativa há mais de 7 dias sem PR aberta e
-    sem épico em 🏗️/🔀 referenciando-a. Ação esperada: confirmar
-    se é trabalho concluído sem PR (abrir), abandonado (deletar)
-    ou bloqueado (resgatar).
+  - `STALE_BRANCH` — branch ativa há mais de N dias (N configurável
+    via `config.yaml`, default 7) sem PR aberta e sem épico em
+    🏗️/🔀 referenciando-a. Ação esperada: confirmar se é trabalho
+    concluído sem PR (abrir), abandonado (deletar) ou bloqueado
+    (resgatar).
+  - `REFINE` — épico em 📐 ou 📋 esperando refinamento tático para
+    chegar a 🔍. Ação esperada: copiar prompt de refinamento (reuso
+    de `build_refinement_prompt` de W-PROTO-PLAT-4.2) e rodar em
+    sessão de refinamento. Estados 🌱/🧭 ficam fora — sinal de
+    "pronto pra avançar" não é determinístico nesses estados,
+    pedem sessão estratégica humana, não item reativo de fila.
+  - `CLEANUP` — épico em ✅ que ainda não foi limpo do ROADMAP
+    (Cleanup skill não rodou — automação pós-merge ainda não
+    configurada no Protótipo). Ação esperada: rodar
+    `skills/cleanup/skill.md` manualmente; ela move conteúdo
+    histórico do épico para fora do ROADMAP e a coluna ✅ do kanban
+    volta a ficar vazia. Resolve mecanicamente o ruído visual de
+    "✅ acumulando no kanban" sem precisar mexer em `EpicState`.
 - **Nota:** milestone declarado em 2026-04-28 — absorve o conteúdo
   do antigo MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo
   porque é fila **reativa** (regra determinística), não curada por
-  agente. Curadoria por porta-voz vive no MVP. Refinado a `🔍` em
-  2026-04-29 na branch `claude/optimize-dev-workflow-aiYYj` —
-  apto ao fluxo autônomo após `PROTO-WORKFLOW-FAXINA` mergear
-  (dependência declarada).
+  agente. Curadoria por porta-voz vive no MVP. FILA-1/2/3 refinados
+  a `🔍` em 2026-04-29 na branch `claude/optimize-dev-workflow-aiYYj`.
+  FILA-4 declarado na mesma sessão a partir de feedback real de uso
+  da plataforma (escopo absorvido do que iria virar
+  `PROTO-WORKFLOW-PLAT-UX` separado — sem dependência cross-milestone).
+  Apto ao fluxo autônomo após FILA-4 chegar a `🔍` **e**
+  `PROTO-WORKFLOW-FAXINA` mergear.
 
 ### MVP-WORKFLOW-DOC
 
@@ -934,7 +958,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** módulo de detecção lê estado-do-mundo (ROADMAPs parseados + branches do remote) e produz lista determinística de itens de fila por regra fixa. Sem persistência própria — fila é função pura do estado. Cobre 3 tipos no Protótipo: DISPATCH (milestone apto), REVIEW (PR aberta), STALE_BRANCH (branch parada).
+**Objetivo:** módulo de detecção lê estado-do-mundo (ROADMAPs parseados + branches do remote) e produz lista determinística de itens de fila por regra fixa. Sem persistência própria — fila é função pura do estado. Cobre 5 tipos no Protótipo: DISPATCH (milestone apto), REVIEW (PR aberta), REFINE (épico em 📐/📋 pedindo refinamento tático), CLEANUP (épico em ✅ esperando faxina), STALE_BRANCH (branch parada).
 
 **Status:** 🔍 Detalhes definidos
 
@@ -952,10 +976,10 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 - **Descrição:** Define `QueueItem`, `ItemType` e `SourcePointer` (tagged union). `QueueItem` carrega título, contexto curto, ação esperada, ponteiro tipado e timestamp. Shape único pra os 3 tipos do Protótipo, com ponteiro discriminado por tipo.
 - **Critérios de Aceite:**
-  1. Deve definir `ItemType` enum com os 3 valores: `DISPATCH`, `REVIEW`, `STALE_BRANCH`
+  1. Deve definir `ItemType` enum com os 5 valores: `DISPATCH`, `REVIEW`, `REFINE`, `CLEANUP`, `STALE_BRANCH`
   2. Deve definir `QueueItem` dataclass com campos `id`, `type`, `title`, `context`, `expected_action`, `source_pointer`, `detected_at`
-  3. `id` deve ser estável e derivado do gatilho (ex.: `"dispatch:PROTO-WORKFLOW-FAXINA"`, `"review:pr-93"`, `"stale:claude/foo-bar"`) — duas chamadas de detecção sobre o mesmo estado produzem mesmo `id`
-  4. `source_pointer` deve ser tagged union (`EpicPointer` | `PRPointer` | `BranchPointer`) com tipo coerente com `ItemType` (DISPATCH→`EpicPointer`, REVIEW→`PRPointer`, STALE_BRANCH→`BranchPointer`)
+  3. `id` deve ser estável e derivado do gatilho (ex.: `"dispatch:PROTO-WORKFLOW-FAXINA"`, `"review:pr-93"`, `"refine:W-MVP-DOC-1"`, `"cleanup:W-PROTO-PLAT-1"`, `"stale:claude/foo-bar"`) — duas chamadas de detecção sobre o mesmo estado produzem mesmo `id`
+  4. `source_pointer` deve ser tagged union (`EpicPointer` | `PRPointer` | `BranchPointer` | `RefinePointer` | `CleanupPointer`) com tipo coerente com `ItemType` (DISPATCH→`EpicPointer`, REVIEW→`PRPointer`, REFINE→`RefinePointer`, CLEANUP→`CleanupPointer`, STALE_BRANCH→`BranchPointer`)
   5. Tentar instanciar `QueueItem(type=DISPATCH, source_pointer=BranchPointer(...))` deve falhar via runtime check em `__post_init__` ou validação pydantic-style (não silenciar inconsistência)
 - **Detalhes de execução:**
   - **Arquivos a criar:** `tools/workflow_platform/queue/__init__.py`, `tools/workflow_platform/queue/models.py`, `tests/tools/workflow_platform/test_queue_models.py`
@@ -970,6 +994,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
     class ItemType(Enum):
         DISPATCH = "dispatch"
         REVIEW = "review"
+        REFINE = "refine"
+        CLEANUP = "cleanup"
         STALE_BRANCH = "stale_branch"
 
     @dataclass(frozen=True)
@@ -990,7 +1016,20 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
         last_commit_at: datetime
         days_stale: int
 
-    SourcePointer = EpicPointer | PRPointer | BranchPointer
+    @dataclass(frozen=True)
+    class RefinePointer:
+        epic_id: str                   # REFINE é por épico, não por milestone
+        roadmap_path: str
+        current_state: EpicState       # 📐 ou 📋
+        target_state: EpicState        # próximo alvo (📋 ou 🔍) — vem de NEXT_STEP_MAP de PLAT-4.1
+
+    @dataclass(frozen=True)
+    class CleanupPointer:
+        epic_id: str                   # épico em ✅ aguardando faxina
+        roadmap_path: str
+        title: str                     # título do épico (pra prompt humano)
+
+    SourcePointer = EpicPointer | PRPointer | BranchPointer | RefinePointer | CleanupPointer
 
     @dataclass(frozen=True)
     class QueueItem:
@@ -1004,8 +1043,10 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
         def __post_init__(self) -> None:
             expected = {
-                ItemType.DISPATCH: EpicPointer,
-                ItemType.REVIEW: PRPointer,
+                ItemType.DISPATCH:     EpicPointer,
+                ItemType.REVIEW:       PRPointer,
+                ItemType.REFINE:       RefinePointer,
+                ItemType.CLEANUP:      CleanupPointer,
                 ItemType.STALE_BRANCH: BranchPointer,
             }[self.type]
             if not isinstance(self.source_pointer, expected):
@@ -1026,10 +1067,13 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 - **Critérios de Aceite:**
   1. `detect_dispatch_items(roadmaps)` deve gerar 1 item por milestone com **todos** os épicos em `🔍` e nenhum em `🏗️`/`🔀`/`✅`; milestones sem milestone_id ou com pelo menos 1 épico em estado de execução não geram item
   2. `detect_review_items(roadmaps)` deve gerar 1 item por PR número-distinto encontrado no estado `🔀` dos épicos; agrupa épicos do mesmo `pr_number` num só item (lista de `epic_ids` no contexto)
-  3. `detect_stale_branch_items(branches, threshold_days=7)` deve gerar item para cada branch do remote com `last_commit_at` há > `threshold_days`, **excluindo** branches referenciadas por algum épico em `🏗️`/`🔀` (campo `**Branch:**`) e excluindo `main`
-  4. `detect_all_items(state)` deve retornar união ordenada por `detected_at` desc, depois `type` (DISPATCH primeiro, depois REVIEW, depois STALE_BRANCH); se múltiplos itens têm mesmo `detected_at`, ordem por `id` lexicográfico
-  5. Função helper `list_remote_branches() -> list[RemoteBranch]` deve usar `subprocess.run(["git", "for-each-ref", "--format=%(refname:short)|%(committerdate:iso8601)", "refs/remotes/origin/"])` e parsear `(name, last_commit_at)`; falhas de subprocess são propagadas (não silenciadas)
-  6. `detect_all_items` deve ser **idempotente sobre estado fixo:** chamar com mesmo `state` produz lista igual em conteúdo (ignorando `detected_at` que recebe `now()` da chamada — ver 1.3 para fix de determinismo total)
+  3. `detect_stale_branch_items(branches, threshold_days)` deve gerar item para cada branch do remote com `last_commit_at` há > `threshold_days`, **excluindo** branches referenciadas por algum épico em `🏗️`/`🔀` (campo `**Branch:**`) e excluindo `main`. `threshold_days` é parâmetro injetado (default 7); o caller lê de `config.yaml` campo `stale_branch_threshold_days` ou usa default
+  4. `detect_refine_items(roadmaps)` deve gerar 1 item por épico em estado `📐` ou `📋`; `target_state` calculado via `NEXT_STEP_MAP` de W-PROTO-PLAT-4.1; estados `🌱`/`🧭` **excluídos** (sinal de avanço não é determinístico, exigem sessão estratégica)
+  5. `detect_cleanup_items(roadmaps)` deve gerar 1 item por épico em estado `✅` no ROADMAP; cada item carrega `CleanupPointer(epic_id, roadmap_path, title)` para uso no prompt de cleanup manual
+  6. `detect_all_items(state)` deve retornar união ordenada por `detected_at` desc, depois `type` na ordem de prioridade `DISPATCH > REVIEW > REFINE > CLEANUP > STALE_BRANCH`; se múltiplos itens têm mesmo `detected_at` e mesmo tipo, ordem por `id` lexicográfico
+  7. Função helper `list_remote_branches() -> list[RemoteBranch]` deve usar `subprocess.run(["git", "for-each-ref", "--format=%(refname:short)|%(committerdate:iso8601)", "refs/remotes/origin/"])` e parsear `(name, last_commit_at)`; falhas de subprocess são propagadas (não silenciadas)
+  8. `detect_all_items` deve ser **idempotente sobre estado fixo:** chamar com mesmo `state` produz lista igual em conteúdo (ignorando `detected_at` que recebe `now()` da chamada — ver 1.3 para fix de determinismo total)
+  9. `config.yaml` ganha campo opcional `stale_branch_threshold_days: 7` no scope desta funcionalidade; ausência mantém default 7 sem warning
 - **Detalhes de execução:**
   - **Arquivos a criar:** `tools/workflow_platform/queue/detect.py`, `tools/workflow_platform/queue/git_helper.py`, `tests/tools/workflow_platform/test_queue_detect.py`
   - **Arquivos a modificar:** nenhum
@@ -1053,6 +1097,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
     def detect_dispatch_items(state: WorldState) -> list[QueueItem]: ...
     def detect_review_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_refine_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_cleanup_items(state: WorldState) -> list[QueueItem]: ...
     def detect_stale_branch_items(state: WorldState, threshold_days: int = 7) -> list[QueueItem]: ...
     def detect_all_items(state: WorldState, threshold_days: int = 7) -> list[QueueItem]: ...
     ```
@@ -1117,7 +1163,9 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** plataforma ganha tab "📋 Fila" (default ao abrir o app) que renderiza os `QueueItem`s detectados em FILA-1 como cards clicáveis. Clicar num item abre painel de detalhe com prompt clipboard-ready específico do tipo, reusando os builders de prompt de PLAT-3.1 (DISPATCH) e adicionando builders novos para REVIEW e STALE_BRANCH. **Sem chat embutido** — o "chat focado" do Protótipo é prompt pronto + instrução de colar em sessão autônoma; chat real é MVP.
+**Objetivo:** plataforma ganha tab "📋 Fila" (default ao abrir o app) que renderiza os `QueueItem`s detectados em FILA-1 como cards clicáveis. Clicar num item abre painel de detalhe com prompt clipboard-ready específico do tipo, reusando os builders de prompt de PLAT-3.1 (DISPATCH) e PLAT-4.2 (REFINE) e adicionando builders novos para REVIEW, CLEANUP e STALE_BRANCH.
+
+**Gap consciente declarado:** vision §"Chat focado" descreve chat síncrono dentro da plataforma com "prompt pré-montado e contexto carregado". No Protótipo o chat é prompt clipboard-ready + cole-em-sessão-autônoma (mesmo padrão de PLAT-3.1/4.2); chat embutido de verdade fica para o MVP, junto com proponente/porta-voz. A plataforma é leitura + direcionamento; sessão de fato roda em Claude Code Web.
 
 **Status:** 🔍 Detalhes definidos
 
@@ -1169,13 +1217,15 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 #### 2.2: Builders de prompt por tipo de item
 
-- **Descrição:** módulo `prompts/queue_item.py` expõe `build_prompt_for_item(item) -> str` que despacha por `item.type`. DISPATCH reusa `build_dispatch_prompt` (PLAT-3.1) chamado com o `Epic` reconstruído a partir do `EpicPointer`. REVIEW e STALE_BRANCH têm builders novos com texto fixo parametrizado pelos campos do pointer. Painel de detalhe (`render_queue_item_detail`) exibe o prompt em `st.code()` com botão copy nativo do Streamlit.
+- **Descrição:** módulo `prompts/queue_item.py` expõe `build_prompt_for_item(item) -> str` que despacha por `item.type`. DISPATCH reusa `build_dispatch_prompt` (PLAT-3.1); REFINE reusa `build_refinement_prompt` (PLAT-4.2). REVIEW, CLEANUP e STALE_BRANCH têm builders novos com texto fixo parametrizado pelos campos do pointer. Painel de detalhe (`render_queue_item_detail`) exibe o prompt em `st.code()` com botão copy nativo do Streamlit.
 - **Critérios de Aceite:**
   1. `build_prompt_for_item(item)` retorna string copy-pasteável; nunca `None` (item válido sempre tem prompt)
   2. Para DISPATCH: prompt é o output de `build_dispatch_prompt` (formato `"implementa o <MILESTONE_ID>"` + nota de PM skill se aplicável); reusa builder de PLAT-3.1 sem duplicação de lógica
-  3. Para REVIEW: prompt contém literal `"Revisar PR #<N>: <URL>"` + instrução `"Abra a PR, copie a Seção 🎯 Validação do body, cole no GitHub Copilot, e decida merge."`
-  4. Para STALE_BRANCH: prompt contém literal `"Branch <NAME> parada há <DAYS> dias sem PR aberta."` + 3 opções enumeradas: `(a) trabalho concluído sem PR — abrir PR / (b) abandonado — git push origin --delete <NAME> / (c) bloqueado — resgatar contexto e seguir`
-  5. `render_queue_item_detail(item, config, all_epics)` exibe prompt via `st.code(prompt, language=None)` (botão copy nativo do Streamlit) + título do item + ponteiro tipado renderizado como link (PR URL clicável, branch link via `github_branch_url` de PLAT-3.2, milestone como referência ao kanban)
+  3. Para REFINE: prompt é o output de `build_refinement_prompt` de PLAT-4.2; reusa builder existente sem duplicação
+  4. Para REVIEW: prompt contém literal `"Revisar PR #<N>: <URL>"` + instrução `"Abra a PR, copie a Seção 🎯 Validação do body, cole no GitHub Copilot, e decida merge."`
+  5. Para CLEANUP: prompt contém literal `"Rodar Cleanup skill manualmente para o épico <ID> ('<TITLE>') em <ROADMAP_PATH>."` + instrução `"Carregue skills/cleanup/skill.md e siga o protocolo. Cleanup move conteúdo histórico do épico pra fora do ROADMAP; coluna ✅ do kanban volta a ficar vazia."`
+  6. Para STALE_BRANCH: prompt contém literal `"Branch <NAME> parada há <DAYS> dias sem PR aberta."` + 3 opções enumeradas: `(a) trabalho concluído sem PR — abrir PR / (b) abandonado — git push origin --delete <NAME> / (c) bloqueado — resgatar contexto e seguir`
+  7. `render_queue_item_detail(item, config, all_epics)` exibe prompt via `st.code(prompt, language=None)` (botão copy nativo do Streamlit) + título do item + ponteiro tipado renderizado como link (PR URL clicável, branch link via `github_branch_url` de PLAT-3.2, milestone como referência ao kanban)
 - **Detalhes de execução:**
   - **Arquivos a criar:** `tools/workflow_platform/prompts/queue_item.py`, `tests/tools/workflow_platform/test_queue_item_prompt.py`
   - **Arquivos a modificar:** `tools/workflow_platform/views/queue.py` — adicionar `render_queue_item_detail`.
@@ -1185,11 +1235,15 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
     def build_prompt_for_item(
         item: QueueItem,
         all_epics_by_milestone: dict[str, list[Epic]] | None = None,
+        epic_lookup: dict[str, Epic] | None = None,
     ) -> str:
         """Despacha por item.type. DISPATCH precisa de all_epics_by_milestone
-        para reusar build_dispatch_prompt; REVIEW e STALE_BRANCH ignoram."""
+        para reusar build_dispatch_prompt; REFINE precisa de epic_lookup
+        para reusar build_refinement_prompt; REVIEW/CLEANUP/STALE_BRANCH
+        ignoram (constroem do próprio pointer)."""
 
     def _build_review_prompt(p: PRPointer) -> str: ...
+    def _build_cleanup_prompt(p: CleanupPointer) -> str: ...
     def _build_stale_branch_prompt(p: BranchPointer) -> str: ...
     ```
     Exemplo de prompt REVIEW:
@@ -1321,7 +1375,36 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 **Fora do escopo:**
 - Pausa dura (gatilho que impede detecção de novos itens) — escopo MVP quando proponente existe.
 - Notificação fora do app (e-mail, sistema operacional) — fora do princípio "plataforma é view derivada".
-- Configurar limite por preferência do operador — Protótipo usa constante; configurável só vira épico se houver sinal real de atrito.
+- Configurar limite por preferência do operador — escopo de W-PROTO-FILA-4 (persistência de preferências).
+
+---
+
+#### ÉPICO W-PROTO-FILA-4: Configuração persistente + sidebar como painel
+
+**Milestone:** `PROTO-WORKFLOW-FILA`
+
+**Objetivo:** plataforma ganha base de preferências persistidas localmente (JSON git-ignored) e a sidebar deixa de ser leitura passiva — vira painel de filtros + status. Resolve 3 atritos reais reportados após uso da plataforma (PROTO-WORKFLOW-PLATAFORMA em 🔀): (a) operador quer ver só os produtos relevantes, (b) sidebar não agrega valor hoje, (c) status `✅` aparece no kanban como ruído (resolvido mecanicamente pela detecção CLEANUP de FILA-1.2 — operador roda Cleanup skill via item de fila). Substitui o que iria virar milestone `PROTO-WORKFLOW-PLAT-UX` separado — escopo absorvido aqui pra evitar dependência cross-milestone.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** W-PROTO-PLAT-1 (`PlatformConfig`, `parse_roadmap`); W-PROTO-FILA-1 (detecção precisa do filtro de produtos como input do `WorldState`); W-PROTO-FILA-2 (sidebar é tocada também por badge da fila e botão recarregar — coordenação no mesmo épico).
+
+### Funcionalidades (esboço — refinamento estratégico para 🔍 em sessão dedicada):
+
+- **4.1 Persistência de preferências (JSON local)** — arquivo `tools/workflow_platform/.preferences.json` (git-ignored via `.gitignore`) carrega/salva preferências do operador. Shape inicial: `{"visible_roadmaps": [...], "stale_branch_threshold_days": 7}`. Helper puro `load_preferences() -> Preferences` / `save_preferences(prefs)`. Falha de leitura (arquivo ausente) retorna defaults sem warning. Tensão a refinar: localização (workspace local vs `~/.workflow_platform/`) — workspace é mais simples; home directory permite múltiplos clones compartilharem prefs.
+- **4.2 Filtro por ROADMAP/produto na detecção** — `WorldState.roadmaps` recebe lista filtrada conforme `preferences.visible_roadmaps`. Quando preferência ausente, todos os ROADMAPs do `config.yaml` são incluídos (compatível com PLAT-1 atual). Detecção de FILA-1.2 não muda — só o caller filtra antes. Tensão a refinar: filtro por produto inteiro vs filtro por ROADMAP específico (alguns produtos têm múltiplos ROADMAPs futuramente).
+- **4.3 Sidebar como painel de filtros + status** — substitui o conteúdo atual da sidebar (lista passiva de ROADMAPs + warnings em expander) por: (i) checkboxes de produto que persistem em `preferences.visible_roadmaps` via 4.1; (ii) badge da fila com cor por faixa (já planejado em FILA-3.1, integra aqui); (iii) botão "🔄 Recarregar" (já planejado em FILA-2.1, integra aqui); (iv) contador compacto de warnings com link para detalhes. Tensão a refinar: warnings ficam como contador clicável ou modal `st.dialog`?
+
+### Decisões pendentes para refinamento estratégico:
+- Localização do JSON de preferências (workspace vs home).
+- Granularidade do filtro (produto vs ROADMAP).
+- Forma de exibir warnings (contador, modal, expander compacto).
+- Se o `stale_branch_threshold_days` move de `config.yaml` (FILA-1.2) para `preferences.json` (4.1), ou se ambos coexistem (config.yaml = default do projeto, preferences = override do operador).
+
+**Fora do escopo:**
+- Configurações futuras além de `visible_roadmaps` e `stale_branch_threshold_days` — entram conforme atrito real aparecer (princípio anti-especulação).
+- Editor de configurações como página separada — sidebar absorve; página dedicada vira épico se a sidebar saturar.
+- Sincronização cross-clone das preferências — fora do escopo do Protótipo (operador roda em 1 máquina por vez).
 
 ---
 
