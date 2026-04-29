@@ -927,6 +927,33 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ---
 
+#### ÉPICO W-PROTO-15: Descontinuar fluxo manual / Cursor / Claude Web do desenho
+
+**Objetivo:** o desenho atual carrega dicotomia "fluxo manual (Cursor) vs fluxo autônomo (Claude Code Web)" em ~30 arquivos (`docs/CONSTITUTION.md` 31 menções, `refinement/planning_guidelines.md` 27, `autonomous/overview.md` 6, demais menores). Na prática, o operador opera 100% via Claude Code Web — implementação **e** refinamento estratégico. Cursor não está instalado no ambiente atual e Claude Web saiu como ferramenta de refinamento. A documentação ficou desalinhada do uso real e impõe ao agente leitor o custo de filtrar "o que aplica ao meu contexto".
+
+**Status:** 📐 Funcionalidades esboçadas
+
+### Funcionalidades (esboço):
+- **15.1 Eliminar dicotomia manual/autônomo** — `autonomous/overview.md` perde a tabela "Fluxo Manual (Cursor) vs Fluxo Autônomo"; descreve apenas o autônomo. Estado `📋 Critérios definidos` deixa de ser "Apto ao fluxo manual" — vira passo intermediário até `🔍`.
+- **15.2 Reescrever "Otimização do Workflow" em `planning_guidelines.md`** — pipeline tripartite Claude Web ↔ Cursor ↔ código (linhas 77-140 hoje) descreve forma de trabalho descontinuada. Substituir por descrição realista: refinamento estratégico roda em Claude Code Web; análise de código é feita pelo próprio executor.
+- **15.3 Limpar CONSTITUTION** — 31 menções a Cursor / Claude Web / fluxo manual; cada uma decide entre substituir por Claude Code Web, generalizar para "agente", ou apagar (premissa some).
+- **15.4 Limpar `implementation/overview.md` e `quality_rules.md`** — distinção "Cursor Background vs Claude Code" sai. Pode tornar **W-PROTO-12** redundante (cindir overview deixa de fazer sentido se só há um fluxo).
+- **15.5 Limpar skills e refinamento** — `skills/pm`, `skills/em`, `refinement/overview.md`, `refinement/starter.md`, `autonomous_readiness.md` perdem menções.
+- **15.6 Deletar `.cursorrules`** — arquivo regra de Cursor não tem mais função.
+- **15.7 Atualizar `CLAUDE.md` e `.claudecode.md`** — referências cruzadas a `.cursorrules` e a "fluxo manual" saem.
+- **15.8 Varredura final** — `grep -ri "cursor\|claude web\|fluxo manual"` retorna 0 fora de histórico de commits/PRs mergeadas e ROADMAPs de milestones fechados.
+
+**Sobreposições conhecidas** (a resolver no refinamento):
+- **W-PROTO-12** (cindir `implementation/overview.md`) — premissa de fluxo manual some com 15.4. Refinamento decide se W-PROTO-12 é absorvido aqui ou fechado.
+- **W-PROTO-10** (centralizar estados) — atualização de `📋` em 15.1 toca a fonte canônica do 10.1.
+- **W-PROTO-11** (faxina `quality_rules.md`) — menções a "Cursor Background" caem em 15.4.
+
+**Fora do escopo:**
+- Refinamento autônomo nativo da plataforma (visão futura — W-MVP-REF-1).
+- Integração Claude Code + OpenWebUI (em breve, ainda não desenhado).
+
+---
+
 ### ⏳ Fase MVP
 
 > **Milestones:** `MVP-WORKFLOW-REFINAMENTO` (W-MVP-REF-1..2) · `MVP-WORKFLOW-PROPONENTE` (W-MVP-PROP-1..2).

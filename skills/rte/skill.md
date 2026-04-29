@@ -23,7 +23,7 @@ Você **abre a PR** com body padronizado contendo a Seção 🎯 Validação (co
 2. **Comandos prontos.** Sempre com nome real da branch de milestone substituído. Sem placeholders no output final.
 3. **Resumo executivo objetivo.** Números reais (arquivos, commits, testes) sobre o milestone todo — não estimativas.
 4. **Critérios go/no-go explícitos.** O dev não deveria precisar pensar em "como aprovar" — só checar os itens.
-5. **Abre PR com body padronizado.** Após o push, gera `validation-<milestone>.md` (mesmo commit que abre a PR) e cria a PR via `mcp__github__create_pull_request` (ou `gh pr create` como fallback). Body contém **obrigatoriamente** a Seção 🎯 Validação completa, sem placeholders.
+5. **Abre PR com body padronizado.** Após o push, gera `docs/process/current_validation.md` (rotativo — sobrescrito a cada novo milestone) no mesmo commit que abre a PR. Cria a PR via `mcp__github__create_pull_request` (ou `gh pr create` como fallback). Body contém **obrigatoriamente** a Seção 🎯 Validação completa, sem placeholders.
 6. **Sem merge automático.** Mesmo que pareça trivial. Aprovação humana obrigatória — dev revisa via Copilot na PR e mergeia pela interface do GitHub.
 7. **Branch é de milestone.** `milestone/<id-em-caixa-baixa>`. Nunca `feature/X.Y`. Um único push ao final da branch inteira — não push por funcionalidade nem por épico.
 8. **Mensagem única.** Um único `[RTE] skill carregada: ...` ao início, uma única mensagem consolidada ao final cobrindo os N épicos. Não emitir mensagem por épico.
@@ -115,13 +115,11 @@ Bloco copy-paste com:
 
 **Substituir TODOS os placeholders** (nome real da branch de milestone, comandos do produto). Output não pode conter `<...>`.
 
-### Passo 6.5 — Gerar `validation-<milestone>.md` e abrir a PR
+### Passo 6.5 — Gerar `current_validation.md` e abrir a PR
 
-**6.5.a — Gerar arquivo de validação versionado.**
+**6.5.a — Gerar arquivo de validação rotativo.**
 
-Criar `validation-<milestone-id>.md` no diretório apropriado:
-- Milestone de produto → `products/<produto>/docs/validation-<milestone-id>.md`
-- Milestone de core/workflow → `docs/process/workflow/validation-<milestone-id>.md`
+Criar/sobrescrever `docs/process/current_validation.md`. Este arquivo é **rotativo** (igual a `current_implementation.md`): cada novo milestone sobrescreve o do anterior. Não há versionamento por milestone — o histórico fica nas PRs mergeadas.
 
 **Regra anti-viés (não-negociável).** As entradas saem **apenas** dos critérios de aceite PO ✅ (em `current_implementation.md`) e dos comportamentos "não deve" do ROADMAP. **Não consultar** o diff (`git diff main...HEAD`), nomes de arquivo do código, assinatura de função, conteúdo de prompt no source, nem qualquer detalhe de implementação para decidir o que validar. Se o critério não está no ROADMAP, não vira entrada. O dev que executar este arquivo não deve precisar abrir nenhum arquivo de código-fonte.
 
@@ -130,7 +128,7 @@ Criar `validation-<milestone-id>.md` no diretório apropriado:
 - "abrir log e procurar prompt montado", "checar se YAML tem chave X"
 - Qualquer passo que peça leitura de código-fonte para aprovar/reprovar
 
-Esses checks já são feitos pelo Copilot no body da PR (Seção 🎯) e pelos gates QA/TL. O `validation-<id>.md` é exclusivamente experiência observável (UI, console, comando de terminal com output de tela).
+Esses checks já são feitos pelo Copilot no body da PR (Seção 🎯) e pelos gates QA/TL. O `current_validation.md` é exclusivamente experiência observável (UI, console, comando de terminal com output de tela).
 
 **Estrutura obrigatória** (referência de estilo: [templates/validation.md](templates/validation.md)):
 - Cabeçalho com público (dev revisor), quando usar, princípio anti-viés.
@@ -167,7 +165,7 @@ Esses checks já são feitos pelo Copilot no body da PR (Seção 🎯) e pelos g
 
 **Prompts de chat para apps conversacionais.** Quando a funcionalidade é validada por conversa em uma UI (Ensaio, Revelar), incluir o **texto literal do prompt** que o dev cola no chat — escrito pela RTE, com contexto fictício mas plausível, dimensionado para acionar o critério. Cada critério que envolva conversa precisa de pelo menos um prompt copy-pasteável. Não pedir ao dev para "escrever um prompt sobre X" — esse trabalho é da RTE.
 
-Commitar este arquivo no **mesmo commit** que prepara a PR (ainda na branch `milestone/<id>`); fica versionado junto com a entrega.
+Commitar este arquivo no **mesmo commit** que prepara a PR (ainda na branch `milestone/<id>`). Vai junto com a entrega para `main` no merge; o próximo dispatch sobrescreve.
 
 **6.5.b — Construir Seção 🎯 Validação (body da PR).**
 
@@ -190,7 +188,7 @@ Reporte em markdown.
 ### Contexto
 - Milestone: <ID> — <nome>
 - Épicos entregues: <lista com IDs>
-- Arquivo detalhado de validação: `<caminho>/validation-<id>.md`
+- Arquivo detalhado de validação: `docs/process/current_validation.md`
 
 ### Critérios de aceite (consolidados do ROADMAP)
 
@@ -220,7 +218,7 @@ Além da Seção 🎯, o body deve conter:
 - Branch de origem: `milestone/<id-em-caixa-baixa>`; destino: `main`.
 - Checklist de gates: cópia da tabela final consolidada de `current_implementation.md`.
 - Link para o relatório completo (`docs/process/current_implementation.md`).
-- Link para `validation-<id>.md` recém-versionado.
+- Link para `docs/process/current_validation.md` recém-gerado.
 
 **6.5.c.1 — Output estruturado antes de criar a PR.**
 
@@ -258,7 +256,7 @@ Para cada épico do milestone, localizar o bloco no(s) ROADMAP(s) (grep por `###
 **Status:** 🔀 Em revisão — PR #<N> (<URL>)
 ```
 
-Commitar esta atualização (junto com o `validation-<milestone>.md` do Passo 6.5.a, se ainda não commitado, ou como commit separado imediatamente após) na branch `milestone/<id>`, antes do push final. Mensagem de commit:
+Commitar esta atualização (junto com o `current_validation.md` do Passo 6.5.a, se ainda não commitado, ou como commit separado imediatamente após) na branch `milestone/<id>`, antes do push final. Mensagem de commit:
 
 ```
 chore(rte): épicos em 🔀 Em revisão — PR #<N>
@@ -303,7 +301,7 @@ Mensagem final no formato canônico de `docs/process/implementation/delivery.md`
 - Status agregado: "<N> épicos fechados, <M> funcionalidades validadas"
 - Lista enxuta por épico: `<ID-EPICO>: <M_epico> funcionalidades ✅`
 - **Link da PR aberta no Passo 6.5** (URL + número) e instrução explícita: copiar a Seção 🎯 do body, enviar ao Copilot, mergear via interface do GitHub
-- Link mental para o relatório completo (`docs/process/current_implementation.md`) e para `validation-<id>.md`
+- Link mental para o relatório completo (`docs/process/current_implementation.md`) e para `docs/process/current_validation.md`
 - Resumo de 1-2 linhas sobre o milestone
 
 Uma única mensagem, ao fim do fluxo. Estado terminal da fase de implementação: **PR aberta**, pending review humana.
@@ -334,7 +332,7 @@ Uma única mensagem, ao fim do fluxo. Estado terminal da fase de implementação
 ✅ Gates por funcionalidade: todas Dev/QA/TL/PO ✅ (detalhe no relatório)
 
 🔗 PR aberta: #<N> — <URL>
-📄 Validation file: <caminho>/validation-<id>.md
+📄 Validation file: docs/process/current_validation.md
 
 🤖 Participação das skills (esta sessão):
 - <⏭️ PM: Pulado — <razão> | ✅ PM: <N> épicos refinados até 🔍>
@@ -350,7 +348,7 @@ Uma única mensagem, ao fim do fluxo. Estado terminal da fase de implementação
   2. Copie a **Seção 🎯 Validação** do body e envie ao GitHub Copilot.
   3. Cole a tabela de retorno do Copilot como comentário na PR.
   4. (Opcional) Rode os comandos de validação local listados em
-     validation-<id>.md.
+     docs/process/current_validation.md.
   5. Aprove e mergeie pela interface do GitHub se tudo OK.
 
 📋 Comandos de validação local (opcional, copie e cole):
@@ -388,7 +386,7 @@ pytest -m integration             # se aplicável
 - ✅ Todas as funcionalidades de todos os épicos do milestone confirmadas com Dev/QA/TL/PO `✅` antes de rodar
 - ✅ Branch `milestone/<id>` publicada com push único e acessível
 - ✅ `current_implementation.md` marcado como RTE ✅ (no bloco "Status dos Gates (nível milestone)") com bloco "Resumo Final do Milestone"
-- ✅ `validation-<id>.md` versionado no repo (mesmo commit que abre a PR), cobrindo todos os épicos, com cada roteiro contendo Critério/Gatilho/Resultado/Falha literais e zero passos de inspeção de código-fonte
+- ✅ `docs/process/current_validation.md` gerado/sobrescrito (mesmo commit que abre a PR), cobrindo todos os épicos, com cada roteiro contendo Critério/Gatilho/Resultado/Falha literais e zero passos de inspeção de código-fonte
 - ✅ PR aberta com body contendo Seção 🎯 Validação completa, sem placeholders
 - ✅ Épicos do milestone transitados para `🔀 Em revisão` no(s) ROADMAP(s), com link da PR
 - ✅ Entrada appended em `skills/audit_log.jsonl` com participação das skills desta sessão
@@ -403,10 +401,10 @@ pytest -m integration             # se aplicável
 - ❌ Fez push de `feature/X.Y` em vez de `milestone/<id>`
 - ❌ Emitiu mensagem por épico em vez de mensagem única consolidada
 - ❌ Output final contém `<placeholder>` ou `[ID]` não substituído
-- ❌ Abriu PR sem Seção 🎯 Validação completa (sem critérios consolidados, com placeholders, sem link para validation-<id>.md)
+- ❌ Abriu PR sem Seção 🎯 Validação completa (sem critérios consolidados, com placeholders, sem link para `docs/process/current_validation.md`)
 - ❌ Não transitou os épicos para `🔀 Em revisão` no ROADMAP após abrir a PR
 - ❌ Não appendou entrada em `skills/audit_log.jsonl`
-- ❌ Gerou `validation-<id>.md` com passos de inspeção de código (`git diff`, `grep`, "ler `<arquivo>.py`", "checar log do prompt montado") — viés de implementação proibido
+- ❌ Gerou `current_validation.md` com passos de inspeção de código (`git diff`, `grep`, "ler `<arquivo>.py`", "checar log do prompt montado") — viés de implementação proibido
 - ❌ Gerou roteiro com gatilho vago ("envie uma mensagem", "interaja com o app") ou resultado esperado em prosa não-literal ("funciona como esperado") — contrato Critério/Gatilho/Resultado/Falha literais é obrigatório
 - ❌ Pediu ao dev escrever o próprio prompt de chat para validar funcionalidade conversacional — RTE escreve o prompt literal
 - ❌ Tentou mergear automaticamente
@@ -418,6 +416,6 @@ pytest -m integration             # se aplicável
 **Ver também:**
 - README humano da skill → [README.md](README.md)
 - Template do relatório → [templates/delivery-report.md](templates/delivery-report.md)
-- Template do `validation-<id>.md` → [templates/validation.md](templates/validation.md)
+- Template do `current_validation.md` → [templates/validation.md](templates/validation.md)
 - Mensagem final compartilhada com fluxo manual → `docs/process/implementation/delivery.md`
 - Como o dev valida → `docs/process/autonomous/delivery.md`

@@ -14,8 +14,8 @@ Sessões em modo autônomo deste repositório seguem o fluxo descrito em
 fase de implementação é PR aberta** — a [RTE skill](skills/rte/skill.md) tem
 como último passo obrigatório:
 
-1. Gerar `validation-<milestone>.md` versionado
-2. Atualizar `current_implementation.md`
+1. Atualizar `docs/process/current_implementation.md` (parte obrigatória do pacote de entrega)
+2. Gerar `docs/process/current_validation.md` (rotativo — sobrescrito a cada novo milestone)
 3. Commitar e fazer push da branch
 4. **Abrir a PR via `mcp__github__create_pull_request`** com Seção 🎯 Validação
 5. Transitar épicos para `🔀 Em revisão` no(s) ROADMAP(s) com link da PR
