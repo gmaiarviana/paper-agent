@@ -9,10 +9,9 @@ e campos específicos por agente (apenas o agente responsável escreve).
 
 """
 
-from typing import TypedDict, Optional, Annotated, Literal, List
+from typing import TypedDict, Optional, Annotated, Literal
 from langgraph.graph.message import add_messages
 from langchain_core.messages import HumanMessage
-from pydantic import BaseModel, Field, ConfigDict
 
 class MultiAgentState(TypedDict):
     """
@@ -343,51 +342,7 @@ def create_initial_multi_agent_state(user_input: str, session_id: Optional[str] 
         messages=[HumanMessage(content=user_input)]
     )
 
-# ============================================================================
-# MODELOS Pydantic PARA OUTPUTS DOS AGENTES
-# ============================================================================
-
-class StructurerElementsModel(BaseModel):
-    """Elementos estruturados retornados pelo Estruturador."""
-
-    context: str = Field(..., description="Contexto da observação")
-    problem: str = Field(..., description="Problema ou gap identificado")
-    contribution: str = Field(..., description="Possível contribuição acadêmica ou prática")
-
-class StructurerOutputModel(BaseModel):
-    """
-    Output estruturado do agente Estruturador.
-
-    Este modelo reflete a estrutura esperada em MultiAgentState.structurer_output.
-    """
-
-    structured_question: str = Field(..., description="Questão de pesquisa estruturada")
-    elements: StructurerElementsModel
-
-    model_config = ConfigDict(extra="ignore")
-
-class MethodologistImprovementModel(BaseModel):
-    """Gap identificado pelo Metodologista em modo colaborativo."""
-
-    aspect: str = Field(..., description="Aspecto a ser melhorado (ex: população, métricas)")
-    gap: str = Field(..., description="Descrição do gap identificado")
-
-class MethodologistOutputModel(BaseModel):
-    """
-    Output estruturado do Metodologista em MultiAgentState.methodologist_output.
-    """
-
-    status: Literal["approved", "needs_refinement", "rejected"] = Field(
-        ...,
-        description="Status final da avaliação",
-    )
-    justification: str = Field(
-        ...,
-        description="Justificativa detalhada da decisão",
-    )
-    improvements: List[MethodologistImprovementModel] = Field(
-        default_factory=list,
-        description="Lista de gaps e sugestões quando status=needs_refinement",
-    )
-
-    model_config = ConfigDict(extra="ignore")
+# Os modelos Pydantic de output de cada agente migraram para os pacotes
+# correspondentes:
+#   - StructurerElementsModel, StructurerOutputModel → core/agents/structurer/state.py
+#   - MethodologistImprovementModel, MethodologistOutputModel → core/agents/methodologist/state.py

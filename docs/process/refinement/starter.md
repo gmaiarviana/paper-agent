@@ -36,7 +36,7 @@ Toda sessão de refinamento opera com um **alvo definido** — o estado ao qual 
 - **Refinamento em massa** — alvo `🌱 Visão` ou `📐 Funcionalidades esboçadas`, aplicado a múltiplos épicos de uma vez. Produz várias entradas no ROADMAP a partir de uma visão.
 - **Refinamento profundo** — alvo `📋 Critérios definidos` ou `🔍 Detalhes definidos`, aplicado a um épico específico que se aproxima da implementação.
 
-O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. O alvo `🔍 Detalhes definidos` exige contexto adicional — inspeção de código relevante + checklist específico. O modelo completo dos sete estados de um épico vive em [`planning_guidelines.md`](planning_guidelines.md).
+O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. O alvo `🔍 Detalhes definidos` exige contexto adicional — inspeção de código relevante + checklist específico. O modelo completo dos oito estados de um épico vive em [`planning_guidelines.md`](planning_guidelines.md).
 
 ### Alvo `🌱 Visão` (refinamento em massa — nível título)
 
@@ -85,8 +85,3 @@ Tudo que não está no pack inicial está mapeado em `docs/CONTEXT_INDEX.md` —
 
 - **`README.md`** — Útil para setup humano, não para refinamento estratégico.
 - **Docs de arquitetura/agentes** — Pedir sob demanda via `CONTEXT_INDEX.md` (senão explode o contexto inicial).
-
----
-
-**Versão:** 2.0
-**Substitui:** Listas inconsistentes em CONSTITUTION §7, planning_guidelines, CONTEXT_INDEX.

@@ -201,9 +201,3 @@ Antes de fazer commit, verifique:
 - [ ] Docstrings e comentários estão em PT-BR
 - [ ] Commits seguem convenção PT-BR
 - [ ] Arquivos de configuração mantêm nomes em inglês
-
----
-
-**Versão:** 1.0
-**Data:** 11/11/2025
-**Status:** Ativo - aplicar em todos os novos códigos

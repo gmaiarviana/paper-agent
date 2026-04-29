@@ -859,6 +859,74 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ---
 
+> **Épicos órfãos da Fase Protótipo (sem milestone declarado).** Saneamento documental do `docs/process/` levantado em revisão de 2026-04-28 (branch `claude/review-process-directory-J1v8v`). Aguardam agrupamento estratégico em milestone(s) — candidatos a balaio único ou split por afinidade (faxina de docs vs. operacionalização de stack).
+
+#### ÉPICO W-PROTO-10: Centralizar definição dos estados de épico
+
+**Objetivo:** eliminar drift entre as quatro cópias da lista canônica de estados de épico em `docs/process/refinement/planning_guidelines.md` (§"Estados de Refinamento", §"Categorias de Épicos", §"📍 PRÓXIMOS PASSOS", e templates). Drift entre cópias gerou as 3 contradições C corrigidas em 2026-04-28; próxima skill que ler cópia desatualizada repete o erro.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+### Funcionalidades (esboço):
+- **10.1 Bloco canônico único** — escolher uma seção de `planning_guidelines.md` como fonte da verdade (definição + transição + responsável); demais viram referências curtas com âncora.
+- **10.2 Limpeza de drift cross-doc** — varrer `vision.md`, `starter.md`, `autonomous/overview.md`, `autonomous/workflow.md` e substituir definição duplicada por link.
+
+---
+
+#### ÉPICO W-PROTO-11: Faxina de `quality_rules.md`
+
+**Objetivo:** tirar de `docs/process/implementation/quality_rules.md` o que não é regra de processo do fluxo. Hoje (~400 linhas) mistura princípios + lessons learned do produto Revelar + tutorial defensivo de git pra Windows. Skill que segue esse doc pode aplicar regra fora de contexto.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+### Funcionalidades (esboço):
+- **11.1 Apagar §"Verificação de Conflitos e Prevenção de Perda de Trabalho"** (~140 linhas) — tutorial defensivo de git nasceu de incidente concreto e ficou; não é regra de qualidade do processo.
+- **11.2 Mover §"Diretrizes Aprendidas em Produção"** (~45 linhas) — lessons learned específicas de sistemas conversacionais com LLMs do Revelar; destino: `products/revelar/docs/` ou `core/docs/agents/`.
+- **11.3 Reorganizar o que sobra** — princípios + regras anti-redundância + comandos de validação numa ordem coerente, sem grab-bag.
+
+---
+
+#### ÉPICO W-PROTO-12: Cindir `implementation/overview.md`
+
+**Objetivo:** separar regras de interação com dev (genéricas, valem pros dois fluxos) de regras de validação híbrida (específicas do fluxo manual via Cursor). Hoje o doc mistura os dois e a nota corretiva de linha 88-91 já admite o problema. Agente leitor tem que filtrar mentalmente o que aplica ao contexto.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+### Funcionalidades (esboço):
+- **12.1 Extrair "Validação Híbrida" para arquivo próprio** — escopo: fluxo manual; conteúdo: validação automática (sintaxe, imports), comandos por checkpoint.
+- **12.2 Manter no overview só regras de interação** — aprovação explícita, papel do agente, sinais de aprovação válidos (referência canônica deduplicada em `claude/review-process-directory-J1v8v`).
+- **12.3 Reapontar referências** — ajustar links em `workflow.md`, `delivery.md`, `blockers.md`.
+
+---
+
+#### ÉPICO W-PROTO-13: Faxina do `copilot-instructions.md` (concisão pra agente)
+
+**Objetivo:** aplicar princípio "documentação para agente é concisa, não defensiva" — agente trabalha do traceback, não consulta catálogo de erros típicos. Doc hoje carrega seções defensivas que confundem o Copilot ao invés de ajudar.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+### Funcionalidades (esboço):
+- **13.1 Apagar §"Erros típicos e orientação"** — agente lê traceback e age; não consulta lista pré-cozida.
+- **13.2 Apagar §"Checklist mínimo de POC do Ensaio"** — Ensaio migrou para Reflex (ADR 001); checklist baseado na app antiga não tem mais função e o Modo A já cobre validação por critérios extraídos do `current_implementation.md`.
+- **13.3 Varredura de outros padrões defensivos** — verificar se §"Operação Windows / macOS / Linux" e §"Quando o dev disser 'deu erro'" carregam regras ainda ativas ou são entulho.
+
+---
+
+#### ÉPICO W-PROTO-14: Operacionalizar Reflex no fluxo de validação do Copilot
+
+**Objetivo:** o Ensaio migrou para Reflex no Protótipo (ADR 001 de 2026-04-25), mas `copilot-instructions.md` ainda manda Streamlit pros dois produtos. Validação de branches do Ensaio quebra ou roda com comando errado.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** input do dev sobre comandos exatos de Reflex no ambiente Windows (stack alvo do Copilot).
+
+### Funcionalidades (esboço):
+- **14.1 Detecção de stack por produto** — tabela explícita: `products/revelar/app/**` → Streamlit; `products/ensaio/app/**` → Reflex; futuros produtos com nota de detecção.
+- **14.2 Comando de subida do Reflex** — comando padrão validado (foreground, foco no log, encerramento limpo).
+- **14.3 Liberação de portas por stack** — range hardcoded hoje (8501-8503) precisa cobrir as portas do Reflex.
+
+---
+
 ### ⏳ Fase MVP
 
 > **Milestones:** `MVP-WORKFLOW-REFINAMENTO` (W-MVP-REF-1..2) · `MVP-WORKFLOW-PROPONENTE` (W-MVP-PROP-1..2).
@@ -932,6 +1000,44 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 - **2.2 Repertório consultável do porta-voz** — markdown canônico (formato a definir no refinamento) com filosofia, visão, orientações acumuladas. Resposta do operador a escalações vira repertório novo.
 - **2.3 Curadoria da fila** — porta-voz ordena/agrupa/filtra itens; aplica auto-regulação dura (~20 itens) — pausa real, não só alerta como no Protótipo.
 - **2.4 Temporização** — porta-voz decide quando interromper o operador; junta perguntas correlatas; escala atenção certa na hora certa.
+
+---
+
+> **Épicos órfãos da Fase MVP (sem milestone declarado).** Saneamento documental levantado em 2026-04-28; aguardam agrupamento estratégico.
+
+#### ÉPICO W-MVP-DOC-1: Quebrar `planning_guidelines.md` por responsabilidade
+
+**Objetivo:** o arquivo (634 linhas) absorveu definição de estados, processo de sessão, glossário, anti-padrões, exemplos, templates de épico/funcionalidade. Cabe num doc só, mas a leitura cansa e a navegação é ruim.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+### Funcionalidades (esboço):
+- **1.1 Definir corte natural** — candidatos: definições de estado / processo de sessão / templates / anti-padrões. Critério: cada arquivo respondendo uma pergunta única.
+- **1.2 Mover seções para arquivos novos** — preservar links externos via redirect (nota no original) ou ajuste sistemático cross-repo.
+- **1.3 `planning_guidelines.md` vira índice** — overview curto + apontadores para os arquivos derivados.
+
+---
+
+#### ÉPICO W-MVP-DOC-2: Consolidar templates de "comandos de validação local"
+
+**Objetivo:** o bloco "git fetch / checkout / venv / pytest / streamlit run" aparece em 3-4 lugares (`implementation/delivery.md`, `quality_rules.md`, `autonomous/delivery.md`, `implementation/overview.md`) com formatos divergentes. Risco de drift médio prazo.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+### Funcionalidades (esboço):
+- **2.1 Identificar template canônico** — escolher um arquivo como fonte; demais referenciam por âncora.
+- **2.2 Eliminar duplicação verbatim** — substituir blocos por links.
+- **2.3 Variantes por fluxo** — manual (dev cria PR) vs autônomo (dev valida em PR aberta) ficam como subseções do canônico.
+
+---
+
+## 💡 Ideias Futuras
+
+Itens que ainda não justificam virar épico — registrados aqui pra não perder, viram épico quando houver sinal real de atrito.
+
+- **Mover `language_guidelines.md` para fora de `docs/process/`.** Guia de bilinguismo (PT-BR para mensagens, EN para código) é regra do código todo do paper-agent, não específica do processo de implementação. Destino candidato: `docs/` raiz ou `core/docs/`. Vira épico quando alguém procurar fora de `process/` e não achar.
+
+- **Decidir destino de `refinement/overview.md` e `workflow/README.md`.** Índices curtos que repetem informação dos arquivos pra que apontam. Custo zero pra leitor familiarizado; ganho marginal de apagar. Vira épico só se a navegação da pasta `process/` for repensada.
 
 ---
 

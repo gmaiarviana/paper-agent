@@ -27,8 +27,7 @@ def route_from_orchestrator(state: MultiAgentState) -> Union[Literal["structurer
     - next_step = "suggest_agent" + agent_suggestion:
       - "structurer" → Estruturador
       - "methodologist" → Metodologista
-      - "researcher" → Pesquisador (futuro)
-      - "writer" → Escritor (futuro)
+      - "writer" → Escritor (no radar; ainda não cabeado no grafo)
 
     Args:
         state (MultiAgentState): Estado atual do sistema multi-agente.
@@ -95,8 +94,11 @@ def route_from_orchestrator(state: MultiAgentState) -> Union[Literal["structurer
             suggested_agent = agent_suggestion.get("agent")
             justification = agent_suggestion.get("justification", "N/A")
 
-            # Validar agente sugerido
-            valid_agents = ["structurer", "methodologist", "researcher", "writer"]
+            # Validar agente sugerido.
+            # writer existe em core/agents/writer mas ainda não foi cabeado em
+            # multi_agent_graph; mantido aqui pois está no radar próximo.
+            # researcher removido: não há código nem plano imediato.
+            valid_agents = ["structurer", "methodologist", "writer"]
             if suggested_agent not in valid_agents:
                 logger.warning(
                     f"Agente sugerido '{suggested_agent}' não reconhecido. "
