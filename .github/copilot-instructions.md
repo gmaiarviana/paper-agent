@@ -32,6 +32,21 @@ Pare. Não siga.
 
 ---
 
+## Stacks por produto
+
+A validação por aqui detecta o produto pelo diff e usa a stack correspondente.
+Se a branch toca produto fora desta tabela, **pare e reporte** — não improvise.
+
+| Produto | Caminho-gatilho        | Stack     | Entrypoint                                  | Portas      |
+|---------|------------------------|-----------|---------------------------------------------|-------------|
+| Revelar | products/revelar/app/  | Streamlit | products/revelar/app/chat.py (ou dashboard) | 8501-8503   |
+| Ensaio  | products/ensaio/app/   | Reflex    | products/ensaio/ (reflex run a partir daí) | 3000, 8000  |
+
+Se a branch mexe em mais de um produto, perguntar ao dev qual subir primeiro.
+Se a branch só mexe em `core/` ou `docs/`, não há app para subir — pular §3.
+
+---
+
 ## Fluxo (3 passos)
 
 ### 1. Sincronizar
@@ -67,30 +82,54 @@ Critérios cobertos só por teste automatizado **não listar** — CI já cuida.
 
 ### 3. Subir a app afetada
 
-**Antes de qualquer coisa:** liberar as portas 8501–8503 matando apenas quem está escutando nelas (não mate python/streamlit em geral — pode ser Jupyter, outro projeto, outra branch):
+Antes de qualquer coisa, libere as portas da stack detectada (ver §"Stacks
+por produto" + §"Liberação de portas" abaixo). Não mate processos em geral —
+mate apenas quem está escutando nas portas-alvo.
+
+Detectar produto pelo diff (`git diff --name-only origin/main | grep products/`):
+- `products/<produto>/app/**` → subir a stack do produto
+- Se a branch mexeu em mais de um produto, perguntar ao dev qual subir primeiro
+- Se a branch não mexeu em nenhum produto: avisar e pular esta etapa.
+
+#### Liberação de portas
+
+**Antes de qualquer coisa:** liberar as portas da stack detectada matando
+apenas quem está escutando nelas.
+
+Para Streamlit (Revelar): portas 8501-8503.
+Para Reflex (Ensaio): portas 3000 (frontend) e 8000 (backend).
 
 ```powershell
-# Windows (PowerShell) — cirúrgico por porta
-foreach ($port in 8501..8503) {
+# Windows (PowerShell) — cirúrgico por porta. Adapte $ports à stack detectada.
+$ports = @(8501, 8502, 8503)         # Streamlit (Revelar)
+# $ports = @(3000, 8000)             # Reflex (Ensaio)
+foreach ($port in $ports) {
     Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
         ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
 }
 ```
 
 ```bash
-# Linux/Mac — filtra pelo app.py do projeto
-pkill -f "streamlit.*products/.*/app/" 2>/dev/null || true
+# Linux/Mac — filtra pelo entrypoint do projeto
+pkill -f "streamlit.*products/revelar/app/" 2>/dev/null || true   # Revelar
+pkill -f "reflex.*products/ensaio" 2>/dev/null || true            # Ensaio
 ```
 
-Detectar produto pelo diff (`git diff --name-only origin/main | grep products/`):
-- `products/<produto>/app/**` → subir o entrypoint do produto
-- Se a branch mexeu em mais de um produto, perguntar ao dev qual subir primeiro
-- Se a branch não mexeu em nenhum produto (só `core/` ou `docs/`): avisar que não há app pra subir e pular esta etapa.
+#### Subir
 
-Comando padrão:
+**Streamlit (Revelar):**
+
 ```bash
-python -m streamlit run <path>
+python -m streamlit run <entrypoint>     # ex: products/revelar/app/chat.py
 ```
+
+**Reflex (Ensaio):**
+
+```bash
+cd products/ensaio
+reflex run                               # backend :8000, frontend :3000
+```
+
 Subir em **foreground** e deixar rodando — o dev vai abrir no navegador.
 Se o log mostrar traceback no start → parar, reportar o erro, não tentar consertar.
 
