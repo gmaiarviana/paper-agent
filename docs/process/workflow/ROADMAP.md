@@ -98,6 +98,51 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   da plataforma: `tools/workflow_platform/` (top-level novo, fora
   de `products/`, coerente com [`vision.md`](vision.md)).
 
+### PROTO-WORKFLOW-FAXINA
+
+- **Objetivo:** faxina documental do `docs/process/` — eliminar drift
+  entre cópias da lista de estados de épico, retirar de
+  `quality_rules.md` e `implementation/overview.md` o que não é regra
+  do fluxo, enxugar `copilot-instructions.md`, e descontinuar a
+  dicotomia "fluxo manual (Cursor) vs autônomo" que não reflete o uso
+  real (operador roda 100% via Claude Code Web). Faz a casa antes de
+  avançar para a fila reativa.
+- **Estágio:** Protótipo
+- **Épicos agrupados:** W-PROTO-10, W-PROTO-11, W-PROTO-12, W-PROTO-13,
+  W-PROTO-15
+- **Dependências de core:** nenhuma
+- **Branch associada:** `milestone/proto-workflow-faxina`
+- **Status dos épicos:** W-PROTO-10 📐, W-PROTO-11 📐, W-PROTO-12 📐,
+  W-PROTO-13 📐, W-PROTO-15 📐.
+- **Sobreposições conhecidas a resolver no refinamento:**
+  - W-PROTO-15 pode absorver W-PROTO-12 (cindir overview) — premissa
+    do fluxo manual some com 15.4.
+  - W-PROTO-15.1 toca a fonte canônica de estados que W-PROTO-10
+    centraliza.
+  - W-PROTO-15.4 limpa "Cursor Background" em `quality_rules.md`,
+    sobrepondo W-PROTO-11.
+- **Nota:** milestone declarado em 2026-04-29. Agrupa órfãos da fase
+  Protótipo levantados na revisão
+  `claude/review-process-directory-J1v8v` (2026-04-28) para fazer
+  faxina coerente antes de seguir para PROTO-WORKFLOW-FILA. Épicos em
+  `📐` — aguardam refinamento estratégico antes do dispatch.
+
+### PROTO-WORKFLOW-COPILOT-STACK
+
+- **Objetivo:** alinhar `copilot-instructions.md` à mudança de stack do
+  Ensaio (Streamlit → Reflex, ADR 001 de 2026-04-25). Ajuste pequeno e
+  operacional — o Copilot hoje manda Streamlit pros dois produtos e a
+  validação de branches do Ensaio quebra ou roda com comando errado.
+- **Estágio:** Protótipo
+- **Épicos agrupados:** W-PROTO-14
+- **Dependências de core:** nenhuma; depende de input do dev sobre
+  comandos exatos de Reflex no ambiente Windows.
+- **Branch associada:** `milestone/proto-workflow-copilot-stack`
+- **Status dos épicos:** W-PROTO-14 📐.
+- **Nota:** milestone declarado em 2026-04-29. Escopo cirúrgico,
+  independente da faxina documental — pode rodar em paralelo com
+  qualquer outro milestone do Protótipo.
+
 ### PROTO-WORKFLOW-FILA
 
 - **Objetivo:** plataforma ganha fila reativa de decisões + chat focado
@@ -108,7 +153,8 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Estágio:** Protótipo
 - **Épicos agrupados:** W-PROTO-FILA-1, W-PROTO-FILA-2, W-PROTO-FILA-3
 - **Dependências de core:** nenhuma; depende de
-  PROTO-WORKFLOW-PLATAFORMA (kanban e scaffold como base)
+  PROTO-WORKFLOW-PLATAFORMA (kanban e scaffold como base) e
+  PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
 - **Status dos épicos:** W-PROTO-FILA-1 📐, W-PROTO-FILA-2 📐,
   W-PROTO-FILA-3 📐.
@@ -127,6 +173,24 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   do antigo MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo
   porque é fila **reativa** (regra determinística), não curada por
   agente. Curadoria por porta-voz vive no MVP.
+
+### MVP-WORKFLOW-DOC
+
+- **Objetivo:** faxina documental da fase MVP — quebrar o
+  `planning_guidelines.md` (634 linhas hoje) por responsabilidade e
+  consolidar o template de "comandos de validação local" que aparece
+  com formatos divergentes em 3-4 docs. Reduz custo de leitura para
+  agentes e elimina drift médio prazo.
+- **Estágio:** MVP
+- **Épicos agrupados:** W-MVP-DOC-1, W-MVP-DOC-2
+- **Dependências de core:** nenhuma; pode rodar em paralelo com os
+  demais milestones do MVP.
+- **Branch associada:** `milestone/mvp-workflow-doc`
+- **Status dos épicos:** W-MVP-DOC-1 📐, W-MVP-DOC-2 📐.
+- **Nota:** milestone declarado em 2026-04-29. Agrupa órfãos da fase
+  MVP levantados na revisão `claude/review-process-directory-J1v8v`
+  (2026-04-28). Sem dependências cruzadas — pode ser disparado a
+  qualquer momento.
 
 ### MVP-WORKFLOW-REFINAMENTO
 
@@ -859,9 +923,11 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ---
 
-> **Épicos órfãos da Fase Protótipo (sem milestone declarado).** Saneamento documental do `docs/process/` levantado em revisão de 2026-04-28 (branch `claude/review-process-directory-J1v8v`). Aguardam agrupamento estratégico em milestone(s) — candidatos a balaio único ou split por afinidade (faxina de docs vs. operacionalização de stack).
+> **Milestones de saneamento documental** (`PROTO-WORKFLOW-FAXINA` e `PROTO-WORKFLOW-COPILOT-STACK`) declarados em 2026-04-29 a partir dos épicos levantados na revisão `claude/review-process-directory-J1v8v` (2026-04-28). Faxina antes de seguir para `PROTO-WORKFLOW-FILA`.
 
 #### ÉPICO W-PROTO-10: Centralizar definição dos estados de épico
+
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
 
 **Objetivo:** eliminar drift entre as quatro cópias da lista canônica de estados de épico em `docs/process/refinement/planning_guidelines.md` (§"Estados de Refinamento", §"Categorias de Épicos", §"📍 PRÓXIMOS PASSOS", e templates). Drift entre cópias gerou as 3 contradições C corrigidas em 2026-04-28; próxima skill que ler cópia desatualizada repete o erro.
 
@@ -874,6 +940,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 ---
 
 #### ÉPICO W-PROTO-11: Faxina de `quality_rules.md`
+
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
 
 **Objetivo:** tirar de `docs/process/implementation/quality_rules.md` o que não é regra de processo do fluxo. Hoje (~400 linhas) mistura princípios + lessons learned do produto Revelar + tutorial defensivo de git pra Windows. Skill que segue esse doc pode aplicar regra fora de contexto.
 
@@ -888,6 +956,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 #### ÉPICO W-PROTO-12: Cindir `implementation/overview.md`
 
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
+
 **Objetivo:** separar regras de interação com dev (genéricas, valem pros dois fluxos) de regras de validação híbrida (específicas do fluxo manual via Cursor). Hoje o doc mistura os dois e a nota corretiva de linha 88-91 já admite o problema. Agente leitor tem que filtrar mentalmente o que aplica ao contexto.
 
 **Status:** 📐 Funcionalidades esboçadas
@@ -901,6 +971,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 #### ÉPICO W-PROTO-13: Faxina do `copilot-instructions.md` (concisão pra agente)
 
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
+
 **Objetivo:** aplicar princípio "documentação para agente é concisa, não defensiva" — agente trabalha do traceback, não consulta catálogo de erros típicos. Doc hoje carrega seções defensivas que confundem o Copilot ao invés de ajudar.
 
 **Status:** 📐 Funcionalidades esboçadas
@@ -913,6 +985,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 ---
 
 #### ÉPICO W-PROTO-14: Operacionalizar Reflex no fluxo de validação do Copilot
+
+**Milestone:** `PROTO-WORKFLOW-COPILOT-STACK`
 
 **Objetivo:** o Ensaio migrou para Reflex no Protótipo (ADR 001 de 2026-04-25), mas `copilot-instructions.md` ainda manda Streamlit pros dois produtos. Validação de branches do Ensaio quebra ou roda com comando errado.
 
@@ -928,6 +1002,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 ---
 
 #### ÉPICO W-PROTO-15: Descontinuar fluxo manual / Cursor / Claude Web do desenho
+
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
 
 **Objetivo:** o desenho atual carrega dicotomia "fluxo manual (Cursor) vs fluxo autônomo (Claude Code Web)" em ~30 arquivos (`docs/CONSTITUTION.md` 31 menções, `refinement/planning_guidelines.md` 27, `autonomous/overview.md` 6, demais menores). Na prática, o operador opera 100% via Claude Code Web — implementação **e** refinamento estratégico. Cursor não está instalado no ambiente atual e Claude Web saiu como ferramenta de refinamento. A documentação ficou desalinhada do uso real e impõe ao agente leitor o custo de filtrar "o que aplica ao meu contexto".
 
@@ -1030,9 +1106,11 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ---
 
-> **Épicos órfãos da Fase MVP (sem milestone declarado).** Saneamento documental levantado em 2026-04-28; aguardam agrupamento estratégico.
+> **Milestone de saneamento documental do MVP** (`MVP-WORKFLOW-DOC`) declarado em 2026-04-29 a partir dos épicos levantados em 2026-04-28.
 
 #### ÉPICO W-MVP-DOC-1: Quebrar `planning_guidelines.md` por responsabilidade
+
+**Milestone:** `MVP-WORKFLOW-DOC`
 
 **Objetivo:** o arquivo (634 linhas) absorveu definição de estados, processo de sessão, glossário, anti-padrões, exemplos, templates de épico/funcionalidade. Cabe num doc só, mas a leitura cansa e a navegação é ruim.
 
@@ -1046,6 +1124,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 ---
 
 #### ÉPICO W-MVP-DOC-2: Consolidar templates de "comandos de validação local"
+
+**Milestone:** `MVP-WORKFLOW-DOC`
 
 **Objetivo:** o bloco "git fetch / checkout / venv / pytest / streamlit run" aparece em 3-4 lugares (`implementation/delivery.md`, `quality_rules.md`, `autonomous/delivery.md`, `implementation/overview.md`) com formatos divergentes. Risco de drift médio prazo.
 
@@ -1076,13 +1156,19 @@ fluxo autônomo exige `🔍 Detalhes definidos`.
 Os milestones da fase Protótipo `PROTO-WORKFLOW-ENCERRAMENTO`,
 `PROTO-WORKFLOW-DOC` e `PROTO-WORKFLOW-AJUSTES` foram mergeados em
 sequência (PRs #83, #90 e #93). `PROTO-WORKFLOW-PLATAFORMA` está em
-`🔍 Detalhes definidos` — apto ao fluxo autônomo. `PROTO-WORKFLOW-FILA`
-(absorve o conteúdo do antigo MVP-WORKFLOW-PLATAFORMA, reposicionado
-como Protótipo) tem épicos em `📐` aguardando refinamento estratégico
-após `PROTO-WORKFLOW-PLATAFORMA` fechar. Os milestones MVP
-(`MVP-WORKFLOW-REFINAMENTO` e `MVP-WORKFLOW-PROPONENTE`) têm épicos
-em `📐` aguardando refinamento estratégico após `PROTO-WORKFLOW-FILA`
-fechar.
+`🔍 Detalhes definidos` — apto ao fluxo autônomo.
+`PROTO-WORKFLOW-FAXINA` e `PROTO-WORKFLOW-COPILOT-STACK` foram
+declarados em 2026-04-29 (agrupando os antigos órfãos da fase
+Protótipo); a faxina precede `PROTO-WORKFLOW-FILA` para fazer a casa
+antes da fila reativa. `PROTO-WORKFLOW-FILA` (absorve o conteúdo do
+antigo MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo) tem
+épicos em `📐` aguardando refinamento estratégico após
+`PROTO-WORKFLOW-PLATAFORMA` e `PROTO-WORKFLOW-FAXINA` fecharem. Os
+milestones MVP (`MVP-WORKFLOW-DOC` declarado em 2026-04-29 a partir
+dos órfãos do MVP, `MVP-WORKFLOW-REFINAMENTO` e
+`MVP-WORKFLOW-PROPONENTE`) têm épicos em `📐` aguardando refinamento
+estratégico — `MVP-WORKFLOW-DOC` pode rodar em paralelo; os outros
+dois aguardam `PROTO-WORKFLOW-FILA` fechar.
 
 **Reorganização 2026-04-28 (papéis vs fluxos).** A vision foi reescrita
 para separar **papéis** (operador, proponente, porta-voz) de **fluxos**
