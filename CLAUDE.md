@@ -42,6 +42,37 @@ feito de forma durável aqui.
 
 ---
 
+## Regra durável: sempre trazer sugestão com trade-offs
+
+Quando uma decisão estrutural surgir no meio de uma sessão (estratégica, de
+refinamento ou de implementação) e houver mais de um caminho razoável, **não
+pergunte sem opinião**. Traga uma sugestão explícita com trade-offs.
+
+**Forma esperada:**
+
+1. **Recomendação direta** — qual caminho você acha que faz sentido.
+2. **Por quê** — 1-3 razões objetivas, ancoradas no contexto do repo (acoplamento
+   entre épicos, sinal real de atrito, princípios da vision/CONSTITUTION).
+3. **Tradeoff principal** — o que se perde com a recomendação ou em que cenário
+   ela falha. Tabela curta quando ajudar a comparar opções.
+4. **Pergunta final** — "topa por aí ou queres ajustar antes?"
+
+O operador decide. A regra não força aceitar a sugestão — força a sessão a
+não desperdiçar bandwidth com perguntas abertas tipo "o que você prefere?"
+sem material pra decidir em cima.
+
+**Quando não aplica:**
+
+- Decisões puramente operacionais (qual nome de variável, qual comando shell)
+  — basta agir.
+- Decisões já cobertas por instrução durável neste arquivo, em
+  `docs/process/`, ou em skill carregada — seguir a instrução, não propor
+  alternativa.
+- Disparo ambíguo de milestone — perguntar identificação antes de agir
+  (limite já declarado na seção anterior).
+
+---
+
 ## Referências canônicas
 
 - Workflow autônomo completo → [`docs/process/autonomous/workflow.md`](docs/process/autonomous/workflow.md)

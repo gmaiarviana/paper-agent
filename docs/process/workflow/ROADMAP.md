@@ -102,30 +102,46 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 - **Objetivo:** faxina documental do `docs/process/` — eliminar drift
   entre cópias da lista de estados de épico, retirar de
-  `quality_rules.md` e `implementation/overview.md` o que não é regra
-  do fluxo, enxugar `copilot-instructions.md`, e descontinuar a
-  dicotomia "fluxo manual (Cursor) vs autônomo" que não reflete o uso
-  real (operador roda 100% via Claude Code Web). Faz a casa antes de
+  `quality_rules.md` o que não é regra do fluxo, enxugar
+  `copilot-instructions.md`, descontinuar a dicotomia "fluxo manual
+  (Cursor) vs autônomo" que não reflete o uso real (operador roda
+  100% via Claude Code Web), e consolidar o template de "comandos
+  de validação local" duplicado em 3 docs. Faz a casa antes de
   avançar para a fila reativa.
 - **Estágio:** Protótipo
-- **Épicos agrupados:** W-PROTO-10, W-PROTO-11, W-PROTO-12, W-PROTO-13,
-  W-PROTO-15
+- **Épicos agrupados:** W-PROTO-10, W-PROTO-11, W-PROTO-13, W-PROTO-15,
+  W-PROTO-16
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-faxina`
-- **Status dos épicos:** W-PROTO-10 📐, W-PROTO-11 📐, W-PROTO-12 📐,
-  W-PROTO-13 📐, W-PROTO-15 📐.
-- **Sobreposições conhecidas a resolver no refinamento:**
-  - W-PROTO-15 pode absorver W-PROTO-12 (cindir overview) — premissa
-    do fluxo manual some com 15.4.
-  - W-PROTO-15.1 toca a fonte canônica de estados que W-PROTO-10
-    centraliza.
-  - W-PROTO-15.4 limpa "Cursor Background" em `quality_rules.md`,
-    sobrepondo W-PROTO-11.
-- **Nota:** milestone declarado em 2026-04-29. Agrupa órfãos da fase
-  Protótipo levantados na revisão
-  `claude/review-process-directory-J1v8v` (2026-04-28) para fazer
-  faxina coerente antes de seguir para PROTO-WORKFLOW-FILA. Épicos em
-  `📐` — aguardam refinamento estratégico antes do dispatch.
+- **Status dos épicos:** W-PROTO-10 🔍, W-PROTO-11 🔍, W-PROTO-13 🔍,
+  W-PROTO-15 🔍, W-PROTO-16 🔍.
+- **Ordem de execução interna:** W-PROTO-15 antes de W-PROTO-10 e
+  W-PROTO-11 (varre fluxo manual primeiro, evita revisitar arquivos).
+  W-PROTO-16 antes de W-PROTO-11.3 (congela a forma canônica do
+  template de validação antes da reorganização do `quality_rules.md`).
+  W-PROTO-13 e W-PROTO-14 (este último em PROTO-WORKFLOW-COPILOT-STACK)
+  podem rodar em paralelo — tocam o mesmo arquivo mas seções
+  disjuntas.
+- **Decisões de refinamento estratégico (2026-04-29):**
+  - **W-PROTO-12 absorvido por W-PROTO-15.** Premissa de cindir
+    `implementation/overview.md` em "regras de interação" vs
+    "Validação Híbrida" some quando 15.4 elimina a dicotomia
+    manual/autônomo — o conteúdo útil de "Validação Híbrida" (sintaxe,
+    imports) vale pra qualquer fluxo e fica no overview mesmo. Se
+    "doc por responsabilidade" virar atrito real depois, vira épico
+    próprio no MVP-WORKFLOW-DOC (W-MVP-DOC-1 já cobre o princípio).
+  - **W-MVP-DOC-2 movido para cá como W-PROTO-16.** Os 4 arquivos com
+    template de validação duplicado (`quality_rules.md`,
+    `implementation/delivery.md`, `autonomous/delivery.md`,
+    `implementation/overview.md`) são exatamente os arquivos que
+    W-PROTO-11 e W-PROTO-15 já tocam — fazer junto evita revisitar.
+    A funcionalidade original "2.3 Variantes por fluxo (manual vs
+    autônomo)" cai junto com W-PROTO-15.
+- **Nota:** milestone declarado em 2026-04-29 a partir dos órfãos da
+  fase Protótipo levantados na revisão
+  `claude/review-process-directory-J1v8v` (2026-04-28). Refinamento
+  estratégico em 2026-04-29 levou os 5 épicos a `🔍` e absorveu/moveu
+  os dois antes citados. Apto ao fluxo autônomo.
 
 ### PROTO-WORKFLOW-COPILOT-STACK
 
@@ -135,13 +151,18 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   validação de branches do Ensaio quebra ou roda com comando errado.
 - **Estágio:** Protótipo
 - **Épicos agrupados:** W-PROTO-14
-- **Dependências de core:** nenhuma; depende de input do dev sobre
-  comandos exatos de Reflex no ambiente Windows.
+- **Dependências de core:** nenhuma. Comandos de Reflex já fixados pelo
+  ADR 001 + `products/ensaio/rxconfig.py` (consultados no refinamento
+  de 2026-04-29) — sem input pendente do dev.
 - **Branch associada:** `milestone/proto-workflow-copilot-stack`
-- **Status dos épicos:** W-PROTO-14 📐.
-- **Nota:** milestone declarado em 2026-04-29. Escopo cirúrgico,
-  independente da faxina documental — pode rodar em paralelo com
-  qualquer outro milestone do Protótipo.
+- **Status dos épicos:** W-PROTO-14 🔍.
+- **Nota:** milestone declarado em 2026-04-29; refinado a `🔍` na mesma
+  data. Escopo cirúrgico, independente da faxina documental — pode
+  rodar em paralelo com qualquer outro milestone do Protótipo.
+  Observação operacional: a seção §"Operação Windows / macOS / Linux"
+  de `copilot-instructions.md` é tocada por W-PROTO-14.3 (ampliação
+  do range de portas) e por W-PROTO-13.3 (faxina); a coordenação está
+  declarada nos dois épicos.
 
 ### PROTO-WORKFLOW-FILA
 
@@ -177,20 +198,22 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 ### MVP-WORKFLOW-DOC
 
 - **Objetivo:** faxina documental da fase MVP — quebrar o
-  `planning_guidelines.md` (634 linhas hoje) por responsabilidade e
-  consolidar o template de "comandos de validação local" que aparece
-  com formatos divergentes em 3-4 docs. Reduz custo de leitura para
-  agentes e elimina drift médio prazo.
+  `planning_guidelines.md` (634 linhas hoje) por responsabilidade.
+  Reduz custo de leitura para agentes e elimina drift médio prazo.
 - **Estágio:** MVP
-- **Épicos agrupados:** W-MVP-DOC-1, W-MVP-DOC-2
+- **Épicos agrupados:** W-MVP-DOC-1
 - **Dependências de core:** nenhuma; pode rodar em paralelo com os
   demais milestones do MVP.
 - **Branch associada:** `milestone/mvp-workflow-doc`
-- **Status dos épicos:** W-MVP-DOC-1 📐, W-MVP-DOC-2 📐.
-- **Nota:** milestone declarado em 2026-04-29. Agrupa órfãos da fase
-  MVP levantados na revisão `claude/review-process-directory-J1v8v`
-  (2026-04-28). Sem dependências cruzadas — pode ser disparado a
-  qualquer momento.
+- **Status dos épicos:** W-MVP-DOC-1 📐.
+- **Nota:** milestone declarado em 2026-04-29. O épico irmão
+  W-MVP-DOC-2 (consolidar template de "comandos de validação local")
+  foi movido para `PROTO-WORKFLOW-FAXINA` como W-PROTO-16 no
+  refinamento estratégico de 2026-04-29 — overlapping de arquivos com
+  W-PROTO-11 e W-PROTO-15 justificou antecipar. W-MVP-DOC-1 fica no
+  MVP porque é redesign estrutural, não faxina; depende
+  conceitualmente de W-PROTO-10 (centralização da definição de
+  estados) ter rodado primeiro pra ver melhor o que extrair.
 
 ### MVP-WORKFLOW-REFINAMENTO
 
@@ -923,19 +946,55 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ---
 
-> **Milestones de saneamento documental** (`PROTO-WORKFLOW-FAXINA` e `PROTO-WORKFLOW-COPILOT-STACK`) declarados em 2026-04-29 a partir dos épicos levantados na revisão `claude/review-process-directory-J1v8v` (2026-04-28). Faxina antes de seguir para `PROTO-WORKFLOW-FILA`.
+> **Milestones de saneamento documental** (`PROTO-WORKFLOW-FAXINA` e `PROTO-WORKFLOW-COPILOT-STACK`) declarados em 2026-04-29 a partir dos épicos levantados na revisão `claude/review-process-directory-J1v8v` (2026-04-28); refinados a `🔍 Detalhes definidos` em 2026-04-29 (sessão `claude/refine-workflow-stacks-6JOH6`). Faxina antes de seguir para `PROTO-WORKFLOW-FILA`.
 
 #### ÉPICO W-PROTO-10: Centralizar definição dos estados de épico
 
 **Milestone:** `PROTO-WORKFLOW-FAXINA`
 
-**Objetivo:** eliminar drift entre as quatro cópias da lista canônica de estados de épico em `docs/process/refinement/planning_guidelines.md` (§"Estados de Refinamento", §"Categorias de Épicos", §"📍 PRÓXIMOS PASSOS", e templates). Drift entre cópias gerou as 3 contradições C corrigidas em 2026-04-28; próxima skill que ler cópia desatualizada repete o erro.
+**Objetivo:** eliminar drift entre as três cópias da lista canônica dos 8 estados de épico em `docs/process/refinement/planning_guidelines.md` (§"Estados de Refinamento" linhas 176-205, §"Categorias de Épicos" linhas 253-269, §"PRÓXIMOS PASSOS" linhas 331-358). Drift entre cópias gerou as 3 contradições corrigidas em 2026-04-28; próxima skill que ler cópia desatualizada repete o erro.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-### Funcionalidades (esboço):
-- **10.1 Bloco canônico único** — escolher uma seção de `planning_guidelines.md` como fonte da verdade (definição + transição + responsável); demais viram referências curtas com âncora.
-- **10.2 Limpeza de drift cross-doc** — varrer `vision.md`, `starter.md`, `autonomous/overview.md`, `autonomous/workflow.md` e substituir definição duplicada por link.
+**Dependências:** rodar **depois** de W-PROTO-15 — 15.1 já reescreve `📋 Critérios definidos` ("apto ao fluxo manual" → passo intermediário) na fonte. Centralizar antes faz a edição duas vezes.
+
+### Funcionalidades:
+
+#### 10.1 Bloco canônico único em `planning_guidelines.md`
+
+**Critério de aceite:** uma única seção em `planning_guidelines.md` define os 8 estados (🌱 Visão, 🧭 Jornada alinhada, 📐 Funcionalidades esboçadas, 📋 Critérios definidos, 🔍 Detalhes definidos, 🏗️ Em andamento, 🔀 Em revisão, ✅ Implementado) com nome, descrição curta (1-3 frases), gatilho de transição e responsável. As outras duas seções dentro do mesmo arquivo são apagadas e referências internas apontam pra fonte canônica via âncora markdown.
+
+**Decisão de fonte canônica:** usar §"Categorias de Épicos" (linhas 253-269 hoje) como base — formato bullet paralelizado, mais mantível que parágrafos. Renomear para §"Estados de Épico" e mover para perto do início do doc (depois da introdução) pra ser fácil de achar. Apagar §"Estados de Refinamento" (linhas 176-205) e a re-listagem em §"PRÓXIMOS PASSOS" (linhas 335-342).
+
+**Arquivos a modificar:**
+- `docs/process/refinement/planning_guidelines.md` — seção canônica + apagar duplicatas + ajustar referências internas (links de âncora `#estados-de-épico`).
+
+**Validação:** `grep -n "🌱.*Visão.*🧭.*Jornada\|🌱 Visão$" docs/process/refinement/planning_guidelines.md` retorna no máximo 1 bloco de definição completa.
+
+#### 10.2 Limpeza de drift cross-doc
+
+**Critério de aceite:** arquivos abaixo deixam de ter definição dos 8 estados (texto duplicado) e passam a apontar pra fonte canônica em `planning_guidelines.md#estados-de-épico` na primeira menção do contexto. Menções pontuais a estados específicos (ex: "épico em `🔍`") permanecem como estão — não precisam de link.
+
+**Arquivos a modificar:**
+
+| Arquivo | Linhas-alvo (hoje) | Ação |
+|---|---|---|
+| `docs/process/refinement/starter.md` | 41-77 (§"Alvos de Refinamento") | manter conteúdo pedagógico (5 alvos com pergunta-chave); adicionar nota com link pra fonte canônica logo no início da seção |
+| `docs/CONSTITUTION.md` | 17 (linha enumeradora) e 328-331 (§"Estrutura de Épicos") | manter linha 17 com link já existente; reduzir 328-331 a 1 frase + link |
+| `docs/process/autonomous/workflow.md` | tabela "Estado mínimo do épico" (~linha 50) | nota com link na introdução da seção |
+| `docs/process/workflow/vision.md` | 1ª menção de estado (~linha 100) | nota com link na introdução |
+| `skills/pm/README.md` | 1ª menção de estado | nota com link |
+| `docs/process/refinement/autonomous_readiness.md` | já tem link (linha 3) | nada a fazer |
+
+**Validação:**
+- `grep -l "🌱.*🧭.*📐.*📋.*🔍.*🏗\|🌱 Visão.*🧭 Jornada" docs/ skills/` retorna apenas `docs/process/refinement/planning_guidelines.md` e a tabela `EpicState` em `docs/process/workflow/ROADMAP.md` (estrutura de dado, não texto).
+- Inspeção visual: arquivos da tabela acima abrem com link pra fonte canônica antes de qualquer menção a estado.
+
+**Acoplamento com `EpicState` enum no parser:** o enum em `docs/process/workflow/ROADMAP.md` linhas ~519-537 (parser de W-PROTO-PLAT-1.1) é estrutura de dado, não cópia textual da definição. Mantém-se intacto. Nota explícita na fonte canônica: "Os emojis e nomes aqui são fonte da verdade tanto para texto quanto para o `EpicState` enum em W-PROTO-PLAT-1.1."
+
+**Fora do escopo:**
+- Quebrar `planning_guidelines.md` em arquivos separados — escopo de W-MVP-DOC-1.
+- Atualizar referências em PRs históricas, commits, ou ROADMAPs de milestones já fechados.
 
 ---
 
@@ -943,29 +1002,67 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FAXINA`
 
-**Objetivo:** tirar de `docs/process/implementation/quality_rules.md` o que não é regra de processo do fluxo. Hoje (~400 linhas) mistura princípios + lessons learned do produto Revelar + tutorial defensivo de git pra Windows. Skill que segue esse doc pode aplicar regra fora de contexto.
+**Objetivo:** tirar de `docs/process/implementation/quality_rules.md` (397 linhas hoje) o que não é regra de processo do fluxo. Mistura princípios + lessons learned do produto Revelar + tutorial defensivo de git pra Windows. Skill que segue esse doc pode aplicar regra fora de contexto. Saída: doc com ~185 linhas focado em princípios + anti-redundância + comandos.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-### Funcionalidades (esboço):
-- **11.1 Apagar §"Verificação de Conflitos e Prevenção de Perda de Trabalho"** (~140 linhas) — tutorial defensivo de git nasceu de incidente concreto e ficou; não é regra de qualidade do processo.
-- **11.2 Mover §"Diretrizes Aprendidas em Produção"** (~45 linhas) — lessons learned específicas de sistemas conversacionais com LLMs do Revelar; destino: `products/revelar/docs/` ou `core/docs/agents/`.
-- **11.3 Reorganizar o que sobra** — princípios + regras anti-redundância + comandos de validação numa ordem coerente, sem grab-bag.
+**Dependências:** rodar **depois** de W-PROTO-15 (limpa "Cursor Background" nas linhas 144 e 382 antes do 11.3 reorganizar) e **depois** de W-PROTO-16 (congela o template canônico em linhas 105-128 antes do 11.3 reorganizar).
+
+### Funcionalidades:
+
+#### 11.1 Apagar §"Verificação de Conflitos e Prevenção de Perda de Trabalho"
+
+**Critério de aceite:** seção inteira (linhas 230-369 hoje, 140 linhas) é apagada de `quality_rules.md`. Tutorial defensivo de git nasceu de incidente concreto e ficou; não é regra de qualidade do processo. Subseções afetadas: 🚨 Problema Identificado, ✅ Processo de Verificação, 📋 Checklist Antes de Editar ROADMAP.md, 🔍 Verificação de Arquivos Modificados, 🛡️ Prevenção, 📝 Template de Verificação, ⚠️ Sinais de Alerta.
+
+**Arquivos a modificar:** `docs/process/implementation/quality_rules.md` (apagar seção).
+
+**Validação:** `grep -n "Verificação de Conflitos\|Prevenção de Perda" docs/process/implementation/quality_rules.md` retorna 0 linhas.
+
+#### 11.2 Mover §"Diretrizes Aprendidas em Produção" para `products/revelar/docs/`
+
+**Critério de aceite:** seção (linhas 29-73 hoje, 45 linhas, com 3 subseções: Sistemas Conversacionais com LLMs, Validação e Testes, Arquitetura e Design) é apagada de `quality_rules.md` e migrada para arquivo novo `products/revelar/docs/llm_implementation_lessons.md`. Conteúdo é específico do Revelar (produto conversacional com LLMs); fica órfão em `quality_rules.md`.
+
+**Decisão de destino:** `products/revelar/docs/llm_implementation_lessons.md` em vez de `core/docs/agents/`. Razão: as 3 subseções são específicas da jornada do Revelar (não regras universais para qualquer agente). `core/docs/agents/orchestrator/conversational/` já tem 9 arquivos sobre arquitetura conversacional; misturar lessons learned ali criaria grab-bag.
+
+**Arquivos a modificar:**
+- `docs/process/implementation/quality_rules.md` — apagar linhas 29-73.
+- `products/revelar/docs/llm_implementation_lessons.md` — arquivo novo com o conteúdo migrado, prefixado por header curto: "Lições aprendidas implementando o Revelar (sistema conversacional com LLMs). Migrado de `docs/process/implementation/quality_rules.md` em PROTO-WORKFLOW-FAXINA, 2026-04-29."
+
+**Acoplamentos:** nenhum link cruzado precisa ser ajustado — o conteúdo era órfão em `quality_rules.md`, sem âncoras referenciadas externamente.
+
+**Validação:** `grep -n "Diretrizes Aprendidas em Produção\|Sistemas Conversacionais com LLMs" docs/process/implementation/quality_rules.md` retorna 0 linhas. `ls products/revelar/docs/llm_implementation_lessons.md` existe com >40 linhas.
+
+#### 11.3 Reorganizar o que sobra em ordem coerente
+
+**Critério de aceite:** após 11.1 + 11.2 + W-PROTO-15.4 (limpa "Cursor Background" nas linhas 144, 382) + W-PROTO-16 (congela template canônico), as seções remanescentes são reorganizadas na ordem abaixo, sem grab-bag.
+
+**Estrutura final do `quality_rules.md`:**
+1. **Princípios Gerais** (lines 3-26 hoje) — Incremental e Seguro, TDD Pragmático, Autônomo mas Transparente, Documentação Viva.
+2. **Regras Anti-Redundância** (lines 76-95 hoje) — tabela de responsabilidade por documento + regras de ouro.
+3. **Comandos e Validação** (lines 98-137 hoje) — fica como **âncora canônica** para W-PROTO-16; mantém §Template de validação + §Observações.
+4. **Exemplo de Fluxo Completo** (lines 140-227 hoje) — fica, mas com "Cursor Background" removido em W-PROTO-15.4 e exemplo adaptado pra fluxo único.
+5. **Observações Finais** (lines 373-396 hoje) — fica, com seção "Para o Agente (Claude Code / Cursor Background)" reescrita em W-PROTO-15.4.
+
+Não há reordenação radical — a ordem atual já é coerente. 11.3 valida que após as remoções/limpezas o fluxo do doc lê limpo.
+
+**Arquivos a modificar:** `docs/process/implementation/quality_rules.md` (apenas se 11.1 + 11.2 + 15.4 + 16 deixaram lacunas visuais ou seções desbalanceadas).
+
+**Validação:**
+- `wc -l docs/process/implementation/quality_rules.md` retorna ~180-200 linhas.
+- Inspeção visual: leitura sequencial do doc não tem saltos abruptos de tema.
+
+**Fora do escopo:**
+- Quebrar `quality_rules.md` em arquivos por responsabilidade (escopo de W-MVP-DOC-1 / futuro).
+- Reescrever os princípios — apenas reorganizar o que sobra.
 
 ---
 
-#### ÉPICO W-PROTO-12: Cindir `implementation/overview.md`
-
-**Milestone:** `PROTO-WORKFLOW-FAXINA`
-
-**Objetivo:** separar regras de interação com dev (genéricas, valem pros dois fluxos) de regras de validação híbrida (específicas do fluxo manual via Cursor). Hoje o doc mistura os dois e a nota corretiva de linha 88-91 já admite o problema. Agente leitor tem que filtrar mentalmente o que aplica ao contexto.
-
-**Status:** 📐 Funcionalidades esboçadas
-
-### Funcionalidades (esboço):
-- **12.1 Extrair "Validação Híbrida" para arquivo próprio** — escopo: fluxo manual; conteúdo: validação automática (sintaxe, imports), comandos por checkpoint.
-- **12.2 Manter no overview só regras de interação** — aprovação explícita, papel do agente, sinais de aprovação válidos (referência canônica deduplicada em `claude/review-process-directory-J1v8v`).
-- **12.3 Reapontar referências** — ajustar links em `workflow.md`, `delivery.md`, `blockers.md`.
+> **Nota — W-PROTO-12 absorvido por W-PROTO-15.** Refinamento estratégico de
+> 2026-04-29 decidiu não cindir `implementation/overview.md`. A premissa
+> ("isolar conteúdo do fluxo manual") some quando 15.4 elimina a dicotomia;
+> o conteúdo útil de §"Validação Híbrida" (sintaxe, imports) vale pra qualquer
+> fluxo e fica no overview mesmo. Se "doc por responsabilidade" virar atrito
+> real depois, vira épico próprio no MVP-WORKFLOW-DOC.
 
 ---
 
@@ -973,14 +1070,41 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FAXINA`
 
-**Objetivo:** aplicar princípio "documentação para agente é concisa, não defensiva" — agente trabalha do traceback, não consulta catálogo de erros típicos. Doc hoje carrega seções defensivas que confundem o Copilot ao invés de ajudar.
+**Objetivo:** aplicar princípio "documentação para agente é concisa, não defensiva" — agente trabalha do traceback, não consulta catálogo de erros típicos. Doc hoje (143 linhas) carrega seções defensivas residuais que confundem o Copilot ao invés de ajudar.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-### Funcionalidades (esboço):
-- **13.1 Apagar §"Erros típicos e orientação"** — agente lê traceback e age; não consulta lista pré-cozida.
-- **13.2 Apagar §"Checklist mínimo de POC do Ensaio"** — Ensaio migrou para Reflex (ADR 001); checklist baseado na app antiga não tem mais função e o Modo A já cobre validação por critérios extraídos do `current_implementation.md`.
-- **13.3 Varredura de outros padrões defensivos** — verificar se §"Operação Windows / macOS / Linux" e §"Quando o dev disser 'deu erro'" carregam regras ainda ativas ou são entulho.
+**Nota factual sobre seções declaradas no esboço inicial:** §"Erros típicos e orientação" (alvo original 13.1) e §"Checklist mínimo de POC do Ensaio" (alvo original 13.2) **não existem** mais no arquivo — foram apagadas em refinamentos anteriores (mais recente: PROTO-WORKFLOW-AJUSTES, PR #93). Funcionalidades 13.1 e 13.2 viraram **no-ops verificados**; escopo real do épico é 13.3 + sobreposição com W-PROTO-14.
+
+**Dependências:** coordena com W-PROTO-14 — ambos tocam §"Operação Windows / macOS / Linux" (linhas 120-127) e §3 "Subir a app" (linhas 68-96). Ordem segura: W-PROTO-13 primeiro (apaga seção que vai ser substituída por conteúdo novo de W-PROTO-14), depois W-PROTO-14. Se rodarem na mesma sessão, o agente faz as duas operações coerentemente sem conflito.
+
+### Funcionalidades:
+
+#### 13.1 §"Erros típicos e orientação" — no-op (já apagada)
+
+**Critério de aceite:** `grep -c "Erros típicos\|orientação" .github/copilot-instructions.md` retorna 0 ocorrências do título de seção. Verificação documental: nenhum trabalho a fazer; a feature fecha com nota explícita no `current_implementation.md` ("seção já apagada em refinamento anterior; nada a fazer").
+
+#### 13.2 §"Checklist mínimo de POC do Ensaio" — no-op (já apagada)
+
+**Critério de aceite:** `grep -c "Checklist mínimo.*POC\|POC do Ensaio" .github/copilot-instructions.md` retorna 0 ocorrências. Verificação documental: nenhum trabalho a fazer; a feature fecha com nota explícita no `current_implementation.md`.
+
+#### 13.3 Apagar §"Operação Windows / macOS / Linux"; manter §"Quando o dev disser 'deu erro'"
+
+**Critério de aceite:** §"Operação Windows / macOS / Linux" (linhas 120-127, 8 linhas) é apagada. Conteúdo é redundante: (a) trecho `.venv/` aparece também na §1 Sincronizar (linhas 44-48); (b) trecho Streamlit + porta 8501 é substituído pela detecção de stack de W-PROTO-14.1 + comando + range de portas (W-PROTO-14.2/14.3); (c) "foreground sempre + traceback → reportar" já está em §3 (linhas 94-95).
+
+§"Quando o dev disser 'deu erro'" (linhas 130-135, 6 linhas) **fica intacta**. Decisão de manter: o conteúdo é genérico (coletar log, identificar causa raiz no traceback, não editar código) e operacional — descreve postura, não erros específicos. Não é padrão defensivo.
+
+**Arquivos a modificar:**
+- `.github/copilot-instructions.md` — apagar bloco linhas 120-127 (incluindo o `---` separador acima ou abaixo, conforme leitura pós-edição).
+
+**Validação:**
+- `grep -n "Operação Windows" .github/copilot-instructions.md` retorna 0.
+- `grep -n "Quando o dev disser" .github/copilot-instructions.md` retorna 1 (mantida).
+- `wc -l .github/copilot-instructions.md` retorna ~135 linhas (vs 143 hoje).
+
+**Fora do escopo:**
+- Reescrita da §3 "Subir a app" (linhas 68-96) — escopo de W-PROTO-14.
+- Mudanças na §1 Sincronizar / §2 Resumo / §"Output fixo" — sem sinal de atrito.
 
 ---
 
@@ -988,16 +1112,138 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-COPILOT-STACK`
 
-**Objetivo:** o Ensaio migrou para Reflex no Protótipo (ADR 001 de 2026-04-25), mas `copilot-instructions.md` ainda manda Streamlit pros dois produtos. Validação de branches do Ensaio quebra ou roda com comando errado.
+**Objetivo:** o Ensaio migrou para Reflex no Protótipo (ADR 001 de 2026-04-25), mas `copilot-instructions.md` ainda manda Streamlit pros dois produtos (linhas 70, 82, 92, 125). Validação de branches do Ensaio quebra ou roda com comando errado.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** input do dev sobre comandos exatos de Reflex no ambiente Windows (stack alvo do Copilot).
+**Dependências:**
+- ADR 001 (`products/ensaio/docs/adr/001-stack-do-prototipo.md`) — comandos e portas de Reflex já fixados; sem input pendente do dev.
+- `products/ensaio/rxconfig.py` — fonte da verdade para `backend_port=8000` e `frontend_port=3000`.
+- Coordena com W-PROTO-13.3: ambos tocam linhas 120-127. Ordem: 13.3 apaga primeiro, 14 reescreve §3 depois.
 
-### Funcionalidades (esboço):
-- **14.1 Detecção de stack por produto** — tabela explícita: `products/revelar/app/**` → Streamlit; `products/ensaio/app/**` → Reflex; futuros produtos com nota de detecção.
-- **14.2 Comando de subida do Reflex** — comando padrão validado (foreground, foco no log, encerramento limpo).
-- **14.3 Liberação de portas por stack** — range hardcoded hoje (8501-8503) precisa cobrir as portas do Reflex.
+### Termos e contratos
+
+**Detecção de stack** (termo novo introduzido por este épico): regra determinística que mapeia caminho de arquivo no diff → stack do produto → comando de subida → portas. Tabela canônica:
+
+| Produto | Caminho-gatilho | Stack | Comando de subida | Portas a liberar |
+|---|---|---|---|---|
+| Revelar | `products/revelar/app/**` | Streamlit | `python -m streamlit run <entrypoint>` | 8501-8503 |
+| Ensaio | `products/ensaio/app/**` | Reflex | `cd products/ensaio && reflex run` | 3000 (frontend), 8000 (backend) |
+| Futuros | `products/<novo>/app/**` | a declarar | a declarar | a declarar |
+
+### Funcionalidades:
+
+#### 14.1 Detecção de stack por produto
+
+**Critério de aceite:** `.github/copilot-instructions.md` ganha tabela explícita produto → stack → entrypoint → comando → portas, posicionada como §"Stacks por produto" entre §"Pré-condição" (linhas 19-31) e §"Fluxo (3 passos)" (linha 35). Detecção pelo diff (`git diff --name-only origin/main | grep products/`) usa essa tabela como fonte. Se o diff toca produto sem entrada na tabela, o agente para e reporta — não improvisa.
+
+**Conteúdo da seção (verbatim a inserir):**
+
+```markdown
+## Stacks por produto
+
+A validação por aqui detecta o produto pelo diff e usa a stack correspondente.
+Se a branch toca produto fora desta tabela, **pare e reporte** — não improvise.
+
+| Produto | Caminho-gatilho        | Stack     | Entrypoint                                  | Portas      |
+|---------|------------------------|-----------|---------------------------------------------|-------------|
+| Revelar | products/revelar/app/  | Streamlit | products/revelar/app/chat.py (ou dashboard) | 8501-8503   |
+| Ensaio  | products/ensaio/app/   | Reflex    | products/ensaio/ (reflex run a partir daí) | 3000, 8000  |
+
+Se a branch mexe em mais de um produto, perguntar ao dev qual subir primeiro.
+Se a branch só mexe em `core/` ou `docs/`, não há app para subir — pular §3.
+```
+
+**Arquivos a modificar:**
+- `.github/copilot-instructions.md` — inserir seção nova entre linhas 31 e 35.
+
+#### 14.2 Comando de subida por stack na §3
+
+**Critério de aceite:** §3 "Subir a app afetada" (linhas 68-96 hoje) é reescrita pra ramificar por stack detectada em 14.1. Comando de Reflex é foreground, com log visível, encerramento via Ctrl+C — mesma postura do Streamlit.
+
+**Conteúdo da §3 (substituir linhas 68-96 por):**
+
+```markdown
+### 3. Subir a app afetada
+
+Antes de qualquer coisa, libere as portas da stack detectada (ver §"Stacks
+por produto" + §"Liberação de portas" abaixo). Não mate processos em geral —
+mate apenas quem está escutando nas portas-alvo.
+
+Detectar produto pelo diff (`git diff --name-only origin/main | grep products/`):
+- `products/<produto>/app/**` → subir a stack do produto
+- Se a branch mexeu em mais de um produto, perguntar ao dev qual subir primeiro
+- Se a branch não mexeu em nenhum produto: avisar e pular esta etapa.
+
+**Streamlit (Revelar):**
+
+```bash
+python -m streamlit run <entrypoint>     # ex: products/revelar/app/chat.py
+```
+
+**Reflex (Ensaio):**
+
+```bash
+cd products/ensaio
+reflex run                               # backend :8000, frontend :3000
+```
+
+Subir em **foreground** e deixar rodando — o dev vai abrir no navegador.
+Se o log mostrar traceback no start → parar, reportar o erro, não tentar consertar.
+```
+
+**Arquivos a modificar:** `.github/copilot-instructions.md` (substituir linhas 68-96).
+
+#### 14.3 Liberação de portas por stack
+
+**Critério de aceite:** o bloco de liberação de portas (linhas 70-83 hoje, hardcoded em 8501-8503) é reescrito pra cobrir Streamlit (8501-8503) **e** Reflex (3000, 8000). Detecção da stack reusa 14.1 e libera apenas as portas relevantes — não mata processos em geral.
+
+**Conteúdo do bloco (substituir linhas 70-83 por):**
+
+```markdown
+**Antes de qualquer coisa:** liberar as portas da stack detectada matando
+apenas quem está escutando nelas.
+
+Para Streamlit (Revelar): portas 8501-8503.
+Para Reflex (Ensaio): portas 3000 (frontend) e 8000 (backend).
+
+```powershell
+# Windows (PowerShell) — cirúrgico por porta. Adapte $ports à stack detectada.
+$ports = @(8501, 8502, 8503)         # Streamlit (Revelar)
+# $ports = @(3000, 8000)             # Reflex (Ensaio)
+foreach ($port in $ports) {
+    Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
+        ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
+}
+```
+
+```bash
+# Linux/Mac — filtra pelo entrypoint do projeto
+pkill -f "streamlit.*products/revelar/app/" 2>/dev/null || true   # Revelar
+pkill -f "reflex.*products/ensaio" 2>/dev/null || true            # Ensaio
+```
+```
+
+**Arquivos a modificar:** `.github/copilot-instructions.md` (substituir linhas 70-83).
+
+### Acoplamentos verificados
+
+- **`products/revelar/app/`** existe com `chat.py` + `dashboard.py` + componentes. Comando atual `python -m streamlit run` permanece válido.
+- **`products/ensaio/app/`** existe com Reflex; `rxconfig.py` confirma portas 3000/8000 e `app_name="app"`.
+- **`scripts/`**: nenhum script roda os apps — comandos vivem só na doc do Copilot.
+- **Outros docs** que mencionam Streamlit/Reflex (tabela do mapeamento exaustivo: `docs/ARCHITECTURE.md`, `docs/CONSTITUTION.md` linha 295, `docs/CONTEXT_INDEX.md`, `products/ensaio/README.md`, `core/docs/tools/cli.md`) — referências contextuais (descrição do produto), não comandos de validação. **Fora do escopo** deste épico.
+
+### Validação
+
+- `grep -n "reflex run" .github/copilot-instructions.md` retorna ≥1 linha.
+- `grep -n "products/ensaio" .github/copilot-instructions.md` retorna ≥1 linha.
+- `grep -nE "8501|8502|8503|3000|8000" .github/copilot-instructions.md` retorna linhas em §"Liberação de portas".
+- Inspeção visual: §3 ramifica claramente entre Streamlit e Reflex.
+
+**Fora do escopo:**
+- Detecção automatizada via script — instrução textual é suficiente para o Copilot.
+- Reescrita da nota de erros típicos / debug — coberto por W-PROTO-13.
+- Mudança no parser de portas em outras ferramentas (workflow_platform usa Streamlit também, mas tem porta própria).
 
 ---
 
@@ -1005,28 +1251,258 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FAXINA`
 
-**Objetivo:** o desenho atual carrega dicotomia "fluxo manual (Cursor) vs fluxo autônomo (Claude Code Web)" em ~30 arquivos (`docs/CONSTITUTION.md` 31 menções, `refinement/planning_guidelines.md` 27, `autonomous/overview.md` 6, demais menores). Na prática, o operador opera 100% via Claude Code Web — implementação **e** refinamento estratégico. Cursor não está instalado no ambiente atual e Claude Web saiu como ferramenta de refinamento. A documentação ficou desalinhada do uso real e impõe ao agente leitor o custo de filtrar "o que aplica ao meu contexto".
+**Objetivo:** o desenho atual carrega dicotomia "fluxo manual (Cursor) vs fluxo autônomo (Claude Code Web)" em ~140 menções espalhadas em 16 arquivos. Na prática, o operador opera 100% via Claude Code Web — implementação **e** refinamento estratégico. Cursor não está instalado no ambiente atual; Claude Web persiste como ferramenta de refinamento estratégico em sessão externa quando há decisão de alto nível, mas não como executor. A documentação ficou desalinhada do uso real e impõe ao agente leitor o custo de filtrar "o que aplica ao meu contexto". Este épico **absorve W-PROTO-12** (cindir `implementation/overview.md`) — a premissa do W-PROTO-12 some quando 15.4 elimina a dicotomia.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-### Funcionalidades (esboço):
-- **15.1 Eliminar dicotomia manual/autônomo** — `autonomous/overview.md` perde a tabela "Fluxo Manual (Cursor) vs Fluxo Autônomo"; descreve apenas o autônomo. Estado `📋 Critérios definidos` deixa de ser "Apto ao fluxo manual" — vira passo intermediário até `🔍`.
-- **15.2 Reescrever "Otimização do Workflow" em `planning_guidelines.md`** — pipeline tripartite Claude Web ↔ Cursor ↔ código (linhas 77-140 hoje) descreve forma de trabalho descontinuada. Substituir por descrição realista: refinamento estratégico roda em Claude Code Web; análise de código é feita pelo próprio executor.
-- **15.3 Limpar CONSTITUTION** — 31 menções a Cursor / Claude Web / fluxo manual; cada uma decide entre substituir por Claude Code Web, generalizar para "agente", ou apagar (premissa some).
-- **15.4 Limpar `implementation/overview.md` e `quality_rules.md`** — distinção "Cursor Background vs Claude Code" sai. Pode tornar **W-PROTO-12** redundante (cindir overview deixa de fazer sentido se só há um fluxo).
-- **15.5 Limpar skills e refinamento** — `skills/pm`, `skills/em`, `refinement/overview.md`, `refinement/starter.md`, `autonomous_readiness.md` perdem menções.
-- **15.6 Deletar `.cursorrules`** — arquivo regra de Cursor não tem mais função.
-- **15.7 Atualizar `CLAUDE.md` e `.claudecode.md`** — referências cruzadas a `.cursorrules` e a "fluxo manual" saem.
-- **15.8 Varredura final** — `grep -ri "cursor\|claude web\|fluxo manual"` retorna 0 fora de histórico de commits/PRs mergeadas e ROADMAPs de milestones fechados.
+### Termos e conceitos
 
-**Sobreposições conhecidas** (a resolver no refinamento):
-- **W-PROTO-12** (cindir `implementation/overview.md`) — premissa de fluxo manual some com 15.4. Refinamento decide se W-PROTO-12 é absorvido aqui ou fechado.
-- **W-PROTO-10** (centralizar estados) — atualização de `📋` em 15.1 toca a fonte canônica do 10.1.
-- **W-PROTO-11** (faxina `quality_rules.md`) — menções a "Cursor Background" caem em 15.4.
+- **Refinamento estratégico** — sessão com operador para decisões de alto nível (visão → milestones, tensões arquiteturais, escopo de fase). Pode rodar via Claude Code Web (caminho principal, com acesso direto ao repo) ou via Claude Web em sessão externa quando o operador escolher (ferramenta secundária; não desaparece). Definição canônica → `docs/process/refinement/planning_guidelines.md` §"Modalidades de refinamento" (após reescrita 15.2).
+- **Refinamento tático** — PM skill dentro da branch do milestone; leva épicos de `🌱`/`📐` até `🔍`. Definição → `skills/pm/skill.md` (sem alteração necessária).
+- **Fluxo único de execução** — Claude Code Web autônomo, com gates QA/TL/PO/RTE atuando como aprovações no lugar do dev acompanhando checkpoint a checkpoint. Definição → `docs/process/autonomous/overview.md` (após reescrita 15.1).
 
-**Fora do escopo:**
+### Surface afetada (mapeamento exaustivo)
+
+Levantamento feito em 2026-04-29 (revisão `claude/refine-workflow-stacks-6JOH6`). Cada arquivo abaixo tem ação declarada e linhas-alvo nominais (linhas podem deslocar conforme as edições rodam — usar grep para localizar).
+
+| Arquivo | Menções | Ação principal |
+|---|---:|---|
+| `docs/CONSTITUTION.md` | 30 | reescrever §Fluxos Disponíveis, apagar §Cursor (Atualizador de Documentações), atualizar glossário (épico, funcionalidade), remover §"Gerar Prompts para fluxo manual" |
+| `docs/process/refinement/planning_guidelines.md` | 27-28 | reescrever §"Otimização do Workflow" (linhas ~99-140) como §"Modalidades de Refinamento"; atualizar rótulo de `📋` (linha 260, 338); apagar §"Claude Web gera prompts separados para Cursor" (linhas 77-82) |
+| `docs/process/refinement/starter.md` | 10 | atualizar rótulo de `📋` (linha 68); generalizar instruções de "Contexto enviado ao Claude Web" pra incluir caminho via Claude Code Web; remover "(via Cursor)" da inspeção de código (linha 74) |
+| `docs/process/autonomous/overview.md` | 9 | apagar tabela "Fluxo Manual vs Autônomo" (linhas 48-55); apagar §"Use o Fluxo Manual (Cursor) quando..." (linhas 61-68); remover contraste manual/autônomo da intro (linha 13); reescrever menção em §6 (linha 86) |
+| `docs/process/refinement/overview.md` | 2-3 | atualizar nota de evolução (linha 3); corrigir bullet de "implementação manual via Cursor" (linha 26) |
+| `docs/process/autonomous/delivery.md` | 4 | substituir fallback "trazer para Cursor (fluxo manual)" por "devolver para PM skill / Claude Web" (linhas 23, 100); remover qualificador "compartilhada com fluxo manual" (linha 131) |
+| `docs/process/implementation/overview.md` | 3 | reescrever cabeçalho linha 3 (de "Claude Code / Cursor Background" → "Claude Code Web"); apagar nota corretiva linhas 88-91 sobre "fluxo manual"; **manter** §"Validação Híbrida" intacta (absorção W-PROTO-12) |
+| `docs/process/implementation/quality_rules.md` | 2 | atualizar cabeçalho linhas 144 e 382 (de "Claude Code / Cursor Background" → "Claude Code Web"). Coordenado com W-PROTO-11.3 |
+| `skills/pm/skill.md` | 5 | nenhuma edição — guardrails "não substitui Claude Web" continuam corretos (Claude Web segue como caminho secundário de refinamento estratégico) |
+| `skills/em/skill.md` | 3 | nenhuma edição — mesmo motivo |
+| `skills/rte/skill.md` | 1 | remover qualificador "compartilhada com fluxo manual" (linha 420) |
+| `skills/rte/templates/delivery-report.md` | 1 | atualizar fallback "OU traga para Cursor" → "refine com PM skill" |
+| `docs/CONTEXT_INDEX.md` | 2 | atualizar bullets "manual via Cursor" → "via Claude Code Web" (linhas 211, 219) |
+| `README.md` | 1 | atualizar rótulo "(Claude, Cursor, Claude Code)" → "(Claude Web, Claude Code Web)" (linha 219) |
+| `CLAUDE.md` | 4 | reescrever bullet de "Fluxo manual (Cursor)" (linhas 39-40) e remover referência a `.cursorrules` (linha 52) — coordenado com 15.6 e com adição da regra "sugestão com trade-offs" (escopo desta sessão de refinamento) |
+| `.claudecode.md` | 0 | nenhuma menção — sem edição |
+| `.cursorrules` | n/a | apagar arquivo (60 linhas) |
+
+### Funcionalidades:
+
+#### 15.1 Reescrever `autonomous/overview.md` para fluxo único
+
+**Critério de aceite:** arquivo descreve **um** fluxo (autônomo via Claude Code Web). Tabela "Fluxo Manual vs Autônomo" (linhas 48-55) some. Seção "Use o Fluxo Manual (Cursor) quando..." (linhas 61-68) some. Intro (linha 13) e §6 (linha 86) deixam de contrastar com fluxo manual. Estado `📋 Critérios definidos` é descrito como "passo intermediário até `🔍`" (não como "apto ao fluxo manual").
+
+**Arquivos a modificar:** `docs/process/autonomous/overview.md`.
+
+**Validação:** `grep -ni "fluxo manual\|cursor" docs/process/autonomous/overview.md` retorna 0.
+
+#### 15.2 Reescrever §"Otimização do Workflow" em `planning_guidelines.md` como §"Modalidades de Refinamento"
+
+**Critério de aceite:** §"Otimização do Workflow: Usando Cursor para Análises" (linhas 99-140 hoje) é apagada e substituída por §"Modalidades de Refinamento", que descreve três modalidades:
+
+1. **Estratégico (sessão externa com operador, via Claude Web ou equivalente)** — ferramenta secundária, usada em decisões estruturais que exigem alinhamento humano. Contexto suprido por upload manual ou pela plataforma (W-MVP-PLAT-2 quando existir).
+2. **Estratégico (Claude Code Web na branch do repo)** — caminho principal hoje. Acesso direto ao repo; refina e materializa no ROADMAP em sessão única.
+3. **Tático (PM skill dentro da branch do milestone)** — refinamento mecânico de épicos `🌱`/`📐` até `🔍` quando o milestone é disparado.
+
+Pipeline tripartite "Cursor escaneia → Claude Web refina → Cursor executa" desaparece — premissa obsoleta (Claude Code Web já tem acesso ao código).
+
+**Arquivos a modificar:**
+- `docs/process/refinement/planning_guidelines.md` — substituir linhas 99-140 + apagar §"Claude Web gera prompts separados para Cursor" (linhas 77-82).
+- Ajustar rótulos de `📋` em linhas 260, 338, 350 ("apto ao fluxo manual" → "passo intermediário até `🔍`"). Linha 269 ("Claude Code só implementa épicos em `📋` (manual) ou `🔍` (autônomo)") vira "épicos em `🔍`".
+
+**Validação:** `grep -ni "Otimização do Workflow.*Cursor\|prompts separados para Cursor\|apto ao fluxo manual" docs/process/refinement/planning_guidelines.md` retorna 0.
+
+#### 15.3 Limpar `CONSTITUTION.md`
+
+**Critério de aceite:** as 30 menções caem por:
+- Reescrever §Fluxos Disponíveis (linhas 36-45) como §"Requisitos de Refinamento" (descreve `📋` → `🔍` como progressão obrigatória antes da execução).
+- Apagar §"Cursor (Atualizador de Documentações)" (linhas 66-77) inteiramente.
+- Atualizar glossário: definição de Épico (linha 328), Funcionalidade (linha 331), e linha enumeradora 17 que mantém link já existente.
+- Reescrever §"Gerar Prompts" da sessão de refinamento (linhas 128-159) — Formato A (lista de milestones/épicos) fica; Formato B (prompts pra Cursor) sai.
+- Linha 11 (definição da dicotomia) some — premissa não vale mais.
+
+**Arquivos a modificar:** `docs/CONSTITUTION.md`.
+
+**Validação:** `grep -ni "cursor\|fluxo manual" docs/CONSTITUTION.md` retorna 0 (apenas menção possível: link pra `.cursorrules`, mas ele será apagado em 15.6 → 0 menções).
+
+#### 15.4 Limpar `implementation/overview.md` e `quality_rules.md` (absorve W-PROTO-12)
+
+**Critério de aceite:** ambos os arquivos perdem o rótulo "Cursor Background" e a contrastação com "fluxo manual".
+
+Em `implementation/overview.md`:
+- Reescrever cabeçalho linha 3: "(Claude Code / Cursor Background)" → "(Claude Code Web)".
+- Apagar nota linhas 88-91 (que contrasta o fluxo autônomo com manual via Cursor).
+- **Manter §"Validação Híbrida" (linhas 30-92)** — conteúdo (sintaxe, imports, comandos) vale pra qualquer agente, não é específico de fluxo manual. **Esta é a absorção de W-PROTO-12**: cindir o doc deixa de fazer sentido quando a dicotomia some.
+
+Em `quality_rules.md`:
+- Reescrever cabeçalho linha 144: "Agente (Claude Code / Cursor Background):" → "Agente (Claude Code Web):".
+- Reescrever cabeçalho linha 382: "Para o Agente (Claude Code / Cursor Background)" → "Para o Agente (Claude Code Web)".
+
+**Arquivos a modificar:** `docs/process/implementation/overview.md`, `docs/process/implementation/quality_rules.md`.
+
+**Validação:** `grep -ni "Cursor Background\|fluxo manual" docs/process/implementation/overview.md docs/process/implementation/quality_rules.md` retorna 0.
+
+#### 15.5 Limpar `refinement/starter.md`, `refinement/overview.md`, `autonomous/delivery.md`, `skills/rte/skill.md`, `skills/rte/templates/delivery-report.md`
+
+**Critério de aceite:** menções remanescentes são atualizadas conforme tabela "Surface afetada" acima. PM e EM skills **não são tocadas** — guardrails "não substitui Claude Web" continuam válidos (Claude Web segue como caminho secundário em refinamento estratégico).
+
+**Arquivos a modificar:**
+- `docs/process/refinement/starter.md` (linha 68 + 74).
+- `docs/process/refinement/overview.md` (linhas 3, 26).
+- `docs/process/autonomous/delivery.md` (linhas 23, 100, 131).
+- `skills/rte/skill.md` (linha 420).
+- `skills/rte/templates/delivery-report.md` (linha ~130).
+
+**Validação:** `grep -ni "fluxo manual\|via Cursor" docs/process/refinement/starter.md docs/process/refinement/overview.md docs/process/autonomous/delivery.md skills/rte/skill.md skills/rte/templates/delivery-report.md` retorna 0.
+
+#### 15.6 Deletar `.cursorrules`
+
+**Critério de aceite:** arquivo `.cursorrules` (60 linhas, 1928 bytes) é apagado integralmente. Conteúdo aplicável (regras de comportamento como "confirmar antes de criar arquivos", "usar PowerShell no Windows") já vive em CLAUDE.md e `.claudecode.md` direcionadas a Claude Code Web — sem migração necessária.
+
+**Arquivos a modificar:** apagar `.cursorrules`.
+
+**Validação:** `ls .cursorrules 2>/dev/null` retorna vazio.
+
+#### 15.7 Atualizar `CLAUDE.md`, `.claudecode.md`, `docs/CONTEXT_INDEX.md`, `README.md`
+
+**Critério de aceite:**
+
+Em `CLAUDE.md`:
+- Linha 6: remover referência cruzada a `.cursorrules`.
+- Linhas 39-40: bullet "Fluxo manual (Cursor, sessão de refinamento) — defaults restritos do harness e do `.cursorrules` continuam valendo" → reescrever como "Refinamento estratégico em sessão externa com Claude Web — defaults restritos do harness continuam valendo nessas sessões".
+- Linha 52: remover bullet "Regras do fluxo manual (Cursor) → `.cursorrules`".
+
+Em `.claudecode.md`: nenhuma edição (zero menções).
+
+Em `docs/CONTEXT_INDEX.md`: linhas 211 e 219 — "manual via Cursor" → "via Claude Code Web".
+
+Em `README.md`: linha 219 — "(Claude, Cursor, Claude Code)" → "(Claude Web, Claude Code Web)".
+
+**Arquivos a modificar:** `CLAUDE.md`, `docs/CONTEXT_INDEX.md`, `README.md`.
+
+**Validação:** `grep -ni "cursor" CLAUDE.md docs/CONTEXT_INDEX.md README.md` retorna 0.
+
+#### 15.8 Varredura final
+
+**Critério de aceite:**
+
+```bash
+grep -rni "cursor\|fluxo manual\|claude web.*cursor" \
+  --include="*.md" \
+  --exclude-dir=.git \
+  --exclude="ROADMAP.md" \
+  docs/ skills/ products/ core/ tools/ tests/ scripts/ \
+  CLAUDE.md README.md
+```
+
+Retorna 0 menções, com as exceções declaradas:
+
+- `docs/process/workflow/ROADMAP.md` — épicos históricos (W-PROTO-12 absorvido, W-PROTO-15 e este próprio bloco) e nota de Observações; mantém referência por integridade histórica.
+- ROADMAPs de milestones já fechados (`PROTO-WORKFLOW-AJUSTES`, `PROTO-WORKFLOW-DOC`, `PROTO-WORKFLOW-ENCERRAMENTO`) — não tocar.
+- `skills/pm/skill.md` e `skills/em/skill.md` — menção a "Claude Web" como caminho secundário de refinamento (correto, fica).
+
+Adicionalmente:
+- `ls .cursorrules` retorna vazio.
+- `wc -l docs/CONSTITUTION.md docs/process/refinement/planning_guidelines.md docs/process/autonomous/overview.md` mostra redução compatível com as remoções (ordem de grandeza: -50 a -80 linhas total).
+
+### Ordem interna de execução
+
+1. **15.1 + 15.2 + 15.3 em paralelo** — três docs grandes, edições disjuntas.
+2. **15.4** — depende conceitualmente de 15.1/15.2/15.3 estarem coerentes (mesmo paradigma de fluxo único).
+3. **15.5** — pode rodar em paralelo com 15.4.
+4. **15.6** — independente.
+5. **15.7** — depois de 15.6 (referência a `.cursorrules` em CLAUDE.md sai junto).
+6. **15.8** — última, valida o todo.
+
+### Acoplamentos com outros épicos
+
+- **W-PROTO-10** (centralizar estados) — 15.2 toca o rótulo de `📋` na fonte que 10.1 vai centralizar. Ordem: **15 antes de 10** — vale a pena consolidar a fonte canônica depois das remoções.
+- **W-PROTO-11** (faxina `quality_rules.md`) — 15.4 limpa "Cursor Background" antes da reorganização do 11.3. Ordem: **15 antes de 11**.
+- **W-PROTO-13/14** (copilot-instructions) — não há sobreposição. Podem rodar em qualquer ordem.
+- **W-PROTO-16** (consolidar comandos de validação) — 15.4 não toca o template canônico em `quality_rules.md` (linhas 105-128). Ordem: **15 ou 16 primeiro, indiferente**.
+
+### Fora do escopo
+
 - Refinamento autônomo nativo da plataforma (visão futura — W-MVP-REF-1).
-- Integração Claude Code + OpenWebUI (em breve, ainda não desenhado).
+- Integração Claude Code + OpenWebUI (em estudo, não desenhado).
+- Limpeza de menções históricas em PRs mergeadas, commits, ou ROADMAPs de milestones já fechados.
+
+---
+
+#### ÉPICO W-PROTO-16: Consolidar template de "comandos de validação local"
+
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
+
+**Objetivo:** o template "git fetch / checkout / venv / pytest / [run app]" aparece em 4 arquivos com formatos divergentes (`quality_rules.md` linhas 105-128, `implementation/delivery.md` linhas 14-44 e 92-149, `autonomous/delivery.md` linhas 57-81, `implementation/overview.md` linhas 60-72). Risco de drift médio prazo + carga cognitiva pra o agente que precisa decidir qual versão é canônica. Consolida em fonte única e substitui as cópias por referência.
+
+**Status:** 🔍 Detalhes definidos
+
+**Origem:** declarado originalmente como `W-MVP-DOC-2` em `MVP-WORKFLOW-DOC` (2026-04-29). Movido para `PROTO-WORKFLOW-FAXINA` no refinamento estratégico de 2026-04-29 (`claude/refine-workflow-stacks-6JOH6`) — 3 dos 4 arquivos com cópia são exatamente os que W-PROTO-11 e W-PROTO-15 já tocam, justificando antecipar.
+
+**Dependências:** rodar **antes** de W-PROTO-11.3 (para que a reorganização do `quality_rules.md` parta da forma canônica congelada). Sem dependência com W-PROTO-15 (15.4 não toca o template canônico em linhas 105-128).
+
+### Funcionalidades:
+
+#### 16.1 Eleger fonte canônica em `quality_rules.md`
+
+**Critério de aceite:** §"Comandos e Validação" de `docs/process/implementation/quality_rules.md` (linhas 98-137 hoje) é declarada fonte canônica do template. Recebe uma âncora explícita (cabeçalho `### Template de validação local`) com identificador navegável (`#template-de-validação-local`) referenciado pelos outros docs.
+
+**Decisão de fonte:** `quality_rules.md` é a escolha por já ser o documento mais completo (variantes Linux/Mac vs Windows, observações de contexto sobre quando incluir cada passo, marcação explícita "Template de validação para mensagem final ao dev"). Alternativa rejeitada: `autonomous/delivery.md` é mais curto e contextualizado ao fluxo autônomo, mas tem inconsistência `.venv/` vs `venv/` e menos observações.
+
+**Conteúdo canônico (mantém o bloco bash de linhas 106-128 hoje, com pequenos ajustes pós-W-PROTO-14):**
+
+```bash
+# 0. Fazer checkout da branch (SEMPRE incluir este passo)
+git fetch origin
+git checkout <branch-name>
+
+# 1. Ativar ambiente virtual (se aplicável)
+source .venv/bin/activate              # Linux/Mac
+# .\.venv\Scripts\Activate.ps1         # Windows
+
+# 2. Instalar/atualizar dependências (se requirements mudaram)
+pip install -r requirements.txt
+
+# 3. Testes unitários
+python -m pytest tests/core/unit/ -v
+
+# 4. Validação manual (script - RECOMENDADO!)
+python scripts/core/<categoria>/validate_*.py
+
+# 5. (se a branch mexeu em produto) Subir a app
+# Stack detectada via products/<produto>/app/ — ver
+# .github/copilot-instructions.md §"Stacks por produto" (W-PROTO-14)
+```
+
+Padronização incluída:
+- `.venv/` (com ponto) — alinhado com `.github/copilot-instructions.md` (linhas 45-46).
+- Passo 5 referencia W-PROTO-14 ao invés de hardcodar `streamlit run` — evita drift quando outros produtos forem adicionados.
+- Observações pós-bloco (passos opcionais, ❌ NÃO usar PYTHONPATH, etc.) ficam abaixo do template como hoje.
+
+**Arquivos a modificar:** `docs/process/implementation/quality_rules.md` (ajustes mínimos no bloco existente: padronizar `.venv/`, adicionar passo 5 referenciando W-PROTO-14, declarar âncora `### Template de validação local`).
+
+#### 16.2 Substituir cópias por referência
+
+**Critério de aceite:** os 3 arquivos com cópia divergente apontam pra fonte canônica em `quality_rules.md` via link, **sem repetir o bloco**.
+
+**Arquivos a modificar:**
+
+| Arquivo | Linhas-alvo | Ação |
+|---|---|---|
+| `docs/process/implementation/delivery.md` | 14-44 | mantém (é template de **formato de mensagem**, não bloco de validação) — sem mudança |
+| `docs/process/implementation/delivery.md` | 92-149 | substitui o bloco PowerShell + exemplos genéricos (npm/docker/pytest) por: "Ver [template canônico em quality_rules.md](../implementation/quality_rules.md#template-de-validação-local). Para subir a app, detectar stack via [`.github/copilot-instructions.md` §Stacks por produto](../../../.github/copilot-instructions.md)." |
+| `docs/process/autonomous/delivery.md` | 57-81 | substitui o bloco bash por: "RTE entrega o bloco pronto na PR seguindo [template canônico em quality_rules.md](../implementation/quality_rules.md#template-de-validação-local). Stack do passo 5 detectada via [§Stacks por produto](../../../.github/copilot-instructions.md)." |
+| `docs/process/implementation/overview.md` | 60-72 | mantém (exemplo simplificado dentro do exemplo de checkpoint), adiciona nota de uma linha: "(Exemplo simplificado; template completo em [quality_rules.md](quality_rules.md#template-de-validação-local).)" |
+
+**Validação:**
+- `grep -n "git fetch origin\|git checkout" docs/process/implementation/delivery.md docs/process/autonomous/delivery.md` retorna 0 linhas em blocos de código (apenas em texto que referencie o template).
+- Os 3 docs alvo abrem com link pra `quality_rules.md#template-de-validação-local`.
+- `grep -n "Template de validação local" docs/process/implementation/quality_rules.md` retorna 1 linha (cabeçalho).
+
+### Fora do escopo
+
+- Funcionalidade originalmente esboçada como "2.3 Variantes por fluxo (manual vs autônomo)" — cai junto com W-PROTO-15 (não há mais dois fluxos pra distinguir).
+- Variantes por stack (Streamlit vs Reflex) — vivem em `.github/copilot-instructions.md` via W-PROTO-14, referenciadas pelo passo 5 do template.
+- Reescrever templates de teste em `docs/testing/` — sem sinal de atrito (público diferente: documentação de teste, não de validação local pré-merge).
 
 ---
 
@@ -1106,7 +1582,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ---
 
-> **Milestone de saneamento documental do MVP** (`MVP-WORKFLOW-DOC`) declarado em 2026-04-29 a partir dos épicos levantados em 2026-04-28.
+> **Milestone de saneamento documental do MVP** (`MVP-WORKFLOW-DOC`) declarado em 2026-04-29; reduzido a W-MVP-DOC-1 no refinamento estratégico de 2026-04-29 (`claude/refine-workflow-stacks-6JOH6`) — W-MVP-DOC-2 migrou para `PROTO-WORKFLOW-FAXINA` como W-PROTO-16.
 
 #### ÉPICO W-MVP-DOC-1: Quebrar `planning_guidelines.md` por responsabilidade
 
@@ -1123,18 +1599,12 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ---
 
-#### ÉPICO W-MVP-DOC-2: Consolidar templates de "comandos de validação local"
-
-**Milestone:** `MVP-WORKFLOW-DOC`
-
-**Objetivo:** o bloco "git fetch / checkout / venv / pytest / streamlit run" aparece em 3-4 lugares (`implementation/delivery.md`, `quality_rules.md`, `autonomous/delivery.md`, `implementation/overview.md`) com formatos divergentes. Risco de drift médio prazo.
-
-**Status:** 📐 Funcionalidades esboçadas
-
-### Funcionalidades (esboço):
-- **2.1 Identificar template canônico** — escolher um arquivo como fonte; demais referenciam por âncora.
-- **2.2 Eliminar duplicação verbatim** — substituir blocos por links.
-- **2.3 Variantes por fluxo** — manual (dev cria PR) vs autônomo (dev valida em PR aberta) ficam como subseções do canônico.
+> **Nota — W-MVP-DOC-2 movido para `PROTO-WORKFLOW-FAXINA` como W-PROTO-16.**
+> Refinamento estratégico de 2026-04-29 (`claude/refine-workflow-stacks-6JOH6`)
+> antecipou a consolidação porque 3 dos 4 arquivos com template duplicado são
+> exatamente os tocados por W-PROTO-11 e W-PROTO-15 — fazer junto evita
+> revisitar. A funcionalidade originalmente esboçada "2.3 Variantes por fluxo
+> (manual vs autônomo)" cai junto com W-PROTO-15.
 
 ---
 
@@ -1150,8 +1620,10 @@ Itens que ainda não justificam virar épico — registrados aqui pra não perde
 
 ## 📚 Observações
 
-**Regra:** fluxo manual exige épico em `📋 Critérios definidos`;
-fluxo autônomo exige `🔍 Detalhes definidos`.
+**Regra:** épico precisa estar em `🔍 Detalhes definidos` para o fluxo
+autônomo. (A regra antiga "fluxo manual exige `📋 Critérios definidos`"
+some quando `PROTO-WORKFLOW-FAXINA`/W-PROTO-15 fecha — a partir daí
+`📋` é apenas passo intermediário até `🔍`.)
 
 Os milestones da fase Protótipo `PROTO-WORKFLOW-ENCERRAMENTO`,
 `PROTO-WORKFLOW-DOC` e `PROTO-WORKFLOW-AJUSTES` foram mergeados em
@@ -1159,16 +1631,30 @@ sequência (PRs #83, #90 e #93). `PROTO-WORKFLOW-PLATAFORMA` está em
 `🔍 Detalhes definidos` — apto ao fluxo autônomo.
 `PROTO-WORKFLOW-FAXINA` e `PROTO-WORKFLOW-COPILOT-STACK` foram
 declarados em 2026-04-29 (agrupando os antigos órfãos da fase
-Protótipo); a faxina precede `PROTO-WORKFLOW-FILA` para fazer a casa
-antes da fila reativa. `PROTO-WORKFLOW-FILA` (absorve o conteúdo do
-antigo MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo) tem
-épicos em `📐` aguardando refinamento estratégico após
+Protótipo) e refinados a `🔍` na mesma data
+(`claude/refine-workflow-stacks-6JOH6`); a faxina precede
+`PROTO-WORKFLOW-FILA` para fazer a casa antes da fila reativa.
+`PROTO-WORKFLOW-FILA` (absorve o conteúdo do antigo
+MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo) tem épicos em
+`📐` aguardando refinamento estratégico após
 `PROTO-WORKFLOW-PLATAFORMA` e `PROTO-WORKFLOW-FAXINA` fecharem. Os
-milestones MVP (`MVP-WORKFLOW-DOC` declarado em 2026-04-29 a partir
-dos órfãos do MVP, `MVP-WORKFLOW-REFINAMENTO` e
-`MVP-WORKFLOW-PROPONENTE`) têm épicos em `📐` aguardando refinamento
-estratégico — `MVP-WORKFLOW-DOC` pode rodar em paralelo; os outros
-dois aguardam `PROTO-WORKFLOW-FILA` fechar.
+milestones MVP (`MVP-WORKFLOW-DOC` agora reduzido a 1 épico após
+W-MVP-DOC-2 ter migrado para `PROTO-WORKFLOW-FAXINA` como W-PROTO-16,
+`MVP-WORKFLOW-REFINAMENTO` e `MVP-WORKFLOW-PROPONENTE`) têm épicos em
+`📐` aguardando refinamento estratégico — `MVP-WORKFLOW-DOC` pode
+rodar em paralelo (mas se beneficia de W-PROTO-10 ter rodado primeiro);
+os outros dois aguardam `PROTO-WORKFLOW-FILA` fechar.
+
+**Refinamento estratégico de 2026-04-29
+(`claude/refine-workflow-stacks-6JOH6`):**
+levou `PROTO-WORKFLOW-FAXINA` (W-PROTO-10, 11, 13, 15, 16) e
+`PROTO-WORKFLOW-COPILOT-STACK` (W-PROTO-14) a `🔍 Detalhes definidos`,
+absorveu W-PROTO-12 em W-PROTO-15 (premissa de cindir
+`implementation/overview.md` some quando a dicotomia manual/autônomo
+some), e moveu W-MVP-DOC-2 para `PROTO-WORKFLOW-FAXINA` como
+W-PROTO-16 (3 dos 4 arquivos com template de validação duplicado são
+exatamente os tocados pelos outros épicos da faxina). Apto ao
+disparo autônomo dos dois milestones.
 
 **Reorganização 2026-04-28 (papéis vs fluxos).** A vision foi reescrita
 para separar **papéis** (operador, proponente, porta-voz) de **fluxos**
