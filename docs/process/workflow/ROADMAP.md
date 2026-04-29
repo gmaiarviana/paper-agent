@@ -113,8 +113,8 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   W-PROTO-16
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-faxina`
-- **Status dos épicos:** W-PROTO-10 🔍, W-PROTO-11 🔍, W-PROTO-13 🔍,
-  W-PROTO-15 🔍, W-PROTO-16 🔍.
+- **Status dos épicos:** W-PROTO-10 🔀, W-PROTO-11 🔀, W-PROTO-13 🔀,
+  W-PROTO-15 🔀, W-PROTO-16 🔀 — todos em revisão pela PR #117.
 - **Ordem de execução interna:** W-PROTO-15 antes de W-PROTO-10 e
   W-PROTO-11 (varre fluxo manual primeiro, evita revisitar arquivos).
   W-PROTO-16 antes de W-PROTO-11.3 (congela a forma canônica do
@@ -954,7 +954,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** eliminar drift entre as três cópias da lista canônica dos 8 estados de épico em `docs/process/refinement/planning_guidelines.md` (§"Estados de Refinamento" linhas 176-205, §"Categorias de Épicos" linhas 253-269, §"PRÓXIMOS PASSOS" linhas 331-358). Drift entre cópias gerou as 3 contradições corrigidas em 2026-04-28; próxima skill que ler cópia desatualizada repete o erro.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #117 (https://github.com/gmaiarviana/paper-agent/pull/117)
 
 **Dependências:** rodar **depois** de W-PROTO-15 — 15.1 já reescreve `📋 Critérios definidos` ("apto ao fluxo manual" → passo intermediário) na fonte. Centralizar antes faz a edição duas vezes.
 
@@ -1004,7 +1004,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** tirar de `docs/process/implementation/quality_rules.md` (397 linhas hoje) o que não é regra de processo do fluxo. Mistura princípios + lessons learned do produto Revelar + tutorial defensivo de git pra Windows. Skill que segue esse doc pode aplicar regra fora de contexto. Saída: doc com ~185 linhas focado em princípios + anti-redundância + comandos.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #117 (https://github.com/gmaiarviana/paper-agent/pull/117)
 
 **Dependências:** rodar **depois** de W-PROTO-15 (limpa "Cursor Background" nas linhas 144 e 382 antes do 11.3 reorganizar) e **depois** de W-PROTO-16 (congela o template canônico em linhas 105-128 antes do 11.3 reorganizar).
 
@@ -1072,7 +1072,7 @@ Não há reordenação radical — a ordem atual já é coerente. 11.3 valida qu
 
 **Objetivo:** aplicar princípio "documentação para agente é concisa, não defensiva" — agente trabalha do traceback, não consulta catálogo de erros típicos. Doc hoje (143 linhas) carrega seções defensivas residuais que confundem o Copilot ao invés de ajudar.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #117 (https://github.com/gmaiarviana/paper-agent/pull/117)
 
 **Nota factual sobre seções declaradas no esboço inicial:** §"Erros típicos e orientação" (alvo original 13.1) e §"Checklist mínimo de POC do Ensaio" (alvo original 13.2) **não existem** mais no arquivo — foram apagadas em refinamentos anteriores (mais recente: PROTO-WORKFLOW-AJUSTES, PR #93). Funcionalidades 13.1 e 13.2 viraram **no-ops verificados**; escopo real do épico é 13.3 + sobreposição com W-PROTO-14.
 
@@ -1253,7 +1253,7 @@ pkill -f "reflex.*products/ensaio" 2>/dev/null || true            # Ensaio
 
 **Objetivo:** o desenho atual carrega dicotomia "fluxo manual (Cursor) vs fluxo autônomo (Claude Code Web)" em ~140 menções espalhadas em 16 arquivos. Na prática, o operador opera 100% via Claude Code Web — implementação **e** refinamento estratégico. Cursor não está instalado no ambiente atual; Claude Web persiste como ferramenta de refinamento estratégico em sessão externa quando há decisão de alto nível, mas não como executor. A documentação ficou desalinhada do uso real e impõe ao agente leitor o custo de filtrar "o que aplica ao meu contexto". Este épico **absorve W-PROTO-12** (cindir `implementation/overview.md`) — a premissa do W-PROTO-12 some quando 15.4 elimina a dicotomia.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #117 (https://github.com/gmaiarviana/paper-agent/pull/117)
 
 ### Termos e conceitos
 
@@ -1434,7 +1434,7 @@ Adicionalmente:
 
 **Objetivo:** o template "git fetch / checkout / venv / pytest / [run app]" aparece em 4 arquivos com formatos divergentes (`quality_rules.md` linhas 105-128, `implementation/delivery.md` linhas 14-44 e 92-149, `autonomous/delivery.md` linhas 57-81, `implementation/overview.md` linhas 60-72). Risco de drift médio prazo + carga cognitiva pra o agente que precisa decidir qual versão é canônica. Consolida em fonte única e substitui as cópias por referência.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #117 (https://github.com/gmaiarviana/paper-agent/pull/117)
 
 **Origem:** declarado originalmente como `W-MVP-DOC-2` em `MVP-WORKFLOW-DOC` (2026-04-29). Movido para `PROTO-WORKFLOW-FAXINA` no refinamento estratégico de 2026-04-29 (`claude/refine-workflow-stacks-6JOH6`) — 3 dos 4 arquivos com cópia são exatamente os que W-PROTO-11 e W-PROTO-15 já tocam, justificando antecipar.
 
