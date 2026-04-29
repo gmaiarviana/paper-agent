@@ -191,7 +191,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 ### Claude Code CLI via OpenWebUI (proxy LiteLLM)
 
-**Status:** 🌱 Visão (parcialmente operacional — texto sim, tool calling **funcional em casos simples mas instável no uso real do Claude Code**)
+**Status:** 🌱 Visão (parcialmente operacional — texto sim, tool calling **com causa raiz isolada e fix proposto, ainda não aplicado**)
 
 **Escopo:** este item é sobre **a CLI do Claude Code rodando contra modelos do OpenWebUI da Atlântico** em vez da API Anthropic. **Não cobre** o uso de OpenWebUI dentro do produto Paper Agent — esse caminho é runtime de produto e está tratado em [`docs/ROADMAP.md`](../../ROADMAP.md) (ÉPICO 2).
 
@@ -199,26 +199,57 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - `infra/litellm-proxy/` está montado e o `test-proxy.ps1` passa: health + `/v1/messages` (texto) + wildcard `claude-*`. Smoke test verde pra texto puro.
 - Configurado via `.env`: `OPENWEBUI_API_KEY`, `OPENWEBUI_BASE_URL`, `ANTHROPIC_BASE_URL=http://localhost:4000`. `setup-claude-code.ps1` ativa a sessão.
 - Pin obrigatório: LiteLLM 1.74.15 (1.83.x quebra em loop no Windows).
-- **Proxy preserva tool calling no pipeline** (debug Copilot, 2026-04-28): tracing ponta-a-ponta com 1 tool simples (`get_weather` + pergunta direta) mostrou `tools` chegando intacto nas 4 etapas — pré-call, tradução Anthropic→OpenAI, POST outbound pro OpenWebUI, e resposta convertida de volta como `tool_use`. Cliente recebe `content=[ToolUseBlock(...)]` corretamente.
+- **Proxy preserva tool calling no pipeline** (debug Copilot, 2026-04-28): tracing ponta-a-ponta com 1 tool simples mostrou `tools` chegando intacto nas 4 etapas — pré-call, tradução Anthropic→OpenAI, POST outbound, e resposta convertida de volta como `tool_use`.
 
-**Problema observado (causa raiz ainda não isolada):**
-No uso real do Claude Code CLI contra o proxy, o modelo apresenta comportamento errático mesmo em prompts triviais — exemplo capturado em 2026-04-28: ao mandar "oi" numa sessão fresca, o CLI retornou um JSON imitando uma `action` (`{"type": "action", "action": "claudeMd", "content": "..."}`) em vez de uma resposta normal. Esse sintoma é compatível com tool calling parcialmente quebrado, mas o debug do proxy mostrou que o pipeline em si funciona em casos simples.
+**Causa raiz isolada (2026-04-28):** OpenWebUI funciona corretamente com `tools` quando recebe model ID completo. Bug está no LiteLLM **dropando o prefixo `ollama/` do model ID** quando o modelo não tem alias explícito no `litellm-config.yaml`:
+- Cliente envia → LiteLLM recebe `openai/ollama/llama3.2:3b` (ou similar)
+- LiteLLM remove o prefixo de provider → manda pro OpenWebUI apenas `llama3.2:3b`
+- OpenWebUI espera `ollama/llama3.2:3b` → retorna 400 "Model not found"
 
-**Errata sobre evidência anterior:** um probe inicial (Anthropic SDK + tools=[ask_user] + pergunta vaga sem system prompt) retornou `blocks=['text']` e foi registrado como "proxy não preserva tool calling". Releitura em 2026-04-28 com base no debug Copilot indica que o probe foi **falso negativo** por design fraco — pergunta vaga + tool meta + sem nudge fizeram o modelo pequeno escolher texto. O proxy estava preservando os tools; o modelo apenas optou por não usá-los.
+Evidências:
+- Teste direto via `requests` contra OpenWebUI com `model: "ollama/llama3.2:3b"` + `tools: [...]` → HTTP 200, `finish_reason=tool_calls`, tool_calls presente.
+- Mesmo request via LiteLLM → 400 "Model not found" porque o payload outbound saiu com `model: "llama3.2:3b"`.
+- Debug anterior do Copilot funcionou pro `ministral-3:14b` em runs onde havia alias explícito (`litellm_params.model: openai/ollama/ministral-3:14b`); sem alias o stripping quebra.
 
-**Hipóteses revisadas pra causa raiz do erro do CLI:**
-- **Volume de tools:** Claude Code envia 10+ tools simultaneamente (Read, Edit, Bash, Grep, Glob, etc.). Modelo pequeno (`ministral-3:14b`) pode lidar com 1-2 tools mas degradar com volume alto.
-- **Token budget:** prompts/system messages do CC são longos; pode estourar contexto efetivo do modelo local.
-- **Conflito de instruções:** system prompt do CC tem regras estritas de formato; modelo pequeno tenta imitar e erra (vide o JSON `claudeMd` observado).
-- **Combinação dos três:** mais provável.
+Sintomas residuais consistentes com a causa raiz:
+- `validate_writer` 400 "no healthy deployments for ollama/llama3.2:3b" (registrado em 2026-04-28).
+- Claude Code CLI cuspindo JSON imitando `action` em prompts triviais — modelo recebeu o request mas alguma falha na resolução de model ID (ou no resultado do CC tentar interpretar erro do backend).
 
-**Caminhos a investigar (refinamento futuro):**
+**Fix proposto (não aplicado ainda):** adicionar aliases explícitos pra cada modelo disponível no OpenWebUI no `infra/litellm-proxy/litellm-config.yaml`. O wildcard atual (`claude-*`) só rota o que o CC envia; precisa de aliases pros modelos que aparecem em `LLM_MODEL`/no Paper Agent:
+```yaml
+- model_name: "ollama/ministral-3:14b"
+  litellm_params:
+    model: "openai/ollama/ministral-3:14b"
+    api_base: os.environ/OPENWEBUI_BASE_URL
+    api_key: os.environ/OPENWEBUI_API_KEY
+    drop_params: true
+    additional_drop_params: [context_management, cache_control, thinking, anthropic_beta]
 
-*Caminho 1 — testar modelo maior ou Claude Code com volume reduzido de tools:*
-- Como o pipeline do proxy está OK em casos simples, a hipótese principal vira **capacidade do modelo** vs. **complexidade do request**. Testar com modelo maior disponível no OpenWebUI (se houver) ou ver se Ollama da Atlântico tem outra opção mais robusta que `ministral-3:14b`/`llama3.2:3b`.
-- Reproduzir o sintoma do "oi" → JSON `claudeMd` com debug do proxy ligado pra capturar **o request real do Claude Code** (não probe sintético) e ver se `tools` ainda chega intacto quando são 10+ ferramentas. Se ainda chegar intacto, confirma hipótese "modelo não dá conta".
-- Atualizar LiteLLM pra v1.81.16 fica como manutenção preventiva (não mais bloqueador). Pesquisa de versão: última citada como estável no Windows antes da regressão de Prisma/DB de 1.82.x/1.83.x ([#25260](https://github.com/BerriAI/litellm/issues/25260)); herda fixes acumulados de tool calling em transformations/Ollama (commits [6384595](https://github.com/BerriAI/litellm/commit/6384595), [558c094](https://github.com/BerriAI/litellm/commit/558c094), [f126f75](https://github.com/BerriAI/litellm/commit/f126f75), [ea8a949](https://github.com/BerriAI/litellm/commit/ea8a949)). Issues contextuais: [#25848](https://github.com/BerriAI/litellm/issues/25848), [#24091](https://github.com/BerriAI/litellm/issues/24091).
-- Como último recurso (se nova evidência apontar bug real do proxy), abrir issue upstream em [BerriAI/litellm](https://github.com/BerriAI/litellm) com repro mínimo.
+- model_name: "ollama/llama3.2:3b"
+  litellm_params:
+    model: "openai/ollama/llama3.2:3b"
+    # mesmo bloco litellm_params do alias acima
+```
+
+(Alternativa: investigar se LiteLLM 1.74.15 suporta wildcard `ollama/*` com substituição template no `litellm_params.model` — economiza repetição mas precisa checar suporte na versão pinada.)
+
+**Validação esperada após o fix:**
+- `validate_writer` com `LLM_MODEL=ollama/llama3.2:3b` deve passar (hoje quebra com 400).
+- Probe Anthropic SDK + tools com prompt forte deve retornar `tool_use`.
+- Claude Code CLI no "oi" deve responder normal — se ainda cuspir JSON `action`, aí sim a causa é o modelo pequeno não dar conta do volume de tools do CC, e o caminho vira "modelo maior" ou opencode.
+
+**Próximos passos (em ordem):**
+
+*Passo 1 — aplicar o fix de aliases no `litellm-config.yaml`:* trabalho mecânico descrito acima. Provavelmente resolve o erro do `validate_writer` e qualquer chamada do Paper Agent contra o proxy.
+
+*Passo 2 — re-validar Claude Code CLI:* depois do fix, mandar "oi" numa sessão fresca contra o proxy. Dois desfechos:
+- ✅ resposta normal → (B) virou ✅ Operacional. Encerra o item.
+- ❌ ainda quebra → causa raiz secundária (capacidade do modelo pequeno vs. volume de tools do CC). Aí sim os caminhos abaixo entram.
+
+*Caminho 1 (residual) — modelo maior ou volume reduzido de tools:*
+- Testar com modelo maior disponível no OpenWebUI (se houver) ou ver se Ollama da Atlântico tem opção mais robusta que `ministral-3:14b`/`llama3.2:3b`.
+- Reproduzir o "oi" → JSON `action` com proxy em modo debug pra capturar **o request real do CC** e confirmar se `tools` chega intacto sob volume alto.
+- Atualizar LiteLLM pra v1.81.16 vira manutenção preventiva — herda fixes acumulados sem cair na regressão de Prisma/DB de 1.82.x/1.83.x ([#25260](https://github.com/BerriAI/litellm/issues/25260)). Detalhes técnicos: commits [6384595](https://github.com/BerriAI/litellm/commit/6384595), [558c094](https://github.com/BerriAI/litellm/commit/558c094), [f126f75](https://github.com/BerriAI/litellm/commit/f126f75), [ea8a949](https://github.com/BerriAI/litellm/commit/ea8a949); issues contextuais [#25848](https://github.com/BerriAI/litellm/issues/25848), [#24091](https://github.com/BerriAI/litellm/issues/24091).
 
 *Caminho 2 — trocar a CLI por uma que fale OpenAI nativamente (`opencode`):*
 - **`opencode`** ([sst/opencode](https://github.com/sst/opencode)) é um agente CLI open-source com suporte nativo a backends OpenAI-compatible. Como não precisa da tradução Anthropic↔OpenAI, contorna o bug do proxy de raiz. Um colega relatou bons resultados contra OpenWebUI.
