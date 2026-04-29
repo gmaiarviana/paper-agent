@@ -180,7 +180,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   PROTO-WORKFLOW-PLATAFORMA (kanban e scaffold como base) e
   PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
-- **Status dos épicos:** W-PROTO-FILA-1 🔍, W-PROTO-FILA-2 📐,
+- **Status dos épicos:** W-PROTO-FILA-1 🔍, W-PROTO-FILA-2 🔍,
   W-PROTO-FILA-3 📐 (refinamento tático em progresso —
   decisões estratégicas abaixo já fechadas).
 - **Decisões de refinamento estratégico (2026-04-29):**
@@ -1114,20 +1114,117 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ---
 
-#### ÉPICO W-PROTO-FILA-2: Exibição da fila + chat focado por item
+#### ÉPICO W-PROTO-FILA-2: Exibição da fila + prompt focado por item
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** operador vê fila reativa na plataforma e, ao clicar num item, abre sessão com contexto pré-montado para aquele item.
+**Objetivo:** plataforma ganha tab "📋 Fila" (default ao abrir o app) que renderiza os `QueueItem`s detectados em FILA-1 como cards clicáveis. Clicar num item abre painel de detalhe com prompt clipboard-ready específico do tipo, reusando os builders de prompt de PLAT-3.1 (DISPATCH) e adicionando builders novos para REVIEW e STALE_BRANCH. **Sem chat embutido** — o "chat focado" do Protótipo é prompt pronto + instrução de colar em sessão autônoma; chat real é MVP.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PROTO-FILA-1 (itens existentes)
+**Dependências:** W-PROTO-FILA-1 (modelos e detecção); W-PROTO-PLAT-2.1 (estrutura de tabs / sidebar do app); W-PROTO-PLAT-3.1 (`build_dispatch_prompt` reusado).
 
-### Funcionalidades (esboço):
-- **2.1 View da fila** — lista ordenada (recência ou manual no Protótipo); cards com tipo, título, ação esperada.
-- **2.2 Montagem de contexto por tipo** — pra dispatch: milestone + dispatch.md; pra refinamento: épico + pack inicial; pra revisão: PR + épicos do milestone.
-- **2.3 Abertura de chat com contexto** — prompt pré-montado pronto para iniciar a sessão correspondente.
+### Funcionalidades:
+
+#### 2.1: View da fila como tab default
+
+- **Descrição:** `app.py` ganha layout de tabs `st.tabs(["📋 Fila", "🗂️ Kanban"])` — fila default. View da fila chama `detect_all_items(state)` a cada render, agrupa visualmente por tipo (DISPATCH primeiro, REVIEW depois, STALE_BRANCH por último), e renderiza cards. Botão "🔄 Recarregar fila" na sidebar invalida `st.session_state.queue_world_state` e força re-detecção (incluindo `git fetch origin --prune`).
+- **Critérios de Aceite:**
+  1. App abre com tab "📋 Fila" ativa por default; tab "🗂️ Kanban" continua acessível em segundo plano com renderização inalterada
+  2. Cada card exibe: emoji do tipo (`📤` DISPATCH / `🔀` REVIEW / `🌱` STALE_BRANCH), `title`, `context` (1-2 linhas), `expected_action` (em destaque)
+  3. Cards são clicáveis (`st.button` com chave única `f"queue_card_{item.id}"`); clique grava `st.session_state["selected_queue_item_id"]` e abre painel de detalhe inline (expander ou área inferior, espelhando padrão do kanban em PLAT-2)
+  4. Cards são agrupados visualmente por `ItemType` com cabeçalho de seção (`st.subheader("📤 Dispatch (N)")`); cada cabeçalho mostra contagem do tipo
+  5. Botão "🔄 Recarregar fila" na sidebar limpa `st.session_state.queue_world_state` e re-instancia `WorldState` (incluindo subprocess `git fetch origin --prune`); falha de fetch é exibida em `st.warning` mas não impede renderização (usa state local)
+  6. Fila vazia exibe placeholder amigável: "Sem itens na fila — nada esperando ação no momento."
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/views/queue.py`, `tests/tools/workflow_platform/test_queue_view.py` (apenas helpers puros — render Streamlit não é testado direto, igual W-PROTO-PLAT-2)
+  - **Arquivos a modificar:** `tools/workflow_platform/app.py` — substituir chamada direta a `render_kanban` pelo bloco de tabs; adicionar botão de recarga na sidebar; gerenciar `st.session_state.queue_world_state` (lazy load).
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/views/queue.py
+    TYPE_HEADERS: dict[ItemType, tuple[str, str]] = {
+        ItemType.DISPATCH:     ("📤", "Dispatch"),
+        ItemType.REVIEW:       ("🔀", "Review"),
+        ItemType.STALE_BRANCH: ("🌱", "Stale branches"),
+    }
+
+    def render_queue(items: list[QueueItem], config: PlatformConfig) -> None:
+        """Renderiza fila agrupada por tipo. Clique grava selected_queue_item_id."""
+
+    def group_by_type(items: list[QueueItem]) -> dict[ItemType, list[QueueItem]]:
+        """Helper puro testável; preserva ordenação interna."""
+
+    def build_world_state(roadmaps: list[ParsedRoadmap]) -> WorldState:
+        """Wrapper que chama list_remote_branches() e datetime.now()."""
+    ```
+  - **Integração:** `app.py` carrega `parsed_roadmaps` (via PLAT-1), monta tabs, na tab fila chama `build_world_state` (com cache em `session_state`) → `detect_all_items` → `render_queue`. Após `render_queue`, se há `selected_queue_item_id`, chama `render_queue_item_detail` (definido em 2.2).
+  - **Template de referência:** `tools/workflow_platform/views/kanban.py` (W-PROTO-PLAT-2.1) — uso de `st.session_state` para seleção de card, padrão de `render_*` puro.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/{models,detect}.py` — FILA-1.1/1.2.
+    - `tools/workflow_platform/views/kanban.py` (PLAT-2) — coexistência via tabs; render do kanban inalterado.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de FILA-1.1/1.2; precede 2.2.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_view.py` — `group_by_type` retorna dict com 3 chaves (mesmo se vazias); ordem interna preservada do input.
+    - **Validação manual:** abrir app com fixture sintética (mesmo de FILA-1.3); verificar (a) tab fila default; (b) cards agrupados; (c) clique seleciona; (d) recarga dispara fetch.
+
+#### 2.2: Builders de prompt por tipo de item
+
+- **Descrição:** módulo `prompts/queue_item.py` expõe `build_prompt_for_item(item) -> str` que despacha por `item.type`. DISPATCH reusa `build_dispatch_prompt` (PLAT-3.1) chamado com o `Epic` reconstruído a partir do `EpicPointer`. REVIEW e STALE_BRANCH têm builders novos com texto fixo parametrizado pelos campos do pointer. Painel de detalhe (`render_queue_item_detail`) exibe o prompt em `st.code()` com botão copy nativo do Streamlit.
+- **Critérios de Aceite:**
+  1. `build_prompt_for_item(item)` retorna string copy-pasteável; nunca `None` (item válido sempre tem prompt)
+  2. Para DISPATCH: prompt é o output de `build_dispatch_prompt` (formato `"implementa o <MILESTONE_ID>"` + nota de PM skill se aplicável); reusa builder de PLAT-3.1 sem duplicação de lógica
+  3. Para REVIEW: prompt contém literal `"Revisar PR #<N>: <URL>"` + instrução `"Abra a PR, copie a Seção 🎯 Validação do body, cole no GitHub Copilot, e decida merge."`
+  4. Para STALE_BRANCH: prompt contém literal `"Branch <NAME> parada há <DAYS> dias sem PR aberta."` + 3 opções enumeradas: `(a) trabalho concluído sem PR — abrir PR / (b) abandonado — git push origin --delete <NAME> / (c) bloqueado — resgatar contexto e seguir`
+  5. `render_queue_item_detail(item, config, all_epics)` exibe prompt via `st.code(prompt, language=None)` (botão copy nativo do Streamlit) + título do item + ponteiro tipado renderizado como link (PR URL clicável, branch link via `github_branch_url` de PLAT-3.2, milestone como referência ao kanban)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/prompts/queue_item.py`, `tests/tools/workflow_platform/test_queue_item_prompt.py`
+  - **Arquivos a modificar:** `tools/workflow_platform/views/queue.py` — adicionar `render_queue_item_detail`.
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/prompts/queue_item.py
+    def build_prompt_for_item(
+        item: QueueItem,
+        all_epics_by_milestone: dict[str, list[Epic]] | None = None,
+    ) -> str:
+        """Despacha por item.type. DISPATCH precisa de all_epics_by_milestone
+        para reusar build_dispatch_prompt; REVIEW e STALE_BRANCH ignoram."""
+
+    def _build_review_prompt(p: PRPointer) -> str: ...
+    def _build_stale_branch_prompt(p: BranchPointer) -> str: ...
+    ```
+    Exemplo de prompt REVIEW:
+    ```
+    Revisar PR #93: https://github.com/gmaiarviana/paper-agent/pull/93
+
+    Abra a PR, copie a Seção 🎯 Validação do body, cole no GitHub Copilot,
+    e decida merge.
+    ```
+    Exemplo de prompt STALE_BRANCH:
+    ```
+    Branch claude/foo-bar parada há 12 dias sem PR aberta.
+
+    Decida:
+    (a) trabalho concluído sem PR — abrir PR via interface do GitHub
+    (b) abandonado — `git push origin --delete claude/foo-bar`
+    (c) bloqueado — resgatar contexto e seguir
+    ```
+  - **Integração:** `views/queue.py::render_queue_item_detail` recebe o item selecionado e chama `build_prompt_for_item`. Para DISPATCH, monta `all_epics_by_milestone` a partir dos `parsed_roadmaps` em `session_state`.
+  - **Template de referência:** `tools/workflow_platform/prompts/dispatch.py` (PLAT-3.1) — mesmo shape de helper puro retornando string.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/prompts/dispatch.py` (PLAT-3.1): `build_dispatch_prompt` reusado para DISPATCH.
+    - `tools/workflow_platform/queue/models.py` (FILA-1.1): `QueueItem`, `SourcePointer`.
+    - `tools/workflow_platform/views/card_detail.py` helpers `github_branch_url`/`github_pr_url` (PLAT-3.2): reusados para links.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 2.1 (`render_queue_item_detail` é chamado por `render_queue`); depende de PLAT-3.1.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_item_prompt.py` — (a) DISPATCH delega corretamente: stub de `build_dispatch_prompt` é chamado com `Epic` esperado; (b) REVIEW contém PR número e URL literais; (c) STALE_BRANCH contém nome, dias e as 3 opções; (d) prompt nunca tem placeholder não-substituído (`re.search(r"<[A-Z_]+>", prompt)` não encontra match).
+    - **Validação manual:** clicar em itens da fila no app (DISPATCH/REVIEW/STALE_BRANCH); copiar cada prompt; conferir conteúdo.
+
+**Fora do escopo:**
+- Chat embutido na plataforma (sessão de Claude Code dentro do app) — escopo MVP.
+- Browser automation pra abrir sessão autônoma direto do clique — escopo MVP.
+- Edição/cancelamento manual de itens da fila — fila é derivada, mexer no estado-do-mundo (ROADMAP, branch) já basta.
 
 ---
 
