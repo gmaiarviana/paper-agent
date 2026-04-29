@@ -211,7 +211,7 @@ Um bloco por épico, na ordem de execução.
 
 ### Épico W-PROTO-11 — Faxina de `quality_rules.md`
 
-**Status:** ⏳ Em andamento
+**Status:** ✅ Implementado
 **Objetivo:** tirar de `quality_rules.md` (397 linhas) o que não é regra de processo. Mistura princípios + lessons learned do produto Revelar + tutorial defensivo de git pra Windows. Saída: doc com ~185 linhas focado em princípios + anti-redundância + comandos.
 
 #### Funcionalidades
@@ -238,9 +238,9 @@ Um bloco por épico, na ordem de execução.
 
 | Funcionalidade                                                | Dev | QA | TL | PO |
 |---------------------------------------------------------------|:---:|:--:|:--:|:--:|
-| 11.1 Apagar §"Verificação de Conflitos"                       | ⏳  | ⏳ | ⏳ | ⏳ |
-| 11.2 Mover §"Diretrizes Aprendidas"                           | ⏳  | ⏳ | ⏳ | ⏳ |
-| 11.3 Reorganizar o que sobra                                  | ⏳  | ⏳ | ⏳ | ⏳ |
+| 11.1 Apagar §"Verificação de Conflitos"                       | ✅  | ✅ | ✅ | ✅ |
+| 11.2 Mover §"Diretrizes Aprendidas"                           | ✅  | ✅ | ✅ | ✅ |
+| 11.3 Reorganizar o que sobra                                  | ✅  | ✅ | ✅ | ✅ |
 
 **Legenda:** ⏳ pendente · ✅ aprovado · ❌ reprovado · ➖ não aplicável
 
@@ -275,7 +275,9 @@ Um bloco por épico, na ordem de execução.
 > Centralização de definição dos 8 estados em fonte canônica (`planning_guidelines.md#estados-de-épico`). A âncora é o padrão para futuras referências cross-doc. Sem padrão arquitetural novo — observação operacional.
 
 ### Épico W-PROTO-11
-- (a preencher pelo TL)
+- (vazio — TL não identificou conhecimento permanente neste épico)
+
+> Faxina documental de `quality_rules.md` (397 → 213 linhas). §"Verificação de Conflitos" (tutorial defensivo de git) apagada; §"Diretrizes Aprendidas em Produção" migrada para `products/revelar/docs/llm_implementation_lessons.md` (escopo do produto, não regra do fluxo). 11.3 ficou no-op — ordem natural dos remanescentes já é coerente após 11.1+11.2+15.4+16 não deixarem lacunas.
 
 ---
 
@@ -345,6 +347,15 @@ Um bloco por épico, na ordem de execução.
 [QA] skills/qa/skill.md ✅ 2026-04-29 17:35 | épico W-PROTO-10 | funcionalidade 10.2
 [TL] skills/tl/skill.md ✅ 2026-04-29 17:35 | épico W-PROTO-10 | funcionalidade 10.2
 [PO] skills/po/skill.md ✅ 2026-04-29 17:35 | épico W-PROTO-10 | funcionalidade 10.2
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:45 | épico W-PROTO-11 | funcionalidade 11.1
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:45 | épico W-PROTO-11 | funcionalidade 11.1
+[PO] skills/po/skill.md ✅ 2026-04-29 17:45 | épico W-PROTO-11 | funcionalidade 11.1
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:50 | épico W-PROTO-11 | funcionalidade 11.2
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:50 | épico W-PROTO-11 | funcionalidade 11.2
+[PO] skills/po/skill.md ✅ 2026-04-29 17:50 | épico W-PROTO-11 | funcionalidade 11.2
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:52 | épico W-PROTO-11 | funcionalidade 11.3
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:52 | épico W-PROTO-11 | funcionalidade 11.3
+[PO] skills/po/skill.md ✅ 2026-04-29 17:52 | épico W-PROTO-11 | funcionalidade 11.3
 ```
 
 ---
