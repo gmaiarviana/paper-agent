@@ -9,6 +9,8 @@
 
 ## FLUXO GERAL
 
+> **Estados de épico citados abaixo (`🌱`, `📐`, `📋`, `🔍`, `🏗️`, `🔀`, `✅`):** definição canônica em [`docs/process/refinement/planning_guidelines.md` §Estados de Épico](../refinement/planning_guidelines.md#estados-de-épico).
+
 ```
 Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL Skill → PO Skill → RTE Skill → PR aberta → Dev revisa (Copilot) → merge
                                 ↑              ↑       ↑         ↑          ↑

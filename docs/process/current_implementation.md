@@ -183,7 +183,7 @@ Um bloco por épico, na ordem de execução.
 
 ### Épico W-PROTO-10 — Centralizar definição dos estados de épico
 
-**Status:** ⏳ Em andamento
+**Status:** ✅ Implementado
 **Objetivo:** eliminar drift entre as três cópias da lista canônica dos 8 estados de épico em `planning_guidelines.md`. Drift entre cópias gerou as 3 contradições corrigidas em 2026-04-28.
 
 #### Funcionalidades
@@ -204,8 +204,8 @@ Um bloco por épico, na ordem de execução.
 
 | Funcionalidade                                | Dev | QA | TL | PO |
 |-----------------------------------------------|:---:|:--:|:--:|:--:|
-| 10.1 Bloco canônico único                     | ⏳  | ⏳ | ⏳ | ⏳ |
-| 10.2 Limpeza de drift cross-doc               | ⏳  | ⏳ | ⏳ | ⏳ |
+| 10.1 Bloco canônico único                     | ✅  | ✅ | ✅ | ✅ |
+| 10.2 Limpeza de drift cross-doc               | ✅  | ✅ | ✅ | ✅ |
 
 ---
 
@@ -270,7 +270,9 @@ Um bloco por épico, na ordem de execução.
 > Faxina cirúrgica em `.github/copilot-instructions.md`. 13.1 e 13.2 declarados no-ops verificados (seções já apagadas em refinamento anterior); 13.3 removeu seção redundante. Sem padrão arquitetural novo.
 
 ### Épico W-PROTO-10
-- (a preencher pelo TL)
+- (vazio — TL não identificou conhecimento permanente neste épico)
+
+> Centralização de definição dos 8 estados em fonte canônica (`planning_guidelines.md#estados-de-épico`). A âncora é o padrão para futuras referências cross-doc. Sem padrão arquitetural novo — observação operacional.
 
 ### Épico W-PROTO-11
 - (a preencher pelo TL)
@@ -337,6 +339,12 @@ Um bloco por épico, na ordem de execução.
 [QA] skills/qa/skill.md ✅ 2026-04-29 17:13 | épico W-PROTO-13 | funcionalidade 13.3
 [TL] skills/tl/skill.md ✅ 2026-04-29 17:13 | épico W-PROTO-13 | funcionalidade 13.3
 [PO] skills/po/skill.md ✅ 2026-04-29 17:13 | épico W-PROTO-13 | funcionalidade 13.3
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:25 | épico W-PROTO-10 | funcionalidade 10.1
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:25 | épico W-PROTO-10 | funcionalidade 10.1
+[PO] skills/po/skill.md ✅ 2026-04-29 17:25 | épico W-PROTO-10 | funcionalidade 10.1
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:35 | épico W-PROTO-10 | funcionalidade 10.2
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:35 | épico W-PROTO-10 | funcionalidade 10.2
+[PO] skills/po/skill.md ✅ 2026-04-29 17:35 | épico W-PROTO-10 | funcionalidade 10.2
 ```
 
 ---

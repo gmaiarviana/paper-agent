@@ -19,7 +19,29 @@ Definições trabalhadas para este projeto, no eixo **"quem usa"** (complementa 
 - **MVP:** **outros** (colegas próximos) usam **sem o desenvolvedor do lado**. Critério de saída: valor validado fora do autor.
 - **Melhorias:** Expansão gradual baseada em feedback de uso real.
 
-**Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais ao estágio. POC tolera Streamlit e gambiarras; Protótipo exige fluxo navegável pelo próprio dev; MVP exige que outro ser humano consiga usar sem tutorial ao vivo.
+**Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais a o estágio. POC tolera Streamlit e gambiarras; Protótipo exige fluxo navegável pelo próprio dev; MVP exige que outro ser humano consiga usar sem tutorial ao vivo.
+
+<a id="estados-de-épico"></a>
+
+## Estados de Épico
+
+Um épico (e o campo "Status" do milestone) percorre até **oito estados** no ROADMAP. Os cinco primeiros são de refinamento progressivo; os três últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo.
+
+> **Fonte canônica.** Esta é a única definição autoritativa dos oito estados no repo. Outros docs referenciam esta seção via [`#estados-de-épico`](#estados-de-épico). Os emojis e nomes aqui são fonte da verdade tanto para texto quanto para o `EpicState` enum em W-PROTO-PLAT-1.1.
+
+### Refinamento (antes do código)
+
+- **`🌱 Visão`** — apenas objetivo definido. Captura intenção e valor de negócio. Não é executável por nenhum fluxo. **Gatilho de transição:** sessão de refinamento com alvo posterior. **Responsável:** refinamento estratégico.
+- **`🧭 Jornada alinhada`** — objetivo refinado; rationale e escopo declinados; glossário ancorado; acoplamentos sinalizados. Para milestone, inclui jornada alvo + mapeamento de feedback do estágio anterior. Funcionalidades ainda não esboçadas. Não é executável. **Gatilho:** sessão com alvo `📐` (ou maior). **Responsável:** refinamento estratégico.
+- **`📐 Funcionalidades esboçadas`** — lista de funcionalidades com descrição curta, sem critérios de aceite. Não é executável. **Gatilho:** sessão com alvo `📋` ou `🔍`. **Responsável:** refinamento estratégico ou PM skill (na branch do milestone).
+- **`📋 Critérios definidos`** — funcionalidades delimitadas, critérios de aceite observáveis e testáveis, trade-offs discutidos. **Passo intermediário até `🔍`** — não habilita execução por si só. **Gatilho:** sessão com alvo `🔍` (checklist `autonomous_readiness.md`). **Responsável:** refinamento estratégico ou PM skill.
+- **`🔍 Detalhes definidos`** — `📋` + contratos de dados explicitados, arquivos-alvo listados, mecanismo de integração descrito, acoplamentos verificados, escopo de testes definido (checklist em `autonomous_readiness.md` aplicado). Pré-requisito do fluxo único de execução. **Gatilho:** dispatch do milestone. **Responsável:** dev (operador) dispara; Scrum Master skill consome.
+
+### Execução
+
+- **`🏗️ Em andamento`** — épico em implementação. Permanece neste estado desde que o dev pega até a RTE abrir a PR do milestone. **Gatilho:** Scrum Master skill conclui plano. **Responsável:** skills do fluxo único (Dev/QA/TL/PO).
+- **`🔀 Em revisão`** — PR aberta; aguarda aprovação humana e merge. Diferencia "código entregue e sob revisão" de "ainda implementando". **Gatilho:** RTE skill abre a PR. **Responsável:** dev (revisão Copilot + merge manual).
+- **`✅ Implementado`** — ciclo de fechamento executado (ver `epic_completion.md`). **Gatilho:** merge da PR. **Responsável:** Cleanup skill.
 
 ## Sessão Estratégica de Refinamento
 
@@ -148,35 +170,11 @@ Há três modalidades em ordem de prioridade. Todas produzem o mesmo estado fina
 - Épicos em `🌱 Visão` aguardam priorização + clareza técnica
 - Remover do backlog é tão válido quanto adicionar (não há apego)
 
-### Estados de Refinamento
+### Estados — fonte canônica
 
-Um épico percorre até oito estados no ROADMAP. Os cinco primeiros são de refinamento progressivo; os três últimos são de execução e fechamento. Cada estado é o anterior acrescido de conteúdo. **Os mesmos estados aplicam-se ao campo "Status" do milestone** — milestone em `🧭 Jornada alinhada` significa objetivo, jornada e escopo declinados, glossário ancorado e mapeamento de feedback do estágio anterior consolidados, com lista de épicos definida (mesmo que individualmente em estados anteriores).
+Definição completa dos oito estados (descrição, gatilho de transição, responsável) está em [§"Estados de Épico"](#estados-de-épico) acima.
 
-> **Nota — onde o refinamento acontece.** Qualquer estado pode ser avançado por qualquer modalidade (ver nota acima). Não há restrição de "até 📋 só via sessão estratégica" — a PM skill pode levar um épico de `🌱` a `🔍` em uma única passada se tiver contexto suficiente. O que determina o caminho é a natureza da decisão: mecânica (PM skill ou autônomo) vs. estrutural (sessão estratégica com operador). Todos os caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
-
-**`🌱 Visão`** — apenas objetivo definido.
-Estado inicial de qualquer épico promovido a partir do backlog ou produzido por uma sessão do tipo "me quebra essa ideia em épicos a partir da visão". Captura intenção e valor de negócio; não é executável por nenhum fluxo.
-
-**`🧭 Jornada alinhada`** — objetivo refinado, rationale e escopo declinado.
-Estado intermediário entre `🌱` e `📐`. Captura entendimento compartilhado do que o épico/milestone **é** (objetivo aprofundado, o que é / o que não é, terminologia ancorada via glossário, acoplamentos sinalizados); para milestone, inclui jornada alvo, escopo declinado e mapeamento de feedback do estágio anterior. Funcionalidades ainda não esboçadas. Não é executável por nenhum fluxo; valor está em habilitar **commit intermediário de progresso de refinamento** quando reframe é trabalho real e a sessão estratégica não chega a critérios de aceite numa única passada.
-
-**`📐 Funcionalidades esboçadas`** — lista de funcionalidades com descrição curta, sem critérios de aceite.
-Estado intermediário útil quando um épico foi quebrado a partir de uma visão e as funcionalidades já emergiram, mas os critérios de aceite ainda não foram discutidos funcionalidade a funcionalidade. Não é executável por nenhum fluxo.
-
-**`📋 Critérios definidos`** — funcionalidades com critérios de aceite claros e testáveis.
-Épico tem funcionalidades delimitadas, critérios de aceite observáveis, trade-offs discutidos. **Passo intermediário até `🔍`** — não é executável pelo fluxo único; requer refinamento adicional com alvo `🔍` aplicando o checklist de `autonomous_readiness.md`.
-
-**`🔍 Detalhes definidos`** — passou pelo checklist em `docs/process/refinement/autonomous_readiness.md`.
-Além dos critérios de aceite, tem contratos de dados explicitados, arquivos-alvo listados, mecanismo de integração descrito, acoplamentos verificados e escopo de testes definido. **Pré-requisito para implementação sem necessidade de julgamento arquitetural durante a sessão.**
-
-**`🏗️ Em andamento`** — épico em implementação.
-Permanece neste estado desde o momento em que o dev pega o épico até a RTE skill abrir a PR ao final do fluxo autônomo.
-
-**`🔀 Em revisão`** — PR aberta, aguardando aprovação humana.
-A RTE skill atualiza o ROADMAP para este estado ao abrir a PR do milestone. Diferencia "código entregue e sob revisão" de "ainda implementando". O épico permanece aqui até o merge acontecer e a Cleanup skill executar o ciclo de fechamento.
-
-**`✅ Implementado`** — código entregue e ciclo de fechamento executado.
-Checklist em `docs/process/refinement/epic_completion.md` foi aplicado na íntegra. Transição feita pela Cleanup skill após o merge.
+> **Nota — onde o refinamento acontece.** Qualquer estado pode ser avançado por qualquer modalidade. Não há restrição de "até 📋 só via sessão estratégica" — a PM skill pode levar um épico de `🌱` a `🔍` em uma única passada se tiver contexto suficiente. O que determina o caminho é a natureza da decisão: mecânica (PM skill) vs. estrutural (sessão estratégica). Todos os caminhos usam o mesmo checklist (`autonomous_readiness.md`) e produzem o mesmo estado final no ROADMAP.
 
 ### Alvo de Refinamento
 
@@ -227,19 +225,7 @@ Os detalhes específicos de cada ajuste por estágio moram em `docs/process/refi
 
 ## Categorias de Épicos
 
-### Estados de Refinamento (antes do código)
-
-- **`🌱 Visão`** — apenas objetivo. Aguarda refinamento. Nenhum fluxo de execução disponível.
-- **`🧭 Jornada alinhada`** — objetivo refinado, rationale e escopo declinados; glossário ancorado e acoplamentos sinalizados (para milestone, jornada alvo + escopo + mapeamento de feedback do estágio anterior). Aguarda refinamento. Nenhum fluxo de execução disponível.
-- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento. Nenhum fluxo de execução disponível.
-- **`📋 Critérios definidos`** — critérios de aceite definidos. Passo intermediário até `🔍` — não habilita execução por si só.
-- **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Apto ao fluxo único de execução.
-
-### Estados de Execução
-
-- **`🏗️ Em andamento`** — épico em implementação (até a RTE abrir a PR do milestone).
-- **`🔀 Em revisão`** — PR aberta. Setado pela RTE ao final do fluxo autônomo; aguarda aprovação humana e merge.
-- **`✅ Implementado`** — ciclo de fechamento executado. Ver `docs/process/refinement/epic_completion.md`. Setado pela Cleanup skill após o merge.
+A definição autoritativa dos oito estados (refinamento + execução) vive em [§"Estados de Épico"](#estados-de-épico). Esta seção apenas referencia.
 
 **Claude Code só implementa funcionalidades de épicos em `🔍 Detalhes definidos`. Ao iniciar a implementação, o épico transita para `🏗️ Em andamento`; ao RTE abrir a PR, para `🔀 Em revisão`; ao final do ciclo de fechamento pós-merge, para `✅ Implementado`.**
 
@@ -305,16 +291,7 @@ O checklist estratégico é a primeira linha de defesa — quando falha, a **EM 
 
 ### 📍 PRÓXIMOS PASSOS
 
-**Épicos percorrem até oito estados:**
-
-- **`🌱 Visão`** — apenas objetivo definido. Aguarda refinamento.
-- **`🧭 Jornada alinhada`** — objetivo refinado + rationale + glossário ancorado + acoplamentos sinalizados; jornada e escopo declinados (para milestone). Aguarda refinamento.
-- **`📐 Funcionalidades esboçadas`** — funcionalidades listadas sem critérios de aceite. Aguarda refinamento.
-- **`📋 Critérios definidos`** — critérios de aceite definidos. Passo intermediário até `🔍`.
-- **`🔍 Detalhes definidos`** — checklist de `autonomous_readiness.md` aplicado. Pronto para o fluxo único de execução.
-- **`🏗️ Em andamento`** — implementação em curso (até a RTE abrir a PR).
-- **`🔀 Em revisão`** — PR aberta, aguardando aprovação humana. Setado pela RTE ao abrir a PR.
-- **`✅ Implementado`** — ciclo de fechamento executado (ver `epic_completion.md`). Setado pela Cleanup skill após o merge.
+**Épicos percorrem até oito estados** — definição completa em [§"Estados de Épico"](#estados-de-épico).
 
 **Fluxo:**
 ```

@@ -1,7 +1,7 @@
 # Autonomous Dispatch
 
 > **📌 Uso:** dispare o fluxo autônomo em [claude.ai/code](https://claude.ai/code) sobre o repositório `paper-agent` com uma frase em linguagem natural que identifique o **milestone** alvo.
-> **📌 Pré-requisito:** o milestone alvo existe no ROADMAP do produto (seção `## 🎯 Milestones`). Épicos em `🌱 Visão`, `🧭 Jornada alinhada` ou `📐 Funcionalidades esboçadas` são refinados pela PM skill dentro da branch; épicos em `🔍 Detalhes definidos` seguem direto.
+> **📌 Pré-requisito:** o milestone alvo existe no ROADMAP do produto (seção `## 🎯 Milestones`). Épicos em estados pré-`🔍` (`🌱`/`🧭`/`📐`/`📋` — ver [planning_guidelines.md §Estados de Épico](../refinement/planning_guidelines.md#estados-de-épico)) são refinados pela PM skill dentro da branch; épicos em `🔍 Detalhes definidos` seguem direto.
 > **📌 Escopo do disparo:** a frase de dispatch autoriza o ciclo **inteiro** PM (cond) → EM → SM → Dev → QA → TL → PO → **RTE (abre PR)**. Não é preciso confirmar a abertura da PR caso a caso — é o estado terminal do fluxo. Merge segue proibido sem revisão humana. Detalhes em [`CLAUDE.md`](../../../CLAUDE.md) e [`workflow.md`](workflow.md).
 > **📌 Documentação completa:** `docs/process/autonomous/`
 
@@ -53,7 +53,7 @@ Extrair do bloco do milestone:
 Com base nos épicos agrupados:
 
 - Todos em `🔍 Detalhes definidos` → **PM skill é pulada**; fluxo começa em EM.
-- Algum em `🌱 Visão`, `🧭 Jornada alinhada` ou `📐 Funcionalidades esboçadas` → **PM skill é obrigatória** antes de EM (refinamento tático dentro da branch).
+- Algum em estado pré-`📋` (`🌱`/`🧭`/`📐`) → **PM skill é obrigatória** antes de EM (refinamento tático dentro da branch).
 - Algum em `📋 Critérios definidos` → PM skill também é obrigatória (leva de `📋` a `🔍`).
 - Épico em `🏗️ Em andamento` ou `✅ Implementado` no meio do milestone → **abortar**, pedir ao dev confirmação (pode indicar milestone mal-sinalizado ou retomada de trabalho).
 

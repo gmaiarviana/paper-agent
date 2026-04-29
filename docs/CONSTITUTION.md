@@ -13,7 +13,7 @@ Princípios não-negociáveis para trabalhar com este projeto.
 ### Como Refinamos
 - POC → Protótipo → MVP (incremental)
 - Discussão > especulação antecipada
-- Épicos percorrem até oito estados no ROADMAP: `🌱 Visão` → `🧭 Jornada alinhada` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `🔀 Em revisão` → `✅ Implementado`. Modelo completo em `docs/process/refinement/planning_guidelines.md`.
+- Épicos percorrem até **oito estados** no ROADMAP. Definição canônica (lista, descrição, gatilho, responsável) em [`docs/process/refinement/planning_guidelines.md` §Estados de Épico](process/refinement/planning_guidelines.md#estados-de-épico).
 - Toda sessão de refinamento opera com um **alvo definido** (o estado ao qual o épico deve chegar). O alvo pode ser declarado pelo usuário ao abrir a sessão ou inferido pelo refinador a partir da camada que ainda não está clara e confirmado antes do primeiro edit (não é gate de abertura). Uma vez definido, o refinador — sessão estratégica (caminho principal: Claude Code Web direto no repo; secundário: Claude Web em sessão externa) ou PM skill (tático, dentro da branch do milestone) — conduz as perguntas até atingir o alvo, sem parar em estados intermediários.
 - Alvo `🔍 Detalhes definidos` é pré-requisito do fluxo único de execução; guiado pelo checklist em `docs/process/refinement/autonomous_readiness.md`. Aplicado sob demanda, épico a épico — pela sessão estratégica antes do milestone existir, ou pela PM skill dentro da branch do milestone quando o milestone é disparado com épicos ainda em `🌱`/`📐`/`📋`.
 - `📋 Critérios definidos` é **passo intermediário** até `🔍`; não habilita execução por si só.
@@ -281,7 +281,7 @@ Unidade de entrega do **fluxo único de execução** = uma sessão de trabalho c
 - **Branch:** id em caixa baixa com `milestone/` na frente. Ex.: `milestone/poc-ensaio`.
 
 **Épico**
-Agrupamento coeso de funcionalidades que entrega valor incremental. Unidade do ROADMAP. Percorre até oito estados (`🌱 Visão` → `🧭 Jornada alinhada` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `🔀 Em revisão` → `✅ Implementado`). Um épico só é executável quando pertence a um milestone disparado pelo fluxo único de execução. **Os mesmos estados aplicam-se ao campo "Status" do milestone** — milestone em `🧭 Jornada alinhada` significa objetivo, jornada e escopo declinados, glossário ancorado e mapeamento de feedback do estágio anterior consolidados, com lista de épicos definida (mesmo que individualmente em estados anteriores). `🔀 Em revisão` não se aplica ao milestone como um todo — aplica-se a épicos individualmente quando a RTE abre a PR do milestone.
+Agrupamento coeso de funcionalidades que entrega valor incremental. Unidade do ROADMAP. Percorre os oito estados definidos em [planning_guidelines.md §Estados de Épico](process/refinement/planning_guidelines.md#estados-de-épico). Um épico só é executável quando pertence a um milestone disparado pelo fluxo único de execução. Os mesmos estados aplicam-se ao campo "Status" do milestone, com a ressalva de que `🔀 Em revisão` não se aplica ao milestone como um todo — aplica-se a épicos individualmente quando a RTE abre a PR do milestone.
 
 **Funcionalidade**
 Unidade mínima do ROADMAP, dentro de um épico. Tem critérios de aceite próprios e, em estado `🔍`, detalhes de execução fechados (arquivos-alvo, contratos, acoplamentos, escopo de teste). É a unidade sobre a qual cada gate do fluxo único (QA/TL/PO) decide APROVA/REJEITA.
