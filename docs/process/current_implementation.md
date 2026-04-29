@@ -120,7 +120,7 @@ Um bloco por épico, na ordem de execução.
 
 ### Épico W-PROTO-16 — Consolidar template de "comandos de validação local"
 
-**Status:** ⏳ Em andamento
+**Status:** ✅ Implementado
 **Objetivo:** template "git fetch / checkout / venv / pytest / [run app]" aparece em 4 arquivos com formatos divergentes. Consolida em fonte única (`quality_rules.md`) e substitui as cópias por referência.
 
 #### Funcionalidades
@@ -141,8 +141,8 @@ Um bloco por épico, na ordem de execução.
 
 | Funcionalidade                                | Dev | QA | TL | PO |
 |-----------------------------------------------|:---:|:--:|:--:|:--:|
-| 16.1 Eleger fonte canônica                    | ⏳  | ⏳ | ⏳ | ⏳ |
-| 16.2 Substituir cópias por referência         | ⏳  | ⏳ | ⏳ | ⏳ |
+| 16.1 Eleger fonte canônica                    | ✅  | ✅ | ✅ | ✅ |
+| 16.2 Substituir cópias por referência         | ✅  | ✅ | ✅ | ✅ |
 
 ---
 
@@ -260,7 +260,9 @@ Um bloco por épico, na ordem de execução.
 > Faxina documental do desenho — descontinuou dicotomia "fluxo manual (Cursor) vs autônomo" alinhando o desenho ao uso real (operador opera 100% via Claude Code Web). Sem padrão arquitetural novo; o conceito "fluxo único de execução" já está documentado no próprio escopo do épico (CONSTITUTION + autonomous/overview).
 
 ### Épico W-PROTO-16
-- (a preencher pelo TL)
+- (vazio — TL não identificou conhecimento permanente neste épico)
+
+> Consolidação de template existente em fonte canônica. A âncora `quality_rules.md#template-de-validação-local` é o padrão para futuras referências; observação operacional, não conhecimento arquitetural.
 
 ### Épico W-PROTO-13
 - (a preencher pelo TL)
@@ -318,6 +320,12 @@ Um bloco por épico, na ordem de execução.
 [QA] skills/qa/skill.md ✅ 2026-04-29 16:48 | épico W-PROTO-15 | funcionalidade 15.8
 [TL] skills/tl/skill.md ✅ 2026-04-29 16:48 | épico W-PROTO-15 | funcionalidade 15.8
 [PO] skills/po/skill.md ✅ 2026-04-29 16:48 | épico W-PROTO-15 | funcionalidade 15.8
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:02 | épico W-PROTO-16 | funcionalidade 16.1
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:02 | épico W-PROTO-16 | funcionalidade 16.1
+[PO] skills/po/skill.md ✅ 2026-04-29 17:02 | épico W-PROTO-16 | funcionalidade 16.1
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:05 | épico W-PROTO-16 | funcionalidade 16.2
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:05 | épico W-PROTO-16 | funcionalidade 16.2
+[PO] skills/po/skill.md ✅ 2026-04-29 17:05 | épico W-PROTO-16 | funcionalidade 16.2
 ```
 
 ---

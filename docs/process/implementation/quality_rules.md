@@ -102,18 +102,23 @@
 - **Validação no PR**: Fornecer comandos de validação na mensagem final ao dev (não no ROADMAP)
 - **Checkout de branch obrigatório**: Sempre incluir passos de fetch/checkout nas instruções de validação
 
-**Template de validação (para mensagem final ao dev):**
+### Template de validação local
+
+> **Fonte canônica.** Outros docs (`docs/process/implementation/delivery.md`,
+> `docs/process/autonomous/delivery.md`, `docs/process/implementation/overview.md`)
+> referenciam este bloco via `quality_rules.md#template-de-validação-local` em
+> vez de duplicar o conteúdo.
+
 ```bash
 # 0. Fazer checkout da branch (SEMPRE incluir este passo)
 git fetch origin
 git checkout <branch-name>
 
 # 1. Ativar ambiente virtual (se aplicável)
-source venv/bin/activate  # Linux/Mac
-# OU
-.\venv\Scripts\Activate.ps1  # Windows
+source .venv/bin/activate              # Linux/Mac
+# .\.venv\Scripts\Activate.ps1         # Windows
 
-# 2. Instalar/atualizar dependências (primeira vez ou se mudou requirements)
+# 2. Instalar/atualizar dependências (se requirements mudaram)
 pip install -r requirements.txt
 
 # 3. Testes unitários
@@ -122,16 +127,17 @@ python -m pytest tests/core/unit/ -v
 # 4. Validação manual (script - RECOMENDADO!)
 python scripts/core/<categoria>/validate_*.py
 
-# Resultados esperados:
-# - ✅ X/X testes passando
-# - ✅ Script de validação completo
+# 5. (se a branch mexeu em produto) Subir a app
+# Stack detectada via products/<produto>/app/ — ver
+# .github/copilot-instructions.md §"Stacks por produto" (W-PROTO-14)
 ```
 
 **Observações:**
 - Passo 0 (checkout) é OBRIGATÓRIO - dev precisa baixar a branch para validar
-- Passo 1 (venv/ambiente) só se projeto usar ambientes virtuais/isolados
+- Passo 1 (venv/ambiente) só se projeto usar ambientes virtuais/isolados; o nome canônico é `.venv/` (ponto), alinhado com `.github/copilot-instructions.md`
 - Passo 2 (dependências) só na primeira vez ou se requirements mudaram
 - Passo 4 (script de validação) é ALTAMENTE RECOMENDADO - ajuda a entender o módulo
+- Passo 5 (subir app) só se a branch tocou produto; a stack vem da tabela em `.github/copilot-instructions.md` (Streamlit / Reflex / etc.) — evita drift quando outros produtos forem adicionados
 - ❌ **NÃO usar `PYTHONPATH=...` no Windows** - scripts já adicionam path automaticamente
 - ❌ **NÃO salvar comandos de validação no ROADMAP.md** - fornecer apenas na mensagem final ao dev
 

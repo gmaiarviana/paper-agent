@@ -66,6 +66,8 @@ pytest tests/core/unit/models/test_cognitive_model.py -v
 - ✅ Imports não devem quebrar
 - ✅ Sistema deve rodar sem erros
 
+(Exemplo simplificado; template completo em [quality_rules.md](quality_rules.md#template-de-validação-local).)
+
 📄 Atualizei docs/process/current_implementation.md
    (Checkpoint 1 marcado como concluído)
 

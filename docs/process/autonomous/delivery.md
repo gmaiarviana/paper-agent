@@ -52,26 +52,7 @@ A RTE Skill abre a PR (estado terminal da fase de implementação após W-PROTO-
 
 ## 3. COMANDOS DE VALIDAÇÃO LOCAL
 
-A RTE Skill já entrega os comandos prontos. Estrutura típica:
-
-```bash
-# 1. Baixar branch
-git fetch origin
-git checkout milestone/<id-em-caixa-baixa>
-git pull origin milestone/<id-em-caixa-baixa>
-
-# 2. Preparar ambiente
-source .venv/bin/activate           # Linux/Mac
-# .\venv\Scripts\Activate.ps1     # Windows
-pip install -r requirements.txt   # se houver mudanças em deps
-
-# 3. Rodar testes
-pytest tests/core/unit/ -v
-pytest tests/core/integration/ -v -m integration   # se aplicável
-
-# 4. Rodar aplicação (se mudou interface)
-[comando específico do produto: streamlit run ..., python -m core.tools.cli.chat, etc]
-```
+A RTE entrega o bloco pronto na PR seguindo o [template canônico em quality_rules.md](../implementation/quality_rules.md#template-de-validação-local). Stack do passo 5 (subir a app) detectada via [§"Stacks por produto"](../../../.github/copilot-instructions.md).
 
 ### O que verificar
 - ✅ Testes passam (unit + integration aplicáveis)
