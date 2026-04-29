@@ -65,15 +65,15 @@ O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. 
 - **Produto:** funcionalidades delimitadas, critérios de aceite observáveis, trade-offs discutidos.
 - **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos.
 - **Quando acontece:** quando o épico se torna prioritário.
-- **Estado resultante do épico:** `📋 Critérios definidos` — apto ao fluxo manual.
+- **Estado resultante do épico:** `📋 Critérios definidos` — passo intermediário até `🔍`; ainda não habilita execução.
 
 ### Alvo `🔍 Detalhes definidos` (refinamento profundo — detalhes)
 
 - **Pergunta:** um agente sem contexto do problema consegue executar isto sem inventar?
 - **Produto:** arquivos-alvo com caminho completo, contratos/shapes, mecanismo de integração, acoplamentos verificados, escopo de testes.
-- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos + **inspeção de código relevante** (via Cursor, ou como trechos específicos pedidos ao Claude Web) + checklist em [`autonomous_readiness.md`](autonomous_readiness.md). A inspeção de código é parte obrigatória deste alvo, não opcional.
-- **Quando acontece:** sob demanda, pouco antes de disparar o fluxo autônomo para o épico específico. Aplicar preventivamente em todos os épicos é desperdício — o trabalho perde-se se o épico for repriorizado.
-- **Estado resultante do épico:** `🔍 Detalhes definidos` — apto ao fluxo autônomo ([`dispatch.md`](../autonomous/dispatch.md)).
+- **Contexto:** pack inicial de 6 arquivos + **inspeção de código relevante** + checklist em [`autonomous_readiness.md`](autonomous_readiness.md). A inspeção de código é parte obrigatória deste alvo, não opcional. No caminho principal (Claude Code Web na branch do repo), a inspeção é direta; no caminho secundário (Claude Web em sessão externa), o operador supre os trechos relevantes.
+- **Quando acontece:** sob demanda, pouco antes de disparar o fluxo único de execução para o épico específico. Aplicar preventivamente em todos os épicos é desperdício — o trabalho perde-se se o épico for repriorizado.
+- **Estado resultante do épico:** `🔍 Detalhes definidos` — apto ao fluxo único de execução ([`dispatch.md`](../autonomous/dispatch.md)).
 
 > Atalho permitido: uma única sessão pode ir direto de `🌱 Visão` para `📋` ou `🔍`, desde que o alvo declarado seja esse e o contexto correspondente seja enviado.
 

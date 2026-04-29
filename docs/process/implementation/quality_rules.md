@@ -141,7 +141,7 @@ python scripts/core/<categoria>/validate_*.py
 
 **Dev:** "Claude, implementa Funcionalidade 3.2: Sistema de Relatórios do roadmap"
 
-**Agente (Claude Code / Cursor Background):**
+**Agente (Claude Code Web):**
 ```
 Lendo contexto...
 - ROADMAP.md: Funcionalidade 3.2 descrita
@@ -379,7 +379,7 @@ git show <commit-hash>:ROADMAP.md | Select-Object -First 100
 - **Interrompa o agente se perceber loop** (não deixe rodar infinitamente)
 - **SEMPRE verificar conflitos antes de editar arquivos críticos**
 
-### Para o Agente (Claude Code / Cursor Background)
+### Para o Agente (Claude Code Web)
 - Seja autônomo mas transparente
 - **PARE após 3 tentativas falhas** - não insista infinitamente
 - Comandos de validação local são obrigatórios no PR

@@ -122,7 +122,7 @@ Aprove o merge quando **todos**:
 - [ ] Comportamentos "não deve" do ROADMAP foram confirmados (não ocorreram)
 - [ ] Tabela do Copilot na PR (Seção 🎯) sem ❌ sem justificativa
 
-**Se algum critério falhar:** devolver com feedback para nova rodada autônoma (Claude Code Web) ou trazer para fluxo manual se exigir decisão arquitetural.
+**Se algum critério falhar:** devolver com feedback para nova rodada autônoma (Claude Code Web) ou abrir sessão estratégica externa (Claude Web) se exigir decisão arquitetural.
 
 ---
 

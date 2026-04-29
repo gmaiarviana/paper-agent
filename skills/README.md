@@ -19,7 +19,7 @@ Skill = bloco reutilizável de instruções que substitui aprovações explícit
 ## 2. CATEGORIAS
 
 ### Skills de Processo (este diretório)
-Conduzem o fluxo autônomo de desenvolvimento. Substituem a interação manual dev ↔ Cursor.
+Conduzem o fluxo único de execução do desenvolvimento (Claude Code Web autônomo). Atuam como gates no lugar do acompanhamento explícito do dev a cada checkpoint.
 
 | Skill | Etapa do fluxo | Prompt operacional | Responsabilidade |
 |-------|---------------|-------------------|------------------|

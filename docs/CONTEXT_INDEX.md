@@ -208,16 +208,16 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
   - `starter.md` - Pack inicial de contexto (6 arquivos) e alvos de refinamento típicos
   - `autonomous_readiness.md` - **Checklist de entrada para `🔍 Detalhes definidos`** (consumido sob demanda pouco antes do dispatch autônomo)
   - `epic_completion.md` - **Checklist de saída** (fechamento do épico antes de marcar `✅ Implementado`)
-- `docs/process/implementation/` - Processo de implementação manual via Cursor
-- `docs/process/autonomous/` - Fluxo autônomo via Claude Code Web
+- `docs/process/implementation/` - Processo de implementação via Claude Code Web (guidelines aplicáveis ao fluxo único de execução)
+- `docs/process/autonomous/` - Fluxo único de execução via Claude Code Web
   - `session_conventions.md` - **Convenções operacionais** (política de segredos/`.env` e granularidade de commits) aplicáveis a qualquer sessão autônoma
 
 **Solicitar quando:**
 - Refinar épico com alvo `📋 Critérios definidos` → `refinement/planning_guidelines.md` + `refinement/starter.md`
 - Refinar épico com alvo `🔍 Detalhes definidos` (prontidão para autônomo) → `refinement/autonomous_readiness.md`
 - Fechar épico implementado (extração + enxugamento) → `refinement/epic_completion.md`
-- Implementar código manualmente via Cursor → `implementation/`
-- Disparar fluxo autônomo (Claude Code Web) → `autonomous/`
+- Conhecer guidelines de implementação → `implementation/`
+- Disparar o fluxo único de execução (Claude Code Web) → `autonomous/`
 - Conhecer convenções operacionais do fluxo autônomo (segredos, commits) → `autonomous/session_conventions.md`
 - Validar qualidade → `implementation/quality_rules.md`
 

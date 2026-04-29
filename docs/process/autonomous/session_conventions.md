@@ -33,7 +33,7 @@ Erros que só aparecem com LLM real (qualidade da saída, aderência a instruç�
 - Função retorna dict com as chaves esperadas?
 - Integração com o grafo passa o config correto?
 
-Se a validação final do dev revelar bug, segue em follow-up (nova sessão autônoma ou fluxo manual).
+Se a validação final do dev revelar bug, segue em follow-up (nova sessão autônoma ou refinamento estratégico se exigir decisão arquitetural).
 
 ---
 

@@ -43,7 +43,7 @@ Dispatch → PM (cond) → EM → Scrum Master Skill → Dev → QA Skill → TL
 - ✅ Ler `docs/ARCHITECTURE.md` e docs técnicas relevantes (via `docs/CONTEXT_INDEX.md`)
 - ✅ Quebrar a funcionalidade em tarefas ordenadas por dependência, respeitando a sequência declarada no épico
 - ✅ Identificar dúvidas técnicas remanescentes e **resolvê-las consultando docs antes de assumir**
-- ✅ Documentar plano em `docs/process/current_implementation.md` (mesmo arquivo do fluxo manual)
+- ✅ Documentar plano em `docs/process/current_implementation.md`
 - ✅ Reutilizar arquivos esperados e template de referência declarados no épico; não redefinir por conta própria
 
 **Não deve:**
