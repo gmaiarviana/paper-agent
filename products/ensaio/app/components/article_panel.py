@@ -3,6 +3,10 @@
 Renderiza as seções propostas pelo Estruturador como accordion (E-PROTO2-4):
 cada seção colapsa/expande individualmente, todas iniciam colapsadas. Mantém
 botões de geração por seção, badges de status e edição inline de markdown.
+
+Padrão anti-Hooks-violation: condicionais usam ``display=cond(...)`` em vez
+de ``rx.cond(condition, component, rx.fragment())`` para manter shape do
+componente estável entre renders (Reflex/React contam hooks por posição).
 """
 
 from __future__ import annotations
@@ -35,24 +39,28 @@ def _section_header(section: dict) -> rx.Component:
 
 
 def _section_body(section: dict) -> rx.Component:
-    """Conteúdo expandido: corpo + botão Gerar/Regenerar."""
+    """Conteúdo expandido: corpo + botão Gerar/Regenerar.
+
+    Placeholder e conteúdo são sempre montados; visibilidade controlada por
+    ``display`` para manter shape estável dentro do foreach do accordion.
+    """
+    is_empty = section["body"] == ""
     return rx.box(
-        rx.cond(
-            section["body"] == "",
-            rx.text(
-                "Clique em Gerar para redigir esta seção.",
-                color_scheme="gray",
-                size="2",
-                style={"font_style": "italic"},
-                margin_y="8px",
-            ),
-            rx.box(
-                rx.markdown(section["body"]),
-                margin_y="8px",
-            ),
+        rx.text(
+            "Clique em Gerar para redigir esta seção.",
+            color_scheme="gray",
+            size="2",
+            style={"font_style": "italic"},
+            margin_y="8px",
+            display=rx.cond(is_empty, "block", "none"),
+        ),
+        rx.box(
+            rx.markdown(section["body"]),
+            margin_y="8px",
+            display=rx.cond(is_empty, "none", "block"),
         ),
         rx.button(
-            rx.cond(section["body"] == "", "Gerar", "Regenerar"),
+            rx.cond(is_empty, "Gerar", "Regenerar"),
             on_click=EnsaioState.generate_section(section["index"]),
             disabled=EnsaioState.processing_agent != "",
             size="1",
@@ -64,12 +72,17 @@ def _section_body(section: dict) -> rx.Component:
     )
 
 
-def _section_item(section: dict) -> rx.Component:
-    """Item individual do accordion: header colapsável + corpo."""
+def _section_item(section: dict, idx: int) -> rx.Component:
+    """Item individual do accordion: header colapsável + corpo.
+
+    Usa o índice do foreach (parâmetro ``idx``) como ``value``, evitando
+    depender de ``section["index"]`` (mais robusto contra Vars de tipo
+    desconhecido na compilação Reflex).
+    """
     return rx.accordion.item(
         header=_section_header(section),
         content=_section_body(section),
-        value=section["index"].to_string(),
+        value=idx.to_string(),
         margin_bottom="8px",
         border="1px solid var(--gray-4)",
         border_radius="8px",
@@ -78,7 +91,35 @@ def _section_item(section: dict) -> rx.Component:
     )
 
 
+def _empty_state() -> rx.Component:
+    return rx.center(
+        rx.vstack(
+            rx.icon("file_text", size=32, color="var(--gray-8)"),
+            rx.text(
+                "Aguardando proposta de estrutura...",
+                color_scheme="gray",
+                size="3",
+                text_align="center",
+            ),
+            rx.text(
+                "Continue conversando sobre seu experimento. "
+                "Quando o Estruturador tiver contexto suficiente, "
+                "ele proporá as seções do artigo.",
+                color_scheme="gray",
+                size="2",
+                text_align="center",
+                max_width="280px",
+            ),
+            align="center",
+            spacing="3",
+        ),
+        height="100%",
+        padding="40px",
+    )
+
+
 def article_panel() -> rx.Component:
+    has_sections = EnsaioState.current_article.length() > 0
     return rx.flex(
         # Cabeçalho
         rx.box(
@@ -92,63 +133,40 @@ def article_panel() -> rx.Component:
             padding="16px",
             border_bottom="1px solid var(--gray-4)",
         ),
-        # Indicador de Writer em processamento
-        rx.cond(
-            EnsaioState.processing_agent == "writer",
-            rx.box(
-                rx.hstack(
-                    rx.spinner(size="1"),
-                    rx.text("✍️ Writer redigindo...", size="2", color_scheme="gray"),
-                    spacing="2",
-                    align="center",
-                ),
-                padding="8px 16px",
-                border_bottom="1px solid var(--gray-4)",
-            ),
-            rx.fragment(),
-        ),
-        # Conteúdo do painel
+        # Indicador de Writer em processamento — sempre montado, visibilidade
+        # via display para evitar mount/unmount entre renders.
         rx.box(
-            rx.cond(
-                EnsaioState.current_article.length() > 0,
-                # E-PROTO2-4: accordion colapsado por padrão (default_value=[]),
-                # múltiplas seções podem estar abertas simultaneamente.
-                rx.box(
-                    rx.accordion.root(
-                        rx.foreach(EnsaioState.current_article, _section_item),
-                        type="multiple",
-                        collapsible=True,
-                        default_value=[],
-                        width="100%",
-                        variant="ghost",
-                    ),
-                    padding="16px",
+            rx.hstack(
+                rx.spinner(size="1"),
+                rx.text("✍️ Writer redigindo...", size="2", color_scheme="gray"),
+                spacing="2",
+                align="center",
+            ),
+            padding="8px 16px",
+            border_bottom="1px solid var(--gray-4)",
+            display=rx.cond(
+                EnsaioState.processing_agent == "writer", "block", "none"
+            ),
+        ),
+        # Conteúdo do painel — accordion e empty-state ambos sempre montados;
+        # apenas o display alterna. Mantém shape estável de hooks.
+        rx.box(
+            rx.box(
+                rx.accordion.root(
+                    rx.foreach(EnsaioState.current_article, _section_item),
+                    type="multiple",
+                    collapsible=True,
+                    default_value=[],
+                    width="100%",
+                    variant="ghost",
                 ),
-                # Estado vazio — aguardando proposta do Estruturador
-                rx.center(
-                    rx.vstack(
-                        rx.icon("file_text", size=32, color="var(--gray-8)"),
-                        rx.text(
-                            "Aguardando proposta de estrutura...",
-                            color_scheme="gray",
-                            size="3",
-                            text_align="center",
-                        ),
-                        rx.text(
-                            "Continue conversando sobre seu experimento. "
-                            "Quando o Estruturador tiver contexto suficiente, "
-                            "ele proporá as seções do artigo.",
-                            color_scheme="gray",
-                            size="2",
-                            text_align="center",
-                            max_width="280px",
-                        ),
-                        align="center",
-                        spacing="3",
-                    ),
-                    height="100%",
-                    padding="40px",
-                ),
+                padding="16px",
+                display=rx.cond(has_sections, "block", "none"),
+            ),
+            rx.box(
+                _empty_state(),
+                display=rx.cond(has_sections, "none", "block"),
+                height="100%",
             ),
             overflow_y="auto",
             flex="1",

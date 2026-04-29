@@ -7,6 +7,10 @@ seções antes do aceite.
 
 Componente puro de UI: lê estado e despacha event handlers definidos em
 ``products.ensaio.app.state``.
+
+Padrão anti-Hooks-violation: condicionais usam ``display=cond(...)`` em vez
+de ``rx.cond(condition, component, rx.fragment())`` para manter shape do
+componente estável entre renders (Reflex/React contam hooks por posição).
 """
 
 from __future__ import annotations
@@ -14,6 +18,15 @@ from __future__ import annotations
 import reflex as rx
 
 from products.ensaio.app.state import EnsaioState
+
+
+def _section_line(title: str, i: int) -> rx.Component:
+    return rx.text(
+        rx.text.span(i.to_string() + ". ", weight="bold"),
+        title,
+        size="2",
+        margin_y="2px",
+    )
 
 
 def _proposal_view() -> rx.Component:
@@ -30,26 +43,15 @@ def _proposal_view() -> rx.Component:
             spacing="2",
             align="center",
         ),
-        rx.cond(
-            EnsaioState.proposal_rationale != "",
-            rx.text(
-                EnsaioState.proposal_rationale,
-                size="2",
-                color_scheme="gray",
-                style={"font_style": "italic"},
-            ),
-            rx.fragment(),
+        rx.text(
+            EnsaioState.proposal_rationale,
+            size="2",
+            color_scheme="gray",
+            style={"font_style": "italic"},
+            display=rx.cond(EnsaioState.proposal_rationale != "", "block", "none"),
         ),
         rx.box(
-            rx.foreach(
-                EnsaioState.proposal_sections,
-                lambda title, i: rx.text(
-                    rx.text.span(f"{i + 1}. ", weight="bold"),
-                    title,
-                    size="2",
-                    margin_y="2px",
-                ),
-            ),
+            rx.foreach(EnsaioState.proposal_sections, _section_line),
             padding="8px 12px",
             background="var(--accent-1)",
             border_radius="6px",
@@ -95,19 +97,19 @@ def _proposal_edit_row(title: str, index: int) -> rx.Component:
         ),
         rx.button(
             "↑",
-            on_click=lambda: EnsaioState.move_proposal_section(index, -1),
+            on_click=EnsaioState.move_proposal_section(index, -1),
             size="1",
             variant="soft",
         ),
         rx.button(
             "↓",
-            on_click=lambda: EnsaioState.move_proposal_section(index, 1),
+            on_click=EnsaioState.move_proposal_section(index, 1),
             size="1",
             variant="soft",
         ),
         rx.button(
             "🗑️",
-            on_click=lambda: EnsaioState.remove_proposal_section(index),
+            on_click=EnsaioState.remove_proposal_section(index),
             size="1",
             variant="soft",
             color_scheme="red",
@@ -139,14 +141,11 @@ def _proposal_edit() -> rx.Component:
             size="1",
             variant="soft",
         ),
-        rx.cond(
-            EnsaioState.proposal_edit_error != "",
-            rx.text(
-                EnsaioState.proposal_edit_error,
-                size="1",
-                color_scheme="red",
-            ),
-            rx.fragment(),
+        rx.text(
+            EnsaioState.proposal_edit_error,
+            size="1",
+            color_scheme="red",
+            display=rx.cond(EnsaioState.proposal_edit_error != "", "block", "none"),
         ),
         rx.hstack(
             rx.button(
@@ -172,21 +171,28 @@ def _proposal_edit() -> rx.Component:
 
 
 def proposal_bubble() -> rx.Component:
-    """Bubble especial renderizado quando há proposta de estrutura pendente."""
-    return rx.cond(
-        EnsaioState.has_pending_proposal,
+    """Bubble especial renderizado quando há proposta de estrutura pendente.
+
+    O Box exterior é sempre montado; visibilidade controlada por ``display``.
+    Mantém shape de componente estável e evita hooks-order changes que
+    disparam React Hooks violation.
+    """
+    return rx.box(
+        # Modo leitura — sempre montado, escondido enquanto editing_proposal=True.
         rx.box(
-            rx.cond(
-                EnsaioState.editing_proposal,
-                _proposal_edit(),
-                _proposal_view(),
-            ),
-            padding="14px 16px",
-            margin="8px 16px",
-            border="2px solid var(--accent-9)",
-            border_radius="10px",
-            background="var(--accent-2)",
-            width="auto",
+            _proposal_view(),
+            display=rx.cond(EnsaioState.editing_proposal, "none", "block"),
         ),
-        rx.fragment(),
+        # Modo edição — sempre montado, escondido enquanto editing_proposal=False.
+        rx.box(
+            _proposal_edit(),
+            display=rx.cond(EnsaioState.editing_proposal, "block", "none"),
+        ),
+        padding="14px 16px",
+        margin="8px 16px",
+        border="2px solid var(--accent-9)",
+        border_radius="10px",
+        background="var(--accent-2)",
+        width="auto",
+        display=rx.cond(EnsaioState.has_pending_proposal, "block", "none"),
     )

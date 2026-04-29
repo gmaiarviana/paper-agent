@@ -28,27 +28,23 @@ def _message_bubble(msg: dict) -> rx.Component:
         ),
     )
 
-    # E-PROTO2-3.2: manchete "o que mudou" acima do label de agente.
-    # Mensagens do usuário nunca exibem manchete (campo só faz sentido para AIMessage).
-    change_summary = msg.get("change_summary", "")
-    headline = rx.cond(
-        is_user,
-        rx.fragment(),
-        rx.cond(
-            change_summary != "",
+    # E-PROTO2-3.2: manchete "o que mudou" acima do label de agente. Sempre
+    # renderiza um Box; visibilidade controlada por `display` para manter
+    # contagem de hooks estável (evita React Hooks violation no Reflex).
+    change_summary = msg["change_summary"]
+    show_headline = (~is_user) & (change_summary != "")
+
+    return rx.box(
+        rx.box(
             rx.text(
                 change_summary,
                 size="1",
                 weight="medium",
                 color_scheme="blue",
-                margin_bottom="2px",
             ),
-            rx.fragment(),
+            display=rx.cond(show_headline, "block", "none"),
+            margin_bottom="2px",
         ),
-    )
-
-    return rx.box(
-        headline,
         rx.text(
             label,
             size="1",
@@ -73,25 +69,23 @@ def _message_bubble(msg: dict) -> rx.Component:
 
 
 def _processing_indicator() -> rx.Component:
-    return rx.cond(
-        EnsaioState.processing_agent != "",
-        rx.box(
-            rx.hstack(
-                rx.spinner(size="1"),
-                rx.match(
-                    EnsaioState.processing_agent,
-                    ("orchestrator", rx.text("🎯 Orquestrador processando...", size="2", color_scheme="gray")),
-                    ("structurer", rx.text("📐 Estruturador processando...", size="2", color_scheme="gray")),
-                    ("methodologist", rx.text("🔬 Metodologista processando...", size="2", color_scheme="gray")),
-                    ("writer", rx.text("✍️ Writer redigindo...", size="2", color_scheme="gray")),
-                    rx.text("🤖 Sistema processando...", size="2", color_scheme="gray"),
-                ),
-                spacing="2",
-                align="center",
+    """Indicador de processamento — sempre montado, visibilidade via display."""
+    return rx.box(
+        rx.hstack(
+            rx.spinner(size="1"),
+            rx.match(
+                EnsaioState.processing_agent,
+                ("orchestrator", rx.text("🎯 Orquestrador processando...", size="2", color_scheme="gray")),
+                ("structurer", rx.text("📐 Estruturador processando...", size="2", color_scheme="gray")),
+                ("methodologist", rx.text("🔬 Metodologista processando...", size="2", color_scheme="gray")),
+                ("writer", rx.text("✍️ Writer redigindo...", size="2", color_scheme="gray")),
+                rx.text("🤖 Sistema processando...", size="2", color_scheme="gray"),
             ),
-            padding="8px 16px",
+            spacing="2",
+            align="center",
         ),
-        rx.fragment(),
+        padding="8px 16px",
+        display=rx.cond(EnsaioState.processing_agent != "", "block", "none"),
     )
 
 
@@ -121,9 +115,8 @@ def chat_panel() -> rx.Component:
         # acima do input enquanto pendente; some no aceite/recusa. Input do
         # chat continua habilitado durante a proposta — não bloqueia conversa.
         proposal_bubble(),
-        # Área de erro
-        rx.cond(
-            EnsaioState.error_message != "",
+        # Área de erro — sempre montada, visibilidade via display.
+        rx.box(
             rx.callout(
                 EnsaioState.error_message,
                 icon="triangle_alert",
@@ -131,7 +124,7 @@ def chat_panel() -> rx.Component:
                 size="1",
                 margin="8px 16px",
             ),
-            rx.fragment(),
+            display=rx.cond(EnsaioState.error_message != "", "block", "none"),
         ),
         # Campo de entrada
         rx.box(

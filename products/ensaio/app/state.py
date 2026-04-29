@@ -146,6 +146,7 @@ class EnsaioState(rx.State):
                     "agent": "user",
                     "content": user_text,
                     "timestamp": _now(),
+                    "change_summary": "",
                 },
             ]
             thread_id = self.thread_id
@@ -199,14 +200,16 @@ class EnsaioState(rx.State):
             ]
 
             async with self:
+                # change_summary sempre presente no dict (string vazia quando
+                # ausente) para manter shape estável do msg ao longo do
+                # foreach do Reflex — evita React Hooks violation.
                 msg_entry = {
                     "role": "assistant",
                     "agent": agent_key,
                     "content": content,
                     "timestamp": _now(),
+                    "change_summary": change_summary,
                 }
-                if change_summary:
-                    msg_entry["change_summary"] = change_summary
                 self.messages = [*self.messages, msg_entry]
                 self.langchain_history = new_lh
                 if new_focal:
@@ -232,6 +235,7 @@ class EnsaioState(rx.State):
                         "agent": None,
                         "content": f"❌ Não consegui processar sua mensagem: {exc}",
                         "timestamp": _now(),
+                        "change_summary": "",
                     },
                 ]
                 self.processing_agent = ""
@@ -347,6 +351,7 @@ class EnsaioState(rx.State):
                 "agent": None,
                 "content": "_Proposta de estrutura recusada._",
                 "timestamp": _now(),
+                "change_summary": "",
             },
         ]
 
