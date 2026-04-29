@@ -148,7 +148,7 @@ Um bloco por épico, na ordem de execução.
 
 ### Épico W-PROTO-13 — Faxina do `copilot-instructions.md` (concisão pra agente)
 
-**Status:** ⏳ Em andamento
+**Status:** ✅ Implementado
 **Objetivo:** aplicar princípio "documentação para agente é concisa, não defensiva". Agente trabalha do traceback, não consulta catálogo de erros típicos. 13.1 e 13.2 são **no-ops verificados**; escopo real é 13.3.
 
 #### Funcionalidades
@@ -175,9 +175,9 @@ Um bloco por épico, na ordem de execução.
 
 | Funcionalidade                                                | Dev | QA | TL | PO |
 |---------------------------------------------------------------|:---:|:--:|:--:|:--:|
-| 13.1 §"Erros típicos" (no-op)                                 | ⏳  | ⏳ | ⏳ | ⏳ |
-| 13.2 §"Checklist POC" (no-op)                                 | ⏳  | ⏳ | ⏳ | ⏳ |
-| 13.3 Apagar §"Operação Windows / macOS / Linux"               | ⏳  | ⏳ | ⏳ | ⏳ |
+| 13.1 §"Erros típicos" (no-op)                                 | ➖  | ➖ | ➖ | ➖ |
+| 13.2 §"Checklist POC" (no-op)                                 | ➖  | ➖ | ➖ | ➖ |
+| 13.3 Apagar §"Operação Windows / macOS / Linux"               | ✅  | ✅ | ✅ | ✅ |
 
 ---
 
@@ -265,7 +265,9 @@ Um bloco por épico, na ordem de execução.
 > Consolidação de template existente em fonte canônica. A âncora `quality_rules.md#template-de-validação-local` é o padrão para futuras referências; observação operacional, não conhecimento arquitetural.
 
 ### Épico W-PROTO-13
-- (a preencher pelo TL)
+- (vazio — TL não identificou conhecimento permanente neste épico)
+
+> Faxina cirúrgica em `.github/copilot-instructions.md`. 13.1 e 13.2 declarados no-ops verificados (seções já apagadas em refinamento anterior); 13.3 removeu seção redundante. Sem padrão arquitetural novo.
 
 ### Épico W-PROTO-10
 - (a preencher pelo TL)
@@ -326,6 +328,15 @@ Um bloco por épico, na ordem de execução.
 [QA] skills/qa/skill.md ✅ 2026-04-29 17:05 | épico W-PROTO-16 | funcionalidade 16.2
 [TL] skills/tl/skill.md ✅ 2026-04-29 17:05 | épico W-PROTO-16 | funcionalidade 16.2
 [PO] skills/po/skill.md ✅ 2026-04-29 17:05 | épico W-PROTO-16 | funcionalidade 16.2
+[QA] skills/qa/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.1 (no-op verificado)
+[TL] skills/tl/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.1 (no-op verificado)
+[PO] skills/po/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.1 (no-op verificado)
+[QA] skills/qa/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.2 (no-op verificado)
+[TL] skills/tl/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.2 (no-op verificado)
+[PO] skills/po/skill.md ➖ 2026-04-29 17:10 | épico W-PROTO-13 | funcionalidade 13.2 (no-op verificado)
+[QA] skills/qa/skill.md ✅ 2026-04-29 17:13 | épico W-PROTO-13 | funcionalidade 13.3
+[TL] skills/tl/skill.md ✅ 2026-04-29 17:13 | épico W-PROTO-13 | funcionalidade 13.3
+[PO] skills/po/skill.md ✅ 2026-04-29 17:13 | épico W-PROTO-13 | funcionalidade 13.3
 ```
 
 ---
