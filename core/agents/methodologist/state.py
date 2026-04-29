@@ -6,8 +6,9 @@ incluindo todos os campos necessários para rastrear a análise de hipóteses.
 
 """
 
-from typing import TypedDict, Annotated, Literal
+from typing import TypedDict, Annotated, Literal, List
 from langgraph.graph.message import add_messages
+from pydantic import BaseModel, Field, ConfigDict
 
 class MethodologistState(TypedDict):
     """
@@ -85,3 +86,31 @@ def create_initial_state(hypothesis: str, max_iterations: int = 3) -> Methodolog
         justification="",
         needs_clarification=False
     )
+
+
+class MethodologistImprovementModel(BaseModel):
+    """Gap identificado pelo Metodologista em modo colaborativo."""
+
+    aspect: str = Field(..., description="Aspecto a ser melhorado (ex: população, métricas)")
+    gap: str = Field(..., description="Descrição do gap identificado")
+
+
+class MethodologistOutputModel(BaseModel):
+    """
+    Output estruturado do Metodologista em MultiAgentState.methodologist_output.
+    """
+
+    status: Literal["approved", "needs_refinement", "rejected"] = Field(
+        ...,
+        description="Status final da avaliação",
+    )
+    justification: str = Field(
+        ...,
+        description="Justificativa detalhada da decisão",
+    )
+    improvements: List[MethodologistImprovementModel] = Field(
+        default_factory=list,
+        description="Lista de gaps e sugestões quando status=needs_refinement",
+    )
+
+    model_config = ConfigDict(extra="ignore")

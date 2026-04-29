@@ -813,7 +813,7 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
             try:
                 temp_data = extract_json_from_llm_response(response.content)
                 temp_next_step = temp_data.get("next_step", "unknown")
-            except:
+            except Exception:
                 temp_next_step = "unknown"
 
             register_execution(

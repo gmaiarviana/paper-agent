@@ -164,7 +164,7 @@ def run_cli(verbose=False):
                     final_status="user_exit",
                     tokens_total=totals.get('total', 0)
                 )
-            except:
+            except Exception:
                 pass
 
             break
@@ -346,7 +346,7 @@ def run_cli(verbose=False):
                             final_status=status,
                             tokens_total=tokens_total
                         )
-                    except:
+                    except Exception:
                         pass
 
                     print()
