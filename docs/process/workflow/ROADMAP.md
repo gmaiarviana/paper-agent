@@ -180,7 +180,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   PROTO-WORKFLOW-PLATAFORMA (kanban e scaffold como base) e
   PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
-- **Status dos épicos:** W-PROTO-FILA-1 📐, W-PROTO-FILA-2 📐,
+- **Status dos épicos:** W-PROTO-FILA-1 🔍, W-PROTO-FILA-2 📐,
   W-PROTO-FILA-3 📐 (refinamento tático em progresso —
   decisões estratégicas abaixo já fechadas).
 - **Decisões de refinamento estratégico (2026-04-29):**
@@ -935,16 +935,182 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** regras determinísticas convertem sinais óbvios do repo em itens de fila com shape padronizado — PR aberta, épico chegou em estado-gatilho, branch parou. Sem julgamento agentic; só mapeamento sinal→item.
+**Objetivo:** módulo de detecção lê estado-do-mundo (ROADMAPs parseados + branches do remote) e produz lista determinística de itens de fila por regra fixa. Sem persistência própria — fila é função pura do estado. Cobre 3 tipos no Protótipo: DISPATCH (milestone apto), REVIEW (PR aberta), STALE_BRANCH (branch parada).
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** PROTO-WORKFLOW-PLATAFORMA (scaffold e kanban como base)
+**Dependências:** W-PROTO-PLAT-1 (parser de ROADMAP + `Epic`/`Milestone`/`ParsedRoadmap`); decisões estratégicas no bloco do milestone PROTO-WORKFLOW-FILA (3 tipos de item, fonte determinística).
 
-### Funcionalidades (esboço):
-- **1.1 Shape mínimo de item de fila** — título, contexto, tipo (dispatch/review/escalação), ação esperada, ponteiro pra origem (épico, PR, branch).
-- **1.2 Detecção de eventos** — monitora ROADMAPs (mudanças de estado) + estado de PRs + branches abertas; gera itens correspondentes.
-- **1.3 Reconstrução determinística** — varrer markdown + estado de PRs reconstrói a fila do zero (teste prático do princípio "markdown é fonte da verdade").
+### Termos e contratos
+
+- **Item de fila:** entrada tipada produzida pela detecção; carrega ponteiro tipado pra origem (`SourcePointer`) e instruções de ação esperada para o operador.
+- **Estado-do-mundo:** união de (a) `list[ParsedRoadmap]` carregada pelo scaffold + (b) lista de branches do remote com timestamp do último commit (via `git for-each-ref` em refs `refs/remotes/origin/`).
+- **Detecção determinística:** função pura `state → list[QueueItem]`, sem efeitos colaterais nem leitura de relógio (a não ser para `detected_at`, que é parte da entrada lógica e não da função).
+
+### Funcionalidades:
+
+#### 1.1: Shape mínimo de item de fila
+
+- **Descrição:** Define `QueueItem`, `ItemType` e `SourcePointer` (tagged union). `QueueItem` carrega título, contexto curto, ação esperada, ponteiro tipado e timestamp. Shape único pra os 3 tipos do Protótipo, com ponteiro discriminado por tipo.
+- **Critérios de Aceite:**
+  1. Deve definir `ItemType` enum com os 3 valores: `DISPATCH`, `REVIEW`, `STALE_BRANCH`
+  2. Deve definir `QueueItem` dataclass com campos `id`, `type`, `title`, `context`, `expected_action`, `source_pointer`, `detected_at`
+  3. `id` deve ser estável e derivado do gatilho (ex.: `"dispatch:PROTO-WORKFLOW-FAXINA"`, `"review:pr-93"`, `"stale:claude/foo-bar"`) — duas chamadas de detecção sobre o mesmo estado produzem mesmo `id`
+  4. `source_pointer` deve ser tagged union (`EpicPointer` | `PRPointer` | `BranchPointer`) com tipo coerente com `ItemType` (DISPATCH→`EpicPointer`, REVIEW→`PRPointer`, STALE_BRANCH→`BranchPointer`)
+  5. Tentar instanciar `QueueItem(type=DISPATCH, source_pointer=BranchPointer(...))` deve falhar via runtime check em `__post_init__` ou validação pydantic-style (não silenciar inconsistência)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/queue/__init__.py`, `tools/workflow_platform/queue/models.py`, `tests/tools/workflow_platform/test_queue_models.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/queue/models.py
+    from dataclasses import dataclass
+    from datetime import datetime
+    from enum import Enum
+
+    class ItemType(Enum):
+        DISPATCH = "dispatch"
+        REVIEW = "review"
+        STALE_BRANCH = "stale_branch"
+
+    @dataclass(frozen=True)
+    class EpicPointer:
+        milestone_id: str
+        roadmap_path: str
+        epic_ids: list[str]            # todos os épicos do milestone (DISPATCH é por milestone)
+
+    @dataclass(frozen=True)
+    class PRPointer:
+        pr_number: int
+        pr_url: str
+        milestone_id: str | None       # se identificável; senão None
+
+    @dataclass(frozen=True)
+    class BranchPointer:
+        branch_name: str
+        last_commit_at: datetime
+        days_stale: int
+
+    SourcePointer = EpicPointer | PRPointer | BranchPointer
+
+    @dataclass(frozen=True)
+    class QueueItem:
+        id: str
+        type: ItemType
+        title: str
+        context: str
+        expected_action: str
+        source_pointer: SourcePointer
+        detected_at: datetime
+
+        def __post_init__(self) -> None:
+            expected = {
+                ItemType.DISPATCH: EpicPointer,
+                ItemType.REVIEW: PRPointer,
+                ItemType.STALE_BRANCH: BranchPointer,
+            }[self.type]
+            if not isinstance(self.source_pointer, expected):
+                raise TypeError(f"{self.type} expects {expected.__name__}")
+    ```
+  - **Integração:** módulo puro de modelos. Consumido por `queue/detect.py` (1.2) e `views/queue.py` (W-PROTO-FILA-2).
+  - **Template de referência:** `tools/workflow_platform/models.py` (`Epic`, `Milestone`, `ParsedRoadmap` em W-PROTO-PLAT-1) — mesmo padrão de dataclasses imutáveis.
+  - **Acoplamentos verificados:**
+    - Stdlib only (`dataclasses`, `datetime`, `enum`); sem deps novas.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** primeiro do épico; precede 1.2 e 1.3.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_models.py` — (a) `QueueItem(type=DISPATCH, source_pointer=EpicPointer(...))` instancia; (b) `QueueItem(type=DISPATCH, source_pointer=BranchPointer(...))` levanta `TypeError`; (c) dois `QueueItem` com mesmo `id`+campos são iguais (frozen+`@dataclass(eq=True)` default).
+
+#### 1.2: Detecção dos 3 tipos a partir do estado-do-mundo
+
+- **Descrição:** módulo `queue/detect.py` expõe função `detect_all_items(state) -> list[QueueItem]` que internamente chama `detect_dispatch_items`, `detect_review_items` e `detect_stale_branch_items`. Cada detector é função pura sobre o input. Lista de branches do remote vem via helper que encapsula `git for-each-ref`.
+- **Critérios de Aceite:**
+  1. `detect_dispatch_items(roadmaps)` deve gerar 1 item por milestone com **todos** os épicos em `🔍` e nenhum em `🏗️`/`🔀`/`✅`; milestones sem milestone_id ou com pelo menos 1 épico em estado de execução não geram item
+  2. `detect_review_items(roadmaps)` deve gerar 1 item por PR número-distinto encontrado no estado `🔀` dos épicos; agrupa épicos do mesmo `pr_number` num só item (lista de `epic_ids` no contexto)
+  3. `detect_stale_branch_items(branches, threshold_days=7)` deve gerar item para cada branch do remote com `last_commit_at` há > `threshold_days`, **excluindo** branches referenciadas por algum épico em `🏗️`/`🔀` (campo `**Branch:**`) e excluindo `main`
+  4. `detect_all_items(state)` deve retornar união ordenada por `detected_at` desc, depois `type` (DISPATCH primeiro, depois REVIEW, depois STALE_BRANCH); se múltiplos itens têm mesmo `detected_at`, ordem por `id` lexicográfico
+  5. Função helper `list_remote_branches() -> list[RemoteBranch]` deve usar `subprocess.run(["git", "for-each-ref", "--format=%(refname:short)|%(committerdate:iso8601)", "refs/remotes/origin/"])` e parsear `(name, last_commit_at)`; falhas de subprocess são propagadas (não silenciadas)
+  6. `detect_all_items` deve ser **idempotente sobre estado fixo:** chamar com mesmo `state` produz lista igual em conteúdo (ignorando `detected_at` que recebe `now()` da chamada — ver 1.3 para fix de determinismo total)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/queue/detect.py`, `tools/workflow_platform/queue/git_helper.py`, `tests/tools/workflow_platform/test_queue_detect.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/queue/git_helper.py
+    @dataclass(frozen=True)
+    class RemoteBranch:
+        name: str                      # ex.: "claude/foo-bar" (sem prefixo "origin/")
+        last_commit_at: datetime
+
+    def list_remote_branches() -> list[RemoteBranch]:
+        """git for-each-ref --format=%(refname:short)|%(committerdate:iso8601) refs/remotes/origin/"""
+
+    # tools/workflow_platform/queue/detect.py
+    @dataclass(frozen=True)
+    class WorldState:
+        roadmaps: list[ParsedRoadmap]
+        remote_branches: list[RemoteBranch]
+        now: datetime                  # injetado para determinismo (ver 1.3)
+
+    def detect_dispatch_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_review_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_stale_branch_items(state: WorldState, threshold_days: int = 7) -> list[QueueItem]: ...
+    def detect_all_items(state: WorldState, threshold_days: int = 7) -> list[QueueItem]: ...
+    ```
+  - **Integração:** o caller (`views/queue.py` em W-PROTO-FILA-2) constrói `WorldState` agregando `parsed_roadmaps` (já em `st.session_state` via PLAT-1) + `list_remote_branches()` + `datetime.now()`. Chama `detect_all_items(state)`. Sem cache; reconstrução por render é o método primário.
+  - **Template de referência:** `tools/workflow_platform/prompts/dispatch.py` (W-PROTO-PLAT-3.1) — mesmo padrão "input dataclass → output tipado, sem side effect".
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/models.py` (Epic, EpicState, ParsedRoadmap) — W-PROTO-PLAT-1.
+    - `tools/workflow_platform/queue/models.py` (QueueItem etc.) — FILA-1.1.
+    - `subprocess` (stdlib) para `git for-each-ref`; sem deps externas novas.
+    - **`git fetch` é responsabilidade do caller**, não do detector. View (FILA-2.1) chama `git fetch origin --prune` antes de instanciar `WorldState`. Detector lê o que está no remote local.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 1.1; precede 1.3.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_detect.py` — (a) milestone com todos `🔍` gera 1 DISPATCH com `EpicPointer.epic_ids` populado; (b) milestone com 1 épico em `🏗️` não gera DISPATCH; (c) 2 épicos do mesmo milestone em `🔀` com mesmo `pr_number=93` geram **1** REVIEW (não 2); (d) branch com `last_commit_at` há 10 dias gera STALE; branch com 3 dias não gera; (e) branch referenciada por épico em `🏗️` é excluída de STALE; (f) `main` é sempre excluída; (g) ordenação: DISPATCH antes de REVIEW antes de STALE quando `detected_at` é igual.
+    - **Integration:** sem teste de integração; helper `list_remote_branches` é mockável via `monkeypatch.setattr(subprocess, "run", ...)`.
+
+#### 1.3: Garantia de determinismo via fixture-snapshot
+
+- **Descrição:** teste explícito do invariante "detect_all_items é função pura do estado". Fixture com `WorldState` fixo (ROADMAPs sintéticos + branches mockadas + `now` cravado) é passada duas vezes ao detector; resultado precisa ser idêntico item-a-item. Materializa o princípio "markdown é fonte da verdade".
+- **Critérios de Aceite:**
+  1. Fixture `make_world_state_fixture()` em `tests/tools/workflow_platform/fixtures/world_state.py` retorna `WorldState` com pelo menos: 2 ROADMAPs sintéticos (1 com milestone apto a DISPATCH, 1 com épicos em `🔀` pareados a PR), 4 branches mockadas (2 stale, 1 ativa, 1 referenciada por épico em `🏗️`), `now` fixo (`datetime(2026, 4, 29, 12, 0, 0)`)
+  2. Teste `test_detect_is_deterministic` chama `detect_all_items(state)` duas vezes consecutivas e afirma `result_a == result_b` (campos completos, incluindo `detected_at`)
+  3. Teste `test_detect_snapshot` compara saída com snapshot esperado serializado (lista de `QueueItem` com 3 itens: 1 DISPATCH, 1 REVIEW, 1 STALE_BRANCH); snapshot vive em `tests/tools/workflow_platform/fixtures/expected_queue_snapshot.json`
+  4. Mudança no código de detecção que altera shape ou regra deve quebrar `test_detect_snapshot` — atualizar snapshot é decisão consciente, não acidental
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tests/tools/workflow_platform/fixtures/__init__.py`, `tests/tools/workflow_platform/fixtures/world_state.py`, `tests/tools/workflow_platform/fixtures/expected_queue_snapshot.json`, `tests/tools/workflow_platform/test_queue_determinism.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    # tests/tools/workflow_platform/fixtures/world_state.py
+    def make_world_state_fixture() -> WorldState: ...
+
+    # tests/tools/workflow_platform/test_queue_determinism.py
+    def test_detect_is_deterministic():
+        state = make_world_state_fixture()
+        assert detect_all_items(state) == detect_all_items(state)
+
+    def test_detect_snapshot():
+        state = make_world_state_fixture()
+        actual = [_serialize(item) for item in detect_all_items(state)]
+        expected = json.loads(SNAPSHOT_PATH.read_text())
+        assert actual == expected
+    ```
+  - **Integração:** teste-only. Snapshot é commitado no repo; atualização exige rodar script `python -m tests.tools.workflow_platform.fixtures.regenerate_snapshot` (helper documentado inline no teste).
+  - **Template de referência:** snapshot testing convencional; sem dep de `pytest-snapshot` ou `syrupy` — usar `json.dumps(..., sort_keys=True, indent=2)` direto pra evitar dep nova.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/detect.py` e `models.py` — FILA-1.1, 1.2.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 1.1 e 1.2.
+  - **Escopo de teste:**
+    - **Unit:** os próprios testes desta funcionalidade.
+    - **Validação manual:** rodar `pytest tests/tools/workflow_platform/test_queue_determinism.py -v` localmente; ambos testes passam.
+
+**Fora do escopo:**
+- Ordenação avançada (importância, urgência) — Protótipo é só `detected_at` desc + tipo.
+- Persistência de "claim do operador" (mexeu num épico, agente solta) — escopo MVP.
+- Tipos de item adicionais (escalação, proposta do proponente) — chegam no MVP.
 
 ---
 
