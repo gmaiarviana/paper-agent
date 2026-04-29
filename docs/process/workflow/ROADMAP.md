@@ -215,40 +215,16 @@ Sintomas residuais consistentes com a causa raiz:
 - `validate_writer` 400 "no healthy deployments for ollama/llama3.2:3b" (registrado em 2026-04-28).
 - Claude Code CLI cuspindo JSON imitando `action` em prompts triviais — modelo recebeu o request mas alguma falha na resolução de model ID (ou no resultado do CC tentar interpretar erro do backend).
 
-**Fix proposto (não aplicado ainda):** adicionar aliases explícitos pra cada modelo disponível no OpenWebUI no `infra/litellm-proxy/litellm-config.yaml`. O wildcard atual (`claude-*`) só rota o que o CC envia; precisa de aliases pros modelos que aparecem em `LLM_MODEL`/no Paper Agent:
-```yaml
-- model_name: "ollama/ministral-3:14b"
-  litellm_params:
-    model: "openai/ollama/ministral-3:14b"
-    api_base: os.environ/OPENWEBUI_BASE_URL
-    api_key: os.environ/OPENWEBUI_API_KEY
-    drop_params: true
-    additional_drop_params: [context_management, cache_control, thinking, anthropic_beta]
+**Fix de aliases — aplicado e validado em 2026-04-28** (commit `14bf827`): aliases explícitos pra `ollama/ministral-3:14b` e `ollama/llama3.2:3b` adicionados ao `infra/litellm-proxy/litellm-config.yaml`, replicando o bloco `litellm_params` do wildcard `claude-*` com o `model` correspondente preservando o prefixo `ollama/`. Startup do proxy passou a listar os 3 model groups. Resultado:
 
-- model_name: "ollama/llama3.2:3b"
-  litellm_params:
-    model: "openai/ollama/llama3.2:3b"
-    # mesmo bloco litellm_params do alias acima
-```
+- ✅ **Paper Agent / `validate_writer` desbloqueado.** Rodou ponta-a-ponta com `LLM_MODEL=ollama/llama3.2:3b`, gerou artigo IMRaD coerente, HTTP 200 no log do proxy. Confirma que o stripping de prefixo era a causa do 400.
+- ⚠️ **Claude Code CLI: melhorou, mas continua subótimo.** O sintoma do JSON imitando `action` desapareceu — modelo agora responde com conteúdo coerente sobre o repo. Mas a resposta ainda **chega ao usuário envelopada em JSON** (ex.: `● { "message": "Oi! 👋..." }`) em vez de aparecer como texto puro renderizado no chat. Diagnóstico: o modelo está colocando a resposta inteira como string dentro de um único `content[].text`, e essa string é um JSON serializado em vez do conteúdo direto. Não é mais o stripping de prefixo; é capacidade do modelo (`ministral-3:14b`) tentando imitar formato estruturado quando vê o system prompt do CC com 10+ tools.
 
-(Alternativa: investigar se LiteLLM 1.74.15 suporta wildcard `ollama/*` com substituição template no `litellm_params.model` — economiza repetição mas precisa checar suporte na versão pinada.)
+**Causa secundária identificada — capacidade do modelo:** com o pipeline do proxy validado correto, sobra a hipótese de que o `ministral-3:14b` não dá conta do volume/complexidade de tools que o Claude Code envia simultaneamente. O modelo "vê" muitas estruturas no system prompt (Read, Edit, Bash, Grep, Glob, etc.) e tenta produzir output que pareça compatível, mas erra em emitir o protocolo Anthropic nativo (text/tool_use blocks) — em vez disso devolve texto que é JSON.
 
-**Validação esperada após o fix:**
-- `validate_writer` com `LLM_MODEL=ollama/llama3.2:3b` deve passar (hoje quebra com 400).
-- Probe Anthropic SDK + tools com prompt forte deve retornar `tool_use`.
-- Claude Code CLI no "oi" deve responder normal — se ainda cuspir JSON `action`, aí sim a causa é o modelo pequeno não dar conta do volume de tools do CC, e o caminho vira "modelo maior" ou opencode.
-
-**Próximos passos (em ordem):**
-
-*Passo 1 — aplicar o fix de aliases no `litellm-config.yaml`:* trabalho mecânico descrito acima. Provavelmente resolve o erro do `validate_writer` e qualquer chamada do Paper Agent contra o proxy.
-
-*Passo 2 — re-validar Claude Code CLI:* depois do fix, mandar "oi" numa sessão fresca contra o proxy. Dois desfechos:
-- ✅ resposta normal → (B) virou ✅ Operacional. Encerra o item.
-- ❌ ainda quebra → causa raiz secundária (capacidade do modelo pequeno vs. volume de tools do CC). Aí sim os caminhos abaixo entram.
-
-*Caminho 1 (residual) — modelo maior ou volume reduzido de tools:*
-- Testar com modelo maior disponível no OpenWebUI (se houver) ou ver se Ollama da Atlântico tem opção mais robusta que `ministral-3:14b`/`llama3.2:3b`.
-- Reproduzir o "oi" → JSON `action` com proxy em modo debug pra capturar **o request real do CC** e confirmar se `tools` chega intacto sob volume alto.
+*Caminho 1 — modelo maior:*
+- Verificar se a Atlântico tem opção mais robusta que `ministral-3:14b`/`llama3.2:3b` no OpenWebUI. Modelos com 30B+ params normalmente lidam bem com 10+ tools simultâneas e respeitam o protocolo Anthropic nativo.
+- Sem modelo maior disponível, (B) provavelmente fica como "best effort" para texto: aceita-se que Claude Code via OpenWebUI não reproduz a UX de Claude Code via Anthropic direta, e o uso pesado (Read/Edit/Bash) continua exigindo backend Anthropic.
 - Atualizar LiteLLM pra v1.81.16 vira manutenção preventiva — herda fixes acumulados sem cair na regressão de Prisma/DB de 1.82.x/1.83.x ([#25260](https://github.com/BerriAI/litellm/issues/25260)). Detalhes técnicos: commits [6384595](https://github.com/BerriAI/litellm/commit/6384595), [558c094](https://github.com/BerriAI/litellm/commit/558c094), [f126f75](https://github.com/BerriAI/litellm/commit/f126f75), [ea8a949](https://github.com/BerriAI/litellm/commit/ea8a949); issues contextuais [#25848](https://github.com/BerriAI/litellm/issues/25848), [#24091](https://github.com/BerriAI/litellm/issues/24091).
 
 *Caminho 2 — trocar a CLI por uma que fale OpenAI nativamente (`opencode`):*
