@@ -1,0 +1,3 @@
+﻿# Aider Sandbox
+
+- baseline
