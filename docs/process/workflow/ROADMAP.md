@@ -155,7 +155,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   ADR 001 + `products/ensaio/rxconfig.py` (consultados no refinamento
   de 2026-04-29) — sem input pendente do dev.
 - **Branch associada:** `milestone/proto-workflow-copilot-stack`
-- **Status dos épicos:** W-PROTO-14 🔍.
+- **Status dos épicos:** W-PROTO-14 🔀 Em revisão — PR #115.
 - **Nota:** milestone declarado em 2026-04-29; refinado a `🔍` na mesma
   data. Escopo cirúrgico, independente da faxina documental — pode
   rodar em paralelo com qualquer outro milestone do Protótipo.
@@ -1114,7 +1114,7 @@ Não há reordenação radical — a ordem atual já é coerente. 11.3 valida qu
 
 **Objetivo:** o Ensaio migrou para Reflex no Protótipo (ADR 001 de 2026-04-25), mas `copilot-instructions.md` ainda manda Streamlit pros dois produtos (linhas 70, 82, 92, 125). Validação de branches do Ensaio quebra ou roda com comando errado.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #115 (https://github.com/gmaiarviana/paper-agent/pull/115)
 
 **Dependências:**
 - ADR 001 (`products/ensaio/docs/adr/001-stack-do-prototipo.md`) — comandos e portas de Reflex já fixados; sem input pendente do dev.
