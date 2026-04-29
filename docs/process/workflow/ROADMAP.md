@@ -181,8 +181,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
 - **Status dos épicos:** W-PROTO-FILA-1 🔍, W-PROTO-FILA-2 🔍,
-  W-PROTO-FILA-3 📐 (refinamento tático em progresso —
-  decisões estratégicas abaixo já fechadas).
+  W-PROTO-FILA-3 🔍.
 - **Decisões de refinamento estratégico (2026-04-29):**
   - **(a) Detecção reativa unificada na própria plataforma.** Os 3
     tipos de item (DISPATCH, REVIEW, STALE_BRANCH) são detectados
@@ -1232,15 +1231,97 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** plataforma sinaliza visualmente quando a fila se aproxima do limite cognitivo (~20 itens). Sem pausa dura — só alerta. Pausa real só faz sentido no MVP, quando há agente proativo criando itens.
+**Objetivo:** badge na sidebar mostra `<contagem> / 20 itens` com cor que varia por faixa (verde < 15, amarelo 15-19, vermelho ≥ 20). Quando vermelho, banner adicional na tab da fila explica o estado mas não bloqueia ação. Sem pausa dura — Protótipo só sinaliza; pausa real é MVP (proponente é quem ganha capacidade de "parar de criar itens").
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PROTO-FILA-1 (fila existente)
+**Dependências:** W-PROTO-FILA-2.1 (view da fila e bloco da sidebar existem).
 
-### Funcionalidades (esboço):
-- **3.1 Contagem e indicador** — exibe contagem atual vs. limite alvo (~20 itens) na sidebar.
-- **3.2 Alerta de aproximação** — sinalização visual ao chegar perto do limite; sem ação automática.
+### Termos e contratos
+
+- **Limite alvo:** 20 itens (declarado em `vision.md` §"Fila" e no bloco do milestone PROTO-WORKFLOW-FILA).
+- **Faixa de aproximação:** 15-19 itens (75% do limite — buffer cognitivo de 5 itens antes do estado crítico).
+- **Estado da fila:** enum `QueueLoadState` com 3 valores: `OK` (< 15), `APPROACHING` (15-19), `OVER_LIMIT` (≥ 20). Constantes literais nesta funcionalidade — mudar exige ajuste consciente do épico.
+
+### Funcionalidades:
+
+#### 3.1: Badge de contagem na sidebar
+
+- **Descrição:** sidebar do app ganha bloco fixo com contagem atual da fila e cor por faixa. Renderiza independente da tab ativa (fila ou kanban). Cor é computada por helper puro `compute_load_state(count)` testável isoladamente.
+- **Critérios de Aceite:**
+  1. Sidebar exibe `📋 Fila: <N>/20` com `N = len(detect_all_items(state))`
+  2. Cor de fundo do bloco: verde (`#d4edda`) se `N < 15`; amarelo (`#fff3cd`) se `15 ≤ N < 20`; vermelho (`#f8d7da`) se `N ≥ 20`
+  3. Helper `compute_load_state(count: int) -> QueueLoadState` é função pura testável; limites são constantes nomeadas (`QUEUE_TARGET_LIMIT = 20`, `QUEUE_APPROACHING_THRESHOLD = 15`)
+  4. Bloco aparece em ambas as tabs (fila e kanban) — leitura primária do operador
+  5. Quando `N == 0`, exibe verde com texto `📋 Fila: 0/20 — sem itens`
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/queue/load.py`, `tests/tools/workflow_platform/test_queue_load.py`
+  - **Arquivos a modificar:** `tools/workflow_platform/app.py` — adicionar `render_queue_load_badge(items)` na sidebar antes da tab area; chamar com `items` já detectados (cache em `session_state`).
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/queue/load.py
+    from enum import Enum
+
+    QUEUE_TARGET_LIMIT = 20
+    QUEUE_APPROACHING_THRESHOLD = 15
+
+    class QueueLoadState(Enum):
+        OK = "ok"
+        APPROACHING = "approaching"
+        OVER_LIMIT = "over_limit"
+
+    LOAD_STATE_COLORS: dict[QueueLoadState, str] = {
+        QueueLoadState.OK:          "#d4edda",
+        QueueLoadState.APPROACHING: "#fff3cd",
+        QueueLoadState.OVER_LIMIT:  "#f8d7da",
+    }
+
+    def compute_load_state(count: int) -> QueueLoadState: ...
+    ```
+  - **Integração:** `app.py` chama `compute_load_state(len(items))` e renderiza via `st.sidebar.markdown` com HTML inline (`unsafe_allow_html=True`) usando `LOAD_STATE_COLORS`. Cache em `session_state` evita re-detecção em re-render Streamlit; recarga manual invalida (PLAT/FILA-2.1).
+  - **Template de referência:** sem análogo direto. Padrão "constantes nomeadas + função pura + dict de mapping" coerente com `tools/workflow_platform/views/kanban.py::KANBAN_COLUMN_ORDER`.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/{models,detect}.py` (FILA-1) — apenas leitura de `len(items)`.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de FILA-1 e FILA-2.1; precede 3.2.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_load.py` — (a) `compute_load_state(0)` = OK; (b) `compute_load_state(14)` = OK; (c) `compute_load_state(15)` = APPROACHING; (d) `compute_load_state(19)` = APPROACHING; (e) `compute_load_state(20)` = OVER_LIMIT; (f) `compute_load_state(50)` = OVER_LIMIT; (g) `LOAD_STATE_COLORS` cobre os 3 valores do enum.
+    - **Validação manual:** rodar app com fixture sintética de 0, 10, 17, 22 itens; confirmar cor da sidebar em cada caso.
+
+#### 3.2: Banner de alerta na tab da fila quando OVER_LIMIT
+
+- **Descrição:** na tab "📋 Fila", quando `compute_load_state(len(items)) == OVER_LIMIT`, renderizar `st.warning` no topo da tab antes da listagem dos cards. Texto curto explicando o estado e ação recomendada. **Não bloqueia** clique nos cards nem renderização — alerta é informacional.
+- **Critérios de Aceite:**
+  1. Banner aparece quando `len(items) >= 20`; ausente quando `< 20`
+  2. Texto literal: `"⚠️ Fila com <N> itens (limite alvo: 20). Considere fechar itens antes de iniciar novos. No MVP, o proponente vai pausar criação automaticamente."`
+  3. Banner é `st.warning(...)` — não `st.error` (não é erro, é sinalização cognitiva)
+  4. Clicar nos cards continua funcionando normalmente; nenhum botão fica desabilitado
+  5. Tab "🗂️ Kanban" não exibe o banner — ele é específico da view da fila
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum (lógica adicionada em `views/queue.py` de FILA-2.1)
+  - **Arquivos a modificar:** `tools/workflow_platform/views/queue.py` — adicionar `render_over_limit_banner(items)` chamado no início de `render_queue` antes do agrupamento por tipo.
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/views/queue.py (extensão)
+    def render_over_limit_banner(items: list[QueueItem]) -> None:
+        """Renderiza st.warning se compute_load_state == OVER_LIMIT.
+        No-op caso contrário."""
+    ```
+  - **Integração:** primeira chamada dentro de `render_queue` após receber a lista; antes de qualquer agrupamento ou render de card.
+  - **Template de referência:** padrão Streamlit `st.warning(...)`; sem análogo customizado.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/load.py` (FILA-3.1): `compute_load_state`, `QueueLoadState`, `QUEUE_TARGET_LIMIT`.
+    - `tools/workflow_platform/views/queue.py` (FILA-2.1): ponto de injeção em `render_queue`.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 3.1 (`compute_load_state`) e de FILA-2.1 (`render_queue` existe).
+  - **Escopo de teste:**
+    - **Unit:** sem teste automatizado (função render Streamlit; lógica condicional já testada em 3.1 via `compute_load_state`).
+    - **Validação manual:** fixture com 22 itens sintéticos confirma banner; fixture com 19 itens confirma ausência. Mesma fixture de 3.1 reusável.
+
+**Fora do escopo:**
+- Pausa dura (gatilho que impede detecção de novos itens) — escopo MVP quando proponente existe.
+- Notificação fora do app (e-mail, sistema operacional) — fora do princípio "plataforma é view derivada".
+- Configurar limite por preferência do operador — Protótipo usa constante; configurável só vira épico se houver sinal real de atrito.
 
 ---
 
