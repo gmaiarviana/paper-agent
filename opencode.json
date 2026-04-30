@@ -1,0 +1,24 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "atlantico": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Atlantico OpenWebUI",
+      "options": {
+        "baseURL": "{env:OPENWEBUI_BASE_URL}",
+        "apiKey": "{env:OPENWEBUI_API_KEY}"
+      },
+      "models": {
+        "gpt-oss:20b": {
+          "name": "gpt-oss 20B (default)"
+        },
+        "qwen3.6:35b": {
+          "name": "Qwen 3.6 35B"
+        },
+        "llama3.2:3b": {
+          "name": "Llama 3.2 3B (rapido/leve)"
+        }
+      }
+    }
+  }
+}

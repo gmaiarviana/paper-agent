@@ -1,14 +1,22 @@
-# LiteLLM Proxy para Claude Code
+# LiteLLM Proxy + setup de clients LLM
 
-Setup local opcional que coloca um proxy [LiteLLM](https://github.com/BerriAI/litellm)
-entre o **Claude Code** (CLI da Anthropic) e a API real, permitindo:
+Setup local opcional que organiza como cada CLI/REPL fala com o backend de
+LLM da empresa (default: **OpenWebUI da Atlântico** em
+`chat.alia.atlantico.com.br`). A pasta nasceu pro proxy
+[LiteLLM](https://github.com/BerriAI/litellm) e hoje hospeda também os
+scripts de setup dos demais clientes:
 
-- Rodar o Claude Code contra um backend OpenAI-compatible (default:
-  **OpenWebUI da Atlântico** em `chat.alia.atlantico.com.br`) sem o time
-  precisar de chave Anthropic individual. LiteLLM traduz Anthropic ↔ OpenAI
-  (incluindo tool calls).
-- Trocar de provedor (Anthropic, Azure, Ollama, etc) editando só o YAML.
-- Logar/auditar todas as requests, aplicar rate limit, observar uso por modelo.
+| Cliente | Caminho até o backend | Por quê |
+|---|---|---|
+| **Claude Code** | precisa do proxy (Anthropic ↔ OpenAI) | API do Claude Code é Anthropic-format; o proxy traduz |
+| **OpenCode** | direto no OpenWebUI (`/api`) | fala OpenAI nativo via `@ai-sdk/openai-compatible` — sem tradução = sem bug de SSE |
+| **Aider** | direto no OpenWebUI (`/api/v1`) | fala OpenAI nativo |
+
+> **Heads-up sobre o Claude Code:** o LiteLLM 1.74.x tem bug ao traduzir
+> tool-use de modelos não-Anthropic (ex.: `gpt-oss:20b`, `qwen3.6:35b`). Você
+> verá `API Error: Content block is not a text block`. Por isso o setup
+> recomendado migrou pra **OpenCode** (ver seção dedicada abaixo). O proxy
+> segue documentado pra quem ainda quer testar o Claude Code.
 
 > **Independente do projeto.** Esta pasta é uma ferramenta de desenvolvimento.
 > Pode ser apagada inteira sem quebrar o `paper-agent`.
@@ -149,6 +157,56 @@ Snapshots locais dessa lista (atualizados manualmente via API):
 
 ---
 
+## OpenCode (recomendado)
+
+[OpenCode](https://opencode.ai/) é um REPL/agente terminal-first que fala
+OpenAI nativamente, então **bypassa o proxy** e conversa direto com o
+OpenWebUI. Não há tradução Anthropic↔OpenAI no caminho — sem o bug de SSE
+que afeta o Claude Code.
+
+### Pré-requisitos
+
+- Node 18+ (`node --version`)
+- Variáveis `OPENWEBUI_API_KEY` e `OPENWEBUI_BASE_URL` no `.env` da raiz
+
+### Instalação
+
+```powershell
+npm i -g opencode-ai@latest
+opencode --version   # confirma instalado
+```
+
+### Configuração
+
+O provider está em [`opencode.json`](../../opencode.json) na raiz do repo.
+Ele referencia `{env:OPENWEBUI_API_KEY}` / `{env:OPENWEBUI_BASE_URL}` —
+basta carregá-las na sessão.
+
+### Uso
+
+```powershell
+.\infra\litellm-proxy\setup-opencode.ps1   # carrega .env na sessao
+opencode                                    # abre TUI interativa
+# ou:
+opencode run "sua tarefa aqui" --model atlantico/gpt-oss:20b
+opencode models atlantico                   # lista modelos
+```
+
+Modelos disponíveis (registrados em `opencode.json`):
+- `atlantico/gpt-oss:20b` (default)
+- `atlantico/qwen3.6:35b`
+- `atlantico/llama3.2:3b`
+
+### Quero apagar tudo
+
+```powershell
+npm uninstall -g opencode-ai
+Remove-Item opencode.json
+Remove-Item -Recurse -Force .opencode    # estado/auth/sessions
+```
+
+---
+
 ## Arquitetura
 
 ```
@@ -183,9 +241,13 @@ esse arquivo — o Claude Code não precisa saber.
 
 | Arquivo | Função |
 |---|---|
-| `litellm-config.yaml` | Roteamento de modelo → provedor |
+| `litellm-config.yaml` | Roteamento de modelo → provedor (só Claude Code) |
 | `start-proxy.ps1` | Sobe o proxy carregando `.env` da raiz |
-| `test-proxy.ps1` | Smoke test (3 chamadas) |
-| `setup-claude-code.ps1` | Seta `ANTHROPIC_BASE_URL` na sessão atual |
+| `test-proxy.ps1` | Smoke test do proxy (3 chamadas) |
+| `setup-claude-code.ps1` | Seta `ANTHROPIC_BASE_URL` (cliente do proxy) |
+| `setup-opencode.ps1` | Carrega `.env` p/ OpenCode (bypassa o proxy) |
+| `setup-aider.ps1` | Carrega `.env` p/ Aider (bypassa o proxy) |
+| `openwebui-models.snapshot.json` | Snapshot da lista de modelos do OpenWebUI |
+| `openwebui-models.ids.txt` | Mesma lista, só IDs |
 | `requirements.txt` | Versão pinada do LiteLLM |
 | `README.md` | Este arquivo |

@@ -82,3 +82,6 @@ scripts/migrate_tests.py
 # Personal files
 Livros em PDF/
 .aider*
+
+# OpenCode (per-user state, auth, sessions, db)
+.opencode/
