@@ -87,8 +87,8 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   W-PROTO-PLAT-3, W-PROTO-PLAT-4
 - **Dependências de core:** nenhuma
 - **Branch associada:** `milestone/proto-workflow-plataforma`
-- **Status dos épicos:** W-PROTO-PLAT-1 🔍, W-PROTO-PLAT-2 🔍,
-  W-PROTO-PLAT-3 🔍, W-PROTO-PLAT-4 🔍.
+- **Status dos épicos:** W-PROTO-PLAT-1 🔀, W-PROTO-PLAT-2 🔀,
+  W-PROTO-PLAT-3 🔀, W-PROTO-PLAT-4 🔀.
 - **Nota:** milestone refinado a `📋` em 2026-04-27 na branch
   `claude/refine-workflow-mvp-tu06p` e refinado a `🔍` em 2026-04-27
   na branch `claude/refine-workflow-milestone-pRAed`. Todos os
@@ -98,35 +98,179 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   da plataforma: `tools/workflow_platform/` (top-level novo, fora
   de `products/`, coerente com [`vision.md`](vision.md)).
 
+### PROTO-WORKFLOW-FAXINA
+
+- **Objetivo:** faxina documental do `docs/process/` — eliminar drift
+  entre cópias da lista de estados de épico, retirar de
+  `quality_rules.md` o que não é regra do fluxo, enxugar
+  `copilot-instructions.md`, descontinuar a dicotomia "fluxo manual
+  (Cursor) vs autônomo" que não reflete o uso real (operador roda
+  100% via Claude Code Web), e consolidar o template de "comandos
+  de validação local" duplicado em 3 docs. Faz a casa antes de
+  avançar para a fila reativa.
+- **Estágio:** Protótipo
+- **Épicos agrupados:** W-PROTO-10, W-PROTO-11, W-PROTO-13, W-PROTO-15,
+  W-PROTO-16
+- **Dependências de core:** nenhuma
+- **Branch associada:** `milestone/proto-workflow-faxina`
+- **Status dos épicos:** W-PROTO-10 🔀, W-PROTO-11 🔀, W-PROTO-13 🔀,
+  W-PROTO-15 🔀, W-PROTO-16 🔀 — todos em revisão pela PR #117.
+- **Ordem de execução interna:** W-PROTO-15 antes de W-PROTO-10 e
+  W-PROTO-11 (varre fluxo manual primeiro, evita revisitar arquivos).
+  W-PROTO-16 antes de W-PROTO-11.3 (congela a forma canônica do
+  template de validação antes da reorganização do `quality_rules.md`).
+  W-PROTO-13 e W-PROTO-14 (este último em PROTO-WORKFLOW-COPILOT-STACK)
+  podem rodar em paralelo — tocam o mesmo arquivo mas seções
+  disjuntas.
+- **Decisões de refinamento estratégico (2026-04-29):**
+  - **W-PROTO-12 absorvido por W-PROTO-15.** Premissa de cindir
+    `implementation/overview.md` em "regras de interação" vs
+    "Validação Híbrida" some quando 15.4 elimina a dicotomia
+    manual/autônomo — o conteúdo útil de "Validação Híbrida" (sintaxe,
+    imports) vale pra qualquer fluxo e fica no overview mesmo. Se
+    "doc por responsabilidade" virar atrito real depois, vira épico
+    próprio no MVP-WORKFLOW-DOC (W-MVP-DOC-1 já cobre o princípio).
+  - **W-MVP-DOC-2 movido para cá como W-PROTO-16.** Os 4 arquivos com
+    template de validação duplicado (`quality_rules.md`,
+    `implementation/delivery.md`, `autonomous/delivery.md`,
+    `implementation/overview.md`) são exatamente os arquivos que
+    W-PROTO-11 e W-PROTO-15 já tocam — fazer junto evita revisitar.
+    A funcionalidade original "2.3 Variantes por fluxo (manual vs
+    autônomo)" cai junto com W-PROTO-15.
+- **Nota:** milestone declarado em 2026-04-29 a partir dos órfãos da
+  fase Protótipo levantados na revisão
+  `claude/review-process-directory-J1v8v` (2026-04-28). Refinamento
+  estratégico em 2026-04-29 levou os 5 épicos a `🔍` e absorveu/moveu
+  os dois antes citados. Apto ao fluxo autônomo.
+
+### PROTO-WORKFLOW-COPILOT-STACK
+
+- **Objetivo:** alinhar `copilot-instructions.md` à mudança de stack do
+  Ensaio (Streamlit → Reflex, ADR 001 de 2026-04-25). Ajuste pequeno e
+  operacional — o Copilot hoje manda Streamlit pros dois produtos e a
+  validação de branches do Ensaio quebra ou roda com comando errado.
+- **Estágio:** Protótipo
+- **Épicos agrupados:** W-PROTO-14
+- **Dependências de core:** nenhuma. Comandos de Reflex já fixados pelo
+  ADR 001 + `products/ensaio/rxconfig.py` (consultados no refinamento
+  de 2026-04-29) — sem input pendente do dev.
+- **Branch associada:** `milestone/proto-workflow-copilot-stack`
+- **Status dos épicos:** W-PROTO-14 🔀 Em revisão — PR #115.
+- **Nota:** milestone declarado em 2026-04-29; refinado a `🔍` na mesma
+  data. Escopo cirúrgico, independente da faxina documental — pode
+  rodar em paralelo com qualquer outro milestone do Protótipo.
+  Observação operacional: a seção §"Operação Windows / macOS / Linux"
+  de `copilot-instructions.md` é tocada por W-PROTO-14.3 (ampliação
+  do range de portas) e por W-PROTO-13.3 (faxina); a coordenação está
+  declarada nos dois épicos.
+
 ### PROTO-WORKFLOW-FILA
 
 - **Objetivo:** plataforma ganha fila reativa de decisões + chat focado
-  por item + auto-regulação básica. Sinais óbvios do repo (PR aberta,
-  épico chegou em estado-gatilho, branch parou) viram itens de fila por
-  regra determinística — sem agente proativo ainda. Operador atende na
-  ordem que escolher; ordenação simples (recência ou manual).
+  por item + auto-regulação básica. Sinais óbvios do repo (épico em
+  🔍 esperando dispatch, PR de milestone aberta, branch parada) viram
+  itens de fila por regra determinística — sem agente proativo ainda.
+  Operador atende na ordem que escolher; ordenação por recência da
+  detecção. Fonte da verdade: markdown + estado git/GitHub. Sem
+  persistência própria — fila é view derivada, reconstruída do zero
+  a cada render.
 - **Estágio:** Protótipo
-- **Épicos agrupados:** W-PROTO-FILA-1, W-PROTO-FILA-2, W-PROTO-FILA-3
+- **Épicos agrupados:** W-PROTO-FILA-1, W-PROTO-FILA-2,
+  W-PROTO-FILA-3, W-PROTO-FILA-4
 - **Dependências de core:** nenhuma; depende de
-  PROTO-WORKFLOW-PLATAFORMA (kanban e scaffold como base)
+  PROTO-WORKFLOW-PLATAFORMA (kanban e scaffold como base) e
+  PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
-- **Status dos épicos:** W-PROTO-FILA-1 📐, W-PROTO-FILA-2 📐,
-  W-PROTO-FILA-3 📐.
-- **Tensões para refinamento estratégico:**
-  - **(a) Quem cria itens "PR pra revisar"?** Inclinação: RTE no
-    mesmo passo em que abre PR (W-PROTO-5 estendido). Alternativa:
-    observador da plataforma detecta PR aberta via GitHub API.
-  - **(b) Auto-regulação por capacidade (~20 itens).** No Protótipo,
-    auto-regulação é simples (alerta visual ao se aproximar do limite)
-    — gatilho duro de pausa só ganha sentido no MVP, quando há agente
-    proativo criando itens.
-  - **(c) Reconstrução da fila se plataforma cair.** Varrer markdown
-    + estado de PRs deve reconstruir a fila deterministicamente —
-    teste prático do princípio "markdown é fonte da verdade".
+- **Status dos épicos:** W-PROTO-FILA-1 🔍, W-PROTO-FILA-2 🔍,
+  W-PROTO-FILA-3 🔍, W-PROTO-FILA-4 🔍.
+- **Decisões de refinamento estratégico (2026-04-29):**
+  - **(a) Detecção reativa unificada na própria plataforma.** Os 3
+    tipos de item (DISPATCH, REVIEW, STALE_BRANCH) são detectados
+    pelo módulo `tools/workflow_platform/queue/detect.py`, lendo
+    apenas o estado-do-mundo (ROADMAPs parseados + `git ls-remote` /
+    `git for-each-ref`). RTE **não** ganha responsabilidade nova de
+    criar item de fila — coerente com o princípio "markdown é fonte
+    da verdade": se o ROADMAP marca o épico em 🔀 com PR #N (já
+    feito hoje pela RTE em W-PROTO-8), a detecção REVIEW resolve. A
+    alternativa "RTE estendida" foi descartada porque (i) acopla
+    criação de fila ao fechamento de milestone, (ii) duplica fonte
+    da verdade (RTE escreve no ROADMAP **e** num registro de fila),
+    (iii) fila não cobriria PRs abertas manualmente fora do fluxo
+    autônomo.
+  - **(b) Auto-regulação no Protótipo é alerta visual sem pausa
+    dura.** Limite alvo declarado: 20 itens (vision §"Fila").
+    Aproximação: 15 itens (75% — buffer de 5). Pausa real (gatilho
+    duro que impede o agente de criar itens) só ganha sentido no
+    MVP, quando há proponente criando itens proativamente. No
+    Protótipo, todos os itens vêm de detecção determinística do
+    estado-do-mundo — não dá pra "pausar a detecção", o que existe é
+    o que existe.
+  - **(c) Reconstrução determinística é propriedade do design, não
+    funcionalidade separada.** Como a fila não tem persistência
+    própria e cada render parte do estado-do-mundo, a reconstrução
+    é trivial por construção. W-PROTO-FILA-1.3 vira o **teste**
+    explícito desse invariante: fixture com snapshot do estado-do-
+    mundo + asserção `detect_all(snapshot) == detect_all(snapshot)`.
+    Garante que a detecção é função pura do estado.
+- **Tipos de item (Protótipo):** cinco tipos cobrem todos os pontos
+  de ação que o operador tem hoje sem proponente — implementação,
+  revisão, manutenção de branches, refinamento tático, faxina
+  pós-merge. Os tipos restantes da vision §"Fila" (escalada,
+  proposta, relatório executivo) chegam no MVP com o
+  proponente/porta-voz.
+  - `DISPATCH` — milestone com todos épicos em 🔍 (apto a dispatch),
+    sem épicos em 🏗️/🔀/✅. Ação esperada: copiar prompt de
+    dispatch e rodar em sessão autônoma.
+  - `REVIEW` — PR de milestone aberta (épicos em 🔀). Ação esperada:
+    abrir PR, colar Seção 🎯 no Copilot, decidir merge.
+  - `STALE_BRANCH` — branch ativa há mais de N dias (N configurável
+    via `config.yaml`, default 7) sem PR aberta e sem épico em
+    🏗️/🔀 referenciando-a. Ação esperada: confirmar se é trabalho
+    concluído sem PR (abrir), abandonado (deletar) ou bloqueado
+    (resgatar).
+  - `REFINE` — épico em 📐 ou 📋 esperando refinamento tático para
+    chegar a 🔍. Ação esperada: copiar prompt de refinamento (reuso
+    de `build_refinement_prompt` de W-PROTO-PLAT-4.2) e rodar em
+    sessão de refinamento. Estados 🌱/🧭 ficam fora — sinal de
+    "pronto pra avançar" não é determinístico nesses estados,
+    pedem sessão estratégica humana, não item reativo de fila.
+  - `CLEANUP` — épico em ✅ que ainda não foi limpo do ROADMAP
+    (Cleanup skill não rodou — automação pós-merge ainda não
+    configurada no Protótipo). Ação esperada: rodar
+    `skills/cleanup/skill.md` manualmente; ela move conteúdo
+    histórico do épico para fora do ROADMAP e a coluna ✅ do kanban
+    volta a ficar vazia. Resolve mecanicamente o ruído visual de
+    "✅ acumulando no kanban" sem precisar mexer em `EpicState`.
 - **Nota:** milestone declarado em 2026-04-28 — absorve o conteúdo
   do antigo MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo
   porque é fila **reativa** (regra determinística), não curada por
-  agente. Curadoria por porta-voz vive no MVP.
+  agente. Curadoria por porta-voz vive no MVP. FILA-1/2/3 refinados
+  a `🔍` em 2026-04-29 na branch `claude/optimize-dev-workflow-aiYYj`.
+  FILA-4 declarado na mesma sessão a partir de feedback real de uso
+  da plataforma (escopo absorvido do que iria virar
+  `PROTO-WORKFLOW-PLAT-UX` separado — sem dependência cross-milestone).
+  Apto ao fluxo autônomo após FILA-4 chegar a `🔍` **e**
+  `PROTO-WORKFLOW-FAXINA` mergear.
+
+### MVP-WORKFLOW-DOC
+
+- **Objetivo:** faxina documental da fase MVP — quebrar o
+  `planning_guidelines.md` (634 linhas hoje) por responsabilidade.
+  Reduz custo de leitura para agentes e elimina drift médio prazo.
+- **Estágio:** MVP
+- **Épicos agrupados:** W-MVP-DOC-1
+- **Dependências de core:** nenhuma; pode rodar em paralelo com os
+  demais milestones do MVP.
+- **Branch associada:** `milestone/mvp-workflow-doc`
+- **Status dos épicos:** W-MVP-DOC-1 📐.
+- **Nota:** milestone declarado em 2026-04-29. O épico irmão
+  W-MVP-DOC-2 (consolidar template de "comandos de validação local")
+  foi movido para `PROTO-WORKFLOW-FAXINA` como W-PROTO-16 no
+  refinamento estratégico de 2026-04-29 — overlapping de arquivos com
+  W-PROTO-11 e W-PROTO-15 justificou antecipar. W-MVP-DOC-1 fica no
+  MVP porque é redesign estrutural, não faxina; depende
+  conceitualmente de W-PROTO-10 (centralização da definição de
+  estados) ter rodado primeiro pra ver melhor o que extrair.
 
 ### MVP-WORKFLOW-REFINAMENTO
 
@@ -186,6 +330,32 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   MVP-WORKFLOW-PLATAFORMA conceitualmente — papéis novos, não fila
   nova. Épicos em `📐 Funcionalidades esboçadas` — aguardam refinamento
   estratégico antes do dispatch.
+
+## 🛠️ Tooling de Desenvolvimento
+
+### Claude Code CLI via OpenWebUI (proxy LiteLLM)
+
+**Status:** 🌱 Visão (parcialmente operacional — texto sim; uso pesado com tool calling depende de modelo maior do que os disponíveis hoje)
+
+**Escopo:** este item é sobre **a CLI do Claude Code rodando contra modelos do OpenWebUI da Atlântico** em vez da API Anthropic. **Não cobre** o uso de OpenWebUI dentro do produto Paper Agent — esse caminho é runtime de produto e está tratado em [`docs/ROADMAP.md`](../../ROADMAP.md) (ÉPICO 2).
+
+**Estado atual:**
+- `infra/litellm-proxy/` está montado, traduz Anthropic↔OpenAI e preserva tool calling end-to-end (validado por debug em 2026-04-28).
+- Configurado via `.env`: `OPENWEBUI_API_KEY`, `OPENWEBUI_BASE_URL`, `ANTHROPIC_BASE_URL=http://localhost:4000`. `setup-claude-code.ps1` ativa a sessão.
+- Pin obrigatório: LiteLLM 1.74.15 (1.83.x quebra em loop no Windows).
+- `litellm-config.yaml` precisa de alias explícito por modelo do OpenWebUI (sem alias, LiteLLM strip o prefixo `ollama/` e o backend devolve 400). Aliases pra `ollama/ministral-3:14b` e `ollama/llama3.2:3b` foram adicionados em 2026-04-28 (commit `14bf827`).
+
+**Limitação atual — capacidade do modelo:** com pipeline correto, o `ministral-3:14b` ainda apresenta saídas subótimas no Claude Code: responde conteúdo coerente em prompts triviais ("oi"), mas envelopa o texto em JSON serializado (ex.: `{"message": "Oi! 👋..."}`) em vez de emitir um `content[].text` puro pelo protocolo Anthropic. Hipótese: o modelo de 14B params se confunde tentando imitar formato estruturado quando o system prompt do CC traz 10+ tools (Read, Edit, Bash, Grep, Glob, etc.). Resultado prático: Claude Code via OpenWebUI fica usável pra conversa leve, **não** pra trabalho pesado de Read/Edit/Bash com fidelidade.
+
+**Caminhos de evolução:**
+
+*Caminho 1 — modelo maior no OpenWebUI:* checar com a Atlântico se há modelos 30B+ disponíveis (Llama 3.1 70B, Qwen 2.5 32B+, ou similar). Modelos maiores tipicamente lidam bem com 10+ tools simultâneas e respeitam o protocolo Anthropic nativo. Adotar = adicionar alias no yaml apontando pro novo modelo e re-testar. Sem modelo maior disponível, (B) fica como "best effort" pra texto e o uso pesado continua exigindo Anthropic direto.
+
+*Caminho 2 — trocar a CLI por `opencode`:* [`sst/opencode`](https://github.com/sst/opencode) fala OpenAI-compatible nativamente, sem proxy de tradução. Configuração via `opencode.json` no root com provider custom `@ai-sdk/openai-compatible` ([docs](https://opencode.ai/docs/providers/#custom)). Trade-off contra adoção total: skills atuais em `skills/<nome>/skill.md` não plugam no discovery do opencode (espera `.opencode/skills/<nome>/SKILL.md` em caps com frontmatter `name`/`description`). `CLAUDE.md`/`.claudecode.md`/permissões portam via `AGENTS.md` + `opencode.json` com pouca fricção. Adoção = épico próprio com pacote de migração das skills. Mantém o mesmo trade-off de capacidade do modelo se rodar contra Ollama pequeno.
+
+*Manutenção preventiva:* atualizar LiteLLM pra v1.81.16 herda fixes de tool calling acumulados sem cair na regressão de Prisma/DB de 1.82.x/1.83.x ([#25260](https://github.com/BerriAI/litellm/issues/25260)). Não bloqueador no estado atual.
+
+---
 
 ## 📋 Épicos Planejados
 
@@ -385,7 +555,9 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** estrutura Streamlit funcionando localmente, lendo ROADMAPs do repo e com navegação básica entre as views da plataforma.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #106 (https://github.com/gmaiarviana/paper-agent/pull/106)
+
+**Branch:** `claude/implement-workflow-prototype-BtiaJ`
 
 **Dependências:** nenhuma
 
@@ -517,7 +689,9 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** view com todos os épicos de todos os ROADMAPs configurados organizados por estado e milestone, numa única superfície de leitura.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #106 (https://github.com/gmaiarviana/paper-agent/pull/106)
+
+**Branch:** `claude/implement-workflow-prototype-BtiaJ`
 
 **Dependências:** W-PROTO-PLAT-1 (scaffold com leitura de ROADMAPs)
 
@@ -570,7 +744,9 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** ações contextuais nos cards de estados de execução (🔍/🏗️/🔀/✅) para o operador despachar, acompanhar e revisar sem precisar sair da plataforma.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #106 (https://github.com/gmaiarviana/paper-agent/pull/106)
+
+**Branch:** `claude/implement-workflow-prototype-BtiaJ`
 
 **Dependências:** W-PROTO-PLAT-2 (kanban com cards clicáveis)
 
@@ -682,7 +858,9 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** ações contextuais nos cards de estados pré-execução (🌱/🧭/📐/📋) que orientam o operador sobre o próximo passo de refinamento e geram o prompt de sessão pronto para usar.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #106 (https://github.com/gmaiarviana/paper-agent/pull/106)
+
+**Branch:** `claude/implement-workflow-prototype-BtiaJ`
 
 **Dependências:** W-PROTO-PLAT-2 (kanban com cards clicáveis)
 
@@ -779,33 +957,326 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** regras determinísticas convertem sinais óbvios do repo em itens de fila com shape padronizado — PR aberta, épico chegou em estado-gatilho, branch parou. Sem julgamento agentic; só mapeamento sinal→item.
+**Objetivo:** módulo de detecção lê estado-do-mundo (ROADMAPs parseados + branches do remote) e produz lista determinística de itens de fila por regra fixa. Sem persistência própria — fila é função pura do estado. Cobre 5 tipos no Protótipo: DISPATCH (milestone apto), REVIEW (PR aberta), REFINE (épico em 📐/📋 pedindo refinamento tático), CLEANUP (épico em ✅ esperando faxina), STALE_BRANCH (branch parada).
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** PROTO-WORKFLOW-PLATAFORMA (scaffold e kanban como base)
+**Dependências:** W-PROTO-PLAT-1 (parser de ROADMAP + `Epic`/`Milestone`/`ParsedRoadmap`); decisões estratégicas no bloco do milestone PROTO-WORKFLOW-FILA (3 tipos de item, fonte determinística).
 
-### Funcionalidades (esboço):
-- **1.1 Shape mínimo de item de fila** — título, contexto, tipo (dispatch/review/escalação), ação esperada, ponteiro pra origem (épico, PR, branch).
-- **1.2 Detecção de eventos** — monitora ROADMAPs (mudanças de estado) + estado de PRs + branches abertas; gera itens correspondentes.
-- **1.3 Reconstrução determinística** — varrer markdown + estado de PRs reconstrói a fila do zero (teste prático do princípio "markdown é fonte da verdade").
+### Termos e contratos
+
+- **Item de fila:** entrada tipada produzida pela detecção; carrega ponteiro tipado pra origem (`SourcePointer`) e instruções de ação esperada para o operador.
+- **Estado-do-mundo:** união de (a) `list[ParsedRoadmap]` carregada pelo scaffold + (b) lista de branches do remote com timestamp do último commit (via `git for-each-ref` em refs `refs/remotes/origin/`).
+- **Detecção determinística:** função pura `state → list[QueueItem]`, sem efeitos colaterais nem leitura de relógio (a não ser para `detected_at`, que é parte da entrada lógica e não da função).
+
+### Funcionalidades:
+
+#### 1.1: Shape mínimo de item de fila
+
+- **Descrição:** Define `QueueItem`, `ItemType` e `SourcePointer` (tagged union). `QueueItem` carrega título, contexto curto, ação esperada, ponteiro tipado e timestamp. Shape único pra os 3 tipos do Protótipo, com ponteiro discriminado por tipo.
+- **Critérios de Aceite:**
+  1. Deve definir `ItemType` enum com os 5 valores: `DISPATCH`, `REVIEW`, `REFINE`, `CLEANUP`, `STALE_BRANCH`
+  2. Deve definir `QueueItem` dataclass com campos `id`, `type`, `title`, `context`, `expected_action`, `source_pointer`, `detected_at`
+  3. `id` deve ser estável e derivado do gatilho (ex.: `"dispatch:PROTO-WORKFLOW-FAXINA"`, `"review:pr-93"`, `"refine:W-MVP-DOC-1"`, `"cleanup:W-PROTO-PLAT-1"`, `"stale:claude/foo-bar"`) — duas chamadas de detecção sobre o mesmo estado produzem mesmo `id`
+  4. `source_pointer` deve ser tagged union (`EpicPointer` | `PRPointer` | `BranchPointer` | `RefinePointer` | `CleanupPointer`) com tipo coerente com `ItemType` (DISPATCH→`EpicPointer`, REVIEW→`PRPointer`, REFINE→`RefinePointer`, CLEANUP→`CleanupPointer`, STALE_BRANCH→`BranchPointer`)
+  5. Tentar instanciar `QueueItem(type=DISPATCH, source_pointer=BranchPointer(...))` deve falhar via runtime check em `__post_init__` ou validação pydantic-style (não silenciar inconsistência)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/queue/__init__.py`, `tools/workflow_platform/queue/models.py`, `tests/tools/workflow_platform/test_queue_models.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/queue/models.py
+    from dataclasses import dataclass
+    from datetime import datetime
+    from enum import Enum
+
+    class ItemType(Enum):
+        DISPATCH = "dispatch"
+        REVIEW = "review"
+        REFINE = "refine"
+        CLEANUP = "cleanup"
+        STALE_BRANCH = "stale_branch"
+
+    @dataclass(frozen=True)
+    class EpicPointer:
+        milestone_id: str
+        roadmap_path: str
+        epic_ids: list[str]            # todos os épicos do milestone (DISPATCH é por milestone)
+
+    @dataclass(frozen=True)
+    class PRPointer:
+        pr_number: int
+        pr_url: str
+        milestone_id: str | None       # se identificável; senão None
+
+    @dataclass(frozen=True)
+    class BranchPointer:
+        branch_name: str
+        last_commit_at: datetime
+        days_stale: int
+
+    @dataclass(frozen=True)
+    class RefinePointer:
+        epic_id: str                   # REFINE é por épico, não por milestone
+        roadmap_path: str
+        current_state: EpicState       # 📐 ou 📋
+        target_state: EpicState        # próximo alvo (📋 ou 🔍) — vem de NEXT_STEP_MAP de PLAT-4.1
+
+    @dataclass(frozen=True)
+    class CleanupPointer:
+        epic_id: str                   # épico em ✅ aguardando faxina
+        roadmap_path: str
+        title: str                     # título do épico (pra prompt humano)
+
+    SourcePointer = EpicPointer | PRPointer | BranchPointer | RefinePointer | CleanupPointer
+
+    @dataclass(frozen=True)
+    class QueueItem:
+        id: str
+        type: ItemType
+        title: str
+        context: str
+        expected_action: str
+        source_pointer: SourcePointer
+        detected_at: datetime
+
+        def __post_init__(self) -> None:
+            expected = {
+                ItemType.DISPATCH:     EpicPointer,
+                ItemType.REVIEW:       PRPointer,
+                ItemType.REFINE:       RefinePointer,
+                ItemType.CLEANUP:      CleanupPointer,
+                ItemType.STALE_BRANCH: BranchPointer,
+            }[self.type]
+            if not isinstance(self.source_pointer, expected):
+                raise TypeError(f"{self.type} expects {expected.__name__}")
+    ```
+  - **Integração:** módulo puro de modelos. Consumido por `queue/detect.py` (1.2) e `views/queue.py` (W-PROTO-FILA-2).
+  - **Template de referência:** `tools/workflow_platform/models.py` (`Epic`, `Milestone`, `ParsedRoadmap` em W-PROTO-PLAT-1) — mesmo padrão de dataclasses imutáveis.
+  - **Acoplamentos verificados:**
+    - Stdlib only (`dataclasses`, `datetime`, `enum`); sem deps novas.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** primeiro do épico; precede 1.2 e 1.3.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_models.py` — (a) `QueueItem(type=DISPATCH, source_pointer=EpicPointer(...))` instancia; (b) `QueueItem(type=DISPATCH, source_pointer=BranchPointer(...))` levanta `TypeError`; (c) dois `QueueItem` com mesmo `id`+campos são iguais (frozen+`@dataclass(eq=True)` default).
+
+#### 1.2: Detecção dos 3 tipos a partir do estado-do-mundo
+
+- **Descrição:** módulo `queue/detect.py` expõe função `detect_all_items(state) -> list[QueueItem]` que internamente chama `detect_dispatch_items`, `detect_review_items` e `detect_stale_branch_items`. Cada detector é função pura sobre o input. Lista de branches do remote vem via helper que encapsula `git for-each-ref`.
+- **Critérios de Aceite:**
+  1. `detect_dispatch_items(roadmaps)` deve gerar 1 item por milestone com **todos** os épicos em `🔍` e nenhum em `🏗️`/`🔀`/`✅`; milestones sem milestone_id ou com pelo menos 1 épico em estado de execução não geram item
+  2. `detect_review_items(roadmaps)` deve gerar 1 item por PR número-distinto encontrado no estado `🔀` dos épicos; agrupa épicos do mesmo `pr_number` num só item (lista de `epic_ids` no contexto)
+  3. `detect_stale_branch_items(branches, threshold_days)` deve gerar item para cada branch do remote com `last_commit_at` há > `threshold_days`, **excluindo** branches referenciadas por algum épico em `🏗️`/`🔀` (campo `**Branch:**`) e excluindo `main`. `threshold_days` é parâmetro injetado (default 7); o caller lê de `preferences.json` campo `stale_branch_threshold_days` (via `load_preferences()` de FILA-4.1) ou usa default 7 quando preferência ausente
+  4. `detect_refine_items(roadmaps)` deve gerar 1 item por épico em estado `📐` ou `📋`; `target_state` calculado via `NEXT_STEP_MAP` de W-PROTO-PLAT-4.1; estados `🌱`/`🧭` **excluídos** (sinal de avanço não é determinístico, exigem sessão estratégica)
+  5. `detect_cleanup_items(roadmaps)` deve gerar 1 item por épico em estado `✅` no ROADMAP; cada item carrega `CleanupPointer(epic_id, roadmap_path, title)` para uso no prompt de cleanup manual
+  6. `detect_all_items(state)` deve retornar união ordenada por `detected_at` desc, depois `type` na ordem de prioridade `DISPATCH > REVIEW > REFINE > CLEANUP > STALE_BRANCH`; se múltiplos itens têm mesmo `detected_at` e mesmo tipo, ordem por `id` lexicográfico
+  7. Função helper `list_remote_branches() -> list[RemoteBranch]` deve usar `subprocess.run(["git", "for-each-ref", "--format=%(refname:short)|%(committerdate:iso8601)", "refs/remotes/origin/"])` e parsear `(name, last_commit_at)`; falhas de subprocess são propagadas (não silenciadas)
+  8. `detect_all_items` deve ser **idempotente sobre estado fixo:** chamar com mesmo `state` produz lista igual em conteúdo (ignorando `detected_at` que recebe `now()` da chamada — ver 1.3 para fix de determinismo total)
+  9. `stale_branch_threshold_days` **não** vai pra `config.yaml` — a preferência mora em `preferences.json` (FILA-4.1), separação `config.yaml = projeto / preferences.json = humano`. Caller lê `load_preferences().stale_branch_threshold_days`; ausência do arquivo mantém default 7 sem warning
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/queue/detect.py`, `tools/workflow_platform/queue/git_helper.py`, `tests/tools/workflow_platform/test_queue_detect.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/queue/git_helper.py
+    @dataclass(frozen=True)
+    class RemoteBranch:
+        name: str                      # ex.: "claude/foo-bar" (sem prefixo "origin/")
+        last_commit_at: datetime
+
+    def list_remote_branches() -> list[RemoteBranch]:
+        """git for-each-ref --format=%(refname:short)|%(committerdate:iso8601) refs/remotes/origin/"""
+
+    # tools/workflow_platform/queue/detect.py
+    @dataclass(frozen=True)
+    class WorldState:
+        roadmaps: list[ParsedRoadmap]
+        remote_branches: list[RemoteBranch]
+        now: datetime                  # injetado para determinismo (ver 1.3)
+
+    def detect_dispatch_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_review_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_refine_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_cleanup_items(state: WorldState) -> list[QueueItem]: ...
+    def detect_stale_branch_items(state: WorldState, threshold_days: int = 7) -> list[QueueItem]: ...
+    def detect_all_items(state: WorldState, threshold_days: int = 7) -> list[QueueItem]: ...
+    ```
+  - **Integração:** o caller (`views/queue.py` em W-PROTO-FILA-2) constrói `WorldState` agregando `parsed_roadmaps` (já em `st.session_state` via PLAT-1) + `list_remote_branches()` + `datetime.now()`. Chama `detect_all_items(state)`. Sem cache; reconstrução por render é o método primário.
+  - **Template de referência:** `tools/workflow_platform/prompts/dispatch.py` (W-PROTO-PLAT-3.1) — mesmo padrão "input dataclass → output tipado, sem side effect".
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/models.py` (Epic, EpicState, ParsedRoadmap) — W-PROTO-PLAT-1.
+    - `tools/workflow_platform/queue/models.py` (QueueItem etc.) — FILA-1.1.
+    - `subprocess` (stdlib) para `git for-each-ref`; sem deps externas novas.
+    - **`git fetch` é responsabilidade do caller**, não do detector. View (FILA-2.1) chama `git fetch origin --prune` antes de instanciar `WorldState`. Detector lê o que está no remote local.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 1.1; precede 1.3.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_detect.py` — (a) milestone com todos `🔍` gera 1 DISPATCH com `EpicPointer.epic_ids` populado; (b) milestone com 1 épico em `🏗️` não gera DISPATCH; (c) 2 épicos do mesmo milestone em `🔀` com mesmo `pr_number=93` geram **1** REVIEW (não 2); (d) branch com `last_commit_at` há 10 dias gera STALE; branch com 3 dias não gera; (e) branch referenciada por épico em `🏗️` é excluída de STALE; (f) `main` é sempre excluída; (g) ordenação: DISPATCH antes de REVIEW antes de STALE quando `detected_at` é igual.
+    - **Integration:** sem teste de integração; helper `list_remote_branches` é mockável via `monkeypatch.setattr(subprocess, "run", ...)`.
+
+#### 1.3: Garantia de determinismo via fixture-snapshot
+
+- **Descrição:** teste explícito do invariante "detect_all_items é função pura do estado". Fixture com `WorldState` fixo (ROADMAPs sintéticos + branches mockadas + `now` cravado) é passada duas vezes ao detector; resultado precisa ser idêntico item-a-item. Materializa o princípio "markdown é fonte da verdade".
+- **Critérios de Aceite:**
+  1. Fixture `make_world_state_fixture()` em `tests/tools/workflow_platform/fixtures/world_state.py` retorna `WorldState` com pelo menos: 2 ROADMAPs sintéticos (1 com milestone apto a DISPATCH, 1 com épicos em `🔀` pareados a PR), 4 branches mockadas (2 stale, 1 ativa, 1 referenciada por épico em `🏗️`), `now` fixo (`datetime(2026, 4, 29, 12, 0, 0)`)
+  2. Teste `test_detect_is_deterministic` chama `detect_all_items(state)` duas vezes consecutivas e afirma `result_a == result_b` (campos completos, incluindo `detected_at`)
+  3. Teste `test_detect_snapshot` compara saída com snapshot esperado serializado (lista de `QueueItem` com 3 itens: 1 DISPATCH, 1 REVIEW, 1 STALE_BRANCH); snapshot vive em `tests/tools/workflow_platform/fixtures/expected_queue_snapshot.json`
+  4. Mudança no código de detecção que altera shape ou regra deve quebrar `test_detect_snapshot` — atualizar snapshot é decisão consciente, não acidental
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tests/tools/workflow_platform/fixtures/__init__.py`, `tests/tools/workflow_platform/fixtures/world_state.py`, `tests/tools/workflow_platform/fixtures/expected_queue_snapshot.json`, `tests/tools/workflow_platform/test_queue_determinism.py`
+  - **Arquivos a modificar:** nenhum
+  - **Contratos/Shapes:**
+    ```python
+    # tests/tools/workflow_platform/fixtures/world_state.py
+    def make_world_state_fixture() -> WorldState: ...
+
+    # tests/tools/workflow_platform/test_queue_determinism.py
+    def test_detect_is_deterministic():
+        state = make_world_state_fixture()
+        assert detect_all_items(state) == detect_all_items(state)
+
+    def test_detect_snapshot():
+        state = make_world_state_fixture()
+        actual = [_serialize(item) for item in detect_all_items(state)]
+        expected = json.loads(SNAPSHOT_PATH.read_text())
+        assert actual == expected
+    ```
+  - **Integração:** teste-only. Snapshot é commitado no repo; atualização exige rodar script `python -m tests.tools.workflow_platform.fixtures.regenerate_snapshot` (helper documentado inline no teste).
+  - **Template de referência:** snapshot testing convencional; sem dep de `pytest-snapshot` ou `syrupy` — usar `json.dumps(..., sort_keys=True, indent=2)` direto pra evitar dep nova.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/detect.py` e `models.py` — FILA-1.1, 1.2.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 1.1 e 1.2.
+  - **Escopo de teste:**
+    - **Unit:** os próprios testes desta funcionalidade.
+    - **Validação manual:** rodar `pytest tests/tools/workflow_platform/test_queue_determinism.py -v` localmente; ambos testes passam.
+
+**Fora do escopo:**
+- Ordenação avançada (importância, urgência) — Protótipo é só `detected_at` desc + tipo.
+- Persistência de "claim do operador" (mexeu num épico, agente solta) — escopo MVP.
+- Tipos de item adicionais (escalação, proposta do proponente) — chegam no MVP.
 
 ---
 
-#### ÉPICO W-PROTO-FILA-2: Exibição da fila + chat focado por item
+#### ÉPICO W-PROTO-FILA-2: Exibição da fila + prompt focado por item
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** operador vê fila reativa na plataforma e, ao clicar num item, abre sessão com contexto pré-montado para aquele item.
+**Objetivo:** plataforma ganha tab "📋 Fila" (default ao abrir o app) que renderiza os `QueueItem`s detectados em FILA-1 como cards clicáveis. Clicar num item abre painel de detalhe com prompt clipboard-ready específico do tipo, reusando os builders de prompt de PLAT-3.1 (DISPATCH) e PLAT-4.2 (REFINE) e adicionando builders novos para REVIEW, CLEANUP e STALE_BRANCH.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Gap consciente declarado:** vision §"Chat focado" descreve chat síncrono dentro da plataforma com "prompt pré-montado e contexto carregado". No Protótipo o chat é prompt clipboard-ready + cole-em-sessão-autônoma (mesmo padrão de PLAT-3.1/4.2); chat embutido de verdade fica para o MVP, junto com proponente/porta-voz. A plataforma é leitura + direcionamento; sessão de fato roda em Claude Code Web.
 
-**Dependências:** W-PROTO-FILA-1 (itens existentes)
+**Status:** 🔍 Detalhes definidos
 
-### Funcionalidades (esboço):
-- **2.1 View da fila** — lista ordenada (recência ou manual no Protótipo); cards com tipo, título, ação esperada.
-- **2.2 Montagem de contexto por tipo** — pra dispatch: milestone + dispatch.md; pra refinamento: épico + pack inicial; pra revisão: PR + épicos do milestone.
-- **2.3 Abertura de chat com contexto** — prompt pré-montado pronto para iniciar a sessão correspondente.
+**Dependências:** W-PROTO-FILA-1 (modelos e detecção); W-PROTO-PLAT-2.1 (estrutura de tabs / sidebar do app); W-PROTO-PLAT-3.1 (`build_dispatch_prompt` reusado).
+
+### Funcionalidades:
+
+#### 2.1: View da fila como tab default
+
+- **Descrição:** `app.py` ganha layout de tabs `st.tabs(["📋 Fila", "🗂️ Kanban"])` — fila default. View da fila chama `detect_all_items(state)` a cada render, agrupa visualmente por tipo (DISPATCH primeiro, REVIEW depois, STALE_BRANCH por último), e renderiza cards. Botão "🔄 Recarregar fila" na sidebar invalida `st.session_state.queue_world_state` e força re-detecção (incluindo `git fetch origin --prune`).
+- **Critérios de Aceite:**
+  1. App abre com tab "📋 Fila" ativa por default; tab "🗂️ Kanban" continua acessível em segundo plano com renderização inalterada
+  2. Cada card exibe: emoji do tipo (`📤` DISPATCH / `🔀` REVIEW / `🌱` STALE_BRANCH), `title`, `context` (1-2 linhas), `expected_action` (em destaque)
+  3. Cards são clicáveis (`st.button` com chave única `f"queue_card_{item.id}"`); clique grava `st.session_state["selected_queue_item_id"]` e abre painel de detalhe inline (expander ou área inferior, espelhando padrão do kanban em PLAT-2)
+  4. Cards são agrupados visualmente por `ItemType` com cabeçalho de seção (`st.subheader("📤 Dispatch (N)")`); cada cabeçalho mostra contagem do tipo
+  5. Botão "🔄 Recarregar fila" na sidebar limpa `st.session_state.queue_world_state` e re-instancia `WorldState` (incluindo subprocess `git fetch origin --prune`); falha de fetch é exibida em `st.warning` mas não impede renderização (usa state local)
+  6. Fila vazia exibe placeholder amigável: "Sem itens na fila — nada esperando ação no momento."
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/views/queue.py`, `tests/tools/workflow_platform/test_queue_view.py` (apenas helpers puros — render Streamlit não é testado direto, igual W-PROTO-PLAT-2)
+  - **Arquivos a modificar:** `tools/workflow_platform/app.py` — substituir chamada direta a `render_kanban` pelo bloco de tabs; adicionar botão de recarga na sidebar; gerenciar `st.session_state.queue_world_state` (lazy load).
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/views/queue.py
+    TYPE_HEADERS: dict[ItemType, tuple[str, str]] = {
+        ItemType.DISPATCH:     ("📤", "Dispatch"),
+        ItemType.REVIEW:       ("🔀", "Review"),
+        ItemType.STALE_BRANCH: ("🌱", "Stale branches"),
+    }
+
+    def render_queue(items: list[QueueItem], config: PlatformConfig) -> None:
+        """Renderiza fila agrupada por tipo. Clique grava selected_queue_item_id."""
+
+    def group_by_type(items: list[QueueItem]) -> dict[ItemType, list[QueueItem]]:
+        """Helper puro testável; preserva ordenação interna."""
+
+    def build_world_state(roadmaps: list[ParsedRoadmap]) -> WorldState:
+        """Wrapper que chama list_remote_branches() e datetime.now()."""
+    ```
+  - **Integração:** `app.py` carrega `parsed_roadmaps` (via PLAT-1), monta tabs, na tab fila chama `build_world_state` (com cache em `session_state`) → `detect_all_items` → `render_queue`. Após `render_queue`, se há `selected_queue_item_id`, chama `render_queue_item_detail` (definido em 2.2).
+  - **Template de referência:** `tools/workflow_platform/views/kanban.py` (W-PROTO-PLAT-2.1) — uso de `st.session_state` para seleção de card, padrão de `render_*` puro.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/{models,detect}.py` — FILA-1.1/1.2.
+    - `tools/workflow_platform/views/kanban.py` (PLAT-2) — coexistência via tabs; render do kanban inalterado.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de FILA-1.1/1.2; precede 2.2.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_view.py` — `group_by_type` retorna dict com 3 chaves (mesmo se vazias); ordem interna preservada do input.
+    - **Validação manual:** abrir app com fixture sintética (mesmo de FILA-1.3); verificar (a) tab fila default; (b) cards agrupados; (c) clique seleciona; (d) recarga dispara fetch.
+
+#### 2.2: Builders de prompt por tipo de item
+
+- **Descrição:** módulo `prompts/queue_item.py` expõe `build_prompt_for_item(item) -> str` que despacha por `item.type`. DISPATCH reusa `build_dispatch_prompt` (PLAT-3.1); REFINE reusa `build_refinement_prompt` (PLAT-4.2). REVIEW, CLEANUP e STALE_BRANCH têm builders novos com texto fixo parametrizado pelos campos do pointer. Painel de detalhe (`render_queue_item_detail`) exibe o prompt em `st.code()` com botão copy nativo do Streamlit.
+- **Critérios de Aceite:**
+  1. `build_prompt_for_item(item)` retorna string copy-pasteável; nunca `None` (item válido sempre tem prompt)
+  2. Para DISPATCH: prompt é o output de `build_dispatch_prompt` (formato `"implementa o <MILESTONE_ID>"` + nota de PM skill se aplicável); reusa builder de PLAT-3.1 sem duplicação de lógica
+  3. Para REFINE: prompt é o output de `build_refinement_prompt` de PLAT-4.2; reusa builder existente sem duplicação
+  4. Para REVIEW: prompt contém literal `"Revisar PR #<N>: <URL>"` + instrução `"Abra a PR, copie a Seção 🎯 Validação do body, cole no GitHub Copilot, e decida merge."`
+  5. Para CLEANUP: prompt contém literal `"Rodar Cleanup skill manualmente para o épico <ID> ('<TITLE>') em <ROADMAP_PATH>."` + instrução `"Carregue skills/cleanup/skill.md e siga o protocolo. Cleanup move conteúdo histórico do épico pra fora do ROADMAP; coluna ✅ do kanban volta a ficar vazia."`
+  6. Para STALE_BRANCH: prompt contém literal `"Branch <NAME> parada há <DAYS> dias sem PR aberta."` + 3 opções enumeradas: `(a) trabalho concluído sem PR — abrir PR / (b) abandonado — git push origin --delete <NAME> / (c) bloqueado — resgatar contexto e seguir`
+  7. `render_queue_item_detail(item, config, all_epics)` exibe prompt via `st.code(prompt, language=None)` (botão copy nativo do Streamlit) + título do item + ponteiro tipado renderizado como link (PR URL clicável, branch link via `github_branch_url` de PLAT-3.2, milestone como referência ao kanban)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/prompts/queue_item.py`, `tests/tools/workflow_platform/test_queue_item_prompt.py`
+  - **Arquivos a modificar:** `tools/workflow_platform/views/queue.py` — adicionar `render_queue_item_detail`.
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/prompts/queue_item.py
+    def build_prompt_for_item(
+        item: QueueItem,
+        all_epics_by_milestone: dict[str, list[Epic]] | None = None,
+        epic_lookup: dict[str, Epic] | None = None,
+    ) -> str:
+        """Despacha por item.type. DISPATCH precisa de all_epics_by_milestone
+        para reusar build_dispatch_prompt; REFINE precisa de epic_lookup
+        para reusar build_refinement_prompt; REVIEW/CLEANUP/STALE_BRANCH
+        ignoram (constroem do próprio pointer)."""
+
+    def _build_review_prompt(p: PRPointer) -> str: ...
+    def _build_cleanup_prompt(p: CleanupPointer) -> str: ...
+    def _build_stale_branch_prompt(p: BranchPointer) -> str: ...
+    ```
+    Exemplo de prompt REVIEW:
+    ```
+    Revisar PR #93: https://github.com/gmaiarviana/paper-agent/pull/93
+
+    Abra a PR, copie a Seção 🎯 Validação do body, cole no GitHub Copilot,
+    e decida merge.
+    ```
+    Exemplo de prompt STALE_BRANCH:
+    ```
+    Branch claude/foo-bar parada há 12 dias sem PR aberta.
+
+    Decida:
+    (a) trabalho concluído sem PR — abrir PR via interface do GitHub
+    (b) abandonado — `git push origin --delete claude/foo-bar`
+    (c) bloqueado — resgatar contexto e seguir
+    ```
+  - **Integração:** `views/queue.py::render_queue_item_detail` recebe o item selecionado e chama `build_prompt_for_item`. Para DISPATCH, monta `all_epics_by_milestone` a partir dos `parsed_roadmaps` em `session_state`.
+  - **Template de referência:** `tools/workflow_platform/prompts/dispatch.py` (PLAT-3.1) — mesmo shape de helper puro retornando string.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/prompts/dispatch.py` (PLAT-3.1): `build_dispatch_prompt` reusado para DISPATCH.
+    - `tools/workflow_platform/queue/models.py` (FILA-1.1): `QueueItem`, `SourcePointer`.
+    - `tools/workflow_platform/views/card_detail.py` helpers `github_branch_url`/`github_pr_url` (PLAT-3.2): reusados para links.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 2.1 (`render_queue_item_detail` é chamado por `render_queue`); depende de PLAT-3.1.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_item_prompt.py` — (a) DISPATCH delega corretamente: stub de `build_dispatch_prompt` é chamado com `Epic` esperado; (b) REVIEW contém PR número e URL literais; (c) STALE_BRANCH contém nome, dias e as 3 opções; (d) prompt nunca tem placeholder não-substituído (`re.search(r"<[A-Z_]+>", prompt)` não encontra match).
+    - **Validação manual:** clicar em itens da fila no app (DISPATCH/REVIEW/STALE_BRANCH); copiar cada prompt; conferir conteúdo.
+
+**Fora do escopo:**
+- Chat embutido na plataforma (sessão de Claude Code dentro do app) — escopo MVP.
+- Browser automation pra abrir sessão autônoma direto do clique — escopo MVP.
+- Edição/cancelamento manual de itens da fila — fila é derivada, mexer no estado-do-mundo (ROADMAP, branch) já basta.
 
 ---
 
@@ -813,15 +1284,886 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-FILA`
 
-**Objetivo:** plataforma sinaliza visualmente quando a fila se aproxima do limite cognitivo (~20 itens). Sem pausa dura — só alerta. Pausa real só faz sentido no MVP, quando há agente proativo criando itens.
+**Objetivo:** badge na sidebar mostra `<contagem> / 20 itens` com cor que varia por faixa (verde < 15, amarelo 15-19, vermelho ≥ 20). Quando vermelho, banner adicional na tab da fila explica o estado mas não bloqueia ação. Sem pausa dura — Protótipo só sinaliza; pausa real é MVP (proponente é quem ganha capacidade de "parar de criar itens").
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PROTO-FILA-1 (fila existente)
+**Dependências:** W-PROTO-FILA-2.1 (view da fila e bloco da sidebar existem).
 
-### Funcionalidades (esboço):
-- **3.1 Contagem e indicador** — exibe contagem atual vs. limite alvo (~20 itens) na sidebar.
-- **3.2 Alerta de aproximação** — sinalização visual ao chegar perto do limite; sem ação automática.
+### Termos e contratos
+
+- **Limite alvo:** 20 itens (declarado em `vision.md` §"Fila" e no bloco do milestone PROTO-WORKFLOW-FILA).
+- **Faixa de aproximação:** 15-19 itens (75% do limite — buffer cognitivo de 5 itens antes do estado crítico).
+- **Estado da fila:** enum `QueueLoadState` com 3 valores: `OK` (< 15), `APPROACHING` (15-19), `OVER_LIMIT` (≥ 20). Constantes literais nesta funcionalidade — mudar exige ajuste consciente do épico.
+
+### Funcionalidades:
+
+#### 3.1: Badge de contagem na sidebar
+
+- **Descrição:** sidebar do app ganha bloco fixo com contagem atual da fila e cor por faixa. Renderiza independente da tab ativa (fila ou kanban). Cor é computada por helper puro `compute_load_state(count)` testável isoladamente.
+- **Critérios de Aceite:**
+  1. Sidebar exibe `📋 Fila: <N>/20` com `N = len(detect_all_items(state))`
+  2. Cor de fundo do bloco: verde (`#d4edda`) se `N < 15`; amarelo (`#fff3cd`) se `15 ≤ N < 20`; vermelho (`#f8d7da`) se `N ≥ 20`
+  3. Helper `compute_load_state(count: int) -> QueueLoadState` é função pura testável; limites são constantes nomeadas (`QUEUE_TARGET_LIMIT = 20`, `QUEUE_APPROACHING_THRESHOLD = 15`)
+  4. Bloco aparece em ambas as tabs (fila e kanban) — leitura primária do operador
+  5. Quando `N == 0`, exibe verde com texto `📋 Fila: 0/20 — sem itens`
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/queue/load.py`, `tests/tools/workflow_platform/test_queue_load.py`
+  - **Arquivos a modificar:** `tools/workflow_platform/app.py` — adicionar `render_queue_load_badge(items)` na sidebar antes da tab area; chamar com `items` já detectados (cache em `session_state`).
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/queue/load.py
+    from enum import Enum
+
+    QUEUE_TARGET_LIMIT = 20
+    QUEUE_APPROACHING_THRESHOLD = 15
+
+    class QueueLoadState(Enum):
+        OK = "ok"
+        APPROACHING = "approaching"
+        OVER_LIMIT = "over_limit"
+
+    LOAD_STATE_COLORS: dict[QueueLoadState, str] = {
+        QueueLoadState.OK:          "#d4edda",
+        QueueLoadState.APPROACHING: "#fff3cd",
+        QueueLoadState.OVER_LIMIT:  "#f8d7da",
+    }
+
+    def compute_load_state(count: int) -> QueueLoadState: ...
+    ```
+  - **Integração:** `app.py` chama `compute_load_state(len(items))` e renderiza via `st.sidebar.markdown` com HTML inline (`unsafe_allow_html=True`) usando `LOAD_STATE_COLORS`. Cache em `session_state` evita re-detecção em re-render Streamlit; recarga manual invalida (PLAT/FILA-2.1).
+  - **Template de referência:** sem análogo direto. Padrão "constantes nomeadas + função pura + dict de mapping" coerente com `tools/workflow_platform/views/kanban.py::KANBAN_COLUMN_ORDER`.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/{models,detect}.py` (FILA-1) — apenas leitura de `len(items)`.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de FILA-1 e FILA-2.1; precede 3.2.
+  - **Escopo de teste:**
+    - **Unit:** `test_queue_load.py` — (a) `compute_load_state(0)` = OK; (b) `compute_load_state(14)` = OK; (c) `compute_load_state(15)` = APPROACHING; (d) `compute_load_state(19)` = APPROACHING; (e) `compute_load_state(20)` = OVER_LIMIT; (f) `compute_load_state(50)` = OVER_LIMIT; (g) `LOAD_STATE_COLORS` cobre os 3 valores do enum.
+    - **Validação manual:** rodar app com fixture sintética de 0, 10, 17, 22 itens; confirmar cor da sidebar em cada caso.
+
+#### 3.2: Banner de alerta na tab da fila quando OVER_LIMIT
+
+- **Descrição:** na tab "📋 Fila", quando `compute_load_state(len(items)) == OVER_LIMIT`, renderizar `st.warning` no topo da tab antes da listagem dos cards. Texto curto explicando o estado e ação recomendada. **Não bloqueia** clique nos cards nem renderização — alerta é informacional.
+- **Critérios de Aceite:**
+  1. Banner aparece quando `len(items) >= 20`; ausente quando `< 20`
+  2. Texto literal: `"⚠️ Fila com <N> itens (limite alvo: 20). Considere fechar itens antes de iniciar novos. No MVP, o proponente vai pausar criação automaticamente."`
+  3. Banner é `st.warning(...)` — não `st.error` (não é erro, é sinalização cognitiva)
+  4. Clicar nos cards continua funcionando normalmente; nenhum botão fica desabilitado
+  5. Tab "🗂️ Kanban" não exibe o banner — ele é específico da view da fila
+- **Detalhes de execução:**
+  - **Arquivos a criar:** nenhum (lógica adicionada em `views/queue.py` de FILA-2.1)
+  - **Arquivos a modificar:** `tools/workflow_platform/views/queue.py` — adicionar `render_over_limit_banner(items)` chamado no início de `render_queue` antes do agrupamento por tipo.
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/views/queue.py (extensão)
+    def render_over_limit_banner(items: list[QueueItem]) -> None:
+        """Renderiza st.warning se compute_load_state == OVER_LIMIT.
+        No-op caso contrário."""
+    ```
+  - **Integração:** primeira chamada dentro de `render_queue` após receber a lista; antes de qualquer agrupamento ou render de card.
+  - **Template de referência:** padrão Streamlit `st.warning(...)`; sem análogo customizado.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/queue/load.py` (FILA-3.1): `compute_load_state`, `QueueLoadState`, `QUEUE_TARGET_LIMIT`.
+    - `tools/workflow_platform/views/queue.py` (FILA-2.1): ponto de injeção em `render_queue`.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 3.1 (`compute_load_state`) e de FILA-2.1 (`render_queue` existe).
+  - **Escopo de teste:**
+    - **Unit:** sem teste automatizado (função render Streamlit; lógica condicional já testada em 3.1 via `compute_load_state`).
+    - **Validação manual:** fixture com 22 itens sintéticos confirma banner; fixture com 19 itens confirma ausência. Mesma fixture de 3.1 reusável.
+
+**Fora do escopo:**
+- Pausa dura (gatilho que impede detecção de novos itens) — escopo MVP quando proponente existe.
+- Notificação fora do app (e-mail, sistema operacional) — fora do princípio "plataforma é view derivada".
+- Configurar limite por preferência do operador — escopo de W-PROTO-FILA-4 (persistência de preferências).
+
+---
+
+#### ÉPICO W-PROTO-FILA-4: Configuração persistente + sidebar como painel
+
+**Milestone:** `PROTO-WORKFLOW-FILA`
+
+**Objetivo:** plataforma ganha base de preferências persistidas localmente (JSON git-ignored) e a sidebar deixa de ser leitura passiva — vira painel de filtros + status. Resolve 3 atritos reais reportados após uso da plataforma (PROTO-WORKFLOW-PLATAFORMA em 🔀): (a) operador quer ver só os produtos relevantes, (b) sidebar não agrega valor hoje, (c) status `✅` aparece no kanban como ruído (resolvido mecanicamente pela detecção CLEANUP de FILA-1.2 — operador roda Cleanup skill via item de fila). Substitui o que iria virar milestone `PROTO-WORKFLOW-PLAT-UX` separado — escopo absorvido aqui pra evitar dependência cross-milestone.
+
+**Status:** 🔍 Detalhes definidos
+
+**Dependências:** W-PROTO-PLAT-1 (`PlatformConfig`, `parse_roadmap`); W-PROTO-FILA-1 (filtro entra como input do `WorldState`; threshold de stale_branch passa a vir de `preferences.json`); W-PROTO-FILA-2 (sidebar é tocada também por badge da fila e botão recarregar — coordenação no mesmo épico).
+
+**Decisões consolidadas (2026-04-30):**
+- **(a) Localização do JSON: workspace local** — `tools/workflow_platform/.preferences.json`, mesma pasta de `config.yaml`. Premissa de 1 operador por projeto no curto/médio prazo (colaboração cross-operador é cenário do MVP/longo prazo). Detecção de path reusa `_detect_repo_root` de `config_loader.py` — zero infra nova. Reverter pra home directory é refator localizado caso vire atrito.
+- **(b) Granularidade do filtro: por ROADMAP path.** Shape do JSON guarda lista de paths (mesma linguagem do `config.yaml`); UI deriva label legível (ex.: "Revelar") via helper `_label_for_roadmap`. Hoje a correlação produto↔ROADMAP é 1:1, então a escolha é cosmética — vence "shape estável quando 1 produto vira N ROADMAPs" sem inventar entidade "produto" no shape.
+- **(c) Warnings: contador na sidebar abre `st.dialog` modal.** Sidebar enxuta pra dar espaço aos filtros; expander acumulava ruído visual mesmo com 0 warnings. Decisão experimental — feedback do operador após uso pode reverter pra expander posicionado fora da sidebar (não na sidebar — ali compete com filtros).
+- **(d) `stale_branch_threshold_days` mora em `preferences.json`, não em `config.yaml`.** Separação `config.yaml = projeto (paths, owner/repo) / preferences.json = humano (estilo de fluxo, filtros)`. Threshold é decisão do operador, não regra do projeto. Acoplamento explícito com FILA-1.2 (CA #3 e #9 atualizados na mesma PR de refinamento).
+
+### Funcionalidades:
+
+#### 4.1: Persistência de preferências (JSON local)
+
+- **Descrição:** módulo `preferences.py` expõe `Preferences` dataclass + helpers `load_preferences()` / `save_preferences()` que leem/escrevem `tools/workflow_platform/.preferences.json`. Arquivo é git-ignored. Falha de leitura (arquivo ausente, JSON malformado) cai pra defaults — sem exceção propagada pra UI. Paths em `visible_roadmaps` são armazenados **relativos ao repo root** (mesmo formato do `config.yaml`), pra serem comparáveis entre máquinas/clones.
+- **Critérios de Aceite:**
+  1. Deve definir `Preferences` dataclass com campos `visible_roadmaps: list[str] | None` (None ⇒ "todos do `config.yaml`") e `stale_branch_threshold_days: int = 7`
+  2. `load_preferences(repo_root: Path) -> Preferences` retorna defaults quando arquivo ausente, **sem warning ou log** (ausência é estado normal)
+  3. Arquivo malformado (JSON inválido, campo de tipo errado) gera `st.warning` no caller via valor sentinela ou exceção dedicada `PreferencesLoadError`; helper retorna defaults pra não quebrar render
+  4. `save_preferences(prefs: Preferences, repo_root: Path) -> None` serializa via `json.dumps(asdict(prefs), indent=2, sort_keys=True)` e grava atomicamente (escreve em `.preferences.json.tmp` e `os.replace`)
+  5. Paths em `visible_roadmaps` são **relativos ao `repo_root`** (ex.: `"docs/ROADMAP.md"`); converter pra absolutos é responsabilidade do caller na hora de filtrar
+  6. Roundtrip `save_preferences(p)` seguido de `load_preferences()` retorna `Preferences` igual a `p` (campos completos)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/preferences.py`, `tests/tools/workflow_platform/test_preferences.py`
+  - **Arquivos a modificar:** `.gitignore` — adicionar linha `tools/workflow_platform/.preferences.json`
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/preferences.py
+    from dataclasses import dataclass, asdict
+    from pathlib import Path
+    import json
+    import os
+
+    PREFERENCES_FILENAME = ".preferences.json"
+    DEFAULT_STALE_THRESHOLD_DAYS = 7
+
+    class PreferencesLoadError(Exception):
+        """Levantada quando o arquivo existe mas é malformado.
+        Caller decide se mostra warning e cai pra defaults."""
+
+    @dataclass(frozen=True)
+    class Preferences:
+        visible_roadmaps: list[str] | None = None    # None ⇒ todos do config.yaml
+        stale_branch_threshold_days: int = DEFAULT_STALE_THRESHOLD_DAYS
+
+    def _preferences_path(repo_root: Path) -> Path:
+        return repo_root / "tools" / "workflow_platform" / PREFERENCES_FILENAME
+
+    def load_preferences(repo_root: Path) -> Preferences:
+        """Lê preferences.json. Arquivo ausente ⇒ defaults sem warning.
+        Arquivo malformado ⇒ levanta PreferencesLoadError."""
+        path = _preferences_path(repo_root)
+        if not path.exists():
+            return Preferences()
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as e:
+            raise PreferencesLoadError(f"Falha ao ler {path}: {e}") from e
+        if not isinstance(data, dict):
+            raise PreferencesLoadError(f"{path}: esperado objeto JSON, recebido {type(data).__name__}")
+        # Validação leve dos tipos esperados:
+        vr = data.get("visible_roadmaps")
+        if vr is not None and not (isinstance(vr, list) and all(isinstance(x, str) for x in vr)):
+            raise PreferencesLoadError(f"{path}: visible_roadmaps deve ser lista de strings ou null")
+        td = data.get("stale_branch_threshold_days", DEFAULT_STALE_THRESHOLD_DAYS)
+        if not isinstance(td, int) or td < 1:
+            raise PreferencesLoadError(f"{path}: stale_branch_threshold_days deve ser int >= 1")
+        return Preferences(visible_roadmaps=vr, stale_branch_threshold_days=td)
+
+    def save_preferences(prefs: Preferences, repo_root: Path) -> None:
+        """Grava prefs atomicamente (tmp + os.replace)."""
+        path = _preferences_path(repo_root)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        tmp.write_text(json.dumps(asdict(prefs), indent=2, sort_keys=True), encoding="utf-8")
+        os.replace(tmp, path)
+    ```
+  - **Integração:** módulo standalone, stdlib only (`json`, `dataclasses`, `pathlib`, `os`). Consumido pelo `app.py` em 4.2/4.3 e por `views/queue.py` (FILA-2.1) que injeta `prefs.stale_branch_threshold_days` em `detect_all_items`.
+  - **Template de referência:** `tools/workflow_platform/config_loader.py` — mesmo padrão dataclass imutável + helper puro com path resolvido a partir do repo root.
+  - **Acoplamentos verificados:**
+    - Stdlib only; sem deps novas.
+    - `.gitignore` ganha entrada — verificar que `tools/workflow_platform/config.yaml` (versionado) **não** é capturado pelo glob (entrada é específica do filename `.preferences.json`).
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** primeiro do épico; precede 4.2 e 4.3.
+  - **Escopo de teste:**
+    - **Unit:** `test_preferences.py` — (a) `load_preferences` em diretório temp sem arquivo retorna `Preferences()` (defaults); (b) JSON válido roundtrip preserva campos; (c) JSON malformado (`"{{{"`) levanta `PreferencesLoadError`; (d) `visible_roadmaps` com tipo errado (`{"visible_roadmaps": "string"}`) levanta `PreferencesLoadError`; (e) `stale_branch_threshold_days = 0` levanta erro; (f) `save_preferences` escreve atomicamente — quebra do processo no meio (mock `tmp.write_text` levantar) deixa arquivo final intacto.
+    - **Validação manual:** rodar `python -c "from tools.workflow_platform.preferences import load_preferences; from pathlib import Path; print(load_preferences(Path('.')))"` no repo root e confirmar `Preferences(visible_roadmaps=None, stale_branch_threshold_days=7)`.
+
+#### 4.2: Filtro por ROADMAP no caller
+
+- **Descrição:** helper puro `apply_visibility_filter(roadmaps, prefs, all_configured) -> list[ParsedRoadmap]` filtra a lista de `ParsedRoadmap` (já parseados por PLAT-1) conforme `prefs.visible_roadmaps`. `app.py` aplica o filtro entre `_load_state` (que parseia tudo, mantendo PLAT-1 inalterado) e o passo de render. `WorldState` (FILA-1.2) recebe a lista filtrada — detecção não muda. Threshold de stale_branch passa a ser injetado a partir de `prefs.stale_branch_threshold_days`.
+- **Critérios de Aceite:**
+  1. `apply_visibility_filter(roadmaps, prefs, all_configured_paths)` retorna `roadmaps` inalterada quando `prefs.visible_roadmaps is None` (compatibilidade com estado sem preferências)
+  2. Quando `prefs.visible_roadmaps` é lista, retorna `[r for r in roadmaps if rel_path(r.path, repo_root) in set(prefs.visible_roadmaps)]` — comparação por path relativo ao repo_root
+  3. Path em `prefs.visible_roadmaps` que **não está** em `all_configured_paths` é ignorado silenciosamente (operador removeu produto do `config.yaml`; preferência fica órfã mas não quebra)
+  4. Lista `prefs.visible_roadmaps` vazia (`[]`) ⇒ retorna `[]` (operador desmarcou tudo; kanban/fila ficam vazios — estado válido, não erro)
+  5. Parse continua sendo feito sobre **todos** os ROADMAPs do `config.yaml` (PLAT-1 inalterado); filtro é pós-parse pra que a sidebar mostre contagens reais por ROADMAP mesmo nos invisíveis
+  6. `views/queue.py::build_world_state` (FILA-2.1) recebe `roadmaps` já filtrados e `threshold_days = prefs.stale_branch_threshold_days`; nenhuma leitura direta de `config.yaml` pra threshold
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tests/tools/workflow_platform/test_visibility_filter.py`
+  - **Arquivos a modificar:**
+    - `tools/workflow_platform/app.py` — adicionar `_load_preferences()` no fluxo de carga, aplicar `apply_visibility_filter` antes do `render_kanban` e antes da construção do `WorldState`
+    - `tools/workflow_platform/preferences.py` — adicionar `apply_visibility_filter` (helper puro, mora aqui pra ficar perto de `Preferences`)
+    - `tools/workflow_platform/views/queue.py` — `build_world_state` recebe `threshold_days` injetado em vez de hardcoded
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/preferences.py (continuação)
+    def apply_visibility_filter(
+        roadmaps: list[ParsedRoadmap],
+        prefs: Preferences,
+        repo_root: Path,
+    ) -> list[ParsedRoadmap]:
+        """Filtra roadmaps conforme prefs.visible_roadmaps.
+        None ⇒ retorna lista intacta. Lista ⇒ filtra por path relativo."""
+        if prefs.visible_roadmaps is None:
+            return roadmaps
+        visible = set(prefs.visible_roadmaps)
+        result = []
+        for r in roadmaps:
+            try:
+                rel = str(Path(r.path).relative_to(repo_root))
+            except ValueError:
+                continue   # path fora do repo — não filtra; ignora silenciosamente
+            if rel in visible:
+                result.append(r)
+        return result
+    ```
+  - **Integração:** `app.py::_load_state` ganha `st.session_state.preferences` (lazy load via `load_preferences`); render usa `apply_visibility_filter(parsed_roadmaps, prefs, config.repo_root)`. `views/queue.py::build_world_state(roadmaps, threshold_days)` ganha segundo arg.
+  - **Template de referência:** `tools/workflow_platform/config_loader.py` (estilo de helper puro com path resolvido).
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/models.py` (`ParsedRoadmap.path` é absoluto após PLAT-1) — filtro converte pra relativo via `relative_to(repo_root)`.
+    - `tools/workflow_platform/views/queue.py` (FILA-2.1) — assinatura de `build_world_state` muda; **acoplamento explícito**: a PR de implementação de FILA-4.2 atualiza FILA-2.1 ao mesmo tempo (mesma branch).
+    - `tools/workflow_platform/queue/detect.py` (FILA-1.2) — recebe threshold via parâmetro; nenhuma leitura de yaml.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 4.1 (`Preferences`); precede 4.3.
+  - **Escopo de teste:**
+    - **Unit:** `test_visibility_filter.py` — (a) `prefs.visible_roadmaps=None` retorna lista intacta; (b) lista com 2 paths filtra de 4 ROADMAPs pra 2; (c) path inexistente em `prefs` é ignorado silenciosamente (não levanta); (d) lista vazia retorna `[]`; (e) ROADMAP fora do `repo_root` (path absoluto não-relativo) é ignorado.
+    - **Validação manual:** editar `.preferences.json` manualmente com `{"visible_roadmaps": ["docs/ROADMAP.md"]}`, rodar app, conferir que kanban mostra só épicos do core.
+
+#### 4.3: Sidebar como painel de filtros + status
+
+- **Descrição:** `_render_sidebar` em `app.py` é reescrito. Conteúdo atual (lista passiva de ROADMAPs + expander de warnings) sai. Novo layout: (i) seção "👁️ Visíveis" com checkboxes por ROADMAP (label legível derivado do path); (ii) bloco de status — badge de carga da fila (FILA-3.1, integra aqui) + botão "🔄 Recarregar"; (iii) botão "⚠️ Avisos (N)" no rodapé que abre `st.dialog` modal listando warnings agrupados por arquivo. Mudança em checkbox grava em `preferences.json` via 4.1 e dispara `st.rerun`.
+- **Critérios de Aceite:**
+  1. Sidebar mostra um `st.checkbox` por ROADMAP do `config.yaml`, com label retornado por `_label_for_roadmap(path)` (ex.: `products/revelar/ROADMAP.md` → "Revelar"; `docs/ROADMAP.md` → "Core"; `docs/process/workflow/ROADMAP.md` → "Workflow")
+  2. Estado inicial dos checkboxes: marcados ⇔ path está em `prefs.visible_roadmaps`, ou todos marcados quando `prefs.visible_roadmaps is None`
+  3. Toggle de checkbox chama `save_preferences` com `visible_roadmaps` atualizado e dispara `st.rerun`; lista de paths salva é em ordem alfabética (estável entre saves)
+  4. Botão "🔄 Recarregar" mantém comportamento de PLAT-1 (limpa `platform_config`/`parsed_roadmaps`/seleções de session_state) e adicional do FILA-2.1 (limpa `queue_world_state`); ordem dos itens: badge → recarregar → avisos
+  5. Botão "⚠️ Avisos (N)" abre `st.dialog("Avisos do parser")` com lista de warnings agrupados por arquivo (mesmo conteúdo que hoje vai no expander). N exibido em cor neutra quando 0 (não chama atenção); cor de alerta quando ≥ 1
+  6. Helper `_label_for_roadmap(path: str, repo_root: Path) -> str` deriva label do segundo segmento do path relativo (`products/revelar/...` → "Revelar"); fallback documentado: `docs/ROADMAP.md` → "Core"; `docs/process/workflow/ROADMAP.md` → "Workflow"; demais paths não-mapeados retornam `Path(path).parent.name.title()`
+  7. **Fallback declarado:** se `st.dialog` der atrito durante validação manual (rerun não fechar, conflito com session_state), reverter para `st.expander("Avisos (N)")` posicionado **fora** da sidebar, em container acima do bloco de tabs do FILA-2 — nunca dentro da sidebar (ali compete com filtros)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tests/tools/workflow_platform/test_sidebar_label.py`
+  - **Arquivos a modificar:**
+    - `tools/workflow_platform/app.py` — reescrever `_render_sidebar` + adicionar `_label_for_roadmap` + adicionar `_render_warnings_dialog` + integrar com `preferences.py`
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/app.py
+    LABEL_OVERRIDES = {
+        "docs/ROADMAP.md": "Core",
+        "docs/process/workflow/ROADMAP.md": "Workflow",
+    }
+
+    def _label_for_roadmap(path: str, repo_root: Path) -> str:
+        try:
+            rel = str(Path(path).relative_to(repo_root))
+        except ValueError:
+            return Path(path).stem.title()
+        if rel in LABEL_OVERRIDES:
+            return LABEL_OVERRIDES[rel]
+        # products/<name>/ROADMAP.md → <Name>
+        parts = Path(rel).parts
+        if len(parts) >= 2 and parts[0] == "products":
+            return parts[1].replace("-", " ").title()
+        return Path(rel).parent.name.title() or rel
+
+    def _render_sidebar(config, roadmaps, prefs, all_warnings) -> None:
+        st.sidebar.markdown("## 👁️ Visíveis")
+        new_visible: list[str] = []
+        for r in roadmaps_all_configured(config):
+            rel = str(Path(r.path).relative_to(config.repo_root))
+            label = _label_for_roadmap(r.path, config.repo_root)
+            checked = (prefs.visible_roadmaps is None) or (rel in prefs.visible_roadmaps)
+            if st.sidebar.checkbox(label, value=checked, key=f"visible_{rel}"):
+                new_visible.append(rel)
+        if _visibility_changed(prefs, new_visible):
+            save_preferences(replace(prefs, visible_roadmaps=sorted(new_visible)), config.repo_root)
+            st.rerun()
+
+        st.sidebar.markdown("---")
+        # Badge de carga (FILA-3.1) + botão recarregar (PLAT-1 + FILA-2.1)
+        render_queue_load_badge(...)        # injetado por FILA-3.1
+        if st.sidebar.button("🔄 Recarregar"):
+            _reload(); st.rerun()
+
+        st.sidebar.markdown("---")
+        n = len(all_warnings)
+        button_label = f"⚠️ Avisos ({n})"
+        if st.sidebar.button(button_label, key="open_warnings"):
+            st.session_state["show_warnings_dialog"] = True
+        if st.session_state.get("show_warnings_dialog"):
+            _render_warnings_dialog(all_warnings)
+    ```
+  - **Integração:** `_render_warnings_dialog` decorado com `@st.dialog("Avisos do parser")`. Estado do dialog em `st.session_state["show_warnings_dialog"]` (bool). Fechar = setar False + `st.rerun`.
+  - **Template de referência:** `tools/workflow_platform/views/card_detail.py` (PLAT-3.2) — uso de `st.session_state` para painel inline.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/preferences.py` (4.1, 4.2) — `Preferences`, `save_preferences`, `apply_visibility_filter`.
+    - `tools/workflow_platform/views/queue.py` (FILA-3.1) — badge da fila injetado na sidebar; **acoplamento explícito**: PR de implementação de FILA-4.3 substitui o ponto onde FILA-3.1 renderizava badge na sidebar atual.
+    - Botão recarregar de PLAT-1 + extensão de FILA-2.1 — todos consolidados num único `_reload()`.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 4.1 (`Preferences`/`save_preferences`) e 4.2 (`apply_visibility_filter`); último do épico.
+  - **Escopo de teste:**
+    - **Unit:** `test_sidebar_label.py` — `_label_for_roadmap` retorna: `docs/ROADMAP.md` → "Core"; `products/revelar/ROADMAP.md` → "Revelar"; `products/prisma-verbal/ROADMAP.md` → "Prisma Verbal"; `docs/process/workflow/ROADMAP.md` → "Workflow"; path absoluto fora do repo retorna fallback `Path.stem.title()`.
+    - **Validação manual:** abrir app, marcar/desmarcar checkboxes, ver kanban+fila reagindo + arquivo `.preferences.json` sendo gravado; clicar "Avisos (N)" e ver modal abrir com lista; clicar "🔄 Recarregar" e ver mudança de ROADMAP refletida.
+
+**Fora do escopo:**
+- Configurações futuras além de `visible_roadmaps` e `stale_branch_threshold_days` — entram conforme atrito real aparecer (princípio anti-especulação).
+- Editor de configurações como página separada — sidebar absorve; página dedicada vira épico se a sidebar saturar.
+- Sincronização cross-clone das preferências — fora do escopo do Protótipo (premissa: 1 operador por projeto).
+- Validação cruzada entre `config.yaml` e `preferences.json` (ex.: avisar quando preferência aponta pra ROADMAP que saiu do config) — comportamento atual é "ignora silenciosamente"; warning só vira épico se virar atrito.
+- Migração automática de `stale_branch_threshold_days` de instalações que tivessem o campo em `config.yaml` — campo nunca foi adicionado lá (FILA-1.2 atualizada antes da implementação).
+
+---
+
+> **Milestones de saneamento documental** (`PROTO-WORKFLOW-FAXINA` e `PROTO-WORKFLOW-COPILOT-STACK`) declarados em 2026-04-29 a partir dos épicos levantados na revisão `claude/review-process-directory-J1v8v` (2026-04-28); refinados a `🔍 Detalhes definidos` em 2026-04-29 (sessão `claude/refine-workflow-stacks-6JOH6`). Faxina antes de seguir para `PROTO-WORKFLOW-FILA`.
+
+#### ÉPICO W-PROTO-10: Centralizar definição dos estados de épico
+
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
+
+**Objetivo:** eliminar drift entre as três cópias da lista canônica dos 8 estados de épico em `docs/process/refinement/planning_guidelines.md` (§"Estados de Refinamento" linhas 176-205, §"Categorias de Épicos" linhas 253-269, §"PRÓXIMOS PASSOS" linhas 331-358). Drift entre cópias gerou as 3 contradições corrigidas em 2026-04-28; próxima skill que ler cópia desatualizada repete o erro.
+
+**Status:** 🔀 Em revisão — PR #117 (https://github.com/gmaiarviana/paper-agent/pull/117)
+
+**Dependências:** rodar **depois** de W-PROTO-15 — 15.1 já reescreve `📋 Critérios definidos` ("apto ao fluxo manual" → passo intermediário) na fonte. Centralizar antes faz a edição duas vezes.
+
+### Funcionalidades:
+
+#### 10.1 Bloco canônico único em `planning_guidelines.md`
+
+**Critério de aceite:** uma única seção em `planning_guidelines.md` define os 8 estados (🌱 Visão, 🧭 Jornada alinhada, 📐 Funcionalidades esboçadas, 📋 Critérios definidos, 🔍 Detalhes definidos, 🏗️ Em andamento, 🔀 Em revisão, ✅ Implementado) com nome, descrição curta (1-3 frases), gatilho de transição e responsável. As outras duas seções dentro do mesmo arquivo são apagadas e referências internas apontam pra fonte canônica via âncora markdown.
+
+**Decisão de fonte canônica:** usar §"Categorias de Épicos" (linhas 253-269 hoje) como base — formato bullet paralelizado, mais mantível que parágrafos. Renomear para §"Estados de Épico" e mover para perto do início do doc (depois da introdução) pra ser fácil de achar. Apagar §"Estados de Refinamento" (linhas 176-205) e a re-listagem em §"PRÓXIMOS PASSOS" (linhas 335-342).
+
+**Arquivos a modificar:**
+- `docs/process/refinement/planning_guidelines.md` — seção canônica + apagar duplicatas + ajustar referências internas (links de âncora `#estados-de-épico`).
+
+**Validação:** `grep -n "🌱.*Visão.*🧭.*Jornada\|🌱 Visão$" docs/process/refinement/planning_guidelines.md` retorna no máximo 1 bloco de definição completa.
+
+#### 10.2 Limpeza de drift cross-doc
+
+**Critério de aceite:** arquivos abaixo deixam de ter definição dos 8 estados (texto duplicado) e passam a apontar pra fonte canônica em `planning_guidelines.md#estados-de-épico` na primeira menção do contexto. Menções pontuais a estados específicos (ex: "épico em `🔍`") permanecem como estão — não precisam de link.
+
+**Arquivos a modificar:**
+
+| Arquivo | Linhas-alvo (hoje) | Ação |
+|---|---|---|
+| `docs/process/refinement/starter.md` | 41-77 (§"Alvos de Refinamento") | manter conteúdo pedagógico (5 alvos com pergunta-chave); adicionar nota com link pra fonte canônica logo no início da seção |
+| `docs/CONSTITUTION.md` | 17 (linha enumeradora) e 328-331 (§"Estrutura de Épicos") | manter linha 17 com link já existente; reduzir 328-331 a 1 frase + link |
+| `docs/process/autonomous/workflow.md` | tabela "Estado mínimo do épico" (~linha 50) | nota com link na introdução da seção |
+| `docs/process/workflow/vision.md` | 1ª menção de estado (~linha 100) | nota com link na introdução |
+| `skills/pm/README.md` | 1ª menção de estado | nota com link |
+| `docs/process/refinement/autonomous_readiness.md` | já tem link (linha 3) | nada a fazer |
+
+**Validação:**
+- `grep -l "🌱.*🧭.*📐.*📋.*🔍.*🏗\|🌱 Visão.*🧭 Jornada" docs/ skills/` retorna apenas `docs/process/refinement/planning_guidelines.md` e a tabela `EpicState` em `docs/process/workflow/ROADMAP.md` (estrutura de dado, não texto).
+- Inspeção visual: arquivos da tabela acima abrem com link pra fonte canônica antes de qualquer menção a estado.
+
+**Acoplamento com `EpicState` enum no parser:** o enum em `docs/process/workflow/ROADMAP.md` linhas ~519-537 (parser de W-PROTO-PLAT-1.1) é estrutura de dado, não cópia textual da definição. Mantém-se intacto. Nota explícita na fonte canônica: "Os emojis e nomes aqui são fonte da verdade tanto para texto quanto para o `EpicState` enum em W-PROTO-PLAT-1.1."
+
+**Fora do escopo:**
+- Quebrar `planning_guidelines.md` em arquivos separados — escopo de W-MVP-DOC-1.
+- Atualizar referências em PRs históricas, commits, ou ROADMAPs de milestones já fechados.
+
+---
+
+#### ÉPICO W-PROTO-11: Faxina de `quality_rules.md`
+
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
+
+**Objetivo:** tirar de `docs/process/implementation/quality_rules.md` (397 linhas hoje) o que não é regra de processo do fluxo. Mistura princípios + lessons learned do produto Revelar + tutorial defensivo de git pra Windows. Skill que segue esse doc pode aplicar regra fora de contexto. Saída: doc com ~185 linhas focado em princípios + anti-redundância + comandos.
+
+**Status:** 🔀 Em revisão — PR #117 (https://github.com/gmaiarviana/paper-agent/pull/117)
+
+**Dependências:** rodar **depois** de W-PROTO-15 (limpa "Cursor Background" nas linhas 144 e 382 antes do 11.3 reorganizar) e **depois** de W-PROTO-16 (congela o template canônico em linhas 105-128 antes do 11.3 reorganizar).
+
+### Funcionalidades:
+
+#### 11.1 Apagar §"Verificação de Conflitos e Prevenção de Perda de Trabalho"
+
+**Critério de aceite:** seção inteira (linhas 230-369 hoje, 140 linhas) é apagada de `quality_rules.md`. Tutorial defensivo de git nasceu de incidente concreto e ficou; não é regra de qualidade do processo. Subseções afetadas: 🚨 Problema Identificado, ✅ Processo de Verificação, 📋 Checklist Antes de Editar ROADMAP.md, 🔍 Verificação de Arquivos Modificados, 🛡️ Prevenção, 📝 Template de Verificação, ⚠️ Sinais de Alerta.
+
+**Arquivos a modificar:** `docs/process/implementation/quality_rules.md` (apagar seção).
+
+**Validação:** `grep -n "Verificação de Conflitos\|Prevenção de Perda" docs/process/implementation/quality_rules.md` retorna 0 linhas.
+
+#### 11.2 Mover §"Diretrizes Aprendidas em Produção" para `products/revelar/docs/`
+
+**Critério de aceite:** seção (linhas 29-73 hoje, 45 linhas, com 3 subseções: Sistemas Conversacionais com LLMs, Validação e Testes, Arquitetura e Design) é apagada de `quality_rules.md` e migrada para arquivo novo `products/revelar/docs/llm_implementation_lessons.md`. Conteúdo é específico do Revelar (produto conversacional com LLMs); fica órfão em `quality_rules.md`.
+
+**Decisão de destino:** `products/revelar/docs/llm_implementation_lessons.md` em vez de `core/docs/agents/`. Razão: as 3 subseções são específicas da jornada do Revelar (não regras universais para qualquer agente). `core/docs/agents/orchestrator/conversational/` já tem 9 arquivos sobre arquitetura conversacional; misturar lessons learned ali criaria grab-bag.
+
+**Arquivos a modificar:**
+- `docs/process/implementation/quality_rules.md` — apagar linhas 29-73.
+- `products/revelar/docs/llm_implementation_lessons.md` — arquivo novo com o conteúdo migrado, prefixado por header curto: "Lições aprendidas implementando o Revelar (sistema conversacional com LLMs). Migrado de `docs/process/implementation/quality_rules.md` em PROTO-WORKFLOW-FAXINA, 2026-04-29."
+
+**Acoplamentos:** nenhum link cruzado precisa ser ajustado — o conteúdo era órfão em `quality_rules.md`, sem âncoras referenciadas externamente.
+
+**Validação:** `grep -n "Diretrizes Aprendidas em Produção\|Sistemas Conversacionais com LLMs" docs/process/implementation/quality_rules.md` retorna 0 linhas. `ls products/revelar/docs/llm_implementation_lessons.md` existe com >40 linhas.
+
+#### 11.3 Reorganizar o que sobra em ordem coerente
+
+**Critério de aceite:** após 11.1 + 11.2 + W-PROTO-15.4 (limpa "Cursor Background" nas linhas 144, 382) + W-PROTO-16 (congela template canônico), as seções remanescentes são reorganizadas na ordem abaixo, sem grab-bag.
+
+**Estrutura final do `quality_rules.md`:**
+1. **Princípios Gerais** (lines 3-26 hoje) — Incremental e Seguro, TDD Pragmático, Autônomo mas Transparente, Documentação Viva.
+2. **Regras Anti-Redundância** (lines 76-95 hoje) — tabela de responsabilidade por documento + regras de ouro.
+3. **Comandos e Validação** (lines 98-137 hoje) — fica como **âncora canônica** para W-PROTO-16; mantém §Template de validação + §Observações.
+4. **Exemplo de Fluxo Completo** (lines 140-227 hoje) — fica, mas com "Cursor Background" removido em W-PROTO-15.4 e exemplo adaptado pra fluxo único.
+5. **Observações Finais** (lines 373-396 hoje) — fica, com seção "Para o Agente (Claude Code / Cursor Background)" reescrita em W-PROTO-15.4.
+
+Não há reordenação radical — a ordem atual já é coerente. 11.3 valida que após as remoções/limpezas o fluxo do doc lê limpo.
+
+**Arquivos a modificar:** `docs/process/implementation/quality_rules.md` (apenas se 11.1 + 11.2 + 15.4 + 16 deixaram lacunas visuais ou seções desbalanceadas).
+
+**Validação:**
+- `wc -l docs/process/implementation/quality_rules.md` retorna ~180-200 linhas.
+- Inspeção visual: leitura sequencial do doc não tem saltos abruptos de tema.
+
+**Fora do escopo:**
+- Quebrar `quality_rules.md` em arquivos por responsabilidade (escopo de W-MVP-DOC-1 / futuro).
+- Reescrever os princípios — apenas reorganizar o que sobra.
+
+---
+
+> **Nota — W-PROTO-12 absorvido por W-PROTO-15.** Refinamento estratégico de
+> 2026-04-29 decidiu não cindir `implementation/overview.md`. A premissa
+> ("isolar conteúdo do fluxo manual") some quando 15.4 elimina a dicotomia;
+> o conteúdo útil de §"Validação Híbrida" (sintaxe, imports) vale pra qualquer
+> fluxo e fica no overview mesmo. Se "doc por responsabilidade" virar atrito
+> real depois, vira épico próprio no MVP-WORKFLOW-DOC.
+
+---
+
+#### ÉPICO W-PROTO-13: Faxina do `copilot-instructions.md` (concisão pra agente)
+
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
+
+**Objetivo:** aplicar princípio "documentação para agente é concisa, não defensiva" — agente trabalha do traceback, não consulta catálogo de erros típicos. Doc hoje (143 linhas) carrega seções defensivas residuais que confundem o Copilot ao invés de ajudar.
+
+**Status:** 🔀 Em revisão — PR #117 (https://github.com/gmaiarviana/paper-agent/pull/117)
+
+**Nota factual sobre seções declaradas no esboço inicial:** §"Erros típicos e orientação" (alvo original 13.1) e §"Checklist mínimo de POC do Ensaio" (alvo original 13.2) **não existem** mais no arquivo — foram apagadas em refinamentos anteriores (mais recente: PROTO-WORKFLOW-AJUSTES, PR #93). Funcionalidades 13.1 e 13.2 viraram **no-ops verificados**; escopo real do épico é 13.3 + sobreposição com W-PROTO-14.
+
+**Dependências:** coordena com W-PROTO-14 — ambos tocam §"Operação Windows / macOS / Linux" (linhas 120-127) e §3 "Subir a app" (linhas 68-96). Ordem segura: W-PROTO-13 primeiro (apaga seção que vai ser substituída por conteúdo novo de W-PROTO-14), depois W-PROTO-14. Se rodarem na mesma sessão, o agente faz as duas operações coerentemente sem conflito.
+
+### Funcionalidades:
+
+#### 13.1 §"Erros típicos e orientação" — no-op (já apagada)
+
+**Critério de aceite:** `grep -c "Erros típicos\|orientação" .github/copilot-instructions.md` retorna 0 ocorrências do título de seção. Verificação documental: nenhum trabalho a fazer; a feature fecha com nota explícita no `current_implementation.md` ("seção já apagada em refinamento anterior; nada a fazer").
+
+#### 13.2 §"Checklist mínimo de POC do Ensaio" — no-op (já apagada)
+
+**Critério de aceite:** `grep -c "Checklist mínimo.*POC\|POC do Ensaio" .github/copilot-instructions.md` retorna 0 ocorrências. Verificação documental: nenhum trabalho a fazer; a feature fecha com nota explícita no `current_implementation.md`.
+
+#### 13.3 Apagar §"Operação Windows / macOS / Linux"; manter §"Quando o dev disser 'deu erro'"
+
+**Critério de aceite:** §"Operação Windows / macOS / Linux" (linhas 120-127, 8 linhas) é apagada. Conteúdo é redundante: (a) trecho `.venv/` aparece também na §1 Sincronizar (linhas 44-48); (b) trecho Streamlit + porta 8501 é substituído pela detecção de stack de W-PROTO-14.1 + comando + range de portas (W-PROTO-14.2/14.3); (c) "foreground sempre + traceback → reportar" já está em §3 (linhas 94-95).
+
+§"Quando o dev disser 'deu erro'" (linhas 130-135, 6 linhas) **fica intacta**. Decisão de manter: o conteúdo é genérico (coletar log, identificar causa raiz no traceback, não editar código) e operacional — descreve postura, não erros específicos. Não é padrão defensivo.
+
+**Arquivos a modificar:**
+- `.github/copilot-instructions.md` — apagar bloco linhas 120-127 (incluindo o `---` separador acima ou abaixo, conforme leitura pós-edição).
+
+**Validação:**
+- `grep -n "Operação Windows" .github/copilot-instructions.md` retorna 0.
+- `grep -n "Quando o dev disser" .github/copilot-instructions.md` retorna 1 (mantida).
+- `wc -l .github/copilot-instructions.md` retorna ~135 linhas (vs 143 hoje).
+
+**Fora do escopo:**
+- Reescrita da §3 "Subir a app" (linhas 68-96) — escopo de W-PROTO-14.
+- Mudanças na §1 Sincronizar / §2 Resumo / §"Output fixo" — sem sinal de atrito.
+
+---
+
+#### ÉPICO W-PROTO-14: Operacionalizar Reflex no fluxo de validação do Copilot
+
+**Milestone:** `PROTO-WORKFLOW-COPILOT-STACK`
+
+**Objetivo:** o Ensaio migrou para Reflex no Protótipo (ADR 001 de 2026-04-25), mas `copilot-instructions.md` ainda manda Streamlit pros dois produtos (linhas 70, 82, 92, 125). Validação de branches do Ensaio quebra ou roda com comando errado.
+
+**Status:** 🔀 Em revisão — PR #115 (https://github.com/gmaiarviana/paper-agent/pull/115)
+
+**Dependências:**
+- ADR 001 (`products/ensaio/docs/adr/001-stack-do-prototipo.md`) — comandos e portas de Reflex já fixados; sem input pendente do dev.
+- `products/ensaio/rxconfig.py` — fonte da verdade para `backend_port=8000` e `frontend_port=3000`.
+- Coordena com W-PROTO-13.3: ambos tocam linhas 120-127. Ordem: 13.3 apaga primeiro, 14 reescreve §3 depois.
+
+### Termos e contratos
+
+**Detecção de stack** (termo novo introduzido por este épico): regra determinística que mapeia caminho de arquivo no diff → stack do produto → comando de subida → portas. Tabela canônica:
+
+| Produto | Caminho-gatilho | Stack | Comando de subida | Portas a liberar |
+|---|---|---|---|---|
+| Revelar | `products/revelar/app/**` | Streamlit | `python -m streamlit run <entrypoint>` | 8501-8503 |
+| Ensaio | `products/ensaio/app/**` | Reflex | `cd products/ensaio && reflex run` | 3000 (frontend), 8000 (backend) |
+| Futuros | `products/<novo>/app/**` | a declarar | a declarar | a declarar |
+
+### Funcionalidades:
+
+#### 14.1 Detecção de stack por produto
+
+**Critério de aceite:** `.github/copilot-instructions.md` ganha tabela explícita produto → stack → entrypoint → comando → portas, posicionada como §"Stacks por produto" entre §"Pré-condição" (linhas 19-31) e §"Fluxo (3 passos)" (linha 35). Detecção pelo diff (`git diff --name-only origin/main | grep products/`) usa essa tabela como fonte. Se o diff toca produto sem entrada na tabela, o agente para e reporta — não improvisa.
+
+**Conteúdo da seção (verbatim a inserir):**
+
+```markdown
+## Stacks por produto
+
+A validação por aqui detecta o produto pelo diff e usa a stack correspondente.
+Se a branch toca produto fora desta tabela, **pare e reporte** — não improvise.
+
+| Produto | Caminho-gatilho        | Stack     | Entrypoint                                  | Portas      |
+|---------|------------------------|-----------|---------------------------------------------|-------------|
+| Revelar | products/revelar/app/  | Streamlit | products/revelar/app/chat.py (ou dashboard) | 8501-8503   |
+| Ensaio  | products/ensaio/app/   | Reflex    | products/ensaio/ (reflex run a partir daí) | 3000, 8000  |
+
+Se a branch mexe em mais de um produto, perguntar ao dev qual subir primeiro.
+Se a branch só mexe em `core/` ou `docs/`, não há app para subir — pular §3.
+```
+
+**Arquivos a modificar:**
+- `.github/copilot-instructions.md` — inserir seção nova entre linhas 31 e 35.
+
+#### 14.2 Comando de subida por stack na §3
+
+**Critério de aceite:** §3 "Subir a app afetada" (linhas 68-96 hoje) é reescrita pra ramificar por stack detectada em 14.1. Comando de Reflex é foreground, com log visível, encerramento via Ctrl+C — mesma postura do Streamlit.
+
+**Conteúdo da §3 (substituir linhas 68-96 por):**
+
+```markdown
+### 3. Subir a app afetada
+
+Antes de qualquer coisa, libere as portas da stack detectada (ver §"Stacks
+por produto" + §"Liberação de portas" abaixo). Não mate processos em geral —
+mate apenas quem está escutando nas portas-alvo.
+
+Detectar produto pelo diff (`git diff --name-only origin/main | grep products/`):
+- `products/<produto>/app/**` → subir a stack do produto
+- Se a branch mexeu em mais de um produto, perguntar ao dev qual subir primeiro
+- Se a branch não mexeu em nenhum produto: avisar e pular esta etapa.
+
+**Streamlit (Revelar):**
+
+```bash
+python -m streamlit run <entrypoint>     # ex: products/revelar/app/chat.py
+```
+
+**Reflex (Ensaio):**
+
+```bash
+cd products/ensaio
+reflex run                               # backend :8000, frontend :3000
+```
+
+Subir em **foreground** e deixar rodando — o dev vai abrir no navegador.
+Se o log mostrar traceback no start → parar, reportar o erro, não tentar consertar.
+```
+
+**Arquivos a modificar:** `.github/copilot-instructions.md` (substituir linhas 68-96).
+
+#### 14.3 Liberação de portas por stack
+
+**Critério de aceite:** o bloco de liberação de portas (linhas 70-83 hoje, hardcoded em 8501-8503) é reescrito pra cobrir Streamlit (8501-8503) **e** Reflex (3000, 8000). Detecção da stack reusa 14.1 e libera apenas as portas relevantes — não mata processos em geral.
+
+**Conteúdo do bloco (substituir linhas 70-83 por):**
+
+```markdown
+**Antes de qualquer coisa:** liberar as portas da stack detectada matando
+apenas quem está escutando nelas.
+
+Para Streamlit (Revelar): portas 8501-8503.
+Para Reflex (Ensaio): portas 3000 (frontend) e 8000 (backend).
+
+```powershell
+# Windows (PowerShell) — cirúrgico por porta. Adapte $ports à stack detectada.
+$ports = @(8501, 8502, 8503)         # Streamlit (Revelar)
+# $ports = @(3000, 8000)             # Reflex (Ensaio)
+foreach ($port in $ports) {
+    Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
+        ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
+}
+```
+
+```bash
+# Linux/Mac — filtra pelo entrypoint do projeto
+pkill -f "streamlit.*products/revelar/app/" 2>/dev/null || true   # Revelar
+pkill -f "reflex.*products/ensaio" 2>/dev/null || true            # Ensaio
+```
+```
+
+**Arquivos a modificar:** `.github/copilot-instructions.md` (substituir linhas 70-83).
+
+### Acoplamentos verificados
+
+- **`products/revelar/app/`** existe com `chat.py` + `dashboard.py` + componentes. Comando atual `python -m streamlit run` permanece válido.
+- **`products/ensaio/app/`** existe com Reflex; `rxconfig.py` confirma portas 3000/8000 e `app_name="app"`.
+- **`scripts/`**: nenhum script roda os apps — comandos vivem só na doc do Copilot.
+- **Outros docs** que mencionam Streamlit/Reflex (tabela do mapeamento exaustivo: `docs/ARCHITECTURE.md`, `docs/CONSTITUTION.md` linha 295, `docs/CONTEXT_INDEX.md`, `products/ensaio/README.md`, `core/docs/tools/cli.md`) — referências contextuais (descrição do produto), não comandos de validação. **Fora do escopo** deste épico.
+
+### Validação
+
+- `grep -n "reflex run" .github/copilot-instructions.md` retorna ≥1 linha.
+- `grep -n "products/ensaio" .github/copilot-instructions.md` retorna ≥1 linha.
+- `grep -nE "8501|8502|8503|3000|8000" .github/copilot-instructions.md` retorna linhas em §"Liberação de portas".
+- Inspeção visual: §3 ramifica claramente entre Streamlit e Reflex.
+
+**Fora do escopo:**
+- Detecção automatizada via script — instrução textual é suficiente para o Copilot.
+- Reescrita da nota de erros típicos / debug — coberto por W-PROTO-13.
+- Mudança no parser de portas em outras ferramentas (workflow_platform usa Streamlit também, mas tem porta própria).
+
+---
+
+#### ÉPICO W-PROTO-15: Descontinuar fluxo manual / Cursor / Claude Web do desenho
+
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
+
+**Objetivo:** o desenho atual carrega dicotomia "fluxo manual (Cursor) vs fluxo autônomo (Claude Code Web)" em ~140 menções espalhadas em 16 arquivos. Na prática, o operador opera 100% via Claude Code Web — implementação **e** refinamento estratégico. Cursor não está instalado no ambiente atual; Claude Web persiste como ferramenta de refinamento estratégico em sessão externa quando há decisão de alto nível, mas não como executor. A documentação ficou desalinhada do uso real e impõe ao agente leitor o custo de filtrar "o que aplica ao meu contexto". Este épico **absorve W-PROTO-12** (cindir `implementation/overview.md`) — a premissa do W-PROTO-12 some quando 15.4 elimina a dicotomia.
+
+**Status:** 🔀 Em revisão — PR #117 (https://github.com/gmaiarviana/paper-agent/pull/117)
+
+### Termos e conceitos
+
+- **Refinamento estratégico** — sessão com operador para decisões de alto nível (visão → milestones, tensões arquiteturais, escopo de fase). Pode rodar via Claude Code Web (caminho principal, com acesso direto ao repo) ou via Claude Web em sessão externa quando o operador escolher (ferramenta secundária; não desaparece). Definição canônica → `docs/process/refinement/planning_guidelines.md` §"Modalidades de refinamento" (após reescrita 15.2).
+- **Refinamento tático** — PM skill dentro da branch do milestone; leva épicos de `🌱`/`📐` até `🔍`. Definição → `skills/pm/skill.md` (sem alteração necessária).
+- **Fluxo único de execução** — Claude Code Web autônomo, com gates QA/TL/PO/RTE atuando como aprovações no lugar do dev acompanhando checkpoint a checkpoint. Definição → `docs/process/autonomous/overview.md` (após reescrita 15.1).
+
+### Surface afetada (mapeamento exaustivo)
+
+Levantamento feito em 2026-04-29 (revisão `claude/refine-workflow-stacks-6JOH6`). Cada arquivo abaixo tem ação declarada e linhas-alvo nominais (linhas podem deslocar conforme as edições rodam — usar grep para localizar).
+
+| Arquivo | Menções | Ação principal |
+|---|---:|---|
+| `docs/CONSTITUTION.md` | 30 | reescrever §Fluxos Disponíveis, apagar §Cursor (Atualizador de Documentações), atualizar glossário (épico, funcionalidade), remover §"Gerar Prompts para fluxo manual" |
+| `docs/process/refinement/planning_guidelines.md` | 27-28 | reescrever §"Otimização do Workflow" (linhas ~99-140) como §"Modalidades de Refinamento"; atualizar rótulo de `📋` (linha 260, 338); apagar §"Claude Web gera prompts separados para Cursor" (linhas 77-82) |
+| `docs/process/refinement/starter.md` | 10 | atualizar rótulo de `📋` (linha 68); generalizar instruções de "Contexto enviado ao Claude Web" pra incluir caminho via Claude Code Web; remover "(via Cursor)" da inspeção de código (linha 74) |
+| `docs/process/autonomous/overview.md` | 9 | apagar tabela "Fluxo Manual vs Autônomo" (linhas 48-55); apagar §"Use o Fluxo Manual (Cursor) quando..." (linhas 61-68); remover contraste manual/autônomo da intro (linha 13); reescrever menção em §6 (linha 86) |
+| `docs/process/refinement/overview.md` | 2-3 | atualizar nota de evolução (linha 3); corrigir bullet de "implementação manual via Cursor" (linha 26) |
+| `docs/process/autonomous/delivery.md` | 4 | substituir fallback "trazer para Cursor (fluxo manual)" por "devolver para PM skill / Claude Web" (linhas 23, 100); remover qualificador "compartilhada com fluxo manual" (linha 131) |
+| `docs/process/implementation/overview.md` | 3 | reescrever cabeçalho linha 3 (de "Claude Code / Cursor Background" → "Claude Code Web"); apagar nota corretiva linhas 88-91 sobre "fluxo manual"; **manter** §"Validação Híbrida" intacta (absorção W-PROTO-12) |
+| `docs/process/implementation/quality_rules.md` | 2 | atualizar cabeçalho linhas 144 e 382 (de "Claude Code / Cursor Background" → "Claude Code Web"). Coordenado com W-PROTO-11.3 |
+| `skills/pm/skill.md` | 5 | nenhuma edição — guardrails "não substitui Claude Web" continuam corretos (Claude Web segue como caminho secundário de refinamento estratégico) |
+| `skills/em/skill.md` | 3 | nenhuma edição — mesmo motivo |
+| `skills/rte/skill.md` | 1 | remover qualificador "compartilhada com fluxo manual" (linha 420) |
+| `skills/rte/templates/delivery-report.md` | 1 | atualizar fallback "OU traga para Cursor" → "refine com PM skill" |
+| `docs/CONTEXT_INDEX.md` | 2 | atualizar bullets "manual via Cursor" → "via Claude Code Web" (linhas 211, 219) |
+| `README.md` | 1 | atualizar rótulo "(Claude, Cursor, Claude Code)" → "(Claude Web, Claude Code Web)" (linha 219) |
+| `CLAUDE.md` | 4 | reescrever bullet de "Fluxo manual (Cursor)" (linhas 39-40) e remover referência a `.cursorrules` (linha 52) — coordenado com 15.6 e com adição da regra "sugestão com trade-offs" (escopo desta sessão de refinamento) |
+| `.claudecode.md` | 0 | nenhuma menção — sem edição |
+| `.cursorrules` | n/a | apagar arquivo (60 linhas) |
+
+### Funcionalidades:
+
+#### 15.1 Reescrever `autonomous/overview.md` para fluxo único
+
+**Critério de aceite:** arquivo descreve **um** fluxo (autônomo via Claude Code Web). Tabela "Fluxo Manual vs Autônomo" (linhas 48-55) some. Seção "Use o Fluxo Manual (Cursor) quando..." (linhas 61-68) some. Intro (linha 13) e §6 (linha 86) deixam de contrastar com fluxo manual. Estado `📋 Critérios definidos` é descrito como "passo intermediário até `🔍`" (não como "apto ao fluxo manual").
+
+**Arquivos a modificar:** `docs/process/autonomous/overview.md`.
+
+**Validação:** `grep -ni "fluxo manual\|cursor" docs/process/autonomous/overview.md` retorna 0.
+
+#### 15.2 Reescrever §"Otimização do Workflow" em `planning_guidelines.md` como §"Modalidades de Refinamento"
+
+**Critério de aceite:** §"Otimização do Workflow: Usando Cursor para Análises" (linhas 99-140 hoje) é apagada e substituída por §"Modalidades de Refinamento", que descreve três modalidades:
+
+1. **Estratégico (sessão externa com operador, via Claude Web ou equivalente)** — ferramenta secundária, usada em decisões estruturais que exigem alinhamento humano. Contexto suprido por upload manual ou pela plataforma (W-MVP-PLAT-2 quando existir).
+2. **Estratégico (Claude Code Web na branch do repo)** — caminho principal hoje. Acesso direto ao repo; refina e materializa no ROADMAP em sessão única.
+3. **Tático (PM skill dentro da branch do milestone)** — refinamento mecânico de épicos `🌱`/`📐` até `🔍` quando o milestone é disparado.
+
+Pipeline tripartite "Cursor escaneia → Claude Web refina → Cursor executa" desaparece — premissa obsoleta (Claude Code Web já tem acesso ao código).
+
+**Arquivos a modificar:**
+- `docs/process/refinement/planning_guidelines.md` — substituir linhas 99-140 + apagar §"Claude Web gera prompts separados para Cursor" (linhas 77-82).
+- Ajustar rótulos de `📋` em linhas 260, 338, 350 ("apto ao fluxo manual" → "passo intermediário até `🔍`"). Linha 269 ("Claude Code só implementa épicos em `📋` (manual) ou `🔍` (autônomo)") vira "épicos em `🔍`".
+
+**Validação:** `grep -ni "Otimização do Workflow.*Cursor\|prompts separados para Cursor\|apto ao fluxo manual" docs/process/refinement/planning_guidelines.md` retorna 0.
+
+#### 15.3 Limpar `CONSTITUTION.md`
+
+**Critério de aceite:** as 30 menções caem por:
+- Reescrever §Fluxos Disponíveis (linhas 36-45) como §"Requisitos de Refinamento" (descreve `📋` → `🔍` como progressão obrigatória antes da execução).
+- Apagar §"Cursor (Atualizador de Documentações)" (linhas 66-77) inteiramente.
+- Atualizar glossário: definição de Épico (linha 328), Funcionalidade (linha 331), e linha enumeradora 17 que mantém link já existente.
+- Reescrever §"Gerar Prompts" da sessão de refinamento (linhas 128-159) — Formato A (lista de milestones/épicos) fica; Formato B (prompts pra Cursor) sai.
+- Linha 11 (definição da dicotomia) some — premissa não vale mais.
+
+**Arquivos a modificar:** `docs/CONSTITUTION.md`.
+
+**Validação:** `grep -ni "cursor\|fluxo manual" docs/CONSTITUTION.md` retorna 0 (apenas menção possível: link pra `.cursorrules`, mas ele será apagado em 15.6 → 0 menções).
+
+#### 15.4 Limpar `implementation/overview.md` e `quality_rules.md` (absorve W-PROTO-12)
+
+**Critério de aceite:** ambos os arquivos perdem o rótulo "Cursor Background" e a contrastação com "fluxo manual".
+
+Em `implementation/overview.md`:
+- Reescrever cabeçalho linha 3: "(Claude Code / Cursor Background)" → "(Claude Code Web)".
+- Apagar nota linhas 88-91 (que contrasta o fluxo autônomo com manual via Cursor).
+- **Manter §"Validação Híbrida" (linhas 30-92)** — conteúdo (sintaxe, imports, comandos) vale pra qualquer agente, não é específico de fluxo manual. **Esta é a absorção de W-PROTO-12**: cindir o doc deixa de fazer sentido quando a dicotomia some.
+
+Em `quality_rules.md`:
+- Reescrever cabeçalho linha 144: "Agente (Claude Code / Cursor Background):" → "Agente (Claude Code Web):".
+- Reescrever cabeçalho linha 382: "Para o Agente (Claude Code / Cursor Background)" → "Para o Agente (Claude Code Web)".
+
+**Arquivos a modificar:** `docs/process/implementation/overview.md`, `docs/process/implementation/quality_rules.md`.
+
+**Validação:** `grep -ni "Cursor Background\|fluxo manual" docs/process/implementation/overview.md docs/process/implementation/quality_rules.md` retorna 0.
+
+#### 15.5 Limpar `refinement/starter.md`, `refinement/overview.md`, `autonomous/delivery.md`, `skills/rte/skill.md`, `skills/rte/templates/delivery-report.md`
+
+**Critério de aceite:** menções remanescentes são atualizadas conforme tabela "Surface afetada" acima. PM e EM skills **não são tocadas** — guardrails "não substitui Claude Web" continuam válidos (Claude Web segue como caminho secundário em refinamento estratégico).
+
+**Arquivos a modificar:**
+- `docs/process/refinement/starter.md` (linha 68 + 74).
+- `docs/process/refinement/overview.md` (linhas 3, 26).
+- `docs/process/autonomous/delivery.md` (linhas 23, 100, 131).
+- `skills/rte/skill.md` (linha 420).
+- `skills/rte/templates/delivery-report.md` (linha ~130).
+
+**Validação:** `grep -ni "fluxo manual\|via Cursor" docs/process/refinement/starter.md docs/process/refinement/overview.md docs/process/autonomous/delivery.md skills/rte/skill.md skills/rte/templates/delivery-report.md` retorna 0.
+
+#### 15.6 Deletar `.cursorrules`
+
+**Critério de aceite:** arquivo `.cursorrules` (60 linhas, 1928 bytes) é apagado integralmente. Conteúdo aplicável (regras de comportamento como "confirmar antes de criar arquivos", "usar PowerShell no Windows") já vive em CLAUDE.md e `.claudecode.md` direcionadas a Claude Code Web — sem migração necessária.
+
+**Arquivos a modificar:** apagar `.cursorrules`.
+
+**Validação:** `ls .cursorrules 2>/dev/null` retorna vazio.
+
+#### 15.7 Atualizar `CLAUDE.md`, `.claudecode.md`, `docs/CONTEXT_INDEX.md`, `README.md`
+
+**Critério de aceite:**
+
+Em `CLAUDE.md`:
+- Linha 6: remover referência cruzada a `.cursorrules`.
+- Linhas 39-40: bullet "Fluxo manual (Cursor, sessão de refinamento) — defaults restritos do harness e do `.cursorrules` continuam valendo" → reescrever como "Refinamento estratégico em sessão externa com Claude Web — defaults restritos do harness continuam valendo nessas sessões".
+- Linha 52: remover bullet "Regras do fluxo manual (Cursor) → `.cursorrules`".
+
+Em `.claudecode.md`: nenhuma edição (zero menções).
+
+Em `docs/CONTEXT_INDEX.md`: linhas 211 e 219 — "manual via Cursor" → "via Claude Code Web".
+
+Em `README.md`: linha 219 — "(Claude, Cursor, Claude Code)" → "(Claude Web, Claude Code Web)".
+
+**Arquivos a modificar:** `CLAUDE.md`, `docs/CONTEXT_INDEX.md`, `README.md`.
+
+**Validação:** `grep -ni "cursor" CLAUDE.md docs/CONTEXT_INDEX.md README.md` retorna 0.
+
+#### 15.8 Varredura final
+
+**Critério de aceite:**
+
+```bash
+grep -rni "cursor\|fluxo manual\|claude web.*cursor" \
+  --include="*.md" \
+  --exclude-dir=.git \
+  --exclude="ROADMAP.md" \
+  docs/ skills/ products/ core/ tools/ tests/ scripts/ \
+  CLAUDE.md README.md
+```
+
+Retorna 0 menções, com as exceções declaradas:
+
+- `docs/process/workflow/ROADMAP.md` — épicos históricos (W-PROTO-12 absorvido, W-PROTO-15 e este próprio bloco) e nota de Observações; mantém referência por integridade histórica.
+- ROADMAPs de milestones já fechados (`PROTO-WORKFLOW-AJUSTES`, `PROTO-WORKFLOW-DOC`, `PROTO-WORKFLOW-ENCERRAMENTO`) — não tocar.
+- `skills/pm/skill.md` e `skills/em/skill.md` — menção a "Claude Web" como caminho secundário de refinamento (correto, fica).
+
+Adicionalmente:
+- `ls .cursorrules` retorna vazio.
+- `wc -l docs/CONSTITUTION.md docs/process/refinement/planning_guidelines.md docs/process/autonomous/overview.md` mostra redução compatível com as remoções (ordem de grandeza: -50 a -80 linhas total).
+
+### Ordem interna de execução
+
+1. **15.1 + 15.2 + 15.3 em paralelo** — três docs grandes, edições disjuntas.
+2. **15.4** — depende conceitualmente de 15.1/15.2/15.3 estarem coerentes (mesmo paradigma de fluxo único).
+3. **15.5** — pode rodar em paralelo com 15.4.
+4. **15.6** — independente.
+5. **15.7** — depois de 15.6 (referência a `.cursorrules` em CLAUDE.md sai junto).
+6. **15.8** — última, valida o todo.
+
+### Acoplamentos com outros épicos
+
+- **W-PROTO-10** (centralizar estados) — 15.2 toca o rótulo de `📋` na fonte que 10.1 vai centralizar. Ordem: **15 antes de 10** — vale a pena consolidar a fonte canônica depois das remoções.
+- **W-PROTO-11** (faxina `quality_rules.md`) — 15.4 limpa "Cursor Background" antes da reorganização do 11.3. Ordem: **15 antes de 11**.
+- **W-PROTO-13/14** (copilot-instructions) — não há sobreposição. Podem rodar em qualquer ordem.
+- **W-PROTO-16** (consolidar comandos de validação) — 15.4 não toca o template canônico em `quality_rules.md` (linhas 105-128). Ordem: **15 ou 16 primeiro, indiferente**.
+
+### Fora do escopo
+
+- Refinamento autônomo nativo da plataforma (visão futura — W-MVP-REF-1).
+- Integração Claude Code + OpenWebUI (em estudo, não desenhado).
+- Limpeza de menções históricas em PRs mergeadas, commits, ou ROADMAPs de milestones já fechados.
+
+---
+
+#### ÉPICO W-PROTO-16: Consolidar template de "comandos de validação local"
+
+**Milestone:** `PROTO-WORKFLOW-FAXINA`
+
+**Objetivo:** o template "git fetch / checkout / venv / pytest / [run app]" aparece em 4 arquivos com formatos divergentes (`quality_rules.md` linhas 105-128, `implementation/delivery.md` linhas 14-44 e 92-149, `autonomous/delivery.md` linhas 57-81, `implementation/overview.md` linhas 60-72). Risco de drift médio prazo + carga cognitiva pra o agente que precisa decidir qual versão é canônica. Consolida em fonte única e substitui as cópias por referência.
+
+**Status:** 🔀 Em revisão — PR #117 (https://github.com/gmaiarviana/paper-agent/pull/117)
+
+**Origem:** declarado originalmente como `W-MVP-DOC-2` em `MVP-WORKFLOW-DOC` (2026-04-29). Movido para `PROTO-WORKFLOW-FAXINA` no refinamento estratégico de 2026-04-29 (`claude/refine-workflow-stacks-6JOH6`) — 3 dos 4 arquivos com cópia são exatamente os que W-PROTO-11 e W-PROTO-15 já tocam, justificando antecipar.
+
+**Dependências:** rodar **antes** de W-PROTO-11.3 (para que a reorganização do `quality_rules.md` parta da forma canônica congelada). Sem dependência com W-PROTO-15 (15.4 não toca o template canônico em linhas 105-128).
+
+### Funcionalidades:
+
+#### 16.1 Eleger fonte canônica em `quality_rules.md`
+
+**Critério de aceite:** §"Comandos e Validação" de `docs/process/implementation/quality_rules.md` (linhas 98-137 hoje) é declarada fonte canônica do template. Recebe uma âncora explícita (cabeçalho `### Template de validação local`) com identificador navegável (`#template-de-validação-local`) referenciado pelos outros docs.
+
+**Decisão de fonte:** `quality_rules.md` é a escolha por já ser o documento mais completo (variantes Linux/Mac vs Windows, observações de contexto sobre quando incluir cada passo, marcação explícita "Template de validação para mensagem final ao dev"). Alternativa rejeitada: `autonomous/delivery.md` é mais curto e contextualizado ao fluxo autônomo, mas tem inconsistência `.venv/` vs `venv/` e menos observações.
+
+**Conteúdo canônico (mantém o bloco bash de linhas 106-128 hoje, com pequenos ajustes pós-W-PROTO-14):**
+
+```bash
+# 0. Fazer checkout da branch (SEMPRE incluir este passo)
+git fetch origin
+git checkout <branch-name>
+
+# 1. Ativar ambiente virtual (se aplicável)
+source .venv/bin/activate              # Linux/Mac
+# .\.venv\Scripts\Activate.ps1         # Windows
+
+# 2. Instalar/atualizar dependências (se requirements mudaram)
+pip install -r requirements.txt
+
+# 3. Testes unitários
+python -m pytest tests/core/unit/ -v
+
+# 4. Validação manual (script - RECOMENDADO!)
+python scripts/core/<categoria>/validate_*.py
+
+# 5. (se a branch mexeu em produto) Subir a app
+# Stack detectada via products/<produto>/app/ — ver
+# .github/copilot-instructions.md §"Stacks por produto" (W-PROTO-14)
+```
+
+Padronização incluída:
+- `.venv/` (com ponto) — alinhado com `.github/copilot-instructions.md` (linhas 45-46).
+- Passo 5 referencia W-PROTO-14 ao invés de hardcodar `streamlit run` — evita drift quando outros produtos forem adicionados.
+- Observações pós-bloco (passos opcionais, ❌ NÃO usar PYTHONPATH, etc.) ficam abaixo do template como hoje.
+
+**Arquivos a modificar:** `docs/process/implementation/quality_rules.md` (ajustes mínimos no bloco existente: padronizar `.venv/`, adicionar passo 5 referenciando W-PROTO-14, declarar âncora `### Template de validação local`).
+
+#### 16.2 Substituir cópias por referência
+
+**Critério de aceite:** os 3 arquivos com cópia divergente apontam pra fonte canônica em `quality_rules.md` via link, **sem repetir o bloco**.
+
+**Arquivos a modificar:**
+
+| Arquivo | Linhas-alvo | Ação |
+|---|---|---|
+| `docs/process/implementation/delivery.md` | 14-44 | mantém (é template de **formato de mensagem**, não bloco de validação) — sem mudança |
+| `docs/process/implementation/delivery.md` | 92-149 | substitui o bloco PowerShell + exemplos genéricos (npm/docker/pytest) por: "Ver [template canônico em quality_rules.md](../implementation/quality_rules.md#template-de-validação-local). Para subir a app, detectar stack via [`.github/copilot-instructions.md` §Stacks por produto](../../../.github/copilot-instructions.md)." |
+| `docs/process/autonomous/delivery.md` | 57-81 | substitui o bloco bash por: "RTE entrega o bloco pronto na PR seguindo [template canônico em quality_rules.md](../implementation/quality_rules.md#template-de-validação-local). Stack do passo 5 detectada via [§Stacks por produto](../../../.github/copilot-instructions.md)." |
+| `docs/process/implementation/overview.md` | 60-72 | mantém (exemplo simplificado dentro do exemplo de checkpoint), adiciona nota de uma linha: "(Exemplo simplificado; template completo em [quality_rules.md](quality_rules.md#template-de-validação-local).)" |
+
+**Validação:**
+- `grep -n "git fetch origin\|git checkout" docs/process/implementation/delivery.md docs/process/autonomous/delivery.md` retorna 0 linhas em blocos de código (apenas em texto que referencie o template).
+- Os 3 docs alvo abrem com link pra `quality_rules.md#template-de-validação-local`.
+- `grep -n "Template de validação local" docs/process/implementation/quality_rules.md` retorna 1 linha (cabeçalho).
+
+### Fora do escopo
+
+- Funcionalidade originalmente esboçada como "2.3 Variantes por fluxo (manual vs autônomo)" — cai junto com W-PROTO-15 (não há mais dois fluxos pra distinguir).
+- Variantes por stack (Streamlit vs Reflex) — vivem em `.github/copilot-instructions.md` via W-PROTO-14, referenciadas pelo passo 5 do template.
+- Reescrever templates de teste em `docs/testing/` — sem sinal de atrito (público diferente: documentação de teste, não de validação local pré-merge).
 
 ---
 
@@ -901,21 +2243,79 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ---
 
+> **Milestone de saneamento documental do MVP** (`MVP-WORKFLOW-DOC`) declarado em 2026-04-29; reduzido a W-MVP-DOC-1 no refinamento estratégico de 2026-04-29 (`claude/refine-workflow-stacks-6JOH6`) — W-MVP-DOC-2 migrou para `PROTO-WORKFLOW-FAXINA` como W-PROTO-16.
+
+#### ÉPICO W-MVP-DOC-1: Quebrar `planning_guidelines.md` por responsabilidade
+
+**Milestone:** `MVP-WORKFLOW-DOC`
+
+**Objetivo:** o arquivo (634 linhas) absorveu definição de estados, processo de sessão, glossário, anti-padrões, exemplos, templates de épico/funcionalidade. Cabe num doc só, mas a leitura cansa e a navegação é ruim.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+### Funcionalidades (esboço):
+- **1.1 Definir corte natural** — candidatos: definições de estado / processo de sessão / templates / anti-padrões. Critério: cada arquivo respondendo uma pergunta única.
+- **1.2 Mover seções para arquivos novos** — preservar links externos via redirect (nota no original) ou ajuste sistemático cross-repo.
+- **1.3 `planning_guidelines.md` vira índice** — overview curto + apontadores para os arquivos derivados.
+
+---
+
+> **Nota — W-MVP-DOC-2 movido para `PROTO-WORKFLOW-FAXINA` como W-PROTO-16.**
+> Refinamento estratégico de 2026-04-29 (`claude/refine-workflow-stacks-6JOH6`)
+> antecipou a consolidação porque 3 dos 4 arquivos com template duplicado são
+> exatamente os tocados por W-PROTO-11 e W-PROTO-15 — fazer junto evita
+> revisitar. A funcionalidade originalmente esboçada "2.3 Variantes por fluxo
+> (manual vs autônomo)" cai junto com W-PROTO-15.
+
+---
+
+## 💡 Ideias Futuras
+
+Itens que ainda não justificam virar épico — registrados aqui pra não perder, viram épico quando houver sinal real de atrito.
+
+- **Mover `language_guidelines.md` para fora de `docs/process/`.** Guia de bilinguismo (PT-BR para mensagens, EN para código) é regra do código todo do paper-agent, não específica do processo de implementação. Destino candidato: `docs/` raiz ou `core/docs/`. Vira épico quando alguém procurar fora de `process/` e não achar.
+
+- **Decidir destino de `refinement/overview.md` e `workflow/README.md`.** Índices curtos que repetem informação dos arquivos pra que apontam. Custo zero pra leitor familiarizado; ganho marginal de apagar. Vira épico só se a navegação da pasta `process/` for repensada.
+
+---
+
 ## 📚 Observações
 
-**Regra:** fluxo manual exige épico em `📋 Critérios definidos`;
-fluxo autônomo exige `🔍 Detalhes definidos`.
+**Regra:** épico precisa estar em `🔍 Detalhes definidos` para o fluxo
+autônomo. (A regra antiga "fluxo manual exige `📋 Critérios definidos`"
+some quando `PROTO-WORKFLOW-FAXINA`/W-PROTO-15 fecha — a partir daí
+`📋` é apenas passo intermediário até `🔍`.)
 
 Os milestones da fase Protótipo `PROTO-WORKFLOW-ENCERRAMENTO`,
 `PROTO-WORKFLOW-DOC` e `PROTO-WORKFLOW-AJUSTES` foram mergeados em
 sequência (PRs #83, #90 e #93). `PROTO-WORKFLOW-PLATAFORMA` está em
-`🔍 Detalhes definidos` — apto ao fluxo autônomo. `PROTO-WORKFLOW-FILA`
-(absorve o conteúdo do antigo MVP-WORKFLOW-PLATAFORMA, reposicionado
-como Protótipo) tem épicos em `📐` aguardando refinamento estratégico
-após `PROTO-WORKFLOW-PLATAFORMA` fechar. Os milestones MVP
-(`MVP-WORKFLOW-REFINAMENTO` e `MVP-WORKFLOW-PROPONENTE`) têm épicos
-em `📐` aguardando refinamento estratégico após `PROTO-WORKFLOW-FILA`
-fechar.
+`🔍 Detalhes definidos` — apto ao fluxo autônomo.
+`PROTO-WORKFLOW-FAXINA` e `PROTO-WORKFLOW-COPILOT-STACK` foram
+declarados em 2026-04-29 (agrupando os antigos órfãos da fase
+Protótipo) e refinados a `🔍` na mesma data
+(`claude/refine-workflow-stacks-6JOH6`); a faxina precede
+`PROTO-WORKFLOW-FILA` para fazer a casa antes da fila reativa.
+`PROTO-WORKFLOW-FILA` (absorve o conteúdo do antigo
+MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo) tem épicos em
+`📐` aguardando refinamento estratégico após
+`PROTO-WORKFLOW-PLATAFORMA` e `PROTO-WORKFLOW-FAXINA` fecharem. Os
+milestones MVP (`MVP-WORKFLOW-DOC` agora reduzido a 1 épico após
+W-MVP-DOC-2 ter migrado para `PROTO-WORKFLOW-FAXINA` como W-PROTO-16,
+`MVP-WORKFLOW-REFINAMENTO` e `MVP-WORKFLOW-PROPONENTE`) têm épicos em
+`📐` aguardando refinamento estratégico — `MVP-WORKFLOW-DOC` pode
+rodar em paralelo (mas se beneficia de W-PROTO-10 ter rodado primeiro);
+os outros dois aguardam `PROTO-WORKFLOW-FILA` fechar.
+
+**Refinamento estratégico de 2026-04-29
+(`claude/refine-workflow-stacks-6JOH6`):**
+levou `PROTO-WORKFLOW-FAXINA` (W-PROTO-10, 11, 13, 15, 16) e
+`PROTO-WORKFLOW-COPILOT-STACK` (W-PROTO-14) a `🔍 Detalhes definidos`,
+absorveu W-PROTO-12 em W-PROTO-15 (premissa de cindir
+`implementation/overview.md` some quando a dicotomia manual/autônomo
+some), e moveu W-MVP-DOC-2 para `PROTO-WORKFLOW-FAXINA` como
+W-PROTO-16 (3 dos 4 arquivos com template de validação duplicado são
+exatamente os tocados pelos outros épicos da faxina). Apto ao
+disparo autônomo dos dois milestones.
 
 **Reorganização 2026-04-28 (papéis vs fluxos).** A vision foi reescrita
 para separar **papéis** (operador, proponente, porta-voz) de **fluxos**

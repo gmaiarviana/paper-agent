@@ -1,6 +1,6 @@
 # Processo de Refinamento
 
-> **⚠️ Nota de evolução:** os arquivos deste diretório descrevem o processo de refinamento via sessão estratégica com operador (Claude Web ou equivalente). Este é o caminho **secundário** — útil para decisões estruturais que exigem alinhamento humano. O caminho **principal** é a PM skill via Claude Code Web (acesso direto ao repo, sem upload manual de contexto). Ver `planning_guidelines.md` §Modalidades de refinamento.
+> **⚠️ Nota de evolução:** os arquivos deste diretório descrevem o processo de refinamento estratégico. O caminho **principal** é a sessão estratégica via Claude Code Web (acesso direto ao repo, sem upload manual de contexto). O caminho **secundário** é Claude Web em sessão externa, útil para decisões estruturais que exigem alinhamento humano com contexto fora do repo. A PM skill cobre o refinamento tático dentro da branch do milestone. Ver `planning_guidelines.md` §"Modalidades de Refinamento".
 
 Este diretório contém o processo de refinamento estratégico — sessões com operador para quebrar visão em milestones, resolver tensões arquiteturais e definir escopo de fase.
 
@@ -23,8 +23,8 @@ Ver **`docs/process/refinement/starter.md`** para lista de arquivos essenciais.
 
 ## 🔄 Fluxos Relacionados
 
-- **Implementação:** docs/process/implementation/ (manual via Cursor)
-- **Autônomo:** docs/process/autonomous/ (Claude Code Web)
+- **Implementação:** docs/process/implementation/ (guidelines aplicáveis ao fluxo único de execução)
+- **Fluxo único de execução:** docs/process/autonomous/ (Claude Code Web)
 
 ---
 

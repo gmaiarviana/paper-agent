@@ -1,5 +1,10 @@
 # Validação Manual da POC do Ensaio
 
+> ⚠️ **Documento histórico.** Esta validação foi escrita sobre a stack
+> Streamlit anterior (entrypoint `chat.py`). A stack atual é Reflex —
+> ver `docs/adr/001-stack-do-prototipo.md`. Mantido como registro do
+> processo de POC; instruções de execução não refletem o produto atual.
+
 > **📌 Público:** dev (revisor da PR final).
 > **📌 Quando usar:** ao receber notificação da sessão autônoma de "POC pronta", rodar este checklist antes de mergear.
 > **📌 Estrutura:** um bloco por épico da POC (C-ENSAIO-2, E-POC-1, E-POC-2, E-POC-3), com "o que rodar" e "o que observar" por funcionalidade.
@@ -284,7 +289,7 @@ Aprove o merge quando:
 - [ ] Comportamentos "não deve" do ROADMAP **não** ocorrem (ex: Writer por seção, Metodologista invocado, persistência em disco)
 - [ ] ROADMAPs (core + ensaio) marcam os 4 épicos como `✅ Implementado`
 
-**Se algum critério falhar:** devolver com feedback para nova rodada autônoma, ou trazer para fluxo manual se exigir decisão arquitetural.
+**Se algum critério falhar:** devolver com feedback para nova rodada autônoma, ou abrir sessão estratégica externa (Claude Web) se exigir decisão arquitetural.
 
 ---
 

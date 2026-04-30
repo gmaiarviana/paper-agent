@@ -4,7 +4,7 @@
 
 ## 📋 ANTES DE CRIAR QUALQUER TESTE
 
-**Claude Code / Cursor:** Execute este checklist ANTES de escrever teste:
+**Claude Code Web:** Execute este checklist ANTES de escrever teste:
 
 ### 1. Validação de Necessidade
 - [ ] Teste valida comportamento próprio (não biblioteca externa)

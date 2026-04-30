@@ -1,6 +1,7 @@
 # Validação Manual do Milestone <ID> — <nome>
 
 > **📌 Público:** dev (revisor da PR final).
+> **📌 Arquivo:** `docs/process/current_validation.md` — rotativo, sobrescrito a cada novo milestone (igual a `current_implementation.md`). Histórico fica nas PRs mergeadas.
 > **📌 Quando usar:** ao receber notificação da sessão autônoma de "Milestone pronto", rodar este checklist antes de mergear.
 > **📌 Estrutura:** um bloco por épico, com roteiro por funcionalidade. Cada roteiro tem **Critério**, **Gatilho**, **Resultado esperado** e **Sinal de falha** literais.
 > **📌 Princípio anti-viés:** este arquivo valida critérios de aceite do ROADMAP, não a implementação. **Não há instruções de "abrir código", "checar diff" ou "inspecionar log de prompt"** — isso já foi feito pelo Copilot na PR e pelos gates QA/TL. Dev executa este arquivo sem precisar abrir nenhum `.py`.
@@ -121,7 +122,7 @@ Aprove o merge quando **todos**:
 - [ ] Comportamentos "não deve" do ROADMAP foram confirmados (não ocorreram)
 - [ ] Tabela do Copilot na PR (Seção 🎯) sem ❌ sem justificativa
 
-**Se algum critério falhar:** devolver com feedback para nova rodada autônoma (Claude Code Web) ou trazer para fluxo manual se exigir decisão arquitetural.
+**Se algum critério falhar:** devolver com feedback para nova rodada autônoma (Claude Code Web) ou abrir sessão estratégica externa (Claude Web) se exigir decisão arquitetural.
 
 ---
 

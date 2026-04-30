@@ -127,13 +127,13 @@ pytest -m integration             # se aplicável
 
 **Caso algum critério falhe:**
 - ❌ Não mergeie.
-- ❌ Devolva via Claude Code Web (nova rodada autônoma) OU traga para Cursor (fluxo manual) se exigir decisão arquitetural.
+- ❌ Devolva via Claude Code Web (nova rodada autônoma) OU refine com a PM skill / abra sessão estratégica externa (Claude Web) se exigir decisão arquitetural.
 
 ---
 
 ## Seção 🎯 Validação (copy-paste para o body da PR)
 
-> **Bloco fixo introduzido por W-PROTO-5.** A RTE preenche os placeholders varrendo `current_implementation.md` (critérios PO ✅) e o ROADMAP (lista de épicos do milestone), copia para o body da PR criada via `mcp__github__create_pull_request` e referencia esse mesmo body na mensagem final ao dev.
+> **Bloco fixo introduzido por W-PROTO-5.** A RTE preenche os placeholders varrendo `current_implementation.md` (critérios PO ✅) e o ROADMAP (lista de épicos do milestone), copia para o body da PR criada via `mcp__github__create_pull_request` e referencia esse mesmo body na mensagem final ao dev. O `current_validation.md` (rotativo) acompanha como detalhe opcional para o dev rodar localmente.
 
 ```markdown
 ## 🎯 Validação (copie tudo abaixo e envie ao Copilot)
@@ -146,7 +146,7 @@ Reporte em markdown.
 ### Contexto
 - Milestone: <ID> — <nome>
 - Épicos entregues: <lista com IDs>
-- Arquivo detalhado de validação: `<caminho>/validation-<id>.md`
+- Arquivo detalhado de validação: `docs/process/current_validation.md` (rotativo)
 
 ### Critérios de aceite (consolidados do ROADMAP)
 

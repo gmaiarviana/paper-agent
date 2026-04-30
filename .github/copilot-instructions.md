@@ -11,22 +11,39 @@ e decide. Nada além disso sem pedido explícito.
 
 - **Não rode testes** (nem unit, nem integration). QA Skill e CI já rodaram.
 - **Não crie PR, não mergeie, não dê push.**
-- **Não invente critério de aceite.** Extrai do doc ou do ROADMAP; se não achar, pergunta.
-- Se faltar informação pra algum passo → **pare e pergunte**. Não tente suprir.
+- **Não invente critério de aceite.** Extrai do `current_implementation.md` da branch.
+- **Não pergunte qual épico, qual produto, qual modo.** A informação está no repo. Se faltar, **pare e reporte inconsistência** — não improvise.
 
 ---
 
-## Dois modos de validação
+## Pré-condição: branch saiu do fluxo autônomo
 
-### Modo A — Branch saiu do fluxo autônomo
-Sinal: `docs/process/current_implementation.md` existe na branch.
-Fonte de verdade: esse arquivo (tem gates, diff, critérios, comandos).
+Toda branch validada por aqui tem `docs/process/current_implementation.md` (criado pela Scrum Master Skill, atualizado pelos gates, fechado pela RTE) e `docs/process/current_validation.md` (gerado pela RTE no commit de abertura da PR).
 
-### Modo B — Validação avulsa (manual / sem fluxo autônomo)
-Sinal: `current_implementation.md` NÃO existe.
-Fonte de verdade: ROADMAP (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`)
-— o dev precisa te dizer qual funcionalidade/épico (ex: "POC-ENSAIO").
-Se o dev não disser, **pergunte** antes de continuar.
+Se algum desses arquivos **não existir** na branch:
+
+```
+⛔ Branch inconsistente — current_implementation.md ou current_validation.md ausente.
+RTE não fechou ou Scrum Master não rodou. Investigue antes de validar.
+Não tente improvisar a partir do ROADMAP.
+```
+
+Pare. Não siga.
+
+---
+
+## Stacks por produto
+
+A validação por aqui detecta o produto pelo diff e usa a stack correspondente.
+Se a branch toca produto fora desta tabela, **pare e reporte** — não improvise.
+
+| Produto | Caminho-gatilho        | Stack     | Entrypoint                                  | Portas      |
+|---------|------------------------|-----------|---------------------------------------------|-------------|
+| Revelar | products/revelar/app/  | Streamlit | products/revelar/app/chat.py (ou dashboard) | 8501-8503   |
+| Ensaio  | products/ensaio/app/   | Reflex    | products/ensaio/ (reflex run a partir daí) | 3000, 8000  |
+
+Se a branch mexe em mais de um produto, perguntar ao dev qual subir primeiro.
+Se a branch só mexe em `core/` ou `docs/`, não há app para subir — pular §3.
 
 ---
 
@@ -40,75 +57,94 @@ git pull origin <branch>
 ```
 Se `requirements.txt` ou `requirements-test.txt` mudaram vs `origin/main`:
 ```bash
-source venv/bin/activate
+source .venv/bin/activate              # Linux/Mac
+# .\.venv\Scripts\Activate.ps1         # Windows
 pip install -r requirements.txt
 ```
 
 ### 2. Montar o resumo "o que mudou + o que observar"
 
-**Modo A:** abrir `docs/process/current_implementation.md` e extrair:
+Abrir `docs/process/current_implementation.md` e extrair:
 - Milestone e épicos entregues (cabeçalho + blocos `### Épico`)
 - Arquivos modificados (seção "Resumo Final do Milestone")
 - Critérios de aceite por épico (células PO ✅ nas tabelas de gates)
 
-**Modo B:** localizar o épico/funcionalidade no ROADMAP correto e extrair:
-- Título + objetivo
-- Bloco "Critérios de Aceite" da(s) funcionalidade(s) implementada(s)
+Abrir `docs/process/current_validation.md` e extrair:
+- Roteiros por funcionalidade (Critério/Gatilho/Resultado/Falha) — esses são os pontos de observação literal pro dev.
 
-Complementar com `git diff --stat origin/main` pra listar áreas tocadas.
+Complementar com `git diff --stat origin/main` para listar áreas tocadas.
 
-Em ambos os modos, filtrar os critérios em dois grupos:
+Filtrar os critérios em dois grupos:
 - **Observável no uso da app** (ex: "ao clicar X aparece Y") → vai pro checklist do dev
-- **Não deve** (ex: "não trava, não perde histórico") → vai pro checklist do dev
+- **"Não deve"** (ex: "não trava, não perde histórico") → vai pro checklist do dev
 
 Critérios cobertos só por teste automatizado **não listar** — CI já cuida.
 
 ### 3. Subir a app afetada
 
-**Antes de qualquer coisa:** liberar as portas 8501–8503 matando apenas quem está escutando nelas (não mate python/streamlit em geral — pode ser Jupyter, outro projeto, outra branch):
+Antes de qualquer coisa, libere as portas da stack detectada (ver §"Stacks
+por produto" + §"Liberação de portas" abaixo). Não mate processos em geral —
+mate apenas quem está escutando nas portas-alvo.
+
+Detectar produto pelo diff (`git diff --name-only origin/main | grep products/`):
+- `products/<produto>/app/**` → subir a stack do produto
+- Se a branch mexeu em mais de um produto, perguntar ao dev qual subir primeiro
+- Se a branch não mexeu em nenhum produto: avisar e pular esta etapa.
+
+#### Liberação de portas
+
+**Antes de qualquer coisa:** liberar as portas da stack detectada matando
+apenas quem está escutando nelas.
+
+Para Streamlit (Revelar): portas 8501-8503.
+Para Reflex (Ensaio): portas 3000 (frontend) e 8000 (backend).
 
 ```powershell
-# Windows (PowerShell) — cirúrgico por porta
-foreach ($port in 8501..8503) {
+# Windows (PowerShell) — cirúrgico por porta. Adapte $ports à stack detectada.
+$ports = @(8501, 8502, 8503)         # Streamlit (Revelar)
+# $ports = @(3000, 8000)             # Reflex (Ensaio)
+foreach ($port in $ports) {
     Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
         ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
 }
 ```
 
 ```bash
-# Linux/Mac — filtra pelo chat.py do projeto
-pkill -f "streamlit.*products/.*/app/chat.py" 2>/dev/null || true
+# Linux/Mac — filtra pelo entrypoint do projeto
+pkill -f "streamlit.*products/revelar/app/" 2>/dev/null || true   # Revelar
+pkill -f "reflex.*products/ensaio" 2>/dev/null || true            # Ensaio
 ```
 
-Detectar produto pelo diff (`git diff --name-only origin/main | grep products/`):
-- `products/revelar/app/**` → `streamlit run products/revelar/app/chat.py`
-- `products/ensaio/app/**` → `streamlit run products/ensaio/app/chat.py`
-- Outro produto → procurar `products/<nome>/app/chat.py`; se não existir, perguntar ao dev
+#### Subir
 
-Comando padrão:
+**Streamlit (Revelar):**
+
 ```bash
-python -m streamlit run <path> --server.headless true --server.port 8501
+python -m streamlit run <entrypoint>     # ex: products/revelar/app/chat.py
 ```
+
+**Reflex (Ensaio):**
+
+```bash
+cd products/ensaio
+reflex run                               # backend :8000, frontend :3000
+```
+
 Subir em **foreground** e deixar rodando — o dev vai abrir no navegador.
 Se o log mostrar traceback no start → parar, reportar o erro, não tentar consertar.
-
-Se a branch mexeu em mais de um produto, perguntar ao dev qual subir primeiro.
-
-Se a branch não mexeu em nenhum produto (só `core/` ou `docs/`):
-avisar o dev que não há app pra subir e pular esta etapa.
 
 ---
 
 ## Output fixo
 
 ```
-Branch: <nome>  |  Modo: <A (autônomo) | B (avulso - <épico>)>
+Branch: <nome>  |  Milestone: <ID>
 
 O que mudou
-  • <bullet extraído do current_implementation.md ou resumo do diff>
+  • <bullet extraído do current_implementation.md>
   • ...
 
-Pra você observar na app (do ROADMAP / PO)
+Pra você observar na app (do current_validation.md)
   [ ] <critério observável 1>
   [ ] <critério observável 2>
   [ ] <comportamento "não deve" 1>
@@ -120,68 +156,16 @@ App rodando em: http://localhost:<porta>  (ou: sem app afetada)
 
 ---
 
-## Operação Windows / macOS / Linux
+## Quando o dev disser "deu erro"
 
-Regras que evitam retrabalho quando a validação roda fora de Linux:
-
-- **.venv:** o projeto usa `.venv/` (com ponto) como diretório de ambiente virtual. Ativar com:
-  - Linux/Mac: `source .venv/bin/activate`
-  - Windows: `.\.venv\Scripts\Activate.ps1`
-  
-  Se `venv/` (sem ponto) existir, é obsoleto — use `.venv` de preferência.
-  
-- **Streamlit:** prefira `python -m streamlit run <path>` em vez de
-  `streamlit run <path>`. O primeiro garante que está usando o binário do
-  venv ativo (especialmente no Windows, onde `streamlit.exe` pode estar
-  no PATH errado). Se a porta 8501 estiver ocupada, **não troque
-  silenciosamente** — avise o dev e pergunte qual porta usar.
-- **Foreground:** sempre em foreground, sem `--server.headless true` salvo
-  pedido explícito do dev. Se o log no start mostrar traceback, **pare e
-  reporte o traceback**. Não tente consertar.
-
----
-
-## Quando o dev disser "deu erro" ou "travou"
-
-1. Primeiro passo **obrigatório:** coletar o log do terminal do Streamlit
-   (últimas 50 linhas). Não especular sobre UX sem traceback.
-2. Identificar a causa raiz no traceback antes de propor qualquer
-   mudança de código.
-3. Erros típicos e orientação:
-   - `404 Not Found` ou `model_not_found` no cliente Anthropic: o modelo
-     configurado foi descontinuado. Oriente o dev a trocar `LLM_MODEL` no
-     `.env` e reiniciar o Streamlit. Não edite código.
-   - `CircuitBreakerOpenError`: erros consecutivos abriram o circuit
-     breaker. Reiniciar o processo zera o breaker — peça ao dev.
-   - `ModuleNotFoundError: streamlit`: venv errado ou não ativado. Rode
-     `python -m pip install -r requirements.txt` no venv que está usando.
-   - `ValueError: Model 'X' not supported` vindo do cost tracker: bug já
-     corrigido (hoje o tracker só loga warning e retorna 0). Se aparecer,
-     é sinal de branch desatualizada — oriente rebase.
-
----
-
-## Checklist mínimo de POC do Ensaio (Modo B, épico POC-ENSAIO)
-
-Quando subir o Ensaio para validação manual:
-
-- [ ] App abre sem traceback (chat à esquerda, painel à direita).
-- [ ] Enviar uma mensagem curta no chat → sistema responde (Orquestrador).
-- [ ] Colar um bloco de código em fences markdown → formatação preservada no histórico.
-- [ ] Clicar "Gerar artigo" → markdown aparece no painel direito.
-- [ ] Pedir refinamento ("deixa mais conciso") e clicar "Regenerar" → artigo muda.
-- [ ] Recarregar a página (F5) → tudo zera, nenhuma tentativa de restaurar sessão.
-- [ ] **Não deve ocorrer:** mensagem do usuário sumir do histórico em caso de erro
-      de backend — hoje o erro vira bubble do assistente e a mensagem permanece.
-
-Se algo do checklist falhar, reportar o traceback/observação e parar — não editar.
+1. Coletar o log do terminal (últimas 50 linhas) antes de qualquer coisa. Não especular sobre UX sem traceback.
+2. Identificar a causa raiz no traceback antes de propor mudança.
+3. Erros típicos de ambiente (modelo descontinuado, venv errado, deps faltando) → orientar o dev a ajustar `.env` ou venv. **Não edite código.**
 
 ---
 
 ## Referências
 
 - Fluxo autônomo: `docs/process/autonomous/workflow.md`
-- Quem cria `current_implementation.md`: Scrum Master Skill (início) →
-  atualizada por cada gate → finalizada pela RTE Skill
-- ROADMAPs: `docs/ROADMAP.md` (core) e `products/<produto>/ROADMAP.md`
-- POC-ENSAIO: `products/ensaio/docs/poc_validation.md`
+- Quem cria os `current_*.md`: Scrum Master (início) → gates atualizam → RTE finaliza
+- ROADMAPs: `docs/ROADMAP.md` (core), `docs/process/workflow/ROADMAP.md`, `products/<produto>/ROADMAP.md`

@@ -1,7 +1,8 @@
 # Autonomous Dispatch
 
 > **📌 Uso:** dispare o fluxo autônomo em [claude.ai/code](https://claude.ai/code) sobre o repositório `paper-agent` com uma frase em linguagem natural que identifique o **milestone** alvo.
-> **📌 Pré-requisito:** o milestone alvo existe no ROADMAP do produto (seção `## 🎯 Milestones`). Épicos em `🌱 Visão`, `🧭 Jornada alinhada` ou `📐 Funcionalidades esboçadas` são refinados pela PM skill dentro da branch; épicos em `🔍 Detalhes definidos` seguem direto.
+> **📌 Pré-requisito:** o milestone alvo existe no ROADMAP do produto (seção `## 🎯 Milestones`). Épicos em estados pré-`🔍` (`🌱`/`🧭`/`📐`/`📋` — ver [planning_guidelines.md §Estados de Épico](../refinement/planning_guidelines.md#estados-de-épico)) são refinados pela PM skill dentro da branch; épicos em `🔍 Detalhes definidos` seguem direto.
+> **📌 Escopo do disparo:** a frase de dispatch autoriza o ciclo **inteiro** PM (cond) → EM → SM → Dev → QA → TL → PO → **RTE (abre PR)**. Não é preciso confirmar a abertura da PR caso a caso — é o estado terminal do fluxo. Merge segue proibido sem revisão humana. Detalhes em [`CLAUDE.md`](../../../CLAUDE.md) e [`workflow.md`](workflow.md).
 > **📌 Documentação completa:** `docs/process/autonomous/`
 
 ---
@@ -28,9 +29,9 @@ Ao receber a frase de dispatch, seguir este parser:
 
 Procurar, em ordem de prioridade:
 
-1. **Id literal** no formato `<ESTAGIO>-<PRODUTO>[-SUFIXO]` em caixa alta (ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`, `POC-ENSAIO-ALPHA`). Se encontrado, é o milestone alvo.
-2. **Combinação estágio + produto** em prosa (ex.: "POC do Ensaio", "MVP do Revelar", "Protótipo do Ensaio"). Mapear:
-   - "POC" → `POC`; "Protótipo"/"proto" → `PROTO`; "MVP" → `MVP`
+1. **Id literal** no formato `<ESTAGIO>-<PRODUTO>[-SUFIXO]` em caixa alta (ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `PILOT-WORKFLOW`, `MVP-ENSAIO`, `POC-ENSAIO-ALPHA`). Se encontrado, é o milestone alvo.
+2. **Combinação estágio + produto** em prosa (ex.: "POC do Ensaio", "MVP do Revelar", "Piloto do Workflow", "Protótipo do Ensaio"). Mapear:
+   - "POC" → `POC`; "Protótipo"/"proto" → `PROTO`; "Piloto"/"pilot" → `PILOT`; "MVP" → `MVP`
    - Produto pelo nome em caixa baixa do diretório em `products/` (ex.: "Ensaio" → `ENSAIO`, "Revelar" → `REVELAR`)
    - Resultado: `<ESTAGIO>-<PRODUTO>` (ex.: `POC-ENSAIO`). Se o ROADMAP do produto tiver sufixos (`-ALPHA`, `-BETA`), perguntar qual, salvo se a frase identificar explicitamente.
 
@@ -43,7 +44,7 @@ Buscar em `products/<produto>/ROADMAP.md` → seção `## 🎯 Milestones` → s
 Extrair do bloco do milestone:
 - **Objetivo:** (texto literal)
 - **Épicos agrupados:** lista de ids (ex.: `E-POC-1, E-POC-2, E-POC-3`)
-- **Estágio:** POC / Protótipo / MVP
+- **Estágio:** POC / Protótipo / Piloto / MVP
 - **Branch associada:** `milestone/<id-em-caixa-baixa>`
 - **Status dos épicos:** resumo textual
 
@@ -52,7 +53,7 @@ Extrair do bloco do milestone:
 Com base nos épicos agrupados:
 
 - Todos em `🔍 Detalhes definidos` → **PM skill é pulada**; fluxo começa em EM.
-- Algum em `🌱 Visão`, `🧭 Jornada alinhada` ou `📐 Funcionalidades esboçadas` → **PM skill é obrigatória** antes de EM (refinamento tático dentro da branch).
+- Algum em estado pré-`📋` (`🌱`/`🧭`/`📐`) → **PM skill é obrigatória** antes de EM (refinamento tático dentro da branch).
 - Algum em `📋 Critérios definidos` → PM skill também é obrigatória (leva de `📋` a `🔍`).
 - Épico em `🏗️ Em andamento` ou `✅ Implementado` no meio do milestone → **abortar**, pedir ao dev confirmação (pode indicar milestone mal-sinalizado ou retomada de trabalho).
 
@@ -95,7 +96,7 @@ Protocolo detalhado em `skills/README.md`.
 - **Refinamento estratégico não acontece aqui.** Visão → milestones/épicos em `🌱`/`🧭`/`📐` é processo separado (refinador autônomo ou sessão estratégica), não parte do fluxo de implementação. Se o milestone alvo não existir no ROADMAP, abortar.
 - **Refinamento tático acontece dentro da branch.** PM skill leva épicos `🌱`/`🧭`/`📐`/`📋` a `🔍` antes da EM rodar o sizing.
 - **Sem novas decisões arquiteturais.** Se o fluxo topar decisão em aberto não coberta por refinamento, abortar e devolver.
-- **Sem PR automático.** A RTE prepara a branch e comandos; o PR é criação humana.
+- **PR aberta pela RTE, mergeada por humano.** A RTE abre a PR via `mcp__github__create_pull_request` com a Seção 🎯 Validação no body (W-PROTO-5). Aprovação e merge seguem humanos — RTE nunca mergeia.
 - **Escalação:** 3 reprovações consecutivas no mesmo gate do mesmo épico abortam o milestone inteiro e notificam o dev (sem agregar entre épicos distintos).
 - **Notificação única no fim.** Gates intermediários são silenciosos; a RTE consolida tudo em uma mensagem só quando o último épico fecha.
 

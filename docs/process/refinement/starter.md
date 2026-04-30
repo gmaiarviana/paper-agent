@@ -16,7 +16,7 @@ O Claude Web não tem acesso ao repositório. Esse pack dá a ele o mínimo nece
 ### Específicos do produto em refinamento — 2 arquivos
 
 5. **`products/<produto>/ROADMAP.md`** — Épicos do produto.
-6. **`products/<produto>/docs/vision.md`** — Visão do produto (o "por quê", escopo POC / Protótipo / MVP, casos de uso). **Inclui obrigatoriamente seção `## Glossário`** distinguindo termos de **persona** (público-alvo, ex.: "pesquisador") de termos de **jornada** (operação do produto, ex.: "usuário"). Ambos podem coexistir referindo-se à mesma pessoa em contextos diferentes; o glossário deixa essa distinção explícita e evita o erro recorrente de tratar persona e jornada como sinônimos. O glossário é parte do contexto consumido por refinamento estratégico e tático — refinamento não inventa terminologia ausente do glossário; quando inventa, propõe entrada nova explicitamente.
+6. **`products/<produto>/docs/vision.md`** — Visão do produto (o "por quê", escopo POC / Protótipo / Piloto / MVP, casos de uso). **Inclui obrigatoriamente seção `## Glossário`** distinguindo termos de **persona** (público-alvo, ex.: "pesquisador") de termos de **jornada** (operação do produto, ex.: "usuário"). Ambos podem coexistir referindo-se à mesma pessoa em contextos diferentes; o glossário deixa essa distinção explícita e evita o erro recorrente de tratar persona e jornada como sinônimos. O glossário é parte do contexto consumido por refinamento estratégico e tático — refinamento não inventa terminologia ausente do glossário; quando inventa, propõe entrada nova explicitamente.
 
 ### Produtos hoje
 
@@ -31,12 +31,12 @@ O Claude Web não tem acesso ao repositório. Esse pack dá a ele o mínimo nece
 
 ## 🎯 Alvos de Refinamento
 
-Toda sessão de refinamento começa com um **alvo declarado** — o estado ao qual o épico (ou conjunto de épicos) deve chegar ao fim da sessão. Sessões se dividem em dois tipos conforme o alvo:
+Toda sessão de refinamento opera com um **alvo definido** — o estado ao qual o épico (ou conjunto de épicos) deve chegar ao fim da sessão. O alvo pode ser declarado pelo usuário ao abrir a sessão **ou** inferido pelo agente a partir da camada que ainda não está clara e confirmado conversacionalmente antes do primeiro edit (ver regra (b) em [`planning_guidelines.md`](planning_guidelines.md)). Sessões se dividem em dois tipos conforme o alvo:
 
 - **Refinamento em massa** — alvo `🌱 Visão` ou `📐 Funcionalidades esboçadas`, aplicado a múltiplos épicos de uma vez. Produz várias entradas no ROADMAP a partir de uma visão.
 - **Refinamento profundo** — alvo `📋 Critérios definidos` ou `🔍 Detalhes definidos`, aplicado a um épico específico que se aproxima da implementação.
 
-O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. O alvo `🔍 Detalhes definidos` exige contexto adicional — inspeção de código relevante + checklist específico. O modelo completo dos sete estados de um épico vive em [`planning_guidelines.md`](planning_guidelines.md).
+O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. O alvo `🔍 Detalhes definidos` exige contexto adicional — inspeção de código relevante + checklist específico. O modelo completo dos oito estados de um épico vive em [`planning_guidelines.md` §Estados de Épico](planning_guidelines.md#estados-de-épico).
 
 ### Alvo `🌱 Visão` (refinamento em massa — nível título)
 
@@ -65,15 +65,15 @@ O pack inicial acima é suficiente para alvos até `📋 Critérios definidos`. 
 - **Produto:** funcionalidades delimitadas, critérios de aceite observáveis, trade-offs discutidos.
 - **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos.
 - **Quando acontece:** quando o épico se torna prioritário.
-- **Estado resultante do épico:** `📋 Critérios definidos` — apto ao fluxo manual.
+- **Estado resultante do épico:** `📋 Critérios definidos` — passo intermediário até `🔍`; ainda não habilita execução.
 
 ### Alvo `🔍 Detalhes definidos` (refinamento profundo — detalhes)
 
 - **Pergunta:** um agente sem contexto do problema consegue executar isto sem inventar?
 - **Produto:** arquivos-alvo com caminho completo, contratos/shapes, mecanismo de integração, acoplamentos verificados, escopo de testes.
-- **Contexto enviado ao Claude Web:** pack inicial de 6 arquivos + **inspeção de código relevante** (via Cursor, ou como trechos específicos pedidos ao Claude Web) + checklist em [`autonomous_readiness.md`](autonomous_readiness.md). A inspeção de código é parte obrigatória deste alvo, não opcional.
-- **Quando acontece:** sob demanda, pouco antes de disparar o fluxo autônomo para o épico específico. Aplicar preventivamente em todos os épicos é desperdício — o trabalho perde-se se o épico for repriorizado.
-- **Estado resultante do épico:** `🔍 Detalhes definidos` — apto ao fluxo autônomo ([`dispatch.md`](../autonomous/dispatch.md)).
+- **Contexto:** pack inicial de 6 arquivos + **inspeção de código relevante** + checklist em [`autonomous_readiness.md`](autonomous_readiness.md). A inspeção de código é parte obrigatória deste alvo, não opcional. No caminho principal (Claude Code Web na branch do repo), a inspeção é direta; no caminho secundário (Claude Web em sessão externa), o operador supre os trechos relevantes.
+- **Quando acontece:** sob demanda, pouco antes de disparar o fluxo único de execução para o épico específico. Aplicar preventivamente em todos os épicos é desperdício — o trabalho perde-se se o épico for repriorizado.
+- **Estado resultante do épico:** `🔍 Detalhes definidos` — apto ao fluxo único de execução ([`dispatch.md`](../autonomous/dispatch.md)).
 
 > Atalho permitido: uma única sessão pode ir direto de `🌱 Visão` para `📋` ou `🔍`, desde que o alvo declarado seja esse e o contexto correspondente seja enviado.
 
@@ -85,8 +85,3 @@ Tudo que não está no pack inicial está mapeado em `docs/CONTEXT_INDEX.md` —
 
 - **`README.md`** — Útil para setup humano, não para refinamento estratégico.
 - **Docs de arquitetura/agentes** — Pedir sob demanda via `CONTEXT_INDEX.md` (senão explode o contexto inicial).
-
----
-
-**Versão:** 2.0
-**Substitui:** Listas inconsistentes em CONSTITUTION §7, planning_guidelines, CONTEXT_INDEX.

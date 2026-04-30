@@ -17,6 +17,34 @@ model_list:
         - thinking
         - anthropic_beta
 
+  # Aliases explicitos para clientes que mandam model_name = "ollama/<modelo>"
+  # direto (Paper Agent via LLM_MODEL, probes Anthropic SDK). Sem alias, o
+  # LiteLLM dropa o prefixo "ollama/" no payload outbound e o OpenWebUI
+  # devolve 400 "Model not found" (validado em 2026-04-28).
+  - model_name: "ollama/ministral-3:14b"
+    litellm_params:
+      model: "openai/ollama/ministral-3:14b"
+      api_base: os.environ/OPENWEBUI_BASE_URL
+      api_key: os.environ/OPENWEBUI_API_KEY
+      drop_params: true
+      additional_drop_params:
+        - context_management
+        - cache_control
+        - thinking
+        - anthropic_beta
+
+  - model_name: "ollama/llama3.2:3b"
+    litellm_params:
+      model: "openai/ollama/llama3.2:3b"
+      api_base: os.environ/OPENWEBUI_BASE_URL
+      api_key: os.environ/OPENWEBUI_API_KEY
+      drop_params: true
+      additional_drop_params:
+        - context_management
+        - cache_control
+        - thinking
+        - anthropic_beta
+
 litellm_settings:
   drop_params: true
   request_timeout: 300

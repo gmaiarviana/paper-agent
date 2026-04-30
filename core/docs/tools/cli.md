@@ -11,7 +11,7 @@ CLI (chat.py)
 - Funcionalidade congelada (novas features vão para interface web)
 - Backend compartilhado com interface web (LangGraph + EventBus)
 - Útil para CI/CD, validação rápida de prompts, automação
-- Comunicação via stdin/stdout para compatibilidade com Claude Code e Cursor background
+- Comunicação via stdin/stdout para compatibilidade com agentes (Claude Code Web)
 - Funcionalidade básica:
   - Loop contínuo até `exit`/`quit`
   - Logs dos componentes com ícones/cores (via `rich` ou similar)

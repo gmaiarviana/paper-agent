@@ -16,7 +16,7 @@
 
 **Específicos do produto em refinamento (2):**
 - `products/<produto>/ROADMAP.md` - Épicos do produto (Revelar, Ensaio, Prisma Verbal, ...)
-- `products/<produto>/docs/vision.md` - Visão do produto (o "por quê" e escopo POC/Protótipo/MVP)
+- `products/<produto>/docs/vision.md` - Visão do produto (o "por quê" e escopo POC/Protótipo/Piloto/MVP)
 
 **Total obrigatório:** 6 arquivos.
 
@@ -204,20 +204,20 @@ Cada produto tem seu próprio app. O padrão é: `products/<produto>/app/` para 
 
 **Documentação:**
 - `docs/process/refinement/` - Processo de refinement com Claude Web
-  - `planning_guidelines.md` - Processo completo (inclui os sete estados: 🌱 Visão / 🧭 Jornada alinhada / 📐 Funcionalidades esboçadas / 📋 Critérios definidos / 🔍 Detalhes definidos / 🏗️ Em andamento / ✅ Implementado) e o conceito de alvo de refinamento
+  - `planning_guidelines.md` - Processo completo (inclui [§Estados de Épico](../process/refinement/planning_guidelines.md#estados-de-épico) — definição canônica dos oito estados — e o conceito de alvo de refinamento)
   - `starter.md` - Pack inicial de contexto (6 arquivos) e alvos de refinamento típicos
   - `autonomous_readiness.md` - **Checklist de entrada para `🔍 Detalhes definidos`** (consumido sob demanda pouco antes do dispatch autônomo)
   - `epic_completion.md` - **Checklist de saída** (fechamento do épico antes de marcar `✅ Implementado`)
-- `docs/process/implementation/` - Processo de implementação manual via Cursor
-- `docs/process/autonomous/` - Fluxo autônomo via Claude Code Web
+- `docs/process/implementation/` - Processo de implementação via Claude Code Web (guidelines aplicáveis ao fluxo único de execução)
+- `docs/process/autonomous/` - Fluxo único de execução via Claude Code Web
   - `session_conventions.md` - **Convenções operacionais** (política de segredos/`.env` e granularidade de commits) aplicáveis a qualquer sessão autônoma
 
 **Solicitar quando:**
 - Refinar épico com alvo `📋 Critérios definidos` → `refinement/planning_guidelines.md` + `refinement/starter.md`
 - Refinar épico com alvo `🔍 Detalhes definidos` (prontidão para autônomo) → `refinement/autonomous_readiness.md`
 - Fechar épico implementado (extração + enxugamento) → `refinement/epic_completion.md`
-- Implementar código manualmente via Cursor → `implementation/`
-- Disparar fluxo autônomo (Claude Code Web) → `autonomous/`
+- Conhecer guidelines de implementação → `implementation/`
+- Disparar o fluxo único de execução (Claude Code Web) → `autonomous/`
 - Conhecer convenções operacionais do fluxo autônomo (segredos, commits) → `autonomous/session_conventions.md`
 - Validar qualidade → `implementation/quality_rules.md`
 

@@ -55,10 +55,10 @@ Ordem de execução e critério de "pronto" são observáveis.
 
 O que a visão do produto declara como central para o estágio alvo permanece intacto.
 
-- Itens declarados **centrais** na vision.md do produto para o estágio (POC/Protótipo/MVP) estão preservados ou avançados pelo épico — nunca cortados nem reduzidos.
+- Itens declarados **centrais** na vision.md do produto para o estágio (POC/Protótipo/Piloto/MVP) estão preservados ou avançados pelo épico — nunca cortados nem reduzidos.
 - Quando o refinamento propõe ajuste de algo central, o ajuste foi explicitamente autorizado pelo usuário (registrado no épico ou em comentário), não absorvido como detalhe.
 
-## Ajuste por Estágio (POC / Protótipo / MVP)
+## Ajuste por Estágio (POC / Protótipo / Piloto / MVP)
 
 O nível de detalhe exigido varia por estágio do produto. As três listas abaixo aplicam-se **sobre** as seis categorias acima: indicam quais itens são incondicionais e quais podem ser simplificados.
 
@@ -75,7 +75,7 @@ Estes itens são exigência mínima, mesmo em POC:
 - Dependências entre épicos e funcionalidades declaradas com ordem.
 - Centralidade da visão respeitada (itens centrais não foram cortados sem autorização explícita).
 
-### Aplicáveis a Protótipo e MVP
+### Aplicáveis a Protótipo, Piloto e MVP
 
 Estes itens ficam rígidos a partir do Protótipo:
 
@@ -98,7 +98,7 @@ Sob demanda, quando uma sessão de refinamento declara alvo `🔍 Detalhes defin
 
 ## Saída
 
-Épico marcado como `🔍 Detalhes definidos` no ROADMAP correspondente (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`). Esse estado é o pré-requisito para o dispatch autônomo (`docs/process/autonomous/dispatch.md`). Épicos em `📋 Critérios definidos` continuam elegíveis para o fluxo manual.
+Épico marcado como `🔍 Detalhes definidos` no ROADMAP correspondente (`docs/ROADMAP.md` ou `products/<produto>/ROADMAP.md`). Esse estado é o pré-requisito do dispatch (`docs/process/autonomous/dispatch.md`) — `📋 Critérios definidos` é passo intermediário e ainda não habilita execução.
 
 ## Referências
 

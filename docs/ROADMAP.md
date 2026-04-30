@@ -19,6 +19,8 @@
 | Épico Core | Status | Milestone consumidor | Produto |
 |------------|--------|----------------------|---------|
 | ÉPICO 1 (Pesquisador) | 🌱 Visão | — (não vinculado) | — |
+| ÉPICO 2 (Camada Compartilhada de Invocação de LLM) | 🌱 Visão | — (higiene técnica, não vinculado a produto) | — |
+| ÉPICO 3 (Backend de Modelo Local nos Produtos/Core — OpenWebUI) | 🌱 Visão | — (não vinculado) | — |
 | C-ENSAIO-1 (Parametrização de Contexto) | 🌱 Visão | POC-ENSAIO | Ensaio |
 | C-ENSAIO-2 (Writer versão inicial) | ✅ Implementado | POC-ENSAIO | Ensaio |
 | C-ENSAIO-3 (Writer por seção) | ✅ Implementado | PROTO-ENSAIO | Ensaio |
@@ -48,6 +50,69 @@
 **Próximos Passos:**
 - Discutir comportamento e interface antes do refinamento
 - Definir integração com Observer e catálogo de conceitos
+
+---
+
+#### ÉPICO 2: Camada Compartilhada de Invocação de LLM
+
+**Objetivo:** Eliminar a duplicação do boilerplate de chamada a LLM espalhado pelos agentes do core. Hoje cada agente reimplementa `_get_llm` + `extract_json_from_llm_response` + `register_execution` + try/except (~13 cópias), bypassa a abstração de provider importando `ChatAnthropic` direto, e mascara erros com `except Exception:` genéricos. Consolidar numa única camada (`core/utils/llm_runner.py`) que encapsule provider selection, retry, parsing JSON, validação Pydantic e tracking de execução — tornando troca de modelo, mudança de provider e mudança de instrumentação um fix em um lugar só.
+
+**Status:** 🌱 Visão
+
+**Origem:** auditoria técnica em `claude/scan-core-technical-debt-zNlv2` (2026-04-28), recomendação prioritária. Detalhes técnicos e itens relacionados em [docs/backlog.md §G1](backlog.md#g1-higienização-da-camada-de-llm-core).
+
+**Escopo provisório (a refinar):**
+- Função `run_agent(agent_name, prompt, schema, config) -> (parsed, raw)` consumida por todos os nós que chamam LLM hoje.
+- Restaurar `_detect_provider` como ponto único de seleção de cliente (parar de importar `ChatAnthropic` direto nos agentes).
+- Hooks padronizados de logging/tracking que tornem `G1.2` (consolidação de logging) e `G1.3` (defaults YAML) cabíveis no mesmo épico ou em sequência imediata.
+
+**Dependências:** nenhuma (refator interno do core).
+
+**Sinergia com ÉPICO 3:** a abstração de provider definida aqui é o ponto natural pra adicionar OpenWebUI/Ollama como provider alternativo. Refinar este épico antes do ÉPICO 3 reduz custo do segundo (ÉPICO 3 vira "adicionar provider novo" em vez de "abstrair + adicionar").
+
+**Próximos Passos:**
+- Sessão de refinamento para definir contrato exato de `run_agent`, estratégia de migração agente-a-agente e critério de "feito".
+- Decidir se G1.2 (logging) e G1.3 (YAML defaults) entram no mesmo épico ou ficam em épicos separados subsequentes.
+
+---
+
+#### ÉPICO 3: Backend de Modelo Local nos Produtos/Core (OpenWebUI / Ollama)
+
+**Escopo:** este épico é sobre o **runtime dos produtos e agentes do core do Paper Agent** — Writer, Estruturador, Metodologista e os apps Ensaio/Revelar passarem a chamar modelos locais servidos pelo OpenWebUI da Atlântico (`chat.alia.atlantico.com.br/api`) em vez da API Anthropic direta. **Não cobre** o uso do Claude Code CLI contra OpenWebUI — esse caminho é tooling de desenvolvimento e está tratado em [`docs/process/workflow/ROADMAP.md`](process/workflow/ROADMAP.md).
+
+**Objetivo:** trocar o provedor de modelo dos agentes/produtos sem regressão funcional. Convivência com o backend Anthropic continua sendo requisito (CI, fallback, ambientes sem infra local).
+
+**Status:** 🌱 Visão
+
+**Dependência preferencial:** ÉPICO 2 (Camada Compartilhada de Invocação de LLM). Se a camada compartilhada já existir, este épico vira "adicionar provider OpenWebUI à camada"; se não, este épico carrega o custo da abstração junto.
+
+**Motivação:**
+- Soberania de modelo: produtos rodando contra infra Atlântico, sem chave Anthropic individual por dev.
+- Tentativa anterior em `products/ensaio/` (2026-04-28) chegou a apontar `ANTHROPIC_BASE_URL` pro proxy LiteLLM local — abriu app mas as chamadas falharam, sem decisão arquitetural firme. Esta entrada captura o que já se sabe pra próxima tentativa não tropeçar igual.
+
+**Certezas:**
+- Env vars `OPENWEBUI_API_KEY` e `OPENWEBUI_BASE_URL` já existem.
+- Modelos disponíveis hoje no backend: `ollama/ministral-3:14b` e `ollama/llama3.2:3b`. Modelos maiores (30B+) ainda não confirmados — vale checar com a Atlântico.
+- Params Anthropic-only (`context_management`, `cache_control`, `thinking`, `anthropic_beta`) precisam ser dropados quando o backend é OpenAI-compatible.
+- Tool calling em `ollama/ministral-3:14b` funciona — validado em formato OpenAI cru e via proxy LiteLLM em formato Anthropic (debug ponta-a-ponta, 2026-04-28).
+- `validate_writer` rodou com `LLM_MODEL=ollama/llama3.2:3b` via proxy gerando artigo IMRaD coerente — prova empírica de que o caminho "Anthropic SDK + proxy + Ollama" é viável sem refator dos agentes (commit `14bf827` no `litellm-config.yaml` adicionou os aliases necessários).
+
+**Decisão arquitetural a tomar no refinamento — proxy LiteLLM vs. cliente OpenAI direto:**
+- *Cliente OpenAI direto:* sem processo extra rodando, sem hops de tradução, sem versão de LiteLLM pinada, controle total sobre payloads. Custo: refator de `core/` pra abstrair provider (resolvido pelo ÉPICO 2 se ele preceder).
+- *Proxy LiteLLM:* zero refator nos agentes (`ChatAnthropic` continua funcionando), troca de provider sem mexer em `core/`, observabilidade centralizada. Custo: dependência runtime do proxy, manutenção de aliases no yaml.
+
+**Lacunas que ainda exigem medição:**
+- Qualidade dos modelos locais nos agentes específicos (Writer, Estruturador, Metodologista) — testado apenas no Writer até aqui.
+- Perda de features Anthropic-only dropadas (`cache_control`, `thinking`) na qualidade percebida.
+- Comportamento de `core/utils/cost_tracker.py` com nomes de modelo não-Anthropic.
+- Piso de qualidade por agente: quais aceitam Ollama local sem regressão e quais ainda exigem Sonnet/Opus.
+
+**Não autorizado neste épico:**
+- Remover suporte ao backend Anthropic direto.
+
+**Próximos Passos:**
+- Sessão de refinamento para escolher caminho técnico (idealmente após o ÉPICO 2).
+- Smoke tests por agente contra cada modelo disponível, registrando onde tool calling/JSON mode regride.
 
 ---
 

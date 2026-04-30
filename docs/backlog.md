@@ -384,6 +384,62 @@ Quando o super-sistema tiver 2-3 produtos com grafos próprios (Ensaio + Produto
 
 ---
 
+## 🛠️ Débito Técnico — Auditoria 2026-04-28
+
+> **Origem:** varredura de `core/` e `products/ensaio/` em `claude/scan-core-technical-debt-zNlv2`. Itens curtos sem decisão já foram resolvidos no próprio branch (commits `979122f`..`12e9d75`). Os itens abaixo foram dimensionados mas não executados — exigem refator maior, decisão arquitetural ou janela de produto.
+>
+> **Análise anterior:** ver `docs/analysis/debitos_tecnicos.md` (2025-01) para registro histórico.
+>
+> **Tamanhos:** S = 1 PR pequeno (≤ 1 dia), M = 2-5 dias, L = épico (≥ 1 semana, exige refinamento).
+
+---
+
+### G1. Higienização da camada de LLM (core)
+
+**Contexto:** o boilerplate de invocar LLM (`_get_llm` + `extract_json` + `register_execution` + try/except) está copiado ~13 vezes; a abstração de provider está bypassada (todos importam `ChatAnthropic` direto); três sistemas de logging convivem sem hierarquia. Pagar essa dívida desbloqueia trocar de modelo num lugar só, restaura provider abstraction e simplifica futuras integrações.
+
+**Promovido a 🌱 Épico em `docs/ROADMAP.md` (ÉPICO 2)** — exige refinamento antes de implementar.
+
+- **G1.1 — `core/utils/llm_runner.py`** [L, prioridade alta] — extrair `run_agent(agent_name, prompt, schema, config) -> (parsed, raw)` que encapsule provider selection, retry, parsing JSON, validação Pydantic e `register_execution`. Elimina ~13 cópias do boilerplate (`orchestrator/nodes.py:814`, `methodologist/nodes.py:105,289,453,474`, `structurer/nodes.py:281,481`, `observer/metrics.py:168,263,445`, `observer/clarification.py:197,304,399,600`, `persistence/snapshot_manager.py:172`).
+- **G1.2 — Consolidar logging/observabilidade** [M] — `core/utils/structured_logger.py` + `debug_analyzer.py` + `debug_reporter.py` + `event_bus/publishers.py` (527 ln) + `cost_tracker.py` se sobrepõem. Decidir: `structured_logger` é a camada base e os outros são consumidores? Documentar e consolidar duplicações.
+- **G1.3 — `core/config/agents/defaults.yaml` + override** [S] — `methodologist.yaml:63-74`, `structurer.yaml:61-72`, `observer.yaml:26-58`, `writer.yaml:42-53`, `orchestrator.yaml:24-37` repetem `context_limits` e `metadata`. Extrair defaults e deixar cada agente sobrescrever só o que difere.
+
+**Ordem sugerida:** G1.1 → G1.3 (independentes; G1.2 entra junto se o llm_runner expor hooks de log).
+
+---
+
+### G2. Fronteira produto ↔ core
+
+**Contexto:** o produto Ensaio reimplementa peças que vão ser necessárias no Produtor Científico (próximo produto) — sqlite checkpointer, mapeamento agent→label, lógica de mensagem/artigo. Pagar antes de PROTO-ENSAIO-2 evita amplificar a duplicação no próximo milestone.
+
+- **G2.1 — `core/agents/persistence/sqlite_checkpointer.py`** [S] — extrair factory parametrizada por nome de DB. Hoje duplicado em `products/ensaio/app/graph.py:35-89` ↔ `core/agents/multi_agent_graph.py:450-476`.
+- **G2.2 — `core/agents/labels.py`** [S] — mapeamento `agent → (emoji, label)` hoje em 3 cópias: `products/ensaio/app/state.py:24-30` (não-consumida), `products/ensaio/app/components/chat_panel.py:19-26`, `chat_panel.py:60-65`. Outros produtos vão precisar do mesmo.
+- **G2.3 — Mover lógica de domínio do `EnsaioState` para `core/agents/writer/`** [M] — `_deserialize_messages` e `_build_article_context` (`products/ensaio/app/state.py:41-61`) são utilitários puros sem nada de Reflex. A regra "aceitar `article_sections` só quando artigo está vazio" (`state.py:159-173`) também é domínio. Hoje a "UI burra" prometida na vision §7 está vazada.
+
+**Ordem sugerida:** G2.2 → G2.1 → G2.3 (do mais barato ao que mais paga juros).
+
+---
+
+### G3. Disciplina interna do core
+
+**Contexto:** itens que exigem decisão arquitetural própria. Não juntar em épico único — cada um pede RFC/ADR curto.
+
+- **G3.1 — Quebrar god functions** [M, incremental] — `core/agents/orchestrator/nodes.py` (1067 ln, `_build_context` ~100 ln), `core/agents/multi_agent_graph.py` (650 ln), `core/agents/observer/extractors.py` (860 ln). Refator gradual: cada vez que tocar o arquivo por outra razão, extrair 1-2 funções.
+- **G3.2 — Decidir local único de prompts** [S, exige decisão] — hoje `core/prompts/*.py` coexiste com `core/agents/observer/prompts.py` (555 ln) e `core/agents/observer/clarification_prompts.py` (322 ln) sem critério. Decisão: tudo em `core/prompts/<agente>.py`, ou tudo em `core/agents/<agente>/prompts.py`?
+- **G3.3 — Status de `writer`/`researcher`/`communicator`/`memory_agent`** [M, exige decisão] — `core/agents/writer/` existe mas não está cabeado em `multi_agent_graph.py`; `core/docs/agents/{researcher,communicator,memory_agent}/responsibilities.md` documentam agentes sem código. Decidir, por agente: implementar de fato, virar épico em `📐 Funcionalidades esboçadas` ou arquivar a doc.
+
+---
+
+### G4. Higiene do Ensaio (pós PROTO-ENSAIO-2)
+
+**Contexto:** qualidade interna do produto. Faz sentido **depois** de PROTO-ENSAIO-2, porque a UI vai mexer e G4.1 pode mudar de forma.
+
+- **G4.1 — Componentes UI genéricos** [M] — `products/ensaio/app/components/article_panel.py` e `chat_panel.py` referenciam `EnsaioState` direto (`article_panel.py:53,84,100`; `chat_panel.py:55,93,117`). Quando Produtor Científico chegar, terão de duplicar ou parametrizar. Esperar PROTO-ENSAIO-2 para ver a forma final.
+- **G4.2 — Cobertura de testes do `EnsaioState`** [M] — `tests/products/ensaio/unit/` tem 2 arquivos. Zero cobertura para `state.py` (329 ln, async crítico), `_invoke_graph`, `_invoke_writer_section`, componentes Reflex.
+- **G4.3 — `pyproject.toml` no Ensaio + remover `sys.path` hacks** [S] — `app/app.py:16-18` e `rxconfig.py:7-9` injetam raiz do projeto em runtime; `requirements.txt` tem 1 linha (`reflex==0.9.0`) e herda dependências da raiz. Migrar para instalação editável resolve ambos. Ver também `Estrutura de Projeto (src layout)` mais acima — pode subir no mesmo PR.
+
+---
+
 **Versão:** 1.0  
 **Data:** 2025-11-14
 

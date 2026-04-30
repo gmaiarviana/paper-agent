@@ -7,76 +7,58 @@ Princípios não-negociáveis para trabalhar com este projeto.
 ## 1. PRINCÍPIOS DE TRABALHO
 
 ### Unidade de Entrega
-- **Fluxo autônomo: milestone.** Um **milestone** agrupa épicos relacionados dentro de um estágio (POC, Protótipo, MVP). Um estágio pode ter 1 ou N milestones. Um milestone fecha quando todos os seus épicos caem na branch do milestone, validados pelos gates automáticos, e recebem aval humano.
-- **Fluxo manual via Cursor: funcionalidade/épico.** O fluxo manual segue operando no grão de funcionalidade dentro de épico, como ferramenta complementar ao autônomo.
+- **Milestone.** Um **milestone** agrupa épicos relacionados dentro de um estágio (POC, Protótipo, Piloto, MVP). Um estágio pode ter 1 ou N milestones. Um milestone fecha quando todos os seus épicos caem na branch do milestone, validados pelos gates automáticos, e recebem aval humano. É a unidade do fluxo único de execução (Claude Code Web autônomo).
 - Estágio, milestone, épico e funcionalidade são definidos no Glossário ao fim deste documento.
 
 ### Como Refinamos
-- POC → Protótipo → MVP (incremental)
+- POC → Protótipo → Piloto → MVP (incremental)
 - Discussão > especulação antecipada
-- Épicos percorrem até oito estados no ROADMAP: `🌱 Visão` → `🧭 Jornada alinhada` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `🔀 Em revisão` → `✅ Implementado`. Modelo completo em `docs/process/refinement/planning_guidelines.md`.
-- Toda sessão de refinamento começa com um **alvo declarado** (o estado ao qual o épico deve chegar). O refinador — Claude Web (estratégico) ou PM skill (tático, dentro da branch do milestone) — conduz as perguntas até atingir o alvo, sem parar em estados intermediários.
-- Alvo `📋 Critérios definidos` basta para o fluxo manual.
-- Alvo `🔍 Detalhes definidos` é pré-requisito do fluxo autônomo; guiado pelo checklist em `docs/process/refinement/autonomous_readiness.md`. Aplicado sob demanda, épico a épico — pelo Claude Web antes do milestone existir, ou pela PM skill dentro da branch do milestone quando o milestone é disparado com épicos ainda em `🌱` ou `📐`.
+- Épicos percorrem até **oito estados** no ROADMAP. Definição canônica (lista, descrição, gatilho, responsável) em [`docs/process/refinement/planning_guidelines.md` §Estados de Épico](process/refinement/planning_guidelines.md#estados-de-épico).
+- Toda sessão de refinamento opera com um **alvo definido** (o estado ao qual o épico deve chegar). O alvo pode ser declarado pelo usuário ao abrir a sessão ou inferido pelo refinador a partir da camada que ainda não está clara e confirmado antes do primeiro edit (não é gate de abertura). Uma vez definido, o refinador — sessão estratégica (caminho principal: Claude Code Web direto no repo; secundário: Claude Web em sessão externa) ou PM skill (tático, dentro da branch do milestone) — conduz as perguntas até atingir o alvo, sem parar em estados intermediários.
+- Alvo `🔍 Detalhes definidos` é pré-requisito do fluxo único de execução; guiado pelo checklist em `docs/process/refinement/autonomous_readiness.md`. Aplicado sob demanda, épico a épico — pela sessão estratégica antes do milestone existir, ou pela PM skill dentro da branch do milestone quando o milestone é disparado com épicos ainda em `🌱`/`📐`/`📋`.
+- `📋 Critérios definidos` é **passo intermediário** até `🔍`; não habilita execução por si só.
 - Fechamento do épico (extração de conhecimento permanente + poda do ROADMAP) segue `docs/process/refinement/epic_completion.md` antes de marcar como `✅ Implementado`.
 - Funcionalidades detalhadas aceleram implementação.
 
 ### Como Implementamos
-- Refinamento estratégico (visão → milestones → épicos) via Claude Web → docs atualizadas → fluxo manual via Cursor (grão de funcionalidade) OU fluxo autônomo via Claude Code Web (grão de milestone)
+- Refinamento estratégico (visão → milestones → épicos) — caminho principal via Claude Code Web direto no repo; caminho secundário via Claude Web em sessão externa quando há decisão de alto nível que exige alinhamento humano com contexto fora do repo
+- Implementação via fluxo único: Claude Code Web autônomo (grão de milestone) com gates Scrum Master/Dev/QA/TL/PO/RTE
 - Milestone disparado por linguagem natural ("implementa a POC do Ensaio") entra em branch própria `milestone/<id-em-caixa-baixa>`; main só recebe milestone com aval humano
 - TDD pragmático (lógica crítica sim, UI não)
 - Validação incremental obrigatória
 - Commits estratégicos (não obrigatórios)
+- **Sem gambiarra para postergar limpeza.** Nada está em produção; débito técnico se paga agora, não depois. Workaround para evitar atualizar consumidor (camada de compatibilidade gratuita, condicional permanente, código morto "por garantia", `TODO` sem dono) é débito e não entra. Padrão estabelecido do projeto não é gambiarra — o critério é "isto é workaround ou é o padrão do projeto?". Aplicação a breaking changes core ↔ produtos em `core/docs/vision/super_system.md` (seção "Política de Breaking Changes em Código Compartilhado").
 
 **Tipos de sessão:**
 - **Sessão de implementação** — autônoma; produz código e docs; encerra com PR criada pela RTE. Detalhes: `docs/process/autonomous/workflow.md`.
 - **Sessão de refinamento** — colaborativa (operador + agente); produz atualizações de ROADMAP; encerra com rito de encerramento de sessão (`docs/process/refinement/planning_guidelines.md`).
 
-### Fluxos Disponíveis
-Dois modos coexistem; o dev escolhe por funcionalidade. Cada modo exige um estado mínimo do épico no ROADMAP:
+### Requisitos de Refinamento
 
-- **Manual (Cursor):** estado mínimo `📋 Critérios definidos`. Dev acompanha cada checkpoint. Indicado para épicos novos, decisões arquiteturais ou trade-offs ainda em aberto durante a implementação. Fluxo descrito nas seções 2-7 deste documento.
-- **Autônomo (Claude Code Web):** estado mínimo `🔍 Detalhes definidos` (checklist de `autonomous_readiness.md` aplicado). Dev dispara pela manhã e valida à noite; skills automáticas (Scrum Master → Dev → QA → TL → PO → RTE) atuam como gates no lugar das aprovações explícitas. Indicado para funcionalidades com detalhes de execução fechados. Detalhes em `docs/process/autonomous/` e template em `docs/process/autonomous/dispatch.md`.
+O fluxo único de execução (Claude Code Web autônomo) exige **estado mínimo `🔍 Detalhes definidos`** no épico — checklist de `docs/process/refinement/autonomous_readiness.md` aplicado. Dev dispara pela manhã e valida à noite; skills automáticas (Scrum Master → Dev → QA → TL → PO → RTE) atuam como gates no lugar das aprovações explícitas. Detalhes em `docs/process/autonomous/` e template em `docs/process/autonomous/dispatch.md`.
 
-Épicos em `🌱 Visão` ou `📐 Funcionalidades esboçadas` passam por sessão de refinamento com alvo `📋` ou `🔍` antes de qualquer fluxo de execução.
-
-Princípios, responsabilidades e anti-padrões deste documento valem para os dois modos.
+`📋 Critérios definidos` é **passo intermediário** — não habilita execução por si só. Épicos em `🌱`, `📐` ou `📋` passam por sessão de refinamento com alvo `🔍` antes de qualquer dispatch (caminho principal: Claude Code Web na branch do repo; caminho secundário: Claude Web em sessão externa para decisões estruturais).
 
 ---
 
 ## 2. RESPONSABILIDADES
 
-### Claude Web (Consultor Estratégico)
-**Papel:** Refinar épicos, discutir comportamentos, gerar prompts.
+### Sessão Estratégica (Refinamento de Alto Nível)
+**Papel:** Refinar épicos, discutir comportamentos, materializar decisões no ROADMAP. Caminho principal: Claude Code Web direto na branch do repo. Caminho secundário: Claude Web em sessão externa, quando a decisão exige contexto humano fora do repo (operador conduzindo via chat web).
 
 **Deve:**
 - ✅ Ler contexto completo (4 arquivos da raiz)
 - ✅ Consultar docs adicionais via mapa (pull sob demanda)
 - ✅ Perguntar clarificações necessárias
 - ✅ Oferecer opções + recomendação (balizada por vision.md + guidelines)
-- ✅ Gerar múltiplos prompts (1 por arquivo a atualizar)
-- ✅ Manter padrões existentes nos prompts
+- ✅ Materializar decisões no ROADMAP / specs ao final da sessão (no caminho principal, edição direta; no caminho secundário, output legível para o operador aplicar)
 
 **Não deve:**
-- ❌ Atualizar documentações diretamente
-- ❌ Implementar código
+- ❌ Implementar código (refinamento ≠ execução)
 - ❌ Assumir preferências sem base em vision/guidelines
 
-### Cursor (Atualizador de Documentações)
-**Papel:** Aplicar prompts gerados pelo Claude web nas documentações.
-
-**Deve:**
-- ✅ Seguir prompts com liberdade de pensamento (ganhar tokens)
-- ✅ Manter formatação markdown existente
-- ✅ Preservar padrões de escrita
-- ✅ Não criar arquivos extras sem permissão
-
-**Não deve:**
-- ❌ Alterar estrutura sem instruções explícitas
-- ❌ Criar documentação extra (README, resumos, etc)
-
 ### Claude Code (Implementador)
-**Papel:** Implementar código baseado em documentações atualizadas e — no fluxo autônomo, dentro da branch do milestone — refinar épicos ainda pendentes via PM skill.
+**Papel:** Implementar código baseado em documentações atualizadas e — no fluxo único de execução, dentro da branch do milestone — refinar épicos ainda pendentes via PM skill.
 
 **Deve:**
 - ✅ Seguir docs/process/implementation/ (guidelines)
@@ -85,16 +67,16 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 - ✅ TDD onde aplicável
 - ✅ Validar incrementalmente
 - ✅ Atualizar docs se mudou estrutura
-- ✅ No fluxo autônomo, refinar épicos de um milestone que ainda estão em `🌱` ou `📐` **dentro da branch do milestone**, via PM skill, antes de entrar em implementação — nunca em main
+- ✅ No fluxo único de execução, refinar épicos de um milestone que ainda estão em `🌱`/`📐`/`📋` **dentro da branch do milestone**, via PM skill, antes de entrar em implementação — nunca em main
 
 **Não deve:**
-- ❌ Refinar visão ou quebrar visão em milestones (trabalho estratégico, feito via Claude Web antes de existir milestone)
+- ❌ Refinar visão ou quebrar visão em milestones (trabalho estratégico, feito em sessão dedicada antes de existir milestone)
 - ❌ Mergear em main sem aval humano explícito sobre o milestone
 - ❌ Tomar decisões arquiteturais sem base
 
-**Princípio de refinamento na reforma:**
-- Refinamento **estratégico** (visão → milestones, visão → épicos em `🌱`/`📐`) segue sendo feito via Claude Web, antes de qualquer milestone existir.
-- Refinamento **tático** (épico em `🌱` ou `📐` → `🔍 Detalhes definidos`) acontece dentro da branch do milestone, via PM skill, como parte do fluxo autônomo.
+**Princípio de refinamento:**
+- Refinamento **estratégico** (visão → milestones, visão → épicos em `🌱`/`📐`) é feito em sessão dedicada antes de qualquer milestone existir — caminho principal via Claude Code Web direto no repo; caminho secundário via Claude Web em sessão externa.
+- Refinamento **tático** (épico em `🌱`/`📐`/`📋` → `🔍 Detalhes definidos`) acontece dentro da branch do milestone, via PM skill, como parte do fluxo único de execução.
 - `main` só recebe milestone que passou por todos os gates automáticos e recebeu aval humano explícito.
 
 ---
@@ -105,7 +87,7 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 - Comportamento desejado OU problema existente
 - Contexto: épico novo, ajuste, discussão
 
-### Claude Web Deve:
+### Sessão Estratégica Deve:
 
 **1. Análise Contextual**
 - Consultar `products/<produto>/docs/vision.md` (expectativas do produto em refinamento)
@@ -124,38 +106,19 @@ Princípios, responsabilidades e anti-padrões deste documento valem para os doi
 - Recomendar baseado em vision.md + guidelines
 - Justificar recomendação
 
-**4. Gerar Prompts** (quando a entrada é para fluxo manual via Cursor)
-- Múltiplos prompts (1 por arquivo)
-- Ordem de execução clara
-- Instruções enxutas (Cursor pensa também)
-- Manter padrões existentes
+**4. Materialização no ROADMAP**
+- Registrar decisões diretamente no ROADMAP do produto, ARCHITECTURE.md e specs técnicas relevantes
+- Manter padrões existentes; commits incrementais
 
 **5. Validação**
-- Confirmar que prompts ou plano de milestones fazem sentido
+- Confirmar que as edições refletem o alinhamento
 - Verificar se nada foi esquecido
 
 ### Output Esperado
 
-O formato do output depende do alvo da sessão de refinamento. Os dois formatos abaixo são complementares — sessões estratégicas produzem o primeiro, sessões de preparação para o fluxo manual produzem o segundo.
+Lista de milestones e/ou épicos materializada diretamente no ROADMAP do produto, com o id no formato `<ESTAGIO>-<PRODUTO>` e o agrupamento de épicos por milestone. A materialização é a entrega da sessão estratégica — não há um passo intermediário de "gerar prompts para outra ferramenta executar".
 
-**Formato A — Sessão estratégica (visão → milestones / épicos em `🌱` / `📐`)**
-
-Lista de milestones e/ou épicos proposta para o ROADMAP do produto, com o id no formato `<ESTAGIO>-<PRODUTO>` e o agrupamento de épicos por milestone. Nenhum prompt para Cursor — a materialização no ROADMAP é parte do fluxo de desenvolvimento a jusante.
-
-**Formato B — Sessão de preparação para fluxo manual via Cursor (alvo `📋 Critérios definidos` ou `🔍 Detalhes definidos` de épicos já existentes)**
-
-Um prompt por arquivo a atualizar, para o Cursor executar:
-
-```
-PROMPT 1: ROADMAP.md
-[instruções enxutas pro Cursor]
-PROMPT 2: core/docs/agents/orchestrator/conversational/README.md
-[instruções enxutas pro Cursor]
-PROMPT 3: docs/ARCHITECTURE.md
-[instruções enxutas pro Cursor]
-```
-
-> No fluxo autônomo, refinamento tático (épico em `🌱`/`📐` → `🔍`) não passa por Claude Web nem por Cursor — acontece dentro da branch do milestone, via PM skill, como parte da mesma sessão de dispatch.
+> No fluxo único de execução, refinamento tático (épico em `🌱`/`📐`/`📋` → `🔍`) acontece dentro da branch do milestone, via PM skill, como parte da mesma sessão de dispatch.
 
 ---
 
@@ -166,7 +129,7 @@ PROMPT 3: docs/ARCHITECTURE.md
 - ✅ Consultar ROADMAP.md do produto (épicos anteriores - manter padrão)
 - ✅ Propor funcionalidades detalhadas (critérios de aceite claros)
 - ✅ Perguntar sobre trade-offs técnicos (performance vs simplicidade)
-- ✅ Sugerir divisão POC → Protótipo → MVP
+- ✅ Sugerir divisão POC → Protótipo → Piloto → MVP
 
 ### Ao Discutir Comportamento Existente
 - ✅ Identificar onde está documentado (via mapa)
@@ -199,20 +162,14 @@ Ao refinar: identifique o tema relevante no CONTEXT_INDEX e peça os paths lista
 - Outros fazem referência ("Ver detalhes em...")
 - Não copiar specs entre docs
 
-### ❌ Atualizar Diretamente
-- Claude web NÃO atualiza docs (gera prompts)
-- Cursor atualiza docs (executa prompts)
-- Claude Code atualiza código (+ docs estruturais se mudar)
+### ❌ Confundir Refinamento com Execução
+- Sessão estratégica refina e materializa decisões no ROADMAP / specs (não implementa código)
+- Claude Code (na branch do milestone) implementa código + atualiza docs estruturais quando muda
 
 ### ❌ Assumir sem Base
 - Sempre consultar `products/<produto>/docs/vision.md` + guidelines
 - Perguntar se incerto
 - Não inventar padrões
-
-### ❌ Prompts Verbosos
-- Enxuto > detalhado (Cursor pensa também)
-- Instruções claras suficiente
-- Evitar micro-gerenciamento
 
 ---
 
@@ -314,27 +271,27 @@ paper-agent/
 Cinco termos fixam a hierarquia de entrega usada pelo projeto. Refinamento, planejamento e dispatch se referem a eles com esse significado exato.
 
 **Estágio**
-Fase do produto no eixo "quem usa": POC (prova que a ideia faz sentido), Protótipo (o próprio dev usa de verdade), MVP (outros usam sem o dev do lado). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo. **Estágio** é o agregador do ROADMAP (seção "Fase <estágio>"), não é dispatcheável — milestones que o compõem é que são.
+Fase do produto no eixo **maturidade da solução**: POC (prova que a ideia faz sentido), Protótipo (a ideia ganha estrutura visível), Piloto (a estrutura funciona bem), MVP (a solução é robusta). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo. **Estágio** é o agregador do ROADMAP (seção "Fase <estágio>"), não é dispatcheável — milestones que o compõem é que são.
 
 **Milestone**
-Unidade de entrega do **fluxo autônomo** = uma sessão de trabalho coerente. Agrupa épicos relacionados dentro de um mesmo estágio. Um estágio pode ter 1 ou N milestones; o agrupamento é output do **refinamento estratégico** (Claude Web, fora da branch), antes do dispatch. Um milestone é disparado por linguagem natural ("implementa a POC do Ensaio"), executado numa branch `milestone/<id-em-caixa-baixa>`, e só chega em main depois do aval humano explícito.
+Unidade de entrega do **fluxo único de execução** = uma sessão de trabalho coerente. Agrupa épicos relacionados dentro de um mesmo estágio. Um estágio pode ter 1 ou N milestones; o agrupamento é output do **refinamento estratégico** (sessão dedicada antes do dispatch — caminho principal via Claude Code Web direto no repo; secundário via Claude Web em sessão externa). Um milestone é disparado por linguagem natural ("implementa a POC do Ensaio"), executado numa branch `milestone/<id-em-caixa-baixa>`, e só chega em main depois do aval humano explícito.
 
-- **Id do milestone:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`.
+- **Id do milestone:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `PILOT-WORKFLOW`, `MVP-ENSAIO`. Nick `PILOT-` para o estágio Piloto.
 - **Sufixo** quando um estágio tem mais de um milestone: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`, `PROTO-WORKFLOW-ENCERRAMENTO`.
 - **Branch:** id em caixa baixa com `milestone/` na frente. Ex.: `milestone/poc-ensaio`.
 
 **Épico**
-Agrupamento coeso de funcionalidades que entrega valor incremental. Unidade do ROADMAP. Percorre até oito estados (`🌱 Visão` → `🧭 Jornada alinhada` → `📐 Funcionalidades esboçadas` → `📋 Critérios definidos` → `🔍 Detalhes definidos` → `🏗️ Em andamento` → `🔀 Em revisão` → `✅ Implementado`). Um épico pode pertencer a um milestone (quando for ser executado via fluxo autônomo) ou ser implementado isoladamente no fluxo manual via Cursor. **Os mesmos estados aplicam-se ao campo "Status" do milestone** — milestone em `🧭 Jornada alinhada` significa objetivo, jornada e escopo declinados, glossário ancorado e mapeamento de feedback do estágio anterior consolidados, com lista de épicos definida (mesmo que individualmente em estados anteriores). `🔀 Em revisão` não se aplica ao milestone como um todo — aplica-se a épicos individualmente quando a RTE abre a PR do milestone.
+Agrupamento coeso de funcionalidades que entrega valor incremental. Unidade do ROADMAP. Percorre os oito estados definidos em [planning_guidelines.md §Estados de Épico](process/refinement/planning_guidelines.md#estados-de-épico). Um épico só é executável quando pertence a um milestone disparado pelo fluxo único de execução. Os mesmos estados aplicam-se ao campo "Status" do milestone, com a ressalva de que `🔀 Em revisão` não se aplica ao milestone como um todo — aplica-se a épicos individualmente quando a RTE abre a PR do milestone.
 
 **Funcionalidade**
-Unidade mínima do ROADMAP, dentro de um épico. Tem critérios de aceite próprios e, em estado `🔍`, detalhes de execução fechados (arquivos-alvo, contratos, acoplamentos, escopo de teste). É a unidade do **fluxo manual** via Cursor; no fluxo autônomo é a unidade sobre a qual cada gate (QA/TL/PO) decide APROVA/REJEITA.
+Unidade mínima do ROADMAP, dentro de um épico. Tem critérios de aceite próprios e, em estado `🔍`, detalhes de execução fechados (arquivos-alvo, contratos, acoplamentos, escopo de teste). É a unidade sobre a qual cada gate do fluxo único (QA/TL/PO) decide APROVA/REJEITA.
 
 **Tarefa**
-Unidade mínima de **execução** dentro de uma funcionalidade. Criada pela Scrum Master skill em `docs/process/current_implementation.md` no início da sessão autônoma; consumida pelo Dev na ordem declarada. Tarefas não existem no ROADMAP — vivem só no artefato de sessão; somem quando o milestone fecha.
+Unidade mínima de **execução** dentro de uma funcionalidade. Criada pela Scrum Master skill em `docs/process/current_implementation.md` no início da sessão de implementação; consumida pelo Dev na ordem declarada. Tarefas não existem no ROADMAP — vivem só no artefato de sessão; somem quando o milestone fecha.
 
 ---
 
 **Versão:** 1.1
 **Data:** 22/04/2026
-**Para:** Claude Web (consultor estratégico de refinamento) e Claude Code Web (executor autônomo)
+**Para:** Claude Code Web (refinamento estratégico no repo + executor autônomo) e Claude Web (refinamento estratégico em sessão externa, caminho secundário)
 

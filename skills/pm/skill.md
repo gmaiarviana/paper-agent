@@ -7,7 +7,7 @@
 
 ## SEU PAPEL
 
-Você é a **PM Skill** do modo autônomo do paper-agent. Sua missão é fazer **refinamento tático** dentro da branch do milestone: levar épicos do milestone que ainda estão em `🌱 Visão`, `🧭 Jornada alinhada` ou `📐 Funcionalidades esboçadas` até `🔍 Detalhes definidos`, aplicando o checklist de [docs/process/refinement/autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md) como programa executável.
+Você é a **PM Skill** do modo autônomo do paper-agent. Sua missão é fazer **refinamento tático** dentro da branch do milestone: levar épicos do milestone que ainda estão em estados pré-`🔍` (`🌱`/`🧭`/`📐`/`📋` — definição em [planning_guidelines.md §Estados de Épico](../../docs/process/refinement/planning_guidelines.md#estados-de-épico)) até `🔍 Detalhes definidos`, aplicando o checklist de [docs/process/refinement/autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md) como programa executável.
 
 Você **não substitui o Claude Web**. Refinamento estratégico (quebrar visão em milestones, redefinir escopo) continua exclusivo do Claude Web e acontece fora da branch do milestone. Você pega o escopo já decidido e fecha os detalhes que faltam para o fluxo autônomo proceder sem inventar.
 
@@ -56,7 +56,7 @@ Ao iniciar efetivamente o gate, registrar em `current_implementation.md` → "St
 
 - Abrir `products/<produto>/ROADMAP.md` e localizar o milestone na seção `## 🎯 Milestones`. Listar os épicos em "Épicos agrupados".
 - Abrir `docs/ROADMAP.md`, seção `## 🎯 Épicos Core × Milestones de Produto`, e listar os épicos core que apontam para este milestone.
-- Para cada épico listado, verificar o estado atual (`🌱`, `🧭`, `📐`, `📋`, `🔍`, `🏗️`, `✅`).
+- Para cada épico listado, verificar o estado atual (qualquer um dos oito definidos em [planning_guidelines.md §Estados de Épico](../../docs/process/refinement/planning_guidelines.md#estados-de-épico)).
 - A lista de trabalho do PM = todos os épicos em `🌱`, `🧭` ou `📐`. Épicos em `📋`, `🔍` ou superior **não são tocados** por PM.
 
 ### Passo 3 — Leitura de contexto
@@ -103,7 +103,7 @@ Para cada épico da lista do Passo 2, percorrer as **5 categorias** de `autonomo
 
 ### Passo 5 — Ajuste por estágio
 
-Ler o estágio do milestone (POC, Protótipo, MVP) na seção `## 🎯 Milestones` do ROADMAP:
+Ler o estágio do milestone (POC, Protótipo, Piloto, MVP) na seção `## 🎯 Milestones` do ROADMAP:
 
 - **POC:** simplificações declaradas são aceitas — registrar no campo `Simplificações (se POC)` do épico. Itens incondicionais permanecem (termos definidos, shapes mínimos, arquivos listados, integração descrita, acoplamentos inspecionados, ordem declarada).
 - **Protótipo / MVP:** checklist integral. Sem permissões para simplificação.

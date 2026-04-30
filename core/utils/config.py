@@ -3,7 +3,6 @@ Configurações centralizadas do sistema e helpers de integração com LLM provi
 
 Suporta múltiplos providers:
 - Anthropic (Claude)
-- Maritaca AI (Sabiazinho, Sabiá, etc.)
 """
 
 import os
@@ -14,7 +13,6 @@ from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import BaseMessage
 
 from .providers.anthropic import AnthropicProvider, CircuitBreakerOpenError
-from .providers.maritaca import MaritacaProvider
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -80,19 +78,16 @@ def _detect_provider(model: str):
         model: Nome do modelo
 
     Returns:
-        Provider apropriado (AnthropicProvider ou MaritacaProvider)
+        Provider apropriado (atualmente apenas AnthropicProvider).
     """
     if AnthropicProvider.supports_model(model):
         return AnthropicProvider
-    elif MaritacaProvider.supports_model(model):
-        return MaritacaProvider
-    else:
-        # Fallback para Anthropic se não conseguir detectar
-        logger.warning(
-            f"Não foi possível detectar provider para modelo '{model}'. "
-            f"Usando Anthropic como fallback."
-        )
-        return AnthropicProvider
+    # Fallback para Anthropic se não conseguir detectar
+    logger.warning(
+        f"Não foi possível detectar provider para modelo '{model}'. "
+        f"Usando Anthropic como fallback."
+    )
+    return AnthropicProvider
 
 def create_llm_client(
     model: Optional[str] = None,
@@ -104,7 +99,6 @@ def create_llm_client(
 
     Detecta automaticamente o provider baseado no nome do modelo:
     - Modelos "claude-*" -> Anthropic
-    - Modelos "sabia*" ou "sabiazinho*" -> Maritaca AI
 
     Args:
         model: Nome do modelo. Se None, usa get_default_model().
@@ -112,11 +106,10 @@ def create_llm_client(
         max_tokens: Número máximo de tokens na resposta.
 
     Returns:
-        Cliente LLM configurado (ChatAnthropic ou cliente Maritaca)
+        Cliente LLM configurado (ChatAnthropic).
 
     Example:
         >>> llm = create_llm_client("claude-3-5-haiku-20241022")
-        >>> llm = create_llm_client("sabiazinho-3")  # Quando implementado
     """
     model_name = model or get_default_model()
     provider = _detect_provider(model_name)
@@ -168,15 +161,15 @@ def invoke_with_retry(
     if sleep_fn is None:
         sleep_fn = time_module.sleep
 
-    # Detectar provider baseado no tipo do cliente
-    # Por enquanto, apenas Anthropic está totalmente implementado
+    # Detectar provider baseado no tipo do cliente.
+    # Atualmente apenas Anthropic está implementado; o ramo genérico abaixo
+    # serve para qualquer cliente compatível com a interface .invoke().
     if isinstance(llm, ChatAnthropic):
         return AnthropicProvider.invoke_with_retry(
             llm, messages, agent_name, max_attempts, base_backoff_seconds, sleep_fn
         )
     else:
-        # Para outros providers, usar implementação genérica simples
-        # (Maritaca terá sua própria implementação quando pronto)
+        # Implementação genérica simples para clientes não-Anthropic.
         attempt = 0
         last_error: Optional[Exception] = None
 

@@ -574,7 +574,7 @@ Loop interativo minimalista para desenvolvimento e automacao. Backend compartilh
 
 ## Decisões Técnicas Atuais
 
-- **Prioridade para CLI:** Permite automação com agentes (Claude Code / Cursor) sem dependência de navegador
+- **Prioridade para CLI:** Permite automação com agentes (Claude Code Web) sem dependência de navegador
 - **Sem persistência, Docker ou vector DB durante POC:** Para acelerar iteração
 - **Claude Sonnet 4 usado pelo Metodologista:** Para confiabilidade de JSON estruturado
 - **Claude Haiku usado pelo Estruturador:** Custo-benefício para estruturação/refinamento
@@ -676,11 +676,11 @@ Três agentes core planejados para implementação futura: Researcher (busca web
 **Decisão:** POC usa Streamlit como atalho descartável; Protótipo trata migração de stack como frente de trabalho explícita; lógica de domínio fica toda no core, UI burra
 **Resultado:** Troca de stack fica barata; decisão de stack definitivo adiada para refinamento do Protótipo
 
-### Definições Operacionais de POC / Protótipo / MVP
+### Definições Operacionais de POC / Protótipo / Piloto / MVP
 **Documentado:** `docs/process/refinement/planning_guidelines.md` (seção "Progressão por Estágios")
-**Contexto:** Definições técnicas anteriores ("validar viabilidade", "expandir funcionalidade", "versão publicável") eram imprecisas para decisões de escopo
-**Decisão:** Adotar eixo "quem usa" — POC: dev roda no próprio ambiente, pode ter atalhos; Protótipo: dev usa de verdade no fluxo real; MVP: outros usam sem o dev do lado
-**Resultado:** Decisões de stack, UX e robustez ficam proporcionais ao estágio de forma verificável
+**Contexto:** Definições técnicas anteriores ("validar viabilidade", "expandir funcionalidade", "versão publicável") eram imprecisas para decisões de escopo. Eixo intermediário "quem usa" funcionava enquanto o canon era específico ao paper-agent, mas misturava maturidade da solução com identidade do usuário.
+**Decisão:** Adotar eixo de **maturidade da solução** em 4 estágios — POC (a ideia se sustenta?), Protótipo (a ideia tem forma?), Piloto (a estrutura roda bem?), MVP (a solução aguenta?). Cada estágio responde a uma pergunta sobre maturidade e tem critério de saída próprio.
+**Resultado:** Decisões de stack, UX e robustez ficam proporcionais ao estágio de forma verificável; eixo é genérico (aplicável ao workflow e a qualquer produto, independente de quem é o usuário-alvo)
 
 ### Produtos Compõem Próprio Grafo a partir de Nós do Core
 **Documentado:** `core/docs/vision/super_system.md` (princípio do desacoplamento)

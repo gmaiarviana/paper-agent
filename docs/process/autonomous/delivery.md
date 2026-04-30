@@ -20,7 +20,7 @@
 - ✅ Padrão de implementação conhecido (segue épicos anteriores)
 - ✅ Sem decisões arquiteturais em aberto
 
-> Se algum critério acima falhar → use o **fluxo manual** (Claude Web + Cursor).
+> Se algum critério acima falhar → não dispare. Devolva o épico para refinamento (PM skill na branch do milestone, ou sessão estratégica em Claude Web se o que falta exigir alinhamento humano de alto nível) até atingir `🔍 Detalhes definidos` com o checklist de `autonomous_readiness.md` aplicado.
 
 ---
 
@@ -32,46 +32,27 @@ A RTE Skill abre a PR (estado terminal da fase de implementação após W-PROTO-
 ✅ Milestone pronto! PR #<N> aberta para revisão humana.
 
 🔗 PR: <URL>
-📄 Validation file: <caminho>/validation-<id>.md
+📄 Validation file: docs/process/current_validation.md
 
 ▶️ Próximo passo:
   1. Abrir a PR.
   2. Copiar a Seção 🎯 Validação do body e enviar ao GitHub Copilot.
   3. Colar a tabela de retorno do Copilot como comentário na PR.
-  4. (Opcional) Rodar comandos de validação local de validation-<id>.md.
+  4. (Opcional) Rodar comandos de validação local de docs/process/current_validation.md.
   5. Aprovar e mergear pela interface do GitHub.
 ```
 
 ### O que fazer
 1. **Abrir a PR aberta pela RTE** e ler o body (gates consolidados + Seção 🎯 + links).
 2. **Copiar a Seção 🎯 Validação** e enviar ao GitHub Copilot. Colar a tabela de retorno como comentário na PR.
-3. **(Opcional)** rodar comandos de validação local listados em `validation-<id>.md` se quiser checar manualmente alguma funcionalidade.
+3. **(Opcional)** rodar comandos de validação local listados em `docs/process/current_validation.md` se quiser checar manualmente alguma funcionalidade.
 4. **Decidir:** aprovar e mergear pela interface OU devolver feedback no próprio PR (nova rodada autônoma a partir do diff atual da branch).
 
 ---
 
 ## 3. COMANDOS DE VALIDAÇÃO LOCAL
 
-A RTE Skill já entrega os comandos prontos. Estrutura típica:
-
-```bash
-# 1. Baixar branch
-git fetch origin
-git checkout milestone/<id-em-caixa-baixa>
-git pull origin milestone/<id-em-caixa-baixa>
-
-# 2. Preparar ambiente
-source .venv/bin/activate           # Linux/Mac
-# .\venv\Scripts\Activate.ps1     # Windows
-pip install -r requirements.txt   # se houver mudanças em deps
-
-# 3. Rodar testes
-pytest tests/core/unit/ -v
-pytest tests/core/integration/ -v -m integration   # se aplicável
-
-# 4. Rodar aplicação (se mudou interface)
-[comando específico do produto: streamlit run ..., python -m core.tools.cli.chat, etc]
-```
+A RTE entrega o bloco pronto na PR seguindo o [template canônico em quality_rules.md](../implementation/quality_rules.md#template-de-validação-local). Stack do passo 5 (subir a app) detectada via [§"Stacks por produto"](../../../.github/copilot-instructions.md).
 
 ### O que verificar
 - ✅ Testes passam (unit + integration aplicáveis)
@@ -97,7 +78,7 @@ Aprove o merge quando **TODOS** estes critérios forem atendidos:
 - [ ] Documentação estrutural atualizada (ARCHITECTURE/ROADMAP/README quando aplicável)
 
 **Caso algum critério falhe:**
-- ❌ **Não mergeie.** Devolva com feedback no Claude Code Web (nova rodada autônoma) OU traga para Cursor (fluxo manual) se exigir decisão arquitetural.
+- ❌ **Não mergeie.** Devolva com feedback no Claude Code Web (nova rodada autônoma) OU abra sessão estratégica externa (Claude Web) se exigir decisão arquitetural.
 
 ---
 
@@ -105,7 +86,7 @@ Aprove o merge quando **TODOS** estes critérios forem atendidos:
 
 A regra mudou em W-PROTO-5: agora a **RTE abre a PR**, não o dev.
 
-- ✅ **RTE cria a PR** via `mcp__github__create_pull_request` (fallback: `gh pr create`) com body padronizado contendo Seção 🎯 Validação + checklist de gates + links para `current_implementation.md` e `validation-<id>.md`.
+- ✅ **RTE cria a PR** via `mcp__github__create_pull_request` (fallback: `gh pr create`) com body padronizado contendo Seção 🎯 Validação + checklist de gates + links para `current_implementation.md` e `current_validation.md`.
 - ✅ **Dev revisa na PR** colando a Seção 🎯 no Copilot, decidindo aprovar/devolver, e mergeando pela interface do GitHub se OK.
 - ✅ Template fixo (`.github/PULL_REQUEST_TEMPLATE.md`) é sobrescrito pelo body da RTE — nenhuma mudança operacional no template.
 - ❌ RTE **não mergeia** — aprovação humana segue obrigatória.
@@ -128,4 +109,4 @@ Esses inputs alimentam refinamentos futuros das skills e dos guidelines.
 - Detalhe das skills (Scrum Master/QA/TL/PO/RTE) → [workflow.md](workflow.md)
 - Template de dispatch → `docs/process/autonomous/dispatch.md`
 - Convenções operacionais (segredos, granularidade de commits) → [session_conventions.md](session_conventions.md)
-- Mensagem final padrão (compartilhada com fluxo manual) → [implementation/delivery.md](../implementation/delivery.md)
+- Mensagem final padrão → [implementation/delivery.md](../implementation/delivery.md)

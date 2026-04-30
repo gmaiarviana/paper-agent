@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import reflex as rx
 
-from products.ensaio.app.state import EnsaioState
+from products.ensaio.app.state import EnsaioState, SectionStatus
 
 
-def _status_badge(status: str) -> rx.Component:
+def _status_badge(status: SectionStatus) -> rx.Component:
     return rx.match(
         status,
         ("empty", rx.badge("—", color_scheme="gray", size="1")),
