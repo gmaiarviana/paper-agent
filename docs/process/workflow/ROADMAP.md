@@ -181,8 +181,10 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   PROTO-WORKFLOW-PLATAFORMA (kanban e scaffold como base) e
   PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
-- **Status dos épicos:** W-PROTO-FILA-1 🔍, W-PROTO-FILA-2 🔍,
-  W-PROTO-FILA-3 🔍, W-PROTO-FILA-4 🔍.
+- **Status dos épicos:** W-PROTO-FILA-1 🔀, W-PROTO-FILA-2 🔀,
+  W-PROTO-FILA-3 🔀, W-PROTO-FILA-4 🔀 — todos em revisão pela PR do
+  milestone (link a definir após abertura via
+  `mcp__github__create_pull_request`).
 - **Decisões de refinamento estratégico (2026-04-29):**
   - **(a) Detecção reativa unificada na própria plataforma.** Os 3
     tipos de item (DISPATCH, REVIEW, STALE_BRANCH) são detectados

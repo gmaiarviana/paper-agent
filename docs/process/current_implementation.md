@@ -270,7 +270,7 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 - [x] EM (veredicto: FIT)
 - [x] Scrum Master (plano para todos os 4 épicos escrito)
 - [x] Loop por épico concluído (todas as tabelas acima com Dev/QA/TL/PO ✅)
-- [ ] RTE (no fim do milestone, após o último épico fechar)
+- [x] RTE (no fim do milestone, após o último épico fechar)
 
 ### Evidências de carregamento de skill
 
@@ -279,6 +279,7 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 - [PM] skill pulada: todos os épicos já em 🔍 ➖ 2026-04-30 10:06
 - [EM] skill carregada: skills/em/skill.md ✅ 2026-04-30 10:06
 - [SCRUM-MASTER] skill carregada: skills/scrum-master/skill.md ✅ 2026-04-30 10:06
+- [RTE] skill carregada: skills/rte/skill.md ✅ 2026-04-30 11:20
 
 **Repetidas por funcionalidade:**
 
@@ -317,4 +318,71 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 
 ## Histórico de Reprovações
 
-(vazio até o momento)
+(vazio — milestone fechou sem reprovações)
+
+---
+
+## Resumo Final do Milestone
+
+**Milestone:** PROTO-WORKFLOW-FILA
+**Branch:** `claude/execute-project-workflow-yoTQ7` (harness-assigned)
+**Encerrado em:** 2026-04-30
+**Sizing original (EM):** FIT — 2000 LOC estimado
+**Diff real (`git diff --shortstat 314426f..HEAD`):** 26 arquivos, +2817 / -680
+
+### Por épico
+
+| Épico | Funcionalidades | Status | Notas |
+|-------|---:|---|---|
+| W-PROTO-FILA-1 | 3 (1.1, 1.2, 1.3) | ✅ | 12+25+3 = 40 testes passando |
+| W-PROTO-FILA-2 | 2 (2.1, 2.2) | ✅ | 3+10 = 13 testes; integração com PLAT-3.1 e PLAT-4.2 reusada |
+| W-PROTO-FILA-3 | 2 (3.1, 3.2) | ✅ | 7 testes do compute_load_state; banner via `st.warning` em `views/queue.py` |
+| W-PROTO-FILA-4 | 3 (4.1, 4.2, 4.3) | ✅ | 12+5+7 = 24 testes |
+
+### Files modified (26)
+
+**Código (9):**
+- `tools/workflow_platform/queue/__init__.py`
+- `tools/workflow_platform/queue/models.py`
+- `tools/workflow_platform/queue/detect.py`
+- `tools/workflow_platform/queue/git_helper.py`
+- `tools/workflow_platform/queue/load.py`
+- `tools/workflow_platform/preferences.py`
+- `tools/workflow_platform/prompts/queue_item.py`
+- `tools/workflow_platform/views/queue.py`
+- `tools/workflow_platform/app.py` (modificado)
+
+**Testes (13):**
+- `tests/tools/workflow_platform/test_queue_models.py` (12 tests)
+- `tests/tools/workflow_platform/test_queue_detect.py` (25 tests)
+- `tests/tools/workflow_platform/test_queue_determinism.py` (3 tests)
+- `tests/tools/workflow_platform/test_queue_view.py` (3 tests)
+- `tests/tools/workflow_platform/test_queue_item_prompt.py` (10 tests)
+- `tests/tools/workflow_platform/test_queue_load.py` (7 tests)
+- `tests/tools/workflow_platform/test_preferences.py` (12 tests)
+- `tests/tools/workflow_platform/test_visibility_filter.py` (5 tests)
+- `tests/tools/workflow_platform/test_sidebar_label.py` (7 tests)
+- `tests/tools/workflow_platform/test_app_integration.py` (modificado: helper agora filtra prefix `epic-card-`)
+- `tests/tools/workflow_platform/fixtures/__init__.py`
+- `tests/tools/workflow_platform/fixtures/world_state.py`
+- `tests/tools/workflow_platform/fixtures/expected_queue_snapshot.json`
+
+**Docs/Config (4):**
+- `.gitignore` (entrada `tools/workflow_platform/.preferences.json`)
+- `docs/process/sizing/history.jsonl` (linha EM `pending`)
+- `docs/process/current_implementation.md` (este arquivo, rotativo)
+- `docs/process/current_validation.md` (gerado pelo RTE, rotativo)
+
+### Testes
+
+- **Total:** 120 testes na suite `tests/tools/workflow_platform/`
+- **Resultado:** `120 passed in 3.14s`, 0 failed, 0 errors, 0 skips
+- **Cobertura:** todos os 5 tipos de QueueItem (DISPATCH/REVIEW/REFINE/CLEANUP/STALE_BRANCH); todas as fronteiras do compute_load_state; roundtrip de preferences + erros de schema; filtro por visibilidade; label da sidebar.
+
+### Reprovações
+
+Nenhuma reprovação consecutiva em nenhum gate. Loop por épico fluiu Dev → QA → TL → PO sem retorno.
+
+### Warnings de carregamento de skill
+
+Nenhum — todas as skills (PM ➖ skipped, EM, SM, QA×10, TL×10, PO×10, RTE) registradas em "Evidências de carregamento de skill".
