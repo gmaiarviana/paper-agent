@@ -183,7 +183,7 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 
 ### Épico W-PROTO-FILA-4 — Configuração persistente + sidebar como painel
 
-**Status:** 🏗️ Em andamento — desde 2026-04-30
+**Status:** ✅ Implementado — em 2026-04-30
 **Objetivo:** plataforma ganha base de preferências persistidas localmente (JSON git-ignored) e a sidebar deixa de ser leitura passiva — vira painel de filtros + status. Threshold de stale_branch passa a vir de `preferences.json`.
 **Dependências:** PLAT-1 (PlatformConfig, parse_roadmap); FILA-1 (filtro entra como input do WorldState); FILA-2 (sidebar coordenada com badge/recarregar); FILA-3 (badge integrado).
 
@@ -229,9 +229,9 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 
 | Funcionalidade | Dev | QA | TL | PO |
 |----------------|:---:|:--:|:--:|:--:|
-| 4.1 preferences.py | ⏳ | ⏳ | ⏳ | ⏳ |
-| 4.2 apply_visibility_filter | ⏳ | ⏳ | ⏳ | ⏳ |
-| 4.3 Sidebar painel | ⏳ | ⏳ | ⏳ | ⏳ |
+| 4.1 preferences.py | ✅ | ✅ | ✅ | ✅ |
+| 4.2 apply_visibility_filter | ✅ | ✅ | ✅ | ✅ |
+| 4.3 Sidebar painel | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -260,7 +260,7 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 - (vazio — TL não identificou conhecimento permanente neste épico)
 
 ### Épico W-PROTO-FILA-4
-(em aberto — TL preenche durante os gates)
+- (vazio — TL não identificou conhecimento permanente neste épico)
 
 ---
 
@@ -269,7 +269,7 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 - [x] PM ➖ pulado: todos os épicos em 🔍 no dispatch
 - [x] EM (veredicto: FIT)
 - [x] Scrum Master (plano para todos os 4 épicos escrito)
-- [ ] Loop por épico concluído (todas as tabelas acima com Dev/QA/TL/PO ✅)
+- [x] Loop por épico concluído (todas as tabelas acima com Dev/QA/TL/PO ✅)
 - [ ] RTE (no fim do milestone, após o último épico fechar)
 
 ### Evidências de carregamento de skill
@@ -303,6 +303,15 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 - [QA] skills/qa/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.2
 - [TL] skills/tl/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.2
 - [PO] skills/po/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.2
+- [QA] skills/qa/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.1
+- [TL] skills/tl/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.1
+- [PO] skills/po/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.1
+- [QA] skills/qa/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.2
+- [TL] skills/tl/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.2
+- [PO] skills/po/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.2
+- [QA] skills/qa/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.3
+- [TL] skills/tl/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.3
+- [PO] skills/po/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.3
 
 ---
 
