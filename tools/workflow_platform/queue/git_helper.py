@@ -23,11 +23,20 @@ _FORMAT = "%(refname:short)|%(committerdate:iso8601)"
 def _parse_iso(ts: str) -> datetime:
     """``git for-each-ref --format=...iso8601`` produz '2026-04-30 12:00:00 +0000'.
 
-    Converte para datetime aware via ``fromisoformat`` após normalizar o
-    espaço entre data e hora.
+    Converte para ``datetime`` **naive UTC** (sem tzinfo) — o restante do
+    pipeline (state.now, fixture sintética) usa naive para evitar mistura
+    com aware (que dispara TypeError em subtração).
     """
     s = ts.strip().replace(" ", "T", 1)
-    return datetime.fromisoformat(s)
+    parsed = datetime.fromisoformat(s)
+    if parsed.tzinfo is not None:
+        # Normaliza para UTC e descarta tzinfo
+        utc = parsed.utctimetuple()
+        return datetime(
+            utc.tm_year, utc.tm_mon, utc.tm_mday,
+            utc.tm_hour, utc.tm_min, utc.tm_sec,
+        )
+    return parsed
 
 
 def _strip_origin_prefix(name: str) -> str:

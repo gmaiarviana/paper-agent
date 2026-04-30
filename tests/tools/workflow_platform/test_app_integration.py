@@ -113,8 +113,23 @@ def _make_app(repo_root: Path) -> AppTest:
 
 
 def _click_card(at: AppTest, epic_id: str) -> AppTest:
-    button = next((b for b in at.button if b.key and epic_id in b.key), None)
-    assert button is not None, f"botão de {epic_id} não encontrado em {[b.key for b in at.button]}"
+    """Clica num card do kanban (filtra prefix ``epic-card-``).
+
+    A FILA-2 introduziu botões ``queue_card_<type>:<id>`` que coincidem
+    no substring com epic_id; restringimos ao kanban porque estes testes
+    cobrem o painel de detalhe do kanban.
+    """
+    button = next(
+        (
+            b for b in at.button
+            if b.key and b.key.startswith("epic-card-") and epic_id in b.key
+        ),
+        None,
+    )
+    assert button is not None, (
+        f"botão de {epic_id} (kanban) não encontrado em "
+        f"{[b.key for b in at.button if b.key]}"
+    )
     button.click()
     at.run()
     return at
