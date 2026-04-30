@@ -182,8 +182,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
 - **Status dos épicos:** W-PROTO-FILA-1 🔍, W-PROTO-FILA-2 🔍,
-  W-PROTO-FILA-3 🔍, W-PROTO-FILA-4 📐 (refinamento estratégico
-  pendente — esboço com 3 funcionalidades + tensões declaradas).
+  W-PROTO-FILA-3 🔍, W-PROTO-FILA-4 🔍.
 - **Decisões de refinamento estratégico (2026-04-29):**
   - **(a) Detecção reativa unificada na própria plataforma.** Os 3
     tipos de item (DISPATCH, REVIEW, STALE_BRANCH) são detectados
@@ -1067,13 +1066,13 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 - **Critérios de Aceite:**
   1. `detect_dispatch_items(roadmaps)` deve gerar 1 item por milestone com **todos** os épicos em `🔍` e nenhum em `🏗️`/`🔀`/`✅`; milestones sem milestone_id ou com pelo menos 1 épico em estado de execução não geram item
   2. `detect_review_items(roadmaps)` deve gerar 1 item por PR número-distinto encontrado no estado `🔀` dos épicos; agrupa épicos do mesmo `pr_number` num só item (lista de `epic_ids` no contexto)
-  3. `detect_stale_branch_items(branches, threshold_days)` deve gerar item para cada branch do remote com `last_commit_at` há > `threshold_days`, **excluindo** branches referenciadas por algum épico em `🏗️`/`🔀` (campo `**Branch:**`) e excluindo `main`. `threshold_days` é parâmetro injetado (default 7); o caller lê de `config.yaml` campo `stale_branch_threshold_days` ou usa default
+  3. `detect_stale_branch_items(branches, threshold_days)` deve gerar item para cada branch do remote com `last_commit_at` há > `threshold_days`, **excluindo** branches referenciadas por algum épico em `🏗️`/`🔀` (campo `**Branch:**`) e excluindo `main`. `threshold_days` é parâmetro injetado (default 7); o caller lê de `preferences.json` campo `stale_branch_threshold_days` (via `load_preferences()` de FILA-4.1) ou usa default 7 quando preferência ausente
   4. `detect_refine_items(roadmaps)` deve gerar 1 item por épico em estado `📐` ou `📋`; `target_state` calculado via `NEXT_STEP_MAP` de W-PROTO-PLAT-4.1; estados `🌱`/`🧭` **excluídos** (sinal de avanço não é determinístico, exigem sessão estratégica)
   5. `detect_cleanup_items(roadmaps)` deve gerar 1 item por épico em estado `✅` no ROADMAP; cada item carrega `CleanupPointer(epic_id, roadmap_path, title)` para uso no prompt de cleanup manual
   6. `detect_all_items(state)` deve retornar união ordenada por `detected_at` desc, depois `type` na ordem de prioridade `DISPATCH > REVIEW > REFINE > CLEANUP > STALE_BRANCH`; se múltiplos itens têm mesmo `detected_at` e mesmo tipo, ordem por `id` lexicográfico
   7. Função helper `list_remote_branches() -> list[RemoteBranch]` deve usar `subprocess.run(["git", "for-each-ref", "--format=%(refname:short)|%(committerdate:iso8601)", "refs/remotes/origin/"])` e parsear `(name, last_commit_at)`; falhas de subprocess são propagadas (não silenciadas)
   8. `detect_all_items` deve ser **idempotente sobre estado fixo:** chamar com mesmo `state` produz lista igual em conteúdo (ignorando `detected_at` que recebe `now()` da chamada — ver 1.3 para fix de determinismo total)
-  9. `config.yaml` ganha campo opcional `stale_branch_threshold_days: 7` no scope desta funcionalidade; ausência mantém default 7 sem warning
+  9. `stale_branch_threshold_days` **não** vai pra `config.yaml` — a preferência mora em `preferences.json` (FILA-4.1), separação `config.yaml = projeto / preferences.json = humano`. Caller lê `load_preferences().stale_branch_threshold_days`; ausência do arquivo mantém default 7 sem warning
 - **Detalhes de execução:**
   - **Arquivos a criar:** `tools/workflow_platform/queue/detect.py`, `tools/workflow_platform/queue/git_helper.py`, `tests/tools/workflow_platform/test_queue_detect.py`
   - **Arquivos a modificar:** nenhum
@@ -1385,26 +1384,226 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** plataforma ganha base de preferências persistidas localmente (JSON git-ignored) e a sidebar deixa de ser leitura passiva — vira painel de filtros + status. Resolve 3 atritos reais reportados após uso da plataforma (PROTO-WORKFLOW-PLATAFORMA em 🔀): (a) operador quer ver só os produtos relevantes, (b) sidebar não agrega valor hoje, (c) status `✅` aparece no kanban como ruído (resolvido mecanicamente pela detecção CLEANUP de FILA-1.2 — operador roda Cleanup skill via item de fila). Substitui o que iria virar milestone `PROTO-WORKFLOW-PLAT-UX` separado — escopo absorvido aqui pra evitar dependência cross-milestone.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PROTO-PLAT-1 (`PlatformConfig`, `parse_roadmap`); W-PROTO-FILA-1 (detecção precisa do filtro de produtos como input do `WorldState`); W-PROTO-FILA-2 (sidebar é tocada também por badge da fila e botão recarregar — coordenação no mesmo épico).
+**Dependências:** W-PROTO-PLAT-1 (`PlatformConfig`, `parse_roadmap`); W-PROTO-FILA-1 (filtro entra como input do `WorldState`; threshold de stale_branch passa a vir de `preferences.json`); W-PROTO-FILA-2 (sidebar é tocada também por badge da fila e botão recarregar — coordenação no mesmo épico).
 
-### Funcionalidades (esboço — refinamento estratégico para 🔍 em sessão dedicada):
+**Decisões consolidadas (2026-04-30):**
+- **(a) Localização do JSON: workspace local** — `tools/workflow_platform/.preferences.json`, mesma pasta de `config.yaml`. Premissa de 1 operador por projeto no curto/médio prazo (colaboração cross-operador é cenário do MVP/longo prazo). Detecção de path reusa `_detect_repo_root` de `config_loader.py` — zero infra nova. Reverter pra home directory é refator localizado caso vire atrito.
+- **(b) Granularidade do filtro: por ROADMAP path.** Shape do JSON guarda lista de paths (mesma linguagem do `config.yaml`); UI deriva label legível (ex.: "Revelar") via helper `_label_for_roadmap`. Hoje a correlação produto↔ROADMAP é 1:1, então a escolha é cosmética — vence "shape estável quando 1 produto vira N ROADMAPs" sem inventar entidade "produto" no shape.
+- **(c) Warnings: contador na sidebar abre `st.dialog` modal.** Sidebar enxuta pra dar espaço aos filtros; expander acumulava ruído visual mesmo com 0 warnings. Decisão experimental — feedback do operador após uso pode reverter pra expander posicionado fora da sidebar (não na sidebar — ali compete com filtros).
+- **(d) `stale_branch_threshold_days` mora em `preferences.json`, não em `config.yaml`.** Separação `config.yaml = projeto (paths, owner/repo) / preferences.json = humano (estilo de fluxo, filtros)`. Threshold é decisão do operador, não regra do projeto. Acoplamento explícito com FILA-1.2 (CA #3 e #9 atualizados na mesma PR de refinamento).
 
-- **4.1 Persistência de preferências (JSON local)** — arquivo `tools/workflow_platform/.preferences.json` (git-ignored via `.gitignore`) carrega/salva preferências do operador. Shape inicial: `{"visible_roadmaps": [...], "stale_branch_threshold_days": 7}`. Helper puro `load_preferences() -> Preferences` / `save_preferences(prefs)`. Falha de leitura (arquivo ausente) retorna defaults sem warning. Tensão a refinar: localização (workspace local vs `~/.workflow_platform/`) — workspace é mais simples; home directory permite múltiplos clones compartilharem prefs.
-- **4.2 Filtro por ROADMAP/produto na detecção** — `WorldState.roadmaps` recebe lista filtrada conforme `preferences.visible_roadmaps`. Quando preferência ausente, todos os ROADMAPs do `config.yaml` são incluídos (compatível com PLAT-1 atual). Detecção de FILA-1.2 não muda — só o caller filtra antes. Tensão a refinar: filtro por produto inteiro vs filtro por ROADMAP específico (alguns produtos têm múltiplos ROADMAPs futuramente).
-- **4.3 Sidebar como painel de filtros + status** — substitui o conteúdo atual da sidebar (lista passiva de ROADMAPs + warnings em expander) por: (i) checkboxes de produto que persistem em `preferences.visible_roadmaps` via 4.1; (ii) badge da fila com cor por faixa (já planejado em FILA-3.1, integra aqui); (iii) botão "🔄 Recarregar" (já planejado em FILA-2.1, integra aqui); (iv) contador compacto de warnings com link para detalhes. Tensão a refinar: warnings ficam como contador clicável ou modal `st.dialog`?
+### Funcionalidades:
 
-### Decisões pendentes para refinamento estratégico:
-- Localização do JSON de preferências (workspace vs home).
-- Granularidade do filtro (produto vs ROADMAP).
-- Forma de exibir warnings (contador, modal, expander compacto).
-- Se o `stale_branch_threshold_days` move de `config.yaml` (FILA-1.2) para `preferences.json` (4.1), ou se ambos coexistem (config.yaml = default do projeto, preferences = override do operador).
+#### 4.1: Persistência de preferências (JSON local)
+
+- **Descrição:** módulo `preferences.py` expõe `Preferences` dataclass + helpers `load_preferences()` / `save_preferences()` que leem/escrevem `tools/workflow_platform/.preferences.json`. Arquivo é git-ignored. Falha de leitura (arquivo ausente, JSON malformado) cai pra defaults — sem exceção propagada pra UI. Paths em `visible_roadmaps` são armazenados **relativos ao repo root** (mesmo formato do `config.yaml`), pra serem comparáveis entre máquinas/clones.
+- **Critérios de Aceite:**
+  1. Deve definir `Preferences` dataclass com campos `visible_roadmaps: list[str] | None` (None ⇒ "todos do `config.yaml`") e `stale_branch_threshold_days: int = 7`
+  2. `load_preferences(repo_root: Path) -> Preferences` retorna defaults quando arquivo ausente, **sem warning ou log** (ausência é estado normal)
+  3. Arquivo malformado (JSON inválido, campo de tipo errado) gera `st.warning` no caller via valor sentinela ou exceção dedicada `PreferencesLoadError`; helper retorna defaults pra não quebrar render
+  4. `save_preferences(prefs: Preferences, repo_root: Path) -> None` serializa via `json.dumps(asdict(prefs), indent=2, sort_keys=True)` e grava atomicamente (escreve em `.preferences.json.tmp` e `os.replace`)
+  5. Paths em `visible_roadmaps` são **relativos ao `repo_root`** (ex.: `"docs/ROADMAP.md"`); converter pra absolutos é responsabilidade do caller na hora de filtrar
+  6. Roundtrip `save_preferences(p)` seguido de `load_preferences()` retorna `Preferences` igual a `p` (campos completos)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tools/workflow_platform/preferences.py`, `tests/tools/workflow_platform/test_preferences.py`
+  - **Arquivos a modificar:** `.gitignore` — adicionar linha `tools/workflow_platform/.preferences.json`
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/preferences.py
+    from dataclasses import dataclass, asdict
+    from pathlib import Path
+    import json
+    import os
+
+    PREFERENCES_FILENAME = ".preferences.json"
+    DEFAULT_STALE_THRESHOLD_DAYS = 7
+
+    class PreferencesLoadError(Exception):
+        """Levantada quando o arquivo existe mas é malformado.
+        Caller decide se mostra warning e cai pra defaults."""
+
+    @dataclass(frozen=True)
+    class Preferences:
+        visible_roadmaps: list[str] | None = None    # None ⇒ todos do config.yaml
+        stale_branch_threshold_days: int = DEFAULT_STALE_THRESHOLD_DAYS
+
+    def _preferences_path(repo_root: Path) -> Path:
+        return repo_root / "tools" / "workflow_platform" / PREFERENCES_FILENAME
+
+    def load_preferences(repo_root: Path) -> Preferences:
+        """Lê preferences.json. Arquivo ausente ⇒ defaults sem warning.
+        Arquivo malformado ⇒ levanta PreferencesLoadError."""
+        path = _preferences_path(repo_root)
+        if not path.exists():
+            return Preferences()
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as e:
+            raise PreferencesLoadError(f"Falha ao ler {path}: {e}") from e
+        if not isinstance(data, dict):
+            raise PreferencesLoadError(f"{path}: esperado objeto JSON, recebido {type(data).__name__}")
+        # Validação leve dos tipos esperados:
+        vr = data.get("visible_roadmaps")
+        if vr is not None and not (isinstance(vr, list) and all(isinstance(x, str) for x in vr)):
+            raise PreferencesLoadError(f"{path}: visible_roadmaps deve ser lista de strings ou null")
+        td = data.get("stale_branch_threshold_days", DEFAULT_STALE_THRESHOLD_DAYS)
+        if not isinstance(td, int) or td < 1:
+            raise PreferencesLoadError(f"{path}: stale_branch_threshold_days deve ser int >= 1")
+        return Preferences(visible_roadmaps=vr, stale_branch_threshold_days=td)
+
+    def save_preferences(prefs: Preferences, repo_root: Path) -> None:
+        """Grava prefs atomicamente (tmp + os.replace)."""
+        path = _preferences_path(repo_root)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        tmp.write_text(json.dumps(asdict(prefs), indent=2, sort_keys=True), encoding="utf-8")
+        os.replace(tmp, path)
+    ```
+  - **Integração:** módulo standalone, stdlib only (`json`, `dataclasses`, `pathlib`, `os`). Consumido pelo `app.py` em 4.2/4.3 e por `views/queue.py` (FILA-2.1) que injeta `prefs.stale_branch_threshold_days` em `detect_all_items`.
+  - **Template de referência:** `tools/workflow_platform/config_loader.py` — mesmo padrão dataclass imutável + helper puro com path resolvido a partir do repo root.
+  - **Acoplamentos verificados:**
+    - Stdlib only; sem deps novas.
+    - `.gitignore` ganha entrada — verificar que `tools/workflow_platform/config.yaml` (versionado) **não** é capturado pelo glob (entrada é específica do filename `.preferences.json`).
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** primeiro do épico; precede 4.2 e 4.3.
+  - **Escopo de teste:**
+    - **Unit:** `test_preferences.py` — (a) `load_preferences` em diretório temp sem arquivo retorna `Preferences()` (defaults); (b) JSON válido roundtrip preserva campos; (c) JSON malformado (`"{{{"`) levanta `PreferencesLoadError`; (d) `visible_roadmaps` com tipo errado (`{"visible_roadmaps": "string"}`) levanta `PreferencesLoadError`; (e) `stale_branch_threshold_days = 0` levanta erro; (f) `save_preferences` escreve atomicamente — quebra do processo no meio (mock `tmp.write_text` levantar) deixa arquivo final intacto.
+    - **Validação manual:** rodar `python -c "from tools.workflow_platform.preferences import load_preferences; from pathlib import Path; print(load_preferences(Path('.')))"` no repo root e confirmar `Preferences(visible_roadmaps=None, stale_branch_threshold_days=7)`.
+
+#### 4.2: Filtro por ROADMAP no caller
+
+- **Descrição:** helper puro `apply_visibility_filter(roadmaps, prefs, all_configured) -> list[ParsedRoadmap]` filtra a lista de `ParsedRoadmap` (já parseados por PLAT-1) conforme `prefs.visible_roadmaps`. `app.py` aplica o filtro entre `_load_state` (que parseia tudo, mantendo PLAT-1 inalterado) e o passo de render. `WorldState` (FILA-1.2) recebe a lista filtrada — detecção não muda. Threshold de stale_branch passa a ser injetado a partir de `prefs.stale_branch_threshold_days`.
+- **Critérios de Aceite:**
+  1. `apply_visibility_filter(roadmaps, prefs, all_configured_paths)` retorna `roadmaps` inalterada quando `prefs.visible_roadmaps is None` (compatibilidade com estado sem preferências)
+  2. Quando `prefs.visible_roadmaps` é lista, retorna `[r for r in roadmaps if rel_path(r.path, repo_root) in set(prefs.visible_roadmaps)]` — comparação por path relativo ao repo_root
+  3. Path em `prefs.visible_roadmaps` que **não está** em `all_configured_paths` é ignorado silenciosamente (operador removeu produto do `config.yaml`; preferência fica órfã mas não quebra)
+  4. Lista `prefs.visible_roadmaps` vazia (`[]`) ⇒ retorna `[]` (operador desmarcou tudo; kanban/fila ficam vazios — estado válido, não erro)
+  5. Parse continua sendo feito sobre **todos** os ROADMAPs do `config.yaml` (PLAT-1 inalterado); filtro é pós-parse pra que a sidebar mostre contagens reais por ROADMAP mesmo nos invisíveis
+  6. `views/queue.py::build_world_state` (FILA-2.1) recebe `roadmaps` já filtrados e `threshold_days = prefs.stale_branch_threshold_days`; nenhuma leitura direta de `config.yaml` pra threshold
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tests/tools/workflow_platform/test_visibility_filter.py`
+  - **Arquivos a modificar:**
+    - `tools/workflow_platform/app.py` — adicionar `_load_preferences()` no fluxo de carga, aplicar `apply_visibility_filter` antes do `render_kanban` e antes da construção do `WorldState`
+    - `tools/workflow_platform/preferences.py` — adicionar `apply_visibility_filter` (helper puro, mora aqui pra ficar perto de `Preferences`)
+    - `tools/workflow_platform/views/queue.py` — `build_world_state` recebe `threshold_days` injetado em vez de hardcoded
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/preferences.py (continuação)
+    def apply_visibility_filter(
+        roadmaps: list[ParsedRoadmap],
+        prefs: Preferences,
+        repo_root: Path,
+    ) -> list[ParsedRoadmap]:
+        """Filtra roadmaps conforme prefs.visible_roadmaps.
+        None ⇒ retorna lista intacta. Lista ⇒ filtra por path relativo."""
+        if prefs.visible_roadmaps is None:
+            return roadmaps
+        visible = set(prefs.visible_roadmaps)
+        result = []
+        for r in roadmaps:
+            try:
+                rel = str(Path(r.path).relative_to(repo_root))
+            except ValueError:
+                continue   # path fora do repo — não filtra; ignora silenciosamente
+            if rel in visible:
+                result.append(r)
+        return result
+    ```
+  - **Integração:** `app.py::_load_state` ganha `st.session_state.preferences` (lazy load via `load_preferences`); render usa `apply_visibility_filter(parsed_roadmaps, prefs, config.repo_root)`. `views/queue.py::build_world_state(roadmaps, threshold_days)` ganha segundo arg.
+  - **Template de referência:** `tools/workflow_platform/config_loader.py` (estilo de helper puro com path resolvido).
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/models.py` (`ParsedRoadmap.path` é absoluto após PLAT-1) — filtro converte pra relativo via `relative_to(repo_root)`.
+    - `tools/workflow_platform/views/queue.py` (FILA-2.1) — assinatura de `build_world_state` muda; **acoplamento explícito**: a PR de implementação de FILA-4.2 atualiza FILA-2.1 ao mesmo tempo (mesma branch).
+    - `tools/workflow_platform/queue/detect.py` (FILA-1.2) — recebe threshold via parâmetro; nenhuma leitura de yaml.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 4.1 (`Preferences`); precede 4.3.
+  - **Escopo de teste:**
+    - **Unit:** `test_visibility_filter.py` — (a) `prefs.visible_roadmaps=None` retorna lista intacta; (b) lista com 2 paths filtra de 4 ROADMAPs pra 2; (c) path inexistente em `prefs` é ignorado silenciosamente (não levanta); (d) lista vazia retorna `[]`; (e) ROADMAP fora do `repo_root` (path absoluto não-relativo) é ignorado.
+    - **Validação manual:** editar `.preferences.json` manualmente com `{"visible_roadmaps": ["docs/ROADMAP.md"]}`, rodar app, conferir que kanban mostra só épicos do core.
+
+#### 4.3: Sidebar como painel de filtros + status
+
+- **Descrição:** `_render_sidebar` em `app.py` é reescrito. Conteúdo atual (lista passiva de ROADMAPs + expander de warnings) sai. Novo layout: (i) seção "👁️ Visíveis" com checkboxes por ROADMAP (label legível derivado do path); (ii) bloco de status — badge de carga da fila (FILA-3.1, integra aqui) + botão "🔄 Recarregar"; (iii) botão "⚠️ Avisos (N)" no rodapé que abre `st.dialog` modal listando warnings agrupados por arquivo. Mudança em checkbox grava em `preferences.json` via 4.1 e dispara `st.rerun`.
+- **Critérios de Aceite:**
+  1. Sidebar mostra um `st.checkbox` por ROADMAP do `config.yaml`, com label retornado por `_label_for_roadmap(path)` (ex.: `products/revelar/ROADMAP.md` → "Revelar"; `docs/ROADMAP.md` → "Core"; `docs/process/workflow/ROADMAP.md` → "Workflow")
+  2. Estado inicial dos checkboxes: marcados ⇔ path está em `prefs.visible_roadmaps`, ou todos marcados quando `prefs.visible_roadmaps is None`
+  3. Toggle de checkbox chama `save_preferences` com `visible_roadmaps` atualizado e dispara `st.rerun`; lista de paths salva é em ordem alfabética (estável entre saves)
+  4. Botão "🔄 Recarregar" mantém comportamento de PLAT-1 (limpa `platform_config`/`parsed_roadmaps`/seleções de session_state) e adicional do FILA-2.1 (limpa `queue_world_state`); ordem dos itens: badge → recarregar → avisos
+  5. Botão "⚠️ Avisos (N)" abre `st.dialog("Avisos do parser")` com lista de warnings agrupados por arquivo (mesmo conteúdo que hoje vai no expander). N exibido em cor neutra quando 0 (não chama atenção); cor de alerta quando ≥ 1
+  6. Helper `_label_for_roadmap(path: str, repo_root: Path) -> str` deriva label do segundo segmento do path relativo (`products/revelar/...` → "Revelar"); fallback documentado: `docs/ROADMAP.md` → "Core"; `docs/process/workflow/ROADMAP.md` → "Workflow"; demais paths não-mapeados retornam `Path(path).parent.name.title()`
+  7. **Fallback declarado:** se `st.dialog` der atrito durante validação manual (rerun não fechar, conflito com session_state), reverter para `st.expander("Avisos (N)")` posicionado **fora** da sidebar, em container acima do bloco de tabs do FILA-2 — nunca dentro da sidebar (ali compete com filtros)
+- **Detalhes de execução:**
+  - **Arquivos a criar:** `tests/tools/workflow_platform/test_sidebar_label.py`
+  - **Arquivos a modificar:**
+    - `tools/workflow_platform/app.py` — reescrever `_render_sidebar` + adicionar `_label_for_roadmap` + adicionar `_render_warnings_dialog` + integrar com `preferences.py`
+  - **Contratos/Shapes:**
+    ```python
+    # tools/workflow_platform/app.py
+    LABEL_OVERRIDES = {
+        "docs/ROADMAP.md": "Core",
+        "docs/process/workflow/ROADMAP.md": "Workflow",
+    }
+
+    def _label_for_roadmap(path: str, repo_root: Path) -> str:
+        try:
+            rel = str(Path(path).relative_to(repo_root))
+        except ValueError:
+            return Path(path).stem.title()
+        if rel in LABEL_OVERRIDES:
+            return LABEL_OVERRIDES[rel]
+        # products/<name>/ROADMAP.md → <Name>
+        parts = Path(rel).parts
+        if len(parts) >= 2 and parts[0] == "products":
+            return parts[1].replace("-", " ").title()
+        return Path(rel).parent.name.title() or rel
+
+    def _render_sidebar(config, roadmaps, prefs, all_warnings) -> None:
+        st.sidebar.markdown("## 👁️ Visíveis")
+        new_visible: list[str] = []
+        for r in roadmaps_all_configured(config):
+            rel = str(Path(r.path).relative_to(config.repo_root))
+            label = _label_for_roadmap(r.path, config.repo_root)
+            checked = (prefs.visible_roadmaps is None) or (rel in prefs.visible_roadmaps)
+            if st.sidebar.checkbox(label, value=checked, key=f"visible_{rel}"):
+                new_visible.append(rel)
+        if _visibility_changed(prefs, new_visible):
+            save_preferences(replace(prefs, visible_roadmaps=sorted(new_visible)), config.repo_root)
+            st.rerun()
+
+        st.sidebar.markdown("---")
+        # Badge de carga (FILA-3.1) + botão recarregar (PLAT-1 + FILA-2.1)
+        render_queue_load_badge(...)        # injetado por FILA-3.1
+        if st.sidebar.button("🔄 Recarregar"):
+            _reload(); st.rerun()
+
+        st.sidebar.markdown("---")
+        n = len(all_warnings)
+        button_label = f"⚠️ Avisos ({n})"
+        if st.sidebar.button(button_label, key="open_warnings"):
+            st.session_state["show_warnings_dialog"] = True
+        if st.session_state.get("show_warnings_dialog"):
+            _render_warnings_dialog(all_warnings)
+    ```
+  - **Integração:** `_render_warnings_dialog` decorado com `@st.dialog("Avisos do parser")`. Estado do dialog em `st.session_state["show_warnings_dialog"]` (bool). Fechar = setar False + `st.rerun`.
+  - **Template de referência:** `tools/workflow_platform/views/card_detail.py` (PLAT-3.2) — uso de `st.session_state` para painel inline.
+  - **Acoplamentos verificados:**
+    - `tools/workflow_platform/preferences.py` (4.1, 4.2) — `Preferences`, `save_preferences`, `apply_visibility_filter`.
+    - `tools/workflow_platform/views/queue.py` (FILA-3.1) — badge da fila injetado na sidebar; **acoplamento explícito**: PR de implementação de FILA-4.3 substitui o ponto onde FILA-3.1 renderizava badge na sidebar atual.
+    - Botão recarregar de PLAT-1 + extensão de FILA-2.1 — todos consolidados num único `_reload()`.
+    - **Produto afetado:** nenhum.
+  - **Dependências de ordem:** depende de 4.1 (`Preferences`/`save_preferences`) e 4.2 (`apply_visibility_filter`); último do épico.
+  - **Escopo de teste:**
+    - **Unit:** `test_sidebar_label.py` — `_label_for_roadmap` retorna: `docs/ROADMAP.md` → "Core"; `products/revelar/ROADMAP.md` → "Revelar"; `products/prisma-verbal/ROADMAP.md` → "Prisma Verbal"; `docs/process/workflow/ROADMAP.md` → "Workflow"; path absoluto fora do repo retorna fallback `Path.stem.title()`.
+    - **Validação manual:** abrir app, marcar/desmarcar checkboxes, ver kanban+fila reagindo + arquivo `.preferences.json` sendo gravado; clicar "Avisos (N)" e ver modal abrir com lista; clicar "🔄 Recarregar" e ver mudança de ROADMAP refletida.
 
 **Fora do escopo:**
 - Configurações futuras além de `visible_roadmaps` e `stale_branch_threshold_days` — entram conforme atrito real aparecer (princípio anti-especulação).
 - Editor de configurações como página separada — sidebar absorve; página dedicada vira épico se a sidebar saturar.
-- Sincronização cross-clone das preferências — fora do escopo do Protótipo (operador roda em 1 máquina por vez).
+- Sincronização cross-clone das preferências — fora do escopo do Protótipo (premissa: 1 operador por projeto).
+- Validação cruzada entre `config.yaml` e `preferences.json` (ex.: avisar quando preferência aponta pra ROADMAP que saiu do config) — comportamento atual é "ignora silenciosamente"; warning só vira épico se virar atrito.
+- Migração automática de `stale_branch_threshold_days` de instalações que tivessem o campo em `config.yaml` — campo nunca foi adicionado lá (FILA-1.2 atualizada antes da implementação).
 
 ---
 
