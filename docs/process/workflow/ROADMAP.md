@@ -182,9 +182,8 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   PROTO-WORKFLOW-FAXINA (faxina documental antes de seguir)
 - **Branch associada:** `milestone/proto-workflow-fila`
 - **Status dos épicos:** W-PROTO-FILA-1 🔀, W-PROTO-FILA-2 🔀,
-  W-PROTO-FILA-3 🔀, W-PROTO-FILA-4 🔀 — todos em revisão pela PR do
-  milestone (link a definir após abertura via
-  `mcp__github__create_pull_request`).
+  W-PROTO-FILA-3 🔀, W-PROTO-FILA-4 🔀 — todos em revisão pela
+  PR #121 (https://github.com/gmaiarviana/paper-agent/pull/121).
 - **Decisões de refinamento estratégico (2026-04-29):**
   - **(a) Detecção reativa unificada na própria plataforma.** Os 3
     tipos de item (DISPATCH, REVIEW, STALE_BRANCH) são detectados
@@ -961,7 +960,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** módulo de detecção lê estado-do-mundo (ROADMAPs parseados + branches do remote) e produz lista determinística de itens de fila por regra fixa. Sem persistência própria — fila é função pura do estado. Cobre 5 tipos no Protótipo: DISPATCH (milestone apto), REVIEW (PR aberta), REFINE (épico em 📐/📋 pedindo refinamento tático), CLEANUP (épico em ✅ esperando faxina), STALE_BRANCH (branch parada).
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #121 (https://github.com/gmaiarviana/paper-agent/pull/121)
 
 **Dependências:** W-PROTO-PLAT-1 (parser de ROADMAP + `Epic`/`Milestone`/`ParsedRoadmap`); decisões estratégicas no bloco do milestone PROTO-WORKFLOW-FILA (3 tipos de item, fonte determinística).
 
@@ -1168,7 +1167,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Gap consciente declarado:** vision §"Chat focado" descreve chat síncrono dentro da plataforma com "prompt pré-montado e contexto carregado". No Protótipo o chat é prompt clipboard-ready + cole-em-sessão-autônoma (mesmo padrão de PLAT-3.1/4.2); chat embutido de verdade fica para o MVP, junto com proponente/porta-voz. A plataforma é leitura + direcionamento; sessão de fato roda em Claude Code Web.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #121 (https://github.com/gmaiarviana/paper-agent/pull/121)
 
 **Dependências:** W-PROTO-FILA-1 (modelos e detecção); W-PROTO-PLAT-2.1 (estrutura de tabs / sidebar do app); W-PROTO-PLAT-3.1 (`build_dispatch_prompt` reusado).
 
@@ -1288,7 +1287,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** badge na sidebar mostra `<contagem> / 20 itens` com cor que varia por faixa (verde < 15, amarelo 15-19, vermelho ≥ 20). Quando vermelho, banner adicional na tab da fila explica o estado mas não bloqueia ação. Sem pausa dura — Protótipo só sinaliza; pausa real é MVP (proponente é quem ganha capacidade de "parar de criar itens").
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #121 (https://github.com/gmaiarviana/paper-agent/pull/121)
 
 **Dependências:** W-PROTO-FILA-2.1 (view da fila e bloco da sidebar existem).
 
@@ -1386,7 +1385,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** plataforma ganha base de preferências persistidas localmente (JSON git-ignored) e a sidebar deixa de ser leitura passiva — vira painel de filtros + status. Resolve 3 atritos reais reportados após uso da plataforma (PROTO-WORKFLOW-PLATAFORMA em 🔀): (a) operador quer ver só os produtos relevantes, (b) sidebar não agrega valor hoje, (c) status `✅` aparece no kanban como ruído (resolvido mecanicamente pela detecção CLEANUP de FILA-1.2 — operador roda Cleanup skill via item de fila). Substitui o que iria virar milestone `PROTO-WORKFLOW-PLAT-UX` separado — escopo absorvido aqui pra evitar dependência cross-milestone.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #121 (https://github.com/gmaiarviana/paper-agent/pull/121)
 
 **Dependências:** W-PROTO-PLAT-1 (`PlatformConfig`, `parse_roadmap`); W-PROTO-FILA-1 (filtro entra como input do `WorldState`; threshold de stale_branch passa a vir de `preferences.json`); W-PROTO-FILA-2 (sidebar é tocada também por badge da fila e botão recarregar — coordenação no mesmo épico).
 
