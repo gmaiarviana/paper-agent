@@ -1,320 +1,433 @@
-# Validação Local — PROTO-WORKFLOW-FAXINA
+# Validação Local — PROTO-ENSAIO-2
 
 > **📌 Público:** dev (revisor da PR final).
 > **📌 Arquivo rotativo:** sobrescrito a cada novo milestone. Histórico fica nas PRs mergeadas.
-> **📌 Quando usar:** opcional, depois que o Copilot rodou na Seção 🎯 do body e você quer fazer uma checagem manual extra antes do merge. A Seção 🎯 da PR é a porta principal de revisão.
-> **📌 Princípio anti-viés:** os roteiros abaixo só validam comportamento observável extraído dos critérios de aceite **PO ✅** do ROADMAP. Não há passos que peçam para você abrir código-fonte, rodar `git diff`, ou inspecionar logs internos do agente — esses checks já são feitos pelo Copilot na Seção 🎯 da PR.
+> **📌 Quando usar:** opcional, depois que o Copilot rodou na Seção 🎯 do body. A Seção 🎯 da PR é a porta principal de revisão; este arquivo é checagem manual extra antes do merge.
+> **📌 Princípio anti-viés:** os roteiros abaixo só validam comportamento observável extraído dos critérios de aceite **PO ✅** do ROADMAP. Não pedem para abrir código-fonte, rodar `git diff` ou inspecionar logs.
 
 ---
 
 ## Preparação do ambiente
 
-Este milestone é 100% faxina documental. Não há código que rode, não há aplicação para subir e não há testes unitários introduzidos. A "preparação" é só baixar a branch e usar `grep`/editor para inspeção visual.
-
 ```bash
-# Baixar branch
+# 1. Checkout da branch
 git fetch origin
-git checkout claude/proto-workflow-faxina-e4irl
-git pull origin claude/proto-workflow-faxina-e4irl
-```
+git checkout claude/implement-product-essay-dHnbU
+git pull origin claude/implement-product-essay-dHnbU
 
-Não há `pip install` nem `pytest` aplicável a este milestone (saldo de testes adicionados = 0).
+# 2. Ambiente
+source .venv/bin/activate              # Linux/Mac
+# .\.venv\Scripts\Activate.ps1         # Windows
+pip install -r requirements.txt
+pip install -r products/ensaio/requirements.txt
+
+# 3. .env
+# Garantir que ANTHROPIC_API_KEY (ou LITELLM_API_KEY) está preenchida em .env
+```
 
 ---
 
-## Testes unitários
+## Testes unitários (determinísticos)
 
-Não aplicável — milestone é faxina documental, sem mudança de código.
+```bash
+pytest tests/core/unit/agents/ tests/products/ensaio/ -v
+```
+
+**Esperado:** 249 passed, 2 skipped. Se algum falha, parar e reportar — não seguir para validação manual.
+
+Subset focado nas funcionalidades novas do milestone:
+
+```bash
+pytest \
+  tests/core/unit/agents/test_structurer_rationale.py \
+  tests/core/unit/agents/test_change_summary_producers.py \
+  tests/products/ensaio/unit/test_pending_proposal.py \
+  -v
+```
+
+**Esperado:** 24 passed.
 
 ---
 
-## Épico W-PROTO-15 — Descontinuar fluxo manual / Cursor / Claude Web do desenho
+## Subir o app do Ensaio
 
-### 15.1 — Reescrever `autonomous/overview.md` para fluxo único
-
-**Critério de aceite:** arquivo descreve **um** fluxo (autônomo via Claude Code Web). Tabela "Fluxo Manual vs Autônomo" some. Seção "Use o Fluxo Manual (Cursor) quando..." some. Intro e §6 deixam de contrastar com fluxo manual. Estado `📋 Critérios definidos` é descrito como "passo intermediário até `🔍`" (não como "apto ao fluxo manual").
-
-**Gatilho:**
 ```bash
-grep -ni "fluxo manual\|cursor" docs/process/autonomous/overview.md
+cd products/ensaio
+reflex run
 ```
 
-**Resultado esperado:** comando não imprime nenhuma linha (exit code não-zero do grep).
+Aguardar mensagem `App running at http://localhost:3000`. Abrir essa URL no navegador.
 
-**Sinal de falha:** uma ou mais linhas aparecem no output. Cada linha indica menção residual à dicotomia.
-
-### 15.2 — Reescrever §"Otimização do Workflow" em `planning_guidelines.md`
-
-**Critério de aceite:** §"Otimização do Workflow: Usando Cursor para Análises" some; substituída por §"Modalidades de Refinamento" descrevendo três modalidades (Estratégico via Claude Code Web na branch; Estratégico via Claude Web em sessão externa; Tático via PM skill). Pipeline tripartite "Cursor escaneia → Claude Web refina → Cursor executa" desaparece.
-
-**Gatilho:**
-```bash
-grep -ni "Otimização do Workflow.*Cursor\|prompts separados para Cursor\|apto ao fluxo manual" docs/process/refinement/planning_guidelines.md
-grep -n "^### Modalidades de Refinamento" docs/process/refinement/planning_guidelines.md
-```
-
-**Resultado esperado:** primeiro comando não imprime linhas. Segundo comando imprime **exatamente uma linha** com `### Modalidades de Refinamento`.
-
-**Sinal de falha:** primeiro comando imprime alguma linha; OU segundo retorna 0 linhas (a seção canônica não existe) ou múltiplas linhas (drift).
-
-### 15.3 — Limpar `CONSTITUTION.md`
-
-**Critério de aceite:** §"Cursor (Atualizador de Documentações)" some; §"Fluxos Disponíveis" reescrita como §"Requisitos de Refinamento". Glossário atualizado. 0 menções a "cursor" ou "fluxo manual" no arquivo.
-
-**Gatilho:**
-```bash
-grep -ni "cursor\|fluxo manual" docs/CONSTITUTION.md
-grep -n "Requisitos de Refinamento" docs/CONSTITUTION.md
-```
-
-**Resultado esperado:** primeiro comando não imprime linhas. Segundo imprime pelo menos 1 linha (cabeçalho da nova seção).
-
-**Sinal de falha:** primeiro comando imprime alguma linha; OU segundo retorna 0.
-
-### 15.4 — Limpar `implementation/overview.md` e `quality_rules.md`
-
-**Critério de aceite:** ambos os arquivos perdem o rótulo "Cursor Background" e a contrastação com "fluxo manual". §"Validação Híbrida" do `overview.md` permanece intacta.
-
-**Gatilho:**
-```bash
-grep -ni "Cursor Background\|fluxo manual" docs/process/implementation/overview.md docs/process/implementation/quality_rules.md
-grep -n "Claude Code Web" docs/process/implementation/overview.md docs/process/implementation/quality_rules.md
-```
-
-**Resultado esperado:** primeiro comando não imprime linhas. Segundo imprime ≥3 linhas (cabeçalhos atualizados em ambos os arquivos).
-
-**Sinal de falha:** primeiro comando imprime alguma linha.
-
-### 15.5 — Limpar arquivos periféricos
-
-**Critério de aceite:** menções residuais em `refinement/starter.md`, `refinement/overview.md`, `autonomous/delivery.md`, `skills/rte/skill.md`, `skills/rte/templates/delivery-report.md` removidas.
-
-**Gatilho:**
-```bash
-grep -ni "fluxo manual\|via Cursor" docs/process/refinement/starter.md docs/process/refinement/overview.md docs/process/autonomous/delivery.md skills/rte/skill.md skills/rte/templates/delivery-report.md
-```
-
-**Resultado esperado:** comando não imprime nenhuma linha.
-
-**Sinal de falha:** alguma linha aparece.
-
-### 15.6 — Deletar `.cursorrules`
-
-**Critério de aceite:** arquivo `.cursorrules` (60 linhas) apagado integralmente.
-
-**Gatilho:**
-```bash
-ls .cursorrules
-```
-
-**Resultado esperado:** output literal contém `cannot access` ou `No such file or directory` (exit code 2).
-
-**Sinal de falha:** o comando lista o arquivo (`.cursorrules` aparece no output).
-
-### 15.7 — Atualizar `CLAUDE.md`, `docs/CONTEXT_INDEX.md`, `README.md`
-
-**Critério de aceite:** referência cruzada a `.cursorrules` em CLAUDE.md removida; bullet "Fluxo manual (Cursor)" reescrito; CONTEXT_INDEX e README atualizados.
-
-**Gatilho:**
-```bash
-grep -ni "cursor" CLAUDE.md docs/CONTEXT_INDEX.md README.md
-```
-
-**Resultado esperado:** comando não imprime nenhuma linha.
-
-**Sinal de falha:** alguma linha aparece.
-
-### 15.8 — Varredura final
-
-**Critério de aceite:** varredura de todo `docs/`, `skills/`, `products/`, `core/`, `tools/`, `tests/`, `scripts/`, `CLAUDE.md`, `README.md` retorna 0 menções (com exceções: `ROADMAP.md` excluído por flag, `current_implementation.md` artefato de sessão).
-
-**Gatilho:**
-```bash
-grep -rni "cursor\|fluxo manual" \
-  --include="*.md" \
-  --exclude-dir=.git \
-  --exclude="ROADMAP.md" \
-  --exclude="current_implementation.md" \
-  docs/ skills/ products/ core/ tools/ tests/ scripts/ \
-  CLAUDE.md README.md
-```
-
-**Resultado esperado:** comando não imprime nenhuma linha.
-
-**Sinal de falha:** alguma linha fora das exceções declaradas aparece.
+> **📌 Sessão descartável.** Recarregar a página zera tudo.
 
 ---
 
-## Épico W-PROTO-16 — Consolidar template de "comandos de validação local"
+## Épico E-PROTO2-2 — Metodologista com escopo e qualidade afiados
 
-### 16.1 — Eleger fonte canônica em `quality_rules.md`
+> Critérios em [products/ensaio/ROADMAP.md](../../products/ensaio/ROADMAP.md), seção E-PROTO2-2.
 
-**Critério de aceite:** §"Template de validação local" presente como cabeçalho navegável (`### Template de validação local`) em `quality_rules.md`. Bloco usa `.venv/` (com ponto). Passo 5 referencia `copilot-instructions.md §"Stacks por produto"` em vez de hardcodar `streamlit run`.
+### 2.1 — Prompt do Metodologista limpo (Tese central, sem Formato/Estrutura)
 
-**Gatilho:**
-```bash
-grep -n "^### Template de validação local" docs/process/implementation/quality_rules.md
-grep -n "\.venv/" docs/process/implementation/quality_rules.md
-grep -n "Stacks por produto\|W-PROTO-14" docs/process/implementation/quality_rules.md
-```
-
-**Resultado esperado:** primeiro comando imprime **exatamente uma linha** com o cabeçalho. Segundo imprime ≥1 linha mencionando `.venv/` (passo 1 do template). Terceiro imprime ≥1 linha referenciando o épico W-PROTO-14 ou §"Stacks por produto".
-
-**Sinal de falha:** primeiro retorna 0 ou >1 linha; segundo retorna 0 (template ainda usa `venv/` sem ponto); terceiro retorna 0 (passo 5 não referencia W-PROTO-14).
-
-### 16.2 — Substituir cópias por referência
-
-**Critério de aceite:** `docs/process/implementation/delivery.md` (bloco PowerShell em §"Validação Local"), `docs/process/autonomous/delivery.md` (§3 Comandos), `docs/process/implementation/overview.md` (exemplo simplificado) apontam para `quality_rules.md#template-de-validação-local` via link.
+**Critério de aceite:** Metodologista provoca sobre tese central, métricas, evidência, rigor, contexto e intenção. **Não** menciona formato (IMRaD, revisão etc.) nem ordem/sequência das seções.
 
 **Gatilho:**
-```bash
-grep -n "template-de-validação-local\|quality_rules.md#template" docs/process/implementation/delivery.md docs/process/autonomous/delivery.md docs/process/implementation/overview.md
-```
+1. (sessão limpa, recarregue a página) Cole exatamente este prompt no chat:
+   ```
+   Estou escrevendo um artigo sobre o uso de Claude Code no meu fluxo. Acho que ele "deixa o desenvolvedor mais produtivo". Que estrutura você sugere?
+   ```
+2. Aguarde a resposta. Se o Orquestrador responder sem chamar o Metodologista, mande:
+   ```
+   Pode chamar o Metodologista pra olhar isso?
+   ```
 
-**Resultado esperado:** comando imprime **3 linhas ou mais** — uma por arquivo, cada uma com o link para `#template-de-validação-local`.
+**Resultado esperado:**
+- Aparece bolha do `🔬 Metodologista` com **uma única pergunta** sobre **um destes temas**: a defensibilidade da tese ("deixa mais produtivo" sem critério/baseline), evidência/métrica que sustenta a afirmação, ou a intenção do artigo (informar / propor / demonstrar).
+- A pergunta termina com `?` e está em pt-BR.
 
-**Sinal de falha:** retorna 0, 1 ou 2 linhas (algum arquivo não foi atualizado).
+**Sinal de falha:**
+- A pergunta menciona "IMRaD", "formato do artigo", "qual a estrutura", "ordem das seções", ou similar.
+- A bolha vem com mais de uma pergunta numerada.
+- A bolha começa com "Como Metodologista, eu..." ou retorna vazio.
+
+### 2.2 — Postura do Estruturador focada em storytelling
+
+**Critério de aceite:** Estruturador é convocado quando há material para propor ordem/sequência de seções; entrega proposta com **racional curto** (1-2 frases). Não cobre contexto/problema/contribuição (território do Metodologista).
+
+**Gatilho:**
+1. (sessão limpa) Cole exatamente:
+   ```
+   Fiz um experimento comparando Claude Code com Cursor pra implementar um endpoint REST. Medi tempo total: Claude 18min, Cursor 25min, sem diferença visível na qualidade do código. Quero virar isso em artigo curto.
+   ```
+2. Se o Orquestrador não convocar o Estruturador no primeiro turno, mande:
+   ```
+   Pode pedir pro Estruturador organizar isso em seções?
+   ```
+
+**Resultado esperado:**
+- Bolha do `📐 Estruturador` aparece com a manchete `📐 Estrutura proposta` acima do label de agente (ver E-PROTO2-3.3).
+- Bubble especial de proposta (azul, com borda) surge logo acima do input do chat (não dentro do histórico). Mostra: lista numerada de seções (ex.: "1. Introdução / 2. Métodos / 3. Resultados / 4. Discussão"), uma frase ou duas em itálico explicando por que essa ordem, e três botões: **Aceitar** (verde), **Editar** (azul soft), **Recusar** (cinza soft).
+
+**Sinal de falha:**
+- Bubble especial não aparece — a proposta vem só como bolha de chat normal, sem ações.
+- Bubble aparece mas sem racional (linha em itálico ausente).
+- Estruturador entrega texto longo discutindo o problema/contribuição em vez da ordem das seções.
+
+### 2.3 — Sem ordem fixa entre Metodologista e Estruturador
+
+**Critério de aceite:** Orquestrador continua decidindo *quando* convocar quem. Não há sequência mandatória Metodologista → Estruturador nem Estruturador → Metodologista.
+
+**Gatilho:**
+1. (sessão limpa) Cole exatamente:
+   ```
+   Quero estruturar um artigo sobre meu experimento com agentes LangGraph.
+   ```
+2. Aguarde a primeira resposta de agente (≠ Orquestrador).
+3. Anote qual agente apareceu primeiro: Metodologista 🔬 ou Estruturador 📐.
+4. Recarregue a página (F5) — sessão zera.
+5. Repita o passo 1 e o passo 2.
+
+**Resultado esperado:**
+- Em ambas as execuções, *algum* especialista aparece (📐 ou 🔬), e a escolha pode variar entre as duas execuções *ou* dentro de uma mesma sessão estendida. Nenhuma das duas é forçada a vir antes da outra.
+- Em particular: é aceitável Estruturador vir primeiro, Metodologista vir primeiro, ou só um dos dois aparecer no primeiro turno.
+
+**Sinal de falha:**
+- Toda sessão sempre inicia com o mesmo agente especialista forçado, independente do conteúdo do prompt.
+- Aparece uma sequência rígida tipo "Metodologista provoca → Estruturador propõe" sempre na mesma ordem.
 
 ---
 
-## Épico W-PROTO-13 — Faxina do `copilot-instructions.md` (concisão pra agente)
+## Épico E-PROTO2-1 — Co-decisão da Estrutura
 
-### 13.1 — §"Erros típicos e orientação" (no-op verificado)
+> Critérios em [products/ensaio/ROADMAP.md](../../products/ensaio/ROADMAP.md), seção E-PROTO2-1.
 
-**Critério de aceite:** seção não existe no arquivo (já apagada em refinamento anterior).
+### 1.1 — Proposta sem auto-commit
 
-**Gatilho:**
-```bash
-grep -c "^## Erros típicos\|^### Erros típicos\|Erros típicos.*orientação" .github/copilot-instructions.md
-```
-
-**Resultado esperado:** comando imprime `0` (zero ocorrências do título de seção).
-
-**Sinal de falha:** imprime número > 0.
-
-### 13.2 — §"Checklist mínimo de POC do Ensaio" (no-op verificado)
-
-**Critério de aceite:** seção não existe no arquivo.
+**Critério de aceite:** Quando o Estruturador propõe seções, elas ficam pendentes aguardando aceite. O painel direito do artigo **não** é populado automaticamente.
 
 **Gatilho:**
-```bash
-grep -c "Checklist mínimo.*POC\|POC do Ensaio" .github/copilot-instructions.md
-```
+1. (sessão limpa, recarregue a página) Cole exatamente:
+   ```
+   Fiz um experimento medindo o tempo de geração de testes com e sem Claude Code. Coletei dados de 10 endpoints. Pode propor a estrutura do artigo?
+   ```
+2. Aguarde a resposta do `📐 Estruturador`.
 
-**Resultado esperado:** comando imprime `0`.
+**Resultado esperado:**
+- Bubble especial de proposta aparece acima do input do chat (caixa azul com borda).
+- Painel direito (40% da tela) continua mostrando exatamente: `Aguardando proposta de estrutura...` com o ícone de documento e o texto "Continue conversando sobre seu experimento...".
+- Input do chat continua habilitado (cursor pisca, dá pra digitar).
 
-**Sinal de falha:** imprime número > 0.
+**Sinal de falha:**
+- Painel direito aparece populado com seções sem o usuário ter clicado em **Aceitar**.
+- Bubble de proposta não aparece — só uma bolha de chat normal.
+- Input do chat fica desabilitado/cinza enquanto a proposta está pendente.
 
-### 13.3 — Apagar §"Operação Windows / macOS / Linux"; manter §"Quando o dev disser 'deu erro'"
+### 1.2 — Aceitar a proposta
 
-**Critério de aceite:** §"Operação Windows / macOS / Linux" apagada; §"Quando o dev disser 'deu erro'" intacta.
+**Critério de aceite:** Clicar em **Aceitar** comita a proposta em `current_article` e zera o pendente. O bubble especial some, o painel direito popula com as seções (todas em estado `empty`/badge "—").
 
 **Gatilho:**
-```bash
-grep -n "Operação Windows" .github/copilot-instructions.md
-grep -n "Quando o dev disser" .github/copilot-instructions.md
-```
+1. (continuação de 1.1, com bubble especial visível) Clique no botão verde **Aceitar** dentro do bubble.
 
-**Resultado esperado:** primeiro comando não imprime linhas. Segundo imprime **exatamente uma linha** com o cabeçalho.
+**Resultado esperado:**
+- O bubble especial de proposta desaparece da tela.
+- O painel direito deixa de mostrar "Aguardando proposta..." e renderiza um accordion com pelo menos 3 seções.
+- Cada item do accordion mostra: título da seção, badge cinza com `—`, e (quando expandido) o texto `Clique em Gerar para redigir esta seção.` + botão **Gerar**.
 
-**Sinal de falha:** primeiro imprime alguma linha; OU segundo retorna 0 (seção mantida-por-spec foi acidentalmente apagada) ou múltiplas linhas (duplicada).
+**Sinal de falha:**
+- Bubble continua visível depois de clicar **Aceitar**.
+- Painel direito segue vazio.
+- Aparece traceback/erro vermelho no chat.
+
+### 1.3 — Recusar a proposta
+
+**Critério de aceite:** Clicar em **Recusar** limpa o pendente sem tocar em `current_article`. Uma nota curta no histórico marca a recusa.
+
+**Gatilho:**
+1. (sessão limpa) Repita o gatilho de 1.1 até o bubble aparecer.
+2. Clique no botão cinza **Recusar** dentro do bubble.
+
+**Resultado esperado:**
+- O bubble especial desaparece.
+- Aparece no histórico de chat uma bolha curta com texto exatamente: `Proposta de estrutura recusada.` (em itálico).
+- Painel direito continua mostrando `Aguardando proposta de estrutura...`.
+
+**Sinal de falha:**
+- Painel direito ganha seções (não deveria — recusa não comita).
+- Bubble continua aparecendo após clicar **Recusar**.
+- Nenhuma nota aparece no histórico.
+
+### 1.4 — Editar a proposta antes de aceitar
+
+**Critério de aceite:** Clicar em **Editar** abre a lista em modo editável (renomear, mover, remover, adicionar). Confirmar comita a versão editada; cancelar volta à proposta original.
+
+**Gatilho:**
+1. (sessão limpa) Repita o gatilho de 1.1 até o bubble aparecer.
+2. Clique no botão azul soft **Editar** dentro do bubble.
+3. No primeiro campo de input, troque o texto por: `Introdução modificada`.
+4. Clique no botão **↑** da segunda linha (move a segunda seção para o topo).
+5. Clique no botão **🗑️** da última linha (remove a última seção).
+6. Clique no botão **+ Adicionar seção**.
+7. Clique no botão verde **Confirmar edição**.
+
+**Resultado esperado:**
+- Modo de edição: cada linha tem um campo de input + botões `↑`, `↓`, `🗑️`. Há um botão `+ Adicionar seção` ao final e dois botões finais: **Confirmar edição** (verde) e **Cancelar** (cinza soft).
+- Após **Confirmar edição**: bubble desaparece. Painel direito popula com a lista editada — primeira seção é a que era a segunda originalmente, depois `Introdução modificada`, depois as restantes minus a última, mais uma seção chamada `Nova seção` no final.
+
+**Sinal de falha:**
+- Edição não persiste depois de Confirmar.
+- Botões `↑/↓/🗑️/+` não respondem ao clique.
+- Cancelar comita as edições (não deveria).
+
+### 1.4-edge — Lista vazia bloqueia o aceite
+
+**Critério de aceite:** Se o usuário remover todas as seções no modo de edição, o aceite fica bloqueado com mensagem inline.
+
+**Gatilho:**
+1. (sessão limpa) Faça o gatilho 1.1 até o bubble.
+2. Clique em **Editar**.
+3. Clique em **🗑️** em todas as linhas até a lista ficar vazia.
+4. Clique em **Confirmar edição**.
+
+**Resultado esperado:**
+- Aparece mensagem em vermelho dentro do bubble: `A estrutura precisa de pelo menos uma seção.`
+- O bubble continua em modo edição.
+- Painel direito continua vazio (`Aguardando proposta...`).
+
+**Sinal de falha:**
+- Confirma a edição vazia e comita um `current_article` sem seções.
+- Mensagem inline não aparece.
+
+### 1.5 — Re-proposição substitui a pendente
+
+**Critério de aceite:** Quando o Estruturador propõe uma nova estrutura enquanto há uma pendente, a nova substitui a anterior. Não há fila.
+
+**Gatilho:**
+1. (sessão limpa) Faça o gatilho 1.1 até o bubble aparecer com a primeira proposta.
+2. **Sem aceitar nem recusar**, mande no chat:
+   ```
+   Na verdade, é mais um relato de experiência do que um estudo empírico. Pode repropor?
+   ```
+3. Aguarde a nova resposta do `📐 Estruturador`.
+
+**Resultado esperado:**
+- O bubble especial é atualizado para mostrar a nova lista de seções (provavelmente diferente — relato de experiência tende a ter "Contexto / Experiência / Aprendizados" ou similar).
+- Não há dois bubbles empilhados.
+
+**Sinal de falha:**
+- Aparecem dois bubbles especiais ao mesmo tempo.
+- O bubble continua mostrando a proposta antiga.
 
 ---
 
-## Épico W-PROTO-10 — Centralizar definição dos estados de épico
+## Épico E-PROTO2-3 — Manchete "o que mudou" em mensagens de agente
 
-### 10.1 — Bloco canônico único em `planning_guidelines.md`
+> Critérios em [products/ensaio/ROADMAP.md](../../products/ensaio/ROADMAP.md), seção E-PROTO2-3.
 
-**Critério de aceite:** uma única seção define os 8 estados (`🌱 Visão`, `🧭 Jornada alinhada`, `📐 Funcionalidades esboçadas`, `📋 Critérios definidos`, `🔍 Detalhes definidos`, `🏗️ Em andamento`, `🔀 Em revisão`, `✅ Implementado`) com nome, descrição curta, gatilho de transição e responsável. As outras duas seções dentro do mesmo arquivo são apagadas; referências internas usam âncora `#estados-de-épico`.
+### 3.1 — Manchete do Estruturador
 
-**Gatilho:**
-```bash
-grep -nE "^## Estados de Épico" docs/process/refinement/planning_guidelines.md
-grep -cE '^- \*\*`🌱 Visão`\*\*' docs/process/refinement/planning_guidelines.md
-```
-
-**Resultado esperado:** primeiro comando imprime **exatamente uma linha** com `## Estados de Épico`. Segundo imprime `1` (uma única definição canônica de 🌱 Visão; sem duplicatas).
-
-**Sinal de falha:** primeiro retorna 0 ou >1; segundo retorna >1 (drift entre cópias persiste) ou 0 (definição sumiu).
-
-### 10.2 — Limpeza de drift cross-doc
-
-**Critério de aceite:** `docs/CONSTITUTION.md`, `docs/process/refinement/starter.md`, `docs/process/autonomous/workflow.md`, `docs/process/workflow/vision.md`, `skills/pm/README.md` deixam de ter definição dos 8 estados (texto duplicado) e apontam pra fonte canônica via âncora.
+**Critério de aceite:** Toda mensagem do Estruturador que vem com proposta de estrutura traz manchete `📐 Estrutura proposta` acima do label de agente, em fonte menor que o conteúdo.
 
 **Gatilho:**
-```bash
-grep -rln "🌱.*🧭.*📐.*📋.*🔍.*🏗\|🌱 Visão.*🧭 Jornada" \
-  --include="*.md" \
-  --exclude-dir=.git \
-  docs/ skills/
-```
+1. Use a sessão de E-PROTO2-1.1 (Estruturador acabou de propor) ou rode aquele gatilho de novo.
 
-**Resultado esperado:** comando imprime **exatamente duas linhas** — `docs/process/refinement/planning_guidelines.md` (fonte canônica) e `docs/process/workflow/ROADMAP.md` (estrutura de dado do `EpicState` enum em W-PROTO-PLAT-1.1, exceção declarada).
+**Resultado esperado:**
+- A bolha do `📐 Estruturador` mostra, na ordem de cima para baixo:
+  1. Linha curta `📐 Estrutura proposta` em fonte pequena, cor azul/accent.
+  2. Label `📐 Estruturador` em cinza pequeno bold.
+  3. Conteúdo da mensagem.
 
-**Sinal de falha:** retorna mais que 2 arquivos; OU retorna < 2 (a fonte canônica sumiu).
+**Sinal de falha:**
+- Manchete ausente, ou aparece embaixo do label.
+- Manchete com texto diferente (ex.: "Estrutura sugerida", "Proposta").
+
+### 3.2 — Manchete do Metodologista
+
+**Critério de aceite:** Quando o Metodologista responde com pergunta/provocação, vem com manchete `🔬 Lacuna apontada`. Quando responde com a frase de aceite curta ("O contexto está bem descrito. Continue."), **não** vem com manchete.
+
+**Gatilho A (provocação → manchete presente):**
+1. (sessão limpa) Cole exatamente:
+   ```
+   Implementei um pipeline de extração de embeddings que ficou 3x mais rápido. Quero descrever isso num artigo.
+   ```
+2. Se Metodologista não vier no primeiro turno, mande:
+   ```
+   Pode chamar o Metodologista pra olhar?
+   ```
+
+**Resultado esperado A:**
+- Bolha do `🔬 Metodologista` aparece com manchete `🔬 Lacuna apontada` em cima.
+
+**Gatilho B (aceite → sem manchete):**
+1. (continuando a mesma sessão, depois de responder a provocação) Mande detalhes:
+   ```
+   Comparei o pipeline com a versão anterior em 100 textos, mediu tempo médio. Antes: 2.4s/texto. Depois: 0.8s/texto. Mesma máquina, mesmo modelo de embedding.
+   ```
+2. Se o Metodologista voltar a aparecer, observe a próxima resposta dele.
+
+**Resultado esperado B:**
+- Se a resposta dele for exatamente ou começar com "O contexto está bem descrito.", a manchete `🔬 Lacuna apontada` **não** aparece nessa bolha — só o label `🔬 Metodologista`.
+
+**Sinal de falha:**
+- Manchete `🔬 Lacuna apontada` aparece em uma bolha que diz "O contexto está bem descrito".
+- Manchete não aparece em uma bolha onde o Metodologista faz pergunta legítima.
+
+### 3.3 — Manchete do Orquestrador (mudança de foco)
+
+**Critério de aceite:** Orquestrador preenche manchete `🎯 Foco atualizado` apenas quando o `focal_argument` muda em algum campo relevante (intent, subject, population, metrics, article_type) em relação ao turno anterior. Conversa puramente reconhecimento/clarificação **não** preenche.
+
+**Gatilho A (primeira menção de foco):**
+1. (sessão limpa) Cole exatamente:
+   ```
+   Quero escrever sobre o uso de Claude Code em pesquisa. População: pesquisadores juniores. Intenção: demonstrar ganho de produtividade.
+   ```
+
+**Resultado esperado A:**
+- A bolha do `🎯 Orquestrador` (a primeira que tocar foco) traz a manchete `🎯 Foco atualizado` em cima.
+
+**Gatilho B (turno conversacional sem mudança):**
+1. (continuação) Mande:
+   ```
+   Sim, é isso mesmo.
+   ```
+
+**Resultado esperado B:**
+- A próxima bolha do `🎯 Orquestrador` **não** traz manchete (só o label).
+
+**Sinal de falha:**
+- Manchete `🎯 Foco atualizado` aparece em bolha de mero reconhecimento ("Entendi.", "Pode me contar mais...").
+- Manchete não aparece quando o usuário trouxe novo intent/subject/população/métricas.
+
+### 3.4 — Mensagens do usuário nunca mostram manchete
+
+**Critério de aceite:** Bolhas do `👤 Você` nunca exibem manchete (campo só faz sentido para mensagens de agente).
+
+**Gatilho:**
+1. (qualquer sessão) Olhe todas as bolhas com label `👤 Você` ao longo da sessão.
+
+**Resultado esperado:**
+- Nenhuma bolha do usuário tem texto pequeno azul acima do label.
+
+**Sinal de falha:**
+- Aparece manchete em bolha do usuário.
 
 ---
 
-## Épico W-PROTO-11 — Faxina de `quality_rules.md`
+## Épico E-PROTO2-4 — Colapsar/expandir seções no painel
 
-### 11.1 — Apagar §"Verificação de Conflitos e Prevenção de Perda de Trabalho"
+> Critérios em [products/ensaio/ROADMAP.md](../../products/ensaio/ROADMAP.md), seção E-PROTO2-4.
 
-**Critério de aceite:** seção (140 linhas, tutorial defensivo de git pra Windows) apagada de `quality_rules.md`.
+### 4.1 — Estado inicial colapsado
 
-**Gatilho:**
-```bash
-grep -n "Verificação de Conflitos\|Prevenção de Perda" docs/process/implementation/quality_rules.md
-```
-
-**Resultado esperado:** comando não imprime nenhuma linha.
-
-**Sinal de falha:** alguma linha aparece.
-
-### 11.2 — Mover §"Diretrizes Aprendidas em Produção" para `products/revelar/docs/`
-
-**Critério de aceite:** §"Diretrizes Aprendidas em Produção" apagada de `quality_rules.md` e migrada para arquivo novo `products/revelar/docs/llm_implementation_lessons.md` com >40 linhas.
+**Critério de aceite:** Após aceitar a proposta de estrutura, todas as seções aparecem no painel direito **colapsadas por padrão**. Recarregar a página volta tudo a colapsado.
 
 **Gatilho:**
-```bash
-grep -n "Diretrizes Aprendidas em Produção\|Sistemas Conversacionais com LLMs" docs/process/implementation/quality_rules.md
-ls -l products/revelar/docs/llm_implementation_lessons.md
-wc -l products/revelar/docs/llm_implementation_lessons.md
-```
+1. Use a sessão de E-PROTO2-1.2 (proposta aceita, painel populado), ou rode aquele gatilho até clicar **Aceitar**.
 
-**Resultado esperado:** primeiro comando não imprime linhas. Segundo lista o arquivo (não dá erro). Terceiro imprime número ≥ 40.
+**Resultado esperado:**
+- Painel direito mostra a lista de seções como itens de accordion (cada item é uma caixa com borda, fundo branco).
+- Cada item exibe **apenas** o título da seção + badge cinza `—`. **Não** mostra o texto `Clique em Gerar para redigir esta seção.` nem o botão **Gerar** (esses só aparecem quando expandido).
+- Recarregar a página (F5) volta o painel a `Aguardando proposta de estrutura...` (sessão descartável).
 
-**Sinal de falha:** primeiro imprime alguma linha; OU segundo dá erro (`No such file`); OU terceiro retorna < 40.
+**Sinal de falha:**
+- Logo após o aceite, alguma seção já vem expandida mostrando o botão **Gerar**.
+- Recarregar mantém estado anterior (a sessão deveria zerar).
 
-### 11.3 — Reorganizar o que sobra em ordem coerente
+### 4.2 — Toggle por seção é independente
 
-**Critério de aceite:** após 11.1 + 11.2 + 15.4 + 16, `quality_rules.md` lê em ordem coerente (Princípios Gerais → Regras Anti-Redundância → Comandos e Validação → Exemplo de Fluxo Completo → Observações Finais), com ~180-200 linhas (tolerância: ±20).
+**Critério de aceite:** Clicar no header de uma seção alterna apenas aquela; expandir uma não afeta as outras (pode ter várias abertas ao mesmo tempo).
 
 **Gatilho:**
-```bash
-wc -l docs/process/implementation/quality_rules.md
-grep -nE "^## " docs/process/implementation/quality_rules.md
-```
+1. (continuação de 4.1, painel com seções colapsadas) Clique no título da primeira seção (ex.: "Introdução").
+2. Clique no título da terceira seção (ex.: "Resultados").
+3. Clique de novo no título da primeira seção.
 
-**Resultado esperado:** primeiro comando imprime número entre **160 e 240** (target ~180-200, tolerância ampliada). Segundo imprime 5 linhas (5 cabeçalhos `##`) na ordem `Princípios Gerais → Regras Anti-Redundância → Comandos e Validação → Exemplo de Fluxo Completo → Observações Finais`.
+**Resultado esperado:**
+- Após passo 1: primeira seção expande, mostra placeholder + botão **Gerar**. Outras continuam colapsadas.
+- Após passo 2: primeira **e** terceira seções estão expandidas simultaneamente. Segunda permanece colapsada.
+- Após passo 3: primeira fecha; terceira continua aberta.
 
-**Sinal de falha:** primeiro retorna < 160 (faxina excessiva, conteúdo importante perdido) ou > 240 (faxina insuficiente); OU segundo retorna ordem diferente da declarada (ex.: "Comandos e Validação" antes de "Regras Anti-Redundância", ou seções extras como "Verificação de Conflitos" reaparecendo).
+**Sinal de falha:**
+- Expandir uma fecha a outra (comportamento de "single open").
+- Clicar no header não responde.
+- Botões dentro do conteúdo expandido (Gerar/Regenerar) não funcionam.
+
+### 4.3 — Edição inline funciona dentro da seção expandida
+
+**Critério de aceite:** Edição inline de markdown (E-PROTO-2.3) continua funcionando dentro da seção expandida.
+
+**Gatilho:**
+1. (continuação de 4.2, primeira seção expandida) Clique no botão **Gerar** da primeira seção.
+2. Aguarde o ✍️ Writer redigir (indicador no topo do painel).
+3. Quando o conteúdo aparecer com badge `Rascunho` (laranja), clique sobre o markdown — modo de edição abre.
+
+**Resultado esperado:**
+- Após **Gerar**: badge passa de `—` para `Rascunho` (laranja); o corpo da seção mostra texto markdown gerado pelo Writer.
+- Clicar no corpo abre uma textarea com o markdown editável; após salvar, badge vira `Editado` (verde).
+
+**Sinal de falha:**
+- Botão **Gerar** não responde, ou indicador de Writer não aparece.
+- Badge não atualiza após geração ou edição.
+- Edição não persiste o conteúdo na seção.
 
 ---
 
-## Critérios de aprovação (checklist agregado)
+---
 
-- [ ] Cada roteiro acima rodou e o **Resultado esperado** foi observado literalmente
-- [ ] Nenhum **Sinal de falha** ocorreu em nenhum roteiro
-- [ ] Comportamentos "não deve" do ROADMAP foram confirmados (não ocorreram):
-  - `.cursorrules` permanece no repo (15.6)
-  - duplicação dos 8 estados em texto fora de `planning_guidelines.md` e `ROADMAP.md` (10.1/10.2)
-  - bloco bash de validação local duplicado em `delivery.md` (`implementation` ou `autonomous`) — só link pra fonte canônica (16.2)
-- [ ] Tabela do Copilot na PR (Seção 🎯) sem ❌ sem justificativa
+## Critérios de aprovação
 
-**Se algum critério falhar:** devolver com feedback para nova rodada autônoma (Claude Code Web) ou abrir sessão estratégica externa (Claude Web) se exigir decisão arquitetural.
+Marcar **go** se todos os itens abaixo passam:
+
+- [ ] Suite unitária em verde (249 passed)
+- [ ] E-PROTO2-1: bubble especial aparece, aceite/recusa/edição funcionam, não há auto-commit
+- [ ] E-PROTO2-2: Metodologista provoca sobre tese/intenção (não sobre formato/estrutura); Estruturador foca storytelling com racional
+- [ ] E-PROTO2-3: manchetes "📐 Estrutura proposta", "🔬 Lacuna apontada", "🎯 Foco atualizado" aparecem nos turnos certos
+- [ ] E-PROTO2-4: seções iniciam colapsadas no painel direito; toggle por seção é independente
+- [ ] Nenhum erro "React Hooks violation" no console do navegador durante a sessão inteira
+
+Marcar **no-go** se qualquer roteiro abaixo falha em **Sinal de falha**.
 
 ---
 
-**Ver também:**
-- Relatório completo do milestone → `docs/process/current_implementation.md`
-- Como o dev valida (visão geral) → `docs/process/autonomous/delivery.md`
+## Pós-merge
+
+Cleanup skill apaga `current_implementation.md` e move este arquivo para o histórico (mantido na PR mergeada). O próximo milestone sobrescreve `current_validation.md`.
