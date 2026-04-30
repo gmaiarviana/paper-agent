@@ -144,7 +144,7 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 
 ### Épico W-PROTO-FILA-3 — Auto-regulação básica (alerta visual)
 
-**Status:** 🏗️ Em andamento — desde 2026-04-30
+**Status:** ✅ Implementado — em 2026-04-30
 **Objetivo:** badge na sidebar mostra `<contagem> / 20 itens` com cor por faixa. Banner adicional na tab da fila quando OVER_LIMIT explica o estado mas não bloqueia ação.
 **Dependências:** FILA-2.1 (view e bloco da sidebar existem).
 
@@ -176,8 +176,8 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 
 | Funcionalidade | Dev | QA | TL | PO |
 |----------------|:---:|:--:|:--:|:--:|
-| 3.1 Badge sidebar | ⏳ | ⏳ | ⏳ | ⏳ |
-| 3.2 Banner OVER_LIMIT | ⏳ | ⏳ | ⏳ | ⏳ |
+| 3.1 Badge sidebar | ✅ | ✅ | ✅ | ✅ |
+| 3.2 Banner OVER_LIMIT | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -257,7 +257,7 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 - [x] `tools/workflow_platform/views/queue.py`: tabs Streamlit usam padrão st.tabs com fila default e estado em st.session_state.queue_world_state. Documentado inline na docstring do módulo. (TL identificou; Dev marcou ao escrever.)
 
 ### Épico W-PROTO-FILA-3
-(em aberto — TL preenche durante os gates)
+- (vazio — TL não identificou conhecimento permanente neste épico)
 
 ### Épico W-PROTO-FILA-4
 (em aberto — TL preenche durante os gates)
@@ -297,6 +297,12 @@ Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as s
 - [QA] skills/qa/skill.md ✅ 2026-04-30 11:05 | épico W-PROTO-FILA-2 | funcionalidade 2.2
 - [TL] skills/tl/skill.md ✅ 2026-04-30 11:05 | épico W-PROTO-FILA-2 | funcionalidade 2.2
 - [PO] skills/po/skill.md ✅ 2026-04-30 11:05 | épico W-PROTO-FILA-2 | funcionalidade 2.2
+- [QA] skills/qa/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.1
+- [TL] skills/tl/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.1
+- [PO] skills/po/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.1
+- [QA] skills/qa/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.2
+- [TL] skills/tl/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.2
+- [PO] skills/po/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.2
 
 ---
 
