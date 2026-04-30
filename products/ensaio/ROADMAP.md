@@ -67,8 +67,8 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 - **Objetivo:** Tornar visível o raciocínio dos agentes e dar ao Usuário voz antes que decisões dos agentes virem estado. Ataca pontos em que o PROTO-ENSAIO produziu sessão funcional mas opaca: Estruturador decidindo sozinho, Metodologista com papel embolado e por isso ausente, mensagens longas que escondem o que mudou, painel de seções sem accordion.
 - **Estágio:** Protótipo
 - **Produto:** Ensaio
-- **Status:** `🔀 Em revisão`
-- **Épicos agrupados:** E-PROTO2-1, E-PROTO2-2, E-PROTO2-3, E-PROTO2-4 — todos implementados (validação manual via `reflex run` pendente)
+- **Status:** `🔀 Em revisão` — PR [#122](https://github.com/gmaiarviana/paper-agent/pull/122)
+- **Épicos agrupados:** E-PROTO2-1, E-PROTO2-2, E-PROTO2-3, E-PROTO2-4 — todos implementados (validação manual via `reflex run` pendente — script em `docs/process/current_validation.md`)
 - **Dependências:** PROTO-ENSAIO ✅
 - **Branch associada:** `claude/implement-product-essay-dHnbU`
 
@@ -216,7 +216,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-1: Co-decisão da Estrutura (storytelling)
 
-**Status:** 🔀 Em revisão — branch `claude/implement-product-essay-dHnbU`
+**Status:** 🔀 Em revisão — PR [#122](https://github.com/gmaiarviana/paper-agent/pull/122) (branch `claude/implement-product-essay-dHnbU`)
 
 **Entregue:** `EnsaioState.pending_structure_proposal` recebe a proposta do Estruturador (em vez de auto-commit), bubble especial em `products/ensaio/app/components/proposal_bubble.py` renderiza lista, racional e três ações (Aceitar / Editar / Recusar), modo de edição leve permite renomear / mover / remover / adicionar seção antes do aceite, campo `rationale` condicional ao `product_context` em `core/agents/structurer/nodes.py:217-227,287-296,371-380` (mesmo padrão de `article_sections`, sem regredir Revelar).
 
@@ -303,7 +303,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-2: Metodologista com escopo e qualidade afiados
 
-**Status:** 🔀 Em revisão — branch `claude/implement-product-essay-dHnbU`
+**Status:** 🔀 Em revisão — PR [#122](https://github.com/gmaiarviana/paper-agent/pull/122) (branch `claude/implement-product-essay-dHnbU`)
 
 **Entregue:** Prompt do Metodologista (`core/prompts/methodologist_provocation.py`) reescrito — adiciona dimensão **Tese central**, remove **Formato** e **Estrutura** (território do Estruturador). `products/ensaio/config/product.yaml` tem postura do Estruturador focada em storytelling (com `rationale` obrigatório), trigger do Metodologista alargado para tese/intenção/afirmação sem suporte, sem ordem fixa entre os dois agentes. `products/ensaio/app/graph.py` mantido sem edges fixas (verificação documental do aceite negativo E-PROTO2-2.3).
 
@@ -376,7 +376,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-3: Manchete "o que mudou" em mensagens de agente
 
-**Status:** 🔀 Em revisão — branch `claude/implement-product-essay-dHnbU`
+**Status:** 🔀 Em revisão — PR [#122](https://github.com/gmaiarviana/paper-agent/pull/122) (branch `claude/implement-product-essay-dHnbU`)
 
 **Entregue:** Contrato `change_summary` em `AIMessage.additional_kwargs` (≤80 chars, pt-BR, opcional, puramente aditivo). `state.py:send_message` propaga o campo para o dict de mensagem; `chat_panel._message_bubble` renderiza manchete acima do label de agente quando truthy. Três produtores: Estruturador (`📐 Estrutura proposta` quando `article_sections` presente), Metodologista (`🔬 Lacuna apontada` quando não é frase de aceite), Orquestrador (`🎯 Foco atualizado` quando `focal_argument` muda em campo relevante). Revelar não é afetado — campo é aditivo e gated.
 
@@ -451,7 +451,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-4: Colapsar/expandir seções no painel
 
-**Status:** 🔀 Em revisão — branch `claude/implement-product-essay-dHnbU`
+**Status:** 🔀 Em revisão — PR [#122](https://github.com/gmaiarviana/paper-agent/pull/122) (branch `claude/implement-product-essay-dHnbU`)
 
 **Entregue:** `products/ensaio/app/components/article_panel.py` substitui `_section_card` por accordion via `rx.accordion.root(type="multiple", collapsible=True, default_value=[])`; cada seção é um `rx.accordion.item` com header (título + badge) e conteúdo (placeholder/markdown + botão Gerar/Regenerar). Estado de expansão fica interno ao componente Radix — não polui `EnsaioState`, todas as seções iniciam colapsadas, recarregar zera.
 
