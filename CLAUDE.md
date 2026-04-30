@@ -103,15 +103,16 @@ pergunta final) — não como lista solta.
 
 ## Regra durável: edições longas em chunks por seção
 
-**Default operacional:** em arquivo existente com > ~80 linhas, ou quando a
-mudança cobre múltiplos blocos lógicos (Objetivo, Status, Critérios, Testes,
-etc.), fazer **um `Edit` por seção** — nunca um único `Edit`/`Write`
-reescrevendo o arquivo inteiro. Para arquivo novo grande (> ~150 linhas),
-criar esqueleto curto com `Write` e preencher com `Edit`s.
+**Default operacional:** quando o `new_string` projetado for grande (> ~80
+linhas) **ou** quando o edit toca seções **independentes** do arquivo (não
+parágrafos consecutivos do mesmo bloco), preferir **um `Edit` por seção**.
+Para arquivo novo grande (> ~150 linhas), criar esqueleto curto com `Write`
+e preencher com `Edit`s.
 
-**Quando não aplica:** mudança trivial (3-10 linhas, uma seção só) ou
-arquivo novo curto (< ~80 linhas) — Edit/Write único segue normal, sem
-fragmentar à toa.
+**Quando não aplica:** edit pequeno — mesmo em arquivo grande — ou várias
+mudanças contidas num único bloco contínuo. Tamanho do arquivo sozinho
+não dispara: o gatilho é o tamanho do `new_string` ou a independência
+das regiões tocadas. Edit/Write único segue normal, sem fragmentar à toa.
 
 **Por quê durável aqui:** evita `Stream idle timeout` recorrente e ganha
 fluidez (cada Edit completa em segundos, mantém o stream ativo, falha
