@@ -271,7 +271,7 @@ paper-agent/
 Cinco termos fixam a hierarquia de entrega usada pelo projeto. Refinamento, planejamento e dispatch se referem a eles com esse significado exato.
 
 **Estágio**
-Fase do produto no eixo "quem usa, e como": POC (prova que a ideia faz sentido), Protótipo (o próprio dev usa **operando**), Piloto (o próprio dev usa **autonomamente — chega só para validar**), MVP (outros usam sem o dev do lado). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo. **Estágio** é o agregador do ROADMAP (seção "Fase <estágio>"), não é dispatcheável — milestones que o compõem é que são.
+Fase do produto no eixo **maturidade da solução**: POC (prova que a ideia faz sentido), Protótipo (a ideia ganha estrutura visível), Piloto (a estrutura funciona bem), MVP (a solução é robusta). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo. **Estágio** é o agregador do ROADMAP (seção "Fase <estágio>"), não é dispatcheável — milestones que o compõem é que são.
 
 **Milestone**
 Unidade de entrega do **fluxo único de execução** = uma sessão de trabalho coerente. Agrupa épicos relacionados dentro de um mesmo estágio. Um estágio pode ter 1 ou N milestones; o agrupamento é output do **refinamento estratégico** (sessão dedicada antes do dispatch — caminho principal via Claude Code Web direto no repo; secundário via Claude Web em sessão externa). Um milestone é disparado por linguagem natural ("implementa a POC do Ensaio"), executado numa branch `milestone/<id-em-caixa-baixa>`, e só chega em main depois do aval humano explícito.

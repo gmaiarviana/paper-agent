@@ -52,34 +52,37 @@ plataforma (fila, kanban, chat focado, processos de fundo).
 
 ## Eixo de Estágios
 
-Workflow segue o eixo "quem usa, e como" do CONSTITUTION, adaptado para
-processo:
+Workflow segue o eixo de **maturidade da solução** do CONSTITUTION,
+adaptado para processo:
 
-- **POC:** um fluxo funciona ponta a ponta, disparado manualmente pelo
-  operador, sem priorização autônoma. Operador escolhe o que rodar.
-  Fechado em `POC-WORKFLOW`.
-- **Protótipo:** o fluxo da POC está estável, o operador usa **operando**
-  no dia a dia real. **Plataforma reativa entra em cena**: kanban + fila
-  populada por sinais óbvios do repo (PR aberta, épico chegou em
-  estado-gatilho, branch parou) + chat focado por item + ações
-  contextuais. Ainda sem agentes proativos — sinais viram itens de fila
-  por regra, não por julgamento. Milestones em curso e roadmap detalhado
-  em [ROADMAP.md](ROADMAP.md).
-- **Piloto:** priorização autônoma rodando **para o operador único, que
-  chega só para validar** — fluxo de refinamento autônomo standalone
-  disponível, proponente orquestrando, porta-voz curando atenção. **A
-  plataforma vira canal único** (ver "Forma da Plataforma"): dispatch e
-  refinamento conversacional acontecem dentro dela, com chamada à camada
-  de agente por API/CLI por baixo dos panos. O foco do Piloto é
-  qualidade do fluxo e redução de fricção operacional do dia a dia, não
-  escala de uso. Detalhado abaixo em "Papéis" e "Fluxos".
-- **MVP — release a colegas.** Quando o operador tiver convicção da
-  qualidade do Piloto, o workflow se desacopla do paper-agent e passa a
-  ser usado por outras pessoas (PMs, POs, engenheiros, arquitetos).
-  Implicações estruturais — multi-persona no chat focado e na fila,
-  runtime de agente sobre providers corporativos (OpenWebUI/Ollama),
+- **POC — primeiro fluxo ponta a ponta.** Um fluxo (implementação) roda
+  manualmente disparado pelo operador, sem priorização autônoma. Prova
+  que o conceito de fluxo orquestrado por skills se sustenta. Fechado em
+  `POC-WORKFLOW`.
+- **Protótipo — estrutura visível.** A plataforma reativa entra em cena:
+  kanban + fila populada por sinais óbvios do repo (PR aberta, épico
+  chegou em estado-gatilho, branch parou) + chat focado por item +
+  ações contextuais. Estrutura completa o suficiente para o trabalho do
+  dia a dia se apoiar nela, ainda sem agentes proativos — sinais viram
+  itens de fila por regra, não por julgamento. Milestones em curso e
+  roadmap detalhado em [ROADMAP.md](ROADMAP.md).
+- **Piloto — estrutura funcionando bem.** Priorização autônoma rodando,
+  fluxo de refinamento autônomo standalone disponível, proponente
+  orquestrando, porta-voz curando atenção. **A plataforma vira canal
+  único** (ver "Forma da Plataforma"): dispatch e refinamento
+  conversacional acontecem dentro dela, com chamada à camada de agente
+  por API/CLI por baixo dos panos. Foco em qualidade do fluxo e fricção
+  operacional baixa nos casos esperados. Detalhado abaixo em "Papéis" e
+  "Fluxos".
+- **MVP — solução robusta, release a colegas.** Quando a estrutura do
+  Piloto se mostra sólida, a robustez vira foco: tratamento de erros do
+  agente e da plataforma, comportamento previsível em borda, mensagens
+  claras. Junto com o release a colegas — o workflow se desacopla do
+  paper-agent e passa a ser usado em outros repositórios e por outras
+  pessoas. Implicações estruturais — multi-persona no chat focado e na
+  fila, runtime de agente sobre providers corporativos (OpenWebUI/Ollama),
   workflow como produto multi-repo — vivem em "Horizonte". O gatilho do
-  desacoplamento é o release a colegas, não o Piloto.
+  desacoplamento é o release, não o Piloto.
 
 ## Forma da Plataforma
 

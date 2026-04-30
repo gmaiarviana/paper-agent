@@ -12,15 +12,15 @@ Este projeto segue mentalidade **incremental e pragmática**:
 
 ### Progressão por Estágios
 
-Definições trabalhadas para este projeto, no eixo **"quem usa, e como"** (complementa o eixo técnico):
+Definições trabalhadas para este projeto, no eixo **maturidade da solução**:
 
-- **POC (Proof of Concept):** prova que a ideia faz sentido. Pode ser tosco, rodar só no ambiente do desenvolvedor, ter atalhos explícitos. Critério de saída: a ideia se sustenta o suficiente para justificar investimento em estabilidade.
-- **Protótipo:** a ideia funciona e o **próprio desenvolvedor usa de verdade, operando** — no fluxo real dele, conduzindo cada passo. Critério de saída: o desenvolvedor consegue usar sem se apoiar em conhecimento interno do código.
-- **Piloto:** o próprio desenvolvedor usa o sistema **autonomamente — chega só para validar, não para operar**. Fluxos rodam sem supervisão contínua; dispatch e escalações vivem em canais próprios da plataforma; decisões pequenas são resolvidas pelo agente. Critério de saída: rotina diária do projeto se sustenta com o dev só validando.
-- **MVP:** **outros** (colegas próximos) usam **sem o desenvolvedor do lado**. Critério de saída: valor validado fora do autor.
+- **POC (Proof of Concept):** prova que a ideia faz sentido. Pode ser tosco, ter atalhos explícitos, rodar em ambiente mínimo. Pergunta que responde: *a ideia se sustenta?*. Critério de saída: a ideia justifica investimento em forma/estrutura.
+- **Protótipo:** a ideia ganha **estrutura** — forma visível, fluxo identificável, ainda tosco e instável. Pergunta que responde: *a ideia tem forma?*. Critério de saída: a estrutura existe e está completa o suficiente para amadurecer.
+- **Piloto:** a estrutura **funciona bem** — fluxos batem, comportamento previsível nos casos esperados, fricção operacional reduzida. Pergunta que responde: *a estrutura roda bem?*. Critério de saída: a estrutura é sólida o suficiente para ser endurecida contra casos extremos.
+- **MVP:** a solução é **robusta** — resiste a entrada ruim, mensagens claras, tolerância a casos extremos, comportamento previsível em borda. Pergunta que responde: *a solução aguenta?*. Critério de saída: a solução resiste a uso real, incluindo entrada ruim e casos não previstos.
 - **Melhorias:** Expansão gradual baseada em feedback de uso real.
 
-**Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais ao estágio. POC tolera Streamlit e gambiarras; Protótipo exige fluxo navegável pelo próprio dev; Piloto exige redução de fricção operacional do dia a dia (dispatch sem ritual manual, retomada de contexto entre sessões, notificações úteis); MVP exige que outro ser humano consiga usar sem tutorial ao vivo.
+**Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais ao estágio. POC tolera atalhos e gambiarras explícitas; Protótipo exige estrutura visível mesmo que instável; Piloto exige estrutura sólida com fricção operacional baixa; MVP exige robustez (tratamento de erro, mensagens, tolerância a entrada ruim, comportamento previsível em borda).
 
 <a id="estados-de-épico"></a>
 
@@ -210,9 +210,9 @@ Alvo típico: `📋 Critérios definidos` ou `🔍 Detalhes definidos`. Acontece
 O nível de detalhe exigido para atingir `🔍 Detalhes definidos` varia por estágio:
 
 - **POC:** tolera simplificações explícitas — persistência em memória, ausência de testes automatizados para UI, atalhos de autenticação, stubs em lugar de integrações reais. As simplificações ficam registradas como tal no épico, não como dívida oculta.
-- **Protótipo:** exige checklist integral de `autonomous_readiness.md`.
-- **Piloto:** exige checklist integral de `autonomous_readiness.md` + redução explícita de pontos de fricção operacional do dia a dia do dev (dispatch sem ritual manual, retomada de contexto entre sessões, escalações chegando pelo canal certo). A diferença não é o que precisa estar definido para `🔍`, é o que o épico assume sobre o operador estar conduzindo cada passo — Piloto não assume.
-- **MVP:** exige checklist integral de `autonomous_readiness.md` + adequação ao uso por terceiros (tratamento de erro, mensagens, tolerância a entrada ruim).
+- **Protótipo:** exige checklist integral de `autonomous_readiness.md` — a estrutura precisa estar visível e completa o suficiente para ser executada, mesmo que tosca.
+- **Piloto:** exige checklist integral de `autonomous_readiness.md` + redução de fricção operacional (caminhos felizes sem ritual manual, retomada previsível de estado, escalações chegando pelo canal certo). A diferença com Protótipo não é o que precisa estar definido para `🔍`, é a expectativa de que a estrutura rode bem nos casos esperados — não basta poder rodar, tem que rodar com fricção baixa.
+- **MVP:** exige checklist integral de `autonomous_readiness.md` + robustez (tratamento de erro, mensagens claras, tolerância a entrada ruim, comportamento previsível em borda).
 
 Os detalhes específicos de cada ajuste por estágio moram em `docs/process/refinement/autonomous_readiness.md`.
 
