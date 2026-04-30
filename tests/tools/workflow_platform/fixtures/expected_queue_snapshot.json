@@ -1,0 +1,48 @@
+[
+  {
+    "context": "3 épicos em 🔍 — apto a dispatch",
+    "detected_at": "2026-04-29T12:00:00",
+    "expected_action": "Copie o prompt e rode em sessão autônoma: \"implementa o MIL-DISPATCH\"",
+    "id": "dispatch:MIL-DISPATCH",
+    "source_pointer": {
+      "epic_ids": [
+        "S-DISPATCH-1",
+        "S-DISPATCH-2",
+        "S-DISPATCH-3"
+      ],
+      "milestone_id": "MIL-DISPATCH",
+      "roadmap_path": "synthetic/roadmap-a.md"
+    },
+    "source_pointer_kind": "EpicPointer",
+    "title": "Despachar MIL-DISPATCH",
+    "type": "dispatch"
+  },
+  {
+    "context": "MIL-REVIEW em 🔀 — épicos: S-REVIEW-1, S-REVIEW-2",
+    "detected_at": "2026-04-29T12:00:00",
+    "expected_action": "Abra a PR, copie a Seção 🎯 Validação do body, cole no GitHub Copilot, e decida merge.",
+    "id": "review:pr-91",
+    "source_pointer": {
+      "milestone_id": "MIL-REVIEW",
+      "pr_number": 91,
+      "pr_url": "https://github.com/example/paper-agent/pull/91"
+    },
+    "source_pointer_kind": "PRPointer",
+    "title": "Revisar PR #91",
+    "type": "review"
+  },
+  {
+    "context": "10 dias sem commit, sem PR aberta",
+    "detected_at": "2026-04-29T12:00:00",
+    "expected_action": "Decida: (a) abrir PR (b) git push origin --delete claude/abandoned (c) resgatar contexto e seguir",
+    "id": "stale:claude/abandoned",
+    "source_pointer": {
+      "branch_name": "claude/abandoned",
+      "days_stale": 10,
+      "last_commit_at": "2026-04-19T12:00:00"
+    },
+    "source_pointer_kind": "BranchPointer",
+    "title": "Branch claude/abandoned parada",
+    "type": "stale_branch"
+  }
+]
