@@ -42,7 +42,7 @@ A skill executa, em ordem:
 1. **Pré-checagens** — branch correta, milestone existe, há ao menos um épico pré-`🔍` no milestone.
 2. **Identificar épicos a refinar** — listar do ROADMAP do produto + épicos core consumidos pelo milestone (via tabela em `docs/ROADMAP.md`).
 3. **Aplicar o checklist por épico** — para cada épico pendente, percorrer as 5 categorias de [autonomous_readiness.md](../../docs/process/refinement/autonomous_readiness.md): termos e conceitos; dados e contratos; código-alvo e integração; acoplamentos; sequência e testes.
-4. **Ajustar profundidade pelo estágio** — POC tolera simplificações declaradas; Protótipo e MVP exigem o checklist integral.
+4. **Ajustar profundidade pelo estágio** — POC tolera simplificações declaradas; Protótipo, Piloto e MVP exigem o checklist integral.
 5. **Detectar ambiguidades e resolver via consulta** — antes de perguntar ao dev, buscar nos docs (CONTEXT_INDEX → tema → spec) e em código análogo.
 6. **Bloco único de perguntas** — se sobrar ambiguidade real após consulta, PARAR e devolver ao dev em formato único, sem fragmentar.
 7. **Atualizar ROADMAPs** — escrever os detalhes de execução em cada épico refinado, marcar como `🔍 Detalhes definidos`.

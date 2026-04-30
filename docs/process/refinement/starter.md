@@ -16,7 +16,7 @@ O Claude Web não tem acesso ao repositório. Esse pack dá a ele o mínimo nece
 ### Específicos do produto em refinamento — 2 arquivos
 
 5. **`products/<produto>/ROADMAP.md`** — Épicos do produto.
-6. **`products/<produto>/docs/vision.md`** — Visão do produto (o "por quê", escopo POC / Protótipo / MVP, casos de uso). **Inclui obrigatoriamente seção `## Glossário`** distinguindo termos de **persona** (público-alvo, ex.: "pesquisador") de termos de **jornada** (operação do produto, ex.: "usuário"). Ambos podem coexistir referindo-se à mesma pessoa em contextos diferentes; o glossário deixa essa distinção explícita e evita o erro recorrente de tratar persona e jornada como sinônimos. O glossário é parte do contexto consumido por refinamento estratégico e tático — refinamento não inventa terminologia ausente do glossário; quando inventa, propõe entrada nova explicitamente.
+6. **`products/<produto>/docs/vision.md`** — Visão do produto (o "por quê", escopo POC / Protótipo / Piloto / MVP, casos de uso). **Inclui obrigatoriamente seção `## Glossário`** distinguindo termos de **persona** (público-alvo, ex.: "pesquisador") de termos de **jornada** (operação do produto, ex.: "usuário"). Ambos podem coexistir referindo-se à mesma pessoa em contextos diferentes; o glossário deixa essa distinção explícita e evita o erro recorrente de tratar persona e jornada como sinônimos. O glossário é parte do contexto consumido por refinamento estratégico e tático — refinamento não inventa terminologia ausente do glossário; quando inventa, propõe entrada nova explicitamente.
 
 ### Produtos hoje
 

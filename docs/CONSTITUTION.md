@@ -7,11 +7,11 @@ Princípios não-negociáveis para trabalhar com este projeto.
 ## 1. PRINCÍPIOS DE TRABALHO
 
 ### Unidade de Entrega
-- **Milestone.** Um **milestone** agrupa épicos relacionados dentro de um estágio (POC, Protótipo, MVP). Um estágio pode ter 1 ou N milestones. Um milestone fecha quando todos os seus épicos caem na branch do milestone, validados pelos gates automáticos, e recebem aval humano. É a unidade do fluxo único de execução (Claude Code Web autônomo).
+- **Milestone.** Um **milestone** agrupa épicos relacionados dentro de um estágio (POC, Protótipo, Piloto, MVP). Um estágio pode ter 1 ou N milestones. Um milestone fecha quando todos os seus épicos caem na branch do milestone, validados pelos gates automáticos, e recebem aval humano. É a unidade do fluxo único de execução (Claude Code Web autônomo).
 - Estágio, milestone, épico e funcionalidade são definidos no Glossário ao fim deste documento.
 
 ### Como Refinamos
-- POC → Protótipo → MVP (incremental)
+- POC → Protótipo → Piloto → MVP (incremental)
 - Discussão > especulação antecipada
 - Épicos percorrem até **oito estados** no ROADMAP. Definição canônica (lista, descrição, gatilho, responsável) em [`docs/process/refinement/planning_guidelines.md` §Estados de Épico](process/refinement/planning_guidelines.md#estados-de-épico).
 - Toda sessão de refinamento opera com um **alvo definido** (o estado ao qual o épico deve chegar). O alvo pode ser declarado pelo usuário ao abrir a sessão ou inferido pelo refinador a partir da camada que ainda não está clara e confirmado antes do primeiro edit (não é gate de abertura). Uma vez definido, o refinador — sessão estratégica (caminho principal: Claude Code Web direto no repo; secundário: Claude Web em sessão externa) ou PM skill (tático, dentro da branch do milestone) — conduz as perguntas até atingir o alvo, sem parar em estados intermediários.
@@ -129,7 +129,7 @@ Lista de milestones e/ou épicos materializada diretamente no ROADMAP do produto
 - ✅ Consultar ROADMAP.md do produto (épicos anteriores - manter padrão)
 - ✅ Propor funcionalidades detalhadas (critérios de aceite claros)
 - ✅ Perguntar sobre trade-offs técnicos (performance vs simplicidade)
-- ✅ Sugerir divisão POC → Protótipo → MVP
+- ✅ Sugerir divisão POC → Protótipo → Piloto → MVP
 
 ### Ao Discutir Comportamento Existente
 - ✅ Identificar onde está documentado (via mapa)
@@ -271,12 +271,12 @@ paper-agent/
 Cinco termos fixam a hierarquia de entrega usada pelo projeto. Refinamento, planejamento e dispatch se referem a eles com esse significado exato.
 
 **Estágio**
-Fase do produto no eixo "quem usa": POC (prova que a ideia faz sentido), Protótipo (o próprio dev usa de verdade), MVP (outros usam sem o dev do lado). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo. **Estágio** é o agregador do ROADMAP (seção "Fase <estágio>"), não é dispatcheável — milestones que o compõem é que são.
+Fase do produto no eixo "quem usa, e como": POC (prova que a ideia faz sentido), Protótipo (o próprio dev usa **operando**), Piloto (o próprio dev usa **autonomamente — chega só para validar**), MVP (outros usam sem o dev do lado). Definições completas e implicações em `docs/process/refinement/planning_guidelines.md`. Um produto atravessa os estágios em ordem; não é uma caixa de tempo. **Estágio** é o agregador do ROADMAP (seção "Fase <estágio>"), não é dispatcheável — milestones que o compõem é que são.
 
 **Milestone**
 Unidade de entrega do **fluxo único de execução** = uma sessão de trabalho coerente. Agrupa épicos relacionados dentro de um mesmo estágio. Um estágio pode ter 1 ou N milestones; o agrupamento é output do **refinamento estratégico** (sessão dedicada antes do dispatch — caminho principal via Claude Code Web direto no repo; secundário via Claude Web em sessão externa). Um milestone é disparado por linguagem natural ("implementa a POC do Ensaio"), executado numa branch `milestone/<id-em-caixa-baixa>`, e só chega em main depois do aval humano explícito.
 
-- **Id do milestone:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`.
+- **Id do milestone:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `PILOT-WORKFLOW`, `MVP-ENSAIO`. Nick `PILOT-` para o estágio Piloto.
 - **Sufixo** quando um estágio tem mais de um milestone: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`, `PROTO-WORKFLOW-ENCERRAMENTO`.
 - **Branch:** id em caixa baixa com `milestone/` na frente. Ex.: `milestone/poc-ensaio`.
 

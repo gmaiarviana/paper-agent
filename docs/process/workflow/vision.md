@@ -43,7 +43,7 @@ plataforma (fila, kanban, chat focado, processos de fundo).
   execução.
 - **Skills são portáveis entre runtimes e providers.** O contrato
   (`skill.md`) não depende de CLI nem provider específico. Hoje as skills
-  carregam em Claude Code Web contra a API Anthropic; no MVP/pós-MVP
+  carregam em Claude Code Web contra a API Anthropic; no Piloto/MVP
   devem rodar em outros runtimes (opencode, agent SDK próprio) e contra
   outros providers (OpenWebUI/Ollama corporativo, OpenAI). Limita o que
   entra na skill: nenhuma instrução depende de tool específica do CC
@@ -52,31 +52,34 @@ plataforma (fila, kanban, chat focado, processos de fundo).
 
 ## Eixo de Estágios
 
-Workflow segue o eixo "quem usa" do CONSTITUTION, adaptado para processo:
+Workflow segue o eixo "quem usa, e como" do CONSTITUTION, adaptado para
+processo:
 
 - **POC:** um fluxo funciona ponta a ponta, disparado manualmente pelo
   operador, sem priorização autônoma. Operador escolhe o que rodar.
   Fechado em `POC-WORKFLOW`.
-- **Protótipo:** o fluxo da POC está estável, o operador usa no dia a dia
-  real. **Plataforma reativa entra em cena**: kanban + fila populada por
-  sinais óbvios do repo (PR aberta, épico chegou em estado-gatilho, branch
-  parou) + chat focado por item + ações contextuais. Ainda sem agentes
-  proativos — sinais viram itens de fila por regra, não por julgamento.
-  Milestones em curso e roadmap detalhado em [ROADMAP.md](ROADMAP.md).
-- **MVP:** priorização autônoma rodando **para o operador único** —
-  fluxo de refinamento autônomo standalone disponível, proponente
-  orquestrando, porta-voz curando atenção. Operador só valida. O foco
-  do MVP é qualidade do fluxo (confiabilidade do autônomo, atrito baixo
-  no dia a dia), não escala de uso. Detalhado abaixo em "Papéis" e
-  "Fluxos".
-- **Pós-MVP — release a colegas (horizonte).** Quando o operador tiver
-  convicção da qualidade do MVP, o workflow se desacopla do paper-agent
-  e passa a ser usado por outras pessoas (PMs, POs, engenheiros,
-  arquitetos). Implicações estruturais — multi-persona no chat focado e
-  na fila, runtime de agente sobre providers corporativos
-  (OpenWebUI/Ollama), workflow como produto multi-repo — vivem em
-  "Horizonte" e não estruturam decisões dos estágios atuais. O gatilho
-  do desacoplamento é o release, não o MVP.
+- **Protótipo:** o fluxo da POC está estável, o operador usa **operando**
+  no dia a dia real. **Plataforma reativa entra em cena**: kanban + fila
+  populada por sinais óbvios do repo (PR aberta, épico chegou em
+  estado-gatilho, branch parou) + chat focado por item + ações
+  contextuais. Ainda sem agentes proativos — sinais viram itens de fila
+  por regra, não por julgamento. Milestones em curso e roadmap detalhado
+  em [ROADMAP.md](ROADMAP.md).
+- **Piloto:** priorização autônoma rodando **para o operador único, que
+  chega só para validar** — fluxo de refinamento autônomo standalone
+  disponível, proponente orquestrando, porta-voz curando atenção. **A
+  plataforma vira canal único** (ver "Forma da Plataforma"): dispatch e
+  refinamento conversacional acontecem dentro dela, com chamada à camada
+  de agente por API/CLI por baixo dos panos. O foco do Piloto é
+  qualidade do fluxo e redução de fricção operacional do dia a dia, não
+  escala de uso. Detalhado abaixo em "Papéis" e "Fluxos".
+- **MVP — release a colegas.** Quando o operador tiver convicção da
+  qualidade do Piloto, o workflow se desacopla do paper-agent e passa a
+  ser usado por outras pessoas (PMs, POs, engenheiros, arquitetos).
+  Implicações estruturais — multi-persona no chat focado e na fila,
+  runtime de agente sobre providers corporativos (OpenWebUI/Ollama),
+  workflow como produto multi-repo — vivem em "Horizonte". O gatilho do
+  desacoplamento é o release a colegas, não o Piloto.
 
 ## Forma da Plataforma
 
@@ -109,7 +112,7 @@ A fila tem dois modos conforme o estágio. **No Protótipo**, é populada
 **reativamente** — regras determinísticas convertem sinais óbvios do repo
 (PR aberta, épico chegou em estado-gatilho, branch parou) em itens.
 Operador atende na ordem que escolher; ordenação é simples (recência ou
-manual). **No MVP**, o porta-voz passa a curar a fila — ordena, agrupa,
+manual). **No Piloto**, o porta-voz passa a curar a fila — ordena, agrupa,
 filtra, escala apenas o que escapa do seu repertório. Ver "Papéis"
 abaixo.
 
@@ -130,23 +133,25 @@ estado atual, ou resposta a uma escalação pontual do agente. Em ambos,
 chega com prompt pré-montado e contexto carregado — o operador não
 monta nada.
 
-### Plataforma como canal único (horizonte do MVP)
+### Plataforma como canal único (estágio Piloto)
 
 Hoje o chat focado pode ser realizado abrindo sessão do Claude Code Web
 fora da plataforma — ela monitora, direciona e prepara contexto, mas o
-trabalho acontece em outra janela. No horizonte do MVP, a plataforma
-absorve esse canal: a conversa de refinamento e o dispatch acontecem
-**dentro** dela, e o agente (Claude Code Web hoje, outro runtime amanhã)
-é chamado por API por baixo dos panos. Operador deixa de alternar entre
+trabalho acontece em outra janela. **No Piloto**, a plataforma absorve
+esse canal: a conversa de refinamento e o dispatch acontecem **dentro**
+dela, e o agente (Claude Code Web hoje, outro runtime amanhã) é chamado
+por API/CLI por baixo dos panos. Operador deixa de alternar entre
 janelas — entra na plataforma e tudo acontece ali. Botão de dispatch
 deixa de ser comando para humano abrir sessão; vira chamada que a
 plataforma faz à camada de agente.
 
 Implicação técnica: a plataforma evolui de view sobre markdown e estado
-de PRs (Protótipo) para integradora da camada de agente (MVP).
+de PRs (Protótipo) para integradora da camada de agente (Piloto).
 Combinada com o princípio de portabilidade de skills, o runtime é
 trocável — o que a plataforma chama é um contrato de execução de fluxo,
-não um CLI específico.
+não um CLI específico. Construir esse acoplamento já no Piloto, mesmo
+que o runtime inicial seja Claude Code, é o que destrava a substituição
+de agente+modelo no MVP (release a colegas no ambiente corporativo).
 
 ### Interação por voz (médio prazo)
 
@@ -163,7 +168,7 @@ forma. A execução tem botão; o pensamento tem voz.
 ## Papéis
 
 Três papéis ativos no sistema. Operador é humano; proponente e porta-voz
-são agentes que aparecem no MVP. Refinamento e implementação **não** são
+são agentes que aparecem no Piloto. Refinamento e implementação **não** são
 papéis — são fluxos (próxima seção).
 
 ### Operador (humano, no próprio ritmo)
@@ -236,7 +241,7 @@ Disparados pelo proponente (autônomo) ou pelo operador (manual).
 Avança épico em estados pré-execução até alvo declarado (normalmente
 🔍). Skills: **PM** (refinamento tático), **EM** (preflight de tamanho).
 
-Princípios do refinamento autônomo (chega no MVP):
+Princípios do refinamento autônomo (chega no Piloto):
 
 - **Saltos pequenos.** Agente avança um estado por vez (ex.: 📐→📋),
   comita progresso na branch, e segue. Não tenta saltar 🌱→🔍 numa só
@@ -368,31 +373,33 @@ oportunidade real surgir.
 - **Outros fluxos do workflow** (ver "Fluxos > Futuros" acima). Cada um
   vira épico próprio conforme sinal de necessidade — não estruturam
   decisões atuais.
-- **Release a colegas e workflow como produto desacoplado.** Pós-MVP, a
-  plataforma deixa de ser meta-workflow só do paper-agent e passa a ser
-  usada por outras pessoas em outros repositórios. Os dois movimentos —
-  release a colegas e desacoplamento do paper-agent — andam juntos: o
-  primeiro é o gatilho do segundo (não dá pra pedir que um colega use
-  contra o repo do paper-agent). Implicações arquiteturais (fila por
-  repo, dispatch sabe qual repo, skills versionadas por destino, auth)
-  ficam pra refinamento quando o sinal aparecer concretamente. Não
-  estrutura nenhuma decisão atual.
-- **Personas humanas plurais no chat focado e na fila.** Pós-MVP. PMs e
-  POs passam visão de funcionalidade e regras de negócio; engenheiros e
-  arquitetos tomam decisões técnicas. Cada persona vê o pedaço apropriado
-  do refinamento — extensão simétrica do split que as skills PM e EM já
-  fazem do lado agente. Gatilho: 1+ colega usando regularmente.
-  Decisões dependentes (auth, escopo por persona, multi-tenancy) ficam
-  pra refinamento quando o sinal aparecer.
-- **Runtime de agente sobre providers corporativos.** Pós-MVP, suportado
-  pelo princípio de portabilidade de skills. Quando o release a colegas
-  acontecer no ambiente corporativo da Atlântico, o runtime que a
-  plataforma chama precisa rodar contra OpenWebUI/Ollama (modelos
+- **Release a colegas e workflow como produto desacoplado (estágio
+  MVP).** No MVP, a plataforma deixa de ser meta-workflow só do
+  paper-agent e passa a ser usada por outras pessoas em outros
+  repositórios. Os dois movimentos — release a colegas e desacoplamento
+  do paper-agent — andam juntos: o primeiro é o gatilho do segundo (não
+  dá pra pedir que um colega use contra o repo do paper-agent).
+  Implicações arquiteturais (fila por repo, dispatch sabe qual repo,
+  skills versionadas por destino, auth) ficam pra refinamento quando o
+  sinal aparecer concretamente. Não estrutura decisões do Piloto.
+- **Personas humanas plurais no chat focado e na fila (estágio MVP).**
+  PMs e POs passam visão de funcionalidade e regras de negócio;
+  engenheiros e arquitetos tomam decisões técnicas. Cada persona vê o
+  pedaço apropriado do refinamento — extensão simétrica do split que as
+  skills PM e EM já fazem do lado agente. Gatilho: 1+ colega usando
+  regularmente. Decisões dependentes (auth, escopo por persona,
+  multi-tenancy) ficam pra refinamento quando o sinal aparecer.
+- **Runtime de agente sobre providers corporativos (estágio MVP).**
+  Suportado pelo princípio de portabilidade de skills. Quando o release
+  a colegas acontecer no ambiente corporativo da Atlântico, o runtime
+  que a plataforma chama precisa rodar contra OpenWebUI/Ollama (modelos
   OpenAI-compatible servidos internamente) sem reescrever skill por
   skill. Caminhos candidatos hoje: Claude Code CLI via proxy LiteLLM
   (parcial — depende de modelo grande), opencode com provider OpenAI
   custom, agent SDK próprio. Decisão de runtime fica pra quando a
-  capacidade dos modelos corporativos estiver clara.
+  capacidade dos modelos corporativos estiver clara. Pré-requisito
+  técnico — o acoplamento plataforma↔agente via API/CLI — é gate do
+  Piloto, não do MVP.
 - **Modelos heterogêneos por skill.** Longo prazo, depois do release a
   colegas estabilizado. Skills baratas e curtas (ex.: PM extraindo
   detalhes de um épico) rodam em modelo local pequeno; skills caras e
@@ -406,12 +413,13 @@ oportunidade real surgir.
   próprio (ver item anterior), orquestrado pela plataforma. Trade-off
   com o estado atual: ganha isolamento e especialização, perde a
   simplicidade do "Claude Code carrega tudo no mesmo contexto". O
-  caminho passa por desacoplar carregamento de skill do CLI e por ter
-  um orquestrador explícito (proponente + porta-voz já apontam pra ele).
-- **Autonomia crescente além do MVP.** O fluxo de refinamento autônomo
-  do MVP cobre saltos pequenos com revisão humana frequente. Maturidade
-  futura amplia o repertório do porta-voz e do proponente — mais
-  decisões pequenas resolvidas sem operador, escalações mais raras e
-  mais bem direcionadas. Guardrails e ambientes de experimentação fazem
-  parte dessa evolução. Expansão passo a passo, guiada pela experiência
-  real.
+  caminho passa por desacoplar carregamento de skill do CLI (já gate do
+  Piloto) e por ter um orquestrador explícito (proponente + porta-voz
+  já apontam pra ele).
+- **Autonomia crescente além do Piloto.** O fluxo de refinamento autônomo
+  do Piloto cobre saltos pequenos com revisão humana frequente.
+  Maturidade futura amplia o repertório do porta-voz e do proponente —
+  mais decisões pequenas resolvidas sem operador, escalações mais raras
+  e mais bem direcionadas. Guardrails e ambientes de experimentação
+  fazem parte dessa evolução. Expansão passo a passo, guiada pela
+  experiência real.
