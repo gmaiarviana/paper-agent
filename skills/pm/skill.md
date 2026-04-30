@@ -103,7 +103,7 @@ Para cada épico da lista do Passo 2, percorrer as **5 categorias** de `autonomo
 
 ### Passo 5 — Ajuste por estágio
 
-Ler o estágio do milestone (POC, Protótipo, MVP) na seção `## 🎯 Milestones` do ROADMAP:
+Ler o estágio do milestone (POC, Protótipo, Piloto, MVP) na seção `## 🎯 Milestones` do ROADMAP:
 
 - **POC:** simplificações declaradas são aceitas — registrar no campo `Simplificações (se POC)` do épico. Itens incondicionais permanecem (termos definidos, shapes mínimos, arquivos listados, integração descrita, acoplamentos inspecionados, ordem declarada).
 - **Protótipo / MVP:** checklist integral. Sem permissões para simplificação.

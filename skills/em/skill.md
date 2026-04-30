@@ -61,7 +61,7 @@ Para o milestone disparado, reunir:
 
 - **`milestone_id`** (ex.: `POC-ENSAIO`)
 - **`product`** (ex.: `ensaio`)
-- **`stage`** (`POC` | `Protótipo` | `MVP`)
+- **`stage`** (`POC` | `Protótipo` | `Piloto` | `MVP`)
 - **`epics_count`** — número de épicos agrupados (produto + core)
 - **`features_count`** — soma do número de funcionalidades em todos os épicos do milestone
 - **Dependências de core não-`✅`** — listar épicos `C-<PRODUTO>-N` consumidos pelo milestone que ainda não estão em `✅ Implementado`
