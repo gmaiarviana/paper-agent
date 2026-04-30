@@ -2,9 +2,11 @@ model_list:
   # Claude Code envia model_name comecando com "claude-". O wildcard captura
   # todos e roteia para o OpenWebUI da Atlantico via protocolo OpenAI.
   # LiteLLM traduz Anthropic <-> OpenAI internamente (tool calls inclusive).
+  # Default do Claude Code: gpt-oss:20b (mais estavel no fluxo de tools).
+  # Qwen segue disponivel via aliases explicitos abaixo.
   - model_name: "claude-*"
     litellm_params:
-      model: "openai/ollama/ministral-3:14b"
+      model: "openai/gpt-oss:20b"
       api_base: os.environ/OPENWEBUI_BASE_URL
       api_key: os.environ/OPENWEBUI_API_KEY
       # drop_params global nao pega params novos do Claude Code (context_management,
@@ -17,13 +19,37 @@ model_list:
         - thinking
         - anthropic_beta
 
-  # Aliases explicitos para clientes que mandam model_name = "ollama/<modelo>"
-  # direto (Paper Agent via LLM_MODEL, probes Anthropic SDK). Sem alias, o
-  # LiteLLM dropa o prefixo "ollama/" no payload outbound e o OpenWebUI
-  # devolve 400 "Model not found" (validado em 2026-04-28).
-  - model_name: "ollama/ministral-3:14b"
+  - model_name: "ollama/qwen3.6:27b"
     litellm_params:
-      model: "openai/ollama/ministral-3:14b"
+      model: "openai/qwen3.6:35b"
+      api_base: os.environ/OPENWEBUI_BASE_URL
+      api_key: os.environ/OPENWEBUI_API_KEY
+      drop_params: true
+      additional_drop_params:
+        - context_management
+        - cache_control
+        - thinking
+        - anthropic_beta
+
+  - model_name: "ollama/qwen3.6:35b"
+    litellm_params:
+      model: "openai/qwen3.6:35b"
+      api_base: os.environ/OPENWEBUI_BASE_URL
+      api_key: os.environ/OPENWEBUI_API_KEY
+      drop_params: true
+      additional_drop_params:
+        - context_management
+        - cache_control
+        - thinking
+        - anthropic_beta
+
+  # Aliases explicitos para clientes que mandam model_name = "ollama/<modelo>"
+  # direto (Paper Agent via LLM_MODEL, probes Anthropic SDK). O backend
+  # OpenWebUI atual exposto em /api/models aceita IDs canonicos sem prefixo
+  # (ex: "qwen3.6:27b"). Por isso os aliases abaixo mapeiam para openai/<id>.
+  - model_name: "ollama/gpt-oss:20b"
+    litellm_params:
+      model: "openai/gpt-oss:20b"
       api_base: os.environ/OPENWEBUI_BASE_URL
       api_key: os.environ/OPENWEBUI_API_KEY
       drop_params: true
@@ -35,7 +61,7 @@ model_list:
 
   - model_name: "ollama/llama3.2:3b"
     litellm_params:
-      model: "openai/ollama/llama3.2:3b"
+      model: "openai/llama3.2:3b"
       api_base: os.environ/OPENWEBUI_BASE_URL
       api_key: os.environ/OPENWEBUI_API_KEY
       drop_params: true

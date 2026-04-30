@@ -34,6 +34,7 @@ env.bak/
 venv.bak/
 .venv/
 .venv-proxy/
+.venv-aider/
 
 # IDEs
 .vscode/
@@ -80,3 +81,4 @@ scripts/migrate_tests.py
 
 # Personal files
 Livros em PDF/
+.aider*

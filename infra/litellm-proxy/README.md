@@ -125,14 +125,22 @@ no OpenWebUI:
 ```powershell
 curl https://chat.alia.atlantico.com.br/api/chat/completions `
   -H "Authorization: Bearer sk-..." -H "Content-Type: application/json" `
-  -d '{"model":"ollama/ministral-3:14b","messages":[{"role":"user","content":"ok"}]}'
+  -d '{"model":"ministral-3:14b","messages":[{"role":"user","content":"ok"}]}'
 ```
 
 ### Modelo retorna 404 / "model not found"
-O nome em `litellm-config.yaml` (`openai/ollama/ministral-3:14b`) precisa
+O nome em `litellm-config.yaml` (`openai/gpt-oss:20b`) precisa
 existir em `https://chat.alia.atlantico.com.br/api/models`. Lista atual:
-- `ollama/llama3.2:3b` (rápido, leve)
-- `ollama/ministral-3:14b` (default — texto e instruções)
+- `llama3.2:3b` (rápido, leve)
+- `gpt-oss:20b` (default)
+- `qwen3.6:35b`
+
+Compatibilidade: o alias `ollama/qwen3.6:27b` segue aceito no proxy, mas hoje
+ele roteia para `qwen3.6:35b` (modelo Qwen ativo no OpenWebUI).
+
+Snapshots locais dessa lista (atualizados manualmente via API):
+- `infra/litellm-proxy/openwebui-models.snapshot.json`
+- `infra/litellm-proxy/openwebui-models.ids.txt`
 
 ### Quero apagar tudo
 1. Apague esta pasta `infra/litellm-proxy/`.
