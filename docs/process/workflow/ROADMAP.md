@@ -333,30 +333,28 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 ## 🛠️ Tooling de Desenvolvimento
 
-### OpenCode CLI como Executor de Dispatch
+### Dispatch headless via CLI
 
-**Status:** 🧭 Jornada alinhada (POC validada em 2026-05-01)
+**Status:** 🧭 Tese validada (2026-05-01) — dispatch por comando único é viável; runtime inicial do Piloto em aberto.
 
-**Escopo:** [`opencode`](https://opencode.ai/) fala OpenAI-compatible nativamente contra modelos do OpenWebUI da Atlântico. A plataforma dispara fluxos de implementação e refinamento invocando `opencode run "<prompt>"` em headless mode — sem UI, sem espera do operador, resultado aparece como commits na branch.
+**Tese:** a plataforma dispara fluxos de implementação e refinamento invocando um agente em modo headless por linha de comando — sem UI, sem operador presente, resultado aparece como commits na branch. O binário concreto é trocável (`claude` headless ou [`opencode`](https://opencode.ai/) hoje, outro amanhã); o que importa é o contrato de execução.
 
-**Estado atual — POC (2026-05-01):**
-- ✅ Comando único dispara execução: `.\infra\llm-clients\setup-opencode.ps1 && opencode run "tarefa"`
-- ✅ Lê contexto automaticamente (files, docs, estado do projeto)
-- ✅ Entende escopo (cria checklist de passos)
-- ✅ Executa em background (fire and forget)
-- ❌ Falha em persistir edições em alguns casos (investigação em andamento)
+**Validado em 2026-05-01:**
+- ✅ Comando único dispara execução em background, lê contexto do repo, executa, persiste resultado.
+- Provado em duas pilhas independentes na mesma tarefa (`E-PROTO2-4`, accordion no Ensaio):
+  - `opencode run` contra `gpt-oss:20b` via OpenWebUI (modelo local, $0)
+  - `claude` headless contra Opus 4.7 (Anthropic, ~$1.66 / 232s / 37 turnos)
 
-**Configuração:**
+**Aberto:**
+- Qualidade do opencode com modelos locais: falhas intermitentes em tool-calling (parser do Ollama rejeita formato emitido pelo modelo). Mais rodadas necessárias antes de mapear guardrails.
+- Próximo teste real é disparar **skill chain completo** (dispatch de implementação ponta a ponta), não tarefa direta.
+- Runtime inicial do Piloto: proposta atual é começar com `claude` headless (qualidade conhecida, foco fica no acoplamento plataforma↔agente) e migrar para opencode quando a qualidade fechar — encaixa no Horizonte "Runtime de agente sobre providers corporativos (estágio MVP)".
+
+**Configuração opencode (referência):**
 - Provider em `opencode.json` (root): `@ai-sdk/openai-compatible` contra OpenWebUI
 - Variáveis `.env`: `OPENWEBUI_API_KEY`, `OPENWEBUI_BASE_URL`
 - Setup via `infra/llm-clients/setup-opencode.ps1`
 - Modelos disponíveis: `gpt-oss:20b` (default), `qwen3.6:35b`, `llama3.2:3b`
-
-**Próximos passos:**
-1. Investigar limitação de edição (file persistence em headless mode)
-2. Testar em modo interativo pra validar se é bloqueio do headless ou do modelo
-3. Integrar com plataforma: botão "Disparar" → executa `opencode run` com contexto do épico
-4. Migração de skills se necessário (acoplar com AGENTS.md + `opencode.json`)
 
 ---
 
