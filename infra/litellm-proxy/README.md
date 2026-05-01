@@ -1,22 +1,16 @@
-# LiteLLM Proxy + setup de clients LLM
+# LiteLLM Proxy
 
-Setup local opcional que organiza como cada CLI/REPL fala com o backend de
-LLM da empresa (default: **OpenWebUI da Atlântico** em
-`chat.alia.atlantico.com.br`). A pasta nasceu pro proxy
-[LiteLLM](https://github.com/BerriAI/litellm) e hoje hospeda também os
-scripts de setup dos demais clientes:
+Setup local do proxy [LiteLLM](https://github.com/BerriAI/litellm) que traduz
+Anthropic ↔ OpenAI. Necessário **apenas para Claude Code**; os demais clientes
+(OpenCode, Aider) falam OpenAI direto e não usam o proxy.
 
-| Cliente | Caminho até o backend | Por quê |
-|---|---|---|
-| **Claude Code** | precisa do proxy (Anthropic ↔ OpenAI) | API do Claude Code é Anthropic-format; o proxy traduz |
-| **OpenCode** | direto no OpenWebUI (`/api`) | fala OpenAI nativo via `@ai-sdk/openai-compatible` — sem tradução = sem bug de SSE |
-| **Aider** | direto no OpenWebUI (`/api/v1`) | fala OpenAI nativo |
+> **Setup de todos os clientes:** ver [`infra/llm-clients/`](../llm-clients/).
 
 > **Heads-up sobre o Claude Code:** o LiteLLM 1.74.x tem bug ao traduzir
 > tool-use de modelos não-Anthropic (ex.: `gpt-oss:20b`, `qwen3.6:35b`). Você
 > verá `API Error: Content block is not a text block`. Por isso o setup
-> recomendado migrou pra **OpenCode** (ver seção dedicada abaixo). O proxy
-> segue documentado pra quem ainda quer testar o Claude Code.
+> recomendado migrou pra **OpenCode**. O proxy segue documentado pra quem
+> ainda quer testar o Claude Code.
 
 > **Independente do projeto.** Esta pasta é uma ferramenta de desenvolvimento.
 > Pode ser apagada inteira sem quebrar o `paper-agent`.
@@ -72,12 +66,12 @@ caso contrário, o proxy chamaria a si mesmo em loop.
 
 ---
 
-## Uso
+## Uso (apenas se usando Claude Code)
 
 ### Terminal 1 — Sobe o proxy
 
 ```powershell
-.\infra\litellm-proxy\start-proxy.ps1
+.\start-proxy.ps1
 ```
 
 Aguarde a mensagem `Application startup complete` + `Uvicorn running on
@@ -86,7 +80,7 @@ http://0.0.0.0:4000`. Mantenha esse terminal aberto.
 ### Terminal 2 — Valida o proxy
 
 ```powershell
-.\infra\litellm-proxy\test-proxy.ps1
+.\test-proxy.ps1
 ```
 
 Esperado: 3 testes verdes (health, `/v1/messages`, wildcard).
@@ -94,7 +88,7 @@ Esperado: 3 testes verdes (health, `/v1/messages`, wildcard).
 ### Terminal 3 — Aponta o Claude Code para o proxy
 
 ```powershell
-.\infra\litellm-proxy\setup-claude-code.ps1
+..\llm-clients\setup-claude-code.ps1
 claude
 ```
 
@@ -102,7 +96,7 @@ O comando `claude` vai abrir o REPL e responder via proxy. Confirme no log do
 Terminal 1: deve aparecer `POST /v1/messages?... 200 OK`.
 
 > Se o Claude Code perguntar `Do you want to use this API key?`, escolha **Yes**.
-> Ele detectou a chave dummy que setamos — é o esperado.
+> Ele detectou a chave que setamos — é o esperado.
 
 > Se aparecer `Auth conflict: Both a token (claude.ai) and an API key`, rode
 > `/logout` no REPL pra silenciar — ou ignore, o aviso é cosmético.
@@ -157,56 +151,6 @@ Snapshots locais dessa lista (atualizados manualmente via API):
 
 ---
 
-## OpenCode (recomendado)
-
-[OpenCode](https://opencode.ai/) é um REPL/agente terminal-first que fala
-OpenAI nativamente, então **bypassa o proxy** e conversa direto com o
-OpenWebUI. Não há tradução Anthropic↔OpenAI no caminho — sem o bug de SSE
-que afeta o Claude Code.
-
-### Pré-requisitos
-
-- Node 18+ (`node --version`)
-- Variáveis `OPENWEBUI_API_KEY` e `OPENWEBUI_BASE_URL` no `.env` da raiz
-
-### Instalação
-
-```powershell
-npm i -g opencode-ai@latest
-opencode --version   # confirma instalado
-```
-
-### Configuração
-
-O provider está em [`opencode.json`](../../opencode.json) na raiz do repo.
-Ele referencia `{env:OPENWEBUI_API_KEY}` / `{env:OPENWEBUI_BASE_URL}` —
-basta carregá-las na sessão.
-
-### Uso
-
-```powershell
-.\infra\litellm-proxy\setup-opencode.ps1   # carrega .env na sessao
-opencode                                    # abre TUI interativa
-# ou:
-opencode run "sua tarefa aqui" --model atlantico/gpt-oss:20b
-opencode models atlantico                   # lista modelos
-```
-
-Modelos disponíveis (registrados em `opencode.json`):
-- `atlantico/gpt-oss:20b` (default)
-- `atlantico/qwen3.6:35b`
-- `atlantico/llama3.2:3b`
-
-### Quero apagar tudo
-
-```powershell
-npm uninstall -g opencode-ai
-Remove-Item opencode.json
-Remove-Item -Recurse -Force .opencode    # estado/auth/sessions
-```
-
----
-
 ## Arquitetura
 
 ```
@@ -241,12 +185,9 @@ esse arquivo — o Claude Code não precisa saber.
 
 | Arquivo | Função |
 |---|---|
-| `litellm-config.yaml` | Roteamento de modelo → provedor (só Claude Code) |
-| `start-proxy.ps1` | Sobe o proxy carregando `.env` da raiz |
-| `test-proxy.ps1` | Smoke test do proxy (3 chamadas) |
-| `setup-claude-code.ps1` | Seta `ANTHROPIC_BASE_URL` (cliente do proxy) |
-| `setup-opencode.ps1` | Carrega `.env` p/ OpenCode (bypassa o proxy) |
-| `setup-aider.ps1` | Carrega `.env` p/ Aider (bypassa o proxy) |
+| `litellm-config.yaml` | Roteamento de modelo → provedor (wildcard `claude-*` → OpenWebUI) |
+| `start-proxy.ps1` | Sobe o proxy na porta 4000 |
+| `test-proxy.ps1` | Smoke test (3 chamadas) |
 | `openwebui-models.snapshot.json` | Snapshot da lista de modelos do OpenWebUI |
 | `openwebui-models.ids.txt` | Mesma lista, só IDs |
 | `requirements.txt` | Versão pinada do LiteLLM |
