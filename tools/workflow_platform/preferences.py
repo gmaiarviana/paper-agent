@@ -98,7 +98,7 @@ def apply_visibility_filter(
     result: list[ParsedRoadmap] = []
     for r in roadmaps:
         try:
-            rel = str(Path(r.path).relative_to(repo_root))
+            rel = Path(r.path).relative_to(repo_root).as_posix()
         except ValueError:
             continue
         if rel in visible:

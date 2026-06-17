@@ -72,7 +72,7 @@ def _label_for_roadmap(path: str, repo_root: Path) -> str:
         - fallback: parent name title-cased ou stem
     """
     try:
-        rel = str(Path(path).relative_to(repo_root))
+        rel = Path(path).relative_to(repo_root).as_posix()
     except ValueError:
         return Path(path).stem.title() or path
     if rel in LABEL_OVERRIDES:
@@ -198,7 +198,7 @@ def _render_sidebar(
     selected_paths: list[str] = []
     for r in all_roadmaps:
         try:
-            rel = str(Path(r.path).relative_to(config.repo_root))
+            rel = Path(r.path).relative_to(config.repo_root).as_posix()
         except ValueError:
             rel = r.path
         label = _label_for_roadmap(r.path, config.repo_root)
@@ -218,7 +218,7 @@ def _render_sidebar(
     all_paths = []
     for r in all_roadmaps:
         try:
-            all_paths.append(str(Path(r.path).relative_to(config.repo_root)))
+            all_paths.append(Path(r.path).relative_to(config.repo_root).as_posix())
         except ValueError:
             all_paths.append(r.path)
 
