@@ -130,6 +130,9 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
   - Não há ordenamento (conclusão deveria vir por último)
   - Usuário não tem como indicar o que está bom/ruim em cada seção para refinar
   - Favorecer qualidade sobre quantidade
+- **Débitos técnicos herdados (validação RTE PROTO-ENSAIO-2, PR #122 — candidatos, NÃO requisito forte):** aceitos como débito documentado para não bloquear o merge. Quem refinar este milestone decide se entram, viram épico próprio ou são descartados — a correção é de quem implementou.
+  - **DT-1 — Re-aceite de estrutura é destrutivo:** aceitar uma re-proposta do Estruturador depois de já ter gerado o corpo de seções recria `current_article` com `body=""`, descartando o texto gerado sem aviso (`app/state.py::_commit_proposal`). O auto-commit antigo não alcançava esse caso (só comitava com artigo vazio/todo-`empty`), então é comportamento novo desta PR. Follow-up de E-PROTO2-1. Mitigação possível: preservar `body`/`status` dos títulos que sobrevivem ao re-aceite, ou confirmar antes de descartar conteúdo.
+  - **DT-2 — Edição inline de seção sem superfície de UI:** os handlers `start_editing_section`/`cancel_editing` existem em `app/state.py`, mas nenhum componente os dispara (já era assim antes desta PR — não é regressão). O roteiro manual 4.3 de `docs/process/current_validation.md` (clicar no corpo → textarea editável → badge `Editado`) não passa hoje. Follow-up de E-PROTO-2.3: wirar um `on_click`/botão de edição no corpo do accordion (`app/components/article_panel.py::_section_body`).
 - **Épicos planejados (a detalhar no refinamento):** E-PROTO3-1 Guardrails de contexto por seção, E-PROTO3-2 Ordem de geração guiada, E-PROTO3-3 Loop de refinamento por seção
 - **Dependências:** PROTO-ENSAIO-2 (transparência deve estar resolvida antes de trabalhar qualidade)
 - **Branch associada:** `milestone/proto-ensaio-3` (a criar)
