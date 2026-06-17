@@ -253,6 +253,59 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   Apto ao fluxo autônomo após FILA-4 chegar a `🔍` **e**
   `PROTO-WORKFLOW-FAXINA` mergear.
 
+### PROTO-WORKFLOW-CLEANUP-TRIGGER
+
+- **Objetivo:** corrigir a Action de cleanup pós-merge entregue em
+  W-PROTO-6 — hoje o trigger só casa com branches `milestone/*`, mas
+  as PRs reais do projeto usam nomes do harness do Claude Code Web
+  (`claude/execute-project-workflow-*`, `claude/proto-workflow-faxina-*`,
+  etc.) e nunca disparam. Consequência: ~10 épicos presos em 🔀 e
+  ~12 em ✅ sem faxina automatizada. Inclui backfill manual das
+  PRs já mergeadas via o `workflow_dispatch` que a Action já expõe.
+- **Estágio:** Protótipo
+- **Épicos agrupados:** W-PROTO-17
+- **Dependências de core:** nenhuma; revisita W-PROTO-6 entregue em
+  PROTO-WORKFLOW-ENCERRAMENTO (PR #83).
+- **Branch associada:** `milestone/proto-workflow-cleanup-trigger`
+- **Status dos épicos:** W-PROTO-17 🌱.
+- **Nota:** milestone declarado em 2026-06-17 a partir de revisão
+  técnica subsequente à entrega de PROTO-WORKFLOW-FILA (PR #121).
+  Defeito não foi pego antes porque a Action exige merge real para
+  observar — só ficou visível quando 3 milestones consecutivos
+  fecharam sem disparar cleanup. Épico em `🌱 Visão` — aguarda
+  refinamento estratégico antes do dispatch (decisão de trigger
+  robusto: label de milestone na PR, header de
+  `current_implementation.md` no commit mergeado, ou Seção 🎯 do
+  body; mais derivação correta de `MILESTONE_ID` para branches
+  `claude/*`).
+
+### PILOTO-WORKFLOW-FILA-UX
+
+- **Objetivo:** refinamento de UX da fila reativa entregue em
+  PROTO-WORKFLOW-FILA — duas frições identificadas em uso real:
+  (a) painel de detalhe vive no rodapé da página, depois de todos
+  os cards, e some abaixo da viewport quando a fila tem 15+ itens;
+  (b) cards de REVIEW/CLEANUP/STALE_BRANCH têm `expected_action`
+  igual ao conteúdo que o painel de detalhe expõe — clicar o card
+  não acrescenta nada nesses tipos, só em DISPATCH/REFINE onde o
+  prompt é um artefato grande gerado pelos builders.
+- **Estágio:** Piloto
+- **Épicos agrupados:** W-PILOTO-FILA-UX-1
+- **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
+  mergeada.
+- **Branch associada:** `milestone/piloto-workflow-fila-ux`
+- **Status dos épicos:** W-PILOTO-FILA-UX-1 🌱.
+- **Nota:** milestone declarado em 2026-06-17 a partir de revisão
+  técnica subsequente à entrega de PROTO-WORKFLOW-FILA (PR #121).
+  Ambas as funcionalidades convergem com a transição
+  Protótipo→Piloto registrada em §"Tooling de Desenvolvimento"
+  (tese validada 2026-05-01): no Piloto, clicar o card deixa de
+  copiar prompt e passa a disparar execução headless do agente
+  (`claude` ou `opencode`). UX da fila no Piloto pode reconsiderar
+  shape do painel quando "ação esperada = disparar", não "ação
+  esperada = copiar". Épico em `🌱 Visão` — aguarda refinamento
+  estratégico antes do dispatch.
+
 ### MVP-WORKFLOW-DOC
 
 - **Objetivo:** faxina documental da fase MVP — quebrar o
@@ -469,7 +522,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Protótipo
 
-> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1, 2, 3) · `PROTO-WORKFLOW-AJUSTES` (W-PROTO-8, W-PROTO-9) · `PROTO-WORKFLOW-PLATAFORMA` (W-PROTO-PLAT-1..4) · `PROTO-WORKFLOW-FILA` (W-PROTO-FILA-1..3).
+> **Milestones:** `PROTO-WORKFLOW-ENCERRAMENTO` (W-PROTO-5, 6, 7) · `PROTO-WORKFLOW-DOC` (W-PROTO-DOC-1, 2, 3) · `PROTO-WORKFLOW-AJUSTES` (W-PROTO-8, W-PROTO-9) · `PROTO-WORKFLOW-PLATAFORMA` (W-PROTO-PLAT-1..4) · `PROTO-WORKFLOW-FILA` (W-PROTO-FILA-1..3) · `PROTO-WORKFLOW-CLEANUP-TRIGGER` (W-PROTO-17).
 
 #### ÉPICO W-PROTO-DOC-1: Reescrita per-milestone de `docs/process/autonomous/`
 
@@ -2166,6 +2219,69 @@ Padronização incluída:
 - Funcionalidade originalmente esboçada como "2.3 Variantes por fluxo (manual vs autônomo)" — cai junto com W-PROTO-15 (não há mais dois fluxos pra distinguir).
 - Variantes por stack (Streamlit vs Reflex) — vivem em `.github/copilot-instructions.md` via W-PROTO-14, referenciadas pelo passo 5 do template.
 - Reescrever templates de teste em `docs/testing/` — sem sinal de atrito (público diferente: documentação de teste, não de validação local pré-merge).
+
+---
+
+#### ÉPICO W-PROTO-17: Trigger da Action de cleanup não casa com branches harness-assigned
+
+**Milestone:** `PROTO-WORKFLOW-CLEANUP-TRIGGER`
+
+**Objetivo:** corrigir o defeito que impediu a Action `.github/workflows/milestone-cleanup.yml` (entregue em W-PROTO-6 / PROTO-WORKFLOW-ENCERRAMENTO) de disparar em qualquer milestone real do projeto. Restaura cleanup automático pós-merge e roda backfill manual dos milestones já mergeados.
+
+**Status:** 🌱 Visão
+
+**Dependências:** revisita W-PROTO-6 (PR #83); coordena com qualquer mudança futura na nomenclatura de branches do harness.
+
+### Diagnóstico (verbatim da revisão técnica 2026-06-17)
+
+- `.github/workflows/milestone-cleanup.yml` (~linha 49) só dispara quando a branch da PR começa com `milestone/`. As PRs reais usam nomes do harness do Claude Code Web (`claude/execute-project-workflow-*`, `claude/proto-workflow-faxina-*`, `claude/implement-copilot-stack-*`), que nunca casam.
+- Consequência: o cleanup automático **nunca rodou**. ROADMAP do workflow acumulou ~10 épicos presos em 🔀 após o merge das PRs #106 (PLATAFORMA), #115 (W-PROTO-14), #117 (FAXINA), e ~12 épicos em ✅ sem faxina.
+- Defeito secundário: mesmo se o trigger casasse, a derivação de `MILESTONE_ID` (~linha 69, strip de `milestone/`) produziria valor errado num branch `claude/*`.
+
+### Escopo a refinar antes do dispatch
+
+- **(a) Trigger robusto, independente do nome da branch.** Candidatos a avaliar:
+  - Label de milestone na PR (precisa de protocolo da RTE pra aplicar).
+  - Ler `MILESTONE_ID` do header de `docs/process/current_implementation.md` no commit mergeado.
+  - Extrair do body da PR (linha "Milestone: ..." da Seção 🎯).
+  Corrigir também a derivação de `MILESTONE_ID` pra qualquer branch reconhecida pelo trigger novo.
+- **(b) Backfill dos já-mergeados.** A Action já expõe `workflow_dispatch`. Três execuções manuais, uma por PR mergeada sem cleanup: #106 (PLATAFORMA, `milestone_id=PROTO-WORKFLOW-PLATAFORMA`), #115 (COPILOT-STACK, `milestone_id=PROTO-WORKFLOW-COPILOT-STACK`), #117 (FAXINA, `milestone_id=PROTO-WORKFLOW-FAXINA`), passando `merged_pr_url` e `merge_sha` correspondentes.
+
+### Fora do escopo
+
+- Refatorar a Cleanup skill (`skills/cleanup/skill.md`) em si — escopo é o trigger e a derivação de `MILESTONE_ID`, não o que a skill faz depois.
+- Política nova de nomenclatura de branches do harness — incompatibilidade é assimétrica (custoso mudar o harness; trivial mudar o trigger).
+- Substituir a Action por outro runtime — escopo é fix de regressão, não redesign.
+
+---
+
+### ⏳ Fase Piloto
+
+> **Milestones:** `PILOTO-WORKFLOW-FILA-UX` (W-PILOTO-FILA-UX-1).
+
+#### ÉPICO W-PILOTO-FILA-UX-1: Refinamento de UX da fila reativa
+
+**Milestone:** `PILOTO-WORKFLOW-FILA-UX`
+
+**Objetivo:** reduzir duas frições identificadas em uso real da fila reativa entregue em PROTO-WORKFLOW-FILA (PR #121) — painel de detalhe que some abaixo da viewport quando a fila enche; e cards de REVIEW/CLEANUP/STALE_BRANCH que duplicam no detalhe o que já está no card.
+
+**Status:** 🌱 Visão
+
+**Dependências:** PROTO-WORKFLOW-FILA mergeada; coordena com a transição "clique do card dispara execução" registrada em §"Tooling de Desenvolvimento" (tese validada 2026-05-01).
+
+### Funcionalidades (esboço):
+
+- **1.1 Posição do painel de detalhe** — hoje renderiza no rodapé, depois de TODOS os cards (`tools/workflow_platform/app.py`, função `main`, dentro da `tab_queue`). Com fila cheia (15+ itens) o operador não vê o painel sem scroll. Alvos plausíveis: coluna lateral à fila (coerente com vision §"Fila / Kanban"), topo, ou painel fixo via `st.expander` sticky. Refinar trade-offs em sessão estratégica.
+
+- **1.2 Card não duplicar o prompt em REVIEW/CLEANUP/STALE_BRANCH** — para esses tipos `expected_action` já é a instrução inteira; abrir o detalhe não acrescenta nada além do `st.code` do mesmo texto. Diferenciar shape: card com ação curta e copiável direto; painel de detalhe agregando valor real só em DISPATCH/REFINE, onde o prompt é artefato grande gerado por `build_dispatch_prompt`/`build_refinement_prompt`. Refinar critério "abre painel ou não" no épico.
+
+**Nota de convergência:** ambas as funcionalidades pegam carona na transição Protótipo→Piloto registrada em §"Dispatch headless via CLI" — no Piloto, clicar o card deixa de copiar prompt e passa a disparar execução headless do agente (`claude` ou `opencode`). UX da fila no Piloto pode reconsiderar shape do painel quando "ação esperada = disparar", não "ação esperada = copiar". Refinar antes do dispatch se a transição já está consolidada no momento da sessão estratégica, ou registrar dependência cross-épico se não.
+
+### Fora do escopo
+
+- Implementar o clique-dispara-execução em si — é trabalho do épico de transição Protótipo→Piloto registrado em §"Tooling de Desenvolvimento", não desta UX.
+- Reescrever o layout do kanban — escopo é só a tab Fila.
+- Personalização por operador (tamanho do painel, qual coluna) — sem sinal de atrito; entra se virar.
 
 ---
 
