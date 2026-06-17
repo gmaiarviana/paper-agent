@@ -1,0 +1,153 @@
+﻿{
+    "captured_at":  "2026-04-29T12:12:57.6383977-03:00",
+    "source":  "https://chat.alia.atlantico.com.br/api/v1/models",
+    "data":  [
+                 {
+                     "id":  "gpt-oss:20b",
+                     "object":  "model",
+                     "created":  1677610602,
+                     "owned_by":  "openai",
+                     "connection_type":  "external",
+                     "name":  "gpt-oss:20b",
+                     "openai":  {
+                                    "id":  "gpt-oss:20b",
+                                    "object":  "model",
+                                    "created":  1677610602,
+                                    "owned_by":  "openai",
+                                    "connection_type":  "external"
+                                },
+                     "urlIdx":  0,
+                     "info":  {
+                                  "id":  "gpt-oss:20b",
+                                  "user_id":  "fe77c87e-ad88-4500-9a24-bf1172cdd1ab",
+                                  "base_model_id":  null,
+                                  "name":  "gpt-oss:20b",
+                                  "meta":  {
+                                               "description":  null,
+                                               "capabilities":  null
+                                           },
+                                  "access_grants":  [
+                                                        {
+                                                            "id":  "a3e00fd3-db19-4477-b540-95b5866652ab",
+                                                            "resource_type":  "model",
+                                                            "resource_id":  "gpt-oss:20b",
+                                                            "principal_type":  "user",
+                                                            "principal_id":  "*",
+                                                            "permission":  "read",
+                                                            "created_at":  1777475232
+                                                        }
+                                                    ],
+                                  "is_active":  true,
+                                  "updated_at":  1777475232,
+                                  "created_at":  1777475232
+                              },
+                     "actions":  [
+
+                                 ],
+                     "filters":  [
+
+                                 ],
+                     "tags":  [
+
+                              ]
+                 },
+                 {
+                     "id":  "qwen3.6:35b",
+                     "object":  "model",
+                     "created":  1677610602,
+                     "owned_by":  "openai",
+                     "connection_type":  "external",
+                     "name":  "qwen3.6:35b",
+                     "openai":  {
+                                    "id":  "qwen3.6:35b",
+                                    "object":  "model",
+                                    "created":  1677610602,
+                                    "owned_by":  "openai",
+                                    "connection_type":  "external"
+                                },
+                     "urlIdx":  0,
+                     "info":  {
+                                  "id":  "qwen3.6:35b",
+                                  "user_id":  "fe77c87e-ad88-4500-9a24-bf1172cdd1ab",
+                                  "base_model_id":  null,
+                                  "name":  "qwen3.6:35b",
+                                  "meta":  {
+                                               "description":  null,
+                                               "capabilities":  null
+                                           },
+                                  "access_grants":  [
+                                                        {
+                                                            "id":  "033a0825-9a91-408c-b5a7-7488f5002222",
+                                                            "resource_type":  "model",
+                                                            "resource_id":  "qwen3.6:35b",
+                                                            "principal_type":  "user",
+                                                            "principal_id":  "*",
+                                                            "permission":  "read",
+                                                            "created_at":  1777475222
+                                                        }
+                                                    ],
+                                  "is_active":  true,
+                                  "updated_at":  1777475222,
+                                  "created_at":  1777475222
+                              },
+                     "actions":  [
+
+                                 ],
+                     "filters":  [
+
+                                 ],
+                     "tags":  [
+
+                              ]
+                 },
+                 {
+                     "id":  "llama3.2:3b",
+                     "object":  "model",
+                     "created":  1677610602,
+                     "owned_by":  "openai",
+                     "connection_type":  "external",
+                     "name":  "llama3.2:3b",
+                     "openai":  {
+                                    "id":  "llama3.2:3b",
+                                    "object":  "model",
+                                    "created":  1677610602,
+                                    "owned_by":  "openai",
+                                    "connection_type":  "external"
+                                },
+                     "urlIdx":  0,
+                     "info":  {
+                                  "id":  "llama3.2:3b",
+                                  "user_id":  "fe77c87e-ad88-4500-9a24-bf1172cdd1ab",
+                                  "base_model_id":  null,
+                                  "name":  "llama3.2:3b",
+                                  "meta":  {
+                                               "description":  null,
+                                               "capabilities":  null
+                                           },
+                                  "access_grants":  [
+                                                        {
+                                                            "id":  "34dcf36d-a39b-4be8-9277-30739bdd4d40",
+                                                            "resource_type":  "model",
+                                                            "resource_id":  "llama3.2:3b",
+                                                            "principal_type":  "user",
+                                                            "principal_id":  "*",
+                                                            "permission":  "read",
+                                                            "created_at":  1777473720
+                                                        }
+                                                    ],
+                                  "is_active":  true,
+                                  "updated_at":  1777473720,
+                                  "created_at":  1777473720
+                              },
+                     "actions":  [
+
+                                 ],
+                     "filters":  [
+
+                                 ],
+                     "tags":  [
+
+                              ]
+                 }
+             ]
+}

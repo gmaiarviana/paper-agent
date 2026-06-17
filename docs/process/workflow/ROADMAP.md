@@ -334,27 +334,28 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 ## 🛠️ Tooling de Desenvolvimento
 
-### Claude Code CLI via OpenWebUI (proxy LiteLLM)
+### Dispatch headless via CLI
 
-**Status:** 🌱 Visão (parcialmente operacional — texto sim; uso pesado com tool calling depende de modelo maior do que os disponíveis hoje)
+**Status:** 🧭 Tese validada (2026-05-01) — dispatch por comando único é viável; runtime inicial do Piloto em aberto.
 
-**Escopo:** este item é sobre **a CLI do Claude Code rodando contra modelos do OpenWebUI da Atlântico** em vez da API Anthropic. **Não cobre** o uso de OpenWebUI dentro do produto Paper Agent — esse caminho é runtime de produto e está tratado em [`docs/ROADMAP.md`](../../ROADMAP.md) (ÉPICO 2).
+**Tese:** a plataforma dispara fluxos de implementação e refinamento invocando um agente em modo headless por linha de comando — sem UI, sem operador presente, resultado aparece como commits na branch. O binário concreto é trocável (`claude` headless ou [`opencode`](https://opencode.ai/) hoje, outro amanhã); o que importa é o contrato de execução.
 
-**Estado atual:**
-- `infra/litellm-proxy/` está montado, traduz Anthropic↔OpenAI e preserva tool calling end-to-end (validado por debug em 2026-04-28).
-- Configurado via `.env`: `OPENWEBUI_API_KEY`, `OPENWEBUI_BASE_URL`, `ANTHROPIC_BASE_URL=http://localhost:4000`. `setup-claude-code.ps1` ativa a sessão.
-- Pin obrigatório: LiteLLM 1.74.15 (1.83.x quebra em loop no Windows).
-- `litellm-config.yaml` precisa de alias explícito por modelo do OpenWebUI (sem alias, LiteLLM strip o prefixo `ollama/` e o backend devolve 400). Aliases pra `ollama/ministral-3:14b` e `ollama/llama3.2:3b` foram adicionados em 2026-04-28 (commit `14bf827`).
+**Validado em 2026-05-01:**
+- ✅ Comando único dispara execução em background, lê contexto do repo, executa, persiste resultado.
+- Provado em duas pilhas independentes na mesma tarefa (`E-PROTO2-4`, accordion no Ensaio):
+  - `opencode run` contra `gpt-oss:20b` via OpenWebUI (modelo local, $0)
+  - `claude` headless contra Opus 4.7 (Anthropic, ~$1.66 / 232s / 37 turnos)
 
-**Limitação atual — capacidade do modelo:** com pipeline correto, o `ministral-3:14b` ainda apresenta saídas subótimas no Claude Code: responde conteúdo coerente em prompts triviais ("oi"), mas envelopa o texto em JSON serializado (ex.: `{"message": "Oi! 👋..."}`) em vez de emitir um `content[].text` puro pelo protocolo Anthropic. Hipótese: o modelo de 14B params se confunde tentando imitar formato estruturado quando o system prompt do CC traz 10+ tools (Read, Edit, Bash, Grep, Glob, etc.). Resultado prático: Claude Code via OpenWebUI fica usável pra conversa leve, **não** pra trabalho pesado de Read/Edit/Bash com fidelidade.
+**Aberto:**
+- Qualidade do opencode com modelos locais: falhas intermitentes em tool-calling (parser do Ollama rejeita formato emitido pelo modelo). Mais rodadas necessárias antes de mapear guardrails.
+- Próximo teste real é disparar **skill chain completo** (dispatch de implementação ponta a ponta), não tarefa direta.
+- Runtime inicial do Piloto: proposta atual é começar com `claude` headless (qualidade conhecida, foco fica no acoplamento plataforma↔agente) e migrar para opencode quando a qualidade fechar — encaixa no Horizonte "Runtime de agente sobre providers corporativos (estágio MVP)".
 
-**Caminhos de evolução:**
-
-*Caminho 1 — modelo maior no OpenWebUI:* checar com a Atlântico se há modelos 30B+ disponíveis (Llama 3.1 70B, Qwen 2.5 32B+, ou similar). Modelos maiores tipicamente lidam bem com 10+ tools simultâneas e respeitam o protocolo Anthropic nativo. Adotar = adicionar alias no yaml apontando pro novo modelo e re-testar. Sem modelo maior disponível, (B) fica como "best effort" pra texto e o uso pesado continua exigindo Anthropic direto.
-
-*Caminho 2 — trocar a CLI por `opencode`:* [`sst/opencode`](https://github.com/sst/opencode) fala OpenAI-compatible nativamente, sem proxy de tradução. Configuração via `opencode.json` no root com provider custom `@ai-sdk/openai-compatible` ([docs](https://opencode.ai/docs/providers/#custom)). Trade-off contra adoção total: skills atuais em `skills/<nome>/skill.md` não plugam no discovery do opencode (espera `.opencode/skills/<nome>/SKILL.md` em caps com frontmatter `name`/`description`). `CLAUDE.md`/`.claudecode.md`/permissões portam via `AGENTS.md` + `opencode.json` com pouca fricção. Adoção = épico próprio com pacote de migração das skills. Mantém o mesmo trade-off de capacidade do modelo se rodar contra Ollama pequeno.
-
-*Manutenção preventiva:* atualizar LiteLLM pra v1.81.16 herda fixes de tool calling acumulados sem cair na regressão de Prisma/DB de 1.82.x/1.83.x ([#25260](https://github.com/BerriAI/litellm/issues/25260)). Não bloqueador no estado atual.
+**Configuração opencode (referência):**
+- Provider em `opencode.json` (root): `@ai-sdk/openai-compatible` contra OpenWebUI
+- Variáveis `.env`: `OPENWEBUI_API_KEY`, `OPENWEBUI_BASE_URL`
+- Setup via `infra/llm-clients/setup-opencode.ps1`
+- Modelos disponíveis: `gpt-oss:20b` (default), `qwen3.6:35b`, `llama3.2:3b`
 
 ---
 

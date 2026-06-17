@@ -22,46 +22,52 @@ def _status_badge(status: SectionStatus) -> rx.Component:
 
 
 def _section_card(section: dict) -> rx.Component:
-    """Renderiza uma seção do artigo com controles de geração e edição."""
-    return rx.box(
-        # Cabeçalho da seção com badge de status
-        rx.hstack(
-            rx.heading(section["title"], size="3"),
-            _status_badge(section["status"]),
-            justify="between",
-            align="center",
-            width="100%",
-        ),
-        # Conteúdo: placeholder ou markdown
-        rx.cond(
-            section["body"] == "",
-            rx.text(
-                "Clique em Gerar para redigir esta seção.",
-                color_scheme="gray",
-                size="2",
-                style={"font_style": "italic"},
-                margin_y="8px",
-            ),
-            rx.box(
-                rx.markdown(section["body"]),
-                margin_y="8px",
+    """Renderiza uma seção do artigo como item de accordion (E-PROTO2-4)."""
+    return rx.accordion.item(
+        # Header clicável: título + badge (chevron é embutido no trigger)
+        rx.accordion.header(
+            rx.accordion.trigger(
+                rx.hstack(
+                    rx.heading(section["title"], size="3"),
+                    _status_badge(section["status"]),
+                    justify="between",
+                    align="center",
+                    width="100%",
+                ),
+                width="100%",
             ),
         ),
-        # Botão de geração — usa section["index"] armazenado no estado
-        rx.button(
-            rx.cond(section["body"] == "", "Gerar", "Regenerar"),
-            on_click=EnsaioState.generate_section(section["index"]),
-            disabled=EnsaioState.processing_agent != "",
-            size="1",
-            color_scheme="blue",
-            variant="soft",
-            margin_top="8px",
+        # Conteúdo expandido: corpo + botão de geração
+        rx.accordion.content(
+            rx.cond(
+                section["body"] == "",
+                rx.text(
+                    "Clique em Gerar para redigir esta seção.",
+                    color_scheme="gray",
+                    size="2",
+                    style={"font_style": "italic"},
+                    margin_y="8px",
+                ),
+                rx.box(
+                    rx.markdown(section["body"]),
+                    margin_y="8px",
+                ),
+            ),
+            rx.button(
+                rx.cond(section["body"] == "", "Gerar", "Regenerar"),
+                on_click=EnsaioState.generate_section(section["index"]),
+                disabled=EnsaioState.processing_agent != "",
+                size="1",
+                color_scheme="blue",
+                variant="soft",
+                margin_top="8px",
+            ),
         ),
-        padding="16px",
+        value=section["index"].to_string(),
+        background="white",
         border="1px solid var(--gray-4)",
         border_radius="8px",
         margin_bottom="12px",
-        background="white",
     )
 
 
@@ -99,7 +105,14 @@ def article_panel() -> rx.Component:
             rx.cond(
                 EnsaioState.current_article.length() > 0,
                 rx.box(
-                    rx.foreach(EnsaioState.current_article, _section_card),
+                    rx.accordion.root(
+                        rx.foreach(EnsaioState.current_article, _section_card),
+                        type="multiple",
+                        default_value=[],
+                        collapsible=True,
+                        width="100%",
+                        variant="ghost",
+                    ),
                     padding="16px",
                 ),
                 # Estado vazio — aguardando proposta do Estruturador

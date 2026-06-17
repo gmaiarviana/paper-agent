@@ -145,7 +145,7 @@ A linha `[SCRUM-MASTER] skill carregada: ...` já foi adicionada no Passo 1. Gar
 
 **Milestone:** <ID> — <nome em 1 linha do ROADMAP>
 **Produto:** <produto>
-**Estágio:** <POC | Protótipo | MVP>
+**Estágio:** <POC | Protótipo | Piloto | MVP>
 **Branch:** milestone/<id-em-caixa-baixa>
 **Modo:** Autônomo
 **Dispatch recebido em:** <YYYY-MM-DD>

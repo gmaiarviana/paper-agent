@@ -29,9 +29,9 @@ Ao receber a frase de dispatch, seguir este parser:
 
 Procurar, em ordem de prioridade:
 
-1. **Id literal** no formato `<ESTAGIO>-<PRODUTO>[-SUFIXO]` em caixa alta (ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`, `POC-ENSAIO-ALPHA`). Se encontrado, é o milestone alvo.
-2. **Combinação estágio + produto** em prosa (ex.: "POC do Ensaio", "MVP do Revelar", "Protótipo do Ensaio"). Mapear:
-   - "POC" → `POC`; "Protótipo"/"proto" → `PROTO`; "MVP" → `MVP`
+1. **Id literal** no formato `<ESTAGIO>-<PRODUTO>[-SUFIXO]` em caixa alta (ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `PILOT-WORKFLOW`, `MVP-ENSAIO`, `POC-ENSAIO-ALPHA`). Se encontrado, é o milestone alvo.
+2. **Combinação estágio + produto** em prosa (ex.: "POC do Ensaio", "MVP do Revelar", "Piloto do Workflow", "Protótipo do Ensaio"). Mapear:
+   - "POC" → `POC`; "Protótipo"/"proto" → `PROTO`; "Piloto"/"pilot" → `PILOT`; "MVP" → `MVP`
    - Produto pelo nome em caixa baixa do diretório em `products/` (ex.: "Ensaio" → `ENSAIO`, "Revelar" → `REVELAR`)
    - Resultado: `<ESTAGIO>-<PRODUTO>` (ex.: `POC-ENSAIO`). Se o ROADMAP do produto tiver sufixos (`-ALPHA`, `-BETA`), perguntar qual, salvo se a frase identificar explicitamente.
 
@@ -44,7 +44,7 @@ Buscar em `products/<produto>/ROADMAP.md` → seção `## 🎯 Milestones` → s
 Extrair do bloco do milestone:
 - **Objetivo:** (texto literal)
 - **Épicos agrupados:** lista de ids (ex.: `E-POC-1, E-POC-2, E-POC-3`)
-- **Estágio:** POC / Protótipo / MVP
+- **Estágio:** POC / Protótipo / Piloto / MVP
 - **Branch associada:** `milestone/<id-em-caixa-baixa>`
 - **Status dos épicos:** resumo textual
 

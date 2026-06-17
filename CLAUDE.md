@@ -101,6 +101,27 @@ pergunta final) — não como lista solta.
 
 ---
 
+## Regra durável: edições longas em chunks por seção
+
+**Default operacional:** quando o `new_string` projetado for grande (> ~80
+linhas) **ou** quando o edit toca seções **independentes** do arquivo (não
+parágrafos consecutivos do mesmo bloco), preferir **um `Edit` por seção**.
+Para arquivo novo grande (> ~150 linhas), criar esqueleto curto com `Write`
+e preencher com `Edit`s.
+
+**Quando não aplica:** edit pequeno — mesmo em arquivo grande — ou várias
+mudanças contidas num único bloco contínuo. Tamanho do arquivo sozinho
+não dispara: o gatilho é o tamanho do `new_string` ou a independência
+das regiões tocadas. Edit/Write único segue normal, sem fragmentar à toa.
+
+**Por quê durável aqui:** evita `Stream idle timeout` recorrente e ganha
+fluidez (cada Edit completa em segundos, mantém o stream ativo, falha
+parcial não perde trabalho anterior). Rationale completo, sintoma e
+mitigação adicional (`CLAUDE_STREAM_IDLE_TIMEOUT_MS`) em
+[`.claudecode.md`](.claudecode.md) §4.5.
+
+---
+
 ## Referências canônicas
 
 - Workflow autônomo completo → [`docs/process/autonomous/workflow.md`](docs/process/autonomous/workflow.md)

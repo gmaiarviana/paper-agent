@@ -12,14 +12,15 @@ Este projeto segue mentalidade **incremental e pragmática**:
 
 ### Progressão por Estágios
 
-Definições trabalhadas para este projeto, no eixo **"quem usa"** (complementa o eixo técnico):
+Definições trabalhadas para este projeto, no eixo **maturidade da solução**:
 
-- **POC (Proof of Concept):** prova que a ideia faz sentido. Pode ser tosco, rodar só no ambiente do desenvolvedor, ter atalhos explícitos. Critério de saída: a ideia se sustenta o suficiente para justificar investimento em estabilidade.
-- **Protótipo:** a ideia funciona e o **próprio desenvolvedor usa de verdade** — no fluxo real dele, não só em cenário de teste. Critério de saída: o desenvolvedor consegue usar sem se apoiar em conhecimento interno do código.
-- **MVP:** **outros** (colegas próximos) usam **sem o desenvolvedor do lado**. Critério de saída: valor validado fora do autor.
+- **POC (Proof of Concept):** prova que a ideia faz sentido. Pode ser tosco, ter atalhos explícitos, rodar em ambiente mínimo. Pergunta que responde: *a ideia se sustenta?*. Critério de saída: a ideia justifica investimento em forma/estrutura.
+- **Protótipo:** a ideia ganha **estrutura** — forma visível, fluxo identificável, ainda tosco e instável. Pergunta que responde: *a ideia tem forma?*. Critério de saída: a estrutura existe e está completa o suficiente para amadurecer.
+- **Piloto:** a estrutura **funciona bem** — fluxos batem, comportamento previsível nos casos esperados, fricção operacional reduzida. Pergunta que responde: *a estrutura roda bem?*. Critério de saída: a estrutura é sólida o suficiente para ser endurecida contra casos extremos.
+- **MVP:** a solução é **robusta** — resiste a entrada ruim, mensagens claras, tolerância a casos extremos, comportamento previsível em borda. Pergunta que responde: *a solução aguenta?*. Critério de saída: a solução resiste a uso real, incluindo entrada ruim e casos não previstos.
 - **Melhorias:** Expansão gradual baseada em feedback de uso real.
 
-**Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais a o estágio. POC tolera Streamlit e gambiarras; Protótipo exige fluxo navegável pelo próprio dev; MVP exige que outro ser humano consiga usar sem tutorial ao vivo.
+**Implicação prática:** decisões de stack, UX e robustez devem ser proporcionais ao estágio. POC tolera atalhos e gambiarras explícitas; Protótipo exige estrutura visível mesmo que instável; Piloto exige estrutura sólida com fricção operacional baixa; MVP exige robustez (tratamento de erro, mensagens, tolerância a entrada ruim, comportamento previsível em borda).
 
 <a id="estados-de-épico"></a>
 
@@ -87,7 +88,7 @@ Pergunta legítima é a que **altera um resultado de forma cara de reverter** �
 
 **d) Centralidade da visão como restrição dura.**
 
-Antes de iniciar refinamento, identificar o que a visão do produto declara como **central** para o estágio alvo (POC/Protótipo/MVP). Itens centrais são restrição **não-negociável** — não podem ser cortados nem reduzidos por proposta do agente durante a sessão; só pelo usuário. Pergunta direta no início: *"o que a visão declara central no estágio alvo, e portanto não é negociável?"*. Sintoma do erro: agente reabre item declarado central no meio da sessão como se fosse opcional.
+Antes de iniciar refinamento, identificar o que a visão do produto declara como **central** para o estágio alvo (POC/Protótipo/Piloto/MVP). Itens centrais são restrição **não-negociável** — não podem ser cortados nem reduzidos por proposta do agente durante a sessão; só pelo usuário. Pergunta direta no início: *"o que a visão declara central no estágio alvo, e portanto não é negociável?"*. Sintoma do erro: agente reabre item declarado central no meio da sessão como se fosse opcional.
 
 1. **Análise Contextual:** Consultar vision.md, docs/ROADMAP.md ou products/revelar/ROADMAP.md (épicos anteriores), specs técnicas via mapa
 2. **Clarificação:** Fazer perguntas específicas, validar entendimento, apontar trade-offs
@@ -150,7 +151,7 @@ Há três modalidades em ordem de prioridade. Todas produzem o mesmo estado fina
    - Ajustar plano baseado em implementação, não o contrário
 
 3. **Validar > Assumir**
-   - Cada estágio (POC/Protótipo/MVP) deve ser validado antes do próximo
+   - Cada estágio (POC/Protótipo/Piloto/MVP) deve ser validado antes do próximo
    - Validação = rodar sistema com cenários reais, não apenas testes passando
    - Feedback de validação informa refinamento do próximo estágio
 
@@ -204,13 +205,14 @@ Alvo típico: `🌱 Visão` ou `📐 Funcionalidades esboçadas` para cada épic
 **Refinamento profundo — épico por épico.**
 Alvo típico: `📋 Critérios definidos` ou `🔍 Detalhes definidos`. Acontece quando o épico se aproxima de ser trabalhado: dependências técnicas foram implementadas e validadas, valor e viabilidade estão claros. Tenta amadurecer um épico específico até o alvo declarado, não preventivamente.
 
-### Ajuste de Profundidade por Estágio (POC / Protótipo / MVP)
+### Ajuste de Profundidade por Estágio (POC / Protótipo / Piloto / MVP)
 
 O nível de detalhe exigido para atingir `🔍 Detalhes definidos` varia por estágio:
 
 - **POC:** tolera simplificações explícitas — persistência em memória, ausência de testes automatizados para UI, atalhos de autenticação, stubs em lugar de integrações reais. As simplificações ficam registradas como tal no épico, não como dívida oculta.
-- **Protótipo:** exige checklist integral de `autonomous_readiness.md`.
-- **MVP:** exige checklist integral de `autonomous_readiness.md` + adequação ao uso por terceiros (tratamento de erro, mensagens, tolerância a entrada ruim).
+- **Protótipo:** exige checklist integral de `autonomous_readiness.md` — a estrutura precisa estar visível e completa o suficiente para ser executada, mesmo que tosca.
+- **Piloto:** exige checklist integral de `autonomous_readiness.md` + redução de fricção operacional (caminhos felizes sem ritual manual, retomada previsível de estado, escalações chegando pelo canal certo). A diferença com Protótipo não é o que precisa estar definido para `🔍`, é a expectativa de que a estrutura rode bem nos casos esperados — não basta poder rodar, tem que rodar com fricção baixa.
+- **MVP:** exige checklist integral de `autonomous_readiness.md` + robustez (tratamento de erro, mensagens claras, tolerância a entrada ruim, comportamento previsível em borda).
 
 Os detalhes específicos de cada ajuste por estágio moram em `docs/process/refinement/autonomous_readiness.md`.
 
@@ -238,11 +240,11 @@ Ideias abstratas que ainda não viraram épicos. Aguardando maturação.
 
 ### 🎯 MILESTONES
 
-Um **milestone** agrupa épicos relacionados dentro de um mesmo estágio (POC/Protótipo/MVP) = uma sessão de trabalho coerente. É a unidade de entrega do **fluxo autônomo** — disparo por linguagem natural ("implementa a POC do Ensaio"), execução na branch `milestone/<id>`, merge em main apenas com aval humano. Definição canônica em [docs/CONSTITUTION.md §9](../../CONSTITUTION.md).
+Um **milestone** agrupa épicos relacionados dentro de um mesmo estágio (POC/Protótipo/Piloto/MVP) = uma sessão de trabalho coerente. É a unidade de entrega do **fluxo autônomo** — disparo por linguagem natural ("implementa a POC do Ensaio"), execução na branch `milestone/<id>`, merge em main apenas com aval humano. Definição canônica em [docs/CONSTITUTION.md §9](../../CONSTITUTION.md).
 
 **Quem decide o agrupamento em milestones.** O agrupamento de épicos em milestones é **output do refinamento estratégico** (Claude Web, fora da branch), junto da declaração dos próprios épicos. Não é decisão da PM skill (que faz refinamento tático dentro da branch sobre um milestone já declarado) nem da EM skill (que só faz sizing do milestone declarado). Quando o refinamento estratégico descobre acoplamento entre épicos, declara-os no mesmo milestone; quando detecta que épicos do mesmo estágio são independentes, declara milestones separados.
 
-**Convenção de id:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `MVP-ENSAIO`. Quando um estágio precisa ser quebrado em mais de um milestone, acrescentar sufixo semântico ou ordinal: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`, `PROTO-WORKFLOW-ENCERRAMENTO`. Nome da branch associada em caixa baixa: `milestone/poc-ensaio`, `milestone/proto-workflow-encerramento`.
+**Convenção de id:** `<ESTAGIO>-<PRODUTO>` em caixa alta, com hífen, usando os nicks `POC-`, `PROTO-`, `PILOT-`, `MVP-`. Ex.: `POC-ENSAIO`, `PROTO-REVELAR`, `PILOT-WORKFLOW`, `MVP-ENSAIO`. Quando um estágio precisa ser quebrado em mais de um milestone, acrescentar sufixo semântico ou ordinal: `POC-ENSAIO-ALPHA`, `POC-ENSAIO-BETA`, `PROTO-WORKFLOW-ENCERRAMENTO`. Nome da branch associada em caixa baixa: `milestone/poc-ensaio`, `milestone/proto-workflow-encerramento`, `milestone/pilot-workflow`.
 
 **Quando dividir um estágio em múltiplos milestones.** Dois gatilhos:
 
@@ -255,7 +257,7 @@ Template mínimo para cada milestone no ROADMAP do produto:
 ### <ID>  <!-- ex: POC-ENSAIO -->
 
 - **Objetivo:** <o que esse milestone entrega em 1-2 linhas, focado em valor de negócio>
-- **Estágio:** <POC | Protótipo | MVP>
+- **Estágio:** <POC | Protótipo | Piloto | MVP>
 - **Produto:** <nome do produto>
 - **Épicos agrupados:** <lista dos ids dos épicos, ex: E-POC-1, E-POC-2, E-POC-3>
 - **Dependências de core:** <lista de épicos C-<PRODUTO>-* ou ÉPICO N do core; "nenhuma" se for o caso>
@@ -534,7 +536,7 @@ Uma tarefa é um conjunto incremental de atividades relacionadas que:
 - ✅ Permite rollback fácil
 
 ### Mentalidade Incremental
-Progresso contínuo: **POC → Protótipo → MVP → Melhorias**
+Progresso contínuo: **POC → Protótipo → Piloto → MVP → Melhorias**
 
 Processo: Fazer → Validar → Commit → Iterar
 

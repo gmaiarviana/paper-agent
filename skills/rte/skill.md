@@ -315,7 +315,7 @@ Uma única mensagem, ao fim do fluxo. Estado terminal da fase de implementação
 
 📊 Resumo executivo:
 - Milestone: <ID> — <nome em 1 linha do ROADMAP>
-- Estágio: <POC | Protótipo | MVP>
+- Estágio: <POC | Protótipo | Piloto | MVP>
 - Branch: milestone/<id-em-caixa-baixa>
 - Épicos fechados: <N> (todos em 🔀 Em revisão no ROADMAP)
 - Funcionalidades validadas: <M>

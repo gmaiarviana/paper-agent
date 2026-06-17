@@ -34,6 +34,7 @@ env.bak/
 venv.bak/
 .venv/
 .venv-proxy/
+.venv-aider/
 
 # IDEs
 .vscode/
@@ -83,3 +84,8 @@ Livros em PDF/
 
 # Workflow platform — preferências locais do operador (W-PROTO-FILA-4.1)
 tools/workflow_platform/.preferences.json
+
+.aider*
+
+# OpenCode (per-user state, auth, sessions, db)
+.opencode/

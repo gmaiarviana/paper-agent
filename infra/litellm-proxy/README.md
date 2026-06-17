@@ -1,14 +1,16 @@
-# LiteLLM Proxy para Claude Code
+# LiteLLM Proxy
 
-Setup local opcional que coloca um proxy [LiteLLM](https://github.com/BerriAI/litellm)
-entre o **Claude Code** (CLI da Anthropic) e a API real, permitindo:
+Setup local do proxy [LiteLLM](https://github.com/BerriAI/litellm) que traduz
+Anthropic ↔ OpenAI. Necessário **apenas para Claude Code**; os demais clientes
+(OpenCode, Aider) falam OpenAI direto e não usam o proxy.
 
-- Rodar o Claude Code contra um backend OpenAI-compatible (default:
-  **OpenWebUI da Atlântico** em `chat.alia.atlantico.com.br`) sem o time
-  precisar de chave Anthropic individual. LiteLLM traduz Anthropic ↔ OpenAI
-  (incluindo tool calls).
-- Trocar de provedor (Anthropic, Azure, Ollama, etc) editando só o YAML.
-- Logar/auditar todas as requests, aplicar rate limit, observar uso por modelo.
+> **Setup de todos os clientes:** ver [`infra/llm-clients/`](../llm-clients/).
+
+> **Heads-up sobre o Claude Code:** o LiteLLM 1.74.x tem bug ao traduzir
+> tool-use de modelos não-Anthropic (ex.: `gpt-oss:20b`, `qwen3.6:35b`). Você
+> verá `API Error: Content block is not a text block`. Por isso o setup
+> recomendado migrou pra **OpenCode**. O proxy segue documentado pra quem
+> ainda quer testar o Claude Code.
 
 > **Independente do projeto.** Esta pasta é uma ferramenta de desenvolvimento.
 > Pode ser apagada inteira sem quebrar o `paper-agent`.
@@ -64,12 +66,12 @@ caso contrário, o proxy chamaria a si mesmo em loop.
 
 ---
 
-## Uso
+## Uso (apenas se usando Claude Code)
 
 ### Terminal 1 — Sobe o proxy
 
 ```powershell
-.\infra\litellm-proxy\start-proxy.ps1
+.\start-proxy.ps1
 ```
 
 Aguarde a mensagem `Application startup complete` + `Uvicorn running on
@@ -78,7 +80,7 @@ http://0.0.0.0:4000`. Mantenha esse terminal aberto.
 ### Terminal 2 — Valida o proxy
 
 ```powershell
-.\infra\litellm-proxy\test-proxy.ps1
+.\test-proxy.ps1
 ```
 
 Esperado: 3 testes verdes (health, `/v1/messages`, wildcard).
@@ -86,7 +88,7 @@ Esperado: 3 testes verdes (health, `/v1/messages`, wildcard).
 ### Terminal 3 — Aponta o Claude Code para o proxy
 
 ```powershell
-.\infra\litellm-proxy\setup-claude-code.ps1
+..\llm-clients\setup-claude-code.ps1
 claude
 ```
 
@@ -94,7 +96,7 @@ O comando `claude` vai abrir o REPL e responder via proxy. Confirme no log do
 Terminal 1: deve aparecer `POST /v1/messages?... 200 OK`.
 
 > Se o Claude Code perguntar `Do you want to use this API key?`, escolha **Yes**.
-> Ele detectou a chave dummy que setamos — é o esperado.
+> Ele detectou a chave que setamos — é o esperado.
 
 > Se aparecer `Auth conflict: Both a token (claude.ai) and an API key`, rode
 > `/logout` no REPL pra silenciar — ou ignore, o aviso é cosmético.
@@ -125,14 +127,22 @@ no OpenWebUI:
 ```powershell
 curl https://chat.alia.atlantico.com.br/api/chat/completions `
   -H "Authorization: Bearer sk-..." -H "Content-Type: application/json" `
-  -d '{"model":"ollama/ministral-3:14b","messages":[{"role":"user","content":"ok"}]}'
+  -d '{"model":"ministral-3:14b","messages":[{"role":"user","content":"ok"}]}'
 ```
 
 ### Modelo retorna 404 / "model not found"
-O nome em `litellm-config.yaml` (`openai/ollama/ministral-3:14b`) precisa
+O nome em `litellm-config.yaml` (`openai/gpt-oss:20b`) precisa
 existir em `https://chat.alia.atlantico.com.br/api/models`. Lista atual:
-- `ollama/llama3.2:3b` (rápido, leve)
-- `ollama/ministral-3:14b` (default — texto e instruções)
+- `llama3.2:3b` (rápido, leve)
+- `gpt-oss:20b` (default)
+- `qwen3.6:35b`
+
+Compatibilidade: o alias `ollama/qwen3.6:27b` segue aceito no proxy, mas hoje
+ele roteia para `qwen3.6:35b` (modelo Qwen ativo no OpenWebUI).
+
+Snapshots locais dessa lista (atualizados manualmente via API):
+- `infra/litellm-proxy/openwebui-models.snapshot.json`
+- `infra/litellm-proxy/openwebui-models.ids.txt`
 
 ### Quero apagar tudo
 1. Apague esta pasta `infra/litellm-proxy/`.
@@ -175,9 +185,10 @@ esse arquivo — o Claude Code não precisa saber.
 
 | Arquivo | Função |
 |---|---|
-| `litellm-config.yaml` | Roteamento de modelo → provedor |
-| `start-proxy.ps1` | Sobe o proxy carregando `.env` da raiz |
+| `litellm-config.yaml` | Roteamento de modelo → provedor (wildcard `claude-*` → OpenWebUI) |
+| `start-proxy.ps1` | Sobe o proxy na porta 4000 |
 | `test-proxy.ps1` | Smoke test (3 chamadas) |
-| `setup-claude-code.ps1` | Seta `ANTHROPIC_BASE_URL` na sessão atual |
+| `openwebui-models.snapshot.json` | Snapshot da lista de modelos do OpenWebUI |
+| `openwebui-models.ids.txt` | Mesma lista, só IDs |
 | `requirements.txt` | Versão pinada do LiteLLM |
 | `README.md` | Este arquivo |

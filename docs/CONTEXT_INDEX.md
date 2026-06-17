@@ -16,7 +16,7 @@
 
 **Específicos do produto em refinamento (2):**
 - `products/<produto>/ROADMAP.md` - Épicos do produto (Revelar, Ensaio, Prisma Verbal, ...)
-- `products/<produto>/docs/vision.md` - Visão do produto (o "por quê" e escopo POC/Protótipo/MVP)
+- `products/<produto>/docs/vision.md` - Visão do produto (o "por quê" e escopo POC/Protótipo/Piloto/MVP)
 
 **Total obrigatório:** 6 arquivos.
 
