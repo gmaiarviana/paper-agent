@@ -270,17 +270,18 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Dependências de core:** nenhuma; revisita W-PROTO-6 entregue em
   PROTO-WORKFLOW-ENCERRAMENTO (PR #83).
 - **Branch associada:** `milestone/proto-workflow-cleanup-trigger`
-- **Status dos épicos:** W-PROTO-17 🌱.
+- **Status dos épicos:** W-PROTO-17 🔍.
 - **Nota:** milestone declarado em 2026-06-17 a partir de revisão
   técnica subsequente à entrega de PROTO-WORKFLOW-FILA (PR #121).
   Defeito não foi pego antes porque a Action exige merge real para
   observar — só ficou visível quando 3 milestones consecutivos
-  fecharam sem disparar cleanup. Épico em `🌱 Visão` — aguarda
-  refinamento estratégico antes do dispatch (decisão de trigger
-  robusto: label de milestone na PR, header de
-  `current_implementation.md` no commit mergeado, ou Seção 🎯 do
-  body; mais derivação correta de `MILESTONE_ID` para branches
-  `claude/*`).
+  fecharam sem disparar cleanup. Refinado a `🔍` em 2026-06-18: o
+  trigger passa a resolver o milestone pelo **estado do ROADMAP**
+  (join pelo número da PR via `tools/workflow_platform/parser.py`),
+  não pelo nome da branch — sem peça nova na RTE. Backfill dos
+  já-mergeados (#106/#115/#117/#121) já executado manualmente na
+  mesma sessão; o escopo de implementação reduz-se ao fix do trigger.
+  Apto ao fluxo autônomo.
 
 ### PILOTO-WORKFLOW-FILA-UX
 
@@ -751,11 +752,11 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Milestone:** `PROTO-WORKFLOW-CLEANUP-TRIGGER`
 
-**Objetivo:** corrigir o defeito que impediu a Action `.github/workflows/milestone-cleanup.yml` (entregue em W-PROTO-6 / PROTO-WORKFLOW-ENCERRAMENTO) de disparar em qualquer milestone real do projeto. Restaura cleanup automático pós-merge e roda backfill manual dos milestones já mergeados.
+**Objetivo:** corrigir o defeito que impediu a Action `.github/workflows/milestone-cleanup.yml` (entregue em W-PROTO-6 / PROTO-WORKFLOW-ENCERRAMENTO) de disparar em qualquer milestone real do projeto. O trigger passa a identificar a PR de milestone **pelo estado do ROADMAP** (join pelo número da PR), não pelo nome da branch — restaurando o cleanup automático pós-merge. (O backfill dos já-mergeados — escopo (b) original — já foi executado manualmente nesta sessão; ver "Fora do escopo".)
 
-**Status:** 🌱 Visão
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** revisita W-PROTO-6 (PR #83); coordena com qualquer mudança futura na nomenclatura de branches do harness.
+**Dependências:** revisita W-PROTO-6 (PR #83). Reusa o parser e o modelo de dados de W-PROTO-PLAT-1 (`tools/workflow_platform/parser.py`, `models.Epic.pr_number`, `config_loader.load_config`) e o padrão de join por `pr_number` de W-PROTO-FILA-1 (`queue/detect.py::detect_review_items`).
 
 ### Diagnóstico (verbatim da revisão técnica 2026-06-17)
 
@@ -763,20 +764,138 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 - Consequência: o cleanup automático **nunca rodou**. ROADMAP do workflow acumulou ~10 épicos presos em 🔀 após o merge das PRs #106 (PLATAFORMA), #115 (W-PROTO-14), #117 (FAXINA), e ~12 épicos em ✅ sem faxina.
 - Defeito secundário: mesmo se o trigger casasse, a derivação de `MILESTONE_ID` (~linha 69, strip de `milestone/`) produziria valor errado num branch `claude/*`.
 
-### Escopo a refinar antes do dispatch
+### Decisão de refinamento (2026-06-18)
 
-- **(a) Trigger robusto, independente do nome da branch.** Candidatos a avaliar:
-  - Label de milestone na PR (precisa de protocolo da RTE pra aplicar).
-  - Ler `MILESTONE_ID` do header de `docs/process/current_implementation.md` no commit mergeado.
-  - Extrair do body da PR (linha "Milestone: ..." da Seção 🎯).
-  Corrigir também a derivação de `MILESTONE_ID` pra qualquer branch reconhecida pelo trigger novo.
-- **(b) Backfill dos já-mergeados.** A Action já expõe `workflow_dispatch`. Três execuções manuais, uma por PR mergeada sem cleanup: #106 (PLATAFORMA, `milestone_id=PROTO-WORKFLOW-PLATAFORMA`), #115 (COPILOT-STACK, `milestone_id=PROTO-WORKFLOW-COPILOT-STACK`), #117 (FAXINA, `milestone_id=PROTO-WORKFLOW-FAXINA`), passando `merged_pr_url` e `merge_sha` correspondentes.
+- **Trigger pela fonte da verdade (ROADMAP), não pela branch.** No merge de
+  uma PR para `main`, a Action resolve o milestone lendo os ROADMAPs
+  configurados (`tools/workflow_platform/config.yaml`) e casando os épicos em
+  `🔀 Em revisão` cujo `PR #N` é igual ao número da PR mergeada. O
+  `milestone_id` desses épicos é o alvo do cleanup. Se nenhum épico casa →
+  não é PR de milestone → Action pula antes de invocar o Claude.
+  - **Por quê:** o número da PR já é escrito no ROADMAP pela RTE
+    (`🔀 Em revisão — PR #N`, W-PROTO-8) e o parser já o extrai (`pr_number`).
+    É o mesmo join que a fila usa em `detect_review_items`. Independente do
+    nome da branch (resolve o defeito-raiz) e sem peça nova na RTE — nem
+    label, nem contrato de formato de body.
+  - **Trade-off:** a Action passa a fazer checkout + parse a cada merge para
+    `main` (custo trivial; merges sem match saem antes do passo do Claude).
+    Descartados: label na PR (passo novo na RTE, falha silenciosa se a RTE
+    esquecer) e parse do body (texto livre, editável por humano, frágil).
+  - `MILESTONE_ID` deixa de ser derivado por strip de `milestone/`; vem do
+    épico resolvido.
+
+### Termos e contratos
+
+- **Função pura nova** em `tools/workflow_platform/cleanup_trigger.py`:
+
+  ```python
+  def resolve_milestone_for_merged_pr(
+      pr_number: int, roadmap_paths: list[str]
+  ) -> str | None:
+      """Milestone a limpar para a PR mergeada, ou None se não é PR de milestone.
+
+      Parseia cada ROADMAP (parser.parse_roadmap), coleta épicos em
+      EpicState.IN_REVIEW com epic.pr_number == pr_number e devolve o
+      milestone_id único desses épicos. Devolve None se 0 épicos casam.
+      Levanta ValueError se os épicos casados divergem no milestone_id
+      (>1 distinto) ou têm milestone_id ausente (ROADMAP inconsistente —
+      não silenciar).
+      """
+  ```
+
+- **CLI** invocável pela Action: `python -m tools.workflow_platform.cleanup_trigger <pr_number>`
+  — resolve os roadmaps via `config_loader.load_config().roadmaps`, chama a
+  função e imprime o `milestone_id` em stdout (string vazia se `None`), exit 0.
+  Erro de consistência → stderr + exit != 0.
+
+### Funcionalidades:
+
+#### 17.1 — Resolver milestone do PR mergeado a partir do ROADMAP
+
+- **Domain:** backend
+- **Estimativa:** ~120 linhas | risco: baixo
+- **Arquivos a criar:**
+  - `tools/workflow_platform/cleanup_trigger.py`
+  - `tests/tools/workflow_platform/test_cleanup_trigger.py`
+- **Arquivos a modificar:** nenhum
+- **Padrão a seguir:** `tools/workflow_platform/queue/detect.py::detect_review_items`
+  (join por `pr_number`, derivação de `milestone_id` único) e
+  `tools/workflow_platform/config_loader.py` (helper puro + paths resolvidos).
+- **Mecanismo de integração:** módulo standalone, import-safe (só
+  `re`/`pathlib`/`.parser`/`.models`/`.config_loader` — nenhum import de
+  Streamlit), executável como `python -m tools.workflow_platform.cleanup_trigger`
+  a partir do repo root no runner.
+- **Critérios de aceite:**
+  1. `resolve_milestone_for_merged_pr(N, paths)` devolve o `milestone_id` quando
+     ≥1 épico em `🔀` tem `pr_number == N` e todos concordam no `milestone_id`.
+  2. Devolve `None` quando nenhum épico em `🔀` casa o número (PR fora do fluxo
+     de milestone).
+  3. Levanta `ValueError` quando os épicos casados divergem no `milestone_id`
+     ou têm `milestone_id` ausente.
+  4. Épicos já em `✅` com o mesmo `PR #N` **não** casam (só `IN_REVIEW`) —
+     garante idempotência: re-trigger não re-limpa milestone já fechado.
+  5. CLI imprime o `milestone_id` em stdout (vazio se `None`) e sai 0;
+     inconsistência → exit != 0.
+- **Validação:** `pytest tests/tools/workflow_platform/test_cleanup_trigger.py -v`
+  — fixtures: ROADMAP com milestone inteiro em 🔀 sob PR #N; PR não referenciada;
+  PR com épicos em milestones divergentes; PR já em ✅.
+
+#### 17.2 — Reescrever trigger e derivação de `MILESTONE_ID` na Action
+
+- **Domain:** infra (CI)
+- **Estimativa:** ~60 linhas de diff | risco: médio (toca workflow real)
+- **Arquivos a modificar:**
+  - `.github/workflows/milestone-cleanup.yml`
+- **Mecanismo de integração:**
+  - Remover do `if` do job a condição
+    `startsWith(github.event.pull_request.head.ref, 'milestone/')`. Manter
+    `github.event.pull_request.merged == true` (e o caminho `workflow_dispatch`).
+  - Novo passo "Resolver milestone" (após o checkout de `main`): `setup-python`
+    + `pip install pyyaml` +
+    `python -m tools.workflow_platform.cleanup_trigger ${{ github.event.pull_request.number }}`
+    → grava `milestone_id` em `$GITHUB_OUTPUT`.
+  - Passo "Extrair variáveis": no caminho `pull_request`, `MILESTONE_ID` vem do
+    output do passo resolver (não mais do strip de `head.ref`).
+    `MERGED_PR_URL`/`MERGE_SHA` seguem de `html_url`/`merge_commit_sha`.
+    `workflow_dispatch` inalterado.
+  - Os passos de cleanup (Claude action, commit, log) ficam **gated** em
+    `milestone_id != ''` — merge sem match não chega no passo do Claude (sem
+    custo de API).
+- **Critérios de aceite:**
+  1. Job dispara em `pull_request closed` para `main` independentemente do nome
+     da branch.
+  2. Para PR de milestone (épicos 🔀 com `PR #N` no ROADMAP), `MILESTONE_ID`
+     resolvido = milestone correto; passos de cleanup executam.
+  3. Para PR sem épicos em 🔀 referenciando-a, o passo resolver devolve vazio e
+     os passos de cleanup são pulados (sem invocar o Claude).
+  4. Caminho `workflow_dispatch` (3 inputs manuais) permanece funcional e
+     inalterado.
+  5. Nenhuma referência a `milestone/` na derivação de `MILESTONE_ID` resta no
+     arquivo.
+- **Validação:** (i) inspeção do YAML; (ii)
+  `python -m tools.workflow_platform.cleanup_trigger <PR>` contra o ROADMAP
+  atual devolve vazio para PRs já limpas (#106/#115/#117/#121 já em ✅) —
+  regressão: não re-limpa; (iii) dry-run documentado via `workflow_dispatch` no
+  fechamento.
+
+### Ordem de execução
+
+17.1 antes de 17.2 (a Action chama o módulo).
 
 ### Fora do escopo
 
-- Refatorar a Cleanup skill (`skills/cleanup/skill.md`) em si — escopo é o trigger e a derivação de `MILESTONE_ID`, não o que a skill faz depois.
-- Política nova de nomenclatura de branches do harness — incompatibilidade é assimétrica (custoso mudar o harness; trivial mudar o trigger).
+- **Backfill dos já-mergeados — já executado manualmente nesta sessão**
+  (commit de faxina backfill, 2026-06-18): #106, #115, #117 e #121 enxugados e
+  transitados para ✅ no ROADMAP do workflow. O escopo (b) original do épico
+  está satisfeito; a Action corrigida cobre apenas milestones futuros.
+- Refatorar a Cleanup skill (`skills/cleanup/skill.md`) em si — escopo é o
+  trigger e a derivação de `MILESTONE_ID`, não o que a skill faz depois.
+- Política nova de nomenclatura de branches do harness — incompatibilidade é
+  assimétrica (custoso mudar o harness; trivial mudar o trigger).
 - Substituir a Action por outro runtime — escopo é fix de regressão, não redesign.
+- Reasoning de "próximo passo" como engine separado: a detecção reativa já vive
+  na fila (`queue/detect.py`); este épico reusa o mesmo princípio (markdown =
+  fonte da verdade) sem construir engine nova.
 
 ---
 
