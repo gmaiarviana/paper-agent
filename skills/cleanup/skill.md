@@ -1,19 +1,19 @@
 # Cleanup Skill — Prompt Operacional
 
-> **📌 Carregado por:** GitHub Action `.github/workflows/milestone-cleanup.yml` no merge da PR de milestone (não por Claude Code Web no fluxo de implementação).
+> **📌 Carregado por:** o implementador no **fold-in do dispatch** (`docs/process/autonomous/dispatch.md` §4.5) — ao iniciar um milestone novo, roda a faxina de cada milestone anterior pendente e commita o enxugamento na branch da PR. Também rodável manualmente sobre `main` (fallback / milestone terminal).
 > **📌 Documentação:** ver [README.md](README.md) para visão geral.
-> **📌 Introduzida em:** W-PROTO-6 — primeira skill executada via Action em vez de Claude Code Web.
+> **📌 Histórico:** introduzida em W-PROTO-6 (executada via GitHub Action); a Action foi **aposentada** — falhava por OIDC e não tinha revisão humana — e a skill migrou para o fold-in do dispatch (roda no runtime autenticado do agente, dentro de um diff revisado).
 
 ---
 
 ## SEU PAPEL
 
-Você é a **Cleanup Skill** do paper-agent. Sua missão é **automatizar a fase de higiene** após o merge de uma PR de milestone: aplicar enxugamento dos épicos no(s) ROADMAP(s) afetado(s) e virar o status para `✅ Implementado`. Operação 100% determinística — sem julgamento arquitetural.
+Você é a **Cleanup Skill** do paper-agent. Sua missão é **aplicar a fase de higiene** após o merge de uma PR de milestone: aplicar enxugamento dos épicos no(s) ROADMAP(s) afetado(s) e virar o status para `✅ Implementado`. Operação 100% determinística — sem julgamento arquitetural.
 
-Você roda **uma única vez por milestone**, no merge da PR, em runner de GitHub Actions. Recebe três variáveis no contexto:
+Você roda **uma vez por milestone pendente**, no **fold-in** do dispatch seguinte: o implementador, ao iniciar um milestone novo, detecta todas as faxinas pendentes (`python -m tools.workflow_platform.cleanup_trigger --list`) e carrega esta skill para cada uma, commitando o enxugamento **na branch da PR do milestone novo** (revisada por humano). Recebe três variáveis no contexto:
 - `MILESTONE_ID` (ex.: `PROTO-WORKFLOW-ENCERRAMENTO`)
 - `MERGED_PR_URL` (ex.: `https://github.com/<owner>/<repo>/pull/<N>`)
-- `MERGE_SHA` (sha do merge commit)
+- `MERGE_SHA` (sha do merge commit — resolva via `git log` do merge dessa PR em `main`)
 
 Você **não toca em código**. Você **não toca em ARCHITECTURE/core-docs/.claudecode.md** (extração já foi feita pelo Dev como parte da fase de implementação — W-PROTO-7). Você **não cria PR de produto**. Você **não tenta extrair conhecimento permanente** — se houver `- [ ]` em `## Extração pendente` no `current_implementation.md` mergeado, **aborta com erro**.
 
@@ -29,7 +29,7 @@ Sua superfície de escrita é **estritamente** arquivos com sufixo `ROADMAP.md`.
 4. **Não tocar em extração.** Conhecimento permanente já foi gravado pelo Dev na fase de implementação (W-PROTO-7). Cleanup não decide se algo merece virar padrão — apenas verifica que a checklist está fechada.
 5. **Aborta se gates abertos.** Se algum épico do milestone tem cell `❌`, `⏳` ou vazia em `current_implementation.md` (no commit mergeado), aborta. PR não deveria ter sido mergeada — algo escapou.
 6. **Aborta se Extração pendente aberta.** Se o bloco `## Extração pendente` em `current_implementation.md` (mergeado) tem `- [ ]` em qualquer épico do milestone, aborta. Dev investiga manualmente.
-7. **Commit único, sem PR.** Modo A (commit direto em main) preferido; modo B (PR secundária via `peter-evans/create-pull-request` ou equivalente) só se branch protection bloquear modo A. Workflow resolve qual modo — você executa as edições e o commit; não decide qual modo.
+7. **Commit único na branch do milestone em andamento.** No fold-in, o enxugamento entra na PR do milestone novo — um commit por faxina, `chore(cleanup): faxina pós-merge <MILESTONE_ID>`. Sem PR secundária, sem commit direto em `main`. (Execução manual avulsa sobre `main`: o dev autoriza o commit direto.)
 
 ---
 
@@ -45,7 +45,7 @@ Sua superfície de escrita é **estritamente** arquivos com sufixo `ROADMAP.md`.
 - [ ] **Cada tabela** `#### Gates por funcionalidade` tem todas as células Dev/QA/TL/PO em `✅` ou `➖`.
 - [ ] Bloco `## Extração pendente` não tem `- [ ]` aberto. Cada épico tem ou todos os itens `- [x]` ou declaração `(vazio — TL não identificou conhecimento permanente neste épico)`.
 
-Falhou algum check? **Abortar** com mensagem clara no log da Action:
+Falhou algum check? **Abortar esta faxina** com mensagem clara:
 
 ```
 🛑 Cleanup abortado — milestone <MILESTONE_ID> com pendências:
@@ -55,7 +55,7 @@ Falhou algum check? **Abortar** com mensagem clara no log da Action:
 Ação: dev investiga manualmente. PR mergeou em estado inconsistente.
 ```
 
-Não tente corrigir nada. Saia com exit code != 0 — workflow falha; dev recebe notificação.
+Não tente corrigir nada. **No fold-in (caso padrão):** pule esta faxina, **registre a nota acima no relatório do milestone** e **siga** com o dispatch — não derrube o milestone em implementação. O abort fica visível no diff/PR para o humano decidir, em vez de virar um X vermelho silencioso. **Em execução manual avulsa:** saia com exit code != 0.
 
 ### Passo 2 — Localizar milestone no(s) ROADMAP(s)
 
@@ -114,7 +114,7 @@ Reunir o diff via `git diff --stat`. Construir mensagem de commit:
 ```
 chore(cleanup): faxina pós-merge <MILESTONE_ID>
 
-Aplicado por skills/cleanup/skill.md via .github/workflows/milestone-cleanup.yml.
+Aplicado por skills/cleanup/skill.md no fold-in do dispatch.
 
 Épicos transitados para ✅:
 - <ID-EPICO-1>
@@ -124,15 +124,13 @@ Aplicado por skills/cleanup/skill.md via .github/workflows/milestone-cleanup.yml
 PR original: <MERGED_PR_URL>
 ```
 
-Commitar e pushar conforme **modo configurado pelo workflow**:
-- **Modo A (commit direto em main):** `git add <ROADMAPs alterados>` + `git commit -m "<msg>"` + `git push origin main`.
-- **Modo B (PR secundária):** workflow cria branch `cleanup/<milestone-id-em-caixa-baixa>-<timestamp>`, commita ali, abre PR via `peter-evans/create-pull-request@v6` (ou equivalente declarado no .yml). Você executa as edições; o workflow resolve o staging e a abertura.
+Commitar **na branch do milestone em andamento** (a mesma que vira a PR deste dispatch): `git add <ROADMAPs alterados>` + `git commit -m "<msg>"`. **Não** pushe nem abra PR aqui — o push é único, no fim do milestone (RTE). Um commit por faxina pendente; se houver várias, repita Passos 2-5 por milestone.
 
-Você não decide qual modo — apenas executa as edições. O workflow tenta modo A; se falha por policy, retoma os mesmos arquivos editados em modo B.
+**Execução manual avulsa sobre `main`** (fallback / milestone terminal): o dev autoriza `git push origin main` do commit direto.
 
 ### Passo 6 — Log final
 
-Imprimir no stdout (vai pro log da Action):
+Imprimir no relatório do milestone (entra na descrição da PR / notificação ao dev):
 
 ```
 ✅ Cleanup completo — <MILESTONE_ID>
@@ -141,9 +139,7 @@ Arquivos editados:
 - <caminho>/ROADMAP.md (<N> épicos enxugados)
 - ...
 
-Commit: <sha do commit gerado>
-Modo: <A | B>
-PR de cleanup (se modo B): <URL ou "n/a">
+Commit: <sha do commit gerado na branch do milestone>
 ```
 
 ---
@@ -152,7 +148,7 @@ PR de cleanup (se modo B): <URL ou "n/a">
 
 - ✅ Todos os épicos do milestone transitados para `✅ Implementado` em formato enxugado (apenas título + status + "Entregue em:")
 - ✅ Subseção `### <MILESTONE_ID>` atualizada com status agregado e link da PR mergeada
-- ✅ Commit único gerado, mensagem padronizada, push (ou PR secundária) realizado conforme modo do workflow
+- ✅ Commit único gerado na branch do milestone, mensagem padronizada (push é único, no fim do milestone via RTE)
 - ✅ Idempotência preservada — segunda execução é no-op nos blocos já enxugados
 - ✅ Sem edição em qualquer arquivo fora de `ROADMAP.md`
 
@@ -168,20 +164,22 @@ PR de cleanup (se modo B): <URL ou "n/a">
 
 ---
 
-## FALLBACK MANUAL
+## FALLBACK MANUAL (e milestone terminal)
 
-Se a Action falhar (timeout, rate limit, branch protection inesperada, erro de API), o dev pode rodar a skill manualmente via Claude Code Web:
+O caminho padrão é o fold-in (`dispatch.md` §4.5). Mas o **último milestone** não tem "próximo dispatch" para carregar sua faxina, e o fold-in pode ser pulado por engano. Nesses casos o dev roda a skill manualmente via Claude Code Web sobre `main`:
 
 1. Carregar este `skill.md` em sessão Claude Code Web sobre `main` (commit pós-merge).
-2. Passar manualmente as variáveis: `MILESTONE_ID=<...>`, `MERGED_PR_URL=<...>`, `MERGE_SHA=<...>`.
-3. Skill aplica os mesmos passos; commit fica direto em `main` (dev autoriza).
+2. Descobrir as faxinas pendentes: `python -m tools.workflow_platform.cleanup_trigger --list`.
+3. Passar manualmente as variáveis por faxina: `MILESTONE_ID=<...>`, `MERGED_PR_URL=<...>`, `MERGE_SHA=<...>`.
+4. Skill aplica os mesmos passos; commit fica direto em `main` (dev autoriza).
 
-Esse fallback é a razão de a skill ser autocontida e não depender da Action — Action é só o trigger.
+Essa autocontenção é a razão de a skill não depender de nenhum trigger externo — o trigger (fold-in ou manual) só passa as variáveis.
 
 ---
 
 **Ver também:**
 - README humano da skill → [README.md](README.md)
-- Workflow trigger → `.github/workflows/milestone-cleanup.yml`
+- Regra do fold-in (trigger) → `docs/process/autonomous/dispatch.md` §4.5
+- Detecção determinística reusada → `tools/workflow_platform/cleanup_trigger.py` (`--list`)
 - Regra de enxugamento e transição → `docs/process/refinement/epic_completion.md`
 - Onde a extração foi parar → W-PROTO-7 (TL/Dev/RTE em `skills/tl/skill.md`, `docs/process/autonomous/workflow.md`)

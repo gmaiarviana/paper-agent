@@ -346,12 +346,22 @@ em eixos diferentes.
 ## Padrão Emergente: Skill em Action
 
 Introduzido em W-PROTO-6 com `skills/cleanup/`. **Primeira skill** do
-paper-agent que não é carregada por Claude Code Web durante o fluxo de
+paper-agent que não seria carregada por Claude Code Web durante o fluxo de
 implementação, mas por uma GitHub Action (`.github/workflows/milestone-cleanup.yml`)
-disparada por evento de repositório (no caso, merge de PR de milestone).
+disparada por evento de repositório (merge de PR de milestone).
+
+> **⚠️ Status (atualizado):** o caso piloto — cleanup pós-merge — **abandonou
+> este padrão**. A Action falhou em produção por OIDC (`id-token: write`
+> ausente) e o desenho "agente commitando em `main` sem revisão" tinha
+> resistência. A faxina migrou para o **fold-in do dispatch** (roda no runtime
+> autenticado do agente, dentro de um diff revisado): ver
+> `docs/process/autonomous/dispatch.md` §4.5. O padrão "skill em Action" segue
+> documentado abaixo como aprendizado — mas a lição do piloto é que tarefas que
+> mutam `main` querem revisão humana, o que empurra para fold-in em vez de CI
+> autônomo.
 
 A skill em si (`skill.md`) permanece autocontida — pode rodar em Claude Code
-Web manualmente como fallback. O que muda é o trigger: evento → Action →
+Web manualmente. O que mudaria com o padrão é o trigger: evento → Action →
 Claude Code → skill, em vez de dev → Claude Code Web → skill.
 
 **Quando usar o padrão:**

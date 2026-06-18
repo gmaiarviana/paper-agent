@@ -178,9 +178,11 @@ O fluxo autônomo manipula três estados de execução do épico no ROADMAP:
 
 - **`🏗️ Em andamento`** — marcado assim que a Scrum Master Skill conclui (a partir daí o épico está sob implementação pelas skills). Permanece neste estado durante Dev → QA → TL → PO → RTE, até a RTE abrir a PR.
 - **`🔀 Em revisão`** — **acionado pela RTE skill ao abrir a PR do milestone.** A RTE atualiza o status de todos os épicos do milestone no ROADMAP no mesmo commit que gera o `current_validation.md`, antes do push final. Diferencia "código pronto e sob revisão humana" de "ainda implementando".
-- **`✅ Implementado`** — **não é acionado pelo fluxo autônomo.** A transição exige a execução do ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md` (extração de conhecimento permanente + poda do ROADMAP) e é feita pela **Cleanup skill** após o merge.
+- **`✅ Implementado`** — **não é acionado pela RTE deste milestone.** A transição exige a execução do ciclo de fechamento descrito em `docs/process/refinement/epic_completion.md` (poda do ROADMAP) e é feita pela **Cleanup skill** após o merge. A Cleanup roda **no fold-in do próximo milestone** (ver `dispatch.md` passo 4.5), não mais numa GitHub Action.
 
-> **Estado terminal da fase de implementação (W-PROTO-5):** "PR aberta" = épico em `🔀 Em revisão`. A sessão autônoma encerra com a RTE abrindo a PR e transitando os épicos para `🔀`; a Cleanup skill (pós-merge) transita para `✅ Implementado`.
+> **Estado terminal da fase de implementação (W-PROTO-5):** "PR aberta" = épico em `🔀 Em revisão`. A sessão autônoma encerra com a RTE abrindo a PR e transitando os épicos para `🔀`; a Cleanup skill transita para `✅ Implementado` no fold-in do dispatch seguinte (ou via fallback manual sobre `main`, para o milestone terminal).
+>
+> **Faxina como fold-in (substitui a Action).** A faxina pós-merge **deixou de rodar em CI** (a GitHub Action `milestone-cleanup.yml` foi aposentada — falhava por OIDC e não tinha revisão humana). Agora cada dispatch detecta **todas** as faxinas pendentes no passo 4.5 e as carrega na própria PR. Detecção determinística reusa `tools/workflow_platform/cleanup_trigger.py` (`--list`); regra completa em `dispatch.md` §4.5.
 
 ---
 
