@@ -117,7 +117,20 @@ class EnsaioState(rx.State):
     # ---------------------------------------------------------------------------
 
     def initialize(self) -> None:
-        """Carrega product_context e gera thread_id ao abrir a página."""
+        """Carrega product_context e gera thread_id ao abrir a página.
+
+        **Idempotente durante turno em voo.** Reflex re-executa ``on_load``
+        em toda reconexão do websocket. Se o turno do Orquestrador segura
+        o evento background tempo suficiente para o socket cair (validado
+        em PROTO-ENSAIO-2, ~21s), a reconexão dispararia este handler
+        novamente e zeraria ``messages``/``thread_id`` — a conversa
+        sumiria da tela. O guard abaixo preserva a sessão em voo;
+        recarregar tudo ainda zera (página recarregada vem sem turno
+        ativo, ``processing_agent`` está vazio).
+        """
+        if self.processing_agent:
+            return
+
         from products.ensaio.app.product_config import ProductConfigError, load_product_context
 
         self.thread_id = str(uuid.uuid4())

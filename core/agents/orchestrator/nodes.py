@@ -937,12 +937,30 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
             logger.info(f"🎯 Sugestão de estágio: {stage_suggestion.get('from_stage')} → {stage_suggestion.get('to_stage')}")
 
         # === CONSULTA AO OBSERVER (Épico 13.3) ===
-        # Observer fornece insights; Orquestrador decide como agir
-        observer_analysis = _consult_observer(
-            state=state,
-            user_input=state["user_input"],
-            cognitive_model=cognitive_model_dict
-        )
+        # Observer fornece insights; Orquestrador decide como agir.
+        #
+        # Gate por produto: produtos que não consomem clarity/variation na
+        # UI (caso do Ensaio, que usa apenas a mensagem conversacional e o
+        # focal_argument) pulam a consulta — corta ~2 chamadas LLM
+        # sequenciais do turno (latência caía no websocket do Reflex e
+        # cancelava o evento background, ver PROTO-ENSAIO-2). Revelar
+        # continua consumindo o Observer (sem product_context).
+        if product_context:
+            logger.debug(
+                "Observer pulado: product_context presente (produto não consome "
+                "clarity/variation)"
+            )
+            observer_analysis = {
+                "clarity_evaluation": None,
+                "variation_analysis": None,
+                "needs_checkpoint": False,
+            }
+        else:
+            observer_analysis = _consult_observer(
+                state=state,
+                user_input=state["user_input"],
+                cognitive_model=cognitive_model_dict
+            )
 
         clarity_evaluation = observer_analysis.get("clarity_evaluation")
         variation_analysis = observer_analysis.get("variation_analysis")
