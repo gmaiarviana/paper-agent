@@ -155,7 +155,6 @@ def article_panel() -> rx.Component:
                 rx.accordion.root(
                     rx.foreach(EnsaioState.current_article, _section_item),
                     type="multiple",
-                    collapsible=True,
                     default_value=[],
                     width="100%",
                     variant="ghost",

@@ -3,6 +3,14 @@
 Renderiza o histórico de mensagens com label de agente em cada bubble,
 indicador de processamento inline, manchete "o que mudou" (E-PROTO2-3.2),
 bubble especial de proposta de estrutura (E-PROTO2-1.2) e campo de entrada.
+
+Mitigação de React Hooks violation com ``rx.markdown`` em ``rx.foreach``:
+o ``react-markdown`` interno usa ``useContext``; montado pela primeira vez
+dentro de uma lista, a ordem de hooks varia entre renders e o React aborta
+com "change in order of Hooks". Estratégia: (1) ``component_map`` em escopo
+de módulo, passado por referência estável a todas as chamadas; (2) instância
+invisível pré-montada de ``rx.markdown`` antes do foreach, garantindo que
+o provider do contexto exista desde o primeiro render.
 """
 
 from __future__ import annotations
@@ -11,6 +19,10 @@ import reflex as rx
 
 from products.ensaio.app.components.proposal_bubble import proposal_bubble
 from products.ensaio.app.state import EnsaioState
+
+# Referência estável compartilhada por todas as chamadas de rx.markdown no
+# chat. Evita o React rebobinar o useContext entre renders do foreach.
+_STABLE_MARKDOWN_COMPONENT_MAP: dict = {}
 
 
 def _message_bubble(msg: dict) -> rx.Component:
@@ -53,7 +65,10 @@ def _message_bubble(msg: dict) -> rx.Component:
             margin_bottom="2px",
         ),
         rx.box(
-            rx.markdown(msg["content"]),
+            rx.markdown(
+                msg["content"],
+                component_map=_STABLE_MARKDOWN_COMPONENT_MAP,
+            ),
             background=rx.cond(is_user, "var(--accent-3)", "var(--gray-2)"),
             border_radius="8px",
             padding="12px 16px",
@@ -103,8 +118,16 @@ def chat_panel() -> rx.Component:
             padding="16px",
             border_bottom="1px solid var(--gray-4)",
         ),
-        # Histórico de mensagens
+        # Histórico de mensagens. O rx.markdown pré-montado invisível abaixo
+        # garante que o provider de contexto do react-markdown exista desde
+        # o primeiro render — sem ele, a primeira mensagem que entra no
+        # foreach dispara React Hooks order violation ("useContext").
         rx.box(
+            rx.markdown(
+                "",
+                component_map=_STABLE_MARKDOWN_COMPONENT_MAP,
+                display="none",
+            ),
             rx.foreach(EnsaioState.messages, _message_bubble),
             _processing_indicator(),
             overflow_y="auto",
