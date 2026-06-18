@@ -46,14 +46,14 @@ Dois movimentos determinísticos em ordem: **enxugamento** (o que restou no épi
 
 - [ ] Épico marcado como `✅ Implementado` no ROADMAP somente após enxugamento completo.
 
-> **Automação (W-PROTO-6).** Os dois passos acima — Enxugamento e Transição de estado — são **executados automaticamente** pela skill `skills/cleanup/skill.md` via `.github/workflows/milestone-cleanup.yml` no merge da PR de milestone. A Action carrega Claude Code, aplica as regras determinísticas a partir das variáveis `MILESTONE_ID`, `MERGED_PR_URL`, `MERGE_SHA` extraídas do evento, e commita o resultado (modo A direto em main; modo B via PR secundária se branch protection bloquear).
+> **Automação (W-PROTO-6, revisada).** Os dois passos acima — Enxugamento e Transição de estado — são **executados pela skill** `skills/cleanup/skill.md` no **fold-in do dispatch seguinte** (`docs/process/autonomous/dispatch.md` §4.5): ao iniciar um milestone novo, o implementador detecta **todas** as faxinas pendentes (`python -m tools.workflow_platform.cleanup_trigger --list`), roda a skill por milestone e commita o enxugamento na branch da PR — entrando num diff revisado por humano. (A automação original via GitHub Action `.github/workflows/milestone-cleanup.yml` foi **aposentada**: falhava por OIDC e não tinha revisão humana. O resolver determinístico que ela usava sobrevive em `tools/workflow_platform/cleanup_trigger.py`.)
 >
-> **Fallback manual:** se a Action falhar (timeout, branch protection inesperada, erro de API, secret `ANTHROPIC_API_KEY` ausente), o dev pode rodar a mesma skill em sessão Claude Code Web sobre `main` pós-merge:
+> **Fallback manual (e milestone terminal):** o **último** milestone não tem "próximo dispatch" para carregar sua faxina. O dev roda a mesma skill em sessão Claude Code Web sobre `main` pós-merge:
 > 1. Carregar `skills/cleanup/skill.md` + `docs/process/current_implementation.md` (no commit do merge).
-> 2. Passar manualmente as três variáveis (`MILESTONE_ID`, `MERGED_PR_URL`, `MERGE_SHA`).
+> 2. Listar pendências via `cleanup_trigger --list`; passar as três variáveis por faxina (`MILESTONE_ID`, `MERGED_PR_URL`, `MERGE_SHA`).
 > 3. Skill aplica os mesmos passos; dev autoriza o commit direto em main.
 >
-> A skill é idempotente — segunda execução é no-op nos blocos já enxugados, então rodar Action + fallback é seguro.
+> A skill é idempotente — milestone já enxuto tem épicos em `✅` (não `🔀`), então não reaparece em `--list`; rodar fold-in + fallback é seguro.
 
 ## Quando Aplicar
 

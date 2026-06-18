@@ -87,7 +87,7 @@ A sessão autônoma manipula apenas duas transições de status no ROADMAP:
 - **`🏗️ Em andamento`** — setado no **início** da implementação do épico.
 - **`🔀 Em revisão`** — setado pela **RTE** ao abrir a PR do milestone, no mesmo commit que gera `docs/process/current_validation.md`.
 
-A transição para **`✅ Implementado`** **não é responsabilidade do fluxo autônomo** — é executada pela Cleanup skill (via GitHub Action `milestone-cleanup.yml`) após o merge da PR. Detalhes em [`docs/process/refinement/epic_completion.md`](../refinement/epic_completion.md).
+A transição para **`✅ Implementado`** **não é responsabilidade da RTE deste milestone** — é executada pela Cleanup skill no **fold-in do dispatch seguinte** (`dispatch.md` §4.5), após o merge da PR. Detalhes em [`docs/process/refinement/epic_completion.md`](../refinement/epic_completion.md).
 
 ---
 

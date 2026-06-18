@@ -1,26 +1,99 @@
-"""Resolve o milestone a limpar para uma PR mergeada, lendo o estado do ROADMAP.
+"""Detecção determinística das faxinas pendentes, lendo o estado do ROADMAP.
 
-Trigger da Action de cleanup (W-PROTO-17): em vez de depender do nome da branch
-da PR (que no harness do Claude Code Web nunca casa com ``milestone/*``), casa os
-épicos em ``🔀 Em revisão`` cujo ``PR #N`` é igual ao número da PR mergeada e
-devolve o ``milestone_id`` único desses épicos. É o mesmo join por ``pr_number``
-que a fila reativa usa em ``queue/detect.py::detect_review_items``.
+Resolve o milestone a limpar casando os épicos em ``🔀 Em revisão`` cujo ``PR #N``
+é igual ao número de uma PR mergeada (W-PROTO-17), e devolve o ``milestone_id``
+único desses épicos. É o mesmo join por ``pr_number`` que a fila reativa usa em
+``queue/detect.py::detect_review_items``.
 
-Uso como CLI (invocado pela Action):
+Originalmente o trigger da GitHub Action de cleanup; a Action foi aposentada e a
+faxina migrou para o **fold-in do dispatch** (``docs/process/autonomous/dispatch.md``
+§4.5). Este módulo sobreviveu como a detecção reusada por esse fluxo.
 
-    python -m tools.workflow_platform.cleanup_trigger <pr_number>
+Uso como CLI:
 
-Imprime o ``milestone_id`` resolvido em stdout (string vazia se a PR não é de
-milestone) e sai 0; inconsistência no ROADMAP → stderr + exit 1.
+    python -m tools.workflow_platform.cleanup_trigger <pr_number>   # resolve 1 PR
+    python -m tools.workflow_platform.cleanup_trigger --list        # lista todas
+
+``<pr_number>`` imprime o ``milestone_id`` resolvido (vazio se a PR não é de
+milestone). ``--list`` imprime uma linha ``<MILESTONE_ID>\\t<PR>\\t<URL>`` por
+faxina pendente — consumido pela regra de fold-in ao iniciar um milestone novo.
+Inconsistência no ROADMAP → stderr + exit 1.
 """
 
 from __future__ import annotations
 
 import sys
+from dataclasses import dataclass
 
 from .config_loader import load_config
 from .models import EpicState
 from .parser import parse_roadmap
+
+
+@dataclass(frozen=True)
+class PendingCleanup:
+    """Uma faxina pendente: um milestone mergeado cujo enxugamento ainda não rodou.
+
+    ``pr_url`` pode vir vazio se o épico em 🔀 não declarou a URL (só o número).
+    """
+
+    milestone_id: str
+    pr_number: int
+    pr_url: str
+
+
+def list_pending_cleanups(roadmap_paths: list[str]) -> list[PendingCleanup]:
+    """Lista **todas** as faxinas pendentes lendo o estado dos ROADMAPs.
+
+    Usada no fold-in: ao iniciar um milestone novo (branch recém-criada de uma
+    ``main`` atualizada), o implementador chama esta função para descobrir quais
+    milestones anteriores ainda precisam de faxina e roda ``skills/cleanup/skill.md``
+    para cada um **nesta branch**, entrando na PR revisada.
+
+    Invariante load-bearing: um épico em ``🔀 Em revisão`` presente em ``main``
+    implica que a PR dele **já foi mergeada**. A RTE seta ``🔀`` dentro da branch
+    do milestone (no commit do ``current_validation.md``, antes do push), então o
+    ``🔀`` só aparece em ``main`` depois que aquela PR mergeia. Logo varrer ``🔀``
+    em ``main`` enumera exatamente as faxinas pendentes — e nunca o milestone
+    atual, cujos épicos estão em ``🔍``/pré-``📋`` no início do dispatch (o parser
+    de dispatch aborta se algum está ``🏗️``/``✅``).
+
+    Idempotência: épico já enxuto está em ``✅`` (não ``🔀``), então não reaparece
+    aqui. Reusa ``resolve_milestone_for_merged_pr`` por ``pr_number`` distinto —
+    não reimplementa o parsing nem a convenção "1 PR = 1 milestone".
+
+    Limitação conhecida: dispatch concorrente de dois milestones em paralelo veria
+    a mesma faxina pendente nas duas branches → dupla transição / conflito de
+    merge. O time despacha em série; registrado como limitação, não tratado aqui.
+
+    Raises:
+        ValueError: propaga de ``resolve_milestone_for_merged_pr`` se algum
+            ``pr_number`` casar épicos com ``milestone_id`` inconsistente.
+    """
+    pr_urls: dict[int, str] = {}
+    for path in roadmap_paths:
+        parsed = parse_roadmap(path)
+        for epic in parsed.epics:
+            if epic.state == EpicState.IN_REVIEW and epic.pr_number is not None:
+                # Primeiro pr_url não-vazio vence; mantém entrada mesmo se vazio.
+                if epic.pr_number not in pr_urls or (
+                    not pr_urls[epic.pr_number] and epic.pr_url
+                ):
+                    pr_urls[epic.pr_number] = epic.pr_url or ""
+
+    pending: list[PendingCleanup] = []
+    for pr_number in sorted(pr_urls):
+        milestone_id = resolve_milestone_for_merged_pr(pr_number, roadmap_paths)
+        if milestone_id is None:
+            continue
+        pending.append(
+            PendingCleanup(
+                milestone_id=milestone_id,
+                pr_number=pr_number,
+                pr_url=pr_urls[pr_number],
+            )
+        )
+    return pending
 
 
 def resolve_milestone_for_merged_pr(
@@ -39,10 +112,10 @@ def resolve_milestone_for_merged_pr(
 
     Convenção load-bearing: **1 PR = 1 milestone**. Se uma PR fechar épicos de
     milestones distintos (ou um épico casado não declarar ``**Milestone:**``),
-    a função levanta ``ValueError`` — o que faz a Action falhar (exit 1) **por
-    design**, em vez de adivinhar qual milestone limpar. Falha visível é
-    preferível a limpar um ROADMAP inconsistente do jeito errado; o operador
-    resolve com `workflow_dispatch` manual.
+    a função levanta ``ValueError`` **por design**, em vez de adivinhar qual
+    milestone limpar. Falha visível é preferível a limpar um ROADMAP
+    inconsistente do jeito errado; o implementador investiga o ROADMAP antes de
+    rodar a faxina no fold-in (ver ``docs/process/autonomous/dispatch.md`` §4.5).
 
     Raises:
         ValueError: se os épicos casados divergem no ``milestone_id`` (>1 valor
@@ -70,21 +143,38 @@ def resolve_milestone_for_merged_pr(
     return next(iter(matched_milestones))
 
 
+_USAGE = (
+    "uso: python -m tools.workflow_platform.cleanup_trigger <pr_number>\n"
+    "     python -m tools.workflow_platform.cleanup_trigger --list"
+)
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     if len(argv) != 1:
-        print(
-            "uso: python -m tools.workflow_platform.cleanup_trigger <pr_number>",
-            file=sys.stderr,
-        )
+        print(_USAGE, file=sys.stderr)
         return 2
+
+    config = load_config()
+
+    # Modo fold-in: lista todas as faxinas pendentes (uma linha por milestone),
+    # consumido pela regra de dispatch ao iniciar um milestone novo.
+    if argv[0] == "--list":
+        try:
+            pending = list_pending_cleanups(config.roadmaps)
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+        for item in pending:
+            print(f"{item.milestone_id}\t{item.pr_number}\t{item.pr_url}")
+        return 0
+
     try:
         pr_number = int(argv[0])
     except ValueError:
         print(f"pr_number inválido: {argv[0]!r}", file=sys.stderr)
         return 2
 
-    config = load_config()
     try:
         milestone_id = resolve_milestone_for_merged_pr(pr_number, config.roadmaps)
     except ValueError as exc:

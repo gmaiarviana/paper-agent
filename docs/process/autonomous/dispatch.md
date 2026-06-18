@@ -2,7 +2,7 @@
 
 > **📌 Uso:** dispare o fluxo autônomo em [claude.ai/code](https://claude.ai/code) sobre o repositório `paper-agent` com uma frase em linguagem natural que identifique o **milestone** alvo.
 > **📌 Pré-requisito:** o milestone alvo existe no ROADMAP do produto (seção `## 🎯 Milestones`). Épicos em estados pré-`🔍` (`🌱`/`🧭`/`📐`/`📋` — ver [planning_guidelines.md §Estados de Épico](../refinement/planning_guidelines.md#estados-de-épico)) são refinados pela PM skill dentro da branch; épicos em `🔍 Detalhes definidos` seguem direto.
-> **📌 Escopo do disparo:** a frase de dispatch autoriza o ciclo **inteiro** PM (cond) → EM → SM → Dev → QA → TL → PO → **RTE (abre PR)**. Não é preciso confirmar a abertura da PR caso a caso — é o estado terminal do fluxo. Merge segue proibido sem revisão humana. Detalhes em [`CLAUDE.md`](../../../CLAUDE.md) e [`workflow.md`](workflow.md).
+> **📌 Escopo do disparo:** a frase de dispatch autoriza o ciclo **inteiro** — incluindo a **faxina pendente dos milestones anteriores** (fold-in, passo 4.5) → PM (cond) → EM → SM → Dev → QA → TL → PO → **RTE (abre PR)**. Não é preciso confirmar a abertura da PR caso a caso — é o estado terminal do fluxo. Merge segue proibido sem revisão humana. Detalhes em [`CLAUDE.md`](../../../CLAUDE.md) e [`workflow.md`](workflow.md).
 > **📌 Documentação completa:** `docs/process/autonomous/`
 
 ---
@@ -59,8 +59,34 @@ Com base nos épicos agrupados:
 
 ### 4. Preparar branch
 
-- Checar se `milestone/<id-em-caixa-baixa>` já existe no remote. Se sim, usar; se não, criar a partir de `main`.
+- Checar se `milestone/<id-em-caixa-baixa>` já existe no remote. Se sim, usar; se não, criar a partir de `main` **atualizado** (`git fetch origin main` antes).
 - `main` nunca recebe commits do fluxo; todos os commits caem na branch do milestone.
+
+### 4.5 Faxina pendente dos milestones anteriores (fold-in)
+
+> **Por quê aqui:** a faxina pós-merge (enxugar épicos + transitar `🔀`→`✅` no ROADMAP, via `skills/cleanup/skill.md`) deixou de rodar numa GitHub Action e passa a ser **carregada na PR deste milestone** — roda no runtime já autenticado do agente e entra num diff revisado por humano. Não é zero-toque; é "zero-gesto-extra + revisão obrigatória".
+
+Logo após criar/atualizar a branch (passo 4) e **antes** de carregar as skills (passo 5), detectar e executar **todas** as faxinas pendentes:
+
+1. **Detectar** (reusa o resolver determinístico — não reimplementar):
+   ```
+   python -m tools.workflow_platform.cleanup_trigger --list
+   ```
+   Cada linha é uma faxina pendente: `<MILESTONE_ID>\t<PR_NUMBER>\t<PR_URL>`. Saída vazia → nenhuma faxina pendente, siga direto para o passo 5.
+
+2. **Por que isso pega exatamente as pendentes** (invariante load-bearing): um épico em `🔀 Em revisão` presente em `main` implica que a PR dele **já foi mergeada** — a RTE seta `🔀` dentro da branch do milestone (no commit do `current_validation.md`, antes do push), então o `🔀` só aparece em `main` depois do merge daquela PR. A detecção roda **sobre `main` atualizado** (por isso o passo 4 faz `fetch`); um `main` stale esconde faxinas pendentes.
+
+3. **Não há auto-colisão com o milestone atual:** os épicos do milestone que você está despachando estão em `🔍`/pré-`📋` (o parser do passo 3 aborta se algum está `🏗️`/`✅`), nunca em `🔀`. A detecção de `🔀` pega só milestones já mergeados, jamais o atual.
+
+4. **Executar**, para **cada** faxina listada: carregar `skills/cleanup/skill.md` com as variáveis daquela linha (`MILESTONE_ID`, `MERGED_PR_URL` = PR_URL; `MERGE_SHA` resolvido via `git log` do merge dessa PR em `main`) e **commitar o enxugamento NESTA branch** — entra nesta PR revisada. Commit por faxina: `chore(cleanup): faxina pós-merge <MILESTONE_ID>`.
+
+5. **Abort de gate é feature, não falha do milestone:** se a skill abortar (gate `❌`/`⏳`/vazio ou `## Extração pendente` aberta no `current_implementation.md` mergeado — ver `skills/cleanup/skill.md` Passo 1), **pule aquela faxina, registre a nota** no relatório do milestone e **siga** com o fluxo. Não derrube o milestone em implementação — o abort fica visível no diff/PR para o humano decidir, em vez de virar um X vermelho silencioso em CI.
+
+> **Idempotência:** milestone já enxuto tem seus épicos em `✅` (não `🔀`), então não reaparece em `--list`. Rodar o fold-in de novo é no-op.
+>
+> **Limitação conhecida:** dispatch concorrente de dois milestones em paralelo veria a mesma faxina pendente nas duas branches → dupla transição / conflito de merge. O time despacha em série; registrado como limitação.
+>
+> **Furo do milestone terminal:** o **último** milestone não tem "próximo dispatch" para carregar sua faxina. Fechamento manual: rodar `skills/cleanup/skill.md` em sessão sobre `main` pós-merge (FALLBACK MANUAL da própria skill). A fila reativa da plataforma é o backstop futuro.
 
 ### 5. Carregar skills em sequência
 
@@ -108,6 +134,7 @@ Protocolo detalhado em `skills/README.md`.
 |---------|------|-----|
 | Dispatch | Dev | Frase em linguagem natural identifica o milestone |
 | Parsing | Claude Code Web | Extrai id, localiza no ROADMAP, escolhe ponto de entrada |
+| Fold-in (cond) | Claude Code Web | Detecta faxinas pendentes (`cleanup_trigger --list`) e roda a Cleanup skill por milestone, commitando nesta branch |
 | PM (condicional) | skill | Refina épicos `🌱`/`🧭`/`📐`/`📋` até `🔍` dentro da branch |
 | EM | skill | Sizing FIT/TIGHT/OVERFLOW; OVERFLOW devolve ao dev |
 | Scrum Master | skill | Cria `docs/process/current_implementation.md` no shape aninhado do milestone |

@@ -388,8 +388,7 @@ paper-agent/
 ├── README.md              # Getting Started
 ├── .github/
 │   └── workflows/         # GitHub Actions
-│       ├── test-unit.yml         # CI dos testes unitários
-│       └── milestone-cleanup.yml # Cleanup pós-merge (W-PROTO-6) — invoca skills/cleanup
+│       └── test-unit.yml         # CI dos testes unitários
 ├── skills/                # Skills do fluxo autônomo (1 skill = 1 gate ou 1 automação)
 │   ├── pm/                # Refinamento tático dentro da branch
 │   ├── em/                # Sizing FIT/TIGHT/OVERFLOW

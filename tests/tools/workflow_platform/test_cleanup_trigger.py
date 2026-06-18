@@ -3,6 +3,8 @@
 import pytest
 
 from tools.workflow_platform.cleanup_trigger import (
+    PendingCleanup,
+    list_pending_cleanups,
     main,
     resolve_milestone_for_merged_pr,
 )
@@ -145,3 +147,118 @@ def test_cli_rejects_bad_args():
     assert main([]) == 2
     assert main(["a", "b"]) == 2
     assert main(["nao-numero"]) == 2
+
+
+# ----- list_pending_cleanups (fold-in) -----
+
+def test_list_pending_returns_one_per_milestone_in_review(tmp_path):
+    """Faxina pendente = milestone com épicos em 🔀 (PR mergeada, por invariante)."""
+    path = _write(
+        tmp_path,
+        "ROADMAP.md",
+        _roadmap(
+            _epic("W-X-1", "MILESTONE-X", IN_REVIEW.format(n=42)),
+            _epic("W-X-2", "MILESTONE-X", IN_REVIEW.format(n=42)),
+            _epic("W-Y-1", "MILESTONE-Y", IN_REVIEW.format(n=7)),
+        ),
+    )
+    pending = list_pending_cleanups([path])
+    assert pending == [
+        PendingCleanup(
+            milestone_id="MILESTONE-Y",
+            pr_number=7,
+            pr_url="https://github.com/o/r/pull/7",
+        ),
+        PendingCleanup(
+            milestone_id="MILESTONE-X",
+            pr_number=42,
+            pr_url="https://github.com/o/r/pull/42",
+        ),
+    ]
+
+
+def test_list_pending_excludes_done_epics(tmp_path):
+    """Épico já enxuto (✅) não reaparece — idempotência do fold-in."""
+    path = _write(
+        tmp_path,
+        "ROADMAP.md",
+        _roadmap(
+            _epic("W-X-1", "MILESTONE-X", DONE),
+            _epic("W-Y-1", "MILESTONE-Y", IN_REVIEW.format(n=7)),
+        ),
+    )
+    pending = list_pending_cleanups([path])
+    assert [p.milestone_id for p in pending] == ["MILESTONE-Y"]
+
+
+def test_list_pending_empty_when_nothing_in_review(tmp_path):
+    """Sem épicos em 🔀 → nenhuma faxina pendente."""
+    path = _write(
+        tmp_path,
+        "ROADMAP.md",
+        _roadmap(_epic("W-X-1", "MILESTONE-X", DONE)),
+    )
+    assert list_pending_cleanups([path]) == []
+
+
+def test_list_pending_scans_multiple_roadmaps(tmp_path):
+    """Varre todos os ROADMAPs configurados; ausente vira no-op."""
+    present = _write(
+        tmp_path,
+        "ROADMAP.md",
+        _roadmap(_epic("W-X-1", "MILESTONE-X", IN_REVIEW.format(n=42))),
+    )
+    missing = str(tmp_path / "inexistente" / "ROADMAP.md")
+    pending = list_pending_cleanups([missing, present])
+    assert [p.milestone_id for p in pending] == ["MILESTONE-X"]
+
+
+def test_list_pending_propagates_inconsistent_milestone(tmp_path):
+    """Mesma PR casando milestones distintos → ValueError (não adivinha)."""
+    path = _write(
+        tmp_path,
+        "ROADMAP.md",
+        _roadmap(
+            _epic("W-X-1", "MILESTONE-X", IN_REVIEW.format(n=42)),
+            _epic("W-Y-1", "MILESTONE-Y", IN_REVIEW.format(n=42)),
+        ),
+    )
+    with pytest.raises(ValueError):
+        list_pending_cleanups([path])
+
+
+def test_cli_list_prints_pending(tmp_path, monkeypatch, capsys):
+    """`--list` imprime uma linha por faxina pendente e sai 0."""
+    path = _write(
+        tmp_path,
+        "ROADMAP.md",
+        _roadmap(_epic("W-X-1", "MILESTONE-X", IN_REVIEW.format(n=42))),
+    )
+
+    class _Cfg:
+        roadmaps = [path]
+
+    monkeypatch.setattr(
+        "tools.workflow_platform.cleanup_trigger.load_config", lambda: _Cfg()
+    )
+    assert main(["--list"]) == 0
+    out = capsys.readouterr().out.strip()
+    assert out == "MILESTONE-X\t42\thttps://github.com/o/r/pull/42"
+
+
+def test_cli_list_empty_prints_nothing(tmp_path, monkeypatch, capsys):
+    """`--list` sem faxinas pendentes imprime nada e sai 0."""
+    path = _write(
+        tmp_path,
+        "ROADMAP.md",
+        _roadmap(_epic("W-X-1", "MILESTONE-X", DONE)),
+    )
+
+    class _Cfg:
+        roadmaps = [path]
+
+    monkeypatch.setattr(
+        "tools.workflow_platform.cleanup_trigger.load_config", lambda: _Cfg()
+    )
+    assert main(["--list"]) == 0
+    assert capsys.readouterr().out.strip() == ""
