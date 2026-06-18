@@ -22,7 +22,12 @@ logger = logging.getLogger(__name__)
 T = TypeVar("T")
 
 # Modelo padrão do sistema (Haiku para economia)
-DEFAULT_MODEL = "claude-3-5-haiku-20241022"
+#
+# Atualizado de "claude-3-5-haiku-20241022" (aposentado, HTTP 404) para a
+# família 4.5 vigente. Sobrescritura recomendada via LLM_MODEL ou
+# ANTHROPIC_MODEL no .env (precedência: get_default_model →
+# core/agents/memory/config_loader.get_agent_model).
+DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 
 # Re-exportar CircuitBreakerOpenError para compatibilidade
 # (agora vem de providers.anthropic)
