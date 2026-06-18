@@ -270,7 +270,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Dependências de core:** nenhuma; revisita W-PROTO-6 entregue em
   PROTO-WORKFLOW-ENCERRAMENTO (PR #83).
 - **Branch associada:** `milestone/proto-workflow-cleanup-trigger`
-- **Status dos épicos:** W-PROTO-17 🔍.
+- **Status dos épicos:** W-PROTO-17 🔀 Em revisão — PR #123.
 - **Nota:** milestone declarado em 2026-06-17 a partir de revisão
   técnica subsequente à entrega de PROTO-WORKFLOW-FILA (PR #121).
   Defeito não foi pego antes porque a Action exige merge real para
@@ -754,7 +754,9 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** corrigir o defeito que impediu a Action `.github/workflows/milestone-cleanup.yml` (entregue em W-PROTO-6 / PROTO-WORKFLOW-ENCERRAMENTO) de disparar em qualquer milestone real do projeto. O trigger passa a identificar a PR de milestone **pelo estado do ROADMAP** (join pelo número da PR), não pelo nome da branch — restaurando o cleanup automático pós-merge. (O backfill dos já-mergeados — escopo (b) original — já foi executado manualmente nesta sessão; ver "Fora do escopo".)
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #123 (https://github.com/gmaiarviana/paper-agent/pull/123)
+
+**Branch:** `claude/clever-brown-6nh76f`
 
 **Dependências:** revisita W-PROTO-6 (PR #83). Reusa o parser e o modelo de dados de W-PROTO-PLAT-1 (`tools/workflow_platform/parser.py`, `models.Epic.pr_number`, `config_loader.load_config`) e o padrão de join por `pr_number` de W-PROTO-FILA-1 (`queue/detect.py::detect_review_items`).
 
