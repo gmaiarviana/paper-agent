@@ -63,6 +63,22 @@ def _build_article_context(article: list[dict], exclude_index: int) -> str:
     return "\n\n".join(parts)
 
 
+def _render_markdown(content: str) -> str:
+    """Pré-renderiza markdown→HTML no servidor.
+
+    Saída usada por ``chat_panel`` via ``rx.html``. Mantém o ``rx.markdown``
+    (e seu ``useContext`` interno) fora do ``rx.foreach``, eliminando a
+    "change in order of Hooks" que o ``react-markdown`` dispara quando é
+    montado pela primeira vez dentro de uma lista reativa.
+    """
+    if not content:
+        return ""
+    from markdown_it import MarkdownIt
+
+    md = MarkdownIt("commonmark", {"breaks": True, "html": False, "linkify": True})
+    return md.render(content)
+
+
 class EnsaioState(rx.State):
     """Estado da sessão do Ensaio."""
 
@@ -147,6 +163,7 @@ class EnsaioState(rx.State):
                     "role": "user",
                     "agent": "user",
                     "content": user_text,
+                    "content_html": _render_markdown(user_text),
                     "timestamp": _now(),
                     "change_summary": "",
                 },
@@ -209,6 +226,7 @@ class EnsaioState(rx.State):
                     "role": "assistant",
                     "agent": agent_key,
                     "content": content,
+                    "content_html": _render_markdown(content),
                     "timestamp": _now(),
                     "change_summary": change_summary,
                 }
@@ -230,12 +248,14 @@ class EnsaioState(rx.State):
         except Exception as exc:
             logger.error("Erro ao invocar grafo: %s", exc, exc_info=True)
             async with self:
+                err_content = f"❌ Não consegui processar sua mensagem: {exc}"
                 self.messages = [
                     *self.messages,
                     {
                         "role": "assistant",
                         "agent": None,
-                        "content": f"❌ Não consegui processar sua mensagem: {exc}",
+                        "content": err_content,
+                        "content_html": _render_markdown(err_content),
                         "timestamp": _now(),
                         "change_summary": "",
                     },
@@ -346,12 +366,14 @@ class EnsaioState(rx.State):
         self.proposal_draft = []
         self.proposal_rationale_draft = ""
         self.proposal_edit_error = ""
+        reject_content = "_Proposta de estrutura recusada._"
         self.messages = [
             *self.messages,
             {
                 "role": "assistant",
                 "agent": None,
-                "content": "_Proposta de estrutura recusada._",
+                "content": reject_content,
+                "content_html": _render_markdown(reject_content),
                 "timestamp": _now(),
                 "change_summary": "",
             },

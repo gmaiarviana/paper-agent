@@ -12,6 +12,9 @@ python-dotenv>=1.0.0
 streamlit>=1.30.0   # Revelar
 reflex>=0.6.0       # Ensaio (PROTO-ENSAIO)
 
+# Markdown→HTML server-side rendering (Ensaio, evita rx.markdown em rx.foreach)
+markdown-it-py>=3.0.0
+
 # CLI formatting and colors
 colorama>=0.4.6
 
