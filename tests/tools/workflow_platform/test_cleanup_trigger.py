@@ -67,6 +67,17 @@ def test_resolve_raises_when_milestones_diverge(tmp_path):
         resolve_milestone_for_merged_pr(42, [path])
 
 
+def test_resolve_raises_when_matched_epic_lacks_milestone(tmp_path):
+    """AC3 (segundo ramo): épico em 🔀 casado mas sem **Milestone:** → ValueError."""
+    epic_sem_milestone = (
+        "#### ÉPICO W-Z-1: épico sem campo de milestone\n\n"
+        f"**Status:** {IN_REVIEW.format(n=55)}"
+    )
+    path = _write(tmp_path, "ROADMAP.md", _roadmap(epic_sem_milestone))
+    with pytest.raises(ValueError):
+        resolve_milestone_for_merged_pr(55, [path])
+
+
 def test_resolve_ignores_done_epics_with_same_pr(tmp_path):
     """AC4: épico já em ✅ com o mesmo PR #N não casa → idempotência."""
     path = _write(

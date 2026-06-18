@@ -37,6 +37,13 @@ def resolve_milestone_for_merged_pr(
     isso garante idempotência — um re-trigger sobre um milestone já fechado não
     o re-limpa.
 
+    Convenção load-bearing: **1 PR = 1 milestone**. Se uma PR fechar épicos de
+    milestones distintos (ou um épico casado não declarar ``**Milestone:**``),
+    a função levanta ``ValueError`` — o que faz a Action falhar (exit 1) **por
+    design**, em vez de adivinhar qual milestone limpar. Falha visível é
+    preferível a limpar um ROADMAP inconsistente do jeito errado; o operador
+    resolve com `workflow_dispatch` manual.
+
     Raises:
         ValueError: se os épicos casados divergem no ``milestone_id`` (>1 valor
             distinto) ou têm ``milestone_id`` ausente — ROADMAP inconsistente,
