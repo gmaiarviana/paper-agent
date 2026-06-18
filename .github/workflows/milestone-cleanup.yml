@@ -2,7 +2,10 @@ name: Milestone Cleanup
 
 # W-PROTO-6 — automação da fase de higiene pós-merge.
 #
-# Dispara no merge de uma PR cuja branch de origem comece com `milestone/`.
+# Dispara no merge de qualquer PR para `main`. O milestone alvo é
+# identificado pelo estado do ROADMAP (join pelo número da PR contra
+# épicos em `🔀 Em revisão`), não pelo nome da branch (W-PROTO-17 —
+# branches do harness `claude/*` nunca casavam `milestone/*`).
 # Carrega `skills/cleanup/skill.md` via Action oficial Claude Code da Anthropic
 # e aplica enxugamento + transição de estado nos ROADMAPs afetados.
 #
@@ -41,12 +44,12 @@ permissions:
 
 jobs:
   cleanup:
-    # Pula se PR foi fechada sem merge ou se branch não é de milestone (no
-    # trigger pull_request). workflow_dispatch sempre roda.
+    # Roda em qualquer PR mergeada para main (e em workflow_dispatch). A
+    # decisão "é PR de milestone?" acontece depois, no passo de resolução
+    # via ROADMAP — milestone não resolvido pula os passos de cleanup.
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true &&
-       startsWith(github.event.pull_request.head.ref, 'milestone/'))
+      github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -56,17 +59,40 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Setup Python (resolução do milestone)
+        if: github.event_name == 'pull_request'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # W-PROTO-17: identifica o milestone pelo estado do ROADMAP, casando os
+      # épicos em 🔀 cujo `PR #N` é o número desta PR. Saída vazia = não é PR
+      # de milestone → os passos de cleanup abaixo são pulados.
+      - name: Resolver milestone do PR mergeado (via ROADMAP)
+        id: resolve
+        if: github.event_name == 'pull_request'
+        run: |
+          pip install --quiet pyyaml
+          MILESTONE_ID=$(python -m tools.workflow_platform.cleanup_trigger "${{ github.event.pull_request.number }}")
+          echo "milestone_id=$MILESTONE_ID" >> "$GITHUB_OUTPUT"
+          if [ -z "$MILESTONE_ID" ]; then
+            echo "PR #${{ github.event.pull_request.number }} não casa épico em 🔀 — não é PR de milestone. Pulando cleanup."
+          else
+            echo "Milestone resolvido pelo ROADMAP: $MILESTONE_ID"
+          fi
+
       - name: Extrair variáveis do contexto
         id: vars
+        if: github.event_name == 'workflow_dispatch' || steps.resolve.outputs.milestone_id != ''
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             MILESTONE_ID="${{ inputs.milestone_id }}"
             MERGED_PR_URL="${{ inputs.merged_pr_url }}"
             MERGE_SHA="${{ inputs.merge_sha }}"
           else
-            HEAD_REF="${{ github.event.pull_request.head.ref }}"
-            # milestone/proto-workflow-encerramento -> PROTO-WORKFLOW-ENCERRAMENTO
-            MILESTONE_ID=$(echo "${HEAD_REF#milestone/}" | tr '[:lower:]' '[:upper:]')
+            # MILESTONE_ID vem do passo de resolução via ROADMAP (W-PROTO-17),
+            # não mais do nome da branch.
+            MILESTONE_ID="${{ steps.resolve.outputs.milestone_id }}"
             MERGED_PR_URL="${{ github.event.pull_request.html_url }}"
             MERGE_SHA="${{ github.event.pull_request.merge_commit_sha }}"
           fi
@@ -78,6 +104,7 @@ jobs:
           echo "MERGE_SHA=$MERGE_SHA" >> "$GITHUB_ENV"
 
       - name: Configurar git
+        if: steps.vars.outputs.milestone_id != ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -89,6 +116,7 @@ jobs:
       # - anthropics/claude-code-base-action@v1
       - name: Run cleanup skill via Claude Code
         id: claude
+        if: steps.vars.outputs.milestone_id != ''
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -112,6 +140,7 @@ jobs:
 
       - name: Tentar commit direto em main (modo A)
         id: mode_a
+        if: steps.vars.outputs.milestone_id != ''
         continue-on-error: true
         run: |
           if [ -z "$(git status --porcelain)" ]; then
@@ -129,7 +158,7 @@ jobs:
           git push origin main
 
       - name: Fallback modo B — PR secundária (se modo A falhou)
-        if: steps.mode_a.outcome == 'failure' && steps.mode_a.outputs.no_changes != 'true'
+        if: steps.vars.outputs.milestone_id != '' && steps.mode_a.outcome == 'failure' && steps.mode_a.outputs.no_changes != 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           branch: cleanup/${{ steps.vars.outputs.milestone_id }}-${{ github.run_id }}
@@ -161,7 +190,7 @@ jobs:
       # interrompe o workflow (continue-on-error).
       - name: Capturar tokens do run (best-effort)
         id: cost_log
-        if: always()
+        if: always() && steps.vars.outputs.milestone_id != ''
         continue-on-error: true
         run: |
           EXEC_FILE="${{ steps.claude.outputs.execution_file }}"
@@ -192,7 +221,7 @@ jobs:
           tail -n 1 docs/process/workflow/cleanup_runs.jsonl
 
       - name: Commitar log de custo em main
-        if: always() && steps.cost_log.outcome == 'success'
+        if: always() && steps.vars.outputs.milestone_id != '' && steps.cost_log.outcome == 'success'
         continue-on-error: true
         run: |
           if git diff --quiet -- docs/process/workflow/cleanup_runs.jsonl; then
@@ -206,7 +235,7 @@ jobs:
           git push origin main
 
       - name: Resumo da execução
-        if: always()
+        if: always() && steps.vars.outputs.milestone_id != ''
         run: |
           echo "=== Cleanup ${MILESTONE_ID} ==="
           echo "PR original: ${MERGED_PR_URL}"
