@@ -81,6 +81,10 @@ scripts/migrate_tests.py
 
 # Personal files
 Livros em PDF/
+
+# Workflow platform — preferências locais do operador (W-PROTO-FILA-4.1)
+tools/workflow_platform/.preferences.json
+
 .aider*
 
 # OpenCode (per-user state, auth, sessions, db)
