@@ -286,8 +286,17 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 > **Fase Piloto — escopo em altíssimo nível (declarado 2026-06-19).**
 > Três milestones materializam o estágio Piloto definido na vision
 > (§"Eixo de Estágios": "Cockpit + proatividade mecânica"). Escada de
-> execução: **UX → Canal único → Proatividade**. Épicos e funcionalidades
-> ficam para refinamento estratégico posterior — aqui só o escopo macro.
+> execução: **UX → Canal único → Proatividade**.
+>
+> **Decisão de stack (refinamento estratégico 2026-06-19, [ADR 001 do
+> workflow](adr/001-stack-da-plataforma.md)):** a plataforma migra de
+> Streamlit para **Reflex** a partir do Piloto. A migração é a fundação do
+> `PILOTO-WORKFLOW-UX` (épico W-PILOTO-UX-1) e pré-requisito do
+> `PILOTO-WORKFLOW-CANAL-UNICO` (disparo headless + progresso ao vivo é o
+> driver decisivo). O miolo stack-independente (`parser`, `queue`,
+> `prompts`, `config_loader`, `preferences`) é preservado — só a view migra.
+> `PILOTO-WORKFLOW-UX` refinado a `📐` nesta sessão; demais épicos/milestones
+> ficam para refinamento posterior.
 
 ### PILOTO-WORKFLOW-CANAL-UNICO
 
@@ -299,32 +308,50 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   §"Tooling de Desenvolvimento > Decisão de runtime").
 - **Estágio:** Piloto
 - **Épicos agrupados:** a refinar (alto nível — acoplamento
-  plataforma↔runtime, disparo de dentro, leitura de progresso).
+  plataforma↔runtime, disparo de dentro, leitura de progresso). **Inclui o
+  redesenho do painel de detalhe para "ação = disparar"** (movido do
+  `PILOTO-WORKFLOW-UX` no refinamento de 2026-06-19): a ação nova nasce aqui,
+  então o shape do painel quando clicar dispara execução headless — em vez de
+  copiar prompt — pertence a este milestone, não à frente de UX.
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
-  mergeada e da tese "Dispatch headless via CLI" (§Tooling).
+  mergeada, da fundação Reflex de `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1, [ADR
+  001](adr/001-stack-da-plataforma.md) — streaming de segundo plano é o
+  driver da migração) e da tese "Dispatch headless via CLI" (§Tooling).
 - **Branch associada:** `milestone/piloto-workflow-canal-unico`
 - **Status:** 🌱 Visão — aguarda refinamento estratégico.
 
 ### PILOTO-WORKFLOW-UX
 
-- **Objetivo:** **UX de verdade** — a plataforma agradável de usar todo
-  dia como cockpit. Absorve as frições de UX da fila reativa já levantadas
-  (painel de detalhe some abaixo da viewport com 15+ itens; valor do
-  clique difere por tipo de item) e amplia para o polimento geral. Frente
-  distinta do runtime integrado (vision §"Eixo de Estágios").
+- **Objetivo:** **reconstruir o cockpit em Reflex com o polimento embutido**
+  — a plataforma agradável de usar todo dia. A migração de stack
+  (Streamlit→Reflex, [ADR 001](adr/001-stack-da-plataforma.md)) é a
+  **fundação** do milestone; sobre ela aterrissam as frições de UX já
+  levantadas em uso real (painel de detalhe some abaixo da viewport com 15+
+  itens; redundância card↔painel; valor do clique difere por tipo) e o
+  polimento de cockpit invariante ao runtime. Frente distinta do runtime
+  integrado (vision §"Eixo de Estágios"); o redesenho do painel para
+  "ação = disparar" vive no `PILOTO-WORKFLOW-CANAL-UNICO`, não aqui.
 - **Estágio:** Piloto
-- **Épicos agrupados:** W-PILOTO-FILA-UX-1 (frições da fila — seed) +
-  a refinar.
+- **Épicos agrupados:** W-PILOTO-UX-1 (migração Reflex — fundação),
+  W-PILOTO-UX-2 (co-visibilidade lista↔detalhe), W-PILOTO-UX-3 (densidade
+  da fila), W-PILOTO-UX-4 (informação por tipo no painel).
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
-  mergeada.
+  mergeada e da [ADR 001](adr/001-stack-da-plataforma.md).
 - **Branch associada:** `milestone/piloto-workflow-ux`
-- **Status dos épicos:** W-PILOTO-FILA-UX-1 🌱.
+- **Status dos épicos:** W-PILOTO-UX-1 📐, W-PILOTO-UX-2 📐,
+  W-PILOTO-UX-3 📐, W-PILOTO-UX-4 📐.
 - **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
-  2026-06-17 a partir da revisão da PR #121), reescopado em 2026-06-19
-  para a frente ampla de UX do Piloto. As frições da fila convergem com a
-  transição Protótipo→Piloto: clicar o card deixa de copiar prompt e
-  passa a disparar execução headless — repensar o shape do painel quando
-  "ação = disparar". Demais épicos a refinar.
+  2026-06-17 a partir da revisão da PR #121) e o seed `W-PILOTO-FILA-UX-1`,
+  cujas duas frições foram redistribuídas (painel some → UX-2; redundância
+  card↔painel → UX-4). Refinamento estratégico de 2026-06-19 (escada
+  UX → Canal único → Proatividade): (a) reescopado para polimento invariante
+  ao runtime + migração Reflex como fundação — UX primeiro entrega valor
+  diário sem especular sobre a ação que o Canal único ainda vai construir;
+  (b) o redesenho "ação = disparar" migrou para `PILOTO-WORKFLOW-CANAL-UNICO`,
+  onde a ação nova nasce. Coerência de milestone: os 4 épicos tocam a mesma
+  camada de view e o mesmo conceito (cockpit) — milestone único é adequado.
+  W-PILOTO-UX-1 ganha nota de **spike de viabilidade do Reflex** antes de
+  descer a `🔍`.
 
 ### PILOTO-WORKFLOW-PROATIVIDADE
 
@@ -948,34 +975,98 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-UX`
-> (W-PILOTO-FILA-UX-1 + a refinar) · `PILOTO-WORKFLOW-PROATIVIDADE`.
-> Escopo macro nos cards de milestone acima; só `W-PILOTO-FILA-UX-1` tem
-> esboço de épico (herdado do antigo `PILOTO-WORKFLOW-FILA-UX`).
+> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1..4, refinados a `📐`
+> em 2026-06-19) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
+> Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
+> CANAL-UNICO e PROATIVIDADE nos cards de milestone acima; só
+> `PILOTO-WORKFLOW-UX` tem épicos esboçados.
 
-#### ÉPICO W-PILOTO-FILA-UX-1: Refinamento de UX da fila reativa
+> **Nota de refinamento (2026-06-19).** O seed `W-PILOTO-FILA-UX-1` (🌱,
+> herdado do antigo `PILOTO-WORKFLOW-FILA-UX`) foi absorvido pelos 4 épicos
+> abaixo: a frição "painel some abaixo da viewport" virou W-PILOTO-UX-2 e
+> "redundância card↔painel" virou W-PILOTO-UX-4. A migração de stack
+> (Streamlit→Reflex, [ADR 001](adr/001-stack-da-plataforma.md)) entra como
+> fundação (W-PILOTO-UX-1). O redesenho "clique dispara execução" saiu daqui
+> para `PILOTO-WORKFLOW-CANAL-UNICO`.
+
+#### ÉPICO W-PILOTO-UX-1: Migração da plataforma para Reflex (fundação + fatia fina)
 
 **Milestone:** `PILOTO-WORKFLOW-UX`
 
-**Objetivo:** reduzir duas frições identificadas em uso real da fila reativa entregue em PROTO-WORKFLOW-FILA (PR #121) — painel de detalhe que some abaixo da viewport quando a fila enche; e cards de REVIEW/CLEANUP/STALE_BRANCH que duplicam no detalhe o que já está no card.
+**Objetivo:** trocar a camada de apresentação da plataforma de Streamlit para Reflex ([ADR 001](adr/001-stack-da-plataforma.md)), preservando todo o miolo stack-independente (`tools/workflow_platform/parser.py`, `models.py`, `queue/*`, `prompts/*`, `config_loader.py`, `preferences.py`). A primeira fatia entrega esqueleto Reflex + aba Fila funcional, validando a decisão de stack no uso real; a segunda porta o Kanban. Fundação de todo o resto do milestone e pré-requisito do `PILOTO-WORKFLOW-CANAL-UNICO`.
 
-**Status:** 🌱 Visão
+**Status:** 📐 Funcionalidades esboçadas
 
-**Dependências:** PROTO-WORKFLOW-FILA mergeada; coordena com a transição "clique do card dispara execução" registrada em §"Tooling de Desenvolvimento" (tese validada 2026-05-01).
+**Dependências:** PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o setup Reflex já existente no Ensaio (`products/ensaio/rxconfig.py`, `reflex>=0.6`).
 
 ### Funcionalidades (esboço):
 
-- **1.1 Posição do painel de detalhe** — hoje renderiza no rodapé, depois de TODOS os cards (`tools/workflow_platform/app.py`, função `main`, dentro da `tab_queue`). Com fila cheia (15+ itens) o operador não vê o painel sem scroll. Alvos plausíveis: coluna lateral à fila (coerente com vision §"Fila / Kanban"), topo, ou painel fixo via `st.expander` sticky. Refinar trade-offs em sessão estratégica.
+- **1.1 Esqueleto Reflex + estado no backend** — `rx.State` substitui `st.session_state`; entrypoint, config e load do estado (config/roadmaps/preferences) portados a partir de `app.py`.
+- **1.2 Porte da aba Fila** — detecção e cards da fila em Reflex, com `queue/detect.py` e os builders de `prompts/*` intocados.
+- **1.3 Porte da aba Kanban** — colunas por estado e cards por milestone em Reflex.
+- **1.4 Paridade funcional + retirada do Streamlit** — preferências persistidas, filtros por ROADMAP e badge de carga reproduzidos; `app.py`/`views/*` Streamlit removidos ao final; `.web/` no `.gitignore`.
 
-- **1.2 Card não duplicar o prompt em REVIEW/CLEANUP/STALE_BRANCH** — para esses tipos `expected_action` já é a instrução inteira; abrir o detalhe não acrescenta nada além do `st.code` do mesmo texto. Diferenciar shape: card com ação curta e copiável direto; painel de detalhe agregando valor real só em DISPATCH/REFINE, onde o prompt é artefato grande gerado por `build_dispatch_prompt`/`build_refinement_prompt`. Refinar critério "abre painel ou não" no épico.
-
-**Nota de convergência:** ambas as funcionalidades pegam carona na transição Protótipo→Piloto registrada em §"Dispatch headless via CLI" — no Piloto, clicar o card deixa de copiar prompt e passa a disparar execução headless do agente (`claude` ou `opencode`). UX da fila no Piloto pode reconsiderar shape do painel quando "ação esperada = disparar", não "ação esperada = copiar". Refinar antes do dispatch se a transição já está consolidada no momento da sessão estratégica, ou registrar dependência cross-épico se não.
+**Nota:** **spike de viabilidade do Reflex** (sticky/two-pane + tarefa de segundo plano) antes de descer este épico a `🔍` — confirma que o framework cobre os requisitos de UX-2 e do canal único sem hack.
 
 ### Fora do escopo
 
-- Implementar o clique-dispara-execução em si — é trabalho do épico de transição Protótipo→Piloto registrado em §"Tooling de Desenvolvimento", não desta UX.
-- Reescrever o layout do kanban — escopo é só a tab Fila.
-- Personalização por operador (tamanho do painel, qual coluna) — sem sinal de atrito; entra se virar.
+- Implementar o clique-dispara-execução — é `PILOTO-WORKFLOW-CANAL-UNICO`.
+- Mudar a lógica de detecção/parse/prompt — só a camada de view migra.
+
+---
+
+#### ÉPICO W-PILOTO-UX-2: Layout de cockpit — co-visibilidade lista↔detalhe
+
+**Milestone:** `PILOTO-WORKFLOW-UX`
+
+**Objetivo:** eliminar o atrito estrutural #1 do uso real — o painel de detalhe some abaixo da viewport quando a fila/kanban enche (hoje renderiza no rodapé, depois de todos os cards). Lista e detalhe convivem na tela; selecionar um item nunca exige rolar pra achar o detalhe. Viável nativamente no Reflex. Absorve a frição 1.1 do seed `W-PILOTO-FILA-UX-1`.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** W-PILOTO-UX-1 (camada Reflex existente).
+
+### Funcionalidades (esboço):
+
+- **2.1 Layout de duas colunas (lista | detalhe)** — detalhe sempre visível ao lado da lista.
+- **2.2 Painel de detalhe ancorado** — permanece visível ao rolar a lista longa.
+- **2.3 Continuidade de seleção entre Fila e Kanban** — trocar de aba preserva/comunica o item/épico selecionado.
+
+---
+
+#### ÉPICO W-PILOTO-UX-3: Densidade e escaneabilidade da fila
+
+**Milestone:** `PILOTO-WORKFLOW-UX`
+
+**Objetivo:** fila escaneável com 15+ itens — o operador vê "o que pede ação agora" num olhar, sem ler card a card.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** W-PILOTO-UX-1 (camada Reflex existente).
+
+### Funcionalidades (esboço):
+
+- **3.1 Cards compactos** — mais densidade, menos verticalidade por item.
+- **3.2 Colapsar/expandir grupos por tipo** — focar um tipo, recolher o resto.
+- **3.3 Ordenação legível** — critério de ordem (recência da detecção) explícito no cabeçalho de cada grupo.
+- **3.4 Filtro por tipo / "só acionável"** — estende o filtro por ROADMAP entregue em FILA-4 com recorte por tipo de item.
+
+---
+
+#### ÉPICO W-PILOTO-UX-4: Painel de detalhe — informação certa por tipo
+
+**Milestone:** `PILOTO-WORKFLOW-UX`
+
+**Objetivo:** cada tipo de item/épico mostra no painel o contexto que importa pra decidir, sem ruído nem redundância com o card — a parte do "valor do clique" invariante ao runtime. O redesenho do mecanismo de ação ("ação = disparar") vive no `PILOTO-WORKFLOW-CANAL-UNICO`, não aqui. Absorve a frição 1.2 do seed `W-PILOTO-FILA-UX-1`.
+
+**Status:** 📐 Funcionalidades esboçadas
+
+**Dependências:** W-PILOTO-UX-1 (camada Reflex existente); coordena com W-PILOTO-UX-2 (o painel é o detalhe da co-visibilidade).
+
+### Funcionalidades (esboço):
+
+- **4.1 Contexto por tipo** — DISPATCH/REVIEW/REFINE/CLEANUP/STALE_BRANCH cada um destaca o que importa (links, estado, idade da branch), sem repetir o card.
+- **4.2 Redução de redundância card↔painel** — card resume e oferece ação curta copiável; painel aprofunda só onde agrega (hoje DISPATCH/REFINE, onde o prompt é artefato grande gerado por `build_dispatch_prompt`/`build_refinement_prompt`).
+- **4.3 Legibilidade do "porquê este item existe"** — explicitar o sinal determinístico que gerou o item (ex.: "milestone X com todos os épicos em 🔍").
 
 ---
 
