@@ -1056,8 +1056,29 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
 
     logger.info("=== NÓ ORCHESTRATOR SOCRÁTICO: Finalizado ===\n")
 
-    # Criar AIMessage com a mensagem conversacional para histórico
-    ai_message = AIMessage(content=message, additional_kwargs={"agent": "orchestrator"})
+    # E-PROTO2-3.3: manchete "🎯 Foco atualizado" quando focal_argument
+    # muda em campo relevante (intent/subject/population/metrics/article_type)
+    # em relação ao turno anterior. Turno conversacional puro não preenche
+    # — campo é puramente aditivo, Revelar ignora silenciosamente.
+    ak: dict = {"agent": "orchestrator"}
+    _RELEVANT_FOCAL_KEYS = ("intent", "subject", "population", "metrics", "article_type")
+    if focal_argument:
+        if previous_focal:
+            for k in _RELEVANT_FOCAL_KEYS:
+                old_v = previous_focal.get(k) or ""
+                new_v = focal_argument.get(k) or ""
+                if new_v and new_v not in ("not specified", "unclear") and new_v != old_v:
+                    ak["change_summary"] = "🎯 Foco atualizado"
+                    break
+        else:
+            # Primeiro foco da sessão é uma mudança de estado.
+            for k in _RELEVANT_FOCAL_KEYS:
+                v = focal_argument.get(k) or ""
+                if v and v not in ("not specified", "unclear"):
+                    ak["change_summary"] = "🎯 Foco atualizado"
+                    break
+
+    ai_message = AIMessage(content=message, additional_kwargs=ak)
 
     # Criar snapshot se argumento maduro (Épico 9.3)
     # Silencioso: não notifica usuário, apenas log interno

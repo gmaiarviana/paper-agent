@@ -1,13 +1,18 @@
-"""Painel de chat do Ensaio em Reflex (E-PROTO-1.2, 1.3, 1.4).
+"""Painel de chat do Ensaio em Reflex (E-PROTO-1.2, 1.3, 1.4, PROTO-ENSAIO-2).
 
 Renderiza o histórico de mensagens com label de agente em cada bubble,
-indicador de processamento inline e campo de entrada.
+manchete "o que mudou" (E-PROTO2-3.2), indicador de processamento inline e
+campo de entrada. Bubble usa ``rx.text(white_space="pre-wrap")`` (mantido
+de main por causa da fix em ``5823209`` — evita React Hooks violation com
+``rx.markdown`` em ``rx.foreach``). A manchete entra como Box sempre
+montado com ``display=cond(...)`` para preservar shape estável de hooks.
 """
 
 from __future__ import annotations
 
 import reflex as rx
 
+from products.ensaio.app.components.proposal_bubble import proposal_bubble
 from products.ensaio.app.state import EnsaioState
 
 
@@ -26,7 +31,24 @@ def _message_bubble(msg: dict) -> rx.Component:
         ),
     )
 
+    # E-PROTO2-3.2: manchete "o que mudou" acima do label de agente.
+    # Sempre renderiza um Box; visibilidade controlada por `display` para
+    # manter shape estável (evita React Hooks violation no foreach).
+    # Mensagens do usuário nunca mostram manchete (is_user → display: none).
+    change_summary = msg["change_summary"]
+    show_headline = (~is_user) & (change_summary != "")
+
     return rx.box(
+        rx.box(
+            rx.text(
+                change_summary,
+                size="1",
+                weight="medium",
+                color_scheme="blue",
+            ),
+            display=rx.cond(show_headline, "block", "none"),
+            margin_bottom="2px",
+        ),
         rx.text(
             label,
             size="1",
@@ -95,6 +117,9 @@ def chat_panel() -> rx.Component:
             flex="1",
             padding="8px 0",
         ),
+        # Bubble especial de proposta de estrutura (E-PROTO2-1.2). Persiste
+        # acima do input enquanto pendente; some no aceite/recusa.
+        proposal_bubble(),
         # Área de erro
         rx.cond(
             EnsaioState.error_message != "",
