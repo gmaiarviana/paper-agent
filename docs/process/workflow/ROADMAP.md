@@ -283,32 +283,71 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   mesma sessão; o escopo de implementação reduz-se ao fix do trigger.
   Apto ao fluxo autônomo.
 
-### PILOTO-WORKFLOW-FILA-UX
+> **Fase Piloto — escopo em altíssimo nível (declarado 2026-06-19).**
+> Três milestones materializam o estágio Piloto definido na vision
+> (§"Eixo de Estágios": "Cockpit + proatividade mecânica"). Escada de
+> execução: **UX → Canal único → Proatividade**. Épicos e funcionalidades
+> ficam para refinamento estratégico posterior — aqui só o escopo macro.
 
-- **Objetivo:** refinamento de UX da fila reativa entregue em
-  PROTO-WORKFLOW-FILA — duas frições identificadas em uso real:
-  (a) painel de detalhe vive no rodapé da página, depois de todos
-  os cards, e some abaixo da viewport quando a fila tem 15+ itens;
-  (b) cards de REVIEW/CLEANUP/STALE_BRANCH têm `expected_action`
-  igual ao conteúdo que o painel de detalhe expõe — clicar o card
-  não acrescenta nada nesses tipos, só em DISPATCH/REFINE onde o
-  prompt é um artefato grande gerado pelos builders.
+### PILOTO-WORKFLOW-CANAL-UNICO
+
+- **Objetivo:** a plataforma vira **canal único** — o dispatch (e o chat
+  focado) acontece de dentro dela, chamando o agente headless por baixo
+  dos panos, em vez de copiar prompt pra uma sessão externa. A plataforma
+  deixa de ser só leitura e passa a **disparar a execução**; o resultado
+  aparece como commits/PR. Runtime inicial: `claude` headless (ver
+  §"Tooling de Desenvolvimento > Decisão de runtime").
 - **Estágio:** Piloto
-- **Épicos agrupados:** W-PILOTO-FILA-UX-1
+- **Épicos agrupados:** a refinar (alto nível — acoplamento
+  plataforma↔runtime, disparo de dentro, leitura de progresso).
+- **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
+  mergeada e da tese "Dispatch headless via CLI" (§Tooling).
+- **Branch associada:** `milestone/piloto-workflow-canal-unico`
+- **Status:** 🌱 Visão — aguarda refinamento estratégico.
+
+### PILOTO-WORKFLOW-UX
+
+- **Objetivo:** **UX de verdade** — a plataforma agradável de usar todo
+  dia como cockpit. Absorve as frições de UX da fila reativa já levantadas
+  (painel de detalhe some abaixo da viewport com 15+ itens; valor do
+  clique difere por tipo de item) e amplia para o polimento geral. Frente
+  distinta do runtime integrado (vision §"Eixo de Estágios").
+- **Estágio:** Piloto
+- **Épicos agrupados:** W-PILOTO-FILA-UX-1 (frições da fila — seed) +
+  a refinar.
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
   mergeada.
-- **Branch associada:** `milestone/piloto-workflow-fila-ux`
+- **Branch associada:** `milestone/piloto-workflow-ux`
 - **Status dos épicos:** W-PILOTO-FILA-UX-1 🌱.
-- **Nota:** milestone declarado em 2026-06-17 a partir de revisão
-  técnica subsequente à entrega de PROTO-WORKFLOW-FILA (PR #121).
-  Ambas as funcionalidades convergem com a transição
-  Protótipo→Piloto registrada em §"Tooling de Desenvolvimento"
-  (tese validada 2026-05-01): no Piloto, clicar o card deixa de
-  copiar prompt e passa a disparar execução headless do agente
-  (`claude` ou `opencode`). UX da fila no Piloto pode reconsiderar
-  shape do painel quando "ação esperada = disparar", não "ação
-  esperada = copiar". Épico em `🌱 Visão` — aguarda refinamento
-  estratégico antes do dispatch.
+- **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
+  2026-06-17 a partir da revisão da PR #121), reescopado em 2026-06-19
+  para a frente ampla de UX do Piloto. As frições da fila convergem com a
+  transição Protótipo→Piloto: clicar o card deixa de copiar prompt e
+  passa a disparar execução headless — repensar o shape do painel quando
+  "ação = disparar". Demais épicos a refinar.
+
+### PILOTO-WORKFLOW-PROATIVIDADE
+
+- **Objetivo:** **proatividade mecânica (fase 1)** — a plataforma
+  auto-aciona, em execução de segundo plano, o que a fila reativa **já
+  detecta** como despachável (item `DISPATCH`: milestone com todos os
+  épicos em 🔍). Sem agente de julgamento: roda só o que já está pronto
+  de forma determinística. Guardrails da vision §"Proatividade e execução
+  em segundo plano": teto baixo de fluxos simultâneos, não repetir
+  trabalho em curso (idempotência por estado), branch isolada, PR como
+  único portão. Campo de prova: Ensaio.
+- **Estágio:** Piloto
+- **Épicos agrupados:** a refinar (alto nível — gatilho agendado, guard
+  de não-duplicação, teto de concorrência).
+- **Dependências de core:** nenhuma; depende de PILOTO-WORKFLOW-CANAL-UNICO
+  (disparo de dentro precede o disparo automático) e reusa a detecção
+  `DISPATCH` de PROTO-WORKFLOW-FILA.
+- **Branch associada:** `milestone/piloto-workflow-proatividade`
+- **Status:** 🌱 Visão — aguarda refinamento estratégico.
+- **Nota:** último degrau da escada do Piloto. O número do teto de
+  concorrência e a cadência do agendamento ficam pro refinamento —
+  default candidato: teto = 1. Julgamento (proponente/porta-voz) é MVP,
+  não entra aqui.
 
 ### MVP-WORKFLOW-DOC
 
@@ -393,7 +432,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 ### Dispatch headless via CLI
 
-**Status:** 🧭 Tese validada (2026-05-01) — dispatch por comando único é viável; runtime inicial do Piloto em aberto.
+**Status:** 🧭 Tese validada (2026-05-01) — dispatch por comando único é viável; runtime inicial do Piloto **definido em 2026-06-19**: `claude` headless sob assinatura Max (ver "Decisão de runtime" abaixo).
 
 **Tese:** a plataforma dispara fluxos de implementação e refinamento invocando um agente em modo headless por linha de comando — sem UI, sem operador presente, resultado aparece como commits na branch. O binário concreto é trocável (`claude` headless ou [`opencode`](https://opencode.ai/) hoje, outro amanhã); o que importa é o contrato de execução.
 
@@ -406,7 +445,12 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 **Aberto:**
 - Qualidade do opencode com modelos locais: falhas intermitentes em tool-calling (parser do Ollama rejeita formato emitido pelo modelo). Mais rodadas necessárias antes de mapear guardrails.
 - Próximo teste real é disparar **skill chain completo** (dispatch de implementação ponta a ponta), não tarefa direta.
-- Runtime inicial do Piloto: proposta atual é começar com `claude` headless (qualidade conhecida, foco fica no acoplamento plataforma↔agente) e migrar para opencode quando a qualidade fechar — encaixa no Horizonte "Runtime de agente sobre providers corporativos (estágio MVP)".
+
+**Decisão de runtime (2026-06-19): `claude` headless, auth pela assinatura Max.**
+- Começar com Claude Code CLI pela qualidade conhecida — o foco do Piloto fica no acoplamento plataforma↔agente, não em domar o modelo.
+- **Auth preferencial: assinatura Max do operador (login da conta), não API key** — se viável. API key fica como **fallback** caso a assinatura não cubra o uso.
+- O caminho de migração para modelos locais (`opencode` contra OpenWebUI/Ollama) segue válido e encaixa no Horizonte "Runtime de agente sobre providers corporativos (estágio MVP)" — o runtime é trocável por contrato de execução, não reescrita.
+- **A confirmar na implementação:** uso *agendado / não-assistido* (auto-dispatch da `PILOTO-WORKFLOW-PROATIVIDADE`) sob assinatura Max pode esbarrar em limites/termos pensados pra uso interativo. O canal único (disparo pelo operador) é uso interativo e não tem esse risco; se o agendado exigir, cai pro fallback de API só nessa fase.
 
 **Configuração opencode (referência):**
 - Provider em `opencode.json` (root): `@ai-sdk/openai-compatible` contra OpenWebUI
@@ -903,11 +947,14 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-FILA-UX` (W-PILOTO-FILA-UX-1).
+> **Milestones:** `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-UX`
+> (W-PILOTO-FILA-UX-1 + a refinar) · `PILOTO-WORKFLOW-PROATIVIDADE`.
+> Escopo macro nos cards de milestone acima; só `W-PILOTO-FILA-UX-1` tem
+> esboço de épico (herdado do antigo `PILOTO-WORKFLOW-FILA-UX`).
 
 #### ÉPICO W-PILOTO-FILA-UX-1: Refinamento de UX da fila reativa
 
-**Milestone:** `PILOTO-WORKFLOW-FILA-UX`
+**Milestone:** `PILOTO-WORKFLOW-UX`
 
 **Objetivo:** reduzir duas frições identificadas em uso real da fila reativa entregue em PROTO-WORKFLOW-FILA (PR #121) — painel de detalhe que some abaixo da viewport quando a fila enche; e cards de REVIEW/CLEANUP/STALE_BRANCH que duplicam no detalhe o que já está no card.
 
