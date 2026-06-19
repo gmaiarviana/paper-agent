@@ -440,6 +440,28 @@ Quando o super-sistema tiver 2-3 produtos com grafos próprios (Ensaio + Produto
 
 ---
 
+## 🛠️ Débito Técnico — Sessão de debug do chat Ensaio (2026-06-18)
+
+> **Origem:** investigação do "chat trava no Windows" (resolvido na PR #125, branch `fix/ensaio-windows-chat-hang` — causa-raiz: `StructuredLogger` gravava `.jsonl` dentro da árvore observada pelo `reflex run`, disparando hot-reload que remontava a página). Dois itens surgiram no diagnóstico e ficaram **fora** do PR (escopo + decisão). Tamanhos: S/M/L como na auditoria de 2026-04-28.
+
+---
+
+### D1. Modelo descontinuado hardcoded (nada pode ficar hardcoded)
+
+**Contexto:** `claude-3-5-haiku-20241022` (descontinuado pela Anthropic → **404**) está fixo em 6 lugares: `core/utils/config.py:25` (`DEFAULT_MODEL`) e os 5 YAMLs `core/config/agents/{orchestrator,structurer,methodologist,observer,writer}.yaml`. Hoje não quebra porque `get_agent_model`/`get_default_model` dão precedência a `ANTHROPIC_MODEL` do `.env` (`claude-haiku-4-5-20251001`); mas se o `.env` não carregar (clone novo, CI, var ausente) o fallback é um 404 críptico — foi exatamente a causa dos erros 404 vistos em logs antigos do Ensaio durante o debug.
+
+- **D1.1 — Eliminar o nome de modelo hardcoded** [S, prioridade alta] — trocar as 6 ocorrências por um modelo atual válido **ou**, melhor, por fonte única resolvida em runtime, de modo que o *fallback* também seja seguro. Idealmente nenhum nome de modelo fica escrito fixo em mais de um lugar. Relacionado a **G1.1** ("trocar de modelo num lugar só") e **G1.3** (defaults dos YAMLs); pode ser pago antes do épico G1 como fix de segurança isolado.
+
+---
+
+### D2. Observabilidade do runtime de agentes (debug-ability)
+
+**Contexto:** durante o hang, o log estruturado tinha **apenas** `agent_started` — sem modelo resolvido, sem fim, sem erro — o que tornou o diagnóstico caro (um hang ficou indistinguível de chamada lenta ou erro silencioso). O timeout leve (`asyncio.wait_for`, 45s) e a superfície de erro/timeout na UI **já entraram** na PR #125; o restante da instrumentação foi revertido por causar ruído/loop.
+
+- **D2.1 — Instrumentar a chamada LLM** [S/M] — logar o **modelo resolvido** na hora da chamada; emitir `llm_call_start`/`llm_call_end` com duração; garantir que **sempre** saia `agent_completed` **ou** `agent_failed` (não só `agent_started`). Objetivo: próximo travamento vira diagnóstico de 2 min, não de horas. Relacionado a **G1.2** (consolidação de logging) — entra naturalmente junto se o `llm_runner` de **G1.1** expor hooks de log.
+
+---
+
 **Versão:** 1.0  
 **Data:** 2025-11-14
 
