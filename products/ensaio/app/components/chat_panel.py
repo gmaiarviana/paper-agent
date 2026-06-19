@@ -35,7 +35,7 @@ def _message_bubble(msg: dict) -> rx.Component:
             margin_bottom="2px",
         ),
         rx.box(
-            rx.markdown(msg["content"]),
+            rx.text(msg["content"], white_space="pre-wrap"),
             background=rx.cond(is_user, "var(--accent-3)", "var(--gray-2)"),
             border_radius="8px",
             padding="12px 16px",

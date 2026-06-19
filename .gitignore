@@ -64,6 +64,10 @@ dmypy.json
 *.log
 logs/
 
+# Runtime artefacts gravados FORA da árvore observada pelo reflex
+# (logs estruturados, dumps de debug) — ver core/utils/structured_logger.py
+.runtime/
+
 # LangChain/LangGraph specific
 .langchain/
 .cache/
