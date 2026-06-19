@@ -9,6 +9,15 @@ from unittest.mock import patch, MagicMock
 
 # Mock langgraph antes de importar módulos que dependem dele
 # Criar estrutura completa de mocks para evitar problemas de __path__
+#
+# IMPORTANTE: ver test_methodologist_nodes.py para o motivo da fixture
+# _restore_langgraph_modules abaixo (isolamento de sys.modules).
+_LANGGRAPH_MOCK_KEYS = (
+    'langgraph',
+    'langgraph.checkpoint',
+    'langgraph.checkpoint.memory',
+)
+
 _mock_langgraph = MagicMock()
 _mock_checkpoint = MagicMock()
 _mock_memory = MagicMock()
@@ -24,6 +33,21 @@ _mock_checkpoint.__path__ = []
 _mock_memory.__path__ = []
 
 from core.agents.methodologist.tools import ask_user
+
+
+@pytest.fixture(autouse=True, scope='module')
+def _restore_langgraph_modules():
+    """Restaura ``sys.modules`` ao final do módulo. Ver test_methodologist_nodes."""
+    yield
+    import importlib
+
+    for key in _LANGGRAPH_MOCK_KEYS:
+        sys.modules.pop(key, None)
+    for key in _LANGGRAPH_MOCK_KEYS:
+        try:
+            importlib.import_module(key)
+        except ImportError:
+            pass
 
 class TestAskUserTool:
     """Suite de testes para a tool ask_user."""
