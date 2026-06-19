@@ -439,7 +439,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-4: Colapsar/expandir seções no painel
 
-**Status:** 🔍 Detalhes definidos
+**Status:** ✅ Implementado ([d0ca4e7](https://github.com/gmaiarviana/paper-agent/commit/d0ca4e7))
 
 **Objetivo:** Painel de seções deixa de renderizar tudo expandido. Toggle por seção, todas colapsadas por padrão no estado inicial. Usuário foca no que está trabalhando.
 
