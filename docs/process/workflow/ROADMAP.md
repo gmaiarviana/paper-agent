@@ -448,9 +448,10 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 **Decisão de runtime (2026-06-19): `claude` headless, auth pela assinatura Max.**
 - Começar com Claude Code CLI pela qualidade conhecida — o foco do Piloto fica no acoplamento plataforma↔agente, não em domar o modelo.
-- **Auth preferencial: assinatura Max do operador (login da conta), não API key** — se viável. API key fica como **fallback** caso a assinatura não cubra o uso.
+- **Auth: assinatura Max do operador (login da conta), não API key.** Verificado nas docs do Claude Code (2026-06-19): `claude -p` (headless) funciona sob credenciais de assinatura. Exceção: o modo `--bare` (CI) ignora OAuth e exige `ANTHROPIC_API_KEY`/`apiKeyHelper` — não usar `--bare` no canal único.
+- **Fallback por precedência de env var:** se `ANTHROPIC_API_KEY` está setada, ela tem precedência sobre a assinatura; `unset ANTHROPIC_API_KEY` volta pra assinatura. Trocar entre os dois é trivial, sem reescrita.
+- **Ressalva para o auto-dispatch (`PILOTO-WORKFLOW-PROATIVIDADE`):** uso *agendado / não-assistido* é **medido à parte** do uso interativo — pool de créditos "autonomous" e, no caso de Scheduled Routines, teto de runs/dia (números a confirmar no billing oficial; fontes recentes citam ~15/dia e pool de ~US$100–200/mês no Max). O canal único (disparo pelo operador) é interativo e não tem essa contabilização. Conclusão: assinatura cobre baixo volume de auto-dispatch; se escalar, fallback de API só nessa fase.
 - O caminho de migração para modelos locais (`opencode` contra OpenWebUI/Ollama) segue válido e encaixa no Horizonte "Runtime de agente sobre providers corporativos (estágio MVP)" — o runtime é trocável por contrato de execução, não reescrita.
-- **A confirmar na implementação:** uso *agendado / não-assistido* (auto-dispatch da `PILOTO-WORKFLOW-PROATIVIDADE`) sob assinatura Max pode esbarrar em limites/termos pensados pra uso interativo. O canal único (disparo pelo operador) é uso interativo e não tem esse risco; se o agendado exigir, cai pro fallback de API só nessa fase.
 
 **Configuração opencode (referência):**
 - Provider em `opencode.json` (root): `@ai-sdk/openai-compatible` contra OpenWebUI
