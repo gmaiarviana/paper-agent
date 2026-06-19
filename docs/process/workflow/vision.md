@@ -76,22 +76,28 @@ adaptado para processo:
   dia a dia se apoiar nela, ainda sem agentes proativos — sinais viram
   itens de fila por regra, não por julgamento. Milestones em curso e
   roadmap detalhado em [ROADMAP.md](ROADMAP.md).
-- **Piloto — estrutura funcionando bem.** Priorização autônoma rodando,
-  fluxo de refinamento autônomo standalone disponível, proponente
-  orquestrando, porta-voz curando atenção. **A plataforma vira canal
-  único** (ver "Forma da Plataforma"): dispatch e refinamento
-  conversacional acontecem dentro dela, com chamada à camada de agente
-  por API/CLI por baixo dos panos. Foco em qualidade do fluxo e fricção
-  operacional baixa nos casos esperados. Detalhado abaixo em "Papéis" e
-  "Fluxos". Duas frentes distintas sustentam o uso real no Piloto:
+- **Piloto — estrutura funcionando bem.** **A plataforma vira canal
+  único** (ver "Forma da Plataforma"): o dispatch e o chat focado
+  acontecem dentro dela, com chamada à camada de agente por API/CLI por
+  baixo dos panos — a plataforma deixa de ser só leitura e passa a
+  disparar a execução. Sobre esse canal, entra a **proatividade
+  mecânica**: a plataforma auto-aciona o que a fila reativa já detecta
+  como despachável (milestone em 🔍), em execução de segundo plano com
+  teto baixo e PR como único portão (ver "Proatividade e execução em
+  segundo plano"). Duas frentes distintas sustentam o uso real:
   **qualidade de UX** (a plataforma agradável de usar todo dia) e
   **runtime de agente integrado** (REPL/headless chamado de dentro dela).
   O **Ensaio é o campo de prova** — o uso diário contra ele valida o
-  estágio.
+  estágio. A camada de julgamento (proponente, porta-voz) e o refinamento
+  autônomo standalone ficam no MVP.
 - **MVP — solução robusta, release a colegas.** Quando a estrutura do
   Piloto se mostra sólida, a robustez vira foco: tratamento de erros do
   agente e da plataforma, comportamento previsível em borda, mensagens
-  claras. Junto com o release a colegas — o workflow se desacopla do
+  claras. É também no MVP que entra a **camada de autonomia por
+  julgamento** — proponente escolhendo o próximo movimento, porta-voz
+  curando atenção — e o **fluxo de refinamento autônomo standalone**
+  (cobrir estados pré-🔍), sobre o cockpit que o Piloto consolidou. Junto
+  com o release a colegas — o workflow se desacopla do
   paper-agent: é **extraído para um repo novo**, próprio, e passa a ser
   usado contra outros repositórios e por outras pessoas (não se pede que
   um colega use contra o repo do paper-agent). Implicações estruturais —
@@ -131,7 +137,7 @@ A fila tem dois modos conforme o estágio. **No Protótipo**, é populada
 **reativamente** — regras determinísticas convertem sinais óbvios do repo
 (PR aberta, épico chegou em estado-gatilho, branch parou) em itens.
 Operador atende na ordem que escolher; ordenação é simples (recência ou
-manual). **No Piloto**, o porta-voz passa a curar a fila — ordena, agrupa,
+manual). **No MVP**, o porta-voz passa a curar a fila — ordena, agrupa,
 filtra, escala apenas o que escapa do seu repertório. Ver "Papéis"
 abaixo.
 
@@ -189,8 +195,10 @@ forma. A execução tem botão; o pensamento tem voz.
 ## Papéis
 
 Três papéis ativos no sistema. Operador é humano; proponente e porta-voz
-são agentes que aparecem no Piloto. Refinamento e implementação **não** são
-papéis — são fluxos (próxima seção).
+são agentes que aparecem no MVP (o Piloto tem proatividade mecânica, sem
+julgamento — ver "Eixo de Estágios" e "Proatividade e execução em
+segundo plano"). Refinamento e implementação **não** são papéis — são
+fluxos (próxima seção).
 
 ### Operador (humano, no próprio ritmo)
 
@@ -253,14 +261,19 @@ porta-voz consulta na próxima vez.
 
 ## Proatividade e execução em segundo plano
 
-O motor da proatividade é o **proponente**: ~1×/dia escolhe o próximo
-movimento e **dispara a execução em segundo plano** — não só propõe.
-Cobre todos os estados de épico, não apenas dispatch de 🔍: pode avançar
-o refinamento de um épico pré-🔍 (um salto de estado) ou implementar o
-que já está refinado. A prioridade entre essas opções é a declarada em
-"Papéis > Proponente".
+A proatividade chega em dois degraus. **No Piloto é mecânica:** a
+plataforma auto-aciona o que a fila reativa já detecta como despachável
+(milestone em 🔍) — execução de segundo plano sobre trabalho já
+refinado, sem agente de julgamento escolhendo o quê. **No MVP ganha
+julgamento:** o **proponente** (~1×/dia) escolhe o próximo movimento e
+**dispara** — não só propõe — cobrindo todos os estados de épico, não
+apenas dispatch de 🔍: pode avançar o refinamento de um épico pré-🔍 (um
+salto de estado) ou implementar o que já está refinado. A prioridade
+entre essas opções é a declarada em "Papéis > Proponente".
 
-**Não repetir trabalho em curso.** Antes de disparar, o proponente lê o
+Os guardrails abaixo valem para os dois degraus.
+
+**Não repetir trabalho em curso.** Antes de disparar, o autônomo lê o
 estado-do-mundo e pula o que já está em andamento: épico com branch
 ativa, PR aberta, ou em 🏗️/🔀 já tem dono (humano ou agente). A
 idempotência é por **estado**, não por histórico — a mesma leitura
@@ -268,9 +281,9 @@ determinística que a fila usa (branch aberta como sinal, "Substrato
 Técnico"; claim em "Detecção de Claim do Operador"). O agente nunca abre
 uma segunda frente sobre o mesmo épico.
 
-**Um movimento por vez, não tudo de uma vez.** O proponente escolhe *o*
-próximo movimento — não dispara uma frente ampla tentando resolver tudo
-num ciclo. Vale o princípio "Pacing por bandwidth do operador": o
+**Um movimento por vez, não tudo de uma vez.** Dispara-se *um* próximo
+movimento — nunca uma frente ampla tentando resolver tudo num ciclo.
+Vale o princípio "Pacing por bandwidth do operador": o
 sistema não gera mais revisão (PRs) do que o operador absorve com
 qualidade. Há um teto de fluxos ativos simultâneos — baixo nas fases
 iniciais, ajustável por estágio/config (número fica no ROADMAP, não
@@ -286,28 +299,30 @@ automático.
 
 **Sem push: a plataforma não interrompe.** O secretário não notifica. O
 avanço e a "decisão mais valiosa" ficam visíveis quando o operador abre
-a plataforma — fila curada pelo porta-voz, kanban, PRs aguardando
-revisão. O modelo é pull (operador chega e vê), não alerta que
-interrompe o dia.
+a plataforma — fila, kanban, PRs aguardando revisão (e, no MVP, a fila
+já curada pelo porta-voz). O modelo é pull (operador chega e vê), não
+alerta que interrompe o dia.
 
-**Rollout em fases validáveis.** A autonomia de execução liga em
-incrementos testáveis — guardrails por estágio e label por épico
-permitem travar caso a caso — antes de cobrir todos os estados sem
-supervisão. Cada fase é validada no uso real (Ensaio) antes da próxima.
-A sequência concreta das fases vive no ROADMAP, não aqui.
+**Rollout em fases validáveis.** Os dois degraus — proatividade mecânica
+(Piloto) e julgamento (MVP) — ligam em incrementos testáveis; guardrails
+por estágio e label por épico permitem travar caso a caso, antes de
+cobrir todos os estados sem supervisão. Cada fase é validada no uso real
+(Ensaio) antes da próxima. A sequência concreta das fases vive no
+ROADMAP, não aqui.
 
 ## Fluxos
 
 Cada tipo de trabalho tem um fluxo especializado, executado via
 sequência de skills. Fluxos **não são papéis** — são modos de trabalho.
-Disparados pelo proponente (autônomo) ou pelo operador (manual).
+Disparados pela plataforma/proponente (autônomo) ou pelo operador
+(manual).
 
 ### Refinamento
 
 Avança épico em estados pré-execução até alvo declarado (normalmente
 🔍). Skills: **PM** (refinamento tático), **EM** (preflight de tamanho).
 
-Princípios do refinamento autônomo (chega no Piloto):
+Princípios do refinamento autônomo (standalone chega no MVP):
 
 - **Saltos pequenos.** Agente avança um estado por vez (ex.: 📐→📋),
   comita progresso na branch, e segue. Não tenta saltar 🌱→🔍 numa só
@@ -494,8 +509,8 @@ oportunidade real surgir.
   caminho passa por desacoplar carregamento de skill do CLI (já gate do
   Piloto) e por ter um orquestrador explícito (proponente + porta-voz
   já apontam pra ele).
-- **Autonomia crescente além do Piloto.** O fluxo de refinamento autônomo
-  do Piloto cobre saltos pequenos com revisão humana frequente.
+- **Autonomia crescente além do MVP.** O fluxo de refinamento autônomo
+  do MVP cobre saltos pequenos com revisão humana frequente.
   Maturidade futura amplia o repertório do porta-voz e do proponente —
   mais decisões pequenas resolvidas sem operador, escalações mais raras
   e mais bem direcionadas. Guardrails e ambientes de experimentação
