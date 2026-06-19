@@ -14,6 +14,16 @@ de decisão: o operador chega e o próximo passo já está esperando. Esta
 visão cobre tanto o processo (princípios, fluxos, estágios) quanto a
 plataforma (fila, kanban, chat focado, processos de fundo).
 
+**Norte de curto prazo (estágio Piloto).** O valor imediato é a
+plataforma virar o cockpit real de uso diário: o operador dispara o
+trabalho de um produto do paper-agent — hoje o Ensaio — e acompanha o
+avanço de dentro dela, sem alternar janelas. Esse uso já acontece de
+forma reativa (operador dispara, operador monitora); o foco do Piloto é
+torná-lo fluido e agradável — UX de verdade e runtime de agente
+integrado, tratados como frentes distintas (ver "Forma da Plataforma").
+"Usar de verdade, obter valor de verdade" é o critério. Multi-projeto e
+proatividade plena são arcos seguintes — não o curto prazo.
+
 ## Princípios
 
 - **Fluxos múltiplos, não pipeline única.** Tarefas de naturezas distintas
@@ -66,20 +76,32 @@ adaptado para processo:
   dia a dia se apoiar nela, ainda sem agentes proativos — sinais viram
   itens de fila por regra, não por julgamento. Milestones em curso e
   roadmap detalhado em [ROADMAP.md](ROADMAP.md).
-- **Piloto — estrutura funcionando bem.** Priorização autônoma rodando,
-  fluxo de refinamento autônomo standalone disponível, proponente
-  orquestrando, porta-voz curando atenção. **A plataforma vira canal
-  único** (ver "Forma da Plataforma"): dispatch e refinamento
-  conversacional acontecem dentro dela, com chamada à camada de agente
-  por API/CLI por baixo dos panos. Foco em qualidade do fluxo e fricção
-  operacional baixa nos casos esperados. Detalhado abaixo em "Papéis" e
-  "Fluxos".
+- **Piloto — estrutura funcionando bem.** **A plataforma vira canal
+  único** (ver "Forma da Plataforma"): o dispatch e o chat focado
+  acontecem dentro dela, com chamada à camada de agente por API/CLI por
+  baixo dos panos — a plataforma deixa de ser só leitura e passa a
+  disparar a execução. Sobre esse canal, entra a **proatividade
+  mecânica**: a plataforma auto-aciona o que a fila reativa já detecta
+  como despachável (milestone em 🔍), em execução de segundo plano com
+  teto baixo e PR como único portão (ver "Proatividade e execução em
+  segundo plano"). Duas frentes distintas sustentam o uso real:
+  **qualidade de UX** (a plataforma agradável de usar todo dia) e
+  **runtime de agente integrado** (REPL/headless chamado de dentro dela).
+  O **Ensaio é o campo de prova** — o uso diário contra ele valida o
+  estágio. A camada de julgamento (proponente, porta-voz) e o refinamento
+  autônomo standalone ficam no MVP.
 - **MVP — solução robusta, release a colegas.** Quando a estrutura do
   Piloto se mostra sólida, a robustez vira foco: tratamento de erros do
   agente e da plataforma, comportamento previsível em borda, mensagens
-  claras. Junto com o release a colegas — o workflow se desacopla do
-  paper-agent e passa a ser usado em outros repositórios e por outras
-  pessoas. Implicações estruturais — multi-persona no chat focado e na
+  claras. É também no MVP que entra a **camada de autonomia por
+  julgamento** — proponente escolhendo o próximo movimento, porta-voz
+  curando atenção — e o **fluxo de refinamento autônomo standalone**
+  (cobrir estados pré-🔍), sobre o cockpit que o Piloto consolidou. Junto
+  com o release a colegas — o workflow se desacopla do
+  paper-agent: é **extraído para um repo novo**, próprio, e passa a ser
+  usado contra outros repositórios e por outras pessoas (não se pede que
+  um colega use contra o repo do paper-agent). Implicações estruturais —
+  multi-persona no chat focado e na
   fila, runtime de agente sobre providers corporativos (OpenWebUI/Ollama),
   workflow como produto multi-repo — vivem em "Horizonte". O gatilho do
   desacoplamento é o release, não o Piloto.
@@ -115,7 +137,7 @@ A fila tem dois modos conforme o estágio. **No Protótipo**, é populada
 **reativamente** — regras determinísticas convertem sinais óbvios do repo
 (PR aberta, épico chegou em estado-gatilho, branch parou) em itens.
 Operador atende na ordem que escolher; ordenação é simples (recência ou
-manual). **No Piloto**, o porta-voz passa a curar a fila — ordena, agrupa,
+manual). **No MVP**, o porta-voz passa a curar a fila — ordena, agrupa,
 filtra, escala apenas o que escapa do seu repertório. Ver "Papéis"
 abaixo.
 
@@ -156,14 +178,16 @@ não um CLI específico. Construir esse acoplamento já no Piloto, mesmo
 que o runtime inicial seja Claude Code, é o que destrava a substituição
 de agente+modelo no MVP (release a colegas no ambiente corporativo).
 
-### Interação por voz (médio prazo)
+### Interação por voz (longo prazo)
 
 A plataforma conversa com o operador. O modelo canônico é o briefing
-proativo: ao entrar, o sistema relata o estado do dia em linguagem
-natural — decisões pendentes com contexto e impacto, atualizações de
-implementações em curso, novas ideias ou propostas — e pergunta onde
-focar. O operador responde em voz ou texto; a plataforma mapeia a
-intenção para a ação correspondente.
+**sob demanda** (pull, não push): quando o operador entra e pede, o
+sistema relata o estado do dia em linguagem natural — decisões pendentes
+com contexto e impacto, atualizações de implementações em curso, novas
+ideias ou propostas — e pergunta onde focar. O operador responde em voz
+ou texto; a plataforma mapeia a intenção para a ação correspondente. A
+voz é canal de briefing sob demanda — não um alerta que interrompe o
+dia.
 
 A voz é o canal do briefing e do diálogo, o espaço onde a decisão se
 forma. A execução tem botão; o pensamento tem voz.
@@ -171,8 +195,10 @@ forma. A execução tem botão; o pensamento tem voz.
 ## Papéis
 
 Três papéis ativos no sistema. Operador é humano; proponente e porta-voz
-são agentes que aparecem no Piloto. Refinamento e implementação **não** são
-papéis — são fluxos (próxima seção).
+são agentes que aparecem no MVP (o Piloto tem proatividade mecânica, sem
+julgamento — ver "Eixo de Estágios" e "Proatividade e execução em
+segundo plano"). Refinamento e implementação **não** são papéis — são
+fluxos (próxima seção).
 
 ### Operador (humano, no próprio ritmo)
 
@@ -233,18 +259,70 @@ Quando o porta-voz não tem repertório pra decidir, escala. A resposta
 do operador alimenta repertório novo (markdown como sempre) que o
 porta-voz consulta na próxima vez.
 
+## Proatividade e execução em segundo plano
+
+A proatividade chega em dois degraus. **No Piloto é mecânica:** a
+plataforma auto-aciona o que a fila reativa já detecta como despachável
+(milestone em 🔍) — execução de segundo plano sobre trabalho já
+refinado, sem agente de julgamento escolhendo o quê. **No MVP ganha
+julgamento:** o **proponente** (~1×/dia) escolhe o próximo movimento e
+**dispara** — não só propõe — cobrindo todos os estados de épico, não
+apenas dispatch de 🔍: pode avançar o refinamento de um épico pré-🔍 (um
+salto de estado) ou implementar o que já está refinado. A prioridade
+entre essas opções é a declarada em "Papéis > Proponente".
+
+Os guardrails abaixo valem para os dois degraus.
+
+**Não repetir trabalho em curso.** Antes de disparar, o autônomo lê o
+estado-do-mundo e pula o que já está em andamento: épico com branch
+ativa, PR aberta, ou em 🏗️/🔀 já tem dono (humano ou agente). A
+idempotência é por **estado**, não por histórico — a mesma leitura
+determinística que a fila usa (branch aberta como sinal, "Substrato
+Técnico"; claim em "Detecção de Claim do Operador"). O agente nunca abre
+uma segunda frente sobre o mesmo épico.
+
+**Um movimento por vez, não tudo de uma vez.** Dispara-se *um* próximo
+movimento — nunca uma frente ampla tentando resolver tudo num ciclo.
+Vale o princípio "Pacing por bandwidth do operador": o
+sistema não gera mais revisão (PRs) do que o operador absorve com
+qualidade. Há um teto de fluxos ativos simultâneos — baixo nas fases
+iniciais, ajustável por estágio/config (número fica no ROADMAP, não
+aqui) — e o refinamento segue em saltos pequenos, um estado por vez.
+Querer resolver tudo de uma vez é antipadrão explícito.
+
+**Execução em branch isolada, PR como único portão.** O agente comita o
+avanço numa branch própria do épico/milestone sem o operador presente
+(coerente com "Substrato Técnico > Branch persiste por épico em fluxo
+ativo"). O único portão humano é a **aprovação da PR** — o operador
+revisa e mergeia; nada entra em `main` sem esse aval. Não há merge
+automático.
+
+**Sem push: a plataforma não interrompe.** O secretário não notifica. O
+avanço e a "decisão mais valiosa" ficam visíveis quando o operador abre
+a plataforma — fila, kanban, PRs aguardando revisão (e, no MVP, a fila
+já curada pelo porta-voz). O modelo é pull (operador chega e vê), não
+alerta que interrompe o dia.
+
+**Rollout em fases validáveis.** Os dois degraus — proatividade mecânica
+(Piloto) e julgamento (MVP) — ligam em incrementos testáveis; guardrails
+por estágio e label por épico permitem travar caso a caso, antes de
+cobrir todos os estados sem supervisão. Cada fase é validada no uso real
+(Ensaio) antes da próxima. A sequência concreta das fases vive no
+ROADMAP, não aqui.
+
 ## Fluxos
 
 Cada tipo de trabalho tem um fluxo especializado, executado via
 sequência de skills. Fluxos **não são papéis** — são modos de trabalho.
-Disparados pelo proponente (autônomo) ou pelo operador (manual).
+Disparados pela plataforma/proponente (autônomo) ou pelo operador
+(manual).
 
 ### Refinamento
 
 Avança épico em estados pré-execução até alvo declarado (normalmente
 🔍). Skills: **PM** (refinamento tático), **EM** (preflight de tamanho).
 
-Princípios do refinamento autônomo (chega no Piloto):
+Princípios do refinamento autônomo (standalone chega no MVP):
 
 - **Saltos pequenos.** Agente avança um estado por vez (ex.: 📐→📋),
   comita progresso na branch, e segue. Não tenta saltar 🌱→🔍 numa só
@@ -389,9 +467,11 @@ oportunidade real surgir.
 - **Release a colegas e workflow como produto desacoplado (estágio
   MVP).** No MVP, a plataforma deixa de ser meta-workflow só do
   paper-agent e passa a ser usada por outras pessoas em outros
-  repositórios. Os dois movimentos — release a colegas e desacoplamento
-  do paper-agent — andam juntos: o primeiro é o gatilho do segundo (não
-  dá pra pedir que um colega use contra o repo do paper-agent).
+  repositórios. O desacoplamento é uma **extração para um repo novo**,
+  próprio do workflow. Os dois movimentos — release a colegas e
+  desacoplamento do paper-agent — andam juntos: o primeiro é o gatilho do
+  segundo (não dá pra pedir que um colega use contra o repo do
+  paper-agent).
   Implicações arquiteturais (fila por repo, dispatch sabe qual repo,
   skills versionadas por destino, auth) ficam pra refinamento quando o
   sinal aparecer concretamente. Não estrutura decisões do Piloto.
@@ -429,8 +509,8 @@ oportunidade real surgir.
   caminho passa por desacoplar carregamento de skill do CLI (já gate do
   Piloto) e por ter um orquestrador explícito (proponente + porta-voz
   já apontam pra ele).
-- **Autonomia crescente além do Piloto.** O fluxo de refinamento autônomo
-  do Piloto cobre saltos pequenos com revisão humana frequente.
+- **Autonomia crescente além do MVP.** O fluxo de refinamento autônomo
+  do MVP cobre saltos pequenos com revisão humana frequente.
   Maturidade futura amplia o repertório do porta-voz e do proponente —
   mais decisões pequenas resolvidas sem operador, escalações mais raras
   e mais bem direcionadas. Guardrails e ambientes de experimentação
