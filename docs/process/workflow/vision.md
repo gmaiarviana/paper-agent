@@ -260,6 +260,23 @@ o refinamento de um épico pré-🔍 (um salto de estado) ou implementar o
 que já está refinado. A prioridade entre essas opções é a declarada em
 "Papéis > Proponente".
 
+**Não repetir trabalho em curso.** Antes de disparar, o proponente lê o
+estado-do-mundo e pula o que já está em andamento: épico com branch
+ativa, PR aberta, ou em 🏗️/🔀 já tem dono (humano ou agente). A
+idempotência é por **estado**, não por histórico — a mesma leitura
+determinística que a fila usa (branch aberta como sinal, "Substrato
+Técnico"; claim em "Detecção de Claim do Operador"). O agente nunca abre
+uma segunda frente sobre o mesmo épico.
+
+**Um movimento por vez, não tudo de uma vez.** O proponente escolhe *o*
+próximo movimento — não dispara uma frente ampla tentando resolver tudo
+num ciclo. Vale o princípio "Pacing por bandwidth do operador": o
+sistema não gera mais revisão (PRs) do que o operador absorve com
+qualidade. Há um teto de fluxos ativos simultâneos — baixo nas fases
+iniciais, ajustável por estágio/config (número fica no ROADMAP, não
+aqui) — e o refinamento segue em saltos pequenos, um estado por vez.
+Querer resolver tudo de uma vez é antipadrão explícito.
+
 **Execução em branch isolada, PR como único portão.** O agente comita o
 avanço numa branch própria do épico/milestone sem o operador presente
 (coerente com "Substrato Técnico > Branch persiste por épico em fluxo
