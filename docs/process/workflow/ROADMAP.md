@@ -981,7 +981,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase MVP
 
-> **Milestones:** `MVP-WORKFLOW-REFINAMENTO` (W-MVP-REF-1..2) · `MVP-WORKFLOW-PROPONENTE` (W-MVP-PROP-1..2).
+> **Milestones:** `MVP-WORKFLOW-DOC` (W-MVP-DOC-1) · `MVP-WORKFLOW-REFINAMENTO` (W-MVP-REF-1..2) · `MVP-WORKFLOW-PROPONENTE` (W-MVP-PROP-1..2).
 
 #### ÉPICO W-MVP-REF-1: Fluxo de refinamento autônomo standalone
 
