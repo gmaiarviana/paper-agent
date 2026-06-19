@@ -10,6 +10,17 @@ from unittest.mock import MagicMock
 
 # Mock langgraph antes de importar módulos que dependem dele
 # Criar estrutura completa de mocks para evitar problemas de __path__
+#
+# IMPORTANTE: a substituição em sys.modules vazava para o resto do
+# processo de teste, envenenando ``langgraph.checkpoint.memory.InMemorySaver``
+# para qualquer arquivo que rodasse depois. A fixture
+# _restore_langgraph_modules abaixo isola ao escopo deste módulo.
+_LANGGRAPH_MOCK_KEYS = (
+    'langgraph',
+    'langgraph.checkpoint',
+    'langgraph.checkpoint.memory',
+)
+
 _mock_langgraph = MagicMock()
 _mock_checkpoint = MagicMock()
 _mock_memory = MagicMock()
@@ -25,6 +36,21 @@ _mock_checkpoint.__path__ = []
 _mock_memory.__path__ = []
 
 from core.agents.methodologist import MethodologistState, create_initial_state
+
+
+@pytest.fixture(autouse=True, scope='module')
+def _restore_langgraph_modules():
+    """Restaura ``sys.modules`` ao final do módulo. Ver test_methodologist_nodes."""
+    yield
+    import importlib
+
+    for key in _LANGGRAPH_MOCK_KEYS:
+        sys.modules.pop(key, None)
+    for key in _LANGGRAPH_MOCK_KEYS:
+        try:
+            importlib.import_module(key)
+        except ImportError:
+            pass
 
 class TestMethodologistState:
     """Testes para criação e validação do estado do Metodologista."""

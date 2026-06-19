@@ -17,6 +17,19 @@ from langchain_core.messages import AIMessage, HumanMessage
 
 # Mock langgraph antes de importar módulos que dependem dele
 # Criar estrutura completa de mocks para evitar problemas de __path__
+#
+# IMPORTANTE: a substituição em sys.modules abaixo VAZAVA para o resto do
+# processo de teste, envenenando ``langgraph.checkpoint.memory.InMemorySaver``
+# para qualquer arquivo de teste que rodasse depois dentro do mesmo run
+# (sintoma: test_ensaio_graph_methodologist falhava com "Invalid
+# checkpointer... Received MagicMock"). A fixture _restore_langgraph_modules
+# logo abaixo isola o envenenamento ao escopo deste módulo.
+_LANGGRAPH_MOCK_KEYS = (
+    'langgraph',
+    'langgraph.checkpoint',
+    'langgraph.checkpoint.memory',
+)
+
 _mock_langgraph = MagicMock()
 _mock_checkpoint = MagicMock()
 _mock_memory = MagicMock()
@@ -40,6 +53,28 @@ from core.agents.methodologist.nodes import (
     ask_clarification,
     decide
 )
+
+
+@pytest.fixture(autouse=True, scope='module')
+def _restore_langgraph_modules():
+    """Restaura ``sys.modules`` ao final do módulo.
+
+    Força ``importlib`` a re-carregar os módulos reais — restaurar a
+    referência "capturada na coleção" não basta, pois se outro arquivo
+    de teste foi importado antes e envenenou ``sys.modules``, a captura
+    seria do próprio MagicMock dele.
+    """
+    yield
+    import importlib
+
+    for key in _LANGGRAPH_MOCK_KEYS:
+        sys.modules.pop(key, None)
+    for key in _LANGGRAPH_MOCK_KEYS:
+        try:
+            importlib.import_module(key)
+        except ImportError:
+            # Ambiente sem langgraph (CI minimal) — não há real para restaurar.
+            pass
 
 # ==============================================================================
 # TESTES DO NÓ ANALYZE
