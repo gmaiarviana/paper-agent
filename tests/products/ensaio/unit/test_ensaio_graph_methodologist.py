@@ -2,8 +2,6 @@
 
 from unittest.mock import patch
 
-from langgraph.checkpoint.memory import InMemorySaver
-
 
 def _make_graph():
     """Cria o grafo do Ensaio com checkpointer in-memory para teste.
@@ -11,7 +9,16 @@ def _make_graph():
     Patches ``SqliteSaver`` e ``sqlite3.connect`` para evitar criar arquivo
     em disco; usa ``InMemorySaver`` (um ``BaseCheckpointSaver`` real, exigido
     por langgraph >= 0.2 — substitui ``MagicMock`` que era rejeitado).
+
+    ``InMemorySaver`` é importado lazy aqui (não no topo do arquivo) porque
+    ``tests/core/unit/agents/test_methodologist_*.py`` envenenam
+    ``sys.modules['langgraph.checkpoint.memory']`` durante a fase de
+    coleção do pytest. O import lazy resolve só na chamada de
+    ``_make_graph()``, depois do teardown das fixtures autouse desses
+    arquivos restaurarem ``sys.modules`` via ``importlib.import_module``.
     """
+    from langgraph.checkpoint.memory import InMemorySaver
+
     with patch("products.ensaio.app.graph.SqliteSaver"), patch("sqlite3.connect"):
         from products.ensaio.app.graph import create_ensaio_graph
         return create_ensaio_graph(checkpointer=InMemorySaver())
