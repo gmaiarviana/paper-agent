@@ -23,6 +23,10 @@ from langchain_core.messages import AIMessage, HumanMessage
 
 logger = logging.getLogger(__name__)
 
+# Hard timeout do invoke do grafo. Sem ele, uma chamada LLM síncrona presa deixa
+# a worker thread órfã e a mensagem "some" sem explicação na UI.
+_GRAPH_INVOKE_TIMEOUT_SECONDS = 45
+
 _AGENT_LABELS: dict[str, str] = {
     "orchestrator": "🎯 Orquestrador",
     "structurer": "📐 Estruturador",
@@ -139,11 +143,16 @@ class EnsaioState(rx.State):
             current_article = list(self.current_article)
 
         try:
-            result = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: _invoke_graph(
-                    user_text, thread_id, product_context, langchain_history
+            # Hard timeout no invoke do grafo: uma chamada LLM presa não deve
+            # deixar a worker thread órfã nem a mensagem sumir sem explicação.
+            result = await asyncio.wait_for(
+                asyncio.get_event_loop().run_in_executor(
+                    None,
+                    lambda: _invoke_graph(
+                        user_text, thread_id, product_context, langchain_history
+                    ),
                 ),
+                timeout=_GRAPH_INVOKE_TIMEOUT_SECONDS,
             )
 
             out_messages = result.get("messages", [])
@@ -194,6 +203,30 @@ class EnsaioState(rx.State):
                     self.focal_argument = new_focal
                 if article_sections_update is not None:
                     self.current_article = article_sections_update
+                self.processing_agent = ""
+
+        except asyncio.TimeoutError:
+            # Timeout VISÍVEL; mensagem do usuário PRESERVADA.
+            logger.error(
+                "Timeout (%ss) ao invocar grafo", _GRAPH_INVOKE_TIMEOUT_SECONDS
+            )
+            async with self:
+                self.messages = [
+                    *self.messages,
+                    {
+                        "role": "assistant",
+                        "agent": None,
+                        "content": (
+                            f"⏱️ Tempo esgotado (timeout de {_GRAPH_INVOKE_TIMEOUT_SECONDS}s) "
+                            "ao processar sua mensagem."
+                        ),
+                        "timestamp": _now(),
+                    },
+                ]
+                self.error_message = (
+                    f"⏱️ A geração excedeu {_GRAPH_INVOKE_TIMEOUT_SECONDS}s e foi interrompida. "
+                    "Sua mensagem foi preservada — tente novamente."
+                )
                 self.processing_agent = ""
 
         except Exception as exc:

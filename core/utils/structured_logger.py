@@ -3,11 +3,20 @@ from pathlib import Path
 import json
 from typing import Optional, Dict, Any, List
 
+# Raiz do repositório: core/utils/structured_logger.py -> parents[2] == repo root.
+# Os logs DEVEM ficar FORA da árvore observada pelo `reflex run` (products/ensaio/).
+# Quando gravados dentro dela, cada escrita de .jsonl dispara recompile + hot-reload,
+# que remonta a página e zera o estado do chat. Ancorar num caminho ABSOLUTO no
+# repo-root (<repo>/.runtime/logs/structured/) garante que o reflex não observe essas
+# escritas, independente do cwd do processo. Ver .gitignore (.runtime/).
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_DEFAULT_LOGS_DIR = _REPO_ROOT / ".runtime" / "logs" / "structured"
+
 class StructuredLogger:
     """Logger estruturado em JSON para debugging."""
-    
-    def __init__(self, logs_dir: str = "logs/structured"):
-        self.logs_dir = Path(logs_dir)
+
+    def __init__(self, logs_dir: Optional[str] = None):
+        self.logs_dir = Path(logs_dir) if logs_dir is not None else _DEFAULT_LOGS_DIR
         self.logs_dir.mkdir(parents=True, exist_ok=True)
     
     def _write_log(self, trace_id: str, log_entry: dict):
