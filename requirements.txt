@@ -10,7 +10,12 @@ python-dotenv>=1.0.0
 
 # Web interfaces
 streamlit>=1.30.0   # Revelar
-reflex>=0.6.0       # Ensaio (PROTO-ENSAIO)
+reflex==0.9.0       # Ensaio (PROTO-ENSAIO)
+# reflex 0.9.0 declara `reflex-base` SEM constraint de versão, então pip
+# instala o reflex-base mais novo (0.9.5+), incompatível com a API do
+# reflex 0.9.0 (ImportError: CUSTOM_COMPONENTS). Pin aqui compensa o
+# dep interno não-pinado upstream. Remover quando atualizar reflex.
+reflex-base==0.9.0
 
 # CLI formatting and colors
 colorama>=0.4.6
