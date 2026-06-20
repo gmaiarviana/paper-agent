@@ -338,7 +338,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
   mergeada e da [ADR 001](adr/001-stack-da-plataforma.md).
 - **Branch associada:** `milestone/piloto-workflow-ux`
-- **Status dos épicos:** W-PILOTO-UX-1 📐, W-PILOTO-UX-2 📐,
+- **Status dos épicos:** W-PILOTO-UX-1 📋, W-PILOTO-UX-2 📐,
   W-PILOTO-UX-3 📐, W-PILOTO-UX-4 📐.
 - **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
   2026-06-17 a partir da revisão da PR #121) e o seed `W-PILOTO-FILA-UX-1`,
@@ -352,6 +352,13 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   camada de view e o mesmo conceito (cockpit) — milestone único é adequado.
   W-PILOTO-UX-1 ganha nota de **spike de viabilidade do Reflex** antes de
   descer a `🔍`.
+- **Refinamento tático (2026-06-20):** W-PILOTO-UX-1 (fundação Reflex) levado
+  a `📋 Critérios definidos` em passada cirúrgica — critérios de aceite das 4
+  funcionalidades fechados. Decisão de fronteira registrada: UX-1 porta o
+  painel de detalhe (`card_detail`) com paridade de comportamento (rodapé
+  incluso); o reposicionamento na co-visibilidade é de W-PILOTO-UX-2. UX-2/3/4
+  seguem em `📐`. Próximo passo natural: spike de viabilidade do Reflex e
+  descida de UX-1 a `🔍`.
 
 ### PILOTO-WORKFLOW-PROATIVIDADE
 
@@ -975,8 +982,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1..4, refinados a `📐`
-> em 2026-06-19) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
+> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1 em `📋`, W-PILOTO-UX-2..4
+> em `📐`) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
 > Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
 > CANAL-UNICO e PROATIVIDADE nos cards de milestone acima; só
 > `PILOTO-WORKFLOW-UX` tem épicos esboçados.
@@ -995,16 +1002,45 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** trocar a camada de apresentação da plataforma de Streamlit para Reflex ([ADR 001](adr/001-stack-da-plataforma.md)), preservando todo o miolo stack-independente (`tools/workflow_platform/parser.py`, `models.py`, `queue/*`, `prompts/*`, `config_loader.py`, `preferences.py`). A primeira fatia entrega esqueleto Reflex + aba Fila funcional, validando a decisão de stack no uso real; a segunda porta o Kanban. Fundação de todo o resto do milestone e pré-requisito do `PILOTO-WORKFLOW-CANAL-UNICO`.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 📋 Critérios definidos
 
 **Dependências:** PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o setup Reflex já existente no Ensaio (`products/ensaio/rxconfig.py`, `reflex>=0.6`).
 
-### Funcionalidades (esboço):
+### Funcionalidades:
 
-- **1.1 Esqueleto Reflex + estado no backend** — `rx.State` substitui `st.session_state`; entrypoint, config e load do estado (config/roadmaps/preferences) portados a partir de `app.py`.
-- **1.2 Porte da aba Fila** — detecção e cards da fila em Reflex, com `queue/detect.py` e os builders de `prompts/*` intocados.
-- **1.3 Porte da aba Kanban** — colunas por estado e cards por milestone em Reflex.
-- **1.4 Paridade funcional + retirada do Streamlit** — preferências persistidas, filtros por ROADMAP e badge de carga reproduzidos; `app.py`/`views/*` Streamlit removidos ao final; `.web/` no `.gitignore`.
+#### 1.1 Esqueleto Reflex + estado no backend
+
+- **Descrição:** App Reflex com `rx.State` no backend substitui o entrypoint Streamlit; config, load de ROADMAPs e preferences portados a partir de `app.py`.
+- **Critérios de Aceite:**
+  - Deve subir via `reflex run` carregando `config.yaml`, ROADMAPs configurados e preferences sem erro.
+  - O estado da UI (aba ativa, seleção, filtros) deve viver em `rx.State`, não em `st.session_state`.
+  - Deve importar o miolo (`parser`, `config_loader`, `preferences`, `queue/*`, `prompts/*`) sem modificá-lo.
+  - Não deve introduzir lógica de detecção/parse/prompt nova — só a camada de view/estado migra.
+
+#### 1.2 Porte da aba Fila
+
+- **Descrição:** Aba Fila (detecção + cards por item + ação copiável) em Reflex, com `queue/detect.py` e os builders de `prompts/*` intocados. Primeira fatia fina — valida a decisão de stack no uso real.
+- **Critérios de Aceite:**
+  - Para um mesmo estado-do-mundo, deve listar os mesmos itens da versão Streamlit (mesma saída de `detect_all`).
+  - Selecionar um item deve exibir detalhe + ação copiável (prompt clipboard-ready) equivalentes aos atuais.
+  - Deve ser a aba default, como hoje.
+  - O painel de detalhe (`card_detail`) é portado com **paridade de comportamento**, incluindo a posição atual (rodapé) — o reposicionamento na co-visibilidade é escopo de W-PILOTO-UX-2.
+
+#### 1.3 Porte da aba Kanban
+
+- **Descrição:** Kanban (8 colunas por estado, cards agrupados por milestone) em Reflex.
+- **Critérios de Aceite:**
+  - Deve exibir as 8 colunas (🌱→✅) consolidando épicos de todos os ROADMAPs configurados, agrupados por milestone.
+  - Selecionar um épico deve exibir o painel com as ações contextuais por estado já existentes (dispatch para `🔍`; links para `🏗️`/`🔀`/`✅`).
+  - Continuidade de seleção entre Fila e Kanban fica fora deste épico (é W-PILOTO-UX-2.3) — cada aba mantém seleção própria, como hoje.
+
+#### 1.4 Paridade funcional + retirada do Streamlit
+
+- **Descrição:** Fechar a paridade (preferências persistidas, filtro por ROADMAP, badge de carga) e remover a camada Streamlit.
+- **Critérios de Aceite:**
+  - Preferências (`preferences.json`), filtro por ROADMAP e badge de carga (`<n>/20` + banner OVER_LIMIT) devem ler/gravar e renderizar com paridade à versão Streamlit.
+  - `app.py` e `views/*` Streamlit removidos ao final; `streamlit` sai do requirements da plataforma; nenhum caminho restante importa Streamlit.
+  - `.web/` (build do Reflex) deve estar no `.gitignore`.
 
 **Nota:** **spike de viabilidade do Reflex** (sticky/two-pane + tarefa de segundo plano) antes de descer este épico a `🔍` — confirma que o framework cobre os requisitos de UX-2 e do canal único sem hack.
 
