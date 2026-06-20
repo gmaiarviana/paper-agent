@@ -338,7 +338,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
   mergeada e da [ADR 001](adr/001-stack-da-plataforma.md).
 - **Branch associada:** `milestone/piloto-workflow-ux`
-- **Status dos épicos:** W-PILOTO-UX-1 📐, W-PILOTO-UX-2 📐,
+- **Status dos épicos:** W-PILOTO-UX-1 📋, W-PILOTO-UX-2 📋,
   W-PILOTO-UX-3 📐, W-PILOTO-UX-4 📐.
 - **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
   2026-06-17 a partir da revisão da PR #121) e o seed `W-PILOTO-FILA-UX-1`,
@@ -352,6 +352,14 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   camada de view e o mesmo conceito (cockpit) — milestone único é adequado.
   W-PILOTO-UX-1 ganha nota de **spike de viabilidade do Reflex** antes de
   descer a `🔍`.
+- **Refinamento tático (2026-06-20):** W-PILOTO-UX-1 (fundação Reflex) e
+  W-PILOTO-UX-2 (co-visibilidade lista↔detalhe) levados a `📋 Critérios
+  definidos` em passadas cirúrgicas (épico a épico). Decisões de fronteira
+  registradas: (a) UX-1 porta o painel de detalhe (`card_detail`) com paridade
+  de comportamento (rodapé incluso); o reposicionamento na co-visibilidade é
+  de UX-2. (b) UX-2.3 fica no mínimo — cada aba preserva seleção própria,
+  sem mapeamento cross-entidade Fila↔Kanban. UX-3/4 seguem em `📐`. Próximo
+  passo natural: spike de viabilidade do Reflex e descida de UX-1 a `🔍`.
 
 ### PILOTO-WORKFLOW-PROATIVIDADE
 
@@ -975,11 +983,12 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1..4, refinados a `📐`
-> em 2026-06-19) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
+> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1/2 em `📋`, W-PILOTO-UX-3/4
+> em `📐`) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
 > Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
 > CANAL-UNICO e PROATIVIDADE nos cards de milestone acima; só
-> `PILOTO-WORKFLOW-UX` tem épicos esboçados.
+> `PILOTO-WORKFLOW-UX` tem épicos esboçados. Seed órfão na fase (sem milestone):
+> `W-PILOTO-HIGIENE-1` (cleanup efetivo / ROADMAP enxuto, `🌱`).
 
 > **Nota de refinamento (2026-06-19).** O seed `W-PILOTO-FILA-UX-1` (🌱,
 > herdado do antigo `PILOTO-WORKFLOW-FILA-UX`) foi absorvido pelos 4 épicos
@@ -995,16 +1004,45 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** trocar a camada de apresentação da plataforma de Streamlit para Reflex ([ADR 001](adr/001-stack-da-plataforma.md)), preservando todo o miolo stack-independente (`tools/workflow_platform/parser.py`, `models.py`, `queue/*`, `prompts/*`, `config_loader.py`, `preferences.py`). A primeira fatia entrega esqueleto Reflex + aba Fila funcional, validando a decisão de stack no uso real; a segunda porta o Kanban. Fundação de todo o resto do milestone e pré-requisito do `PILOTO-WORKFLOW-CANAL-UNICO`.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 📋 Critérios definidos
 
 **Dependências:** PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o setup Reflex já existente no Ensaio (`products/ensaio/rxconfig.py`, `reflex>=0.6`).
 
-### Funcionalidades (esboço):
+### Funcionalidades:
 
-- **1.1 Esqueleto Reflex + estado no backend** — `rx.State` substitui `st.session_state`; entrypoint, config e load do estado (config/roadmaps/preferences) portados a partir de `app.py`.
-- **1.2 Porte da aba Fila** — detecção e cards da fila em Reflex, com `queue/detect.py` e os builders de `prompts/*` intocados.
-- **1.3 Porte da aba Kanban** — colunas por estado e cards por milestone em Reflex.
-- **1.4 Paridade funcional + retirada do Streamlit** — preferências persistidas, filtros por ROADMAP e badge de carga reproduzidos; `app.py`/`views/*` Streamlit removidos ao final; `.web/` no `.gitignore`.
+#### 1.1 Esqueleto Reflex + estado no backend
+
+- **Descrição:** App Reflex com `rx.State` no backend substitui o entrypoint Streamlit; config, load de ROADMAPs e preferences portados a partir de `app.py`.
+- **Critérios de Aceite:**
+  - Deve subir via `reflex run` carregando `config.yaml`, ROADMAPs configurados e preferences sem erro.
+  - O estado da UI (aba ativa, seleção, filtros) deve viver em `rx.State`, não em `st.session_state`.
+  - Deve importar o miolo (`parser`, `config_loader`, `preferences`, `queue/*`, `prompts/*`) sem modificá-lo.
+  - Não deve introduzir lógica de detecção/parse/prompt nova — só a camada de view/estado migra.
+
+#### 1.2 Porte da aba Fila
+
+- **Descrição:** Aba Fila (detecção + cards por item + ação copiável) em Reflex, com `queue/detect.py` e os builders de `prompts/*` intocados. Primeira fatia fina — valida a decisão de stack no uso real.
+- **Critérios de Aceite:**
+  - Para um mesmo estado-do-mundo, deve listar os mesmos itens da versão Streamlit (mesma saída de `detect_all`).
+  - Selecionar um item deve exibir detalhe + ação copiável (prompt clipboard-ready) equivalentes aos atuais.
+  - Deve ser a aba default, como hoje.
+  - O painel de detalhe (`card_detail`) é portado com **paridade de comportamento**, incluindo a posição atual (rodapé) — o reposicionamento na co-visibilidade é escopo de W-PILOTO-UX-2.
+
+#### 1.3 Porte da aba Kanban
+
+- **Descrição:** Kanban (8 colunas por estado, cards agrupados por milestone) em Reflex.
+- **Critérios de Aceite:**
+  - Deve exibir as 8 colunas (🌱→✅) consolidando épicos de todos os ROADMAPs configurados, agrupados por milestone.
+  - Selecionar um épico deve exibir o painel com as ações contextuais por estado já existentes (dispatch para `🔍`; links para `🏗️`/`🔀`/`✅`).
+  - Continuidade de seleção entre Fila e Kanban fica fora deste épico (é W-PILOTO-UX-2.3) — cada aba mantém seleção própria, como hoje.
+
+#### 1.4 Paridade funcional + retirada do Streamlit
+
+- **Descrição:** Fechar a paridade (preferências persistidas, filtro por ROADMAP, badge de carga) e remover a camada Streamlit.
+- **Critérios de Aceite:**
+  - Preferências (`preferences.json`), filtro por ROADMAP e badge de carga (`<n>/20` + banner OVER_LIMIT) devem ler/gravar e renderizar com paridade à versão Streamlit.
+  - `app.py` e `views/*` Streamlit removidos ao final; `streamlit` sai do requirements da plataforma; nenhum caminho restante importa Streamlit.
+  - `.web/` (build do Reflex) deve estar no `.gitignore`.
 
 **Nota:** **spike de viabilidade do Reflex** (sticky/two-pane + tarefa de segundo plano) antes de descer este épico a `🔍` — confirma que o framework cobre os requisitos de UX-2 e do canal único sem hack.
 
@@ -1021,15 +1059,33 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** eliminar o atrito estrutural #1 do uso real — o painel de detalhe some abaixo da viewport quando a fila/kanban enche (hoje renderiza no rodapé, depois de todos os cards). Lista e detalhe convivem na tela; selecionar um item nunca exige rolar pra achar o detalhe. Viável nativamente no Reflex. Absorve a frição 1.1 do seed `W-PILOTO-FILA-UX-1`.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 📋 Critérios definidos
 
 **Dependências:** W-PILOTO-UX-1 (camada Reflex existente).
 
-### Funcionalidades (esboço):
+### Funcionalidades:
 
-- **2.1 Layout de duas colunas (lista | detalhe)** — detalhe sempre visível ao lado da lista.
-- **2.2 Painel de detalhe ancorado** — permanece visível ao rolar a lista longa.
-- **2.3 Continuidade de seleção entre Fila e Kanban** — trocar de aba preserva/comunica o item/épico selecionado.
+#### 2.1 Layout de duas colunas (lista | detalhe)
+
+- **Descrição:** lista e painel de detalhe lado a lado na mesma tela, nas abas Fila e Kanban; selecionar atualiza o painel sem rolar.
+- **Critérios de Aceite:**
+  - Em ambas as abas (Fila e Kanban), lista e detalhe devem renderizar lado a lado na mesma viewport — fim do detalhe no rodapé.
+  - Selecionar um item/épico na lista deve atualizar o painel sem deslocar a posição de rolagem da lista.
+  - Sem item selecionado, o painel deve mostrar um estado vazio claro (placeholder), sem colapsar o layout.
+
+#### 2.2 Painel de detalhe ancorado
+
+- **Descrição:** o painel permanece visível ao rolar a lista longa (sticky); as colunas rolam de forma independente.
+- **Critérios de Aceite:**
+  - Com 15+ itens na lista, rolar a lista deve manter o painel de detalhe visível (ancorado), sem precisar caçá-lo.
+  - Lista e painel devem ter rolagem independente (scroll por coluna).
+
+#### 2.3 Continuidade de seleção entre Fila e Kanban
+
+- **Descrição:** alternar entre abas não perde a seleção feita em cada uma.
+- **Critérios de Aceite:**
+  - Cada aba (Fila, Kanban) deve preservar sua própria seleção ao alternar para a outra aba e voltar.
+  - Mapeamento cross-aba (item da Fila ↔ épico no Kanban) fica **fora de escopo** — as seleções são independentes por aba. Item da Fila e épico do Kanban são entidades distintas e o mapeamento é 1:N ou indefinido para vários tipos (`DISPATCH`, `STALE_BRANCH`); reabre só com sinal de atrito real.
 
 ---
 
@@ -1067,6 +1123,45 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 - **4.1 Contexto por tipo** — DISPATCH/REVIEW/REFINE/CLEANUP/STALE_BRANCH cada um destaca o que importa (links, estado, idade da branch), sem repetir o card.
 - **4.2 Redução de redundância card↔painel** — card resume e oferece ação curta copiável; painel aprofunda só onde agrega (hoje DISPATCH/REFINE, onde o prompt é artefato grande gerado por `build_dispatch_prompt`/`build_refinement_prompt`).
 - **4.3 Legibilidade do "porquê este item existe"** — explicitar o sinal determinístico que gerou o item (ex.: "milestone X com todos os épicos em 🔍").
+
+---
+
+#### ÉPICO W-PILOTO-HIGIENE-1: Cleanup efetivo e ROADMAP enxuto
+
+**Milestone:** _(órfão — sem milestone; aguarda refinamento estratégico para
+agrupar ou seguir solo)_
+
+**Objetivo:** garantir que épicos concluídos saiam do ROADMAP ativo de forma
+confiável — ROADMAP = **presente + futuro**, sem histórico de entrega (que
+vive no git/PR). Hoje ~34 épicos em `✅` permanecem inteiros nos ROADMAPs
+lidos pela plataforma (`Status: ✅` + `Entregue em: PR #X`), inchando o
+ROADMAP e inundando a fila com um item `CLEANUP` por épico.
+
+**Status:** 🌱 Visão
+
+**Decisão de princípio registrada (operador, 2026-06-20):** ROADMAP enxuto,
+sem trilha de auditoria; concluído é removido/resumido, não mantido inline.
+Bifurcação "manter histórico vs. enxugar" resolvida para **enxugar**.
+
+**Camadas a decompor no refinamento (pode virar 1 ou 2 épicos):**
+- **Processual** — o cleanup poda `✅` do ROADMAP ativo de forma confiável.
+  Toca processo **fora da plataforma**: `docs/process/refinement/epic_completion.md`,
+  `docs/process/refinement/planning_guidelines.md` (modelo de estados /
+  "Concluído Recentemente") e `skills/cleanup/skill.md`.
+- **Plataforma** — enquanto houver `✅` residual, exibir sem inundar a fila
+  (`tools/workflow_platform/queue/detect.py` `detect_cleanup_items` dispara
+  1 item/épico; rever granularidade ou se `✅` deve gerar item de fila).
+  Esta camada é **downstream** da processual: cleanup pontual dissolve a
+  maior parte do flooding.
+
+**Suspeita de causa raiz:** o mecanismo de faxina não roda / não cobre tudo
+(automação histórica quebrada — cf. W-PROTO-17 / PR #123; fold-in de dispatch
+do `workflow.md` §"Faxina como fold-in" não pega ROADMAPs sem dispatch novo).
+
+**Origem:** atrito levantado pelo operador na sessão de refinamento de
+2026-06-20 (refino do `PILOTO-WORKFLOW-UX`), ao notar a coluna/itens de
+CLEANUP exibindo trabalho já concluído. Capturado como seed em vez de fix
+direto no `detect.py` — a raiz é processual, não de exibição.
 
 ---
 
