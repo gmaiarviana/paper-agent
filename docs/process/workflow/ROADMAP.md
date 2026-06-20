@@ -987,7 +987,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 > em `📐`) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
 > Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
 > CANAL-UNICO e PROATIVIDADE nos cards de milestone acima; só
-> `PILOTO-WORKFLOW-UX` tem épicos esboçados.
+> `PILOTO-WORKFLOW-UX` tem épicos esboçados. Seed órfão na fase (sem milestone):
+> `W-PILOTO-HIGIENE-1` (cleanup efetivo / ROADMAP enxuto, `🌱`).
 
 > **Nota de refinamento (2026-06-19).** O seed `W-PILOTO-FILA-UX-1` (🌱,
 > herdado do antigo `PILOTO-WORKFLOW-FILA-UX`) foi absorvido pelos 4 épicos
@@ -1122,6 +1123,45 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 - **4.1 Contexto por tipo** — DISPATCH/REVIEW/REFINE/CLEANUP/STALE_BRANCH cada um destaca o que importa (links, estado, idade da branch), sem repetir o card.
 - **4.2 Redução de redundância card↔painel** — card resume e oferece ação curta copiável; painel aprofunda só onde agrega (hoje DISPATCH/REFINE, onde o prompt é artefato grande gerado por `build_dispatch_prompt`/`build_refinement_prompt`).
 - **4.3 Legibilidade do "porquê este item existe"** — explicitar o sinal determinístico que gerou o item (ex.: "milestone X com todos os épicos em 🔍").
+
+---
+
+#### ÉPICO W-PILOTO-HIGIENE-1: Cleanup efetivo e ROADMAP enxuto
+
+**Milestone:** _(órfão — sem milestone; aguarda refinamento estratégico para
+agrupar ou seguir solo)_
+
+**Objetivo:** garantir que épicos concluídos saiam do ROADMAP ativo de forma
+confiável — ROADMAP = **presente + futuro**, sem histórico de entrega (que
+vive no git/PR). Hoje ~34 épicos em `✅` permanecem inteiros nos ROADMAPs
+lidos pela plataforma (`Status: ✅` + `Entregue em: PR #X`), inchando o
+ROADMAP e inundando a fila com um item `CLEANUP` por épico.
+
+**Status:** 🌱 Visão
+
+**Decisão de princípio registrada (operador, 2026-06-20):** ROADMAP enxuto,
+sem trilha de auditoria; concluído é removido/resumido, não mantido inline.
+Bifurcação "manter histórico vs. enxugar" resolvida para **enxugar**.
+
+**Camadas a decompor no refinamento (pode virar 1 ou 2 épicos):**
+- **Processual** — o cleanup poda `✅` do ROADMAP ativo de forma confiável.
+  Toca processo **fora da plataforma**: `docs/process/refinement/epic_completion.md`,
+  `docs/process/refinement/planning_guidelines.md` (modelo de estados /
+  "Concluído Recentemente") e `skills/cleanup/skill.md`.
+- **Plataforma** — enquanto houver `✅` residual, exibir sem inundar a fila
+  (`tools/workflow_platform/queue/detect.py` `detect_cleanup_items` dispara
+  1 item/épico; rever granularidade ou se `✅` deve gerar item de fila).
+  Esta camada é **downstream** da processual: cleanup pontual dissolve a
+  maior parte do flooding.
+
+**Suspeita de causa raiz:** o mecanismo de faxina não roda / não cobre tudo
+(automação histórica quebrada — cf. W-PROTO-17 / PR #123; fold-in de dispatch
+do `workflow.md` §"Faxina como fold-in" não pega ROADMAPs sem dispatch novo).
+
+**Origem:** atrito levantado pelo operador na sessão de refinamento de
+2026-06-20 (refino do `PILOTO-WORKFLOW-UX`), ao notar a coluna/itens de
+CLEANUP exibindo trabalho já concluído. Capturado como seed em vez de fix
+direto no `detect.py` — a raiz é processual, não de exibição.
 
 ---
 
