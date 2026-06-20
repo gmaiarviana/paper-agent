@@ -67,8 +67,8 @@ Milestone agrupa épicos relacionados dentro de um estágio. É a unidade de ent
 - **Objetivo:** Tornar visível o raciocínio dos agentes e dar ao Usuário voz antes que decisões dos agentes virem estado. Ataca pontos em que o PROTO-ENSAIO produziu sessão funcional mas opaca: Estruturador decidindo sozinho, Metodologista com papel embolado e por isso ausente, mensagens longas que escondem o que mudou, painel de seções sem accordion.
 - **Estágio:** Protótipo
 - **Produto:** Ensaio
-- **Status:** `🔍 Detalhes definidos`
-- **Épicos agrupados:** E-PROTO2-1, E-PROTO2-2, E-PROTO2-3, E-PROTO2-4 — todos em `🔍 Detalhes definidos`
+- **Status:** `🔀 Em revisão` — E-PROTO2-1/2/3 na PR [#128](https://github.com/gmaiarviana/paper-agent/pull/128); E-PROTO2-4 já mergeado em main (`d0ca4e7`)
+- **Épicos agrupados:** E-PROTO2-1, E-PROTO2-2, E-PROTO2-3 em `🔀 Em revisão` (PR #128); E-PROTO2-4 em `✅ Implementado` (`d0ca4e7`)
 - **Dependências:** PROTO-ENSAIO ✅
 - **Branch associada:** `milestone/proto-ensaio-2` (a criar)
 
@@ -216,7 +216,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-1: Co-decisão da Estrutura (storytelling)
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR [#128](https://github.com/gmaiarviana/paper-agent/pull/128)
 
 **Objetivo:** Tornar a estrutura proposta pelo Estruturador um ato de co-decisão. O Estruturador propõe storytelling com racional curto; a proposta vira bubble especial e só comita em `current_article` após o Usuário aceitar (com possibilidade de edição leve antes).
 
@@ -299,7 +299,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-2: Metodologista com escopo e qualidade afiados
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR [#128](https://github.com/gmaiarviana/paper-agent/pull/128)
 
 **Objetivo:** Dar ao Metodologista papel claro e único — escopo e qualidade da mensagem. Eliminar a sobreposição atual com o Estruturador, deixando o Metodologista provocar sobre tese central, evidência, afirmação sem suporte e intenção do artigo. Visibilidade emerge da clareza de papel quando o Orquestrador convoca, não de gatilhos determinísticos no grafo.
 
@@ -368,7 +368,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-3: Manchete "o que mudou" em mensagens de agente
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR [#128](https://github.com/gmaiarviana/paper-agent/pull/128)
 
 **Objetivo:** Cada mensagem de agente que toca estado passa a vir com manchete pequena acima do conteúdo, sumarizando qual estado foi tocado (estrutura proposta, foco atualizado, lacuna apontada). Usuário deixa de precisar ler parágrafo inteiro para descobrir o que aconteceu.
 
@@ -439,7 +439,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 #### ÉPICO E-PROTO2-4: Colapsar/expandir seções no painel
 
-**Status:** 🔍 Detalhes definidos
+**Status:** ✅ Implementado ([d0ca4e7](https://github.com/gmaiarviana/paper-agent/commit/d0ca4e7))
 
 **Objetivo:** Painel de seções deixa de renderizar tudo expandido. Toggle por seção, todas colapsadas por padrão no estado inicial. Usuário foca no que está trabalhando.
 

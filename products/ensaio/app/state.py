@@ -67,6 +67,30 @@ def _build_article_context(article: list[dict], exclude_index: int) -> str:
     return "\n\n".join(parts)
 
 
+def _extract_pending_proposal(out_messages: list) -> dict | None:
+    """Detecta proposta de estrutura na última mensagem do Estruturador.
+
+    Retorna ``{"sections": [...], "rationale": "..."}`` quando o último
+    AIMessage do Estruturador no histórico traz ``article_sections``.
+    ``None`` caso contrário.
+    """
+    structurer_msgs = [
+        m for m in out_messages
+        if isinstance(m, AIMessage)
+        and m.additional_kwargs.get("agent") == "structurer"
+    ]
+    if not structurer_msgs:
+        return None
+    ak = structurer_msgs[-1].additional_kwargs
+    secs = ak.get("article_sections", [])
+    if not secs:
+        return None
+    return {
+        "sections": list(secs),
+        "rationale": (ak.get("rationale") or "").strip(),
+    }
+
+
 class EnsaioState(rx.State):
     """Estado da sessão do Ensaio."""
 
@@ -84,9 +108,39 @@ class EnsaioState(rx.State):
     current_article: list[dict] = []   # list[Section]
     editing_section_index: int = -1    # -1 = nenhuma seção em edição
 
+    # Co-decisão da estrutura (E-PROTO2-1)
+    # Estruturador propõe → fica pendente até o Usuário aceitar/recusar.
+    # Formato: {"sections": list[str], "rationale": str} ou {} (sem proposta).
+    pending_structure_proposal: dict = {}
+
+    # Edição leve da proposta (E-PROTO2-1.3)
+    editing_proposal: bool = False
+    proposal_draft: list[str] = []
+    proposal_rationale_draft: str = ""
+    proposal_edit_error: str = ""
+
     # Produto
     product_context: str = ""
     thread_id: str = ""
+
+    # ---------------------------------------------------------------------------
+    # Computed vars (evitam acesso a chaves opcionais em dicts vazios na UI)
+    # ---------------------------------------------------------------------------
+
+    @rx.var
+    def has_pending_proposal(self) -> bool:
+        proposal = self.pending_structure_proposal or {}
+        return bool(proposal.get("sections"))
+
+    @rx.var
+    def proposal_sections(self) -> list[str]:
+        proposal = self.pending_structure_proposal or {}
+        return list(proposal.get("sections") or [])
+
+    @rx.var
+    def proposal_rationale(self) -> str:
+        proposal = self.pending_structure_proposal or {}
+        return proposal.get("rationale", "") or ""
 
     # ---------------------------------------------------------------------------
     # Ciclo de vida
@@ -104,6 +158,11 @@ class EnsaioState(rx.State):
         self.processing_agent = ""
         self.error_message = ""
         self.editing_section_index = -1
+        self.pending_structure_proposal = {}
+        self.editing_proposal = False
+        self.proposal_draft = []
+        self.proposal_rationale_draft = ""
+        self.proposal_edit_error = ""
 
         try:
             self.product_context = load_product_context()
@@ -135,6 +194,7 @@ class EnsaioState(rx.State):
                     "agent": "user",
                     "content": user_text,
                     "timestamp": _now(),
+                    "change_summary": "",
                 },
             ]
             thread_id = self.thread_id
@@ -158,30 +218,23 @@ class EnsaioState(rx.State):
             out_messages = result.get("messages", [])
             content = "Entendi. Pode me contar mais sobre o experimento?"
             agent_key: str | None = None
+            change_summary: str = ""
 
             if out_messages:
                 last = out_messages[-1]
                 content = last.content if hasattr(last, "content") else str(last)
-                agent_key = getattr(last, "additional_kwargs", {}).get("agent")
+                last_ak = getattr(last, "additional_kwargs", {}) or {}
+                agent_key = last_ak.get("agent")
+                # E-PROTO2-3.1: propaga change_summary do AIMessage para a UI.
+                change_summary = last_ak.get("change_summary", "") or ""
 
             new_focal = result.get("focal_argument") or {}
-            article_sections_update: list[dict] | None = None
 
-            structurer_msgs = [
-                m for m in out_messages
-                if isinstance(m, AIMessage)
-                and m.additional_kwargs.get("agent") == "structurer"
-            ]
-            if structurer_msgs:
-                secs = structurer_msgs[-1].additional_kwargs.get("article_sections", [])
-                if secs and (
-                    not current_article
-                    or all(s.get("status") == "empty" for s in current_article)
-                ):
-                    article_sections_update = [
-                        {"title": t, "body": "", "status": "empty", "index": i}
-                        for i, t in enumerate(secs)
-                    ]
+            # E-PROTO2-1.1: estrutura proposta pelo Estruturador vira pendente,
+            # não comita direto em current_article. Aceitar/Recusar é decisão
+            # explícita do Usuário (event handlers abaixo). Re-proposições
+            # substituem a proposta pendente; não há fila.
+            pending_proposal_update = _extract_pending_proposal(out_messages)
 
             new_lh = langchain_history + [
                 {"type": "human", "content": user_text},
@@ -189,20 +242,27 @@ class EnsaioState(rx.State):
             ]
 
             async with self:
-                self.messages = [
-                    *self.messages,
-                    {
-                        "role": "assistant",
-                        "agent": agent_key,
-                        "content": content,
-                        "timestamp": _now(),
-                    },
-                ]
+                # change_summary sempre presente no dict (string vazia quando
+                # ausente) para manter shape estável do msg ao longo do
+                # foreach do Reflex — manchete usa display=cond.
+                msg_entry: dict = {
+                    "role": "assistant",
+                    "agent": agent_key,
+                    "content": content,
+                    "timestamp": _now(),
+                    "change_summary": change_summary,
+                }
+                self.messages = [*self.messages, msg_entry]
                 self.langchain_history = new_lh
                 if new_focal:
                     self.focal_argument = new_focal
-                if article_sections_update is not None:
-                    self.current_article = article_sections_update
+                if pending_proposal_update is not None:
+                    self.pending_structure_proposal = pending_proposal_update
+                    # Sair do modo de edição se havia proposta anterior em curso.
+                    self.editing_proposal = False
+                    self.proposal_draft = []
+                    self.proposal_rationale_draft = ""
+                    self.proposal_edit_error = ""
                 self.processing_agent = ""
 
         except asyncio.TimeoutError:
@@ -221,6 +281,7 @@ class EnsaioState(rx.State):
                             "ao processar sua mensagem."
                         ),
                         "timestamp": _now(),
+                        "change_summary": "",
                     },
                 ]
                 self.error_message = (
@@ -239,10 +300,118 @@ class EnsaioState(rx.State):
                         "agent": None,
                         "content": f"❌ Não consegui processar sua mensagem: {exc}",
                         "timestamp": _now(),
+                        "change_summary": "",
                     },
                 ]
                 self.processing_agent = ""
                 self.error_message = str(exc)
+
+    # ---------------------------------------------------------------------------
+    # Co-decisão da estrutura (E-PROTO2-1.1, 1.2, 1.3)
+    # ---------------------------------------------------------------------------
+
+    def _commit_proposal(self, sections: list[str]) -> None:
+        """Comita uma lista de títulos como current_article e limpa pendente."""
+        self.current_article = [
+            {"title": t, "body": "", "status": "empty", "index": i}
+            for i, t in enumerate(sections)
+        ]
+        self.pending_structure_proposal = {}
+        self.editing_proposal = False
+        self.proposal_draft = []
+        self.proposal_rationale_draft = ""
+        self.proposal_edit_error = ""
+
+    def accept_structure_proposal(self) -> None:
+        """Aceita a proposta pendente (sem edição) e comita em current_article."""
+        proposal = self.pending_structure_proposal or {}
+        sections = list(proposal.get("sections") or [])
+        if not sections:
+            return
+        self._commit_proposal(sections)
+
+    def reject_structure_proposal(self) -> None:
+        """Recusa a proposta pendente; current_article permanece intocado."""
+        if not self.pending_structure_proposal:
+            return
+        self.pending_structure_proposal = {}
+        self.editing_proposal = False
+        self.proposal_draft = []
+        self.proposal_rationale_draft = ""
+        self.proposal_edit_error = ""
+        self.messages = [
+            *self.messages,
+            {
+                "role": "assistant",
+                "agent": None,
+                "content": "_Proposta de estrutura recusada._",
+                "timestamp": _now(),
+                "change_summary": "",
+            },
+        ]
+
+    def start_editing_proposal(self) -> None:
+        """Abre a proposta pendente em modo editável."""
+        proposal = self.pending_structure_proposal or {}
+        sections = list(proposal.get("sections") or [])
+        if not sections:
+            return
+        self.proposal_draft = list(sections)
+        self.proposal_rationale_draft = proposal.get("rationale", "")
+        self.editing_proposal = True
+        self.proposal_edit_error = ""
+
+    def update_proposal_section(self, index: int, value: str) -> None:
+        if not self.editing_proposal:
+            return
+        if index < 0 or index >= len(self.proposal_draft):
+            return
+        new_draft = list(self.proposal_draft)
+        new_draft[index] = value
+        self.proposal_draft = new_draft
+
+    def move_proposal_section(self, index: int, direction: int) -> None:
+        """direction: -1 sobe, +1 desce."""
+        if not self.editing_proposal:
+            return
+        target = index + direction
+        if (
+            index < 0 or index >= len(self.proposal_draft)
+            or target < 0 or target >= len(self.proposal_draft)
+        ):
+            return
+        new_draft = list(self.proposal_draft)
+        new_draft[index], new_draft[target] = new_draft[target], new_draft[index]
+        self.proposal_draft = new_draft
+
+    def remove_proposal_section(self, index: int) -> None:
+        if not self.editing_proposal:
+            return
+        if index < 0 or index >= len(self.proposal_draft):
+            return
+        new_draft = list(self.proposal_draft)
+        new_draft.pop(index)
+        self.proposal_draft = new_draft
+
+    def add_proposal_section(self) -> None:
+        if not self.editing_proposal:
+            return
+        self.proposal_draft = [*self.proposal_draft, "Nova seção"]
+
+    def confirm_proposal_edit(self) -> None:
+        if not self.editing_proposal:
+            return
+        cleaned = [s.strip() for s in self.proposal_draft if s and s.strip()]
+        if not cleaned:
+            self.proposal_edit_error = "A estrutura precisa de pelo menos uma seção."
+            return
+        self._commit_proposal(cleaned)
+
+    def cancel_proposal_edit(self) -> None:
+        self.editing_proposal = False
+        self.proposal_draft = []
+        self.proposal_rationale_draft = ""
+        self.proposal_edit_error = ""
 
     # ---------------------------------------------------------------------------
     # Geração de seção (E-PROTO-2.2)
