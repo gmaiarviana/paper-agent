@@ -241,3 +241,138 @@ class TestOrchestratorNode:
         assert result['next_step'] == "suggest_agent"
         assert result['agent_suggestion']['agent'] == "structurer"
         assert "PICO/SPIDER" in result['agent_suggestion']['justification']
+
+
+# ============================================================================
+# Testes de regressão — Observer consultivo + invariante de schema
+# ============================================================================
+#
+# Antes do fix em `nodes.py`, o checkpoint de clareza do Observer rebaixava
+# next_step="suggest_agent" → "clarify" mesmo quando o Orquestrador tinha
+# decidido convocar um agente — descartando a `agent_suggestion` na
+# prática (o Estruturador nunca era chamado no Ensaio). Os dois testes
+# abaixo travam: (1) o Observer é consultivo e não sobrepõe decisão de
+# agente do Orquestrador; (2) o schema do output mantém o invariante
+# `next_step != "suggest_agent" → agent_suggestion is None`.
+
+
+class TestObserverConsultativeRegression:
+    """Cobre o fix Observer consultivo + invariante de schema."""
+
+    _STRUCTURER_SUGGESTION_JSON = """
+{
+  "reasoning": "Tem observação concreta, vou sugerir Estruturador.",
+  "next_step": "suggest_agent",
+  "message": "Vou organizar sua observação em uma questão estruturada.",
+  "agent_suggestion": {
+    "agent": "structurer",
+    "justification": "Observação concreta existe mas não está estruturada"
+  }
+}
+"""
+
+    @pytest.fixture
+    def llm_response_suggesting_structurer(self):
+        resp = Mock()
+        resp.content = self._STRUCTURER_SUGGESTION_JSON
+        resp.response_metadata = {
+            "usage_metadata": {"input_tokens": 200, "output_tokens": 80}
+        }
+        return resp
+
+    def test_observer_does_not_override_suggest_agent_decision(
+        self, mock_consult_observer, llm_response_suggesting_structurer
+    ):
+        """Quando o Orquestrador escolhe `suggest_agent` com agent_suggestion
+        válido, o Observer pedindo checkpoint de clareza **não** rebaixa
+        para `clarify` — sua decisão é consultiva. O agent_suggestion é
+        preservado para que o agente sugerido (ex.: Estruturador) seja
+        de fato convocado downstream."""
+        # Observer sugere clarify mas Orquestrador decidiu suggest_agent
+        mock_consult_observer.return_value = {
+            "clarity_evaluation": {
+                "clarity_level": "nebulosa",
+                "needs_checkpoint": True,
+                "suggestion": "Pedir esclarecimento antes de avançar",
+            },
+            "variation_analysis": None,
+            "needs_checkpoint": True,
+            "checkpoint_reason": "Clareza baixa pelo Observer",
+        }
+
+        state = create_initial_multi_agent_state(
+            user_input="Observei que método X reduz tempo de revisão em 30%",
+            session_id="test-observer-consultive",
+        )
+
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = llm_response_suggesting_structurer
+            result = orchestrator_node(state)
+
+        # Decisão do Orquestrador preservada.
+        assert result["next_step"] == "suggest_agent", (
+            "Observer não deve rebaixar 'suggest_agent' para 'clarify' — é consultivo"
+        )
+        # agent_suggestion intacta para chegar ao downstream.
+        assert result["agent_suggestion"] is not None
+        assert result["agent_suggestion"]["agent"] == "structurer"
+
+    def test_schema_invariant_clears_agent_suggestion_when_next_step_changes(
+        self, mock_consult_observer
+    ):
+        """Quando o LLM devolve agent_suggestion preenchido mas next_step
+        diferente de "suggest_agent" (ex.: explore), o invariante de
+        schema zera agent_suggestion para impedir inconsistência
+        downstream. Cobre também o cenário em que validações internas do
+        nó mudam next_step (ex.: rebaixar via Observer)."""
+        # Postura socrática: input vago → Observer rebaixa para "clarify",
+        # e o invariante garante agent_suggestion=None.
+        mock_consult_observer.return_value = {
+            "clarity_evaluation": {
+                "clarity_level": "nebulosa",
+                "needs_checkpoint": True,
+                "suggestion": "Pedir esclarecimento",
+            },
+            "variation_analysis": None,
+            "needs_checkpoint": True,
+            "checkpoint_reason": "Clareza baixa",
+        }
+
+        # Input vago: LLM volta explore mas com agent_suggestion preenchido
+        # (cenário sintético de inconsistência do prompt).
+        mock_response = Mock()
+        mock_response.content = """
+{
+  "reasoning": "Input vago, mas vou exemplificar uma sugestão pendurada.",
+  "next_step": "explore",
+  "message": "Me conta mais sobre o experimento.",
+  "agent_suggestion": {
+    "agent": "structurer",
+    "justification": "Pendurada — não deveria estar aqui"
+  }
+}
+"""
+        mock_response.response_metadata = {
+            "usage_metadata": {"input_tokens": 100, "output_tokens": 50}
+        }
+
+        state = create_initial_multi_agent_state(
+            user_input="acho que LLMs ajudam",
+            session_id="test-schema-invariant",
+        )
+
+        with patch('core.agents.orchestrator.nodes.invoke_with_retry') as mock_invoke:
+            mock_invoke.return_value = mock_response
+            result = orchestrator_node(state)
+
+        # Observer rebaixa para "clarify" (input vago, Orquestrador NÃO
+        # tinha decidido suggest_agent definitivo do ponto de vista do
+        # invariante — explore não é suggest_agent).
+        assert result["next_step"] == "clarify"
+        # Invariante: agent_suggestion zerada porque next_step !=
+        # "suggest_agent". Postura socrática (input vago → clarify SEM
+        # sugestão) preservada para Revelar e qualquer consumidor.
+        assert result["agent_suggestion"] is None, (
+            "Invariante de schema: next_step != 'suggest_agent' deve zerar "
+            "agent_suggestion (postura socrática: clarify sem sugestão)"
+        )

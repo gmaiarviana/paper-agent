@@ -948,17 +948,44 @@ Analise o contexto completo acima e responda APENAS com JSON estruturado conform
         variation_analysis = observer_analysis.get("variation_analysis")
 
         # Checkpoint contextual (Épico 13.4)
-        # Se Observer detectou que precisa checkpoint, ajustar resposta
+        # Se Observer detectou que precisa checkpoint, ajustar resposta.
+        #
+        # **Observer é CONSULTIVO, não autoritativo.** O Orquestrador decide
+        # próximo passo via LLM. Se ele já escolheu sugerir um agente
+        # (next_step="suggest_agent" com agent_suggestion válido), a
+        # sugestão do Observer de rebaixar para "clarify" é IGNORADA —
+        # rebaixar nesse caso descartaria a agent_suggestion e impediria
+        # que o Estruturador/Metodologista/Writer fossem convocados em
+        # turnos onde o Orquestrador já decidiu convocá-los (sintoma
+        # observado no Ensaio: Estruturador nunca aparecia).
         if observer_analysis.get("needs_checkpoint"):
             checkpoint_reason = observer_analysis.get("checkpoint_reason", "")
             logger.info(f"⚠️ Checkpoint sugerido: {checkpoint_reason[:100]}...")
 
             # Se clarity_evaluation tem sugestão, incluir na mensagem
             if clarity_evaluation and clarity_evaluation.get("suggestion"):
-                # Ajustar next_step para clarify se ainda não era
-                if next_step != "clarify":
+                if next_step == "suggest_agent":
+                    logger.info(
+                        "Observer sugeriu 'clarify' mas Orquestrador decidiu "
+                        "'suggest_agent' — preservando decisão (Observer é consultivo)"
+                    )
+                elif next_step != "clarify":
                     logger.info("📋 Ajustando next_step para 'clarify' devido ao checkpoint")
                     next_step = "clarify"
+
+        # Invariante de schema: agent_suggestion só faz sentido quando
+        # next_step == "suggest_agent". Caso contrário, zera para impedir
+        # que consumidores downstream interpretem inconsistência (sintoma
+        # do bug antes do fix do Observer consultivo: o checkpoint mantinha
+        # agent_suggestion mas mudava next_step para "clarify", deixando o
+        # state com sugestão pendurada e nunca aplicada).
+        if next_step != "suggest_agent" and agent_suggestion is not None:
+            logger.debug(
+                "Zerando agent_suggestion (next_step='%s' != 'suggest_agent') — "
+                "invariante de schema",
+                next_step,
+            )
+            agent_suggestion = None
 
     except json.JSONDecodeError as e:
         logger.error(f"Falha ao parsear JSON do orquestrador: {e}")
