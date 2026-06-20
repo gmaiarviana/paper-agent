@@ -109,7 +109,6 @@ def article_panel() -> rx.Component:
                         rx.foreach(EnsaioState.current_article, _section_card),
                         type="multiple",
                         default_value=[],
-                        collapsible=True,
                         width="100%",
                         variant="ghost",
                     ),
