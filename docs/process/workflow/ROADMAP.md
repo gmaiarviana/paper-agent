@@ -338,7 +338,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
   mergeada e da [ADR 001](adr/001-stack-da-plataforma.md).
 - **Branch associada:** `milestone/piloto-workflow-ux`
-- **Status dos épicos:** W-PILOTO-UX-1 📋, W-PILOTO-UX-2 📐,
+- **Status dos épicos:** W-PILOTO-UX-1 📋, W-PILOTO-UX-2 📋,
   W-PILOTO-UX-3 📐, W-PILOTO-UX-4 📐.
 - **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
   2026-06-17 a partir da revisão da PR #121) e o seed `W-PILOTO-FILA-UX-1`,
@@ -352,13 +352,14 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   camada de view e o mesmo conceito (cockpit) — milestone único é adequado.
   W-PILOTO-UX-1 ganha nota de **spike de viabilidade do Reflex** antes de
   descer a `🔍`.
-- **Refinamento tático (2026-06-20):** W-PILOTO-UX-1 (fundação Reflex) levado
-  a `📋 Critérios definidos` em passada cirúrgica — critérios de aceite das 4
-  funcionalidades fechados. Decisão de fronteira registrada: UX-1 porta o
-  painel de detalhe (`card_detail`) com paridade de comportamento (rodapé
-  incluso); o reposicionamento na co-visibilidade é de W-PILOTO-UX-2. UX-2/3/4
-  seguem em `📐`. Próximo passo natural: spike de viabilidade do Reflex e
-  descida de UX-1 a `🔍`.
+- **Refinamento tático (2026-06-20):** W-PILOTO-UX-1 (fundação Reflex) e
+  W-PILOTO-UX-2 (co-visibilidade lista↔detalhe) levados a `📋 Critérios
+  definidos` em passadas cirúrgicas (épico a épico). Decisões de fronteira
+  registradas: (a) UX-1 porta o painel de detalhe (`card_detail`) com paridade
+  de comportamento (rodapé incluso); o reposicionamento na co-visibilidade é
+  de UX-2. (b) UX-2.3 fica no mínimo — cada aba preserva seleção própria,
+  sem mapeamento cross-entidade Fila↔Kanban. UX-3/4 seguem em `📐`. Próximo
+  passo natural: spike de viabilidade do Reflex e descida de UX-1 a `🔍`.
 
 ### PILOTO-WORKFLOW-PROATIVIDADE
 
@@ -982,7 +983,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1 em `📋`, W-PILOTO-UX-2..4
+> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1/2 em `📋`, W-PILOTO-UX-3/4
 > em `📐`) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
 > Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
 > CANAL-UNICO e PROATIVIDADE nos cards de milestone acima; só
@@ -1057,15 +1058,33 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** eliminar o atrito estrutural #1 do uso real — o painel de detalhe some abaixo da viewport quando a fila/kanban enche (hoje renderiza no rodapé, depois de todos os cards). Lista e detalhe convivem na tela; selecionar um item nunca exige rolar pra achar o detalhe. Viável nativamente no Reflex. Absorve a frição 1.1 do seed `W-PILOTO-FILA-UX-1`.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 📋 Critérios definidos
 
 **Dependências:** W-PILOTO-UX-1 (camada Reflex existente).
 
-### Funcionalidades (esboço):
+### Funcionalidades:
 
-- **2.1 Layout de duas colunas (lista | detalhe)** — detalhe sempre visível ao lado da lista.
-- **2.2 Painel de detalhe ancorado** — permanece visível ao rolar a lista longa.
-- **2.3 Continuidade de seleção entre Fila e Kanban** — trocar de aba preserva/comunica o item/épico selecionado.
+#### 2.1 Layout de duas colunas (lista | detalhe)
+
+- **Descrição:** lista e painel de detalhe lado a lado na mesma tela, nas abas Fila e Kanban; selecionar atualiza o painel sem rolar.
+- **Critérios de Aceite:**
+  - Em ambas as abas (Fila e Kanban), lista e detalhe devem renderizar lado a lado na mesma viewport — fim do detalhe no rodapé.
+  - Selecionar um item/épico na lista deve atualizar o painel sem deslocar a posição de rolagem da lista.
+  - Sem item selecionado, o painel deve mostrar um estado vazio claro (placeholder), sem colapsar o layout.
+
+#### 2.2 Painel de detalhe ancorado
+
+- **Descrição:** o painel permanece visível ao rolar a lista longa (sticky); as colunas rolam de forma independente.
+- **Critérios de Aceite:**
+  - Com 15+ itens na lista, rolar a lista deve manter o painel de detalhe visível (ancorado), sem precisar caçá-lo.
+  - Lista e painel devem ter rolagem independente (scroll por coluna).
+
+#### 2.3 Continuidade de seleção entre Fila e Kanban
+
+- **Descrição:** alternar entre abas não perde a seleção feita em cada uma.
+- **Critérios de Aceite:**
+  - Cada aba (Fila, Kanban) deve preservar sua própria seleção ao alternar para a outra aba e voltar.
+  - Mapeamento cross-aba (item da Fila ↔ épico no Kanban) fica **fora de escopo** — as seleções são independentes por aba. Item da Fila e épico do Kanban são entidades distintas e o mapeamento é 1:N ou indefinido para vários tipos (`DISPATCH`, `STALE_BRANCH`); reabre só com sinal de atrito real.
 
 ---
 
