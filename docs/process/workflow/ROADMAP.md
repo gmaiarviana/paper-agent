@@ -339,7 +339,8 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   mergeada e da [ADR 001](adr/001-stack-da-plataforma.md).
 - **Branch associada:** `milestone/piloto-workflow-ux`
 - **Status dos épicos:** W-PILOTO-UX-1 🔍, W-PILOTO-UX-2 🔍,
-  W-PILOTO-UX-3 📐, W-PILOTO-UX-4 📐.
+  W-PILOTO-UX-3 🔍, W-PILOTO-UX-4 🔍. **Milestone apto ao fluxo autônomo**
+  (todos os 4 em 🔍).
 - **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
   2026-06-17 a partir da revisão da PR #121) e o seed `W-PILOTO-FILA-UX-1`,
   cujas duas frições foram redistribuídas (painel some → UX-2; redundância
@@ -367,11 +368,16 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   registrada: o critério 1.4 deixa de "remover streamlit do requirements" e passa
   a "remover só os imports da plataforma" — a linha `streamlit>=1.30.0` é do
   Revelar.
-- **Refinamento a 🔍 (2026-07-04, cont.):** UX-2 (co-visibilidade lista↔detalhe)
-  também descido a `🔍`, aproveitando o mecanismo sticky/two-pane já provado no
-  spike de UX-1. UX-2 é view-only (sem campo de estado novo; reusa
-  `selected_item_id`/`selected_epic_id` de UX-1) e depende de UX-1 mergear.
-  UX-3/4 seguem em `📐`.
+- **Refinamento a 🔍 (2026-07-04, cont.):** UX-2, UX-3 e UX-4 também descidos a
+  `🔍` na mesma sessão — **o milestone inteiro fica apto a dispatch**. UX-2
+  (co-visibilidade) reusa o mecanismo sticky do spike; UX-3 (densidade) adiciona
+  3 campos de estado de sessão (`collapsed_types`/`visible_types`/
+  `actionable_only`) e **define "acionável" = `{DISPATCH,REVIEW,REFINE}`**
+  (decisão de valor, revisável — ver épico); UX-4 (informação por tipo) é
+  view-only reusando o roteamento por ponteiro de `render_queue_item_detail`.
+  Decisões de fronteira registradas: filtro de tipo é de **sessão** (não
+  `preferences.json`); card terso (UX-3.1) ↔ painel profundo (UX-4.2). Todos os 4
+  dependem de UX-1 mergear (fundação Reflex) antes de implementar.
 
 ### PILOTO-WORKFLOW-PROATIVIDADE
 
@@ -995,11 +1001,12 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1/2 em `🔍`, W-PILOTO-UX-3/4
-> em `📐`) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
+> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1/2/3/4 em `🔍` — **apto a
+> dispatch**) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
 > Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
-> CANAL-UNICO e PROATIVIDADE nos cards de milestone acima; só
-> `PILOTO-WORKFLOW-UX` tem épicos esboçados. Seed órfão na fase (sem milestone):
+> CANAL-UNICO e PROATIVIDADE nos cards de milestone acima (ainda `🌱`); só
+> `PILOTO-WORKFLOW-UX` tem épicos refinados — os 4 em `🔍`, milestone apto a
+> dispatch (2026-07-04). Seed órfão na fase (sem milestone):
 > `W-PILOTO-HIGIENE-1` (cleanup efetivo / ROADMAP enxuto, `🌱`).
 
 > **Nota de refinamento (2026-06-19).** O seed `W-PILOTO-FILA-UX-1` (🌱,
@@ -1301,16 +1308,103 @@ cortado.
 
 **Objetivo:** fila escaneável com 15+ itens — o operador vê "o que pede ação agora" num olhar, sem ler card a card.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PILOTO-UX-1 (camada Reflex existente).
+**Dependências:** W-PILOTO-UX-1 (camada Reflex existente) — dura. Coordena com
+W-PILOTO-UX-4 na fronteira card↔painel (ver Acoplamentos).
 
-### Funcionalidades (esboço):
+### Refinamento a 🔍 (2026-07-04)
 
-- **3.1 Cards compactos** — mais densidade, menos verticalidade por item.
-- **3.2 Colapsar/expandir grupos por tipo** — focar um tipo, recolher o resto.
-- **3.3 Ordenação legível** — critério de ordem (recência da detecção) explícito no cabeçalho de cada grupo.
-- **3.4 Filtro por tipo / "só acionável"** — estende o filtro por ROADMAP entregue em FILA-4 com recorte por tipo de item.
+**a) Termos.** Termo comportamental novo: **"acionável"** (usado em 3.4).
+Definido aqui como item cujo tipo representa **avanço de trabalho que o operador
+dispara agora** — `DISPATCH`, `REVIEW`, `REFINE` — por oposição a
+**manutenção/triagem** — `CLEANUP`, `STALE_BRANCH`. É decisão de valor (ver nota
+de decisão ao fim do épico); revisável se o uso contradisser. "Grupo por tipo" =
+os 5 buckets já fixados em `views/queue.py::_TYPE_ORDER`
+(`DISPATCH→REVIEW→REFINE→CLEANUP→STALE_BRANCH`).
+
+**b) Dados e contratos — 3 campos de estado novos em `PlatformState` (UX-1).**
+UX-3 é view-only sobre a detecção; **não muda `QueueItem` nem `queue/detect.py`**.
+
+| campo | tipo | default | funcionalidade |
+|---|---|---|---|
+| `collapsed_types` | `list[str]` | `[]` | 3.2 (grupos recolhidos) |
+| `visible_types` | `list[str] \| None` | `None` (todos) | 3.4 (filtro por tipo) |
+| `actionable_only` | `bool` | `False` | 3.4 (preset "só acionável") |
+
+Ordenação (3.3): dentro de cada grupo, por `QueueItem.detected_at` desc — campo
+**já existe** no shape (`queue/models.py`); a ordenação é da view, sem lógica de
+detecção nova. Filtro (3.4): `@rx.var` `visible_queue_items` aplica
+`visible_types` e `actionable_only` sobre `queue_items` — função pura do estado.
+
+**c) Código-alvo e integração.**
+
+- **Modificar** (componentes criados por UX-1):
+  - `web/components/queue.py` — cards compactos (3.1), cabeçalho de grupo
+    clicável p/ colapsar (3.2), legenda de ordenação no header (3.3), consumo de
+    `visible_queue_items` no lugar de `queue_items` (3.4).
+  - `web/components/sidebar.py` — controle de filtro por tipo + toggle "só
+    acionável", ao lado do filtro por ROADMAP já entregue em FILA-4.3.
+  - `web/state.py` — 3 campos acima + handlers `toggle_type_collapse(t)`,
+    `set_visible_types(list)`, `toggle_actionable_only()` + `@rx.var`
+    `visible_queue_items`.
+- **Não tocar:** miolo (`queue/detect.py`, `queue/models.py`, `parser.py`).
+- **Mecanismo:** filtro/ordenação/colapso vivem inteiramente na view + estado.
+  Nenhuma peça nova no pipeline de detecção.
+- **Template de estilo:** o `render_queue`/`group_by_type` atuais
+  (`views/queue.py`) — mesma lógica de agrupamento, reescrita compacta em Reflex.
+
+**d) Acoplamentos.**
+- **Persistência do filtro — decisão registrada: sessão, não `preferences.json`.**
+  O filtro por ROADMAP (FILA-4) é durável (quais projetos me importam);
+  `visible_types`/`actionable_only` são **foco do momento** (o que olho agora) —
+  ficam no `rx.State` da sessão, resetam no reload. Evita tocar o miolo
+  `preferences.py`. Revisável se o operador pedir persistência.
+- **Fronteira com UX-4 (coordenação):** UX-3.1 torna o **card** compacto (título
+  + emoji + contexto terso, sem o prompt grande); UX-4.2 decide o que o **painel**
+  aprofunda. Card terso ↔ painel profundo é a fronteira; ambos os épicos a
+  declaram. Sem dupla-fonte: a "Ação esperada" longa sai do card e vive no painel.
+- Não toca `core/`/`products/`; sem consumidor compartilhado.
+
+**e) Sequência e testes.**
+- **Ordem:** 3.1 (cards) → 3.2 (colapso) → 3.3 (ordenação) → 3.4 (filtro).
+  Independentes entre si; nenhuma bloqueia a outra.
+- **Automatizável** (`tests/tools/workflow_platform/test_platform_state.py`):
+  `visible_queue_items` é função pura — setar `visible_types` e assertar a lista
+  filtrada; setar `actionable_only=True` e assertar que `CLEANUP`/`STALE_BRANCH`
+  somem e `DISPATCH`/`REVIEW`/`REFINE` permanecem; `toggle_type_collapse` muta
+  `collapsed_types`.
+- **Manual** (`reflex run`): densidade dos cards (3.1) e ordenação legível (3.3)
+  — inspeção visual com fila de 15+ itens.
+
+**f) Centralidade da visão.** Vision §"Fila" pede escaneabilidade perto do limite
+de ~20 itens; UX-3 materializa sem cortar tipo nenhum — "só acionável" filtra à
+**vista**, a detecção dos 5 tipos permanece intacta.
+
+**Decisão de valor a confirmar (operador):** "acionável" = `{DISPATCH, REVIEW,
+REFINE}`, excluindo `CLEANUP`/`STALE_BRANCH`. Racional: são os tipos de avanço de
+trabalho; `CLEANUP` é justamente o ruído que `W-PILOTO-HIGIENE-1` quer dissolver,
+e `STALE_BRANCH` é triagem. Se você preferir outra definição (ex.: incluir
+`STALE_BRANCH` como acionável), é ajuste de uma linha no `@rx.var`.
+
+### Funcionalidades:
+
+- **3.1 Cards compactos** — título + emoji de tipo + contexto terso numa altura
+  reduzida; a "Ação esperada" longa migra para o painel (UX-4). **Aceite:** com
+  15+ itens, um card ocupa menos altura vertical que a versão Streamlit; sem o
+  bloco de ação longo dentro do card.
+- **3.2 Colapsar/expandir grupos por tipo** — cabeçalho de grupo alterna
+  recolhido/expandido; `collapsed_types` guarda o estado. **Aceite:** clicar no
+  cabeçalho de um tipo recolhe seus cards; o estado persiste durante a sessão;
+  demais grupos inalterados.
+- **3.3 Ordenação legível** — dentro de cada grupo, itens por `detected_at` desc;
+  cabeçalho informa o critério. **Aceite:** o header de cada grupo declara
+  "ordenado por detecção (mais recente primeiro)"; a ordem observada bate.
+- **3.4 Filtro por tipo / "só acionável"** — controle na sidebar recorta os
+  tipos visíveis; toggle "só acionável" aplica o preset `{DISPATCH,REVIEW,REFINE}`.
+  **Aceite:** desmarcar um tipo o remove da fila (contagem cai); "só acionável"
+  esconde `CLEANUP`/`STALE_BRANCH`; ambos operam sobre `visible_queue_items` sem
+  alterar a detecção subjacente.
 
 ---
 
@@ -1320,15 +1414,98 @@ cortado.
 
 **Objetivo:** cada tipo de item/épico mostra no painel o contexto que importa pra decidir, sem ruído nem redundância com o card — a parte do "valor do clique" invariante ao runtime. O redesenho do mecanismo de ação ("ação = disparar") vive no `PILOTO-WORKFLOW-CANAL-UNICO`, não aqui. Absorve a frição 1.2 do seed `W-PILOTO-FILA-UX-1`.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PILOTO-UX-1 (camada Reflex existente); coordena com W-PILOTO-UX-2 (o painel é o detalhe da co-visibilidade).
+**Dependências:** W-PILOTO-UX-1 (camada Reflex existente) — dura; coordena com
+W-PILOTO-UX-2 (o painel é o detalhe da co-visibilidade) e W-PILOTO-UX-3 (fronteira
+card terso ↔ painel profundo).
 
-### Funcionalidades (esboço):
+### Refinamento a 🔍 (2026-07-04)
 
-- **4.1 Contexto por tipo** — DISPATCH/REVIEW/REFINE/CLEANUP/STALE_BRANCH cada um destaca o que importa (links, estado, idade da branch), sem repetir o card.
-- **4.2 Redução de redundância card↔painel** — card resume e oferece ação curta copiável; painel aprofunda só onde agrega (hoje DISPATCH/REFINE, onde o prompt é artefato grande gerado por `build_dispatch_prompt`/`build_refinement_prompt`).
-- **4.3 Legibilidade do "porquê este item existe"** — explicitar o sinal determinístico que gerou o item (ex.: "milestone X com todos os épicos em 🔍").
+**a) Termos.** Sem termo comportamental novo. Reusa os 5 tipos e o tagged-union
+de ponteiros (`queue/models.py`: `EpicPointer`, `PRPointer`, `BranchPointer`,
+`RefinePointer`, `CleanupPointer`). "Valor do clique invariante ao runtime" =
+conteúdo informacional do painel, sem o mecanismo de disparo (que é do
+`PILOTO-WORKFLOW-CANAL-UNICO`).
+
+**b) Dados e contratos.** UX-4 é **view-only, sem campo de estado novo**. Consome
+o que já existe:
+- `QueueItem.source_pointer` (discriminado por tipo) → roteamento do painel (4.1);
+- `QueueItem.context` → o sinal determinístico do "porquê" (4.3), **já preenchido**
+  por `queue/detect.py` (ex.: "milestone X com todos os épicos em 🔍");
+- builders puros `build_prompt_for_item` / `build_dispatch_prompt` /
+  `build_refinement_prompt` → o artefato profundo (4.2). Nenhum builder novo.
+
+Contrato de roteamento por tipo (4.1) — **destaque do painel por ponteiro:**
+
+| tipo | ponteiro | painel destaca |
+|---|---|---|
+| `DISPATCH` | `EpicPointer` | `milestone_id`, `roadmap_path`, épicos; prompt de dispatch (profundo) |
+| `REVIEW` | `PRPointer` | link `PR #N` |
+| `REFINE` | `RefinePointer` | `epic_id`, `current_state → target_state`; prompt de refinamento (profundo) |
+| `CLEANUP` | `CleanupPointer` | `epic_id`, `title`, `roadmap_path` |
+| `STALE_BRANCH` | `BranchPointer` | `branch_name` (link GitHub), `days_stale` |
+
+Esse roteamento **já existe parcialmente** em
+`views/queue.py::render_queue_item_detail` (roteia por `isinstance` do ponteiro)
+e em `views/card_detail.py` (roteia épico do Kanban por `epic.state`). UX-4
+consolida os dois roteadores na camada Reflex.
+
+**c) Código-alvo e integração.**
+- **Modificar** (componente criado por UX-1):
+  - `web/components/detail.py` — roteador por tipo de ponteiro (item de Fila) e
+    por estado (épico de Kanban); destaque do `context` no topo (4.3); poda da
+    redundância com o card (4.2).
+- **Sugestão (opcional, p/ testabilidade):** extrair
+  `panel_fields_for(item) -> dict` como função pura (que campos o painel mostra
+  por tipo), deixando o componente Reflex fino. Permite teste unit sem frontend.
+- **Não tocar:** miolo; nenhum builder de prompt novo (reusa os existentes).
+- **Mecanismo:** composição de componentes + roteamento por tipo. Sem lógica de
+  detecção/estado nova.
+- **Template de estilo:** `views/queue.py::render_queue_item_detail`
+  (roteamento por ponteiro, já feito) + `views/card_detail.py` (roteamento por
+  estado no Kanban).
+
+**d) Acoplamentos.**
+- **Coordena UX-2** (o painel é o detalhe da co-visibilidade — mesmo container) e
+  **UX-3.1** (card terso): a "Ação esperada" longa e o prompt grande vivem **no
+  painel** (UX-4), não no card. Fronteira declarada nos dois épicos.
+- **Fila vs Kanban:** o painel serve as duas abas — item de Fila roteia por
+  ponteiro; épico de Kanban roteia por estado (`card_detail`). UX-4 cobre os dois
+  roteadores.
+- Reusa builders puros; não toca detecção nem `core/`/`products/`. Sem consumidor
+  compartilhado.
+
+**e) Sequência e testes.**
+- **Ordem:** 4.1 (roteamento por tipo) → 4.2 (redução de redundância, coordena
+  UX-3.1) → 4.3 (destaque do "porquê"). 4.3 é trivial (surface de `item.context`).
+- **Automatizável** (se `panel_fields_for` for extraída):
+  `tests/tools/workflow_platform/` — para um `QueueItem` de cada tipo, assertar
+  que o dict de campos traz o esperado (link PR p/ REVIEW, `days_stale` p/
+  STALE_BRANCH, prompt p/ DISPATCH/REFINE). Os builders já têm testes próprios.
+- **Manual** (`reflex run`): selecionar um item de cada tipo e confirmar o painel
+  — link certo, sem repetir o card, `context` visível no topo.
+
+**f) Centralidade da visão.** Vision §"Chat focado"/"Forma da Plataforma": o
+clique entrega contexto certo pra decidir. Preserva a fronteira declarada — o
+redesenho "ação = disparar" fica no `PILOTO-WORKFLOW-CANAL-UNICO`, não aqui. UX-4
+cuida só do conteúdo informacional. Nada central cortado.
+
+### Funcionalidades:
+
+- **4.1 Contexto por tipo** — o painel roteia por tipo/ponteiro (tabela acima),
+  destacando o que importa por tipo. **Aceite:** selecionar um item de cada um
+  dos 5 tipos mostra o campo-chave correspondente (link PR, idade da branch,
+  transição de estado, milestone, título) sem os campos irrelevantes dos outros
+  tipos.
+- **4.2 Redução de redundância card↔painel** — card resume + ação curta; painel
+  aprofunda só onde agrega (prompt grande de `DISPATCH`/`REFINE`). **Aceite:** o
+  prompt clipboard-ready grande aparece **só** no painel, não no card; o card não
+  repete o bloco de ação longo (coordena com UX-3.1).
+- **4.3 Legibilidade do "porquê este item existe"** — o painel exibe
+  `QueueItem.context` (sinal determinístico) com destaque. **Aceite:** o painel de
+  qualquer item mostra, no topo, o motivo determinístico da detecção (ex.:
+  "milestone X com todos os épicos em 🔍").
 
 ---
 
