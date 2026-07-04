@@ -338,8 +338,9 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
   mergeada e da [ADR 001](adr/001-stack-da-plataforma.md).
 - **Branch associada:** `milestone/piloto-workflow-ux`
-- **Status dos épicos:** W-PILOTO-UX-1 📋, W-PILOTO-UX-2 📋,
-  W-PILOTO-UX-3 📐, W-PILOTO-UX-4 📐.
+- **Status dos épicos:** W-PILOTO-UX-1 🔍, W-PILOTO-UX-2 🔍,
+  W-PILOTO-UX-3 🔍, W-PILOTO-UX-4 🔍. **Milestone apto ao fluxo autônomo**
+  (todos os 4 em 🔍).
 - **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
   2026-06-17 a partir da revisão da PR #121) e o seed `W-PILOTO-FILA-UX-1`,
   cujas duas frições foram redistribuídas (painel some → UX-2; redundância
@@ -360,6 +361,23 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   de UX-2. (b) UX-2.3 fica no mínimo — cada aba preserva seleção própria,
   sem mapeamento cross-entidade Fila↔Kanban. UX-3/4 seguem em `📐`. Próximo
   passo natural: spike de viabilidade do Reflex e descida de UX-1 a `🔍`.
+- **Refinamento a 🔍 (2026-07-04):** spike de viabilidade do Reflex **executado
+  e aprovado** (two-pane sticky + tarefa de segundo plano cobertos por props
+  nativas; ver bloco "Refinamento a 🔍" no épico W-PILOTO-UX-1). UX-1 descido a
+  `🔍 Detalhes definidos` — apto ao fluxo autônomo. Correção de acoplamento
+  registrada: o critério 1.4 deixa de "remover streamlit do requirements" e passa
+  a "remover só os imports da plataforma" — a linha `streamlit>=1.30.0` é do
+  Revelar.
+- **Refinamento a 🔍 (2026-07-04, cont.):** UX-2, UX-3 e UX-4 também descidos a
+  `🔍` na mesma sessão — **o milestone inteiro fica apto a dispatch**. UX-2
+  (co-visibilidade) reusa o mecanismo sticky do spike; UX-3 (densidade) adiciona
+  3 campos de estado de sessão (`collapsed_types`/`visible_types`/
+  `actionable_only`) e **define "acionável" = `{DISPATCH,REVIEW,REFINE}`**
+  (decisão de valor, revisável — ver épico); UX-4 (informação por tipo) é
+  view-only reusando o roteamento por ponteiro de `render_queue_item_detail`.
+  Decisões de fronteira registradas: filtro de tipo é de **sessão** (não
+  `preferences.json`); card terso (UX-3.1) ↔ painel profundo (UX-4.2). Todos os 4
+  dependem de UX-1 mergear (fundação Reflex) antes de implementar.
 
 ### PILOTO-WORKFLOW-PROATIVIDADE
 
@@ -983,11 +1001,12 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1/2 em `📋`, W-PILOTO-UX-3/4
-> em `📐`) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
+> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1/2/3/4 em `🔍` — **apto a
+> dispatch**) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
 > Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
-> CANAL-UNICO e PROATIVIDADE nos cards de milestone acima; só
-> `PILOTO-WORKFLOW-UX` tem épicos esboçados. Seed órfão na fase (sem milestone):
+> CANAL-UNICO e PROATIVIDADE nos cards de milestone acima (ainda `🌱`); só
+> `PILOTO-WORKFLOW-UX` tem épicos refinados — os 4 em `🔍`, milestone apto a
+> dispatch (2026-07-04). Seed órfão na fase (sem milestone):
 > `W-PILOTO-HIGIENE-1` (cleanup efetivo / ROADMAP enxuto, `🌱`).
 
 > **Nota de refinamento (2026-06-19).** O seed `W-PILOTO-FILA-UX-1` (🌱,
@@ -1004,9 +1023,133 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** trocar a camada de apresentação da plataforma de Streamlit para Reflex ([ADR 001](adr/001-stack-da-plataforma.md)), preservando todo o miolo stack-independente (`tools/workflow_platform/parser.py`, `models.py`, `queue/*`, `prompts/*`, `config_loader.py`, `preferences.py`). A primeira fatia entrega esqueleto Reflex + aba Fila funcional, validando a decisão de stack no uso real; a segunda porta o Kanban. Fundação de todo o resto do milestone e pré-requisito do `PILOTO-WORKFLOW-CANAL-UNICO`.
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o setup Reflex já existente no Ensaio (`products/ensaio/rxconfig.py`, `reflex>=0.6`).
+**Dependências:** PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o pin Reflex já existente no `requirements.txt` (`reflex==0.9.0` + `reflex-base==0.9.0`, do Ensaio) e o padrão de setup de `products/ensaio/rxconfig.py`.
+
+### Refinamento a 🔍 (2026-07-04) — spike + contratos
+
+**Spike de viabilidade do Reflex — resolvido (PASS).** Reproduzido com Reflex
+0.9.0 (mesmo pin do Ensaio):
+
+- **Two-pane sticky + scroll independente (requisito de UX-2):** `rx.hstack` de
+  dois `rx.box` — coluna-lista com `overflow_y="auto"` + `height="100vh"`,
+  coluna-detalhe com `position="sticky"` + `top="0"`. As props
+  `sticky`/`overflowY`/`top`/`100vh` chegam ao render compilado — layout nativo,
+  sem hack. (O Ensaio já usa `overflow_y="auto"` por coluna em produção:
+  `products/ensaio/app/components/`.)
+- **Tarefa de segundo plano com progresso ao vivo (driver do canal único):**
+  `@rx.event(background=True)` + `async with self:` + `yield` empurra estado
+  incremental pro cliente. Mesmo padrão de `EnsaioState.send_message`
+  (`products/ensaio/app/state.py`) — provado em produção. Confirma que o
+  streaming de segundo plano que o `PILOTO-WORKFLOW-CANAL-UNICO` vai precisar
+  não exige framework diferente.
+- Conclusão: **a decisão de stack do ADR 001 está validada tecnicamente**; o
+  épico desce a 🔍.
+
+**a) Termos e conceitos.** Sem termo comportamental novo — a migração preserva o
+vocabulário existente (item de fila, épico, estado). "Miolo stack-independente" =
+`parser.py`, `models.py`, `config_loader.py`, `preferences.py`, `queue/*`,
+`prompts/*` (nenhum importa Streamlit; verificado por `grep`). Estados de épico:
+[`planning_guidelines.md` §Estados de Épico](../refinement/planning_guidelines.md#estados-de-épico).
+
+**b) Dados e contratos — estado migra de `st.session_state` para `rx.State`.**
+Um único `rx.State` (`PlatformState`) substitui as chaves soltas de
+`st.session_state`. Chaves atuais → destino:
+
+| `st.session_state` (hoje) | `rx.State` (Reflex) | tipo |
+|---|---|---|
+| `platform_config` | campos usados extraídos no `on_load`: `github_owner`, `github_repo`, `repo_root`, `roadmaps` | str/list |
+| `parsed_roadmaps_all` | `roadmaps_all: list[dict]` (ParsedRoadmap serializado) | list |
+| `preferences` / `preferences_error` | `visible_roadmaps: list[str] \| None`, `stale_threshold_days: int`, `prefs_error: str` | — |
+| `queue_items` / `queue_fetch_warning` | `queue_items: list[dict]`, `fetch_warning: str` | list/str |
+| `selected_queue_item_id` | `selected_item_id: str` | str |
+| `selected_epic_id` / `selected_milestone_id` | `selected_epic_id: str`, `selected_milestone_id: str` | str |
+| `show_warnings_dialog` | `show_warnings: bool` | bool |
+| `visible_{rel}` (checkbox) | `visible_roadmaps` + handler `toggle_roadmap` | — |
+| aba ativa (`st.tabs`) | `active_tab: str` (`"fila"`\|`"kanban"`) | str |
+
+Objetos ricos (`Epic`, `QueueItem`, `ParsedRoadmap`, ponteiros) **não** entram
+crus no `rx.State` — Reflex exige vars serializáveis (o Ensaio guarda dicts, cf.
+`state.py`). Contrato: `@rx.var` computed reconstroem/filtram; os builders de
+prompt (`build_dispatch_prompt`, `build_refinement_prompt`,
+`build_prompt_for_item`) recebem os objetos ricos reconstruídos sob demanda a
+partir dos ROADMAPs parseados — a **mesma reconstrução** que
+`views/queue.py::render_queue_item_detail` já faz hoje. Divergência declarada:
+`st.dialog` (avisos do parser) vira `rx.dialog`/painel condicional — sem
+equivalente 1:1.
+
+**c) Código-alvo e integração.**
+
+- **Criar** (camada de view Reflex, sob `tools/workflow_platform/`):
+  - `rxconfig.py` — `rx.Config(app_name=...)` + repo root no `sys.path`
+    (espelha `products/ensaio/rxconfig.py`); portas distintas das do Ensaio
+    (3000/8000) p/ coexistir.
+  - `web/web.py` — `rx.App()` + `add_page(index, on_load=PlatformState.on_load)`;
+    módulo apontado por `rxconfig.app_name`.
+  - `web/state.py` — `PlatformState(rx.State)` (shape acima), `on_load` rodando
+    `load_config`/`parse_roadmap`/`load_preferences`/`build_world_state`/
+    `detect_all_items` e populando os campos; handlers `select_item`,
+    `select_epic`, `toggle_roadmap`, `reload`, `set_active_tab`.
+  - `web/components/{queue,kanban,detail,sidebar}.py` — os `render_*` reescritos
+    como funções que retornam `rx.Component`.
+- **Modificar:** `requirements.txt` (ver Acoplamentos — reflex já pinado, nada a
+  adicionar); `.gitignore` (+ `tools/workflow_platform/.web/`).
+- **Remover** (funcionalidade 1.4): `app.py`, `views/*.py` (camada Streamlit).
+- **Não tocar (miolo):** `parser.py`, `models.py`, `config_loader.py`,
+  `preferences.py`, `queue/*`, `prompts/*`, `cleanup_trigger.py`.
+- **Mecanismo de integração:** `reflex run` a partir de
+  `tools/workflow_platform/` lê `rxconfig.py`, carrega o módulo `app_name`,
+  compila o front e sobe o backend (`rx.State` no servidor). Substitui
+  `streamlit run tools/workflow_platform/app.py`.
+- **Template de estilo:** `products/ensaio/app/` (`app.py`, `state.py`,
+  `components/*`) — mesma estrutura `rx.App` + `rx.State` + componentes puros.
+
+**d) Acoplamentos — inspecionados, não assumidos.**
+
+- **`streamlit` é compartilhado com o Revelar** (`requirements.txt`:
+  `streamlit>=1.30.0   # Revelar`). **Correção do critério 1.4 original**
+  ("streamlit sai do requirements"): a linha do `requirements.txt` **permanece**
+  (é do Revelar); o que UX-1 remove é o **import de Streamlit da plataforma**
+  (`app.py` + `views/*`). Remover a linha quebraria o Revelar — fora de escopo.
+- **`reflex==0.9.0` + `reflex-base==0.9.0` já estão em `requirements.txt`** (pin
+  do Ensaio, com nota sobre o dep interno não-pinado upstream). UX-1 **não
+  adiciona dependência nova** — reusa o pin; nenhum consumidor novo do reflex
+  além da plataforma.
+- **Produtos consumidores de código compartilhado:** nenhum. A migração toca só
+  `tools/workflow_platform/` (view) — não toca `core/` nem `products/`. Revelar
+  (Streamlit) e Ensaio (Reflex) seguem intocados; o único acoplamento é o pin
+  compartilhado, já coberto acima.
+- Miolo import-safe confirmado: `grep -rl streamlit tools/workflow_platform`
+  casa só `app.py` e `views/*` — nenhum módulo do miolo importa Streamlit.
+
+**e) Sequência e testes.**
+
+- **Ordem:** 1.1 (esqueleto + estado) → 1.2 (Fila, fatia fina) → 1.3 (Kanban) →
+  1.4 (paridade + retirada do Streamlit). 1.1 é fundação; 1.4 fecha.
+- **Miolo já coberto:** `parser`, `queue/detect`, `prompts/*` têm testes unit em
+  `tests/tools/workflow_platform/` e **não mudam** — a paridade de `detect_all`
+  (critério de 1.2) é garantida por construção (mesma função). A suíte existente
+  é regressão suficiente do miolo.
+- **Camada de view (Reflex):** validação manual via `reflex run` + roteiro de
+  paridade por funcionalidade (mesma abordagem dos roteiros já em
+  `views/kanban.py`). Observável por funcionalidade:
+  - 1.1 — `reflex run` sobe sem erro; `on_load` popula `roadmaps_all` e
+    `queue_items` (smoke test que instancia `PlatformState` e chama `on_load`).
+  - 1.2 — para um WorldState fixo, a lista renderizada = `detect_all(state)`;
+    clique seleciona item e mostra prompt clipboard-ready.
+  - 1.3 — 8 colunas, épicos agrupados por milestone; clique mostra ação por estado.
+  - 1.4 — preferências/filtro/badge com paridade; `grep -rl streamlit
+    tools/workflow_platform` → vazio; `.web/` no `.gitignore`.
+- **Teste automatizável:** `tests/tools/workflow_platform/test_platform_state.py`
+  — instancia `PlatformState`, roda `on_load` contra ROADMAP fixture, assevera
+  `queue_items`/`roadmaps_all` populados e que `select_item`/`toggle_roadmap`
+  mutam o estado esperado (não sobe frontend).
+
+**f) Centralidade da visão.** A migração Reflex é declarada **fundação central**
+do Piloto (vision §"Forma da Plataforma > Plataforma como canal único"; ADR 001).
+Preservada e avançada — nada central cortado. UX-1 é view-only: detecção, parse
+e prompts (o valor consolidado no Protótipo) ficam intactos.
 
 ### Funcionalidades:
 
@@ -1041,10 +1184,10 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 - **Descrição:** Fechar a paridade (preferências persistidas, filtro por ROADMAP, badge de carga) e remover a camada Streamlit.
 - **Critérios de Aceite:**
   - Preferências (`preferences.json`), filtro por ROADMAP e badge de carga (`<n>/20` + banner OVER_LIMIT) devem ler/gravar e renderizar com paridade à versão Streamlit.
-  - `app.py` e `views/*` Streamlit removidos ao final; `streamlit` sai do requirements da plataforma; nenhum caminho restante importa Streamlit.
-  - `.web/` (build do Reflex) deve estar no `.gitignore`.
+  - `app.py` e `views/*` Streamlit removidos ao final; nenhum módulo de `tools/workflow_platform/` importa Streamlit (`grep -rl streamlit tools/workflow_platform/` → vazio). **A linha `streamlit>=1.30.0` do `requirements.txt` permanece** — é do Revelar, não da plataforma (ver Acoplamentos); removê-la quebraria o Revelar.
+  - `tools/workflow_platform/.web/` (build do Reflex) deve estar no `.gitignore`.
 
-**Nota:** **spike de viabilidade do Reflex** (sticky/two-pane + tarefa de segundo plano) antes de descer este épico a `🔍` — confirma que o framework cobre os requisitos de UX-2 e do canal único sem hack.
+**Nota:** o **spike de viabilidade do Reflex** (sticky/two-pane + tarefa de segundo plano) exigido antes de descer a `🔍` foi **executado e passou** (2026-07-04) — ver "Refinamento a 🔍" acima. Confirma que o framework cobre os requisitos de UX-2 e do canal único com props nativas, sem hack.
 
 ### Fora do escopo
 
@@ -1059,9 +1202,79 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** eliminar o atrito estrutural #1 do uso real — o painel de detalhe some abaixo da viewport quando a fila/kanban enche (hoje renderiza no rodapé, depois de todos os cards). Lista e detalhe convivem na tela; selecionar um item nunca exige rolar pra achar o detalhe. Viável nativamente no Reflex. Absorve a frição 1.1 do seed `W-PILOTO-FILA-UX-1`.
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PILOTO-UX-1 (camada Reflex existente).
+**Dependências:** W-PILOTO-UX-1 (camada Reflex existente) — dura: UX-2 não
+começa antes de UX-1 mergear.
+
+### Refinamento a 🔍 (2026-07-04) — layout provado no spike
+
+**Mecanismo sticky/two-pane — já provado no spike de UX-1** (2026-07-04, Reflex
+0.9.0), com props nativas, sem hack:
+`rx.hstack(lista, detalhe, align="start", height="100vh")`, cada coluna um
+`rx.box` com `height="100vh"` + `overflow_y="auto"`, e a coluna de detalhe
+somando `position="sticky"` + `top="0"`. `align="start"` (não `stretch`) é o que
+habilita o sticky por coluna. Confirmado: `sticky`/`overflowY`/`top`/`100vh`
+chegam ao render compilado.
+
+**a) Termos.** Sem termo comportamental novo. "Co-visibilidade" = lista e
+detalhe na mesma viewport; "ancorado/sticky" = `position: sticky` (CSS nativo
+via prop Reflex).
+
+**b) Dados e contratos.** UX-2 é view-only — **não adiciona campo de estado**.
+Reusa os campos já definidos em UX-1 (`PlatformState`): `selected_item_id` (aba
+Fila) e `selected_epic_id`/`selected_milestone_id` (aba Kanban), mais
+`active_tab`. A continuidade de seleção (2.3) é **consequência** de os dois
+campos serem independentes e persistirem no `rx.State` do servidor entre trocas
+de aba — o handler `set_active_tab` não pode resetá-los. Placeholder de painel
+vazio (2.1): `rx.cond(PlatformState.selected_item_id == "", placeholder(), detail())`.
+
+**c) Código-alvo e integração.**
+
+- **Modificar** (componentes criados por UX-1):
+  - `web/components/queue.py` e `web/components/kanban.py` — encapsular
+    lista + detalhe num `rx.hstack` de duas colunas. (Na fatia de UX-1 o detalhe
+    é portado com paridade — no rodapé; UX-2 reposiciona para co-visibilidade.)
+  - `web/components/detail.py` — adicionar o estado-vazio (placeholder) e as
+    props de âncora (`position="sticky"`, `top="0"`, `overflow_y="auto"`).
+- **Criar (opcional):** `web/components/layout.py` com um wrapper
+  `two_pane(list, detail)` se a composição for compartilhada entre Fila e Kanban
+  (evita duplicar o hstack); senão fica inline nos dois componentes.
+- **Não tocar:** miolo e `web/state.py` (sem campo de estado novo).
+- **Mecanismo de integração:** puramente composição de componentes + props CSS.
+  Nenhuma lógica de detecção/estado nova.
+- **Template de estilo:** `products/ensaio/app/app.py::index` (hstack de duas
+  colunas full-height) + o spike registrado no épico UX-1.
+- **Divisão de colunas (default, ajustável):** lista ~40% / detalhe ~60%
+  (espelha o 60/40 do Ensaio). Não é canon — ajuste fino de proporção cabe na
+  implementação sem novo refinamento.
+
+**d) Acoplamentos.** Depende inteiramente da camada Reflex de UX-1 — dependência
+dura declarada. Não toca `core/` nem `products/`; sem consumidor compartilhado.
+Ressalva verificada no spike: o container-pai não pode forçar `overflow: hidden`
+cortando a coluna — funciona com `overflow_y="auto"` por coluna + `align="start"`
+no hstack.
+
+**e) Sequência e testes.**
+
+- **Ordem:** 2.1 (duas colunas + placeholder) → 2.2 (âncora sticky + scroll
+  independente) → 2.3 (continuidade de seleção). 2.3 é asserção sobre estado,
+  independente do CSS.
+- **Layout/sticky (2.1, 2.2):** validação **manual** via `reflex run` — roteiro:
+  encher a fila com 15+ itens, selecionar um item no topo, rolar a lista até o
+  fim, confirmar que o painel segue visível; alternar Fila↔Kanban e voltar,
+  confirmar seleção preservada em cada aba. CSS/layout não tem teste automatizado
+  observável — declarado como validação manual (padrão da camada de view no
+  Protótipo).
+- **Continuidade de seleção (2.3):** automatizável em
+  `tests/tools/workflow_platform/test_platform_state.py` — setar
+  `selected_item_id` e `selected_epic_id`, chamar `set_active_tab` ida-e-volta,
+  assertar que ambos persistem (sem subir frontend).
+
+**f) Centralidade da visão.** Ataca o atrito estrutural #1 do uso real (vision
+§"Norte de curto prazo": cockpit agradável de usar todo dia). Preserva a
+fronteira já declarada em 2.3 (mapeamento cross-aba fora de escopo). Nada central
+cortado.
 
 ### Funcionalidades:
 
@@ -1095,16 +1308,103 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** fila escaneável com 15+ itens — o operador vê "o que pede ação agora" num olhar, sem ler card a card.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PILOTO-UX-1 (camada Reflex existente).
+**Dependências:** W-PILOTO-UX-1 (camada Reflex existente) — dura. Coordena com
+W-PILOTO-UX-4 na fronteira card↔painel (ver Acoplamentos).
 
-### Funcionalidades (esboço):
+### Refinamento a 🔍 (2026-07-04)
 
-- **3.1 Cards compactos** — mais densidade, menos verticalidade por item.
-- **3.2 Colapsar/expandir grupos por tipo** — focar um tipo, recolher o resto.
-- **3.3 Ordenação legível** — critério de ordem (recência da detecção) explícito no cabeçalho de cada grupo.
-- **3.4 Filtro por tipo / "só acionável"** — estende o filtro por ROADMAP entregue em FILA-4 com recorte por tipo de item.
+**a) Termos.** Termo comportamental novo: **"acionável"** (usado em 3.4).
+Definido aqui como item cujo tipo representa **avanço de trabalho que o operador
+dispara agora** — `DISPATCH`, `REVIEW`, `REFINE` — por oposição a
+**manutenção/triagem** — `CLEANUP`, `STALE_BRANCH`. É decisão de valor (ver nota
+de decisão ao fim do épico); revisável se o uso contradisser. "Grupo por tipo" =
+os 5 buckets já fixados em `views/queue.py::_TYPE_ORDER`
+(`DISPATCH→REVIEW→REFINE→CLEANUP→STALE_BRANCH`).
+
+**b) Dados e contratos — 3 campos de estado novos em `PlatformState` (UX-1).**
+UX-3 é view-only sobre a detecção; **não muda `QueueItem` nem `queue/detect.py`**.
+
+| campo | tipo | default | funcionalidade |
+|---|---|---|---|
+| `collapsed_types` | `list[str]` | `[]` | 3.2 (grupos recolhidos) |
+| `visible_types` | `list[str] \| None` | `None` (todos) | 3.4 (filtro por tipo) |
+| `actionable_only` | `bool` | `False` | 3.4 (preset "só acionável") |
+
+Ordenação (3.3): dentro de cada grupo, por `QueueItem.detected_at` desc — campo
+**já existe** no shape (`queue/models.py`); a ordenação é da view, sem lógica de
+detecção nova. Filtro (3.4): `@rx.var` `visible_queue_items` aplica
+`visible_types` e `actionable_only` sobre `queue_items` — função pura do estado.
+
+**c) Código-alvo e integração.**
+
+- **Modificar** (componentes criados por UX-1):
+  - `web/components/queue.py` — cards compactos (3.1), cabeçalho de grupo
+    clicável p/ colapsar (3.2), legenda de ordenação no header (3.3), consumo de
+    `visible_queue_items` no lugar de `queue_items` (3.4).
+  - `web/components/sidebar.py` — controle de filtro por tipo + toggle "só
+    acionável", ao lado do filtro por ROADMAP já entregue em FILA-4.3.
+  - `web/state.py` — 3 campos acima + handlers `toggle_type_collapse(t)`,
+    `set_visible_types(list)`, `toggle_actionable_only()` + `@rx.var`
+    `visible_queue_items`.
+- **Não tocar:** miolo (`queue/detect.py`, `queue/models.py`, `parser.py`).
+- **Mecanismo:** filtro/ordenação/colapso vivem inteiramente na view + estado.
+  Nenhuma peça nova no pipeline de detecção.
+- **Template de estilo:** o `render_queue`/`group_by_type` atuais
+  (`views/queue.py`) — mesma lógica de agrupamento, reescrita compacta em Reflex.
+
+**d) Acoplamentos.**
+- **Persistência do filtro — decisão registrada: sessão, não `preferences.json`.**
+  O filtro por ROADMAP (FILA-4) é durável (quais projetos me importam);
+  `visible_types`/`actionable_only` são **foco do momento** (o que olho agora) —
+  ficam no `rx.State` da sessão, resetam no reload. Evita tocar o miolo
+  `preferences.py`. Revisável se o operador pedir persistência.
+- **Fronteira com UX-4 (coordenação):** UX-3.1 torna o **card** compacto (título
+  + emoji + contexto terso, sem o prompt grande); UX-4.2 decide o que o **painel**
+  aprofunda. Card terso ↔ painel profundo é a fronteira; ambos os épicos a
+  declaram. Sem dupla-fonte: a "Ação esperada" longa sai do card e vive no painel.
+- Não toca `core/`/`products/`; sem consumidor compartilhado.
+
+**e) Sequência e testes.**
+- **Ordem:** 3.1 (cards) → 3.2 (colapso) → 3.3 (ordenação) → 3.4 (filtro).
+  Independentes entre si; nenhuma bloqueia a outra.
+- **Automatizável** (`tests/tools/workflow_platform/test_platform_state.py`):
+  `visible_queue_items` é função pura — setar `visible_types` e assertar a lista
+  filtrada; setar `actionable_only=True` e assertar que `CLEANUP`/`STALE_BRANCH`
+  somem e `DISPATCH`/`REVIEW`/`REFINE` permanecem; `toggle_type_collapse` muta
+  `collapsed_types`.
+- **Manual** (`reflex run`): densidade dos cards (3.1) e ordenação legível (3.3)
+  — inspeção visual com fila de 15+ itens.
+
+**f) Centralidade da visão.** Vision §"Fila" pede escaneabilidade perto do limite
+de ~20 itens; UX-3 materializa sem cortar tipo nenhum — "só acionável" filtra à
+**vista**, a detecção dos 5 tipos permanece intacta.
+
+**Decisão de valor a confirmar (operador):** "acionável" = `{DISPATCH, REVIEW,
+REFINE}`, excluindo `CLEANUP`/`STALE_BRANCH`. Racional: são os tipos de avanço de
+trabalho; `CLEANUP` é justamente o ruído que `W-PILOTO-HIGIENE-1` quer dissolver,
+e `STALE_BRANCH` é triagem. Se você preferir outra definição (ex.: incluir
+`STALE_BRANCH` como acionável), é ajuste de uma linha no `@rx.var`.
+
+### Funcionalidades:
+
+- **3.1 Cards compactos** — título + emoji de tipo + contexto terso numa altura
+  reduzida; a "Ação esperada" longa migra para o painel (UX-4). **Aceite:** com
+  15+ itens, um card ocupa menos altura vertical que a versão Streamlit; sem o
+  bloco de ação longo dentro do card.
+- **3.2 Colapsar/expandir grupos por tipo** — cabeçalho de grupo alterna
+  recolhido/expandido; `collapsed_types` guarda o estado. **Aceite:** clicar no
+  cabeçalho de um tipo recolhe seus cards; o estado persiste durante a sessão;
+  demais grupos inalterados.
+- **3.3 Ordenação legível** — dentro de cada grupo, itens por `detected_at` desc;
+  cabeçalho informa o critério. **Aceite:** o header de cada grupo declara
+  "ordenado por detecção (mais recente primeiro)"; a ordem observada bate.
+- **3.4 Filtro por tipo / "só acionável"** — controle na sidebar recorta os
+  tipos visíveis; toggle "só acionável" aplica o preset `{DISPATCH,REVIEW,REFINE}`.
+  **Aceite:** desmarcar um tipo o remove da fila (contagem cai); "só acionável"
+  esconde `CLEANUP`/`STALE_BRANCH`; ambos operam sobre `visible_queue_items` sem
+  alterar a detecção subjacente.
 
 ---
 
@@ -1114,15 +1414,98 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** cada tipo de item/épico mostra no painel o contexto que importa pra decidir, sem ruído nem redundância com o card — a parte do "valor do clique" invariante ao runtime. O redesenho do mecanismo de ação ("ação = disparar") vive no `PILOTO-WORKFLOW-CANAL-UNICO`, não aqui. Absorve a frição 1.2 do seed `W-PILOTO-FILA-UX-1`.
 
-**Status:** 📐 Funcionalidades esboçadas
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PILOTO-UX-1 (camada Reflex existente); coordena com W-PILOTO-UX-2 (o painel é o detalhe da co-visibilidade).
+**Dependências:** W-PILOTO-UX-1 (camada Reflex existente) — dura; coordena com
+W-PILOTO-UX-2 (o painel é o detalhe da co-visibilidade) e W-PILOTO-UX-3 (fronteira
+card terso ↔ painel profundo).
 
-### Funcionalidades (esboço):
+### Refinamento a 🔍 (2026-07-04)
 
-- **4.1 Contexto por tipo** — DISPATCH/REVIEW/REFINE/CLEANUP/STALE_BRANCH cada um destaca o que importa (links, estado, idade da branch), sem repetir o card.
-- **4.2 Redução de redundância card↔painel** — card resume e oferece ação curta copiável; painel aprofunda só onde agrega (hoje DISPATCH/REFINE, onde o prompt é artefato grande gerado por `build_dispatch_prompt`/`build_refinement_prompt`).
-- **4.3 Legibilidade do "porquê este item existe"** — explicitar o sinal determinístico que gerou o item (ex.: "milestone X com todos os épicos em 🔍").
+**a) Termos.** Sem termo comportamental novo. Reusa os 5 tipos e o tagged-union
+de ponteiros (`queue/models.py`: `EpicPointer`, `PRPointer`, `BranchPointer`,
+`RefinePointer`, `CleanupPointer`). "Valor do clique invariante ao runtime" =
+conteúdo informacional do painel, sem o mecanismo de disparo (que é do
+`PILOTO-WORKFLOW-CANAL-UNICO`).
+
+**b) Dados e contratos.** UX-4 é **view-only, sem campo de estado novo**. Consome
+o que já existe:
+- `QueueItem.source_pointer` (discriminado por tipo) → roteamento do painel (4.1);
+- `QueueItem.context` → o sinal determinístico do "porquê" (4.3), **já preenchido**
+  por `queue/detect.py` (ex.: "milestone X com todos os épicos em 🔍");
+- builders puros `build_prompt_for_item` / `build_dispatch_prompt` /
+  `build_refinement_prompt` → o artefato profundo (4.2). Nenhum builder novo.
+
+Contrato de roteamento por tipo (4.1) — **destaque do painel por ponteiro:**
+
+| tipo | ponteiro | painel destaca |
+|---|---|---|
+| `DISPATCH` | `EpicPointer` | `milestone_id`, `roadmap_path`, épicos; prompt de dispatch (profundo) |
+| `REVIEW` | `PRPointer` | link `PR #N` |
+| `REFINE` | `RefinePointer` | `epic_id`, `current_state → target_state`; prompt de refinamento (profundo) |
+| `CLEANUP` | `CleanupPointer` | `epic_id`, `title`, `roadmap_path` |
+| `STALE_BRANCH` | `BranchPointer` | `branch_name` (link GitHub), `days_stale` |
+
+Esse roteamento **já existe parcialmente** em
+`views/queue.py::render_queue_item_detail` (roteia por `isinstance` do ponteiro)
+e em `views/card_detail.py` (roteia épico do Kanban por `epic.state`). UX-4
+consolida os dois roteadores na camada Reflex.
+
+**c) Código-alvo e integração.**
+- **Modificar** (componente criado por UX-1):
+  - `web/components/detail.py` — roteador por tipo de ponteiro (item de Fila) e
+    por estado (épico de Kanban); destaque do `context` no topo (4.3); poda da
+    redundância com o card (4.2).
+- **Sugestão (opcional, p/ testabilidade):** extrair
+  `panel_fields_for(item) -> dict` como função pura (que campos o painel mostra
+  por tipo), deixando o componente Reflex fino. Permite teste unit sem frontend.
+- **Não tocar:** miolo; nenhum builder de prompt novo (reusa os existentes).
+- **Mecanismo:** composição de componentes + roteamento por tipo. Sem lógica de
+  detecção/estado nova.
+- **Template de estilo:** `views/queue.py::render_queue_item_detail`
+  (roteamento por ponteiro, já feito) + `views/card_detail.py` (roteamento por
+  estado no Kanban).
+
+**d) Acoplamentos.**
+- **Coordena UX-2** (o painel é o detalhe da co-visibilidade — mesmo container) e
+  **UX-3.1** (card terso): a "Ação esperada" longa e o prompt grande vivem **no
+  painel** (UX-4), não no card. Fronteira declarada nos dois épicos.
+- **Fila vs Kanban:** o painel serve as duas abas — item de Fila roteia por
+  ponteiro; épico de Kanban roteia por estado (`card_detail`). UX-4 cobre os dois
+  roteadores.
+- Reusa builders puros; não toca detecção nem `core/`/`products/`. Sem consumidor
+  compartilhado.
+
+**e) Sequência e testes.**
+- **Ordem:** 4.1 (roteamento por tipo) → 4.2 (redução de redundância, coordena
+  UX-3.1) → 4.3 (destaque do "porquê"). 4.3 é trivial (surface de `item.context`).
+- **Automatizável** (se `panel_fields_for` for extraída):
+  `tests/tools/workflow_platform/` — para um `QueueItem` de cada tipo, assertar
+  que o dict de campos traz o esperado (link PR p/ REVIEW, `days_stale` p/
+  STALE_BRANCH, prompt p/ DISPATCH/REFINE). Os builders já têm testes próprios.
+- **Manual** (`reflex run`): selecionar um item de cada tipo e confirmar o painel
+  — link certo, sem repetir o card, `context` visível no topo.
+
+**f) Centralidade da visão.** Vision §"Chat focado"/"Forma da Plataforma": o
+clique entrega contexto certo pra decidir. Preserva a fronteira declarada — o
+redesenho "ação = disparar" fica no `PILOTO-WORKFLOW-CANAL-UNICO`, não aqui. UX-4
+cuida só do conteúdo informacional. Nada central cortado.
+
+### Funcionalidades:
+
+- **4.1 Contexto por tipo** — o painel roteia por tipo/ponteiro (tabela acima),
+  destacando o que importa por tipo. **Aceite:** selecionar um item de cada um
+  dos 5 tipos mostra o campo-chave correspondente (link PR, idade da branch,
+  transição de estado, milestone, título) sem os campos irrelevantes dos outros
+  tipos.
+- **4.2 Redução de redundância card↔painel** — card resume + ação curta; painel
+  aprofunda só onde agrega (prompt grande de `DISPATCH`/`REFINE`). **Aceite:** o
+  prompt clipboard-ready grande aparece **só** no painel, não no card; o card não
+  repete o bloco de ação longo (coordena com UX-3.1).
+- **4.3 Legibilidade do "porquê este item existe"** — o painel exibe
+  `QueueItem.context` (sinal determinístico) com destaque. **Aceite:** o painel de
+  qualquer item mostra, no topo, o motivo determinístico da detecção (ex.:
+  "milestone X com todos os épicos em 🔍").
 
 ---
 
