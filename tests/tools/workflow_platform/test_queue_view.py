@@ -15,7 +15,7 @@ from tools.workflow_platform.queue.models import (
     PRPointer,
     QueueItem,
 )
-from tools.workflow_platform.views.queue import group_by_type
+from tools.workflow_platform.presenters import group_by_type
 
 
 _NOW = datetime(2026, 4, 30, 12, 0, 0)

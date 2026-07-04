@@ -89,6 +89,11 @@ Livros em PDF/
 # Workflow platform — preferências locais do operador (W-PROTO-FILA-4.1)
 tools/workflow_platform/.preferences.json
 
+# Workflow platform — artefatos de runtime do Reflex (W-PILOTO-UX-1)
+tools/workflow_platform/.web/
+tools/workflow_platform/.states/
+tools/workflow_platform/assets/external/
+
 .aider*
 
 # OpenCode (per-user state, auth, sessions, db)
