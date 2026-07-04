@@ -338,9 +338,9 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
   mergeada e da [ADR 001](adr/001-stack-da-plataforma.md).
 - **Branch associada:** `milestone/piloto-workflow-ux`
-- **Status dos épicos:** W-PILOTO-UX-1 🔍, W-PILOTO-UX-2 🔍,
-  W-PILOTO-UX-3 🔍, W-PILOTO-UX-4 🔍. **Milestone apto ao fluxo autônomo**
-  (todos os 4 em 🔍).
+- **Status dos épicos:** W-PILOTO-UX-1 🔀 Em revisão (PR #135), W-PILOTO-UX-2 🔍,
+  W-PILOTO-UX-3 🔍, W-PILOTO-UX-4 🔍. **UX-1 (fundação Reflex) em revisão;
+  UX-2/3/4 aguardam UX-1 mergear antes de implementar** (dependência declarada).
 - **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
   2026-06-17 a partir da revisão da PR #121) e o seed `W-PILOTO-FILA-UX-1`,
   cujas duas frições foram redistribuídas (painel some → UX-2; redundância
@@ -1001,12 +1001,14 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1/2/3/4 em `🔍` — **apto a
-> dispatch**) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
+> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1 `🔀` em revisão — PR #135;
+> UX-2/3/4 em `🔍`, aguardando UX-1 mergear) · `PILOTO-WORKFLOW-CANAL-UNICO` ·
+> `PILOTO-WORKFLOW-PROATIVIDADE`.
 > Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
 > CANAL-UNICO e PROATIVIDADE nos cards de milestone acima (ainda `🌱`); só
-> `PILOTO-WORKFLOW-UX` tem épicos refinados — os 4 em `🔍`, milestone apto a
-> dispatch (2026-07-04). Seed órfão na fase (sem milestone):
+> `PILOTO-WORKFLOW-UX` tem épicos refinados. Fundação Reflex (UX-1) implementada
+> e em revisão (2026-07-04); UX-2/3/4 seguem para dispatch sobre a fundação
+> mergeada. Seed órfão na fase (sem milestone):
 > `W-PILOTO-HIGIENE-1` (cleanup efetivo / ROADMAP enxuto, `🌱`).
 
 > **Nota de refinamento (2026-06-19).** O seed `W-PILOTO-FILA-UX-1` (🌱,
@@ -1023,7 +1025,7 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** trocar a camada de apresentação da plataforma de Streamlit para Reflex ([ADR 001](adr/001-stack-da-plataforma.md)), preservando todo o miolo stack-independente (`tools/workflow_platform/parser.py`, `models.py`, `queue/*`, `prompts/*`, `config_loader.py`, `preferences.py`). A primeira fatia entrega esqueleto Reflex + aba Fila funcional, validando a decisão de stack no uso real; a segunda porta o Kanban. Fundação de todo o resto do milestone e pré-requisito do `PILOTO-WORKFLOW-CANAL-UNICO`.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR https://github.com/gmaiarviana/paper-agent/pull/135
 
 **Dependências:** PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o pin Reflex já existente no `requirements.txt` (`reflex==0.9.0` + `reflex-base==0.9.0`, do Ensaio) e o padrão de setup de `products/ensaio/rxconfig.py`.
 
