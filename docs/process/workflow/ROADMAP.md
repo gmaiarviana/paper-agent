@@ -338,7 +338,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
   mergeada e da [ADR 001](adr/001-stack-da-plataforma.md).
 - **Branch associada:** `milestone/piloto-workflow-ux`
-- **Status dos épicos:** W-PILOTO-UX-1 🔍, W-PILOTO-UX-2 📋,
+- **Status dos épicos:** W-PILOTO-UX-1 🔍, W-PILOTO-UX-2 🔍,
   W-PILOTO-UX-3 📐, W-PILOTO-UX-4 📐.
 - **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
   2026-06-17 a partir da revisão da PR #121) e o seed `W-PILOTO-FILA-UX-1`,
@@ -366,7 +366,12 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   `🔍 Detalhes definidos` — apto ao fluxo autônomo. Correção de acoplamento
   registrada: o critério 1.4 deixa de "remover streamlit do requirements" e passa
   a "remover só os imports da plataforma" — a linha `streamlit>=1.30.0` é do
-  Revelar. UX-2/3/4 seguem em `📋`/`📐`.
+  Revelar.
+- **Refinamento a 🔍 (2026-07-04, cont.):** UX-2 (co-visibilidade lista↔detalhe)
+  também descido a `🔍`, aproveitando o mecanismo sticky/two-pane já provado no
+  spike de UX-1. UX-2 é view-only (sem campo de estado novo; reusa
+  `selected_item_id`/`selected_epic_id` de UX-1) e depende de UX-1 mergear.
+  UX-3/4 seguem em `📐`.
 
 ### PILOTO-WORKFLOW-PROATIVIDADE
 
@@ -990,9 +995,8 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1 em `🔍`, W-PILOTO-UX-2 em
-> `📋`, W-PILOTO-UX-3/4 em `📐`) · `PILOTO-WORKFLOW-CANAL-UNICO` ·
-> `PILOTO-WORKFLOW-PROATIVIDADE`.
+> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1/2 em `🔍`, W-PILOTO-UX-3/4
+> em `📐`) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
 > Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
 > CANAL-UNICO e PROATIVIDADE nos cards de milestone acima; só
 > `PILOTO-WORKFLOW-UX` tem épicos esboçados. Seed órfão na fase (sem milestone):
@@ -1191,9 +1195,79 @@ e prompts (o valor consolidado no Protótipo) ficam intactos.
 
 **Objetivo:** eliminar o atrito estrutural #1 do uso real — o painel de detalhe some abaixo da viewport quando a fila/kanban enche (hoje renderiza no rodapé, depois de todos os cards). Lista e detalhe convivem na tela; selecionar um item nunca exige rolar pra achar o detalhe. Viável nativamente no Reflex. Absorve a frição 1.1 do seed `W-PILOTO-FILA-UX-1`.
 
-**Status:** 📋 Critérios definidos
+**Status:** 🔍 Detalhes definidos
 
-**Dependências:** W-PILOTO-UX-1 (camada Reflex existente).
+**Dependências:** W-PILOTO-UX-1 (camada Reflex existente) — dura: UX-2 não
+começa antes de UX-1 mergear.
+
+### Refinamento a 🔍 (2026-07-04) — layout provado no spike
+
+**Mecanismo sticky/two-pane — já provado no spike de UX-1** (2026-07-04, Reflex
+0.9.0), com props nativas, sem hack:
+`rx.hstack(lista, detalhe, align="start", height="100vh")`, cada coluna um
+`rx.box` com `height="100vh"` + `overflow_y="auto"`, e a coluna de detalhe
+somando `position="sticky"` + `top="0"`. `align="start"` (não `stretch`) é o que
+habilita o sticky por coluna. Confirmado: `sticky`/`overflowY`/`top`/`100vh`
+chegam ao render compilado.
+
+**a) Termos.** Sem termo comportamental novo. "Co-visibilidade" = lista e
+detalhe na mesma viewport; "ancorado/sticky" = `position: sticky` (CSS nativo
+via prop Reflex).
+
+**b) Dados e contratos.** UX-2 é view-only — **não adiciona campo de estado**.
+Reusa os campos já definidos em UX-1 (`PlatformState`): `selected_item_id` (aba
+Fila) e `selected_epic_id`/`selected_milestone_id` (aba Kanban), mais
+`active_tab`. A continuidade de seleção (2.3) é **consequência** de os dois
+campos serem independentes e persistirem no `rx.State` do servidor entre trocas
+de aba — o handler `set_active_tab` não pode resetá-los. Placeholder de painel
+vazio (2.1): `rx.cond(PlatformState.selected_item_id == "", placeholder(), detail())`.
+
+**c) Código-alvo e integração.**
+
+- **Modificar** (componentes criados por UX-1):
+  - `web/components/queue.py` e `web/components/kanban.py` — encapsular
+    lista + detalhe num `rx.hstack` de duas colunas. (Na fatia de UX-1 o detalhe
+    é portado com paridade — no rodapé; UX-2 reposiciona para co-visibilidade.)
+  - `web/components/detail.py` — adicionar o estado-vazio (placeholder) e as
+    props de âncora (`position="sticky"`, `top="0"`, `overflow_y="auto"`).
+- **Criar (opcional):** `web/components/layout.py` com um wrapper
+  `two_pane(list, detail)` se a composição for compartilhada entre Fila e Kanban
+  (evita duplicar o hstack); senão fica inline nos dois componentes.
+- **Não tocar:** miolo e `web/state.py` (sem campo de estado novo).
+- **Mecanismo de integração:** puramente composição de componentes + props CSS.
+  Nenhuma lógica de detecção/estado nova.
+- **Template de estilo:** `products/ensaio/app/app.py::index` (hstack de duas
+  colunas full-height) + o spike registrado no épico UX-1.
+- **Divisão de colunas (default, ajustável):** lista ~40% / detalhe ~60%
+  (espelha o 60/40 do Ensaio). Não é canon — ajuste fino de proporção cabe na
+  implementação sem novo refinamento.
+
+**d) Acoplamentos.** Depende inteiramente da camada Reflex de UX-1 — dependência
+dura declarada. Não toca `core/` nem `products/`; sem consumidor compartilhado.
+Ressalva verificada no spike: o container-pai não pode forçar `overflow: hidden`
+cortando a coluna — funciona com `overflow_y="auto"` por coluna + `align="start"`
+no hstack.
+
+**e) Sequência e testes.**
+
+- **Ordem:** 2.1 (duas colunas + placeholder) → 2.2 (âncora sticky + scroll
+  independente) → 2.3 (continuidade de seleção). 2.3 é asserção sobre estado,
+  independente do CSS.
+- **Layout/sticky (2.1, 2.2):** validação **manual** via `reflex run` — roteiro:
+  encher a fila com 15+ itens, selecionar um item no topo, rolar a lista até o
+  fim, confirmar que o painel segue visível; alternar Fila↔Kanban e voltar,
+  confirmar seleção preservada em cada aba. CSS/layout não tem teste automatizado
+  observável — declarado como validação manual (padrão da camada de view no
+  Protótipo).
+- **Continuidade de seleção (2.3):** automatizável em
+  `tests/tools/workflow_platform/test_platform_state.py` — setar
+  `selected_item_id` e `selected_epic_id`, chamar `set_active_tab` ida-e-volta,
+  assertar que ambos persistem (sem subir frontend).
+
+**f) Centralidade da visão.** Ataca o atrito estrutural #1 do uso real (vision
+§"Norte de curto prazo": cockpit agradável de usar todo dia). Preserva a
+fronteira já declarada em 2.3 (mapeamento cross-aba fora de escopo). Nada central
+cortado.
 
 ### Funcionalidades:
 
