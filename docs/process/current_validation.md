@@ -51,6 +51,22 @@ reflex run
 
 Abra `http://localhost:3001/` no navegador. (Portas 3001/8001 são distintas das do Ensaio, 3000/8000 — as duas apps coexistem.)
 
+> **⚠️ Gotcha de execução — suba SEMPRE com `reflex run` (console script), NÃO com
+> `python -m reflex run`.** A partir de `tools/workflow_platform`, `python -m reflex
+> run` coloca o cwd em `sys.path[0]`, e o pacote local `queue/` sombreia o módulo
+> `queue` da stdlib (que o `multiprocessing` importa) → o compile quebra com
+> `ImportError: cannot import name 'Empty' from 'queue'`. O console script `reflex
+> run` usa o dir do Scripts como `sys.path[0]` e não sombreia → sobe normal.
+
+> **📝 Nota de operação — `reflex run` muta a working tree.** Ao subir, o reflex
+> **remove** o arquivo trackeado `tools/workflow_platform/__init__.py` (warning
+> "Removing __init__.py file in the app root directory") e **gera** `.gitignore` e
+> `requirements.txt` na pasta do app. Impacto funcional nenhum (namespace packages
+> absorvem a ausência do `__init__.py`; a suíte segue verde). Mas deixa a working
+> tree suja — depois de rodar, restaure com
+> `git checkout tools/workflow_platform/__init__.py` e **não commite** os dois
+> arquivos gerados pelo reflex (o `.gitignore` raiz já os ignora).
+
 ### 1.1 — Esqueleto Reflex + estado no backend
 
 **Critério:** "Deve subir via `reflex run` carregando `config.yaml`, ROADMAPs e preferences sem erro. O estado da UI (aba, seleção, filtros) deve viver em `rx.State`, não em `st.session_state`."

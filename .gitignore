@@ -93,6 +93,8 @@ tools/workflow_platform/.preferences.json
 tools/workflow_platform/.web/
 tools/workflow_platform/.states/
 tools/workflow_platform/assets/external/
+tools/workflow_platform/requirements.txt   # gerado pelo reflex run
+tools/workflow_platform/.gitignore          # gerado pelo reflex run
 
 .aider*
 
