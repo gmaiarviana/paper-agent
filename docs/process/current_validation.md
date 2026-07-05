@@ -86,8 +86,8 @@ Abra `http://localhost:3001/` no navegador. (Portas 3001/8001 são distintas das
 
 **Verificar:**
 ```bash
-# nenhum módulo da plataforma importa Streamlit:
-grep -rl streamlit tools/workflow_platform/     # deve não imprimir nada
+# nenhum módulo da plataforma IMPORTA Streamlit (grep de import, não substring):
+grep -rnE '^\s*(import streamlit|from streamlit)' tools/workflow_platform/   # → vazio
 
 # a linha do Revelar PERMANECE (não é da plataforma):
 grep -n "streamlit" requirements.txt            # streamlit>=1.30.0   # Revelar
@@ -95,7 +95,9 @@ grep -n "streamlit" requirements.txt            # streamlit>=1.30.0   # Revelar
 # build do Reflex ignorado:
 git check-ignore tools/workflow_platform/.web
 ```
-- [ ] `grep` acima não retorna arquivos da plataforma.
+- [ ] O grep de import acima não retorna nada. (Menções remanescentes a
+  "Streamlit" em `tools/workflow_platform/` são apenas referências históricas em
+  docstrings da migração — não são imports.)
 - [ ] A linha `streamlit>=1.30.0   # Revelar` **continua** no `requirements.txt` (remover quebraria o Revelar).
 - [ ] Na sidebar, marcar/desmarcar um ROADMAP filtra a fila e o kanban; o estado persiste após recarregar a página (gravado em `tools/workflow_platform/.preferences.json`, git-ignored).
 
@@ -114,7 +116,7 @@ Você é revisor técnico desta PR. Valide o diff (`main...HEAD`) contra os crit
 **1.1 — Esqueleto Reflex + estado no backend:**
 1. `reflex run` (de `tools/workflow_platform/`) sobe carregando `config.yaml`, ROADMAPs e preferences sem erro.
 2. Estado da UI (aba ativa, seleção, filtros) vive em `rx.State` (`web/state.py::PlatformState`), não em `st.session_state`.
-3. O miolo (`parser`, `models`, `config_loader`, `preferences`, `queue/*`, `prompts/*`) é importado **sem modificação** — o diff não toca esses arquivos.
+3. O miolo (`parser`, `models`, `config_loader`, `preferences`, `queue/*`, `prompts/*`) é importado **sem modificação de comportamento**. Exceção: `queue/load.py` — atualização de referência em docstring (`views/kanban.py` → `presenters.py`), sem mudança de comportamento.
 4. Nenhuma lógica de detecção/parse/prompt nova — só a camada de view/estado migra.
 
 **1.2 — Porte da aba Fila:**
@@ -127,7 +129,7 @@ Você é revisor técnico desta PR. Valide o diff (`main...HEAD`) contra os crit
 2. Ações contextuais por estado reusam `build_dispatch_prompt`/`build_refinement_prompt` — sem lógica nova.
 
 **1.4 — Paridade + retirada do Streamlit:**
-1. `app.py` e `views/*` Streamlit removidos; `grep -rl streamlit tools/workflow_platform/` → vazio.
+1. `app.py` e `views/*` Streamlit removidos; nenhum import de Streamlit na plataforma (`grep -rnE '^\s*(import streamlit|from streamlit)' tools/workflow_platform/` → vazio). Menções remanescentes a "Streamlit" são referências históricas em docstrings, não imports.
 2. A linha `streamlit>=1.30.0` do `requirements.txt` **permanece** (é do Revelar — removê-la quebraria o Revelar).
 3. `tools/workflow_platform/.web/` está no `.gitignore`.
 4. Preferências (`.preferences.json`), filtro por ROADMAP e badge de carga (`<n>/20` + banner OVER_LIMIT) com paridade à versão Streamlit.

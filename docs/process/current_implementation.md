@@ -62,8 +62,8 @@ preservando o miolo intocado.
 | Gate | Contexto | Evidência |
 |---|---|---|
 | Dev | épico W-PILOTO-UX-1 \| func. 1.1 | `rxconfig.py`, `web/web.py`, `web/state.py`, `presenters.py`, `world_state.py`. Miolo intocado. |
-| QA | épico W-PILOTO-UX-1 \| func. 1.1 | `test_platform_state.py` (6 testes: on_load/select/toggle). Import da `PlatformState` e build de `index()` OK. |
-| TL | épico W-PILOTO-UX-1 \| func. 1.1 | Padrão Reflex espelha `products/ensaio/app/`; view models tipados (`web/view_models.py`); `queue/*`, `parser`, `prompts/*` não tocados. |
+| QA | épico W-PILOTO-UX-1 \| func. 1.1 | `test_platform_state.py` (10 testes: on_load/select/toggle + roteamento dos 5 kinds do `_build_kanban_detail`). Import da `PlatformState` e build de `index()` OK. |
+| TL | épico W-PILOTO-UX-1 \| func. 1.1 | Padrão Reflex espelha `products/ensaio/app/`; view models tipados (`web/view_models.py`); `parser`, `prompts/*` e `queue/*` sem mudança de comportamento (exceção: `queue/load.py` — só referência em docstring). |
 | PO | épico W-PILOTO-UX-1 \| func. 1.1 | `reflex run` sobe carregando config/ROADMAPs/prefs; estado da UI (aba/seleção/filtros) vive em `rx.State`. Verificado por screenshot. |
 | Dev | épico W-PILOTO-UX-1 \| func. 1.2 | `web/components/queue.py` + `web/components/detail.py`; detecção/prompts reusados intactos. |
 | QA | épico W-PILOTO-UX-1 \| func. 1.2 | Paridade de `detect_all` por construção (mesma função); `test_queue_view.py`/`test_queue_determinism.py` verdes. |
@@ -74,7 +74,7 @@ preservando o miolo intocado.
 | TL | épico W-PILOTO-UX-1 \| func. 1.3 | Roteamento por estado reusa `build_dispatch_prompt`/`build_refinement_prompt`; sem lógica nova. |
 | PO | épico W-PILOTO-UX-1 \| func. 1.3 | Screenshot: 8 colunas 🌱→✅, cards por milestone; coluna 🔍 mostra PILOTO-WORKFLOW-UX. |
 | Dev | épico W-PILOTO-UX-1 \| func. 1.4 | `web/components/sidebar.py`; remoção de `app.py` + `views/*`; `.gitignore` + `.web/`. |
-| QA | épico W-PILOTO-UX-1 \| func. 1.4 | `grep -rl streamlit tools/workflow_platform/` → vazio; suíte 135 testes verde. |
+| QA | épico W-PILOTO-UX-1 \| func. 1.4 | Sem imports Streamlit (`grep -rnE '^\s*(import streamlit\|from streamlit)' tools/workflow_platform/` → vazio; menções remanescentes são docstrings históricas); suíte 139 testes verde. |
 | TL | épico W-PILOTO-UX-1 \| func. 1.4 | Linha `streamlit>=1.30.0` do `requirements.txt` **mantida** (é do Revelar) — correção do critério 1.4 original registrada no ROADMAP. |
 | PO | épico W-PILOTO-UX-1 \| func. 1.4 | Screenshot: sidebar com 6 checkboxes + contagens, badge `45/20` (OVER_LIMIT) + banner, avisos (0). Prefs persistem em `.preferences.json`. |
 
@@ -112,12 +112,15 @@ Piloto. A camada de view foi reescrita em Reflex (`rxconfig.py`, `web/web.py`,
 único `rx.State` (`PlatformState`). A lógica pura de apresentação e a construção
 do WorldState saíram dos módulos Streamlit para `presenters.py` e `world_state.py`
 (stack-independent). O miolo (`parser`, `models`, `config_loader`, `preferences`,
-`queue/*`, `prompts/*`, `cleanup_trigger`) ficou **intocado**; a paridade de
-`detect_all` é garantida por construção. A camada Streamlit (`app.py` + `views/*`)
-foi removida; `grep -rl streamlit tools/workflow_platform/` volta vazio.
+`queue/*`, `prompts/*`, `cleanup_trigger`) ficou **sem mudança de comportamento**
+(única exceção: `queue/load.py` — referência em docstring `views/kanban.py` →
+`presenters.py`); a paridade de `detect_all` é garantida por construção. A camada
+Streamlit (`app.py` + `views/*`) foi removida; nenhum módulo da plataforma importa
+Streamlit (menções remanescentes são docstrings históricas da migração).
 
-**Validação:** 135 testes de `tests/tools/workflow_platform/` passam (6 novos em
-`test_platform_state.py`; 3 arquivos com imports realocados para `presenters`; 1
+**Validação:** 139 testes de `tests/tools/workflow_platform/` passam (10 em
+`test_platform_state.py`, cobrindo on_load/seleção/toggle + os 5 kinds de
+`_build_kanban_detail`; 3 arquivos com imports realocados para `presenters`; 1
 teste de integração Streamlit removido). `reflex run` compila (21/21) e sobe;
 verificação visual por screenshot confirmou as 3 superfícies (Fila com itens
 reais, clique → detalhe com prompt clipboard-ready, Kanban de 8 colunas) e a

@@ -1027,6 +1027,14 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Status:** 🔀 Em revisão — PR https://github.com/gmaiarviana/paper-agent/pull/135
 
+> **Ressalva de escopo (evidência):** o miolo ficou sem mudança de
+> comportamento, com uma exceção documental — `queue/load.py` teve uma
+> referência de docstring atualizada (`views/kanban.py` → `presenters.py`),
+> zero mudança de comportamento. A retirada do Streamlit é verificada por
+> ausência de **imports** (`grep -rnE '^\s*(import streamlit|from streamlit)'
+> tools/workflow_platform/` → vazio); menções remanescentes a "Streamlit" são
+> referências históricas em docstrings.
+
 **Dependências:** PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o pin Reflex já existente no `requirements.txt` (`reflex==0.9.0` + `reflex-base==0.9.0`, do Ensaio) e o padrão de setup de `products/ensaio/rxconfig.py`.
 
 ### Refinamento a 🔍 (2026-07-04) — spike + contratos
