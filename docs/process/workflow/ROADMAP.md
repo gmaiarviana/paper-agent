@@ -490,6 +490,15 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   como produto desacoplado" na parte **técnica** (o mecanismo de sync),
   deliberadamente **separada** do release a colegas (auth, multi-persona,
   ambiente corporativo — que ficam em `MVP-WORKFLOW-PROPONENTE`/Horizonte).
+- **Natureza do acoplamento (o que este milestone realmente resolve):** o
+  **código da plataforma já está desacoplado** do paper-agent — `config.yaml`
+  externaliza `owner/repo` + lista de ROADMAPs e o `config_loader` acha o
+  repo root por marcador; apontar pra outro repo é config. O que está
+  acoplado é o **processo**: o dispatch emite `"implementa o <MILESTONE_ID>"`
+  em linguagem natural, e isso só significa algo porque o repo-alvo contém
+  as `skills/` e os `docs/process/` que ensinam o agente. Logo, "desacoplar
+  e sincronizar" é sobre **fazer o processo viajar** pro alvo, não sobre
+  limpar hardcode da plataforma.
 - **Estágio:** MVP
 - **Épicos agrupados:** a refinar (alto nível). O milestone se parte em
   **duas metades com dependências técnicas distintas** — a ordem importa:
@@ -510,6 +519,16 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   execução headless) e reusa o miolo stack-independent já isolado no
   [ADR 001](adr/001-stack-da-plataforma.md) (`parser`, `queue`, `prompts`,
   `config_loader`). A metade A não depende do Piloto.
+- **Contrato de adoção do alvo (o que um repo-alvo precisa cumprir para
+  entrar no fluxo):** três condições, a serem formalizadas no refinamento —
+  (1) **ROADMAP na convenção** — markdown com o vocabulário de estados de
+  épico (🌱→✅), que o `parser.py` (defensivo, baseado em convenção) já lê;
+  (2) **skills alcançáveis do checkout** onde o agente roda — via o
+  mecanismo escolhido na "Decisão em aberto"; (3) **auth/git access** ao
+  alvo (hoje `owner/repo` é só string pra montar URL). Repo que cumpre as
+  três → o mesmo fluxo roda igual; é isso que torna "replicável pra repo
+  novo" verdadeiro. Este contrato é o **produto** do desacople — não a
+  extração em si.
 - **Branch associada:** `milestone/mvp-workflow-desacople`
 - **Status:** 🌱 Visão — aguarda refinamento estratégico.
 - **Decisão em aberto (para refinamento — NÃO decidir agora):** como as
