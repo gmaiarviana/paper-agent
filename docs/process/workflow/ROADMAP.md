@@ -451,7 +451,8 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   mecanismo pelo qual as próprias fatias UX-2/3/4 serão despachadas; pegada de
   view pequena (UX-2/3/4 reaproveitam por cima sem conflito grande).
 - **Branch associada:** `milestone/piloto-workflow-dispatch-epico`
-- **Status dos épicos:** W-PILOTO-DISP-1 `🔍`.
+- **Status dos épicos:** W-PILOTO-DISP-1 `🔀 Em revisão` — PR #144
+(https://github.com/gmaiarviana/paper-agent/pull/144).
 - **Nota:** declarado e refinado a `🔍` em 2026-07-06, na sessão que descobriu o
   ponto cego multi-fatia (dispatch da W-PILOTO-UX-1 entregue em fatia). Design
   completo no bloco do épico. Milestone de mecânica de fila/dispatch — separado
@@ -1083,7 +1084,7 @@ direto no `detect.py` — a raiz é processual, não de exibição.
 
 **Milestone:** `PILOTO-WORKFLOW-DISPATCH-EPICO`
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR #144 (https://github.com/gmaiarviana/paper-agent/pull/144)
 
 **Objetivo:** tornar dispatch e refino ações **por épico** e introduzir o
 **predecessor bloqueante** como gate de acionabilidade. Hoje `detect_dispatch` é
