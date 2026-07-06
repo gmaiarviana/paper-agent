@@ -127,11 +127,27 @@ Cada item é uma decisão pendente, com **tipos diferentes convivendo**:
 Cada tipo segue um shape mínimo comum (título, contexto, ação esperada).
 O operador limpa a fila no próprio ritmo — não há SLA, há ordem.
 
+Sobre esses tipos corre uma distinção de **natureza**, que agrupa a fila
+em duas categorias: **Ações** — itens que avançam trabalho (aprovar um
+refinamento, validar uma PR, decidir uma escalação) — e **Higiene** —
+manutenção e triagem que ainda pede olho humano mas não faz o trabalho
+andar (limpar concluído, revisar uma branch parada). A Higiene continua
+visível — não é ruído a esconder —, só que sob sua própria seção, separada
+das Ações.
+
 A fila se autorregula por capacidade. Quando há por volta de vinte itens
 pendentes, o autônomo para de criar novos e espera o operador abrir
-espaço. O agente respeita o limite cognitivo do humano. A ordenação é
-dimensão a refinar — eixos candidatos incluem importância, urgência,
-severidade e tempo até a decisão expirar.
+espaço. O agente respeita o limite cognitivo do humano. O regulador conta
+**só Ações** — Higiene nunca entra na conta do limite, porque não é
+trabalho a segurar. A ordenação é dimensão a refinar — eixos candidatos
+incluem importância, urgência, severidade e tempo até a decisão expirar.
+
+Esse regulador é mecanismo do **modo autônomo** (ver "dois modos" logo
+abaixo): existe para segurar um curador que cria itens por conta própria.
+No Protótipo de hoje, reativo, não há autônomo populando a fila — logo não
+há o que regular de fato, e a UX de como (ou se) exibir o limite fica em
+aberto, para quando o fluxo autônomo chegar. Não se desenha esse controle
+agora.
 
 A fila tem dois modos conforme o estágio. **No Protótipo**, é populada
 **reativamente** — regras determinísticas convertem sinais óbvios do repo

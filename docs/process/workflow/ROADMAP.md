@@ -378,6 +378,16 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   Decisões de fronteira registradas: filtro de tipo é de **sessão** (não
   `preferences.json`); card terso (UX-3.1) ↔ painel profundo (UX-4.2). Todos os 4
   dependem de UX-1 mergear (fundação Reflex) antes de implementar.
+- **Refinamento de conteúdo (2026-07-06):** UX-3 (permanece em `🔍`, sem mudança
+  de estado) refinado a partir da sessão de validação da W-PILOTO-UX-1. A "decisão
+  de valor a confirmar" fica **confirmada**: a fila tem **duas naturezas** — Ações
+  = `{DISPATCH,REVIEW,REFINE}` e Higiene = `{CLEANUP,STALE_BRANCH}` — e a UX-3.4
+  vira **duas seções** (Ações vs Higiene), não mais um toggle "só acionável" que
+  esconde; a Higiene segue **visível** sob sua seção. Registrado também que o
+  regulador de carga (~20) conta só Ações e é mecanismo do fluxo autônomo (UX do
+  limite adiada — vision §"Fila"), e o item B (coluna `✅` do Kanban não cresce sem
+  fim) entra como UX-3.5, cross-ref `W-PILOTO-HIGIENE-1`. Canon espelhado na
+  vision §"Fila". Docs-only, sem mudança de código.
 
 ### PILOTO-WORKFLOW-PROATIVIDADE
 
@@ -1412,13 +1422,15 @@ W-PILOTO-UX-4 na fronteira card↔painel (ver Acoplamentos).
 
 ### Refinamento a 🔍 (2026-07-04)
 
-**a) Termos.** Termo comportamental novo: **"acionável"** (usado em 3.4).
-Definido aqui como item cujo tipo representa **avanço de trabalho que o operador
-dispara agora** — `DISPATCH`, `REVIEW`, `REFINE` — por oposição a
-**manutenção/triagem** — `CLEANUP`, `STALE_BRANCH`. É decisão de valor (ver nota
-de decisão ao fim do épico); revisável se o uso contradisser. "Grupo por tipo" =
-os 5 buckets já fixados em `views/queue.py::_TYPE_ORDER`
-(`DISPATCH→REVIEW→REFINE→CLEANUP→STALE_BRANCH`).
+**a) Termos.** Duas **naturezas** de item, confirmadas como categorias distintas
+(operador, 2026-07-06): **Ações** — avanço de trabalho que o operador dispara
+agora — `DISPATCH`, `REVIEW`, `REFINE` — e **Higiene** — manutenção/triagem —
+`CLEANUP`, `STALE_BRANCH`. `STALE_BRANCH` ainda pede olho humano, mas é natureza
+diferente de "avançar/resolver"; por isso segue **visível**, sob Higiene, e não
+escondido. A distinção é canon da vision (§"Fila"). "Grupo por tipo" = os 5
+buckets já fixados em `views/queue.py::_TYPE_ORDER`
+(`DISPATCH→REVIEW→REFINE→CLEANUP→STALE_BRANCH`); as duas seções (3.4) agrupam
+esses buckets pelas duas naturezas.
 
 **b) Dados e contratos — 3 campos de estado novos em `PlatformState` (UX-1).**
 UX-3 é view-only sobre a detecção; **não muda `QueueItem` nem `queue/detect.py`**.
@@ -1426,25 +1438,29 @@ UX-3 é view-only sobre a detecção; **não muda `QueueItem` nem `queue/detect.
 | campo | tipo | default | funcionalidade |
 |---|---|---|---|
 | `collapsed_types` | `list[str]` | `[]` | 3.2 (grupos recolhidos) |
-| `visible_types` | `list[str] \| None` | `None` (todos) | 3.4 (filtro por tipo) |
-| `actionable_only` | `bool` | `False` | 3.4 (preset "só acionável") |
+| `visible_types` | `list[str] \| None` | `None` (todos) | 3.4 (filtro por tipo, opcional) |
 
-Ordenação (3.3): dentro de cada grupo, por `QueueItem.detected_at` desc — campo
-**já existe** no shape (`queue/models.py`); a ordenação é da view, sem lógica de
-detecção nova. Filtro (3.4): `@rx.var` `visible_queue_items` aplica
-`visible_types` e `actionable_only` sobre `queue_items` — função pura do estado.
+O split em duas seções por natureza (3.4) é render-time — **não precisa de flag
+de estado**: as seções Ações e Higiene sempre renderizam. Some por isso o antigo
+campo `actionable_only` (o "toggle que esconde" foi substituído por "duas
+seções"). Ordenação (3.3): dentro de cada grupo, por `QueueItem.detected_at` desc
+— campo **já existe** no shape (`queue/models.py`); a ordenação é da view, sem
+lógica de detecção nova. Seções (3.4): a view parte `queue_items` em **Ações**
+(`DISPATCH`/`REVIEW`/`REFINE`) e **Higiene** (`CLEANUP`/`STALE_BRANCH`); o filtro
+por tipo opcional (`visible_types`, via `@rx.var` `visible_queue_items`) recorta
+dentro das seções. Split e filtro são funções puras do estado.
 
 **c) Código-alvo e integração.**
 
 - **Modificar** (componentes criados por UX-1):
   - `web/components/queue.py` — cards compactos (3.1), cabeçalho de grupo
-    clicável p/ colapsar (3.2), legenda de ordenação no header (3.3), consumo de
-    `visible_queue_items` no lugar de `queue_items` (3.4).
-  - `web/components/sidebar.py` — controle de filtro por tipo + toggle "só
-    acionável", ao lado do filtro por ROADMAP já entregue em FILA-4.3.
-  - `web/state.py` — 3 campos acima + handlers `toggle_type_collapse(t)`,
-    `set_visible_types(list)`, `toggle_actionable_only()` + `@rx.var`
-    `visible_queue_items`.
+    clicável p/ colapsar (3.2), legenda de ordenação no header (3.3), e a fila
+    partida em **duas seções** (Ações e Higiene), cada uma com seus grupos por
+    tipo, consumindo `visible_queue_items` no lugar de `queue_items` (3.4).
+  - `web/components/sidebar.py` — controle de filtro por tipo opcional, ao lado do
+    filtro por ROADMAP já entregue em FILA-4.3.
+  - `web/state.py` — os 2 campos acima + handlers `toggle_type_collapse(t)`,
+    `set_visible_types(list)` + `@rx.var` `visible_queue_items`.
 - **Não tocar:** miolo (`queue/detect.py`, `queue/models.py`, `parser.py`).
 - **Mecanismo:** filtro/ordenação/colapso vivem inteiramente na view + estado.
   Nenhuma peça nova no pipeline de detecção.
@@ -1453,10 +1469,11 @@ detecção nova. Filtro (3.4): `@rx.var` `visible_queue_items` aplica
 
 **d) Acoplamentos.**
 - **Persistência do filtro — decisão registrada: sessão, não `preferences.json`.**
-  O filtro por ROADMAP (FILA-4) é durável (quais projetos me importam);
-  `visible_types`/`actionable_only` são **foco do momento** (o que olho agora) —
-  ficam no `rx.State` da sessão, resetam no reload. Evita tocar o miolo
-  `preferences.py`. Revisável se o operador pedir persistência.
+  O filtro por ROADMAP (FILA-4) é durável (quais projetos me importam); o filtro
+  por tipo (`visible_types`) é **foco do momento** (o que olho agora) — fica no
+  `rx.State` da sessão, reseta no reload. Evita tocar o miolo `preferences.py`.
+  Revisável se o operador pedir persistência. As duas seções (Ações/Higiene) são
+  **estruturais**, não preferência — sempre renderizam, sem estado a persistir.
 - **Fronteira com UX-4 (coordenação):** UX-3.1 torna o **card** compacto (título
   + emoji + contexto terso, sem o prompt grande); UX-4.2 decide o que o **painel**
   aprofunda. Card terso ↔ painel profundo é a fronteira; ambos os épicos a
@@ -1467,22 +1484,43 @@ detecção nova. Filtro (3.4): `@rx.var` `visible_queue_items` aplica
 - **Ordem:** 3.1 (cards) → 3.2 (colapso) → 3.3 (ordenação) → 3.4 (filtro).
   Independentes entre si; nenhuma bloqueia a outra.
 - **Automatizável** (`tests/tools/workflow_platform/test_platform_state.py`):
-  `visible_queue_items` é função pura — setar `visible_types` e assertar a lista
-  filtrada; setar `actionable_only=True` e assertar que `CLEANUP`/`STALE_BRANCH`
-  somem e `DISPATCH`/`REVIEW`/`REFINE` permanecem; `toggle_type_collapse` muta
-  `collapsed_types`.
+  o split por natureza é função pura — assertar que a seção **Ações** contém só
+  `DISPATCH`/`REVIEW`/`REFINE` e a seção **Higiene** só `CLEANUP`/`STALE_BRANCH`,
+  ambas presentes (nenhum tipo some); `visible_queue_items` (filtro por tipo)
+  recorta dentro das seções; `toggle_type_collapse` muta `collapsed_types`.
 - **Manual** (`reflex run`): densidade dos cards (3.1) e ordenação legível (3.3)
   — inspeção visual com fila de 15+ itens.
 
-**f) Centralidade da visão.** Vision §"Fila" pede escaneabilidade perto do limite
-de ~20 itens; UX-3 materializa sem cortar tipo nenhum — "só acionável" filtra à
-**vista**, a detecção dos 5 tipos permanece intacta.
+**f) Centralidade da visão.** Vision §"Fila" pede escaneabilidade e agora nomeia
+as duas naturezas (Ações vs Higiene); UX-3 materializa a distinção como **duas
+seções**, sem cortar tipo nenhum — a Higiene fica visível na sua própria seção e
+a detecção dos 5 tipos permanece intacta.
 
-**Decisão de valor a confirmar (operador):** "acionável" = `{DISPATCH, REVIEW,
-REFINE}`, excluindo `CLEANUP`/`STALE_BRANCH`. Racional: são os tipos de avanço de
-trabalho; `CLEANUP` é justamente o ruído que `W-PILOTO-HIGIENE-1` quer dissolver,
-e `STALE_BRANCH` é triagem. Se você preferir outra definição (ex.: incluir
-`STALE_BRANCH` como acionável), é ajuste de uma linha no `@rx.var`.
+**Decisão de valor — confirmada (operador, 2026-07-06):** as duas naturezas são
+**Ações** = `{DISPATCH, REVIEW, REFINE}` e **Higiene** = `{CLEANUP, STALE_BRANCH}`.
+Racional: Ações avançam trabalho; `CLEANUP` é o ruído que `W-PILOTO-HIGIENE-1`
+quer dissolver na fonte, e `STALE_BRANCH` é triagem que ainda pede olho humano —
+por isso Higiene fica **visível**, sob sua seção, e não escondida. A distinção
+vira **seção**, não filtro de esconder: a fila renderiza Ações e Higiene lado a
+lado. Canon espelhado na vision §"Fila".
+
+**Regulador de carga (limite ~20) — nota de escopo (2026-07-06):** quando o badge
+de carga / limite ~20 for (re)desenhado, ele conta **só Ações** — Higiene nunca
+entra na conta. E o regulador é mecanismo do **fluxo autônomo**: no Protótipo
+reativo de hoje não há autônomo criando itens a segurar, então a UX de como (ou
+se) exibir o limite fica para quando o autônomo chegar — não se desenha aqui.
+Canon na vision §"Fila". (O badge `n/20` + banner OVER_LIMIT já entregues em
+PROTO-WORKFLOW-FILA são, sob essa leitura, prematuros no Protótipo; sua revisão
+pertence ao momento do fluxo autônomo, não a este épico.)
+
+**Item B — exibição do "done" no Kanban (refinamento de view, 2026-07-06):** a
+coluna `✅` do Kanban cresce hoje sem limite — mesmo princípio das duas naturezas,
+aplicado ao eixo **presente vs passado**: ação presente não deve dividir espaço
+com histórico de entrega. O tratamento é de **exibição** (colapsar/resumir/paginar
+o passado), não de vision — o Kanban de 8 colunas por estado, `✅` incluída, segue
+canônico (vision §"Kanban"). A **raiz** (podar `✅` do ROADMAP na fonte) é
+`W-PILOTO-HIGIENE-1`; aqui fica só o cuidado de exibição, cross-ref a HIGIENE-1 e
+às duas categorias. Materializado como funcionalidade 3.5 abaixo.
 
 ### Funcionalidades:
 
@@ -1497,11 +1535,21 @@ e `STALE_BRANCH` é triagem. Se você preferir outra definição (ex.: incluir
 - **3.3 Ordenação legível** — dentro de cada grupo, itens por `detected_at` desc;
   cabeçalho informa o critério. **Aceite:** o header de cada grupo declara
   "ordenado por detecção (mais recente primeiro)"; a ordem observada bate.
-- **3.4 Filtro por tipo / "só acionável"** — controle na sidebar recorta os
-  tipos visíveis; toggle "só acionável" aplica o preset `{DISPATCH,REVIEW,REFINE}`.
-  **Aceite:** desmarcar um tipo o remove da fila (contagem cai); "só acionável"
-  esconde `CLEANUP`/`STALE_BRANCH`; ambos operam sobre `visible_queue_items` sem
-  alterar a detecção subjacente.
+- **3.4 Duas seções: Ações vs Higiene** — a fila renderiza em duas seções por
+  natureza: **Ações** (`DISPATCH`/`REVIEW`/`REFINE`) e **Higiene**
+  (`CLEANUP`/`STALE_BRANCH`), ambas **sempre visíveis** (Higiene não é escondida —
+  `STALE_BRANCH` ainda pede revisão humana). Filtro por tipo opcional na sidebar
+  recorta dentro das seções, ao lado do filtro por ROADMAP (FILA-4). **Aceite:** a
+  fila mostra as duas seções separadas; `CLEANUP`/`STALE_BRANCH` aparecem sob
+  Higiene (não somem); desmarcar um tipo o remove da vista (contagem cai); tudo
+  opera sobre `visible_queue_items` sem alterar a detecção subjacente.
+- **3.5 Exibição do "done" no Kanban** — a coluna `✅` não deve crescer sem fim
+  (item B; mesmo princípio presente vs passado). Tratamento de **exibição**
+  (colapsar/resumir/paginar o passado), sem tocar `EpicState` nem a detecção; a
+  poda de `✅` na fonte é `W-PILOTO-HIGIENE-1`. **Aceite:** com muitos `✅`
+  acumulados, a coluna não empurra as colunas de estado ativo para fora da
+  viewport; o passado fica recolhido/resumido por padrão, expansível sob demanda;
+  as 8 colunas por estado permanecem canônicas.
 
 ---
 
