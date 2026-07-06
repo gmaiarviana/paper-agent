@@ -42,6 +42,19 @@ feito de forma durável aqui.
 
 ---
 
+## Gatilho durável: PR colada, linkada ou por número é pedido de revisão
+
+Quando o operador colar a **descrição de uma PR**, um **link** (`.../pull/<N>`)
+ou um **número** (`#<N>`) **sem outro pedido explícito**, isso é um **pedido de
+revisão** → invocar a [skill `review-pr`](skills/review-pr/skill.md). Não travar
+pedindo desambiguação: a entrada já é reconhecível como PR.
+
+A skill é **100% leitura/análise** — produz parecer (veredito + ressalvas), não
+commita, não mergeia, não abre PR. Só perguntar antes se o texto for
+genuinamente ambíguo (nem PR, nem branch, nem diff identificável).
+
+---
+
 ## Regra durável: sempre trazer sugestão com trade-offs
 
 Quando uma decisão estrutural surgir no meio de uma sessão (estratégica, de
@@ -128,4 +141,5 @@ mitigação adicional (`CLAUDE_STREAM_IDLE_TIMEOUT_MS`) em
 - Como o operador dispara → [`docs/process/autonomous/dispatch.md`](docs/process/autonomous/dispatch.md)
 - Como o operador valida → [`docs/process/autonomous/delivery.md`](docs/process/autonomous/delivery.md)
 - Spec executável da RTE skill → [`skills/rte/skill.md`](skills/rte/skill.md)
+- Spec executável da skill de revisão → [`skills/review-pr/skill.md`](skills/review-pr/skill.md)
 - Descobertas de dev (ambiente, armadilhas) → [`.claudecode.md`](.claudecode.md)
