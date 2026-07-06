@@ -203,9 +203,10 @@ def test_real_workflow_roadmap_parses_without_error():
     pr = parse_roadmap(repo_root / "docs" / "process" / "workflow" / "ROADMAP.md")
 
     epic_ids = {e.id for e in pr.epics}
-    assert "W-PROTO-PLAT-1" in epic_ids
-    assert "W-PROTO-PLAT-4" in epic_ids
+    # Épicos forward-looking permanecem no ROADMAP; milestones fechados têm os
+    # blocos de épico removidos (só a declaração do milestone sobrevive — ledger).
+    assert "W-PILOTO-UX-1" in epic_ids
 
-    plat1 = next(e for e in pr.epics if e.id == "W-PROTO-PLAT-1")
-    assert plat1.state in set(EpicState)
-    assert plat1.milestone_id == "PROTO-WORKFLOW-PLATAFORMA"
+    ux1 = next(e for e in pr.epics if e.id == "W-PILOTO-UX-1")
+    assert ux1.state in set(EpicState)
+    assert ux1.milestone_id == "PILOTO-WORKFLOW-UX"

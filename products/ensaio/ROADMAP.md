@@ -150,69 +150,7 @@ A conversa entre Usuário e agentes permanece fluida. O Orquestrador continua de
 
 ## 📋 Épicos Planejados
 
-### ⏳ Fase POC — Prova de Conceito
-
-#### ÉPICO E-POC-1: App Streamlit Mínimo do Ensaio ✅
-
-**Status:** ✅ Implementado — PR #TBD
-
-**Entregue:** Esqueleto do app próprio do Ensaio em `products/ensaio/app/` (entrypoint `chat.py` com layout 60/40, grafo próprio em `graph.py` compondo Orquestrador + Estruturador, componentes `article_panel.py`, `generate_button.py`, `chat_input.py`; reuso de `chat_history.py` do Revelar via import direto; estado 100% em `st.session_state`).
-
-**Referências:** `products/ensaio/app/`, `scripts/ensaio/flows/validate_graph.py`, `docs/ARCHITECTURE.md` (seção "Padrões de composição Core ↔ Produto").
-
----
-
-#### ÉPICO E-POC-2: Configuração de Contexto de Produto para Agentes do Core ✅
-
-**Status:** ✅ Implementado — PR #TBD
-
-**Entregue:** YAML do produto (`products/ensaio/config/product.yaml`, campo único `focus`) + loader (`products/ensaio/app/product_config.py`) + injeção via `config.configurable.product_context` nos nós do core (Orquestrador, Estruturador, Writer). Revelar continua funcionando sem product_context (backward compatible).
-
-**Referências:** `docs/ARCHITECTURE.md` (padrão "Injeção de contexto de produto"), `core/prompts/{orchestrator,structurer,writer}.py` (placeholder `{product_context_section}`), `tests/products/ensaio/unit/test_product_config.py`.
-
----
-
-#### ÉPICO E-POC-3: Fluxo Conversacional do Ensaio ✅
-
-**Status:** ✅ Implementado — PR #TBD
-
-**Entregue:** Fluxo completo chat → gerar → refinar → regenerar. Entrada livre no chat (markdown preservado), conversa com Orquestrador + Estruturador em postura ativo-leve (sem Metodologista nesta fase), botão "Gerar artigo" / "Regenerar" invoca `writer_node` diretamente com histórico conversacional, artigo focal e `previous_article` em modo refinamento. Sessão 100% descartável — recarregar zera tudo.
-
-**Refinamento pós-validação:** correção da perda da mensagem do usuário em erro de backend (bubble de erro mantém histórico), `cost_tracker` defensivo e precedência `LLM_MODEL > YAML`. Ver commit `04018e3`.
-
----
-
 ### ⏳ Fase Protótipo — Desenvolvedor Usa
-
-#### ÉPICO E-PROTO-1: Migração de Stack da Interface (Reflex) ✅
-
-**Status:** ✅ Implementado — PR #97 (merge `1d592d0`, 2026-04-27)
-
-**Entregue:** Substituição do Streamlit por Reflex (Python full-stack) com layout chat + painel seccionado, transparência de agente nos bubbles via `AIMessage.additional_kwargs["agent"]` (Orquestrador, Estruturador, Metodologista, Writer), feedback de processamento inline (sem overlay opaco) e estado serializável em `EnsaioState` no backend.
-
-**Referências:** `products/ensaio/app/` (entrypoint Reflex, `state.py`, `chat_panel.py`, `article_panel.py`), `products/ensaio/docs/adr/001-stack-do-prototipo.md` (decisão de stack), `core/agents/{orchestrator,structurer,methodologist}/nodes.py` (metadata `agent` em `additional_kwargs`).
-
----
-
-#### ÉPICO E-PROTO-2: Rascunho Progressivo por Seção (Modo Híbrido) ✅
-
-**Status:** ✅ Implementado — PR #97 (merge `1d592d0`, 2026-04-27)
-
-**Entregue:** Modo de escrita híbrido dentro da sessão. Estruturador propõe estrutura do artigo no chat (lista de seções via `additional_kwargs["article_sections"]`), painel renderiza cada `Section` como bloco com badge de status (`empty`/`draft`/`edited`), botões "Gerar"/"Regenerar" por seção invocam `writer_section_node` com `article_context` montado a partir das demais seções, edição inline via `rx.textarea` preserva o conteúdo das outras seções.
-
-**Referências:** `products/ensaio/app/components/article_panel.py`, `products/ensaio/app/state.py` (event handlers `generate_section`, `update_section_content`), `core/agents/writer/nodes.py` (`writer_section_node`), `core/agents/writer/models.py` (`Article`/`Section`).
-
----
-
-#### ÉPICO E-PROTO-3: Metodologista Aplicado ao Ensaio ✅
-
-**Status:** ✅ Implementado — PR #97 (merge `1d592d0`, 2026-04-27)
-
-**Entregue:** Novo nó `methodologist_provocation_node` no core (separado e independente do `decide_collaborative` existente, que permanece inalterado), registrado como nó `"methodologist"` no grafo do Ensaio. Postura seletiva via instrução no `product.yaml` — Orquestrador sugere o Metodologista quando a conversa toca em metodologia, métricas ou afirmações sem suporte. Prompt cobre lacunas de rigor + as 4 dimensões do Writer (contexto, intenção, formato, estrutura).
-
-**Referências:** `core/agents/methodologist/nodes.py` (`methodologist_provocation_node`), `core/prompts/methodologist_provocation.py` (`METHODOLOGIST_PROVOCATION_PROMPT_V1`), `products/ensaio/app/graph.py` (registro do nó), `products/ensaio/config/product.yaml` (postura seletiva + anti-promessa-vazia).
-
----
 
 #### ÉPICO E-PROTO2-1: Co-decisão da Estrutura (storytelling)
 

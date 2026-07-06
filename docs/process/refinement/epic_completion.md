@@ -4,7 +4,14 @@
 
 ## Contexto
 
-ROADMAP descreve o futuro — épicos, critérios e detalhes que ainda não existem como código. Documentação de spec e arquitetura descreve o presente — o que o sistema é hoje. Quando um épico é implementado, parte do seu conteúdo migra para docs permanentes, parte some e o que sobra no ROADMAP é registro mínimo de que aquilo foi entregue.
+ROADMAP descreve o futuro — épicos, critérios e detalhes que ainda não existem como código. Documentação de spec e arquitetura descreve o presente — o que o sistema é hoje. Quando um épico é implementado, parte do seu conteúdo migra para docs permanentes, parte some e o que sobra no ROADMAP depende de **em que fase o milestone está**.
+
+**Modelo de duas fases.** O bloco `#### ÉPICO` não sobrevive como stub permanente:
+
+- **Milestone ainda aberto** (tem épico irmão em estado ≠ `✅`): o épico entregue transita para `✅` e fica como **stub mínimo** (título + status + `Entregue em:`). É a **janela de progresso intra-milestone** — mostra o que já shippou de um milestone multi-fatia sem inflar o ROADMAP.
+- **Milestone inteiro fechado** (todos os épicos em `✅`): os blocos `#### ÉPICO` do milestone são **removidos** do ROADMAP. O registro cronológico de entrega passa a viver **só na declaração do milestone** (`### <MILESTONE_ID>` em `## 🎯 Milestones`), transitada para `✅` com `Implementado em: PR/sha/data`. Essa declaração é o **ledger** — grão de milestone, escaneável, in-repo. Conhecimento permanente (o que o sistema *é*) já foi extraído para `ARCHITECTURE.md`/`core-docs`/ADRs pela fase de implementação (W-PROTO-7); a declaração do milestone guarda o *quê/quando/qual PR*, que nenhuma dessas docs registra.
+
+Por que não manter o stub `✅` para sempre: o detector de fila `detect_cleanup_items` sinaliza épico `✅` de milestone fechado como faxina pendente justamente para que ele saia do ROADMAP — stub permanente vira ruído fantasma na fila. O detector só ignora `✅` cujo milestone ainda está aberto (a janela legítima).
 
 ## Três Tipos de Conteúdo e Seus Destinos
 
@@ -26,7 +33,7 @@ ROADMAP descreve o futuro — épicos, critérios e detalhes que ainda não exis
 
 ## Checklist de Fechamento
 
-Dois movimentos determinísticos em ordem: **enxugamento** (o que restou no épico é podado) e **transição de estado** (épico assume `✅ Implementado`).
+Dois momentos determinísticos, disparados por fases diferentes do milestone: **transição para `✅`** (ao entregar o épico — vira stub mínimo, janela intra-milestone) e **remoção do bloco** (quando o milestone inteiro fecha — bloco sai, declaração do milestone vira o ledger).
 
 > **Onde foi parar a Extração? (W-PROTO-7).** A extração de conhecimento permanente (novo padrão em `docs/ARCHITECTURE.md`/`core/docs/architecture/`, comportamento em `core/docs/agents/<agente>/`, notas em `.claudecode.md`) **deixou de ser passo do rito pós-merge** e virou responsabilidade da fase de implementação. Ato distribuído:
 >
@@ -36,24 +43,27 @@ Dois movimentos determinísticos em ordem: **enxugamento** (o que restou no épi
 >
 > Quando o ciclo abaixo roda (pós-merge), todo conhecimento permanente já foi gravado.
 
-### Enxugamento
+### Fase 1 — Entrega do épico (milestone ainda aberto)
 
-- [ ] Épico no ROADMAP reduzido a: título, 1-2 linhas de resumo do que entregou, data de conclusão, links para docs permanentes e PRs relevantes.
+- [ ] Épico no ROADMAP reduzido a stub mínimo: título, `**Status:** ✅ Implementado`, linha `**Entregue em:** PR <URL> (merge <sha>, <data>) — 1-2 linhas de resumo`.
 - [ ] Funcionalidades individuais com critérios de aceite removidas do ROADMAP.
 - [ ] Detalhes de execução (shapes, caminhos, mecanismos) removidos do ROADMAP.
+- [ ] Enquanto o milestone tiver épico irmão em estado ≠ `✅`, o stub **permanece** como janela de progresso intra-milestone.
 
-### Transição de estado
+### Fase 2 — Fechamento do milestone (todos os épicos em `✅`)
 
-- [ ] Épico marcado como `✅ Implementado` no ROADMAP somente após enxugamento completo.
+- [ ] Blocos `#### ÉPICO` de todos os épicos do milestone **removidos** do ROADMAP.
+- [ ] Declaração do milestone (`### <MILESTONE_ID>`) transitada para `✅`: campo `**Status dos épicos:**` com todos os épicos em `✅` e campo `**Implementado em:** PR <URL> (merge <sha>, <data>)`.
+- [ ] Declaração do milestone **preservada** — é o ledger de entrega. Nunca é apagada.
 
-> **Automação (W-PROTO-6, revisada).** Os dois passos acima — Enxugamento e Transição de estado — são **executados pela skill** `skills/cleanup/skill.md` no **fold-in do dispatch seguinte** (`docs/process/autonomous/dispatch.md` §4.5): ao iniciar um milestone novo, o implementador detecta **todas** as faxinas pendentes (`python -m tools.workflow_platform.cleanup_trigger --list`), roda a skill por milestone e commita o enxugamento na branch da PR — entrando num diff revisado por humano. (A automação original via GitHub Action `.github/workflows/milestone-cleanup.yml` foi **aposentada**: falhava por OIDC e não tinha revisão humana. O resolver determinístico que ela usava sobrevive em `tools/workflow_platform/cleanup_trigger.py`.)
+> **Automação (W-PROTO-6, revisada).** As duas fases acima são **executadas pela skill** `skills/cleanup/skill.md` no **fold-in do dispatch seguinte** (`docs/process/autonomous/dispatch.md` §4.5): ao iniciar um milestone novo, o implementador detecta **todas** as faxinas pendentes (`python -m tools.workflow_platform.cleanup_trigger --list`), roda a skill por milestone e commita a faxina na branch da PR — entrando num diff revisado por humano. A skill transita `🔀`→`✅` (Fase 1) e, quando o milestone fica inteiro `✅`, remove os blocos de épico mantendo a declaração do milestone (Fase 2). (A automação original via GitHub Action `.github/workflows/milestone-cleanup.yml` foi **aposentada**: falhava por OIDC e não tinha revisão humana. O resolver determinístico que ela usava sobrevive em `tools/workflow_platform/cleanup_trigger.py`.)
 >
 > **Fallback manual (e milestone terminal):** o **último** milestone não tem "próximo dispatch" para carregar sua faxina. O dev roda a mesma skill em sessão Claude Code Web sobre `main` pós-merge:
 > 1. Carregar `skills/cleanup/skill.md` + `docs/process/current_implementation.md` (no commit do merge).
 > 2. Listar pendências via `cleanup_trigger --list`; passar as três variáveis por faxina (`MILESTONE_ID`, `MERGED_PR_URL`, `MERGE_SHA`).
 > 3. Skill aplica os mesmos passos; dev autoriza o commit direto em main.
 >
-> A skill é idempotente — milestone já enxuto tem épicos em `✅` (não `🔀`), então não reaparece em `--list`; rodar fold-in + fallback é seguro.
+> A skill é idempotente — milestone já transitado tem épicos em `✅` (não `🔀`), então não reaparece em `--list`; milestone já fechado teve os blocos removidos, então não há o que repodar. Rodar fold-in + fallback é seguro.
 
 ## Quando Aplicar
 
@@ -65,12 +75,14 @@ Ao final da implementação de um milestone, depois que o código foi mergeado e
 
 ## Retroatividade
 
-O ciclo aplica apenas a épicos fechados a partir da introdução deste processo. Épicos anteriormente marcados como concluídos permanecem no estado em que estão; não há migração retroativa.
+O ciclo de **transição** (Fase 1) aplica apenas a épicos fechados a partir da introdução deste processo. Já a **remoção de bloco no fechamento do milestone** (Fase 2) foi aplicada **retroativamente uma vez** aos milestones já fechados quando o modelo de duas fases foi introduzido — o backfill único removeu os stubs `✅` acumulados dos milestones fechados do workflow e do ensaio, mantendo cada declaração de milestone como ledger. A partir daí, todo milestone que fecha segue a Fase 2 no fold-in.
+
+> **Nota:** a antiga regra "não há migração retroativa" valia para o modelo de stub permanente. Sob o modelo de duas fases, stub `✅` de milestone fechado é ruído (o `detect_cleanup_items` o sinaliza como faxina) — por isso o backfill único foi feito em vez de preservar o passado inconsistente.
 
 > **Retroatividade de W-PROTO-7.** Épicos já em `🏗️ Em andamento` no momento da implementação de W-PROTO-7 ficaram sem o bloco "Extração pendente" no `current_implementation.md` (template já havia sido gerado). Não há aplicação retroativa: dev segue o rito antigo (extração manual no fechamento) para esses casos. A partir do primeiro milestone disparado pós-W-PROTO-7, o template gerado pela Scrum Master Skill já inclui o bloco — então TL/Dev/RTE seguem o novo contrato.
 
 ## Referência Cruzada
 
 - **Entrada em implementação (critérios que o épico deve cobrir):** `docs/process/refinement/autonomous_readiness.md`
-- **Saída da implementação (este documento):** extração + enxugamento + transição
+- **Saída da implementação (este documento):** extração + transição para `✅` (Fase 1) + remoção de bloco no fechamento do milestone (Fase 2)
 - **Modelo completo de estados:** `docs/process/refinement/planning_guidelines.md`

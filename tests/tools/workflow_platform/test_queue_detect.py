@@ -201,8 +201,9 @@ def test_refine_excludes_detailed_and_execution_states():
 
 # ----- CLEANUP -----
 
-def test_cleanup_generates_for_done_epics():
-    epics = [_epic("E1", EpicState.DONE)]
+def test_cleanup_generates_for_done_epics_in_closed_milestone():
+    # Milestone inteiro fechado (único épico, ✅) → gera faxina.
+    epics = [_epic("E1", EpicState.DONE, milestone_id="MIL-A")]
     state = _state(roadmaps=[_roadmap(epics)])
     items = detect_cleanup_items(state)
     assert len(items) == 1
@@ -213,6 +214,31 @@ def test_cleanup_generates_for_done_epics():
 
 def test_cleanup_excludes_non_done():
     epics = [_epic("E1", EpicState.IN_REVIEW, pr_number=1)]
+    state = _state(roadmaps=[_roadmap(epics)])
+    assert detect_cleanup_items(state) == []
+
+
+def test_cleanup_excludes_done_epic_in_open_milestone():
+    # ✅ com irmão ainda 🔀 no mesmo milestone → janela intra-milestone, sem faxina.
+    epics = [
+        _epic("E1", EpicState.DONE, milestone_id="MIL-A"),
+        _epic("E2", EpicState.IN_REVIEW, milestone_id="MIL-A", pr_number=1),
+    ]
+    state = _state(roadmaps=[_roadmap(epics)])
+    assert detect_cleanup_items(state) == []
+
+
+def test_cleanup_generates_for_all_epics_when_milestone_fully_closed():
+    epics = [
+        _epic("E1", EpicState.DONE, milestone_id="MIL-A"),
+        _epic("E2", EpicState.DONE, milestone_id="MIL-A"),
+    ]
+    state = _state(roadmaps=[_roadmap(epics)])
+    assert len(detect_cleanup_items(state)) == 2
+
+
+def test_cleanup_excludes_done_epic_without_milestone():
+    epics = [_epic("E1", EpicState.DONE, milestone_id=None)]
     state = _state(roadmaps=[_roadmap(epics)])
     assert detect_cleanup_items(state) == []
 

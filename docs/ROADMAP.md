@@ -10,6 +10,8 @@
 
 > **Retroatividade:** épicos concluídos antes da introdução do modelo de estados permanecem em formato simplificado (título ✅ + 1-2 linhas de resumo) e não são reclassificados retroativamente. O modelo aplica-se a épicos em andamento e futuros.
 
+> **Alinhamento ao modelo de faxina (pendente).** Este ROADMAP precede o modelo de duas fases de [`epic_completion.md`](process/refinement/epic_completion.md) (Fase 1: stub `✅` enquanto o milestone está aberto; Fase 2: remoção do bloco de épico quando o milestone fecha, mantendo a declaração como ledger). Épicos `✅` daqui **não** são varridos: são consumidos por milestones de produto e não têm milestone próprio, então a fila (`detect_cleanup_items`) não os detecta — sem ruído de fantasma. A tabela `🎯 Épicos Core × Milestones` já serve de ledger. **Ao retomar trabalho no core, alinhar os épicos e o fluxo a este modelo** (ex.: mover cada épico do core para o milestone de produto que o consome, ou adotar um esquema de milestone próprio do core).
+
 ---
 
 ## 🎯 Épicos Core × Milestones de Produto
