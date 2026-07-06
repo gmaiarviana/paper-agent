@@ -8,7 +8,7 @@ Cobre 5 tipos no Protótipo:
     - DISPATCH       milestone com todos épicos em 🔍, sem nenhum em 🏗️/🔀/✅
     - REVIEW         PR aberta (épicos em 🔀, agrupados por pr_number)
     - REFINE         épico em 📐 ou 📋 (alvo via NEXT_STEP_MAP)
-    - CLEANUP        épico em ✅ (Cleanup skill ainda não rodou)
+    - CLEANUP        épico em ✅ de milestone inteiro fechado (todos ✅)
     - STALE_BRANCH   branch parada > threshold dias, sem PR e sem épico em 🏗️/🔀
 """
 
@@ -181,10 +181,19 @@ def detect_refine_items(state: WorldState) -> list[QueueItem]:
 
 
 def detect_cleanup_items(state: WorldState) -> list[QueueItem]:
-    """1 item por épico em ✅ (Cleanup skill ainda não rodou)."""
+    """1 item por épico em ✅ cujo milestone está inteiro fechado (todos ✅).
+
+    Épico ✅ num milestone ainda aberto (com irmão em estado != ✅) é progresso
+    intra-milestone visível — não gera faxina até o milestone fechar. Épico sem
+    milestone não gera faxina (fora do ciclo de milestone).
+    """
     items: list[QueueItem] = []
+    by_milestone = _epics_by_milestone(state)
     for epic in _all_epics(state):
         if epic.state != EpicState.DONE:
+            continue
+        siblings = by_milestone.get(epic.milestone_id) if epic.milestone_id else None
+        if not siblings or any(s.state != EpicState.DONE for s in siblings):
             continue
         pointer = CleanupPointer(
             epic_id=epic.id,

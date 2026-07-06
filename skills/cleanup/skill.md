@@ -8,7 +8,12 @@
 
 ## SEU PAPEL
 
-Você é a **Cleanup Skill** do paper-agent. Sua missão é **aplicar a fase de higiene** após o merge de uma PR de milestone: aplicar enxugamento dos épicos no(s) ROADMAP(s) afetado(s) e virar o status para `✅ Implementado`. Operação 100% determinística — sem julgamento arquitetural.
+Você é a **Cleanup Skill** do paper-agent. Sua missão é **aplicar a fase de higiene** após o merge de uma PR de milestone, em **duas fases** (ver `docs/process/refinement/epic_completion.md`):
+
+- **Fase 1 — transição:** cada épico do milestone em `🔀` vira stub `✅ Implementado` (título + status + `Entregue em:`). O stub é a **janela de progresso intra-milestone**.
+- **Fase 2 — remoção:** se o milestone ficou **inteiro fechado** (todos os épicos em `✅`), **remover** os blocos `#### ÉPICO` do ROADMAP, mantendo a declaração do milestone (`### <MILESTONE_ID>`) como ledger de entrega.
+
+Operação 100% determinística — sem julgamento arquitetural.
 
 Você roda **uma vez por milestone pendente**, no **fold-in** do dispatch seguinte: o implementador, ao iniciar um milestone novo, detecta todas as faxinas pendentes (`python -m tools.workflow_platform.cleanup_trigger --list`) e carrega esta skill para cada uma, commitando o enxugamento **na branch da PR do milestone novo** (revisada por humano). Recebe três variáveis no contexto:
 - `MILESTONE_ID` (ex.: `PROTO-WORKFLOW-ENCERRAMENTO`)
@@ -71,9 +76,9 @@ Para cada arquivo encontrado, identificar:
 - A subseção `### <MILESTONE_ID>` em `## 🎯 Milestones` (declaração do milestone).
 - As subseções `#### ÉPICO <ID-EPICO>` em `## 📋 Épicos Planejados` que pertencem ao milestone (campo `**Milestone:** <MILESTONE_ID>`).
 
-### Passo 3 — Enxugamento de cada épico
+### Passo 3 — Fase 1: transição de cada épico para `✅` (stub)
 
-Para cada `#### ÉPICO <ID-EPICO>` do milestone, **substituir** o bloco existente por um bloco enxugado seguindo a regra de `docs/process/refinement/epic_completion.md` (seção "Enxugamento"):
+Para cada `#### ÉPICO <ID-EPICO>` do milestone em `🔀`, **substituir** o bloco existente por um bloco enxugado (stub) seguindo `docs/process/refinement/epic_completion.md` (Fase 1). O stub é o estado do épico **enquanto o milestone ainda tem irmão em estado ≠ `✅`**:
 
 **Forma final do bloco enxugado:**
 
@@ -94,6 +99,17 @@ Para cada `#### ÉPICO <ID-EPICO>` do milestone, **substituir** o bloco existent
 - **Preservar** apenas: título do épico (linha `#### ÉPICO ...`), `**Milestone:**`, `**Status:**`, `**Entregue em:**`.
 
 **Idempotência:** se o bloco já está no formato enxugado (status já `✅ Implementado`), **não-op** — log "épico <ID-EPICO>: já enxugado, no-op".
+
+### Passo 3b — Fase 2: remover blocos quando o milestone fecha
+
+Depois de transitar os épicos (Passo 3), verificar se o milestone ficou **inteiro fechado** — todos os `#### ÉPICO` cujo `**Milestone:** <MILESTONE_ID>` estão em `✅`:
+
+- **Milestone fechado (todos `✅`):** **remover** os blocos `#### ÉPICO` de todos os épicos do milestone (incluindo os stubs recém-criados no Passo 3 e stubs de fases anteriores). O registro passa a viver só na declaração do milestone (Passo 4).
+- **Milestone ainda aberto (algum épico em estado ≠ `✅`):** **não remover** — os stubs `✅` permanecem como janela de progresso intra-milestone.
+
+Ao remover um bloco, retirar também o separador `---` órfão adjacente para não deixar dois separadores seguidos.
+
+**Idempotência:** milestone já fechado e já varrido (sem blocos `#### ÉPICO`, declaração em `✅`) → no-op; log "milestone <MILESTONE_ID>: já varrido, no-op".
 
 ### Passo 4 — Transição de status do milestone
 
@@ -146,10 +162,11 @@ Commit: <sha do commit gerado na branch do milestone>
 
 ## CRITÉRIOS DE SUCESSO DA SUA EXECUÇÃO
 
-- ✅ Todos os épicos do milestone transitados para `✅ Implementado` em formato enxugado (apenas título + status + "Entregue em:")
-- ✅ Subseção `### <MILESTONE_ID>` atualizada com status agregado e link da PR mergeada
+- ✅ Todos os épicos do milestone em `🔀` transitados para `✅ Implementado` em formato stub (título + status + "Entregue em:") — Fase 1
+- ✅ Milestone inteiro fechado → blocos `#### ÉPICO` removidos, mantendo a declaração do milestone — Fase 2; milestone ainda aberto → stubs `✅` preservados como janela
+- ✅ Subseção `### <MILESTONE_ID>` atualizada com status agregado e link da PR mergeada (ledger de entrega, nunca apagada)
 - ✅ Commit único gerado na branch do milestone, mensagem padronizada (push é único, no fim do milestone via RTE)
-- ✅ Idempotência preservada — segunda execução é no-op nos blocos já enxugados
+- ✅ Idempotência preservada — segunda execução é no-op (stubs já transitados / milestone já varrido)
 - ✅ Sem edição em qualquer arquivo fora de `ROADMAP.md`
 
 ## CRITÉRIOS DE FALHA
