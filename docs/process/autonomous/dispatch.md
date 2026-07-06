@@ -86,7 +86,24 @@ Logo após criar/atualizar a branch (passo 4) e **antes** de carregar as skills 
 >
 > **Limitação conhecida:** dispatch concorrente de dois milestones em paralelo veria a mesma faxina pendente nas duas branches → dupla transição / conflito de merge. O time despacha em série; registrado como limitação.
 >
-> **Furo do milestone terminal:** o **último** milestone não tem "próximo dispatch" para carregar sua faxina. Fechamento manual: rodar `skills/cleanup/skill.md` em sessão sobre `main` pós-merge (FALLBACK MANUAL da própria skill). A fila reativa da plataforma é o backstop futuro.
+> **Faxina sem dispatch subsequente (fold-in não é o único gatilho):** o fold-in
+> só roda quando um **próximo dispatch** acontece. Sempre que um merge de PR de
+> milestone **não** for seguido de um dispatch iminente, a faxina fica pendente e o
+> épico permanece em `🔀` no ROADMAP — gerando um item `REVIEW` fantasma na fila
+> (PR já mergeada). Casos: (a) **milestone terminal** — o último não tem "próximo
+> dispatch"; (b) **entrega faseada / milestone parcial** — uma fatia mergeou mas as
+> irmãs ainda estão em `🔍` e o próximo dispatch pode demorar; (c) qualquer sessão
+> de trabalho/refino que não dispare implementação.
+>
+> **Resolução (não esperar o fold-in):** a transição de Fase 1 (`🔀`→`✅` stub) é
+> uma correção de estado barata e determinística — **qualquer sessão que perceba o
+> merge pendente deve resolvê-la em-sessão**, rodando `skills/cleanup/skill.md`
+> sobre a branch de trabalho (ou `main`, no fallback terminal). Não é privilégio do
+> dispatch. O fold-in continua sendo a via **batched/otimizada** (agrupa faxinas num
+> diff revisado), não a única. A detecção via `cleanup_trigger --list` roda sobre
+> `main`; até a PR da correção mergear, o `--list` ainda pode listar a faxina (o
+> passo é idempotente — no-op sobre épico já `✅`). A fila reativa da plataforma é o
+> backstop automático futuro.
 
 ### 5. Carregar skills em sequência
 

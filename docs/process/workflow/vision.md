@@ -367,9 +367,11 @@ agora, outro amanhã.
 
 ### Encerramento
 
-Faxina pós-merge. Skills: **Cleanup**. Já existe — disparado por GitHub
-Action quando PR de milestone é mergeada (ver "Padrão Emergente: Skill
-em Action" abaixo).
+Faxina pós-merge. Skills: **Cleanup**. Já existe — roda no **fold-in do
+dispatch seguinte** em duas fases (transição `🔀→✅` por épico; remoção do
+bloco só no fechamento do milestone; mecânica canônica em
+[`epic_completion.md`](../refinement/epic_completion.md)). A GitHub Action
+original foi aposentada (ver "Padrão Emergente: Skill em Action" abaixo).
 
 ### Futuros (não desenhados)
 
