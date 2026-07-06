@@ -461,7 +461,11 @@ class PlatformState(rx.State):
             s.add(rel)
         self.visible_roadmaps = sorted(s)
         self._persist_visibility()
-        self._recompute_queue(do_fetch=True)
+        # Filtro só muda quais ROADMAPs estão visíveis — o estado da remote
+        # (branches/PRs) não muda. Redetecção local (reparse + detect_all sobre
+        # os visíveis) basta; o `git fetch` de rede fica só no on_load e no
+        # botão 🔄 Recarregar (evita pausa de rede a cada clique de checkbox).
+        self._recompute_queue(do_fetch=False)
         if self.selected_item_id and not any(
             i.id == self.selected_item_id for i in self.queue_items
         ):

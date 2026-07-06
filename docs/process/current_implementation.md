@@ -127,6 +127,16 @@ e quebrava no Windows (worker spawned reimporta). Após o rename, `import queue`
 resolve pra stdlib em qualquer SO; app sobe funcional e renderiza (evidência por
 screenshot).
 
+**Fix de performance do filtro (revisão no Windows nativo).** `toggle_roadmap`
+(marcar/desmarcar ROADMAP no sidebar) chamava `_recompute_queue(do_fetch=True)`,
+disparando `git fetch` de rede a **cada clique** de checkbox — o filtro só muda
+quais ROADMAPs estão visíveis, não o estado da remote, então o fetch é desperdício
+e causava lentidão perceptível. Trocado para `_recompute_queue(do_fetch=False)`: a
+redetecção **local** (reparse + `detect_all` sobre os visíveis) permanece, mas o
+`git fetch` sai do caminho do filtro. Fetch de rede fica só no `on_load` e no botão
+🔄 Recarregar (`reload`, `do_fetch=True`). `select_item`/`select_epic`/
+`set_active_tab` seguem sem fetch. Sem tocar detecção/parse.
+
 **Validação:** 139 testes de `tests/tools/workflow_platform/` passam (10 em
 `test_platform_state.py`, cobrindo on_load/seleção/toggle + os 5 kinds de
 `_build_kanban_detail`; 3 arquivos com imports realocados para `presenters`; 1

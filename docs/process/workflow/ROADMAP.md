@@ -1037,7 +1037,11 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 > streamlit)' tools/workflow_platform/` → vazio); menções remanescentes a
 > "Streamlit" são referências históricas em docstrings.
 
-**Dependências:** PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o pin Reflex já existente no `requirements.txt` (`reflex==0.9.0` + `reflex-base==0.9.0`, do Ensaio) e o padrão de setup de `products/ensaio/rxconfig.py`.
+> **Fix de performance do filtro (revisão Windows, dentro da fatia UX-1):**
+> marcar/desmarcar ROADMAP no sidebar (`toggle_roadmap`) fazia `git fetch` de rede
+> a cada clique — o filtro só muda a visibilidade, não a remote. Passou a redetectar
+> **local** (`do_fetch=False`); o fetch de rede fica só no `on_load` e no botão
+> 🔄 Recarregar. Atualização do filtro vira instantânea. Não é item futuro. PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o pin Reflex já existente no `requirements.txt` (`reflex==0.9.0` + `reflex-base==0.9.0`, do Ensaio) e o padrão de setup de `products/ensaio/rxconfig.py`.
 
 ### Refinamento a 🔍 (2026-07-04) — spike + contratos
 
