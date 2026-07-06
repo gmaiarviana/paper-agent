@@ -51,12 +51,17 @@ reflex run
 
 Abra `http://localhost:3001/` no navegador. (Portas 3001/8001 são distintas das do Ensaio, 3000/8000 — as duas apps coexistem.)
 
-> **⚠️ Gotcha de execução — suba SEMPRE com `reflex run` (console script), NÃO com
-> `python -m reflex run`.** A partir de `tools/workflow_platform`, `python -m reflex
-> run` coloca o cwd em `sys.path[0]`, e o pacote local `queue/` sombreia o módulo
-> `queue` da stdlib (que o `multiprocessing` importa) → o compile quebra com
-> `ImportError: cannot import name 'Empty' from 'queue'`. O console script `reflex
-> run` usa o dir do Scripts como `sys.path[0]` e não sombreia → sobe normal.
+> **🩹 Fix de shadowing (cross-plataforma) — o pacote local chama-se `job_queue/`,
+> não `queue/`.** Um subpacote local chamado `queue/` sombreia o módulo `queue` da
+> stdlib quando o dir da app entra em `sys.path[0]` (que o `multiprocessing`/
+> `urllib3`/`socketio` importam) → `AttributeError: module 'queue' has no attribute
+> 'LifoQueue'` / `ImportError: cannot import name 'Empty' from 'queue'`, e o worker do
+> granian morre. **No POSIX o worker é forkado** (herda `sys.modules`, mascara o
+> problema — passava em POSIX); **no Windows é spawned** (reimporta com o dir da app
+> no path → crash: o backend morre e a página serve só o shell "loading", sem
+> hidratação). O fix é o rename do pacote para `job_queue/` (W-PILOTO-UX-1): sem
+> colisão de nome, `import queue` resolve sempre pra stdlib em qualquer plataforma.
+> `reflex run` (console script) é a forma recomendada de subir.
 
 > **📝 Nota de operação — `reflex run` muta a working tree.** Ao subir, o reflex
 > **remove** o arquivo trackeado `tools/workflow_platform/__init__.py` (warning
@@ -132,7 +137,7 @@ Você é revisor técnico desta PR. Valide o diff (`main...HEAD`) contra os crit
 **1.1 — Esqueleto Reflex + estado no backend:**
 1. `reflex run` (de `tools/workflow_platform/`) sobe carregando `config.yaml`, ROADMAPs e preferences sem erro.
 2. Estado da UI (aba ativa, seleção, filtros) vive em `rx.State` (`web/state.py::PlatformState`), não em `st.session_state`.
-3. O miolo (`parser`, `models`, `config_loader`, `preferences`, `queue/*`, `prompts/*`) é importado **sem modificação de comportamento**. Exceção: `queue/load.py` — atualização de referência em docstring (`views/kanban.py` → `presenters.py`), sem mudança de comportamento.
+3. O miolo (`parser`, `models`, `config_loader`, `preferences`, `job_queue/*`, `prompts/*`) é importado **sem modificação de comportamento**. Nota: o pacote da fila foi renomeado de `queue/` para `job_queue/` (rename + ajuste de imports, zero mudança de lógica) — corrige o shadowing da stdlib `queue` que matava o worker do granian no Windows (worker spawned).
 4. Nenhuma lógica de detecção/parse/prompt nova — só a camada de view/estado migra.
 
 **1.2 — Porte da aba Fila:**

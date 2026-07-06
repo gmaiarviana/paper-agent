@@ -15,7 +15,7 @@ from collections import OrderedDict
 from pathlib import Path
 
 from tools.workflow_platform.models import Epic, EpicState, ParsedRoadmap
-from tools.workflow_platform.queue.models import ItemType, QueueItem
+from tools.workflow_platform.job_queue.models import ItemType, QueueItem
 
 
 # ---------------------------------------------------------------------------

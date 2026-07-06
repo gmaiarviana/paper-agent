@@ -6,7 +6,7 @@ são populados e que ``select_item``/``select_epic``/``toggle_roadmap`` mutam o
 estado como esperado. Não sobe o frontend Reflex.
 
 A paridade de ``detect_all`` com a versão Streamlit é garantida por construção
-(mesma função ``queue.detect.detect_all_items``) e coberta por
+(mesma função ``job_queue.detect.detect_all_items``) e coberta por
 ``test_queue_detect.py`` / ``test_queue_determinism.py``.
 """
 
@@ -20,7 +20,7 @@ import pytest
 from tools.workflow_platform.config_loader import PlatformConfig
 from tools.workflow_platform.models import Epic, EpicState, ParsedRoadmap
 from tools.workflow_platform.preferences import Preferences
-from tools.workflow_platform.queue.detect import WorldState
+from tools.workflow_platform.job_queue.detect import WorldState
 from tools.workflow_platform.web.state import PlatformState, github_pr_url
 
 

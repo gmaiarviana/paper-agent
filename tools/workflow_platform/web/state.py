@@ -2,7 +2,7 @@
 
 ``PlatformState`` substitui as chaves soltas de ``st.session_state`` da
 versão Streamlit por um único ``rx.State`` no backend. O miolo
-(``parser``, ``config_loader``, ``preferences``, ``queue/*``, ``prompts/*``,
+(``parser``, ``config_loader``, ``preferences``, ``job_queue/*``, ``prompts/*``,
 ``world_state``, ``presenters``) é consumido intocado — só a camada de
 view/estado migra.
 
@@ -43,14 +43,14 @@ from tools.workflow_platform.prompts.refinement import (
     build_refinement_prompt,
     get_next_step,
 )
-from tools.workflow_platform.queue.detect import detect_all_items
-from tools.workflow_platform.queue.load import (
+from tools.workflow_platform.job_queue.detect import detect_all_items
+from tools.workflow_platform.job_queue.load import (
     LOAD_STATE_COLORS,
     QUEUE_TARGET_LIMIT,
     QueueLoadState,
     compute_load_state,
 )
-from tools.workflow_platform.queue.models import (
+from tools.workflow_platform.job_queue.models import (
     BranchPointer,
     EpicPointer,
     ItemType,

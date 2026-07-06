@@ -15,8 +15,8 @@ from tools.workflow_platform.models import (
     Milestone,
     ParsedRoadmap,
 )
-from tools.workflow_platform.queue.detect import WorldState
-from tools.workflow_platform.queue.git_helper import RemoteBranch
+from tools.workflow_platform.job_queue.detect import WorldState
+from tools.workflow_platform.job_queue.git_helper import RemoteBranch
 
 
 SNAPSHOT_NOW = datetime(2026, 4, 29, 12, 0, 0)

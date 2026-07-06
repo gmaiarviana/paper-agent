@@ -90,11 +90,14 @@ Livros em PDF/
 tools/workflow_platform/.preferences.json
 
 # Workflow platform — artefatos de runtime do Reflex (W-PILOTO-UX-1)
+# (comentários em linha própria: o .gitignore NÃO aceita comentário inline —
+#  `path  # x` viraria um padrão literal que não casa nada)
 tools/workflow_platform/.web/
 tools/workflow_platform/.states/
 tools/workflow_platform/assets/external/
-tools/workflow_platform/requirements.txt   # gerado pelo reflex run
-tools/workflow_platform/.gitignore          # gerado pelo reflex run
+# gerados pelo `reflex run` na pasta do app
+tools/workflow_platform/requirements.txt
+tools/workflow_platform/.gitignore
 
 .aider*
 

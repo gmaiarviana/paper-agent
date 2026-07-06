@@ -2,7 +2,7 @@
 
 Movido de ``views/queue.py`` na migração Streamlit → Reflex (W-PILOTO-UX-1).
 A função é view-agnóstica — faz ``git fetch``, lista branches remotas e monta
-o ``WorldState`` que ``queue/detect.py`` consome. Sem import de framework de UI.
+o ``WorldState`` que ``job_queue/detect.py`` consome. Sem import de framework de UI.
 """
 
 from __future__ import annotations
@@ -11,11 +11,11 @@ import subprocess
 from datetime import datetime
 
 from tools.workflow_platform.models import ParsedRoadmap
-from tools.workflow_platform.queue.detect import (
+from tools.workflow_platform.job_queue.detect import (
     DEFAULT_STALE_THRESHOLD_DAYS,
     WorldState,
 )
-from tools.workflow_platform.queue.git_helper import (
+from tools.workflow_platform.job_queue.git_helper import (
     RemoteBranch,
     list_remote_branches,
 )

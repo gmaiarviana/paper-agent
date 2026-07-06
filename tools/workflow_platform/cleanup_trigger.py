@@ -3,7 +3,7 @@
 Resolve o milestone a limpar casando os épicos em ``🔀 Em revisão`` cujo ``PR #N``
 é igual ao número de uma PR mergeada (W-PROTO-17), e devolve o ``milestone_id``
 único desses épicos. É o mesmo join por ``pr_number`` que a fila reativa usa em
-``queue/detect.py::detect_review_items``.
+``job_queue/detect.py::detect_review_items``.
 
 Originalmente o trigger da GitHub Action de cleanup; a Action foi aposentada e a
 faxina migrou para o **fold-in do dispatch** (``docs/process/autonomous/dispatch.md``

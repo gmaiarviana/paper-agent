@@ -9,7 +9,7 @@ from datetime import datetime
 
 import pytest
 
-from tools.workflow_platform.queue.models import (
+from tools.workflow_platform.job_queue.models import (
     EpicPointer,
     ItemType,
     PRPointer,

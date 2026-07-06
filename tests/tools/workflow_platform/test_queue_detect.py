@@ -10,7 +10,7 @@ from tools.workflow_platform.models import (
     Milestone,
     ParsedRoadmap,
 )
-from tools.workflow_platform.queue.detect import (
+from tools.workflow_platform.job_queue.detect import (
     WorldState,
     detect_all_items,
     detect_cleanup_items,
@@ -19,8 +19,8 @@ from tools.workflow_platform.queue.detect import (
     detect_review_items,
     detect_stale_branch_items,
 )
-from tools.workflow_platform.queue.git_helper import RemoteBranch
-from tools.workflow_platform.queue.models import (
+from tools.workflow_platform.job_queue.git_helper import RemoteBranch
+from tools.workflow_platform.job_queue.models import (
     BranchPointer,
     CleanupPointer,
     EpicPointer,

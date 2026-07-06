@@ -20,7 +20,7 @@
 **Objetivo:** trocar a camada de apresentação da plataforma de Streamlit para
 Reflex ([ADR 001](workflow/adr/001-stack-da-plataforma.md)), preservando todo o
 miolo stack-independente (`parser`, `models`, `config_loader`, `preferences`,
-`queue/*`, `prompts/*`). A primeira fatia entrega esqueleto Reflex + abas
+`job_queue/*`, `prompts/*`). A primeira fatia entrega esqueleto Reflex + abas
 Fila/Kanban funcionais, validando a decisão de stack no uso real; é fundação de
 todo o resto do milestone e pré-requisito do `PILOTO-WORKFLOW-CANAL-UNICO`.
 
@@ -63,7 +63,7 @@ preservando o miolo intocado.
 |---|---|---|
 | Dev | épico W-PILOTO-UX-1 \| func. 1.1 | `rxconfig.py`, `web/web.py`, `web/state.py`, `presenters.py`, `world_state.py`. Miolo intocado. |
 | QA | épico W-PILOTO-UX-1 \| func. 1.1 | `test_platform_state.py` (10 testes: on_load/select/toggle + roteamento dos 5 kinds do `_build_kanban_detail`). Import da `PlatformState` e build de `index()` OK. |
-| TL | épico W-PILOTO-UX-1 \| func. 1.1 | Padrão Reflex espelha `products/ensaio/app/`; view models tipados (`web/view_models.py`); `parser`, `prompts/*` e `queue/*` sem mudança de comportamento (exceção: `queue/load.py` — só referência em docstring). |
+| TL | épico W-PILOTO-UX-1 \| func. 1.1 | Padrão Reflex espelha `products/ensaio/app/`; view models tipados (`web/view_models.py`); miolo (`parser`, `prompts/*`, fila) sem mudança de comportamento. Fix de shadowing (revisão Windows): o pacote `queue/` foi renomeado para `job_queue/` — rename + ajuste de imports, **zero mudança de lógica** — porque um subpacote local `queue/` sombreia a stdlib no worker spawned do granian. |
 | PO | épico W-PILOTO-UX-1 \| func. 1.1 | `reflex run` sobe carregando config/ROADMAPs/prefs; estado da UI (aba/seleção/filtros) vive em `rx.State`. Verificado por screenshot. |
 | Dev | épico W-PILOTO-UX-1 \| func. 1.2 | `web/components/queue.py` + `web/components/detail.py`; detecção/prompts reusados intactos. |
 | QA | épico W-PILOTO-UX-1 \| func. 1.2 | Paridade de `detect_all` por construção (mesma função); `test_queue_view.py`/`test_queue_determinism.py` verdes. |
@@ -112,11 +112,20 @@ Piloto. A camada de view foi reescrita em Reflex (`rxconfig.py`, `web/web.py`,
 único `rx.State` (`PlatformState`). A lógica pura de apresentação e a construção
 do WorldState saíram dos módulos Streamlit para `presenters.py` e `world_state.py`
 (stack-independent). O miolo (`parser`, `models`, `config_loader`, `preferences`,
-`queue/*`, `prompts/*`, `cleanup_trigger`) ficou **sem mudança de comportamento**
-(única exceção: `queue/load.py` — referência em docstring `views/kanban.py` →
-`presenters.py`); a paridade de `detect_all` é garantida por construção. A camada
-Streamlit (`app.py` + `views/*`) foi removida; nenhum módulo da plataforma importa
-Streamlit (menções remanescentes são docstrings históricas da migração).
+`job_queue/*`, `prompts/*`, `cleanup_trigger`) ficou **sem mudança de comportamento**;
+a paridade de `detect_all` é garantida por construção. A camada Streamlit
+(`app.py` + `views/*`) foi removida; nenhum módulo da plataforma importa Streamlit
+(menções remanescentes são docstrings históricas da migração).
+
+**Fix de shadowing (revisão no Windows nativo).** O pacote da fila `queue/` foi
+**renomeado para `job_queue/`** (rename + ajuste de imports absolutos, zero mudança
+de lógica). Um subpacote local chamado `queue/` sombreia o módulo `queue` da stdlib
+quando o dir da app entra em `sys.path[0]` (`multiprocessing`/`urllib3`/`socketio`
+importam `queue`), matando o worker do granian com `AttributeError: module 'queue'
+has no attribute 'LifoQueue'`. Passava em POSIX (worker forkado herda `sys.modules`)
+e quebrava no Windows (worker spawned reimporta). Após o rename, `import queue`
+resolve pra stdlib em qualquer SO; app sobe funcional e renderiza (evidência por
+screenshot).
 
 **Validação:** 139 testes de `tests/tools/workflow_platform/` passam (10 em
 `test_platform_state.py`, cobrindo on_load/seleção/toggle + os 5 kinds de
