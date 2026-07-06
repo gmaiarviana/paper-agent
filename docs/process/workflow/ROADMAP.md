@@ -225,17 +225,15 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   - `DISPATCH` — milestone com todos épicos em 🔍 (apto a dispatch),
     sem épicos em 🏗️/🔀/✅. Ação esperada: copiar prompt de
     dispatch e rodar em sessão autônoma.
-    - **Limitação conhecida (multi-fatia):** a detecção é **atômica por
-      milestone** — exige *todos* os épicos em 🔍. Entrega faseada é
-      legítima (uma dependência intra-milestone pode fazer o dispatch
-      entregar só uma fatia, deixando as irmãs em 🔍), mas o milestone
-      **parcialmente entregue** (algumas fatias ✅ + resto 🔍) **não** é
-      re-surfaçado como DISPATCH — o `any(... in {🏗️,🔀,✅})` barra por
-      causa das fatias já entregues. Hoje a continuação é **dispatch
-      manual** ("implementa o `<MILESTONE>`" ou o épico específico);
-      a fila não lembra. Importa sobretudo na `PILOTO-WORKFLOW-PROATIVIDADE`
-      (auto-dispara o que `detect_dispatch` acha) — refinar lá como parte
-      do modelo de continuação de milestone parcial.
+    - **Limitação conhecida (multi-fatia) — em correção:** hoje a detecção é
+      **atômica por milestone** (exige *todos* os épicos em 🔍) e o
+      `any(... in {🏗️,🔀,✅})` barra o milestone **parcialmente entregue**
+      (algumas fatias ✅ + resto 🔍), tornando a continuação invisível à fila
+      (só dispatch manual). A correção está refinada em
+      **`W-PILOTO-DISP-1`** (milestone `PILOTO-WORKFLOW-DISPATCH-EPICO`):
+      dispatch/refino passam a ser **por épico**, gated por **predecessor
+      bloqueante** — entrega faseada vira first-class. Enquanto DISP-1 não
+      mergear, esta limitação vale.
   - `REVIEW` — PR de milestone aberta (épicos em 🔀). Ação esperada:
     abrir PR, colar Seção 🎯 no Copilot, decidir merge.
   - `STALE_BRANCH` — branch ativa há mais de N dias (N configurável
@@ -432,6 +430,33 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   concorrência e a cadência do agendamento ficam pro refinamento —
   default candidato: teto = 1. Julgamento (proponente/porta-voz) é MVP,
   não entra aqui.
+
+### PILOTO-WORKFLOW-DISPATCH-EPICO
+
+- **Objetivo:** dispatch **e** refino passam a operar por **épico**, não só por
+  milestone — a plataforma deixa o operador disparar/refinar uma fatia isolada
+  quando ela está no estágio certo (🔍 para dispatch; 📐/📋 para refino).
+  Introduz o **predecessor bloqueante**: épico (ou milestone) que depende de
+  outro ainda não `✅` **não** é oferecido como ação — some da Fila e aparece de
+  forma discreta e comunicada no Kanban. Resolve de raiz o ponto cego da detecção
+  atômica por milestone (milestone parcialmente entregue voltava invisível à
+  fila) e é fundação da `PILOTO-WORKFLOW-PROATIVIDADE` (que auto-dispara o que a
+  fila detecta como pronto).
+- **Estágio:** Piloto
+- **Épicos agrupados:** W-PILOTO-DISP-1 (dispatch/refino por épico + predecessor
+  bloqueante — dado, detecção, prompts, plataforma).
+- **Dependências de core:** W-PILOTO-UX-1 (fundação Reflex, já `✅`) e
+  PROTO-WORKFLOW-FILA (detectores da fila). **Não** depende de UX-2/3/4.
+- **Ordem na escada:** roda **após UX-1 (entregue) e antes de UX-2/3/4** — é o
+  mecanismo pelo qual as próprias fatias UX-2/3/4 serão despachadas; pegada de
+  view pequena (UX-2/3/4 reaproveitam por cima sem conflito grande).
+- **Branch associada:** `milestone/piloto-workflow-dispatch-epico`
+- **Status dos épicos:** W-PILOTO-DISP-1 `🔍`.
+- **Nota:** declarado e refinado a `🔍` em 2026-07-06, na sessão que descobriu o
+  ponto cego multi-fatia (dispatch da W-PILOTO-UX-1 entregue em fatia). Design
+  completo no bloco do épico. Milestone de mecânica de fila/dispatch — separado
+  do `PILOTO-WORKFLOW-UX` (polimento de cockpit invariante ao runtime) pela mesma
+  régua que já mandou o redesenho "ação = disparar" para o `CANAL-UNICO`.
 
 ### MVP-WORKFLOW-DOC
 
@@ -1045,6 +1070,79 @@ do `workflow.md` §"Faxina como fold-in" não pega ROADMAPs sem dispatch novo).
 2026-06-20 (refino do `PILOTO-WORKFLOW-UX`), ao notar a coluna/itens de
 CLEANUP exibindo trabalho já concluído. Capturado como seed em vez de fix
 direto no `detect.py` — a raiz é processual, não de exibição.
+
+---
+
+#### ÉPICO W-PILOTO-DISP-1: Dispatch e refino por épico, com predecessor bloqueante
+
+**Milestone:** `PILOTO-WORKFLOW-DISPATCH-EPICO`
+
+**Status:** 🔍 Detalhes definidos
+
+**Objetivo:** tornar dispatch e refino ações **por épico** e introduzir o
+**predecessor bloqueante** como gate de acionabilidade. Hoje `detect_dispatch` é
+atômico por milestone (exige todos os épicos em 🔍) e `build_dispatch_prompt`
+bloqueia se qualquer irmão está em 🏗️/🔀/✅ — o que torna um milestone
+parcialmente entregue invisível/impossível de continuar pela plataforma. Depois
+deste épico, cada épico 🔍 (dispatch) ou pré-🔍 (refino) é ação própria, e a única
+coisa que a suprime é um predecessor declarado ainda não `✅`.
+
+### Conceito: predecessor bloqueante
+
+Campo novo, opcional, no bloco do épico (e, quando fizer sentido, do milestone):
+
+```
+**Predecessor bloqueante:** W-PILOTO-UX-1
+```
+
+- Aceita 1+ IDs (épico ou milestone), separados por vírgula. Ausente/vazio = sem bloqueio.
+- **Satisfeito** quando o predecessor está em `✅` (DONE). Em qualquer outro estado
+  (inclusive 🔀 Em revisão — PR aberta mas não mergeada), o dependente está **bloqueado**.
+- Uma regra compartilhada (`is_blocked_by_predecessor`) serve dispatch **e** refino.
+
+### Funcionalidades:
+
+#### 1.1 Dado — campo `**Predecessor bloqueante:**` (parser + modelo)
+- **Descrição:** o parser lê o campo e popula `Epic.blocking_predecessors: list[str]`.
+- **Critérios de Aceite:**
+  - Campo ausente → lista vazia; presente → IDs parseados (trim + split por vírgula).
+  - Campo desconhecido não gera warning espúrio (paridade com os campos atuais do épico).
+  - Registrar os predecessores já existentes na fonte: UX-2, UX-3, UX-4 → `W-PILOTO-UX-1`.
+
+#### 1.2 Detecção por épico + gate de predecessor
+- **Descrição:** `detect_dispatch_items` e `detect_refine_items` passam a emitir
+  **1 item por épico** e a suprimir os bloqueados.
+- **Critérios de Aceite:**
+  - `detect_dispatch`: 1 item por épico em 🔍 cujos predecessores estão **todos ✅**.
+    Épico 🔍 com predecessor não-✅ **não** gera item. (Substitui a lógica atômica por
+    milestone — milestone parcialmente entregue passa a surfaçar as fatias 🔍 restantes.)
+  - `detect_refine`: 1 item por épico em 📐/📋 cujos predecessores estão todos ✅;
+    bloqueado não gera item.
+  - REVIEW / CLEANUP / STALE_BRANCH **não** mudam — não são "começar trabalho em X".
+
+#### 1.3 Prompts por épico
+- **Descrição:** `build_dispatch_prompt` e `build_refinement_prompt` operam sobre o épico-alvo.
+- **Critérios de Aceite:**
+  - Dispatch: prompt `"implementa o épico <ID>"`; predecessor não-✅ → `blocked=True`,
+    sem prompt, com motivo ("bloqueado por <ID> — precisa estar ✅").
+  - Refino: idem, sobre o épico.
+  - O prompt **não** bloqueia mais só porque um irmão do milestone está em 🏗️/🔀/✅.
+
+#### 1.4 Plataforma — Fila oculta, Kanban comunica
+- **Descrição:** a Fila deixa de listar o bloqueado; o Kanban o mantém visível **com
+  comunicação de bloqueio**.
+- **Critérios de Aceite:**
+  - **Fila:** épico bloqueado **não** aparece como item de ação.
+  - **Kanban:** o card do bloqueado (na coluna 🔍/📐) exibe selo discreto (🔒 +
+    "aguardando <ID>") e **permanece clicável**.
+  - **Painel de detalhe:** bloqueado → sem botão/prompt de ação; no lugar,
+    "🔒 Bloqueado por <ID> (precisa estar ✅)".
+
+### Fora do escopo
+- Disparar de dentro da plataforma (headless) — é `PILOTO-WORKFLOW-CANAL-UNICO`.
+- Auto-dispatch do que está pronto — é `PILOTO-WORKFLOW-PROATIVIDADE`.
+- Grafo de dependências rico / ordenação topológica — só o predecessor bloqueante
+  direto ("está ✅ ou não").
 
 ---
 
