@@ -1432,7 +1432,7 @@ buckets já fixados em `views/queue.py::_TYPE_ORDER`
 (`DISPATCH→REVIEW→REFINE→CLEANUP→STALE_BRANCH`); as duas seções (3.4) agrupam
 esses buckets pelas duas naturezas.
 
-**b) Dados e contratos — 3 campos de estado novos em `PlatformState` (UX-1).**
+**b) Dados e contratos — 2 campos de estado novos em `PlatformState` (UX-1).**
 UX-3 é view-only sobre a detecção; **não muda `QueueItem` nem `queue/detect.py`**.
 
 | campo | tipo | default | funcionalidade |
