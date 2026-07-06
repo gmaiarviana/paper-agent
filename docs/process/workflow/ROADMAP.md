@@ -225,6 +225,17 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   - `DISPATCH` — milestone com todos épicos em 🔍 (apto a dispatch),
     sem épicos em 🏗️/🔀/✅. Ação esperada: copiar prompt de
     dispatch e rodar em sessão autônoma.
+    - **Limitação conhecida (multi-fatia):** a detecção é **atômica por
+      milestone** — exige *todos* os épicos em 🔍. Entrega faseada é
+      legítima (uma dependência intra-milestone pode fazer o dispatch
+      entregar só uma fatia, deixando as irmãs em 🔍), mas o milestone
+      **parcialmente entregue** (algumas fatias ✅ + resto 🔍) **não** é
+      re-surfaçado como DISPATCH — o `any(... in {🏗️,🔀,✅})` barra por
+      causa das fatias já entregues. Hoje a continuação é **dispatch
+      manual** ("implementa o `<MILESTONE>`" ou o épico específico);
+      a fila não lembra. Importa sobretudo na `PILOTO-WORKFLOW-PROATIVIDADE`
+      (auto-dispara o que `detect_dispatch` acha) — refinar lá como parte
+      do modelo de continuação de milestone parcial.
   - `REVIEW` — PR de milestone aberta (épicos em 🔀). Ação esperada:
     abrir PR, colar Seção 🎯 no Copilot, decidir merge.
   - `STALE_BRANCH` — branch ativa há mais de N dias (N configurável
@@ -345,9 +356,12 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
   mergeada e da [ADR 001](adr/001-stack-da-plataforma.md).
 - **Branch associada:** `milestone/piloto-workflow-ux`
-- **Status dos épicos:** W-PILOTO-UX-1 🔀 Em revisão (PR #135), W-PILOTO-UX-2 🔍,
-  W-PILOTO-UX-3 🔍, W-PILOTO-UX-4 🔍. **UX-1 (fundação Reflex) em revisão;
-  UX-2/3/4 aguardam UX-1 mergear antes de implementar** (dependência declarada).
+- **Status dos épicos:** W-PILOTO-UX-1 ✅ (PR #135, merge `85edd30`),
+  W-PILOTO-UX-2 🔍, W-PILOTO-UX-3 🔍, W-PILOTO-UX-4 🔍. **UX-1 (fundação Reflex)
+  mergeada; a dependência declarada ("UX-2/3/4 aguardam UX-1 mergear") está
+  satisfeita — as três fatias restantes ficam aptas ao próximo dispatch.**
+  Milestone parcialmente entregue: continua **aberto** (UX-1 é stub `✅`, janela
+  de progresso intra-milestone; poda só no fechamento — ver `epic_completion.md`).
 - **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
   2026-06-17 a partir da revisão da PR #121) e o seed `W-PILOTO-FILA-UX-1`,
   cujas duas frições foram redistribuídas (painel some → UX-2; redundância
@@ -370,7 +384,7 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
   passo natural: spike de viabilidade do Reflex e descida de UX-1 a `🔍`.
 - **Refinamento a 🔍 (2026-07-04):** spike de viabilidade do Reflex **executado
   e aprovado** (two-pane sticky + tarefa de segundo plano cobertos por props
-  nativas; ver bloco "Refinamento a 🔍" no épico W-PILOTO-UX-1). UX-1 descido a
+  nativas; detalhes do spike em `.claudecode.md` §2.6 após a entrega da UX-1). UX-1 descido a
   `🔍 Detalhes definidos` — apto ao fluxo autônomo. Correção de acoplamento
   registrada: o critério 1.4 deixa de "remover streamlit do requirements" e passa
   a "remover só os imports da plataforma" — a linha `streamlit>=1.30.0` é do
@@ -616,8 +630,8 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1 `🔀` em revisão — PR #135;
-> UX-2/3/4 em `🔍`, aguardando UX-1 mergear) · `PILOTO-WORKFLOW-CANAL-UNICO` ·
+> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1 `✅` mergeada — PR #135;
+> UX-2/3/4 em `🔍`, aptas ao próximo dispatch) · `PILOTO-WORKFLOW-CANAL-UNICO` ·
 > `PILOTO-WORKFLOW-PROATIVIDADE`.
 > Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
 > CANAL-UNICO e PROATIVIDADE nos cards de milestone acima (ainda `🌱`); só
@@ -638,192 +652,9 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 **Milestone:** `PILOTO-WORKFLOW-UX`
 
-**Objetivo:** trocar a camada de apresentação da plataforma de Streamlit para Reflex ([ADR 001](adr/001-stack-da-plataforma.md)), preservando todo o miolo stack-independente (`tools/workflow_platform/parser.py`, `models.py`, `queue/*`, `prompts/*`, `config_loader.py`, `preferences.py`). A primeira fatia entrega esqueleto Reflex + aba Fila funcional, validando a decisão de stack no uso real; a segunda porta o Kanban. Fundação de todo o resto do milestone e pré-requisito do `PILOTO-WORKFLOW-CANAL-UNICO`.
+**Status:** ✅ Implementado
 
-**Status:** 🔀 Em revisão — PR https://github.com/gmaiarviana/paper-agent/pull/135
-
-> **Ressalva de escopo (evidência):** o miolo ficou sem mudança de
-> comportamento. Único ajuste estrutural: o pacote da fila `queue/` foi
-> **renomeado para `job_queue/`** (rename + ajuste de imports, zero mudança de
-> lógica) — corrige um bug de shadowing achado na validação no **Windows nativo**:
-> um subpacote local `queue/` sombreia a stdlib `queue` e mata o worker do granian
-> (worker spawned no Windows; forkado no POSIX mascarava). A retirada do Streamlit
-> é verificada por ausência de **imports** (`grep -rnE '^\s*(import streamlit|from
-> streamlit)' tools/workflow_platform/` → vazio); menções remanescentes a
-> "Streamlit" são referências históricas em docstrings.
-
-> **Fix de performance do filtro (revisão Windows, dentro da fatia UX-1):**
-> marcar/desmarcar ROADMAP no sidebar (`toggle_roadmap`) fazia `git fetch` de rede
-> a cada clique — o filtro só muda a visibilidade, não a remote. Passou a redetectar
-> **local** (`do_fetch=False`); o fetch de rede fica só no `on_load` e no botão
-> 🔄 Recarregar. Atualização do filtro vira instantânea. Não é item futuro. PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o pin Reflex já existente no `requirements.txt` (`reflex==0.9.0` + `reflex-base==0.9.0`, do Ensaio) e o padrão de setup de `products/ensaio/rxconfig.py`.
-
-### Refinamento a 🔍 (2026-07-04) — spike + contratos
-
-**Spike de viabilidade do Reflex — resolvido (PASS).** Reproduzido com Reflex
-0.9.0 (mesmo pin do Ensaio):
-
-- **Two-pane sticky + scroll independente (requisito de UX-2):** `rx.hstack` de
-  dois `rx.box` — coluna-lista com `overflow_y="auto"` + `height="100vh"`,
-  coluna-detalhe com `position="sticky"` + `top="0"`. As props
-  `sticky`/`overflowY`/`top`/`100vh` chegam ao render compilado — layout nativo,
-  sem hack. (O Ensaio já usa `overflow_y="auto"` por coluna em produção:
-  `products/ensaio/app/components/`.)
-- **Tarefa de segundo plano com progresso ao vivo (driver do canal único):**
-  `@rx.event(background=True)` + `async with self:` + `yield` empurra estado
-  incremental pro cliente. Mesmo padrão de `EnsaioState.send_message`
-  (`products/ensaio/app/state.py`) — provado em produção. Confirma que o
-  streaming de segundo plano que o `PILOTO-WORKFLOW-CANAL-UNICO` vai precisar
-  não exige framework diferente.
-- Conclusão: **a decisão de stack do ADR 001 está validada tecnicamente**; o
-  épico desce a 🔍.
-
-**a) Termos e conceitos.** Sem termo comportamental novo — a migração preserva o
-vocabulário existente (item de fila, épico, estado). "Miolo stack-independente" =
-`parser.py`, `models.py`, `config_loader.py`, `preferences.py`, `queue/*`,
-`prompts/*` (nenhum importa Streamlit; verificado por `grep`). Estados de épico:
-[`planning_guidelines.md` §Estados de Épico](../refinement/planning_guidelines.md#estados-de-épico).
-
-**b) Dados e contratos — estado migra de `st.session_state` para `rx.State`.**
-Um único `rx.State` (`PlatformState`) substitui as chaves soltas de
-`st.session_state`. Chaves atuais → destino:
-
-| `st.session_state` (hoje) | `rx.State` (Reflex) | tipo |
-|---|---|---|
-| `platform_config` | campos usados extraídos no `on_load`: `github_owner`, `github_repo`, `repo_root`, `roadmaps` | str/list |
-| `parsed_roadmaps_all` | `roadmaps_all: list[dict]` (ParsedRoadmap serializado) | list |
-| `preferences` / `preferences_error` | `visible_roadmaps: list[str] \| None`, `stale_threshold_days: int`, `prefs_error: str` | — |
-| `queue_items` / `queue_fetch_warning` | `queue_items: list[dict]`, `fetch_warning: str` | list/str |
-| `selected_queue_item_id` | `selected_item_id: str` | str |
-| `selected_epic_id` / `selected_milestone_id` | `selected_epic_id: str`, `selected_milestone_id: str` | str |
-| `show_warnings_dialog` | `show_warnings: bool` | bool |
-| `visible_{rel}` (checkbox) | `visible_roadmaps` + handler `toggle_roadmap` | — |
-| aba ativa (`st.tabs`) | `active_tab: str` (`"fila"`\|`"kanban"`) | str |
-
-Objetos ricos (`Epic`, `QueueItem`, `ParsedRoadmap`, ponteiros) **não** entram
-crus no `rx.State` — Reflex exige vars serializáveis (o Ensaio guarda dicts, cf.
-`state.py`). Contrato: `@rx.var` computed reconstroem/filtram; os builders de
-prompt (`build_dispatch_prompt`, `build_refinement_prompt`,
-`build_prompt_for_item`) recebem os objetos ricos reconstruídos sob demanda a
-partir dos ROADMAPs parseados — a **mesma reconstrução** que
-`views/queue.py::render_queue_item_detail` já faz hoje. Divergência declarada:
-`st.dialog` (avisos do parser) vira `rx.dialog`/painel condicional — sem
-equivalente 1:1.
-
-**c) Código-alvo e integração.**
-
-- **Criar** (camada de view Reflex, sob `tools/workflow_platform/`):
-  - `rxconfig.py` — `rx.Config(app_name=...)` + repo root no `sys.path`
-    (espelha `products/ensaio/rxconfig.py`); portas distintas das do Ensaio
-    (3000/8000) p/ coexistir.
-  - `web/web.py` — `rx.App()` + `add_page(index, on_load=PlatformState.on_load)`;
-    módulo apontado por `rxconfig.app_name`.
-  - `web/state.py` — `PlatformState(rx.State)` (shape acima), `on_load` rodando
-    `load_config`/`parse_roadmap`/`load_preferences`/`build_world_state`/
-    `detect_all_items` e populando os campos; handlers `select_item`,
-    `select_epic`, `toggle_roadmap`, `reload`, `set_active_tab`.
-  - `web/components/{queue,kanban,detail,sidebar}.py` — os `render_*` reescritos
-    como funções que retornam `rx.Component`.
-- **Modificar:** `requirements.txt` (ver Acoplamentos — reflex já pinado, nada a
-  adicionar); `.gitignore` (+ `tools/workflow_platform/.web/`).
-- **Remover** (funcionalidade 1.4): `app.py`, `views/*.py` (camada Streamlit).
-- **Não tocar (miolo):** `parser.py`, `models.py`, `config_loader.py`,
-  `preferences.py`, `queue/*`, `prompts/*`, `cleanup_trigger.py`.
-- **Mecanismo de integração:** `reflex run` a partir de
-  `tools/workflow_platform/` lê `rxconfig.py`, carrega o módulo `app_name`,
-  compila o front e sobe o backend (`rx.State` no servidor). Substitui
-  `streamlit run tools/workflow_platform/app.py`.
-- **Template de estilo:** `products/ensaio/app/` (`app.py`, `state.py`,
-  `components/*`) — mesma estrutura `rx.App` + `rx.State` + componentes puros.
-
-**d) Acoplamentos — inspecionados, não assumidos.**
-
-- **`streamlit` é compartilhado com o Revelar** (`requirements.txt`:
-  `streamlit>=1.30.0   # Revelar`). **Correção do critério 1.4 original**
-  ("streamlit sai do requirements"): a linha do `requirements.txt` **permanece**
-  (é do Revelar); o que UX-1 remove é o **import de Streamlit da plataforma**
-  (`app.py` + `views/*`). Remover a linha quebraria o Revelar — fora de escopo.
-- **`reflex==0.9.0` + `reflex-base==0.9.0` já estão em `requirements.txt`** (pin
-  do Ensaio, com nota sobre o dep interno não-pinado upstream). UX-1 **não
-  adiciona dependência nova** — reusa o pin; nenhum consumidor novo do reflex
-  além da plataforma.
-- **Produtos consumidores de código compartilhado:** nenhum. A migração toca só
-  `tools/workflow_platform/` (view) — não toca `core/` nem `products/`. Revelar
-  (Streamlit) e Ensaio (Reflex) seguem intocados; o único acoplamento é o pin
-  compartilhado, já coberto acima.
-- Miolo import-safe confirmado: `grep -rl streamlit tools/workflow_platform`
-  casa só `app.py` e `views/*` — nenhum módulo do miolo importa Streamlit.
-
-**e) Sequência e testes.**
-
-- **Ordem:** 1.1 (esqueleto + estado) → 1.2 (Fila, fatia fina) → 1.3 (Kanban) →
-  1.4 (paridade + retirada do Streamlit). 1.1 é fundação; 1.4 fecha.
-- **Miolo já coberto:** `parser`, `queue/detect`, `prompts/*` têm testes unit em
-  `tests/tools/workflow_platform/` e **não mudam** — a paridade de `detect_all`
-  (critério de 1.2) é garantida por construção (mesma função). A suíte existente
-  é regressão suficiente do miolo.
-- **Camada de view (Reflex):** validação manual via `reflex run` + roteiro de
-  paridade por funcionalidade (mesma abordagem dos roteiros já em
-  `views/kanban.py`). Observável por funcionalidade:
-  - 1.1 — `reflex run` sobe sem erro; `on_load` popula `roadmaps_all` e
-    `queue_items` (smoke test que instancia `PlatformState` e chama `on_load`).
-  - 1.2 — para um WorldState fixo, a lista renderizada = `detect_all(state)`;
-    clique seleciona item e mostra prompt clipboard-ready.
-  - 1.3 — 8 colunas, épicos agrupados por milestone; clique mostra ação por estado.
-  - 1.4 — preferências/filtro/badge com paridade; `grep -rl streamlit
-    tools/workflow_platform` → vazio; `.web/` no `.gitignore`.
-- **Teste automatizável:** `tests/tools/workflow_platform/test_platform_state.py`
-  — instancia `PlatformState`, roda `on_load` contra ROADMAP fixture, assevera
-  `queue_items`/`roadmaps_all` populados e que `select_item`/`toggle_roadmap`
-  mutam o estado esperado (não sobe frontend).
-
-**f) Centralidade da visão.** A migração Reflex é declarada **fundação central**
-do Piloto (vision §"Forma da Plataforma > Plataforma como canal único"; ADR 001).
-Preservada e avançada — nada central cortado. UX-1 é view-only: detecção, parse
-e prompts (o valor consolidado no Protótipo) ficam intactos.
-
-### Funcionalidades:
-
-#### 1.1 Esqueleto Reflex + estado no backend
-
-- **Descrição:** App Reflex com `rx.State` no backend substitui o entrypoint Streamlit; config, load de ROADMAPs e preferences portados a partir de `app.py`.
-- **Critérios de Aceite:**
-  - Deve subir via `reflex run` carregando `config.yaml`, ROADMAPs configurados e preferences sem erro.
-  - O estado da UI (aba ativa, seleção, filtros) deve viver em `rx.State`, não em `st.session_state`.
-  - Deve importar o miolo (`parser`, `config_loader`, `preferences`, `queue/*`, `prompts/*`) sem modificá-lo.
-  - Não deve introduzir lógica de detecção/parse/prompt nova — só a camada de view/estado migra.
-
-#### 1.2 Porte da aba Fila
-
-- **Descrição:** Aba Fila (detecção + cards por item + ação copiável) em Reflex, com `queue/detect.py` e os builders de `prompts/*` intocados. Primeira fatia fina — valida a decisão de stack no uso real.
-- **Critérios de Aceite:**
-  - Para um mesmo estado-do-mundo, deve listar os mesmos itens da versão Streamlit (mesma saída de `detect_all`).
-  - Selecionar um item deve exibir detalhe + ação copiável (prompt clipboard-ready) equivalentes aos atuais.
-  - Deve ser a aba default, como hoje.
-  - O painel de detalhe (`card_detail`) é portado com **paridade de comportamento**, incluindo a posição atual (rodapé) — o reposicionamento na co-visibilidade é escopo de W-PILOTO-UX-2.
-
-#### 1.3 Porte da aba Kanban
-
-- **Descrição:** Kanban (8 colunas por estado, cards agrupados por milestone) em Reflex.
-- **Critérios de Aceite:**
-  - Deve exibir as 8 colunas (🌱→✅) consolidando épicos de todos os ROADMAPs configurados, agrupados por milestone.
-  - Selecionar um épico deve exibir o painel com as ações contextuais por estado já existentes (dispatch para `🔍`; links para `🏗️`/`🔀`/`✅`).
-  - Continuidade de seleção entre Fila e Kanban fica fora deste épico (é W-PILOTO-UX-2.3) — cada aba mantém seleção própria, como hoje.
-
-#### 1.4 Paridade funcional + retirada do Streamlit
-
-- **Descrição:** Fechar a paridade (preferências persistidas, filtro por ROADMAP, badge de carga) e remover a camada Streamlit.
-- **Critérios de Aceite:**
-  - Preferências (`preferences.json`), filtro por ROADMAP e badge de carga (`<n>/20` + banner OVER_LIMIT) devem ler/gravar e renderizar com paridade à versão Streamlit.
-  - `app.py` e `views/*` Streamlit removidos ao final; nenhum módulo de `tools/workflow_platform/` importa Streamlit (`grep -rl streamlit tools/workflow_platform/` → vazio). **A linha `streamlit>=1.30.0` do `requirements.txt` permanece** — é do Revelar, não da plataforma (ver Acoplamentos); removê-la quebraria o Revelar.
-  - `tools/workflow_platform/.web/` (build do Reflex) deve estar no `.gitignore`.
-
-**Nota:** o **spike de viabilidade do Reflex** (sticky/two-pane + tarefa de segundo plano) exigido antes de descer a `🔍` foi **executado e passou** (2026-07-04) — ver "Refinamento a 🔍" acima. Confirma que o framework cobre os requisitos de UX-2 e do canal único com props nativas, sem hack.
-
-### Fora do escopo
-
-- Implementar o clique-dispara-execução — é `PILOTO-WORKFLOW-CANAL-UNICO`.
-- Mudar a lógica de detecção/parse/prompt — só a camada de view migra.
+**Entregue em:** PR [#135](https://github.com/gmaiarviana/paper-agent/pull/135) (merge `85edd30`, 2026-07-06) — camada de view da plataforma migrada de Streamlit para Reflex ([ADR 001](adr/001-stack-da-plataforma.md)): esqueleto `rx.State`, abas Fila/Kanban portadas, imports Streamlit da plataforma retirados. Miolo stack-independente preservado; subpacote `queue/` renomeado para `job_queue/` (fix de shadowing da stdlib no Windows). Descobertas de Reflex (spike two-pane sticky + tarefa de segundo plano, dataclasses tipados, gotchas do `reflex run`) extraídas para `.claudecode.md` §2.6 — contexto dos irmãos UX-2/3/4.
 
 ---
 
