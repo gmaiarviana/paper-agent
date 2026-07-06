@@ -14,8 +14,8 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
-from tools.workflow_platform.queue.detect import detect_all_items
-from tools.workflow_platform.queue.models import QueueItem
+from tools.workflow_platform.job_queue.detect import detect_all_items
+from tools.workflow_platform.job_queue.models import QueueItem
 
 from tests.tools.workflow_platform.fixtures.world_state import (
     SNAPSHOT_THRESHOLD_DAYS,
@@ -80,7 +80,7 @@ def test_detect_snapshot():
     (ou rodar o trecho abaixo em REPL e gravar)::
         from tests.tools.workflow_platform.fixtures.world_state \\
             import make_world_state_fixture
-        from tools.workflow_platform.queue.detect import detect_all_items
+        from tools.workflow_platform.job_queue.detect import detect_all_items
         items = detect_all_items(make_world_state_fixture(), threshold_days=7)
         # serializar via _serialize_items deste arquivo
     """

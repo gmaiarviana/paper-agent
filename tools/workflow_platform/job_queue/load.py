@@ -5,7 +5,7 @@ e mapeia para cores de fundo. Limite alvo declarado em vision §"Fila"
 (20 itens); aproximação em 75% (15 itens — buffer cognitivo de 5).
 
 Constantes nomeadas e função pura — espelha
-``tools/workflow_platform/views/kanban.py::KANBAN_COLUMN_ORDER``.
+``tools/workflow_platform/presenters.py::KANBAN_COLUMN_ORDER``.
 """
 
 from __future__ import annotations

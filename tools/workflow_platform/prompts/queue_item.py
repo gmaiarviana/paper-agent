@@ -15,7 +15,7 @@ from __future__ import annotations
 from tools.workflow_platform.models import Epic
 from tools.workflow_platform.prompts.dispatch import build_dispatch_prompt
 from tools.workflow_platform.prompts.refinement import build_refinement_prompt
-from tools.workflow_platform.queue.models import (
+from tools.workflow_platform.job_queue.models import (
     BranchPointer,
     CleanupPointer,
     EpicPointer,

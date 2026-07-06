@@ -338,9 +338,9 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 - **Dependências de core:** nenhuma; depende de PROTO-WORKFLOW-FILA
   mergeada e da [ADR 001](adr/001-stack-da-plataforma.md).
 - **Branch associada:** `milestone/piloto-workflow-ux`
-- **Status dos épicos:** W-PILOTO-UX-1 🔍, W-PILOTO-UX-2 🔍,
-  W-PILOTO-UX-3 🔍, W-PILOTO-UX-4 🔍. **Milestone apto ao fluxo autônomo**
-  (todos os 4 em 🔍).
+- **Status dos épicos:** W-PILOTO-UX-1 🔀 Em revisão (PR #135), W-PILOTO-UX-2 🔍,
+  W-PILOTO-UX-3 🔍, W-PILOTO-UX-4 🔍. **UX-1 (fundação Reflex) em revisão;
+  UX-2/3/4 aguardam UX-1 mergear antes de implementar** (dependência declarada).
 - **Nota:** **absorve o antigo PILOTO-WORKFLOW-FILA-UX** (declarado
   2026-06-17 a partir da revisão da PR #121) e o seed `W-PILOTO-FILA-UX-1`,
   cujas duas frições foram redistribuídas (painel some → UX-2; redundância
@@ -1001,12 +1001,14 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 ### ⏳ Fase Piloto
 
-> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1/2/3/4 em `🔍` — **apto a
-> dispatch**) · `PILOTO-WORKFLOW-CANAL-UNICO` · `PILOTO-WORKFLOW-PROATIVIDADE`.
+> **Milestones:** `PILOTO-WORKFLOW-UX` (W-PILOTO-UX-1 `🔀` em revisão — PR #135;
+> UX-2/3/4 em `🔍`, aguardando UX-1 mergear) · `PILOTO-WORKFLOW-CANAL-UNICO` ·
+> `PILOTO-WORKFLOW-PROATIVIDADE`.
 > Escada de execução: **UX → Canal único → Proatividade**. Escopo macro de
 > CANAL-UNICO e PROATIVIDADE nos cards de milestone acima (ainda `🌱`); só
-> `PILOTO-WORKFLOW-UX` tem épicos refinados — os 4 em `🔍`, milestone apto a
-> dispatch (2026-07-04). Seed órfão na fase (sem milestone):
+> `PILOTO-WORKFLOW-UX` tem épicos refinados. Fundação Reflex (UX-1) implementada
+> e em revisão (2026-07-04); UX-2/3/4 seguem para dispatch sobre a fundação
+> mergeada. Seed órfão na fase (sem milestone):
 > `W-PILOTO-HIGIENE-1` (cleanup efetivo / ROADMAP enxuto, `🌱`).
 
 > **Nota de refinamento (2026-06-19).** O seed `W-PILOTO-FILA-UX-1` (🌱,
@@ -1023,9 +1025,23 @@ alimenta W-PROTO-5/6/7 (refinamento do ciclo de encerramento).
 
 **Objetivo:** trocar a camada de apresentação da plataforma de Streamlit para Reflex ([ADR 001](adr/001-stack-da-plataforma.md)), preservando todo o miolo stack-independente (`tools/workflow_platform/parser.py`, `models.py`, `queue/*`, `prompts/*`, `config_loader.py`, `preferences.py`). A primeira fatia entrega esqueleto Reflex + aba Fila funcional, validando a decisão de stack no uso real; a segunda porta o Kanban. Fundação de todo o resto do milestone e pré-requisito do `PILOTO-WORKFLOW-CANAL-UNICO`.
 
-**Status:** 🔍 Detalhes definidos
+**Status:** 🔀 Em revisão — PR https://github.com/gmaiarviana/paper-agent/pull/135
 
-**Dependências:** PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o pin Reflex já existente no `requirements.txt` (`reflex==0.9.0` + `reflex-base==0.9.0`, do Ensaio) e o padrão de setup de `products/ensaio/rxconfig.py`.
+> **Ressalva de escopo (evidência):** o miolo ficou sem mudança de
+> comportamento. Único ajuste estrutural: o pacote da fila `queue/` foi
+> **renomeado para `job_queue/`** (rename + ajuste de imports, zero mudança de
+> lógica) — corrige um bug de shadowing achado na validação no **Windows nativo**:
+> um subpacote local `queue/` sombreia a stdlib `queue` e mata o worker do granian
+> (worker spawned no Windows; forkado no POSIX mascarava). A retirada do Streamlit
+> é verificada por ausência de **imports** (`grep -rnE '^\s*(import streamlit|from
+> streamlit)' tools/workflow_platform/` → vazio); menções remanescentes a
+> "Streamlit" são referências históricas em docstrings.
+
+> **Fix de performance do filtro (revisão Windows, dentro da fatia UX-1):**
+> marcar/desmarcar ROADMAP no sidebar (`toggle_roadmap`) fazia `git fetch` de rede
+> a cada clique — o filtro só muda a visibilidade, não a remote. Passou a redetectar
+> **local** (`do_fetch=False`); o fetch de rede fica só no `on_load` e no botão
+> 🔄 Recarregar. Atualização do filtro vira instantânea. Não é item futuro. PROTO-WORKFLOW-FILA mergeada; [ADR 001](adr/001-stack-da-plataforma.md). Reusa o pin Reflex já existente no `requirements.txt` (`reflex==0.9.0` + `reflex-base==0.9.0`, do Ensaio) e o padrão de setup de `products/ensaio/rxconfig.py`.
 
 ### Refinamento a 🔍 (2026-07-04) — spike + contratos
 

@@ -7,7 +7,7 @@ import pytest
 
 from tools.workflow_platform.models import Epic, EpicState
 from tools.workflow_platform.prompts.queue_item import build_prompt_for_item
-from tools.workflow_platform.queue.models import (
+from tools.workflow_platform.job_queue.models import (
     BranchPointer,
     CleanupPointer,
     EpicPointer,

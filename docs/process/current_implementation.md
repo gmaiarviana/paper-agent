@@ -1,388 +1,150 @@
-# Implementação Atual: Milestone PROTO-WORKFLOW-FILA
+# Implementação Atual: Milestone PILOTO-WORKFLOW-UX (fatia W-PILOTO-UX-1)
 
-**Milestone:** PROTO-WORKFLOW-FILA — fila reativa + chat focado por item + auto-regulação básica + persistência de preferências
+**Milestone:** PILOTO-WORKFLOW-UX — reconstruir o cockpit em Reflex com o polimento embutido
 **Produto:** workflow
-**Estágio:** Protótipo
-**Branch:** `claude/execute-project-workflow-yoTQ7` (harness-assigned; equivalente a `milestone/proto-workflow-fila` no fluxo manual)
+**Estágio:** Piloto
+**Branch:** `claude/docs-process-workflow-gk9hac` (harness-assigned; equivalente a `milestone/piloto-workflow-ux` no fluxo manual)
 **Modo:** Autônomo
-**Dispatch recebido em:** 2026-04-30
+**Dispatch recebido em:** 2026-07-04
+
+> **Escopo desta PR:** apenas **W-PILOTO-UX-1** (migração Reflex — fundação).
+> Os 4 épicos do milestone estão em `🔍`, mas o ROADMAP declara que **UX-2/3/4
+> dependem de UX-1 mergear** (fundação Reflex) antes de implementar. Logo, o
+> único pronto para implementar agora é UX-1, entregue aqui como PR própria.
+> UX-2/3/4 seguem para um dispatch posterior sobre a fundação já mergeada.
 
 ---
 
 ## Contexto do Milestone
 
-**Objetivo:** plataforma ganha fila reativa de decisões + chat focado por item + auto-regulação básica. Sinais óbvios do repo (épico em 🔍 esperando dispatch, PR de milestone aberta, branch parada) viram itens de fila por regra determinística — sem agente proativo ainda. Operador atende na ordem que escolher; ordenação por recência da detecção. Fonte da verdade: markdown + estado git/GitHub. Sem persistência própria — fila é view derivada, reconstruída do zero a cada render.
+**Objetivo:** trocar a camada de apresentação da plataforma de Streamlit para
+Reflex ([ADR 001](workflow/adr/001-stack-da-plataforma.md)), preservando todo o
+miolo stack-independente (`parser`, `models`, `config_loader`, `preferences`,
+`job_queue/*`, `prompts/*`). A primeira fatia entrega esqueleto Reflex + abas
+Fila/Kanban funcionais, validando a decisão de stack no uso real; é fundação de
+todo o resto do milestone e pré-requisito do `PILOTO-WORKFLOW-CANAL-UNICO`.
 
-**Épicos agrupados:** W-PROTO-FILA-1, W-PROTO-FILA-2, W-PROTO-FILA-3, W-PROTO-FILA-4 (ordem de execução interna conforme dependências declaradas).
-
-**Dependências de core:** nenhuma. PLAT-1..4 e FAXINA já mergeados (PR #93/#117).
-
----
-
-## Sizing (EM) — 2026-04-30 10:06
-
-- Milestone: PROTO-WORKFLOW-FILA (Protótipo, workflow)
-- Épicos avaliados: 4
-- Funcionalidades: 10 (FILA-1: 3 + FILA-2: 2 + FILA-3: 2 + FILA-4: 3)
-- Fator de risco médio: 1.0 (sem refator declarado, sem integração com sistema externo, sem dependência core não-✅; deps são internas do workflow_platform)
-- Cálculo: 10 × 200 × 1.0 = **2000 LOC estimado**
-- Decisão: **FIT** (≤ 3000)
-- Linha persistida em `docs/process/sizing/history.jsonl` (`session_outcome=pending`)
-
----
-
-## Ordem de execução interna
-
-1. **W-PROTO-FILA-1** primeiro (modelos `queue/models.py` + detecção `queue/detect.py` + snapshot determinístico — funda a base que todos os outros consomem).
-2. **W-PROTO-FILA-2** depois (view e prompts dependem dos modelos e detecção de FILA-1).
-3. **W-PROTO-FILA-3** depois (badge e banner consomem `len(items)` da view de FILA-2).
-4. **W-PROTO-FILA-4** por último (preferences toca `app.py`, `views/queue.py` e ajusta o threshold de stale_branch — consolida sidebar onde FILA-3.1 plotou badge).
+**Decisão de stack:** [ADR 001 do workflow](workflow/adr/001-stack-da-plataforma.md)
+(Streamlit → Reflex). Spike de viabilidade executado e aprovado no refinamento
+a `🔍` (2026-07-04).
 
 ---
 
 ## Épicos
 
-Um bloco por épico, na ordem de execução. Cada épico fecha quando todas as suas funcionalidades têm Dev/QA/TL/PO ✅.
+### Épico W-PILOTO-UX-1 — Migração da plataforma para Reflex (fundação + fatia fina)
 
----
+**Status:** ✅ Implementado (código pronto, sob revisão humana na PR)
 
-### Épico W-PROTO-FILA-1 — Detecção reativa de eventos e shape de item
+**Objetivo:** substituir o entrypoint Streamlit (`app.py` + `views/*`) por uma
+app Reflex (`rxconfig.py` + `web/`) com estado no backend (`rx.State`),
+preservando o miolo intocado.
 
-**Status:** ✅ Implementado — em 2026-04-30
-**Objetivo:** módulo de detecção lê estado-do-mundo (ROADMAPs parseados + branches do remote) e produz lista determinística de itens de fila por regra fixa. Sem persistência própria — fila é função pura do estado. Cobre 5 tipos no Protótipo: DISPATCH, REVIEW, REFINE, CLEANUP, STALE_BRANCH.
-**Dependências:** W-PROTO-PLAT-1 (parser de ROADMAP + Epic/Milestone/ParsedRoadmap) — já mergeado.
-
-#### Funcionalidades
-
-##### 1.1 — Shape mínimo de item de fila
-
-- **Domain:** backend, data
-- **Estimativa:** ~150 linhas | risco: baixo
-- **Arquivos esperados:**
-  - criar: `tools/workflow_platform/queue/__init__.py`
-  - criar: `tools/workflow_platform/queue/models.py`
-  - criar: `tests/tools/workflow_platform/test_queue_models.py`
-- **Padrão a seguir:** `tools/workflow_platform/models.py` (Epic, Milestone, ParsedRoadmap — dataclasses imutáveis)
-- **Critérios de aceite cobertos:** [W-PROTO-FILA-1.1.1, 1.1.2, 1.1.3, 1.1.4, 1.1.5]
-- **Validação:** `pytest tests/tools/workflow_platform/test_queue_models.py -v` passa.
-
-##### 1.2 — Detecção dos 5 tipos a partir do estado-do-mundo
-
-- **Domain:** backend
-- **Estimativa:** ~300 linhas | risco: médio
-- **Arquivos esperados:**
-  - criar: `tools/workflow_platform/queue/detect.py`
-  - criar: `tools/workflow_platform/queue/git_helper.py`
-  - criar: `tests/tools/workflow_platform/test_queue_detect.py`
-- **Padrão a seguir:** `tools/workflow_platform/prompts/dispatch.py` (helper puro: input dataclass → output tipado, sem side effect)
-- **Critérios de aceite cobertos:** [W-PROTO-FILA-1.2.1..1.2.9]
-- **Validação:** `pytest tests/tools/workflow_platform/test_queue_detect.py -v` passa.
-
-##### 1.3 — Garantia de determinismo via fixture-snapshot
-
-- **Domain:** tests
-- **Estimativa:** ~150 linhas | risco: baixo
-- **Arquivos esperados:**
-  - criar: `tests/tools/workflow_platform/fixtures/__init__.py`
-  - criar: `tests/tools/workflow_platform/fixtures/world_state.py`
-  - criar: `tests/tools/workflow_platform/fixtures/expected_queue_snapshot.json`
-  - criar: `tests/tools/workflow_platform/test_queue_determinism.py`
-- **Padrão a seguir:** snapshot testing convencional via `json.dumps(..., sort_keys=True, indent=2)`
-- **Critérios de aceite cobertos:** [W-PROTO-FILA-1.3.1, 1.3.2, 1.3.3, 1.3.4]
-- **Validação:** `pytest tests/tools/workflow_platform/test_queue_determinism.py -v` passa.
-
-#### Gates por funcionalidade — Épico W-PROTO-FILA-1
+#### Gates por funcionalidade
 
 | Funcionalidade | Dev | QA | TL | PO |
-|----------------|:---:|:--:|:--:|:--:|
-| 1.1 Shape de QueueItem | ✅ | ✅ | ✅ | ✅ |
-| 1.2 detect_all_items | ✅ | ✅ | ✅ | ✅ |
-| 1.3 Snapshot determinístico | ✅ | ✅ | ✅ | ✅ |
+|---|---|---|---|---|
+| 1.1 Esqueleto Reflex + estado no backend | ✅ | ✅ | ✅ | ✅ |
+| 1.2 Porte da aba Fila | ✅ | ✅ | ✅ | ✅ |
+| 1.3 Porte da aba Kanban | ✅ | ✅ | ✅ | ✅ |
+| 1.4 Paridade funcional + retirada do Streamlit | ✅ | ✅ | ✅ | ✅ |
+
+#### Evidências de carregamento (por milestone)
+
+| Skill | Evidência |
+|---|---|
+| EM (sizing) | FIT — migração view-only, miolo intocado; 4 funcionalidades coesas na mesma camada. Sem OVERFLOW. |
+| Scrum Master | Plano = este arquivo; tarefas por funcionalidade na ordem 1.1→1.4 declarada no épico. |
+| RTE | Push único da branch + PR aberta com Seção 🎯; `current_validation.md` gerado; UX-1 → `🔀` no ROADMAP. |
+
+#### Evidências por gate (por funcionalidade)
+
+| Gate | Contexto | Evidência |
+|---|---|---|
+| Dev | épico W-PILOTO-UX-1 \| func. 1.1 | `rxconfig.py`, `web/web.py`, `web/state.py`, `presenters.py`, `world_state.py`. Miolo intocado. |
+| QA | épico W-PILOTO-UX-1 \| func. 1.1 | `test_platform_state.py` (10 testes: on_load/select/toggle + roteamento dos 5 kinds do `_build_kanban_detail`). Import da `PlatformState` e build de `index()` OK. |
+| TL | épico W-PILOTO-UX-1 \| func. 1.1 | Padrão Reflex espelha `products/ensaio/app/`; view models tipados (`web/view_models.py`); miolo (`parser`, `prompts/*`, fila) sem mudança de comportamento. Fix de shadowing (revisão Windows): o pacote `queue/` foi renomeado para `job_queue/` — rename + ajuste de imports, **zero mudança de lógica** — porque um subpacote local `queue/` sombreia a stdlib no worker spawned do granian. |
+| PO | épico W-PILOTO-UX-1 \| func. 1.1 | `reflex run` sobe carregando config/ROADMAPs/prefs; estado da UI (aba/seleção/filtros) vive em `rx.State`. Verificado por screenshot. |
+| Dev | épico W-PILOTO-UX-1 \| func. 1.2 | `web/components/queue.py` + `web/components/detail.py`; detecção/prompts reusados intactos. |
+| QA | épico W-PILOTO-UX-1 \| func. 1.2 | Paridade de `detect_all` por construção (mesma função); `test_queue_view.py`/`test_queue_determinism.py` verdes. |
+| TL | épico W-PILOTO-UX-1 \| func. 1.2 | Painel de detalhe portado com paridade de posição (rodapé); reposicionamento fica para UX-2. |
+| PO | épico W-PILOTO-UX-1 \| func. 1.2 | Screenshot: 45 itens reais (5 tipos), clique → detalhe + prompt clipboard-ready ("implementa o PILOTO-WORKFLOW-UX"). Aba default = Fila. |
+| Dev | épico W-PILOTO-UX-1 \| func. 1.3 | `web/components/kanban.py`; agrupamento reusa `presenters.group_by_milestone`. |
+| QA | épico W-PILOTO-UX-1 \| func. 1.3 | `test_kanban.py` verde (import migrado para `presenters`). |
+| TL | épico W-PILOTO-UX-1 \| func. 1.3 | Roteamento por estado reusa `build_dispatch_prompt`/`build_refinement_prompt`; sem lógica nova. |
+| PO | épico W-PILOTO-UX-1 \| func. 1.3 | Screenshot: 8 colunas 🌱→✅, cards por milestone; coluna 🔍 mostra PILOTO-WORKFLOW-UX. |
+| Dev | épico W-PILOTO-UX-1 \| func. 1.4 | `web/components/sidebar.py`; remoção de `app.py` + `views/*`; `.gitignore` + `.web/`. |
+| QA | épico W-PILOTO-UX-1 \| func. 1.4 | Sem imports Streamlit (`grep -rnE '^\s*(import streamlit\|from streamlit)' tools/workflow_platform/` → vazio; menções remanescentes são docstrings históricas); suíte 139 testes verde. |
+| TL | épico W-PILOTO-UX-1 \| func. 1.4 | Linha `streamlit>=1.30.0` do `requirements.txt` **mantida** (é do Revelar) — correção do critério 1.4 original registrada no ROADMAP. |
+| PO | épico W-PILOTO-UX-1 \| func. 1.4 | Screenshot: sidebar com 6 checkboxes + contagens, badge `45/20` (OVER_LIMIT) + banner, avisos (0). Prefs persistem em `.preferences.json`. |
+
+#### Extração pendente
+
+- [x] Descobertas de Reflex (dataclasses tipados vs `rx.Base` ausente, colisão de
+  nome de campo com métodos de `ObjectVar`, `foreach` aninhado exige tipo concreto,
+  não concatenar dict-item com `str`, `reflex init` mexe no diretório) registradas
+  em [`.claudecode.md`](../../.claudecode.md) §2.6 — conhecimento reusável pelos
+  épicos irmãos UX-2/3/4.
+
+(TL: fora isso, nenhum padrão arquitetural novo permanente — a migração espelha o
+padrão Reflex já estabelecido pelo Ensaio; nada a promover a `ARCHITECTURE.md`.)
 
 ---
 
-### Épico W-PROTO-FILA-2 — Exibição da fila + prompt focado por item
+## Faxina pendente (fold-in do dispatch — §4.5)
 
-**Status:** ✅ Implementado — em 2026-04-30
-**Objetivo:** plataforma ganha tab "📋 Fila" (default) que renderiza os QueueItems detectados em FILA-1 como cards clicáveis. Clicar abre painel de detalhe com prompt clipboard-ready específico do tipo, reusando builders de PLAT-3.1 e PLAT-4.2 e adicionando builders novos para REVIEW, CLEANUP, STALE_BRANCH.
-**Dependências:** FILA-1 (modelos+detecção); PLAT-2.1 (tabs/sidebar); PLAT-3.1 (`build_dispatch_prompt`).
-
-#### Funcionalidades
-
-##### 2.1 — View da fila como tab default
-
-- **Domain:** frontend, backend
-- **Estimativa:** ~250 linhas | risco: médio
-- **Arquivos esperados:**
-  - criar: `tools/workflow_platform/views/queue.py`
-  - criar: `tests/tools/workflow_platform/test_queue_view.py`
-  - modificar: `tools/workflow_platform/app.py` (substituir chamada direta de `render_kanban` por bloco de tabs; adicionar botão recarregar fila; gerenciar `st.session_state.queue_world_state`)
-- **Padrão a seguir:** `tools/workflow_platform/views/kanban.py` (uso de st.session_state, padrão render_*)
-- **Critérios de aceite cobertos:** [W-PROTO-FILA-2.1.1..2.1.6]
-- **Validação:** `pytest tests/tools/workflow_platform/test_queue_view.py -v` passa.
-
-##### 2.2 — Builders de prompt por tipo de item
-
-- **Domain:** backend, frontend
-- **Estimativa:** ~200 linhas | risco: baixo
-- **Arquivos esperados:**
-  - criar: `tools/workflow_platform/prompts/queue_item.py`
-  - criar: `tests/tools/workflow_platform/test_queue_item_prompt.py`
-  - modificar: `tools/workflow_platform/views/queue.py` (adicionar `render_queue_item_detail`)
-- **Padrão a seguir:** `tools/workflow_platform/prompts/dispatch.py` (helper puro retornando string)
-- **Critérios de aceite cobertos:** [W-PROTO-FILA-2.2.1..2.2.7]
-- **Validação:** `pytest tests/tools/workflow_platform/test_queue_item_prompt.py -v` passa.
-
-#### Gates por funcionalidade — Épico W-PROTO-FILA-2
-
-| Funcionalidade | Dev | QA | TL | PO |
-|----------------|:---:|:--:|:--:|:--:|
-| 2.1 View tab default | ✅ | ✅ | ✅ | ✅ |
-| 2.2 Builders de prompt | ✅ | ✅ | ✅ | ✅ |
+- **PROTO-WORKFLOW-CLEANUP-TRIGGER (PR #123):** faxina **pulada com nota**. O
+  `cleanup_trigger --list` detecta W-PROTO-17 em `🔀` na main, mas o
+  `current_implementation.md` mergeado documenta **PROTO-WORKFLOW-FILA**, não
+  CLEANUP-TRIGGER — o gate-check do Passo 1 da Cleanup skill (cabeçalho declara
+  `Milestone: <MILESTONE_ID>`) não passa. Caso previsto no `dispatch.md` §4.5.5:
+  registra-se a nota e segue-se. Fechamento manual de W-PROTO-17 fica para o dev
+  (a própria PR #123 já anotou essa limitação — sessão manual não gerou
+  `current_implementation.md`).
 
 ---
 
-### Épico W-PROTO-FILA-3 — Auto-regulação básica (alerta visual)
+## Resumo Final do Milestone (fatia UX-1)
 
-**Status:** ✅ Implementado — em 2026-04-30
-**Objetivo:** badge na sidebar mostra `<contagem> / 20 itens` com cor por faixa. Banner adicional na tab da fila quando OVER_LIMIT explica o estado mas não bloqueia ação.
-**Dependências:** FILA-2.1 (view e bloco da sidebar existem).
+Migração Streamlit → Reflex da plataforma de workflow entregue como fundação do
+Piloto. A camada de view foi reescrita em Reflex (`rxconfig.py`, `web/web.py`,
+`web/state.py`, `web/view_models.py`, `web/components/*`), com o estado da UI num
+único `rx.State` (`PlatformState`). A lógica pura de apresentação e a construção
+do WorldState saíram dos módulos Streamlit para `presenters.py` e `world_state.py`
+(stack-independent). O miolo (`parser`, `models`, `config_loader`, `preferences`,
+`job_queue/*`, `prompts/*`, `cleanup_trigger`) ficou **sem mudança de comportamento**;
+a paridade de `detect_all` é garantida por construção. A camada Streamlit
+(`app.py` + `views/*`) foi removida; nenhum módulo da plataforma importa Streamlit
+(menções remanescentes são docstrings históricas da migração).
 
-#### Funcionalidades
+**Fix de shadowing (revisão no Windows nativo).** O pacote da fila `queue/` foi
+**renomeado para `job_queue/`** (rename + ajuste de imports absolutos, zero mudança
+de lógica). Um subpacote local chamado `queue/` sombreia o módulo `queue` da stdlib
+quando o dir da app entra em `sys.path[0]` (`multiprocessing`/`urllib3`/`socketio`
+importam `queue`), matando o worker do granian com `AttributeError: module 'queue'
+has no attribute 'LifoQueue'`. Passava em POSIX (worker forkado herda `sys.modules`)
+e quebrava no Windows (worker spawned reimporta). Após o rename, `import queue`
+resolve pra stdlib em qualquer SO; app sobe funcional e renderiza (evidência por
+screenshot).
 
-##### 3.1 — Badge de contagem na sidebar
+**Fix de performance do filtro (revisão no Windows nativo).** `toggle_roadmap`
+(marcar/desmarcar ROADMAP no sidebar) chamava `_recompute_queue(do_fetch=True)`,
+disparando `git fetch` de rede a **cada clique** de checkbox — o filtro só muda
+quais ROADMAPs estão visíveis, não o estado da remote, então o fetch é desperdício
+e causava lentidão perceptível. Trocado para `_recompute_queue(do_fetch=False)`: a
+redetecção **local** (reparse + `detect_all` sobre os visíveis) permanece, mas o
+`git fetch` sai do caminho do filtro. Fetch de rede fica só no `on_load` e no botão
+🔄 Recarregar (`reload`, `do_fetch=True`). `select_item`/`select_epic`/
+`set_active_tab` seguem sem fetch. Sem tocar detecção/parse.
 
-- **Domain:** frontend, backend
-- **Estimativa:** ~80 linhas | risco: baixo
-- **Arquivos esperados:**
-  - criar: `tools/workflow_platform/queue/load.py`
-  - criar: `tests/tools/workflow_platform/test_queue_load.py`
-  - modificar: `tools/workflow_platform/app.py` (adicionar render_queue_load_badge na sidebar)
-- **Padrão a seguir:** `tools/workflow_platform/views/kanban.py::KANBAN_COLUMN_ORDER` (constantes nomeadas + função pura + dict de mapping)
-- **Critérios de aceite cobertos:** [W-PROTO-FILA-3.1.1..3.1.5]
-- **Validação:** `pytest tests/tools/workflow_platform/test_queue_load.py -v` passa.
+**Validação:** 139 testes de `tests/tools/workflow_platform/` passam (10 em
+`test_platform_state.py`, cobrindo on_load/seleção/toggle + os 5 kinds de
+`_build_kanban_detail`; 3 arquivos com imports realocados para `presenters`; 1
+teste de integração Streamlit removido). `reflex run` compila (21/21) e sobe;
+verificação visual por screenshot confirmou as 3 superfícies (Fila com itens
+reais, clique → detalhe com prompt clipboard-ready, Kanban de 8 colunas) e a
+sidebar (filtros, badge de carga, avisos).
 
-##### 3.2 — Banner de alerta na tab da fila quando OVER_LIMIT
-
-- **Domain:** frontend
-- **Estimativa:** ~30 linhas | risco: baixo
-- **Arquivos esperados:**
-  - modificar: `tools/workflow_platform/views/queue.py` (adicionar `render_over_limit_banner`)
-- **Padrão a seguir:** `st.warning(...)` Streamlit nativo
-- **Critérios de aceite cobertos:** [W-PROTO-FILA-3.2.1..3.2.5]
-- **Validação:** lógica condicional já testada via `compute_load_state` em 3.1; validação manual de fixture com 22 itens.
-
-#### Gates por funcionalidade — Épico W-PROTO-FILA-3
-
-| Funcionalidade | Dev | QA | TL | PO |
-|----------------|:---:|:--:|:--:|:--:|
-| 3.1 Badge sidebar | ✅ | ✅ | ✅ | ✅ |
-| 3.2 Banner OVER_LIMIT | ✅ | ✅ | ✅ | ✅ |
-
----
-
-### Épico W-PROTO-FILA-4 — Configuração persistente + sidebar como painel
-
-**Status:** ✅ Implementado — em 2026-04-30
-**Objetivo:** plataforma ganha base de preferências persistidas localmente (JSON git-ignored) e a sidebar deixa de ser leitura passiva — vira painel de filtros + status. Threshold de stale_branch passa a vir de `preferences.json`.
-**Dependências:** PLAT-1 (PlatformConfig, parse_roadmap); FILA-1 (filtro entra como input do WorldState); FILA-2 (sidebar coordenada com badge/recarregar); FILA-3 (badge integrado).
-
-#### Funcionalidades
-
-##### 4.1 — Persistência de preferências (JSON local)
-
-- **Domain:** backend, data
-- **Estimativa:** ~200 linhas | risco: baixo
-- **Arquivos esperados:**
-  - criar: `tools/workflow_platform/preferences.py`
-  - criar: `tests/tools/workflow_platform/test_preferences.py`
-  - modificar: `.gitignore` (adicionar `tools/workflow_platform/.preferences.json`)
-- **Padrão a seguir:** `tools/workflow_platform/config_loader.py` (dataclass imutável + helper puro com path resolvido)
-- **Critérios de aceite cobertos:** [W-PROTO-FILA-4.1.1..4.1.6]
-- **Validação:** `pytest tests/tools/workflow_platform/test_preferences.py -v` passa.
-
-##### 4.2 — Filtro por ROADMAP no caller
-
-- **Domain:** backend
-- **Estimativa:** ~150 linhas | risco: médio
-- **Arquivos esperados:**
-  - criar: `tests/tools/workflow_platform/test_visibility_filter.py`
-  - modificar: `tools/workflow_platform/preferences.py` (adicionar `apply_visibility_filter`)
-  - modificar: `tools/workflow_platform/app.py` (carregar prefs + aplicar filtro)
-  - modificar: `tools/workflow_platform/views/queue.py` (build_world_state recebe threshold_days)
-- **Padrão a seguir:** `tools/workflow_platform/config_loader.py` (helper puro)
-- **Critérios de aceite cobertos:** [W-PROTO-FILA-4.2.1..4.2.6]
-- **Validação:** `pytest tests/tools/workflow_platform/test_visibility_filter.py -v` passa.
-
-##### 4.3 — Sidebar como painel de filtros + status
-
-- **Domain:** frontend, backend
-- **Estimativa:** ~250 linhas | risco: médio
-- **Arquivos esperados:**
-  - criar: `tests/tools/workflow_platform/test_sidebar_label.py`
-  - modificar: `tools/workflow_platform/app.py` (reescrever `_render_sidebar` + `_label_for_roadmap` + `_render_warnings_dialog`)
-- **Padrão a seguir:** `tools/workflow_platform/views/card_detail.py` (st.session_state para painel inline)
-- **Critérios de aceite cobertos:** [W-PROTO-FILA-4.3.1..4.3.7]
-- **Validação:** `pytest tests/tools/workflow_platform/test_sidebar_label.py -v` passa.
-
-#### Gates por funcionalidade — Épico W-PROTO-FILA-4
-
-| Funcionalidade | Dev | QA | TL | PO |
-|----------------|:---:|:--:|:--:|:--:|
-| 4.1 preferences.py | ✅ | ✅ | ✅ | ✅ |
-| 4.2 apply_visibility_filter | ✅ | ✅ | ✅ | ✅ |
-| 4.3 Sidebar painel | ✅ | ✅ | ✅ | ✅ |
-
----
-
-## Esclarecimentos (resolvidos por consulta)
-
-- ✅ Branch harness-assigned é equivalente funcional a `milestone/proto-workflow-fila` — fonte: precedente do PR #117 (FAXINA usou `claude/proto-workflow-faxina-e4irl` declarado como equivalente).
-- ✅ `EpicState` enum existe em `tools/workflow_platform/models.py`; `NEXT_STEP_MAP` existe em `tools/workflow_platform/prompts/refinement.py` — fonte: arquivos lidos antes do plano.
-- ✅ `parse_roadmap` retorna `ParsedRoadmap` com `epics` (lista de `Epic`) e `milestones` (lista de `Milestone`) — fonte: `tools/workflow_platform/parser.py:203`.
-- ✅ `build_dispatch_prompt(epic, all_epics_in_milestone) -> DispatchPromptResult` (não retorna string direto) — fonte: `tools/workflow_platform/prompts/dispatch.py:36`. FILA-2.2 precisa adaptar shape ao chamar via `build_prompt_for_item`.
-- ✅ `build_refinement_prompt(epic) -> str | None` — fonte: `tools/workflow_platform/prompts/refinement.py:79`.
-- ✅ Layout de testes: `tests/tools/workflow_platform/test_*.py` — fonte: árvore de `tests/`.
-
----
-
-## Extração pendente
-
-> Itens identificados pelo TL durante os gates como conhecimento permanente a gravar em docs estruturais.
-
-### Épico W-PROTO-FILA-1
-- (vazio — TL não identificou conhecimento permanente neste épico)
-
-### Épico W-PROTO-FILA-2
-- [x] `tools/workflow_platform/views/queue.py`: tabs Streamlit usam padrão st.tabs com fila default e estado em st.session_state.queue_world_state. Documentado inline na docstring do módulo. (TL identificou; Dev marcou ao escrever.)
-
-### Épico W-PROTO-FILA-3
-- (vazio — TL não identificou conhecimento permanente neste épico)
-
-### Épico W-PROTO-FILA-4
-- (vazio — TL não identificou conhecimento permanente neste épico)
-
----
-
-## Status dos Gates (nível milestone)
-
-- [x] PM ➖ pulado: todos os épicos em 🔍 no dispatch
-- [x] EM (veredicto: FIT)
-- [x] Scrum Master (plano para todos os 4 épicos escrito)
-- [x] Loop por épico concluído (todas as tabelas acima com Dev/QA/TL/PO ✅)
-- [x] RTE (no fim do milestone, após o último épico fechar)
-
-### Evidências de carregamento de skill
-
-**Únicas por milestone:**
-
-- [PM] skill pulada: todos os épicos já em 🔍 ➖ 2026-04-30 10:06
-- [EM] skill carregada: skills/em/skill.md ✅ 2026-04-30 10:06
-- [SCRUM-MASTER] skill carregada: skills/scrum-master/skill.md ✅ 2026-04-30 10:06
-- [RTE] skill carregada: skills/rte/skill.md ✅ 2026-04-30 11:20
-
-**Repetidas por funcionalidade:**
-
-- [QA] skills/qa/skill.md ✅ 2026-04-30 10:10 | épico W-PROTO-FILA-1 | funcionalidade 1.1
-- [TL] skills/tl/skill.md ✅ 2026-04-30 10:10 | épico W-PROTO-FILA-1 | funcionalidade 1.1
-- [PO] skills/po/skill.md ✅ 2026-04-30 10:10 | épico W-PROTO-FILA-1 | funcionalidade 1.1
-- [QA] skills/qa/skill.md ✅ 2026-04-30 10:15 | épico W-PROTO-FILA-1 | funcionalidade 1.2
-- [TL] skills/tl/skill.md ✅ 2026-04-30 10:15 | épico W-PROTO-FILA-1 | funcionalidade 1.2
-- [PO] skills/po/skill.md ✅ 2026-04-30 10:15 | épico W-PROTO-FILA-1 | funcionalidade 1.2
-- [QA] skills/qa/skill.md ✅ 2026-04-30 10:20 | épico W-PROTO-FILA-1 | funcionalidade 1.3
-- [TL] skills/tl/skill.md ✅ 2026-04-30 10:20 | épico W-PROTO-FILA-1 | funcionalidade 1.3
-- [PO] skills/po/skill.md ✅ 2026-04-30 10:20 | épico W-PROTO-FILA-1 | funcionalidade 1.3
-- [QA] skills/qa/skill.md ✅ 2026-04-30 11:05 | épico W-PROTO-FILA-2 | funcionalidade 2.1
-- [TL] skills/tl/skill.md ✅ 2026-04-30 11:05 | épico W-PROTO-FILA-2 | funcionalidade 2.1
-- [PO] skills/po/skill.md ✅ 2026-04-30 11:05 | épico W-PROTO-FILA-2 | funcionalidade 2.1
-- [QA] skills/qa/skill.md ✅ 2026-04-30 11:05 | épico W-PROTO-FILA-2 | funcionalidade 2.2
-- [TL] skills/tl/skill.md ✅ 2026-04-30 11:05 | épico W-PROTO-FILA-2 | funcionalidade 2.2
-- [PO] skills/po/skill.md ✅ 2026-04-30 11:05 | épico W-PROTO-FILA-2 | funcionalidade 2.2
-- [QA] skills/qa/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.1
-- [TL] skills/tl/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.1
-- [PO] skills/po/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.1
-- [QA] skills/qa/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.2
-- [TL] skills/tl/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.2
-- [PO] skills/po/skill.md ✅ 2026-04-30 11:10 | épico W-PROTO-FILA-3 | funcionalidade 3.2
-- [QA] skills/qa/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.1
-- [TL] skills/tl/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.1
-- [PO] skills/po/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.1
-- [QA] skills/qa/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.2
-- [TL] skills/tl/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.2
-- [PO] skills/po/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.2
-- [QA] skills/qa/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.3
-- [TL] skills/tl/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.3
-- [PO] skills/po/skill.md ✅ 2026-04-30 11:15 | épico W-PROTO-FILA-4 | funcionalidade 4.3
-
----
-
-## Histórico de Reprovações
-
-(vazio — milestone fechou sem reprovações)
-
----
-
-## Resumo Final do Milestone
-
-**Milestone:** PROTO-WORKFLOW-FILA
-**Branch:** `claude/execute-project-workflow-yoTQ7` (harness-assigned)
-**Encerrado em:** 2026-04-30
-**Sizing original (EM):** FIT — 2000 LOC estimado
-**Diff real (`git diff --shortstat 314426f..HEAD`):** 26 arquivos, +2817 / -680
-
-### Por épico
-
-| Épico | Funcionalidades | Status | Notas |
-|-------|---:|---|---|
-| W-PROTO-FILA-1 | 3 (1.1, 1.2, 1.3) | ✅ | 12+25+3 = 40 testes passando |
-| W-PROTO-FILA-2 | 2 (2.1, 2.2) | ✅ | 3+10 = 13 testes; integração com PLAT-3.1 e PLAT-4.2 reusada |
-| W-PROTO-FILA-3 | 2 (3.1, 3.2) | ✅ | 7 testes do compute_load_state; banner via `st.warning` em `views/queue.py` |
-| W-PROTO-FILA-4 | 3 (4.1, 4.2, 4.3) | ✅ | 12+5+7 = 24 testes |
-
-### Files modified (26)
-
-**Código (9):**
-- `tools/workflow_platform/queue/__init__.py`
-- `tools/workflow_platform/queue/models.py`
-- `tools/workflow_platform/queue/detect.py`
-- `tools/workflow_platform/queue/git_helper.py`
-- `tools/workflow_platform/queue/load.py`
-- `tools/workflow_platform/preferences.py`
-- `tools/workflow_platform/prompts/queue_item.py`
-- `tools/workflow_platform/views/queue.py`
-- `tools/workflow_platform/app.py` (modificado)
-
-**Testes (13):**
-- `tests/tools/workflow_platform/test_queue_models.py` (12 tests)
-- `tests/tools/workflow_platform/test_queue_detect.py` (25 tests)
-- `tests/tools/workflow_platform/test_queue_determinism.py` (3 tests)
-- `tests/tools/workflow_platform/test_queue_view.py` (3 tests)
-- `tests/tools/workflow_platform/test_queue_item_prompt.py` (10 tests)
-- `tests/tools/workflow_platform/test_queue_load.py` (7 tests)
-- `tests/tools/workflow_platform/test_preferences.py` (12 tests)
-- `tests/tools/workflow_platform/test_visibility_filter.py` (5 tests)
-- `tests/tools/workflow_platform/test_sidebar_label.py` (7 tests)
-- `tests/tools/workflow_platform/test_app_integration.py` (modificado: helper agora filtra prefix `epic-card-`)
-- `tests/tools/workflow_platform/fixtures/__init__.py`
-- `tests/tools/workflow_platform/fixtures/world_state.py`
-- `tests/tools/workflow_platform/fixtures/expected_queue_snapshot.json`
-
-**Docs/Config (4):**
-- `.gitignore` (entrada `tools/workflow_platform/.preferences.json`)
-- `docs/process/sizing/history.jsonl` (linha EM `pending`)
-- `docs/process/current_implementation.md` (este arquivo, rotativo)
-- `docs/process/current_validation.md` (gerado pelo RTE, rotativo)
-
-### Testes
-
-- **Total:** 120 testes na suite `tests/tools/workflow_platform/`
-- **Resultado:** `120 passed in 3.14s`, 0 failed, 0 errors, 0 skips
-- **Cobertura:** todos os 5 tipos de QueueItem (DISPATCH/REVIEW/REFINE/CLEANUP/STALE_BRANCH); todas as fronteiras do compute_load_state; roundtrip de preferences + erros de schema; filtro por visibilidade; label da sidebar.
-
-### Reprovações
-
-Nenhuma reprovação consecutiva em nenhum gate. Loop por épico fluiu Dev → QA → TL → PO sem retorno.
-
-### Warnings de carregamento de skill
-
-Nenhum — todas as skills (PM ➖ skipped, EM, SM, QA×10, TL×10, PO×10, RTE) registradas em "Evidências de carregamento de skill".
+**Fora do escopo (próximo dispatch, sobre a fundação mergeada):** W-PILOTO-UX-2
+(co-visibilidade lista↔detalhe), W-PILOTO-UX-3 (densidade da fila), W-PILOTO-UX-4
+(informação por tipo no painel).

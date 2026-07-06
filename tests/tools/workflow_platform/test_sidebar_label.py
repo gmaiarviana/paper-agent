@@ -2,35 +2,35 @@
 
 from pathlib import Path
 
-from tools.workflow_platform.app import LABEL_OVERRIDES, _label_for_roadmap
+from tools.workflow_platform.presenters import LABEL_OVERRIDES, label_for_roadmap
 
 
 def test_core_roadmap_maps_to_core(tmp_path: Path):
     repo = tmp_path / "repo"
     repo.mkdir()
     p = repo / "docs" / "ROADMAP.md"
-    assert _label_for_roadmap(str(p), repo) == "Core"
+    assert label_for_roadmap(str(p), repo) == "Core"
 
 
 def test_workflow_roadmap_maps_to_workflow(tmp_path: Path):
     repo = tmp_path / "repo"
     repo.mkdir()
     p = repo / "docs" / "process" / "workflow" / "ROADMAP.md"
-    assert _label_for_roadmap(str(p), repo) == "Workflow"
+    assert label_for_roadmap(str(p), repo) == "Workflow"
 
 
 def test_product_roadmap_maps_to_capitalized_name(tmp_path: Path):
     repo = tmp_path / "repo"
     repo.mkdir()
     p = repo / "products" / "revelar" / "ROADMAP.md"
-    assert _label_for_roadmap(str(p), repo) == "Revelar"
+    assert label_for_roadmap(str(p), repo) == "Revelar"
 
 
 def test_product_with_dash_in_name_uses_title_case(tmp_path: Path):
     repo = tmp_path / "repo"
     repo.mkdir()
     p = repo / "products" / "prisma-verbal" / "ROADMAP.md"
-    assert _label_for_roadmap(str(p), repo) == "Prisma Verbal"
+    assert label_for_roadmap(str(p), repo) == "Prisma Verbal"
 
 
 def test_label_overrides_includes_core_and_workflow():
@@ -42,7 +42,7 @@ def test_path_outside_repo_falls_back_to_stem(tmp_path: Path):
     repo = tmp_path / "repo"
     repo.mkdir()
     outside = tmp_path / "other" / "thing.md"
-    label = _label_for_roadmap(str(outside), repo)
+    label = label_for_roadmap(str(outside), repo)
     # Stem é "thing"; título-case = "Thing"
     assert label == "Thing"
 
@@ -51,6 +51,6 @@ def test_unknown_path_inside_repo_falls_back_to_parent_dir_name(tmp_path: Path):
     repo = tmp_path / "repo"
     repo.mkdir()
     p = repo / "weird" / "place" / "ROADMAP.md"
-    label = _label_for_roadmap(str(p), repo)
+    label = label_for_roadmap(str(p), repo)
     # parent.name = "place" → "Place"
     assert label == "Place"

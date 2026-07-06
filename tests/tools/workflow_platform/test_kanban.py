@@ -1,7 +1,7 @@
 """Testes do helper puro de agrupamento do kanban."""
 
 from tools.workflow_platform.models import Epic, EpicState
-from tools.workflow_platform.views.kanban import (
+from tools.workflow_platform.presenters import (
     NO_MILESTONE_LABEL,
     group_by_milestone,
 )

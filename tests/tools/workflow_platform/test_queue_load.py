@@ -1,6 +1,6 @@
 """Testes da auto-regulação básica (W-PROTO-FILA-3.1)."""
 
-from tools.workflow_platform.queue.load import (
+from tools.workflow_platform.job_queue.load import (
     LOAD_STATE_COLORS,
     QUEUE_APPROACHING_THRESHOLD,
     QUEUE_TARGET_LIMIT,

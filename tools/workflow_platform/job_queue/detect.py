@@ -19,8 +19,8 @@ from datetime import datetime
 
 from tools.workflow_platform.models import Epic, EpicState, ParsedRoadmap
 from tools.workflow_platform.prompts.refinement import NEXT_STEP_MAP
-from tools.workflow_platform.queue.git_helper import RemoteBranch
-from tools.workflow_platform.queue.models import (
+from tools.workflow_platform.job_queue.git_helper import RemoteBranch
+from tools.workflow_platform.job_queue.models import (
     BranchPointer,
     CleanupPointer,
     EpicPointer,
