@@ -93,14 +93,13 @@ padrão Reflex já estabelecido pelo Ensaio; nada a promover a `ARCHITECTURE.md`
 
 ## Faxina pendente (fold-in do dispatch — §4.5)
 
-- **PROTO-WORKFLOW-CLEANUP-TRIGGER (PR #123):** faxina **pulada com nota**. O
-  `cleanup_trigger --list` detecta W-PROTO-17 em `🔀` na main, mas o
-  `current_implementation.md` mergeado documenta **PROTO-WORKFLOW-FILA**, não
-  CLEANUP-TRIGGER — o gate-check do Passo 1 da Cleanup skill (cabeçalho declara
-  `Milestone: <MILESTONE_ID>`) não passa. Caso previsto no `dispatch.md` §4.5.5:
-  registra-se a nota e segue-se. Fechamento manual de W-PROTO-17 fica para o dev
-  (a própria PR #123 já anotou essa limitação — sessão manual não gerou
-  `current_implementation.md`).
+- **PROTO-WORKFLOW-CLEANUP-TRIGGER (PR #123): resolvido manualmente.** A faxina
+  automática havia sido pulada com nota (o `current_implementation.md` mergeado na
+  PR #123 documentava **PROTO-WORKFLOW-FILA**, não CLEANUP-TRIGGER, então o
+  gate-check do Passo 1 da Cleanup skill não passava). O fechamento manual de
+  W-PROTO-17 foi feito nesta sessão de faxina do ROADMAP: bloco de épico removido,
+  declaração do milestone transitada para `✅` com `Implementado em:` PR #123
+  (merge `49be823`). `cleanup_trigger --list` agora não aponta mais o milestone.
 
 ---
 
