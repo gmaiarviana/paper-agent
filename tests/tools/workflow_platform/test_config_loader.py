@@ -31,7 +31,7 @@ def test_loads_valid_config(tmp_path: Path):
     assert len(result.roadmaps) == 2
     for path in result.roadmaps:
         assert Path(path).is_absolute()
-    assert result.roadmaps[0].endswith("docs/ROADMAP.md")
+    assert Path(result.roadmaps[0]).as_posix().endswith("docs/ROADMAP.md")
 
 
 def test_missing_field_raises(tmp_path: Path):
