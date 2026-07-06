@@ -62,6 +62,8 @@ SYNTHETIC_ROADMAP = """# ROADMAP — Sintético
 
 **Status:** 🔍 Detalhes definidos
 
+**Predecessor bloqueante:** S-DONE, `S-B-1`
+
 ---
 
 #### ÉPICO S-CRITERIA: épico em critérios
@@ -69,6 +71,12 @@ SYNTHETIC_ROADMAP = """# ROADMAP — Sintético
 **Milestone:** `MILESTONE-A`
 
 **Status:** 📋 Critérios definidos
+
+Exemplo de sintaxe do campo dentro de uma fence (não deve virar campo real):
+
+```
+**Predecessor bloqueante:** S-A-1
+```
 
 ---
 
@@ -144,6 +152,32 @@ def test_branch_field_extraction(synthetic: Path):
     assert by_id["S-B-1"].branch == "milestone/foo-bar"
     assert by_id["S-IN-PROGRESS"].branch == "milestone/in-progress"
     assert by_id["S-A-1"].branch is None
+
+
+def test_blocking_predecessors_parsed_split_and_trimmed(synthetic: Path):
+    pr = parse_roadmap(synthetic)
+    by_id = {e.id: e for e in pr.epics}
+
+    # Campo presente → IDs parseados (trim + split por vírgula + strip de backtick).
+    assert by_id["S-DETAILED"].blocking_predecessors == ["S-DONE", "S-B-1"]
+
+
+def test_blocking_predecessors_absent_is_empty_list(synthetic: Path):
+    pr = parse_roadmap(synthetic)
+    by_id = {e.id: e for e in pr.epics}
+
+    # Campo ausente → lista vazia (não None). Sem warning espúrio.
+    assert by_id["S-A-1"].blocking_predecessors == []
+    assert not any("Predecessor" in w for w in pr.warnings)
+
+
+def test_blocking_predecessors_inside_code_fence_ignored(synthetic: Path):
+    pr = parse_roadmap(synthetic)
+    by_id = {e.id: e for e in pr.epics}
+
+    # O campo aparece só dentro de uma ```fence``` no bloco de S-CRITERIA —
+    # é exemplo de sintaxe, não predecessor real.
+    assert by_id["S-CRITERIA"].blocking_predecessors == []
 
 
 def test_malformed_epic_produces_warning_no_exception(synthetic: Path):

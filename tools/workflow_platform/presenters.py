@@ -180,6 +180,7 @@ def epic_to_dict(epic: Epic) -> dict:
         "pr_url": epic.pr_url,
         "raw_status_line": epic.raw_status_line,
         "body_excerpt": epic.body_excerpt,
+        "blocking_predecessors": list(epic.blocking_predecessors),
     }
 
 
@@ -195,6 +196,7 @@ def epic_from_dict(data: dict) -> Epic:
         pr_url=data.get("pr_url"),
         raw_status_line=data.get("raw_status_line", ""),
         body_excerpt=data.get("body_excerpt", ""),
+        blocking_predecessors=list(data.get("blocking_predecessors", [])),
     )
 
 

@@ -1,29 +1,15 @@
-"""Construção de prompts de dispatch para milestone.
+"""Construção de prompts de dispatch **por épico** (W-PILOTO-DISP-1).
 
-Coerente com ``docs/process/autonomous/dispatch.md`` — o dispatch opera
-sempre sobre milestone inteiro em linguagem natural ("implementa o <ID>").
-Quando algum épico está em estado pré-execução pré-`🔍`, o prompt cita
-explicitamente quais a PM skill refinará. Quando há épico em execução
-ou concluído (🏗️/🔀/✅), o prompt é bloqueado.
+Coerente com ``docs/process/autonomous/dispatch.md`` — o dispatch opera sobre o
+épico-alvo em linguagem natural (``"implementa o épico <ID>"``). A única coisa
+que bloqueia o prompt é um **predecessor bloqueante** declarado ainda não `✅`
+(regra compartilhada em ``models.blocking_predecessors_of``). Um irmão do
+milestone em 🏗️/🔀/✅ **não** bloqueia mais — entrega faseada é first-class.
 """
 
 from dataclasses import dataclass, field
 
-from tools.workflow_platform.models import Epic, EpicState
-
-
-PRE_REFINEMENT_STATES: set[EpicState] = {
-    EpicState.VISION,
-    EpicState.ALIGNED,
-    EpicState.SKETCHED,
-    EpicState.CRITERIA,
-}
-
-EXECUTION_STATES: set[EpicState] = {
-    EpicState.IN_PROGRESS,
-    EpicState.IN_REVIEW,
-    EpicState.DONE,
-}
+from tools.workflow_platform.models import Epic, blocking_predecessors_of
 
 
 @dataclass
@@ -35,15 +21,19 @@ class DispatchPromptResult:
 
 def build_dispatch_prompt(
     epic: Epic,
-    all_epics_in_milestone: list[Epic],
+    epics_by_id: dict[str, Epic],
+    epics_by_milestone: dict[str, list[Epic]] | None = None,
 ) -> DispatchPromptResult:
-    """Monta prompt de dispatch para o milestone-pai do épico.
+    """Monta prompt de dispatch para ``epic``.
 
-    - Se ``epic.milestone_id`` é ``None``: bloqueia, sem prompt.
-    - Se algum épico do milestone está em 🏗️/🔀/✅: bloqueia, sem prompt.
-    - Se algum está em 🌱/🧭/📐/📋: prompt + nota "PM skill refinará".
-    - Caso contrário: prompt simples ``"implementa o <MILESTONE_ID>"``.
+    - ``epic.milestone_id`` é ``None`` → bloqueia, sem prompt.
+    - Predecessor bloqueante não-`✅` → bloqueia, sem prompt, com o motivo.
+    - Caso contrário → prompt ``"implementa o épico <ID>"``.
+
+    Não bloqueia mais só porque um irmão do milestone está em 🏗️/🔀/✅.
     """
+    epics_by_milestone = epics_by_milestone or {}
+
     if epic.milestone_id is None:
         return DispatchPromptResult(
             prompt_text=None,
@@ -51,50 +41,16 @@ def build_dispatch_prompt(
             blocked=True,
         )
 
-    milestone_id = epic.milestone_id
-    others = [e for e in all_epics_in_milestone if e.id != epic.id] + [epic]
-    # Garante que o próprio épico entra na avaliação dos estados do milestone.
-    seen: set[str] = set()
-    deduped: list[Epic] = []
-    for e in others:
-        if e.id in seen:
-            continue
-        seen.add(e.id)
-        deduped.append(e)
-
-    in_execution = [e for e in deduped if e.state in EXECUTION_STATES]
-    if in_execution:
-        states_seen = sorted({e.state.value for e in in_execution})
-        ids_seen = sorted({e.id for e in in_execution})
+    blocking = blocking_predecessors_of(epic, epics_by_id, epics_by_milestone)
+    if blocking:
         return DispatchPromptResult(
             prompt_text=None,
-            warnings=[
-                f"milestone em execução/concluído — dispatch não recomendado "
-                f"(épicos {', '.join(ids_seen)} em {' / '.join(states_seen)})"
-            ],
+            warnings=[f"bloqueado por {', '.join(blocking)} — precisa estar ✅"],
             blocked=True,
         )
 
-    pre_refinement = sorted(
-        (e for e in deduped if e.state in PRE_REFINEMENT_STATES),
-        key=lambda e: e.id,
-    )
-
-    lines = [f"implementa o {milestone_id}"]
-    warnings: list[str] = []
-
-    if pre_refinement:
-        ids = [e.id for e in pre_refinement]
-        lines.append("")
-        lines.append("Nota: PM skill refinará os épicos abaixo (→ 🔍) antes da EM rodar:")
-        for epic_id in ids:
-            lines.append(f"- {epic_id}")
-        warnings.append(
-            "milestone tem épicos em estado pré-🔍: " + ", ".join(ids)
-        )
-
     return DispatchPromptResult(
-        prompt_text="\n".join(lines),
-        warnings=warnings,
+        prompt_text=f"implementa o épico {epic.id}",
+        warnings=[],
         blocked=False,
     )

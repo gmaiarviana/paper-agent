@@ -47,6 +47,8 @@ class EpicCard:
     id: str = ""
     label: str = ""
     selected: bool = False
+    blocked: bool = False
+    blocked_note: str = ""    # "🔒 aguardando <ID>" quando bloqueado
 
 
 @dataclass
@@ -87,7 +89,8 @@ class KanbanDetail:
     state_label: str = ""
     milestone: str = ""
     roadmap: str = ""
-    kind: str = ""          # "" = nenhum épico selecionado
+    kind: str = ""          # "" = nenhum épico selecionado; "blocked" = predecessor não-✅
+    blocked_by: str = ""    # IDs de predecessores não-✅ (separados por vírgula)
     guidance: str = ""
     show_readiness: bool = False
     refine_prompt: str = ""

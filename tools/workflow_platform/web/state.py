@@ -57,7 +57,11 @@ from tools.workflow_platform.job_queue.models import (
     PRPointer,
     RefinePointer,
 )
-from tools.workflow_platform.models import Epic, EpicState
+from tools.workflow_platform.models import (
+    Epic,
+    EpicState,
+    blocking_predecessors_of,
+)
 from tools.workflow_platform.world_state import build_world_state
 from tools.workflow_platform.web.view_models import (
     DispatchWarning,
@@ -84,6 +88,14 @@ _PRE_EXECUTION_STATES = {
     EpicState.ALIGNED,
     EpicState.SKETCHED,
     EpicState.CRITERIA,
+}
+
+# Estados em que uma ação (dispatch de 🔍 ou refino de 📐/📋) seria oferecida —
+# só nesses o predecessor bloqueante importa (Fila oculta / selo no Kanban).
+_BLOCKABLE_STATES = {
+    EpicState.SKETCHED,
+    EpicState.CRITERIA,
+    EpicState.DETAILED,
 }
 
 
@@ -168,6 +180,22 @@ class PlatformState(rx.State):
             if d["rel"] in visible
         ]
 
+    def _visible_epic_maps(self) -> tuple[dict[str, Epic], dict[str, list[Epic]]]:
+        """``(epics_by_id, epics_by_milestone)`` sobre os ROADMAPs visíveis.
+
+        Insumo da regra compartilhada de predecessor bloqueante
+        (``blocking_predecessors_of``), usada pelo Kanban (badge de bloqueio) e
+        pelo painel de detalhe.
+        """
+        by_id: dict[str, Epic] = {}
+        by_milestone: dict[str, list[Epic]] = {}
+        for r in self._visible_parsed():
+            for e in r.epics:
+                by_id[e.id] = e
+                if e.milestone_id:
+                    by_milestone.setdefault(e.milestone_id, []).append(e)
+        return by_id, by_milestone
+
     def _recompute_queue(self, *, do_fetch: bool = True) -> None:
         parsed = self._visible_parsed()
 
@@ -224,7 +252,10 @@ class PlatformState(rx.State):
             url = github_branch_url(self.github_owner, self.github_repo, p.branch_name)
             return f"**Branch:** [`{p.branch_name}`]({url}) · {p.days_stale} dias"
         if isinstance(p, EpicPointer):
-            return f"**Milestone:** `{p.milestone_id}` · ROADMAP `{p.roadmap_path}`"
+            return (
+                f"**Épico:** `{p.epic_id}` · Milestone `{p.milestone_id}` · "
+                f"ROADMAP `{p.roadmap_path}`"
+            )
         if isinstance(p, RefinePointer):
             return (
                 f"**Épico:** `{p.epic_id}` · "
@@ -310,6 +341,11 @@ class PlatformState(rx.State):
             if d["rel"] in visible
             for e in d["epics"]
         ]
+        by_id: dict[str, Epic] = {e.id: e for e in epics}
+        by_milestone: dict[str, list[Epic]] = {}
+        for e in epics:
+            if e.milestone_id:
+                by_milestone.setdefault(e.milestone_id, []).append(e)
         columns: list[KanbanColumn] = []
         for state in KANBAN_COLUMN_ORDER:
             in_state = [e for e in epics if e.state == state]
@@ -318,13 +354,7 @@ class PlatformState(rx.State):
                 KanbanGroup(
                     milestone_id=mid,
                     epics=[
-                        EpicCard(
-                            id=e.id,
-                            label=card_button_label(
-                                e, selected=(e.id == self.selected_epic_id)
-                            ),
-                            selected=e.id == self.selected_epic_id,
-                        )
+                        self._epic_card(e, by_id, by_milestone)
                         for e in es
                     ],
                 )
@@ -339,6 +369,30 @@ class PlatformState(rx.State):
                 )
             )
         return columns
+
+    def _epic_card(
+        self,
+        epic: Epic,
+        by_id: dict[str, Epic],
+        by_milestone: dict[str, list[Epic]],
+    ) -> EpicCard:
+        blocking = (
+            blocking_predecessors_of(epic, by_id, by_milestone)
+            if epic.state in _BLOCKABLE_STATES
+            else []
+        )
+        label = card_button_label(epic, selected=(epic.id == self.selected_epic_id))
+        if blocking:
+            label = f"🔒 {label}"
+        return EpicCard(
+            id=epic.id,
+            label=label,
+            selected=epic.id == self.selected_epic_id,
+            blocked=bool(blocking),
+            blocked_note=(
+                f"🔒 aguardando {', '.join(blocking)}" if blocking else ""
+            ),
+        )
 
     @rx.var
     def has_kanban_detail(self) -> bool:
@@ -375,6 +429,18 @@ class PlatformState(rx.State):
             meta=f"Estado: {STATE_LABELS[epic.state]} · Milestone: {milestone_label}",
         )
 
+        by_id, by_milestone = self._visible_epic_maps()
+        blocking = (
+            blocking_predecessors_of(epic, by_id, by_milestone)
+            if epic.state in _BLOCKABLE_STATES
+            else []
+        )
+        if blocking:
+            # Bloqueado: sem botão/prompt de ação — comunica o bloqueio.
+            detail.kind = "blocked"
+            detail.blocked_by = ", ".join(blocking)
+            return detail
+
         if epic.state in _PRE_EXECUTION_STATES:
             detail.kind = "pre"
             info = get_next_step(epic)
@@ -384,13 +450,7 @@ class PlatformState(rx.State):
             detail.refine_prompt = build_refinement_prompt(epic) or ""
         elif epic.state == EpicState.DETAILED:
             detail.kind = "dispatch"
-            in_milestone = [
-                e
-                for r in self._visible_parsed()
-                for e in r.epics
-                if epic.milestone_id and e.milestone_id == epic.milestone_id
-            ]
-            result = build_dispatch_prompt(epic, in_milestone)
+            result = build_dispatch_prompt(epic, by_id, by_milestone)
             detail.dispatch_prompt = result.prompt_text or ""
             detail.dispatch_warnings = [
                 DispatchWarning(text=w, blocked=result.blocked) for w in result.warnings

@@ -14,17 +14,31 @@ from tools.workflow_platform.web.state import PlatformState
 
 
 def _kanban_card(epic) -> rx.Component:
-    return rx.button(
-        epic.label,
-        on_click=PlatformState.select_epic(epic.id),
-        variant=rx.cond(epic.selected, "solid", "surface"),
-        size="1",
-        width="100%",
-        justify_content="start",
-        white_space="normal",
-        height="auto",
-        padding_y="6px",
+    return rx.box(
+        rx.button(
+            epic.label,
+            on_click=PlatformState.select_epic(epic.id),
+            variant=rx.cond(epic.selected, "solid", "surface"),
+            size="1",
+            width="100%",
+            justify_content="start",
+            white_space="normal",
+            height="auto",
+            padding_y="6px",
+        ),
+        rx.cond(
+            epic.blocked,
+            rx.text(
+                epic.blocked_note,
+                size="1",
+                color_scheme="gray",
+                font_style="italic",
+                margin_top="2px",
+            ),
+            rx.fragment(),
+        ),
         margin_bottom="4px",
+        width="100%",
     )
 
 

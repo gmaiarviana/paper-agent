@@ -691,6 +691,8 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
 
 **Status:** 🔍 Detalhes definidos
 
+**Predecessor bloqueante:** W-PILOTO-UX-1
+
 **Dependências:** W-PILOTO-UX-1 (camada Reflex existente) — dura: UX-2 não
 começa antes de UX-1 mergear.
 
@@ -796,6 +798,8 @@ cortado.
 **Objetivo:** fila escaneável com 15+ itens — o operador vê "o que pede ação agora" num olhar, sem ler card a card.
 
 **Status:** 🔍 Detalhes definidos
+
+**Predecessor bloqueante:** W-PILOTO-UX-1
 
 **Dependências:** W-PILOTO-UX-1 (camada Reflex existente) — dura. Coordena com
 W-PILOTO-UX-4 na fronteira card↔painel (ver Acoplamentos).
@@ -940,6 +944,8 @@ canônico (vision §"Kanban"). A **raiz** (podar `✅` do ROADMAP na fonte) é
 **Objetivo:** cada tipo de item/épico mostra no painel o contexto que importa pra decidir, sem ruído nem redundância com o card — a parte do "valor do clique" invariante ao runtime. O redesenho do mecanismo de ação ("ação = disparar") vive no `PILOTO-WORKFLOW-CANAL-UNICO`, não aqui. Absorve a frição 1.2 do seed `W-PILOTO-FILA-UX-1`.
 
 **Status:** 🔍 Detalhes definidos
+
+**Predecessor bloqueante:** W-PILOTO-UX-1
 
 **Dependências:** W-PILOTO-UX-1 (camada Reflex existente) — dura; coordena com
 W-PILOTO-UX-2 (o painel é o detalhe da co-visibilidade) e W-PILOTO-UX-3 (fronteira

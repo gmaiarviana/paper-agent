@@ -21,9 +21,9 @@ _NOW = datetime(2026, 4, 30, 12, 0, 0)
 
 def _epic_pointer() -> EpicPointer:
     return EpicPointer(
+        epic_id="W-PROTO-10",
         milestone_id="PROTO-WORKFLOW-FAXINA",
         roadmap_path="docs/process/workflow/ROADMAP.md",
-        epic_ids=["W-PROTO-10", "W-PROTO-11"],
     )
 
 

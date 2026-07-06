@@ -39,9 +39,9 @@ def _make(item_type: ItemType, pointer, **overrides) -> QueueItem:
 
 def test_dispatch_delegates_to_build_dispatch_prompt():
     pointer = EpicPointer(
+        epic_id="E1",
         milestone_id="MIL-A",
         roadmap_path="x.md",
-        epic_ids=["E1", "E2"],
     )
     item = _make(ItemType.DISPATCH, pointer)
     epic1 = Epic(id="E1", title="t1", state=EpicState.DETAILED, roadmap_path="x.md", milestone_id="MIL-A")
@@ -49,19 +49,20 @@ def test_dispatch_delegates_to_build_dispatch_prompt():
     prompt = build_prompt_for_item(
         item,
         all_epics_by_milestone={"MIL-A": [epic1, epic2]},
+        epic_lookup={"E1": epic1, "E2": epic2},
     )
-    assert "implementa o MIL-A" in prompt
+    assert prompt == "implementa o épico E1"
 
 
 def test_dispatch_without_lookup_falls_back_to_minimal_text():
     pointer = EpicPointer(
+        epic_id="E9",
         milestone_id="MIL-X",
         roadmap_path="x.md",
-        epic_ids=["E"],
     )
     item = _make(ItemType.DISPATCH, pointer)
     prompt = build_prompt_for_item(item)
-    assert prompt == "implementa o MIL-X"
+    assert prompt == "implementa o épico E9"
 
 
 # ----- REVIEW -----
