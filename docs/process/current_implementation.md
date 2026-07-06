@@ -98,4 +98,36 @@ campo estão documentados no próprio bloco do épico no ROADMAP; a gotcha de
 
 ## Resumo Final do Milestone
 
-(a preencher pela RTE)
+Dispatch e refino da plataforma passaram a operar **por épico**, e o
+**predecessor bloqueante** virou gate de acionabilidade compartilhado por ambos.
+
+- **Dado (1.1):** `Epic.blocking_predecessors` + `is_blocked_by_predecessor` /
+  `blocking_predecessors_of` (função pura em `models.py`, camada base). Parser lê
+  o campo `**Predecessor bloqueante:**` (trim + split por vírgula, strip de
+  backtick) e **ignora fences ```** ao casar campos de épico. UX-2/3/4 registram
+  `W-PILOTO-UX-1` como predecessor.
+- **Detecção (1.2):** `detect_dispatch_items` emite **1 item por épico 🔍** (não
+  mais atômico por milestone) e `detect_refine_items` **1 por épico 📐/📋**, ambos
+  suprimindo os bloqueados por predecessor não-`✅`. Milestone parcialmente
+  entregue passa a surfaçar as fatias 🔍 restantes. REVIEW/CLEANUP/STALE_BRANCH
+  intocados.
+- **Prompts (1.3):** `build_dispatch_prompt` opera sobre o épico
+  (`"implementa o épico <ID>"`); predecessor não-`✅` → `blocked=True` com motivo.
+  Não bloqueia mais por irmão do milestone em 🏗️/🔀/✅.
+- **Plataforma (1.4):** Fila **oculta** o bloqueado; Kanban mantém o card visível
+  e **clicável** com selo `🔒 aguardando <ID>`; o painel de detalhe do bloqueado
+  troca a ação por `🔒 Bloqueado por <ID> (precisa estar ✅)`.
+
+**Reshape de contrato:** `EpicPointer` passou de `(milestone_id, roadmap_path,
+epic_ids: list)` para `(epic_id, milestone_id, roadmap_path)` — dispatch é por
+épico. Snapshot de determinismo regenerado (3 DISPATCH por épico + 1 REVIEW + 1
+STALE_BRANCH).
+
+**Validação:** 153 testes de `tests/tools/workflow_platform/` passam. `index()`
+Reflex e os componentes (`kanban_tab`, painéis de detalhe com o novo kind
+`blocked`) compilam sem erro. Smoke sobre o ROADMAP real: DISP-1 sem predecessor
+(exemplo em fence ignorado); UX-2/3/4 com predecessor `W-PILOTO-UX-1` já `✅` →
+desbloqueados, surfaçam como dispatch por épico.
+
+**Números do milestone:** 23 arquivos (11 código, 10 testes, 2 docs);
++617 / −330; 1 commit de implementação.
