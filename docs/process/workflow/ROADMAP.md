@@ -238,13 +238,19 @@ Milestones e épicos do processo de desenvolvimento do paper-agent.
     sessão de refinamento. Estados 🌱/🧭 ficam fora — sinal de
     "pronto pra avançar" não é determinístico nesses estados,
     pedem sessão estratégica humana, não item reativo de fila.
-  - `CLEANUP` — épico em ✅ que ainda não foi limpo do ROADMAP
-    (Cleanup skill não rodou — automação pós-merge ainda não
-    configurada no Protótipo). Ação esperada: rodar
-    `skills/cleanup/skill.md` manualmente; ela move conteúdo
-    histórico do épico para fora do ROADMAP e a coluna ✅ do kanban
-    volta a ficar vazia. Resolve mecanicamente o ruído visual de
-    "✅ acumulando no kanban" sem precisar mexer em `EpicState`.
+  - `CLEANUP` — épico em ✅ de um milestone **inteiro fechado**
+    (todos os épicos ✅) que ainda não passou pela faxina. Épico ✅
+    de milestone ainda **aberto** (com irmão em estado ≠ ✅) **não**
+    é CLEANUP — é janela de progresso intra-milestone, e
+    `detect_cleanup_items` o ignora de propósito. Ação esperada:
+    rodar a faxina de **duas fases** — transição `🔀→✅` (stub) por
+    épico entregue; **remoção** do bloco só quando o milestone fecha
+    inteiro. Mecânica canônica em
+    [`epic_completion.md`](../refinement/epic_completion.md),
+    aplicada pela [`skills/cleanup/skill.md`](../../../skills/cleanup/skill.md)
+    no fold-in do dispatch seguinte (a Action pós-merge original foi
+    aposentada). Resolve o ruído visual de "✅ acumulando no kanban"
+    sem mexer em `EpicState`.
 - **Nota:** milestone declarado em 2026-04-28 — absorve o conteúdo
   do antigo MVP-WORKFLOW-PLATAFORMA, reposicionado como Protótipo
   porque é fila **reativa** (regra determinística), não curada por
