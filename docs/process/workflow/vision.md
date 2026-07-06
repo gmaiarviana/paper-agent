@@ -468,10 +468,14 @@ oportunidade real surgir.
   MVP).** No MVP, a plataforma deixa de ser meta-workflow só do
   paper-agent e passa a ser usada por outras pessoas em outros
   repositórios. O desacoplamento é uma **extração para um repo novo**,
-  próprio do workflow. Os dois movimentos — release a colegas e
-  desacoplamento do paper-agent — andam juntos: o primeiro é o gatilho do
-  segundo (não dá pra pedir que um colega use contra o repo do
-  paper-agent).
+  próprio do workflow. Os dois movimentos são **distintos e
+  sequenciáveis**: a **costura técnica de sync** (extração + operar o
+  fluxo contra um repo-alvo) pode e deve ser provada antes, contra um
+  segundo repo do próprio operador; o release a colegas é o gatilho da
+  **adoção externa** (auth, multi-persona, ambiente corporativo), não da
+  costura de sync. O gatilho duro do desacople é o primeiro alvo que
+  **não carrega as skills** — tipicamente o release, mas o mecanismo
+  antecede o gatilho. Materializado no ROADMAP como `MVP-WORKFLOW-DESACOPLE`.
   Implicações arquiteturais (fila por repo, dispatch sabe qual repo,
   skills versionadas por destino, auth) ficam pra refinamento quando o
   sinal aparecer concretamente. Não estrutura decisões do Piloto.
