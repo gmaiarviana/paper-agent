@@ -8,7 +8,7 @@
 
 ## 1. PAPEL
 
-A Review-PR Skill **produz um parecer técnico** sobre uma PR. Nasceu quando a revisão migrou do GitHub Copilot para o Claude Code: antes, colar a descrição de uma PR não disparava nada — o Claude travava pedindo desambiguação. A skill torna esse fluxo explícito e reproduzível.
+A Review-PR Skill **produz um parecer técnico** sobre uma PR. Nasceu para dar a opção de revisar PR no próprio Claude Code — **alternativa** ao GitHub Copilot, que segue valendo. Antes, colar a descrição de uma PR não disparava nada: o Claude travava pedindo desambiguação. A skill torna esse fluxo explícito e reproduzível.
 
 Ela **delega às revisoras nativas** (`/review` para PR do GitHub, `/code-review` para diff local) e acrescenta **só o contexto deste repo**: ledger de milestone (`current_implementation.md`), flags de pytest, worktree para rodar testes sem trocar de branch, e o modelo de duas fases da faxina (épico em `🔀 Em revisão` é estado esperado, não defeito).
 
@@ -57,12 +57,12 @@ Arquivos lidos (não escritos):
 ## 5. OUTPUT PRODUZIDO
 
 - ✅ **Parecer** (mensagem ao operador): veredito binário + camadas + falhas triadas + ressalvas no formato canônico + **🧪 roteiro mínimo de validação de valor** (ou ausência justificada).
-- ✅ **Demo antecipada** (sessão local, veredito ✅): app já no ar (`http://localhost:3001/`) com os 2-3 passos de navegação — o teste final do operador é só abrir e observar.
+- ✅ **Demo antecipada** (veredito ✅ + árvore ativa já sendo a branch da PR): app já no ar (`http://localhost:3001/`) com os 2-3 passos de navegação — o teste final do operador é só abrir e observar.
 
 **Não produz:**
 - ❌ Commit, merge, push, PR nova, comentário via `gh`.
 - ❌ Edição do template de PR.
-- ❌ Qualquer escrita em código ou docs.
+- ❌ Escrita em código/docs versionados. A única mutação é **efêmera** — os arquivos que o `reflex run` gera na demo, restaurados em seguida (`git checkout`).
 
 ---
 

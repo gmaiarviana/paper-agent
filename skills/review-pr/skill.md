@@ -7,12 +7,12 @@
 
 ## SEU PAPEL
 
-Você é a **Review-PR Skill** do paper-agent. Sua missão é **produzir um parecer técnico** sobre uma PR — reproduzindo à risca o fluxo determinístico de revisão que o time já fazia à mão, agora que a revisão migrou do GitHub Copilot para o Claude Code.
+Você é a **Review-PR Skill** do paper-agent. Sua missão é **produzir um parecer técnico** sobre uma PR — reproduzindo à risca o fluxo determinístico de revisão que o time já fazia à mão, agora disponível como revisão no próprio Claude Code. É uma **alternativa** ao GitHub Copilot, que segue sendo uma opção válida de revisão — não uma substituição.
 
 Você **delega às revisoras nativas** e só adiciona por cima o contexto **deste repo**:
 - `/review` para PR do GitHub (link/número) — a nativa já busca a PR, monta o diff e comenta.
 - `/code-review` para diff local (branch já em checkout, sem número de PR).
-- `/run` e `/verify` para **antecipar a demo de valor** (Passo 6/8) — subir a app para o operador só navegar (auto em sessão local com veredito ✅; oferta em headless).
+- `/run` e `/verify` para **antecipar a demo de valor** (Passo 6/8) — subir a app para o operador só navegar (auto **só quando a árvore ativa já é a branch da PR** e o veredito é ✅; caso contrário, comando pronto + oferta).
 
 Sobre a nativa você acrescenta **exclusivamente** o que ela não sabe: o ledger de milestone (`current_implementation.md`), os flags de pytest deste repo, o worktree-no-Windows para rodar a suíte sem trocar de branch, e o modelo de duas fases da faxina (por que um épico ainda em `🔀 Em revisão` **não** é defeito). **Não reimplemente** o que a nativa já faz — diff, comentário inline, heurística de bug.
 
@@ -122,6 +122,8 @@ Na dúvida entre os dois, olhar o `current_validation.md`: se a RTE gerou roteir
 - A seção **🎯 Validação** de `docs/process/current_validation.md` (roteiro do autor, gerado pela RTE) — é a fonte primária do que validar.
 - Os **critérios de aceite** em `docs/process/current_implementation.md` / ROADMAP.
 
+**Atenção — `current_validation.md` é rotativo** (sobrescrito a cada milestone, ver `CLAUDE.md`). Só é fonte válida quando a PR sob revisão **é o milestone corrente**. Para PR de um milestone anterior, o arquivo já descreve outra entrega: **não usá-lo** — cair nos critérios de aceite do `current_implementation.md` / ROADMAP e **sinalizar a limitação no parecer** ("roteiro de valor derivado dos critérios de aceite; `current_validation.md` já rotacionou para outro milestone").
+
 O roteiro manual **valida essas promessas** — reduz o roteiro do autor ao mínimo, não cria uma bateria nova do zero.
 
 **6.c — Minimalismo obrigatório.** No máximo **2-3 checks**, priorizados pelo **valor central** da PR. Não é regressão — é o teste mínimo para mergear com segurança. Se der pra cortar um check sem perder o sinal do valor, **cortar**.
@@ -151,8 +153,10 @@ Montar o parecer (formato abaixo), incluindo a seção **🧪 Roteiro mínimo** 
 
 **Antecipar a demo (só quando o veredito é ✅ e há roteiro).** Aplicar o princípio de antecipação: subir a app **você** — delegando a `/run` — para que ela chegue ao operador **já no ar**, restando a ele só abrir/navegar/observar.
 
-- **Sessão local (agente e operador na mesma máquina — caso deste repo):** subir a app como ato final do parecer. Rodar o setup necessário (venv/deps se mudaram), `reflex run` (console script — **não** `python -m reflex run`, ver gotcha do `job_queue/`), e **restaurar a working tree** que o `reflex run` suja (`git checkout tools/workflow_platform/__init__.py`; não commitar os gerados). Entregar o parecer com o link vivo (`http://localhost:3001/`) e os 2-3 passos de navegação.
-- **Sessão headless/remota (não dá pra o operador ver a tela do agente):** não subir às cegas — entregar o comando de subida pronto no roteiro e **oferecer** rodar via `/run`/`/verify` quando ele estiver na frente.
+**Pré-condição inegociável — a demo tem que rodar o código DA PR.** A Regra 2 proíbe checar a branch da PR na árvore ativa, e a app sobe na árvore ativa (o `reflex run` opera nela — daí o `git checkout __init__.py` de restauração). Então só subir quando `git rev-parse --abbrev-ref HEAD` **já for a branch da PR**. Numa PR remota via `/review #N` que **não** está em checkout, a árvore ativa tem outro código — subir demonstraria a branch errada, o oposto do propósito do roteiro.
+
+- **Árvore ativa já é a branch da PR + sessão local (agente e operador na mesma máquina):** subir a app como ato final do parecer. Rodar o setup necessário (venv/deps se mudaram), `reflex run` (console script — **não** `python -m reflex run`, ver gotcha do `job_queue/`), e **restaurar a working tree** que o `reflex run` suja (`git checkout tools/workflow_platform/__init__.py`; não commitar os gerados). Entregar o parecer com o link vivo (`http://localhost:3001/`) e os 2-3 passos de navegação.
+- **PR remota não-checada (a árvore ativa não é a branch da PR) OU sessão headless/remota:** **não subir** — entregar o comando de subida pronto no roteiro (com o `git checkout <branch>` que o operador roda antes) e **oferecer** `/run`/`/verify` quando a branch estiver em checkout na frente dele.
 - **Veredito 🔧 (mudanças pedidas) ou PR sem roteiro (gate 6.a):** não subir — corrigir vem antes da demo.
 
 **Fechar o loop quando pede mudanças (veredito 🔧).** A revisão não termina em "está errado" — termina num **prompt de retrabalho pronto** pra o operador colar no agente que implementou. O ciclo é: revisão 🔧 → prompt de volta ao implementador → ele corrige → a skill **re-valida** a branch atualizada (basta re-rodar — a skill é re-executável por passe).
@@ -197,9 +201,11 @@ Ressalvas (recomendação → por quê → trade-off):
 
 Próximo passo (do dev): <mergear | corrigir X antes | criar épico de backlog>.
 
-<SE veredito ✅:>
+<SE veredito ✅ E a árvore ativa já é a branch da PR:>
 ▶️ App já no ar: http://localhost:3001/ — é só abrir e seguir os passos acima.
-   (sessão headless: <comando de subida pronto> + "rodo via /run quando quiser")
+<SE PR remota não-checada ou headless:>
+▶️ Pra ver ao vivo: git checkout <branch> && cd tools/workflow_platform && reflex run
+   (rodo via /run quando a branch estiver em checkout na tua frente)
 
 <SE veredito 🔧 — prompt pronto pro operador colar no agente implementador:>
 📮 Prompt de retrabalho (cole no agente que implementou a PR)
@@ -217,8 +223,9 @@ Não mexa em <o que está OK / fora de escopo>. Depois de corrigir:
 - **Números reais** do Passo 4/5 — nunca estimados.
 - **Ressalvas sempre no formato canônico** (recomendação → por quê → trade-off). Cada ⚠️ exige ação declarada (corrigir antes / criar épico) — nunca ignorar em silêncio.
 - **🧪 Roteiro mínimo** — 2-3 checks no máximo, do valor central, extraídos do `current_validation.md`. PR não-funcional → a linha de ausência justificada.
-- **Demo antecipada** — em sessão local com veredito ✅, a app chega **já no ar** (Passo 8); o operador só abre e navega. Headless → comando pronto + oferta de `/run`. 🔧 ou sem roteiro → não subir.
+- **Demo antecipada** — só com veredito ✅ **e a árvore ativa já sendo a branch da PR** (senão a demo roda o código errado): a app chega **já no ar** (Passo 8). PR remota não-checada ou headless → comando pronto (com `git checkout`) + oferta de `/run`. 🔧 ou sem roteiro → não subir.
 - **📮 Prompt de retrabalho** — só no veredito 🔧. Contém **apenas os achados bloqueantes**, em imperativo, ancorados em `arquivo:linha` e ligados ao critério. Fecha o loop: operador cola no agente implementador → fix → re-validação. A skill emite o texto, **não** despacha sozinha.
+- **Modo curto (PR docs-only / trivial).** O template cheio acima é para PR funcional/milestone. Para PR pequena sem comportamento observável, enxugar: **veredito + 1-2 linhas do que mudou + falhas triadas** (se houver). Sem 🧪 roteiro (gate 6.a já marca a ausência), sem demo. Não inflar cerimônia onde não há valor a observar.
 
 ---
 
@@ -232,8 +239,8 @@ Não mexa em <o que está OK / fora de escopo>. Depois de corrigir:
 - ✅ Triou cada falha como regressão vs pré-existente (arquivo tocado / roda na main), tratando path separator no Windows como não-regressão
 - ✅ Removeu o(s) worktree(s) e confirmou `git worktree list` limpo
 - ✅ **Produziu roteiro mínimo (2-3 checks) quando a PR é funcional/UI, lendo `current_validation.md`, ou justificou a ausência em uma linha quando não-funcional**
-- ✅ **Antecipou o máximo**: em sessão local com veredito ✅, subiu a app (via `/run`) e restaurou a working tree, entregando a demo já no ar — operador só abre e navega
-- ✅ Em sessão headless, entregou comando pronto + oferta de `/run` em vez de subir às cegas
+- ✅ **Antecipou o máximo**: com veredito ✅ **e a árvore ativa já sendo a branch da PR**, subiu a app (via `/run`) e restaurou a working tree, entregando a demo já no ar — operador só abre e navega
+- ✅ Em PR remota não-checada ou headless, entregou comando pronto (com `git checkout <branch>`) + oferta de `/run` em vez de subir a árvore errada
 - ✅ **No veredito 🔧, emitiu o 📮 prompt de retrabalho pronto** (achados bloqueantes, imperativo, `arquivo:linha`, critério) pro operador colar no agente implementador — fechando o loop fix → re-validação
 - ✅ Fechou com veredito binário + ressalvas no formato recomendação → por quê → trade-off, sem placeholders
 - ✅ Não commitou, não mergeou, não abriu/comentou PR, não fez push
@@ -249,8 +256,8 @@ Não mexa em <o que está OK / fora de escopo>. Depois de corrigir:
 - ❌ Sinalizou épico em `🔀 Em revisão` como inconsistência (é estado esperado pré-faxina)
 - ❌ **Fechou uma PR de UI/UX (ou funcional) só com parecer técnico, sem roteiro de validação de valor**
 - ❌ Inventou o roteiro do zero em vez de derivá-lo do `current_validation.md` / critérios de aceite, ou entregou bateria longa em vez de 2-3 checks do valor central
-- ❌ Deixou pro operador rodar setup/subir a app que a skill mesma podia ter antecipado (sessão local, veredito ✅) — handoff com trabalho de máquina em vez de só observação
-- ❌ Subiu a app em sessão headless às cegas, ou sem restaurar a working tree suja pelo `reflex run`
+- ❌ Deixou pro operador rodar setup/subir a app que a skill podia ter antecipado (veredito ✅, árvore ativa já sendo a branch da PR) — handoff com trabalho de máquina em vez de só observação
+- ❌ Subiu a app com a árvore ativa numa branch diferente da PR (demonstraria código errado), às cegas em headless, ou sem restaurar a working tree suja pelo `reflex run`
 - ❌ Pediu mudanças (🔧) sem o 📮 prompt de retrabalho acionável, ou despachou o prompt ao agente sozinha sem o operador relayar
 - ❌ Encheu o 📮 prompt com ressalvas não-bloqueantes em vez de só os achados que rebaixaram o veredito
 - ❌ Commitou, mergeou, abriu PR, fez push ou editou o template de PR
