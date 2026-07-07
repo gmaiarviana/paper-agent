@@ -1,7 +1,11 @@
-# Workflow de Desenvolvimento
+# Workflow
 
-> Processo pelo qual o paper-agent é construído. Vive em `docs/process/workflow/`.
-> Não confundir com produtos do super-sistema — workflow é processo, não produto.
+> Plataforma de gestão human-in-the-loop. O primeiro agente provado é o de
+> **desenvolvimento de software** — construir o próprio paper-agent —, mas a
+> missão é genérica: uma face conversa com o operador enquanto agentes
+> especializados trabalham por baixo (ver [vision.md](vision.md)). Vive em
+> `docs/process/workflow/`. Não confundir com produtos do super-sistema —
+> workflow orquestra a construção, não é um produto entregue ao usuário final.
 
 ## Documentos
 

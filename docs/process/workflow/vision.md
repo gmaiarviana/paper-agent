@@ -144,6 +144,18 @@ complementar às skills em `skills/`. Serve ao operador humano que
 orquestra o sistema, não ao usuário final dos produtos. Não é produto do
 super-sistema (Revelar, Ensaio e demais não a usam).
 
+### Navegação por escopo (projeto → tema)
+
+A face é navegável antes de ser lida: o operador escolhe o **projeto** e,
+dentro dele, o **tema** — e fila, kanban e chat focado passam a mostrar só
+aquele recorte (ver princípio "Uma face, muitos agentes"). Isso já existe
+em embrião no filtro **"Visíveis"** da plataforma (seleção de escopos:
+Core, Workflow, Revelar, Ensaio, Prisma Verbal, ...). O arco é **evoluir
+esse filtro** — de um toggle de visibilidade para a navegação projeto →
+tema: primeiro o projeto, depois o tema dentro dele. Perto do curto prazo
+o uso real é um projeto por vez (ver "Norte de curto prazo"); a navegação
+multi-projeto plena é arco seguinte, não corte de hoje.
+
 ### Fila
 
 Quando o operador entra, encontra uma **fila** no centro de gravidade.
