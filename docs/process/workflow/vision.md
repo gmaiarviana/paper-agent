@@ -53,7 +53,13 @@ proatividade plena são arcos seguintes — não o curto prazo.
   desenvolvimento é o **nativo**; outros (paper-agent rodando pesquisa,
   rotinas de varredura) **integram-se** conforme o sinal, cada um com seu
   próprio shape de trabalho. A pluralidade de agentes é detalhe de
-  execução, não carga cognitiva do humano.
+  execução, não carga cognitiva do humano. A face é **navegável por
+  escopo**: o operador escolhe o **projeto** (Ensaio, Revelar, …; amanhã
+  outros repos e domínios) e, dentro dele, o **tema** que quer conduzir —
+  e conversa com o orquestrador nesse recorte. "Tema" é o recorte genérico
+  acima do item de domínio (no dev, materializa-se como milestone/épico).
+  Perto do curto prazo isso roda num projeto só (ver "Norte de curto
+  prazo"); a navegação multi-projeto é arco seguinte, não corte de hoje.
 - **Workflow é processo, não produto (atualmente).** O fluxo de
   desenvolvimento serve a todos os produtos do paper-agent (Revelar,
   Ensaio, Prisma Verbal, ...) sem ser nenhum deles. A própria plataforma
