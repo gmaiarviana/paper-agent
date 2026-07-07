@@ -1,11 +1,19 @@
 # Workflow
 
-> Plataforma de gestão human-in-the-loop. O primeiro agente provado é o de
-> **desenvolvimento de software** — construir o próprio paper-agent —, mas a
-> missão é genérica: uma face conversa com o operador enquanto agentes
-> especializados trabalham por baixo (ver [vision.md](vision.md)). Vive em
-> `docs/process/workflow/`. Não confundir com produtos do super-sistema —
-> workflow orquestra a construção, não é um produto entregue ao usuário final.
+> **O que é:** o processo/plataforma pelo qual o paper-agent é construído.
+> Hoje, uma plataforma de gestão human-in-the-loop cujo primeiro agente
+> provado é o de **desenvolvimento de software** — uma face conversa com o
+> operador enquanto agentes especializados trabalham por baixo (visão
+> completa em [vision.md](vision.md)).
+>
+> **Onde vive:** `docs/process/workflow/`. Quando o operador fala "o
+> workflow", é aqui que o contexto mora.
+>
+> **Não confundir:** workflow **é processo/plataforma, não produto**
+> (atualmente) — não é um dos produtos do super-sistema (Revelar, Ensaio,
+> Prisma Verbal, ...); é o que os constrói. (A própria plataforma pode um
+> dia se separar do agente de dev em produtos distintos — ver "Horizonte"
+> na visão.)
 
 ## Documentos
 
