@@ -1,13 +1,30 @@
-# Visão do Workflow de Desenvolvimento
+# Visão do Workflow
 
 ## Missão
 
-Estabelecer um sistema de fluxos de desenvolvimento autônomo, onde tarefas
-de naturezas distintas — implementar, refinar, observar, auditar,
-reorganizar — são executadas por fluxos especializados, orquestrados por
-uma priorização que escolhe o trabalho do dia a partir de um backlog
-curado. O operador humano valida o resultado; a execução roda sem
-supervisão contínua.
+O Workflow é uma **plataforma de gestão human-in-the-loop**: um agente
+autônomo trabalha em segundo plano, conversa com o operador e traz à tona
+as decisões e travas que pedem olho humano. O operador chega, vê o que
+mudou e o que espera decisão, e dialoga com **uma** face — enquanto
+diversos agentes especializados já trabalharam por baixo dos panos. O
+humano valida o resultado; a execução roda sem supervisão contínua.
+
+Essa face única é o papel **orquestrador** da plataforma (proponente +
+porta-voz — ver "Papéis"): escolhe o próximo movimento a partir de um
+backlog curado e dispara o agente certo para cada tarefa de natureza
+distinta — implementar, refinar, observar, auditar, reorganizar. Cada
+tarefa passa por um fluxo especializado; o operador não força tudo no
+mesmo trilho.
+
+O **primeiro agente provado é o de desenvolvimento de software** —
+construir o próprio paper-agent. Ele é o **agente nativo** da plataforma:
+seu modelo de trabalho (épico, oito estados, PR como portão) é a
+instanciação do domínio de software, não o miolo da plataforma. Disparar
+outros agentes (o paper-agent rodando pesquisa, uma varredura autônoma) e
+rodar rotinas agendadas são a **mesma missão** — não extensões dela —,
+cada um trazendo seu próprio shape de trabalho quando chegar. A disciplina
+é genérico no propósito, **um domínio de cada vez** na execução (ver
+"Horizonte").
 
 A forma materializada dessa missão é uma **plataforma** que remove atrito
 de decisão: o operador chega e o próximo passo já está esperando. Esta
@@ -30,10 +47,24 @@ proatividade plena são arcos seguintes — não o curto prazo.
   passam por fluxos especializados. Implementar código tem um fluxo;
   refinar visão em etapas tem outro; observar crescimento desordenado da
   arquitetura tem outro. O operador não força tudo no mesmo trilho.
+- **Uma face, muitos agentes.** O operador dialoga com um único
+  orquestrador (proponente + porta-voz) e não gerencia agentes um a um.
+  Por baixo, agentes especializados executam os fluxos — o de
+  desenvolvimento é o **nativo**; outros (paper-agent rodando pesquisa,
+  rotinas de varredura) **integram-se** conforme o sinal, cada um com seu
+  próprio shape de trabalho. A pluralidade de agentes é detalhe de
+  execução, não carga cognitiva do humano. A face é **navegável por
+  escopo**: o operador escolhe o **projeto** (Ensaio, Revelar, …; amanhã
+  outros repos e domínios) e, dentro dele, o **tema** que quer conduzir —
+  e conversa com o orquestrador nesse recorte. "Tema" é o recorte genérico
+  acima do item de domínio (no dev, materializa-se como milestone/épico).
+  Perto do curto prazo isso roda num projeto só (ver "Norte de curto
+  prazo"); a navegação multi-projeto é arco seguinte, não corte de hoje.
 - **Workflow é processo, não produto (atualmente).** O fluxo de
   desenvolvimento serve a todos os produtos do paper-agent (Revelar,
-  Ensaio, Prisma Verbal, ...) sem ser nenhum deles. Ver "Horizonte" pra
-  evolução futura.
+  Ensaio, Prisma Verbal, ...) sem ser nenhum deles. A própria plataforma
+  (a face HITL) pode um dia se separar do agente de desenvolvimento em
+  produtos distintos — ver "Horizonte" pra evolução futura.
 - **Operador valida, não supervisiona.** O ideal é: o fluxo roda sem
   supervisão contínua, produz um artefato, e o humano decide aprovar ou
   devolver. Supervisão contínua é passo intermediário até o fluxo ser
@@ -112,6 +143,18 @@ A plataforma é a UI sobre o workflow — ferramenta de meta-workflow,
 complementar às skills em `skills/`. Serve ao operador humano que
 orquestra o sistema, não ao usuário final dos produtos. Não é produto do
 super-sistema (Revelar, Ensaio e demais não a usam).
+
+### Navegação por escopo (projeto → tema)
+
+A face é navegável antes de ser lida: o operador escolhe o **projeto** e,
+dentro dele, o **tema** — e fila, kanban e chat focado passam a mostrar só
+aquele recorte (ver princípio "Uma face, muitos agentes"). Isso já existe
+em embrião no filtro **"Visíveis"** da plataforma (seleção de escopos:
+Core, Workflow, Revelar, Ensaio, Prisma Verbal, ...). O arco é **evoluir
+esse filtro** — de um toggle de visibilidade para a navegação projeto →
+tema: primeiro o projeto, depois o tema dentro dele. Perto do curto prazo
+o uso real é um projeto por vez (ver "Norte de curto prazo"); a navegação
+multi-projeto plena é arco seguinte, não corte de hoje.
 
 ### Fila
 
@@ -439,6 +482,13 @@ Master, QA, TL, PO, RTE, PM, EM, Cleanup) são ferramentas do workflow.
 Skills não viram agentes do core. Agentes do core não viram skills. Estão
 em eixos diferentes.
 
+Essa parede vale **hoje**: o workflow *constrói*, os produtos *servem* o
+usuário final. A máquina HITL da plataforma é, porém, genérica o bastante
+para um dia também *operar* agentes — inclusive o próprio paper-agent
+rodando pesquisa, como agente integrado. Quando esse sinal chegar, a parede
+ganha uma **porta declarada** (ver "Horizonte > Agentes integrados"), aberta
+um domínio de cada vez. Enquanto o sinal não vem, a distinção segue firme.
+
 ## Padrão Emergente: Skill em Action
 
 Introduzido em W-PROTO-6 com `skills/cleanup/`. **Primeira skill** do
@@ -482,6 +532,29 @@ oportunidade real surgir.
 - **Outros fluxos do workflow** (ver "Fluxos > Futuros" acima). Cada um
   vira épico próprio conforme sinal de necessidade — não estruturam
   decisões atuais.
+- **Agentes integrados além do desenvolvimento.** A face orquestradora é
+  agnóstica de domínio, e a máquina que a sustenta (fila de decisões,
+  execução em segundo plano, valida-não-supervisiona, pull-não-push,
+  briefing sob demanda) já não é específica de software. O caminho é a
+  plataforma dispachar agentes além do nativo de dev — o **paper-agent
+  rodando pesquisa** ou uma varredura autônoma é o exemplo canônico. Cada
+  agente integrado traz seu **próprio shape de item de trabalho**, seus
+  gates e seus fluxos — não cabe em "estado de épico" nem em "PR como
+  portão". É aqui que a "Distinção com Produtos" ganha a porta declarada: a
+  plataforma passa de só *construir* o paper-agent a também poder *operá-lo*.
+  Sem arquitetura especulativa — o shape de cada domínio novo se desenha
+  quando o sinal concreto chegar, um domínio de cada vez.
+- **Plataforma e agente de desenvolvimento como produtos distintos.** Hoje
+  os dois convivem numa visão só. Maturidade futura pode separá-los: a
+  plataforma de visualização + dispatch proativo (a face HITL) de um lado,
+  o agente de desenvolvimento (skills, fluxos e gates de dev) de outro —
+  dois produtos que se compõem, não um monólito. Não se separa fortemente
+  agora; o gatilho é sinal real de que a fronteira paga por si.
+- **Fluxos de desenvolvimento customizáveis por usuário.** Quando o
+  workflow for usado por outras pessoas (ver "Release a colegas" abaixo), o
+  agente de desenvolvimento deixa de ter um fluxo fixo: o usuário compõe o
+  seu — quais skills, quais estados, quais gates. O modelo épico-cêntrico
+  de hoje vira um **default**, não a única forma.
 - **Release a colegas e workflow como produto desacoplado (estágio
   MVP).** No MVP, a plataforma deixa de ser meta-workflow só do
   paper-agent e passa a ser usada por outras pessoas em outros
