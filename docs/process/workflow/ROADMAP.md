@@ -1041,6 +1041,32 @@ cuida só do conteúdo informacional. Nada central cortado.
 
 ---
 
+#### ÉPICO W-PILOTO-UX-5: Feedback de operações assíncronas na plataforma
+
+**Milestone:** `PILOTO-WORKFLOW-UX`
+
+**Objetivo:** operações que vão à rede/git — hoje o **🔄 Recarregar**, que dispara
+`_recompute_queue(do_fetch=True)` → `git fetch` das branches remotas — devem dar
+**feedback imediato** de progresso. Hoje o botão fica sem sinal enquanto o fetch
+roda, causando dúvida se clicou ou travou. Trata a responsividade percebida da fila.
+
+**Status:** 🌱 Visão
+
+**Origem:** atrito observado pelo operador na validação da PR #144 (2026-07-07) —
+Recarregar demorou e não deu feedback, gerando incerteza. Capturado como épico-🌱
+(não fix inline na #144): é melhoria de UX, não bug — o reload funciona, falta a
+affordance.
+
+**Sementes a decompor no refinamento (pode virar 1 ou 2 épicos):**
+- **Estado de carregando** — Recarregar (e qualquer ação com fetch) exibe spinner /
+  botão desabilitado enquanto roda; volta ao normal ao concluir.
+- **Latência do fetch no reload** — avaliar desacoplar o `git fetch` (assíncrono /
+  sob demanda / cache com TTL) pra o recompute local não pagar a ida à rede.
+- **Indicadores de progresso reusáveis** — padrão de feedback pra outras operações
+  longas; cross-ref UX-2/3/4 pra não duplicar componente.
+
+---
+
 #### ÉPICO W-PILOTO-HIGIENE-1: Cleanup efetivo e ROADMAP enxuto
 
 **Milestone:** _(órfão — sem milestone; aguarda refinamento estratégico para
@@ -1068,6 +1094,18 @@ Bifurcação "manter histórico vs. enxugar" resolvida para **enxugar**.
   1 item/épico; rever granularidade ou se `✅` deve gerar item de fila).
   Esta camada é **downstream** da processual: cleanup pontual dissolve a
   maior parte do flooding.
+- **Robustez de predecessor** (seed da revisão da PR #144) — hoje
+  `models._predecessor_satisfied` trata um id de `**Predecessor bloqueante:**`
+  não encontrado no ROADMAP parseado como **satisfeito** (fail-open). A decisão
+  é correta: o caso dominante de "não encontrado" é predecessor já concluído e
+  **podado pela faxina** — bloquear pra sempre um dependente já entregue seria o
+  pior modo de falha. Efeito colateral: um id **digitado errado** desbloqueia
+  silenciosamente um épico que se quis travar (indistinguível de um podado).
+  Rede de segurança a refinar (sem reintroduzir o modo de falha ruim): o
+  **parser emite warning** quando um id de predecessor não casa com nenhum épico
+  nem milestone do conjunto parseado — avisa, não bloqueia. Pertence a este
+  épico porque o fail-open só é seguro **enquanto** a faxina poda `✅` de forma
+  confiável (camadas Processual/Plataforma acima).
 
 **Suspeita de causa raiz:** o mecanismo de faxina não roda / não cobre tudo
 (automação histórica quebrada — cf. W-PROTO-17 / PR #123; fold-in de dispatch
