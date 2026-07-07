@@ -29,9 +29,9 @@ def _dispatch_item(suffix: str) -> QueueItem:
         context="3 épicos em 🔍",
         expected_action="rodar em sessão autônoma",
         source_pointer=EpicPointer(
+            epic_id=f"E-{suffix}",
             milestone_id=suffix,
             roadmap_path="x.md",
-            epic_ids=["E1", "E2", "E3"],
         ),
         detected_at=_NOW,
     )

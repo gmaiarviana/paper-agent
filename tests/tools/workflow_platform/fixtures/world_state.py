@@ -24,12 +24,14 @@ SNAPSHOT_THRESHOLD_DAYS = 7
 
 
 def make_world_state_fixture() -> WorldState:
-    """Estado fixo, reproduzível, com 3 itens esperados na fila.
+    """Estado fixo, reproduzível, com 5 itens esperados na fila.
 
-    Itens esperados produzidos por ``detect_all_items``:
-        1. DISPATCH em ``MIL-DISPATCH`` (3 épicos em 🔍)
-        2. REVIEW para PR #91 (2 épicos em 🔀 pareados)
-        3. STALE_BRANCH para ``claude/abandoned`` (10 dias sem commit)
+    Itens esperados produzidos por ``detect_all_items`` (dispatch por épico —
+    W-PILOTO-DISP-1):
+        1-3. DISPATCH por épico de ``MIL-DISPATCH`` (3 épicos em 🔍, sem
+             predecessor bloqueante) → ``dispatch:S-DISPATCH-1/2/3``
+        4. REVIEW para PR #91 (2 épicos em 🔀 pareados)
+        5. STALE_BRANCH para ``claude/abandoned`` (10 dias sem commit)
     """
     roadmap_a_path = "synthetic/roadmap-a.md"
     roadmap_b_path = "synthetic/roadmap-b.md"

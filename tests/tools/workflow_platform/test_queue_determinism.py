@@ -92,13 +92,14 @@ def test_detect_snapshot():
     assert actual == expected
 
 
-def test_snapshot_has_three_items_one_of_each_relevant_type():
-    """Snapshot atual tem exatamente 1 DISPATCH, 1 REVIEW, 1 STALE_BRANCH.
+def test_snapshot_has_expected_type_composition():
+    """Snapshot atual tem 3 DISPATCH (1 por épico 🔍), 1 REVIEW, 1 STALE_BRANCH.
 
-    REFINE/CLEANUP não estão no snapshot porque os épicos sintéticos não
-    cobrem 📐/📋/✅ — esses tipos têm cobertura unitária em
+    Dispatch é por épico (W-PILOTO-DISP-1): os 3 épicos 🔍 de ``MIL-DISPATCH``
+    viram 3 itens. REFINE/CLEANUP não estão no snapshot porque os épicos
+    sintéticos não cobrem 📐/📋/✅ — esses tipos têm cobertura unitária em
     ``test_queue_detect.py``.
     """
     expected = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
     types = sorted(item["type"] for item in expected)
-    assert types == ["dispatch", "review", "stale_branch"]
+    assert types == ["dispatch", "dispatch", "dispatch", "review", "stale_branch"]

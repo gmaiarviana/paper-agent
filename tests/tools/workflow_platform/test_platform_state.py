@@ -93,17 +93,17 @@ def state(make_state) -> PlatformState:
 def test_on_load_populates_roadmaps_and_queue(state: PlatformState):
     assert len(state.roadmaps_all) == 1
     assert len(state.roadmaps_all[0]["epics"]) == 3
-    # 3 épicos 🔍 no mesmo milestone → exatamente 1 item DISPATCH.
-    assert len(state.queue_items) == 1
-    assert state.queue_items[0].item_type == "dispatch"
-    assert "implementa" in state.queue_items[0].prompt.lower()
+    # 3 épicos 🔍 no mesmo milestone → 1 item DISPATCH por épico (por-épico).
+    assert len(state.queue_items) == 3
+    assert all(it.item_type == "dispatch" for it in state.queue_items)
+    assert all("implementa" in it.prompt.lower() for it in state.queue_items)
 
 
 def test_grouped_queue_has_dispatch_bucket(state: PlatformState):
     groups = state.grouped_queue
     assert len(groups) == 1
     assert groups[0].label == "Dispatch"
-    assert len(groups[0].cards) == 1
+    assert len(groups[0].cards) == 3
 
 
 def test_select_item_sets_selection_and_detail(state: PlatformState):
@@ -141,7 +141,7 @@ def test_toggle_roadmap_hides_and_reshows(state: PlatformState):
     assert state.queue_items == []          # nada visível → nada detectado
     state.toggle_roadmap(rel)
     assert rel in state.visible_roadmaps
-    assert len(state.queue_items) == 1
+    assert len(state.queue_items) == 3
 
 
 # ---------------------------------------------------------------------------
@@ -207,3 +207,60 @@ def test_kanban_detail_done(make_state):
     s.select_epic("W-KIND-1")
     assert s.kanban_detail.kind == "done"
     assert s.kanban_detail.excerpt == "resumo…"
+
+
+# ---------------------------------------------------------------------------
+# Predecessor bloqueante (W-PILOTO-DISP-1.4): Fila oculta, Kanban comunica.
+# ---------------------------------------------------------------------------
+
+
+def _blocked_pair(dep_state: EpicState) -> list[Epic]:
+    """Predecessor em 🔀 (não-✅) + dependente que o declara."""
+    return [
+        Epic(id="PRED", title="predecessor", state=EpicState.IN_REVIEW,
+             roadmap_path="", milestone_id="FAKE-MILESTONE", pr_number=9),
+        Epic(id="DEP", title="dependente", state=dep_state,
+             roadmap_path="", milestone_id="OTHER-MILESTONE",
+             blocking_predecessors=["PRED"]),
+    ]
+
+
+def test_blocked_epic_absent_from_queue(make_state):
+    # DEP em 🔍 mas bloqueado por PRED (🔀) → não aparece na Fila.
+    s = make_state(_blocked_pair(EpicState.DETAILED))
+    dispatch_ids = [it.id for it in s.queue_items if it.item_type == "dispatch"]
+    assert "dispatch:DEP" not in dispatch_ids
+
+
+def test_blocked_epic_kanban_card_has_lock_badge(make_state):
+    s = make_state(_blocked_pair(EpicState.DETAILED))
+    cards = [
+        c
+        for col in s.kanban_columns
+        for g in col.groups
+        for c in g.epics
+        if c.id == "DEP"
+    ]
+    assert len(cards) == 1
+    card = cards[0]
+    assert card.blocked is True
+    assert "🔒" in card.blocked_note
+    assert "PRED" in card.blocked_note
+    assert "🔒" in card.label   # selo no rótulo, card permanece clicável
+
+
+def test_blocked_epic_detail_panel_shows_block_no_action(make_state):
+    s = make_state(_blocked_pair(EpicState.DETAILED))
+    s.select_epic("DEP")
+    assert s.kanban_detail.kind == "blocked"
+    assert s.kanban_detail.blocked_by == "PRED"
+    assert s.kanban_detail.dispatch_prompt == ""
+
+
+def test_blocked_refine_epic_also_hidden_and_flagged(make_state):
+    # Regra compartilhada serve refino: DEP em 📐 bloqueado → fora da Fila.
+    s = make_state(_blocked_pair(EpicState.SKETCHED))
+    refine_ids = [it.id for it in s.queue_items if it.item_type == "refine"]
+    assert "refine:DEP" not in refine_ids
+    s.select_epic("DEP")
+    assert s.kanban_detail.kind == "blocked"

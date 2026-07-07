@@ -62,63 +62,103 @@ def _state(
     )
 
 
-# ----- DISPATCH -----
+# ----- DISPATCH (por épico + gate de predecessor) -----
 
-def test_dispatch_with_all_detailed_generates_one_item():
+def test_dispatch_emits_one_item_per_detailed_epic():
     epics = [
         _epic("E1", EpicState.DETAILED, milestone_id="MIL-A"),
         _epic("E2", EpicState.DETAILED, milestone_id="MIL-A"),
     ]
     state = _state(roadmaps=[_roadmap(epics)])
     items = detect_dispatch_items(state)
-    assert len(items) == 1
+    assert len(items) == 2
+    ids = sorted(i.id for i in items)
+    assert ids == ["dispatch:E1", "dispatch:E2"]
     item = items[0]
     assert item.type == ItemType.DISPATCH
-    assert item.id == "dispatch:MIL-A"
     assert isinstance(item.source_pointer, EpicPointer)
-    assert item.source_pointer.epic_ids == ["E1", "E2"]
+    assert item.source_pointer.epic_id in {"E1", "E2"}
+    assert item.source_pointer.milestone_id == "MIL-A"
 
 
-def test_dispatch_with_one_in_progress_does_not_generate():
+def test_dispatch_partial_milestone_surfaces_remaining_detailed_slices():
+    # Milestone parcialmente entregue: irmãos em 🏗️/🔀/✅/pré-📋 NÃO suprimem o
+    # épico 🔍 restante — a fatia 🔍 vira item própria.
     epics = [
-        _epic("E1", EpicState.DETAILED, milestone_id="MIL-A"),
-        _epic("E2", EpicState.IN_PROGRESS, milestone_id="MIL-A"),
+        _epic("DONE-1", EpicState.DONE, milestone_id="MIL-A"),
+        _epic("PROG-1", EpicState.IN_PROGRESS, milestone_id="MIL-A"),
+        _epic("REV-1", EpicState.IN_REVIEW, milestone_id="MIL-A", pr_number=1),
+        _epic("SKETCH-1", EpicState.SKETCHED, milestone_id="MIL-A"),
+        _epic("READY-1", EpicState.DETAILED, milestone_id="MIL-A"),
     ]
     state = _state(roadmaps=[_roadmap(epics)])
-    assert detect_dispatch_items(state) == []
-
-
-def test_dispatch_with_one_in_review_does_not_generate():
-    epics = [
-        _epic("E1", EpicState.DETAILED, milestone_id="MIL-A"),
-        _epic("E2", EpicState.IN_REVIEW, milestone_id="MIL-A", pr_number=1),
-    ]
-    state = _state(roadmaps=[_roadmap(epics)])
-    assert detect_dispatch_items(state) == []
-
-
-def test_dispatch_with_one_done_does_not_generate():
-    epics = [
-        _epic("E1", EpicState.DETAILED, milestone_id="MIL-A"),
-        _epic("E2", EpicState.DONE, milestone_id="MIL-A"),
-    ]
-    state = _state(roadmaps=[_roadmap(epics)])
-    assert detect_dispatch_items(state) == []
-
-
-def test_dispatch_with_one_pre_detailed_does_not_generate():
-    epics = [
-        _epic("E1", EpicState.DETAILED, milestone_id="MIL-A"),
-        _epic("E2", EpicState.SKETCHED, milestone_id="MIL-A"),
-    ]
-    state = _state(roadmaps=[_roadmap(epics)])
-    assert detect_dispatch_items(state) == []
+    items = detect_dispatch_items(state)
+    assert [i.id for i in items] == ["dispatch:READY-1"]
 
 
 def test_dispatch_skips_epics_without_milestone():
     epics = [_epic("E1", EpicState.DETAILED, milestone_id=None)]
     state = _state(roadmaps=[_roadmap(epics)])
     assert detect_dispatch_items(state) == []
+
+
+def test_dispatch_only_detailed_epics():
+    epics = [
+        _epic("V", EpicState.VISION, milestone_id="MIL-A"),
+        _epic("S", EpicState.SKETCHED, milestone_id="MIL-A"),
+        _epic("C", EpicState.CRITERIA, milestone_id="MIL-A"),
+        _epic("P", EpicState.IN_PROGRESS, milestone_id="MIL-A"),
+    ]
+    state = _state(roadmaps=[_roadmap(epics)])
+    assert detect_dispatch_items(state) == []
+
+
+def test_dispatch_blocked_by_non_done_predecessor_is_suppressed():
+    epics = [
+        _epic("PRED", EpicState.IN_REVIEW, milestone_id="MIL-A", pr_number=1),
+        _epic("DEP", EpicState.DETAILED, milestone_id="MIL-B",
+              blocking_predecessors=["PRED"]),
+    ]
+    state = _state(roadmaps=[_roadmap(epics)])
+    items = detect_dispatch_items(state)
+    # PRED em 🔀 (não ✅) → DEP bloqueado, não gera item. PRED não é DETAILED.
+    assert items == []
+
+
+def test_dispatch_with_done_predecessor_generates():
+    epics = [
+        _epic("PRED", EpicState.DONE, milestone_id="MIL-A"),
+        _epic("DEP", EpicState.DETAILED, milestone_id="MIL-B",
+              blocking_predecessors=["PRED"]),
+    ]
+    state = _state(roadmaps=[_roadmap(epics)])
+    items = detect_dispatch_items(state)
+    assert [i.id for i in items] == ["dispatch:DEP"]
+
+
+def test_dispatch_milestone_predecessor_all_done_satisfies():
+    # Predecessor por id de milestone: satisfeito quando todos os épicos ✅.
+    epics = [
+        _epic("M1-A", EpicState.DONE, milestone_id="MIL-PRED"),
+        _epic("M1-B", EpicState.DONE, milestone_id="MIL-PRED"),
+        _epic("DEP", EpicState.DETAILED, milestone_id="MIL-DEP",
+              blocking_predecessors=["MIL-PRED"]),
+    ]
+    state = _state(roadmaps=[_roadmap(epics)])
+    items = detect_dispatch_items(state)
+    assert "dispatch:DEP" in [i.id for i in items]
+
+
+def test_dispatch_milestone_predecessor_partial_blocks():
+    epics = [
+        _epic("M1-A", EpicState.DONE, milestone_id="MIL-PRED"),
+        _epic("M1-B", EpicState.DETAILED, milestone_id="MIL-PRED"),
+        _epic("DEP", EpicState.DETAILED, milestone_id="MIL-DEP",
+              blocking_predecessors=["MIL-PRED"]),
+    ]
+    state = _state(roadmaps=[_roadmap(epics)])
+    ids = [i.id for i in detect_dispatch_items(state)]
+    assert "dispatch:DEP" not in ids
 
 
 # ----- REVIEW -----
@@ -186,6 +226,27 @@ def test_refine_excludes_vision_and_aligned():
     ]
     state = _state(roadmaps=[_roadmap(epics)])
     assert detect_refine_items(state) == []
+
+
+def test_refine_blocked_by_non_done_predecessor_is_suppressed():
+    epics = [
+        _epic("PRED", EpicState.IN_REVIEW, milestone_id="MIL-A", pr_number=1),
+        _epic("DEP", EpicState.SKETCHED, milestone_id="MIL-B",
+              blocking_predecessors=["PRED"]),
+    ]
+    state = _state(roadmaps=[_roadmap(epics)])
+    assert detect_refine_items(state) == []
+
+
+def test_refine_with_done_predecessor_generates():
+    epics = [
+        _epic("PRED", EpicState.DONE, milestone_id="MIL-A"),
+        _epic("DEP", EpicState.CRITERIA, milestone_id="MIL-B",
+              blocking_predecessors=["PRED"]),
+    ]
+    state = _state(roadmaps=[_roadmap(epics)])
+    items = detect_refine_items(state)
+    assert [i.id for i in items] == ["refine:DEP"]
 
 
 def test_refine_excludes_detailed_and_execution_states():

@@ -1,149 +1,133 @@
-# Implementação Atual: Milestone PILOTO-WORKFLOW-UX (fatia W-PILOTO-UX-1)
+# Implementação Atual: Milestone PILOTO-WORKFLOW-DISPATCH-EPICO
 
-**Milestone:** PILOTO-WORKFLOW-UX — reconstruir o cockpit em Reflex com o polimento embutido
+**Milestone:** PILOTO-WORKFLOW-DISPATCH-EPICO — dispatch e refino por épico, com predecessor bloqueante
 **Produto:** workflow
 **Estágio:** Piloto
-**Branch:** `claude/docs-process-workflow-gk9hac` (harness-assigned; equivalente a `milestone/piloto-workflow-ux` no fluxo manual)
+**Branch:** `claude/admiring-ramanujan-2s5tiq` (harness-assigned; equivalente a `milestone/piloto-workflow-dispatch-epico` no fluxo manual)
 **Modo:** Autônomo
-**Dispatch recebido em:** 2026-07-04
+**Dispatch recebido em:** 2026-07-06
 
-> **Escopo desta PR:** apenas **W-PILOTO-UX-1** (migração Reflex — fundação).
-> Os 4 épicos do milestone estão em `🔍`, mas o ROADMAP declara que **UX-2/3/4
-> dependem de UX-1 mergear** (fundação Reflex) antes de implementar. Logo, o
-> único pronto para implementar agora é UX-1, entregue aqui como PR própria.
-> UX-2/3/4 seguem para um dispatch posterior sobre a fundação já mergeada.
+> **Escopo desta PR:** o milestone tem **um único épico** — **W-PILOTO-DISP-1**
+> (dispatch/refino por épico + predecessor bloqueante), em `🔍`. Dependências
+> declaradas (W-PILOTO-UX-1 `✅` mergeada; PROTO-WORKFLOW-FILA) satisfeitas.
 
 ---
 
 ## Contexto do Milestone
 
-**Objetivo:** trocar a camada de apresentação da plataforma de Streamlit para
-Reflex ([ADR 001](workflow/adr/001-stack-da-plataforma.md)), preservando todo o
-miolo stack-independente (`parser`, `models`, `config_loader`, `preferences`,
-`job_queue/*`, `prompts/*`). A primeira fatia entrega esqueleto Reflex + abas
-Fila/Kanban funcionais, validando a decisão de stack no uso real; é fundação de
-todo o resto do milestone e pré-requisito do `PILOTO-WORKFLOW-CANAL-UNICO`.
+**Objetivo:** tornar dispatch e refino ações **por épico** (não só por milestone) e
+introduzir o **predecessor bloqueante** como gate de acionabilidade. Hoje
+`detect_dispatch` é atômico por milestone (exige todos os épicos em 🔍) e
+`build_dispatch_prompt` bloqueia se qualquer irmão está em 🏗️/🔀/✅ — o que torna
+um milestone parcialmente entregue invisível/impossível de continuar pela
+plataforma. Depois deste épico, cada épico 🔍 (dispatch) ou pré-🔍 (refino) é ação
+própria, e a única coisa que a suprime é um predecessor declarado ainda não `✅`.
 
-**Decisão de stack:** [ADR 001 do workflow](workflow/adr/001-stack-da-plataforma.md)
-(Streamlit → Reflex). Spike de viabilidade executado e aprovado no refinamento
-a `🔍` (2026-07-04).
+**Conceito — predecessor bloqueante:** campo novo opcional no bloco do épico
+(`**Predecessor bloqueante:** <IDs>`). Aceita 1+ IDs (épico ou milestone),
+separados por vírgula. Satisfeito quando o predecessor está em `✅`; em qualquer
+outro estado, o dependente está **bloqueado**. Uma regra compartilhada
+(`is_blocked_by_predecessor`) serve dispatch **e** refino.
 
 ---
 
 ## Épicos
 
-### Épico W-PILOTO-UX-1 — Migração da plataforma para Reflex (fundação + fatia fina)
+### Épico W-PILOTO-DISP-1 — Dispatch e refino por épico, com predecessor bloqueante
 
 **Status:** ✅ Implementado (código pronto, sob revisão humana na PR)
 
-**Objetivo:** substituir o entrypoint Streamlit (`app.py` + `views/*`) por uma
-app Reflex (`rxconfig.py` + `web/`) com estado no backend (`rx.State`),
-preservando o miolo intocado.
+**Objetivo:** ver contexto acima.
 
 #### Gates por funcionalidade
 
 | Funcionalidade | Dev | QA | TL | PO |
 |---|---|---|---|---|
-| 1.1 Esqueleto Reflex + estado no backend | ✅ | ✅ | ✅ | ✅ |
-| 1.2 Porte da aba Fila | ✅ | ✅ | ✅ | ✅ |
-| 1.3 Porte da aba Kanban | ✅ | ✅ | ✅ | ✅ |
-| 1.4 Paridade funcional + retirada do Streamlit | ✅ | ✅ | ✅ | ✅ |
+| 1.1 Dado — campo `**Predecessor bloqueante:**` (parser + modelo) | ✅ | ✅ | ✅ | ✅ |
+| 1.2 Detecção por épico + gate de predecessor | ✅ | ✅ | ✅ | ✅ |
+| 1.3 Prompts por épico | ✅ | ✅ | ✅ | ✅ |
+| 1.4 Plataforma — Fila oculta, Kanban comunica | ✅ | ✅ | ✅ | ✅ |
 
 #### Evidências de carregamento (por milestone)
 
 | Skill | Evidência |
 |---|---|
-| EM (sizing) | FIT — migração view-only, miolo intocado; 4 funcionalidades coesas na mesma camada. Sem OVERFLOW. |
+| EM (sizing) | FIT — épico único, 4 funcionalidades coesas na mecânica de detecção/dispatch; predecessor é campo + função pura, sem decisão arquitetural nova. Sem OVERFLOW. |
 | Scrum Master | Plano = este arquivo; tarefas por funcionalidade na ordem 1.1→1.4 declarada no épico. |
-| RTE | Push único da branch + PR aberta com Seção 🎯; `current_validation.md` gerado; UX-1 → `🔀` no ROADMAP. |
+| RTE | Push único da branch + PR aberta com Seção 🎯; `current_validation.md` gerado; DISP-1 → `🔀` no ROADMAP. |
 
 #### Evidências por gate (por funcionalidade)
 
 | Gate | Contexto | Evidência |
 |---|---|---|
-| Dev | épico W-PILOTO-UX-1 \| func. 1.1 | `rxconfig.py`, `web/web.py`, `web/state.py`, `presenters.py`, `world_state.py`. Miolo intocado. |
-| QA | épico W-PILOTO-UX-1 \| func. 1.1 | `test_platform_state.py` (10 testes: on_load/select/toggle + roteamento dos 5 kinds do `_build_kanban_detail`). Import da `PlatformState` e build de `index()` OK. |
-| TL | épico W-PILOTO-UX-1 \| func. 1.1 | Padrão Reflex espelha `products/ensaio/app/`; view models tipados (`web/view_models.py`); miolo (`parser`, `prompts/*`, fila) sem mudança de comportamento. Fix de shadowing (revisão Windows): o pacote `queue/` foi renomeado para `job_queue/` — rename + ajuste de imports, **zero mudança de lógica** — porque um subpacote local `queue/` sombreia a stdlib no worker spawned do granian. |
-| PO | épico W-PILOTO-UX-1 \| func. 1.1 | `reflex run` sobe carregando config/ROADMAPs/prefs; estado da UI (aba/seleção/filtros) vive em `rx.State`. Verificado por screenshot. |
-| Dev | épico W-PILOTO-UX-1 \| func. 1.2 | `web/components/queue.py` + `web/components/detail.py`; detecção/prompts reusados intactos. |
-| QA | épico W-PILOTO-UX-1 \| func. 1.2 | Paridade de `detect_all` por construção (mesma função); `test_queue_view.py`/`test_queue_determinism.py` verdes. |
-| TL | épico W-PILOTO-UX-1 \| func. 1.2 | Painel de detalhe portado com paridade de posição (rodapé); reposicionamento fica para UX-2. |
-| PO | épico W-PILOTO-UX-1 \| func. 1.2 | Screenshot: 45 itens reais (5 tipos), clique → detalhe + prompt clipboard-ready ("implementa o PILOTO-WORKFLOW-UX"). Aba default = Fila. |
-| Dev | épico W-PILOTO-UX-1 \| func. 1.3 | `web/components/kanban.py`; agrupamento reusa `presenters.group_by_milestone`. |
-| QA | épico W-PILOTO-UX-1 \| func. 1.3 | `test_kanban.py` verde (import migrado para `presenters`). |
-| TL | épico W-PILOTO-UX-1 \| func. 1.3 | Roteamento por estado reusa `build_dispatch_prompt`/`build_refinement_prompt`; sem lógica nova. |
-| PO | épico W-PILOTO-UX-1 \| func. 1.3 | Screenshot: 8 colunas 🌱→✅, cards por milestone; coluna 🔍 mostra PILOTO-WORKFLOW-UX. |
-| Dev | épico W-PILOTO-UX-1 \| func. 1.4 | `web/components/sidebar.py`; remoção de `app.py` + `views/*`; `.gitignore` + `.web/`. |
-| QA | épico W-PILOTO-UX-1 \| func. 1.4 | Sem imports Streamlit (`grep -rnE '^\s*(import streamlit\|from streamlit)' tools/workflow_platform/` → vazio; menções remanescentes são docstrings históricas); suíte 139 testes verde. |
-| TL | épico W-PILOTO-UX-1 \| func. 1.4 | Linha `streamlit>=1.30.0` do `requirements.txt` **mantida** (é do Revelar) — correção do critério 1.4 original registrada no ROADMAP. |
-| PO | épico W-PILOTO-UX-1 \| func. 1.4 | Screenshot: sidebar com 6 checkboxes + contagens, badge `45/20` (OVER_LIMIT) + banner, avisos (0). Prefs persistem em `.preferences.json`. |
+| Dev | DISP-1 \| func. 1.1 | `models.py` (`Epic.blocking_predecessors` + `is_blocked_by_predecessor`/`blocking_predecessors_of`); `parser.py` (`_PREDECESSOR_FIELD_RE`); `presenters.py` (serialização); ROADMAP UX-2/3/4 → `W-PILOTO-UX-1`. |
+| QA | DISP-1 \| func. 1.1 | `test_parser.py` (campo presente/ausente/split por vírgula, sem warning espúrio); suíte verde. |
+| TL | DISP-1 \| func. 1.1 | Regra compartilhada em `models.py` (camada base, sem deps de UI); paridade com os campos atuais do épico (unknown → ignorado). |
+| PO | DISP-1 \| func. 1.1 | Campo ausente → lista vazia; presente → IDs parseados; UX-2/3/4 registram `W-PILOTO-UX-1`. |
+| Dev | DISP-1 \| func. 1.2 | `job_queue/detect.py` — `detect_dispatch_items`/`detect_refine_items` por épico com gate de predecessor. |
+| QA | DISP-1 \| func. 1.2 | `test_queue_detect.py` (per-épico, gate de predecessor, milestone parcial surfaça fatias 🔍); snapshot regenerado. |
+| TL | DISP-1 \| func. 1.2 | REVIEW/CLEANUP/STALE_BRANCH intocados; ordenação e determinismo preservados. |
+| PO | DISP-1 \| func. 1.2 | 1 item por épico 🔍 com predecessores ✅; épico 🔍 com predecessor não-✅ não gera item; refine idem. |
+| Dev | DISP-1 \| func. 1.3 | `prompts/dispatch.py` (`build_dispatch_prompt` por épico, motivo de bloqueio); `prompts/queue_item.py`. |
+| QA | DISP-1 \| func. 1.3 | `test_dispatch_prompt.py`/`test_queue_item_prompt.py` reescritos para semântica por épico; verde. |
+| TL | DISP-1 \| func. 1.3 | Prompt `"implementa o épico <ID>"`; não bloqueia mais por irmão em 🏗️/🔀/✅; refino idem. |
+| PO | DISP-1 \| func. 1.3 | Predecessor não-✅ → `blocked=True`, sem prompt, com motivo ("bloqueado por <ID> — precisa estar ✅"). |
+| Dev | DISP-1 \| func. 1.4 | `web/state.py` (kind `blocked` + badge), `web/view_models.py`, `web/components/detail.py`, `web/components/kanban.py`. |
+| QA | DISP-1 \| func. 1.4 | `test_platform_state.py` (blocked suprime da fila, kanban card badge, painel sem ação); `reflex run` compila. |
+| TL | DISP-1 \| func. 1.4 | View-only sobre a regra compartilhada; sem lógica de detecção nova na camada Reflex. |
+| PO | DISP-1 \| func. 1.4 | Fila não lista bloqueado; card no Kanban com selo 🔒 + "aguardando <ID>", clicável; painel mostra bloqueio, sem ação. |
 
 #### Extração pendente
 
-- [x] Descobertas de Reflex (dataclasses tipados vs `rx.Base` ausente, colisão de
-  nome de campo com métodos de `ObjectVar`, `foreach` aninhado exige tipo concreto,
-  não concatenar dict-item com `str`, `reflex init` mexe no diretório) registradas
-  em [`.claudecode.md`](../../.claudecode.md) §2.6 — conhecimento reusável pelos
-  épicos irmãos UX-2/3/4.
-
-(TL: fora isso, nenhum padrão arquitetural novo permanente — a migração espelha o
-padrão Reflex já estabelecido pelo Ensaio; nada a promover a `ARCHITECTURE.md`.)
+(vazio — TL não identificou conhecimento permanente novo a promover a
+`ARCHITECTURE.md`/`.claudecode.md`. A regra do predecessor bloqueante vive como
+função pura em `models.py` com rationale nos docstrings; o conceito e o shape do
+campo estão documentados no próprio bloco do épico no ROADMAP; a gotcha de
+"parser ignora fences ``` ao casar campos de épico" está comentada em
+`parser.py`. Nada duplicável fora disso — anti-redundância, CONSTITUTION §6.)
 
 ---
 
 ## Faxina pendente (fold-in do dispatch — §4.5)
 
-- **PROTO-WORKFLOW-CLEANUP-TRIGGER (PR #123): resolvido manualmente.** A faxina
-  automática havia sido pulada com nota (o `current_implementation.md` mergeado na
-  PR #123 documentava **PROTO-WORKFLOW-FILA**, não CLEANUP-TRIGGER, então o
-  gate-check do Passo 1 da Cleanup skill não passava). O fechamento manual de
-  W-PROTO-17 foi feito nesta sessão de faxina do ROADMAP: bloco de épico removido,
-  declaração do milestone transitada para `✅` com `Implementado em:` PR #123
-  (merge `49be823`). `cleanup_trigger --list` agora não aponta mais o milestone.
+- `python -m tools.workflow_platform.cleanup_trigger --list` → **vazio**. Nenhuma
+  faxina pendente (o milestone PILOTO-WORKFLOW-UX segue aberto — UX-1 `✅` é janela
+  intra-milestone, não gera CLEANUP; UX-2/3/4 em 🔍). Fold-in é no-op.
 
 ---
 
-## Resumo Final do Milestone (fatia UX-1)
+## Resumo Final do Milestone
 
-Migração Streamlit → Reflex da plataforma de workflow entregue como fundação do
-Piloto. A camada de view foi reescrita em Reflex (`rxconfig.py`, `web/web.py`,
-`web/state.py`, `web/view_models.py`, `web/components/*`), com o estado da UI num
-único `rx.State` (`PlatformState`). A lógica pura de apresentação e a construção
-do WorldState saíram dos módulos Streamlit para `presenters.py` e `world_state.py`
-(stack-independent). O miolo (`parser`, `models`, `config_loader`, `preferences`,
-`job_queue/*`, `prompts/*`, `cleanup_trigger`) ficou **sem mudança de comportamento**;
-a paridade de `detect_all` é garantida por construção. A camada Streamlit
-(`app.py` + `views/*`) foi removida; nenhum módulo da plataforma importa Streamlit
-(menções remanescentes são docstrings históricas da migração).
+Dispatch e refino da plataforma passaram a operar **por épico**, e o
+**predecessor bloqueante** virou gate de acionabilidade compartilhado por ambos.
 
-**Fix de shadowing (revisão no Windows nativo).** O pacote da fila `queue/` foi
-**renomeado para `job_queue/`** (rename + ajuste de imports absolutos, zero mudança
-de lógica). Um subpacote local chamado `queue/` sombreia o módulo `queue` da stdlib
-quando o dir da app entra em `sys.path[0]` (`multiprocessing`/`urllib3`/`socketio`
-importam `queue`), matando o worker do granian com `AttributeError: module 'queue'
-has no attribute 'LifoQueue'`. Passava em POSIX (worker forkado herda `sys.modules`)
-e quebrava no Windows (worker spawned reimporta). Após o rename, `import queue`
-resolve pra stdlib em qualquer SO; app sobe funcional e renderiza (evidência por
-screenshot).
+- **Dado (1.1):** `Epic.blocking_predecessors` + `is_blocked_by_predecessor` /
+  `blocking_predecessors_of` (função pura em `models.py`, camada base). Parser lê
+  o campo `**Predecessor bloqueante:**` (trim + split por vírgula, strip de
+  backtick) e **ignora fences ```** ao casar campos de épico. UX-2/3/4 registram
+  `W-PILOTO-UX-1` como predecessor.
+- **Detecção (1.2):** `detect_dispatch_items` emite **1 item por épico 🔍** (não
+  mais atômico por milestone) e `detect_refine_items` **1 por épico 📐/📋**, ambos
+  suprimindo os bloqueados por predecessor não-`✅`. Milestone parcialmente
+  entregue passa a surfaçar as fatias 🔍 restantes. REVIEW/CLEANUP/STALE_BRANCH
+  intocados.
+- **Prompts (1.3):** `build_dispatch_prompt` opera sobre o épico
+  (`"implementa o épico <ID>"`); predecessor não-`✅` → `blocked=True` com motivo.
+  Não bloqueia mais por irmão do milestone em 🏗️/🔀/✅.
+- **Plataforma (1.4):** Fila **oculta** o bloqueado; Kanban mantém o card visível
+  e **clicável** com selo `🔒 aguardando <ID>`; o painel de detalhe do bloqueado
+  troca a ação por `🔒 Bloqueado por <ID> (precisa estar ✅)`.
 
-**Fix de performance do filtro (revisão no Windows nativo).** `toggle_roadmap`
-(marcar/desmarcar ROADMAP no sidebar) chamava `_recompute_queue(do_fetch=True)`,
-disparando `git fetch` de rede a **cada clique** de checkbox — o filtro só muda
-quais ROADMAPs estão visíveis, não o estado da remote, então o fetch é desperdício
-e causava lentidão perceptível. Trocado para `_recompute_queue(do_fetch=False)`: a
-redetecção **local** (reparse + `detect_all` sobre os visíveis) permanece, mas o
-`git fetch` sai do caminho do filtro. Fetch de rede fica só no `on_load` e no botão
-🔄 Recarregar (`reload`, `do_fetch=True`). `select_item`/`select_epic`/
-`set_active_tab` seguem sem fetch. Sem tocar detecção/parse.
+**Reshape de contrato:** `EpicPointer` passou de `(milestone_id, roadmap_path,
+epic_ids: list)` para `(epic_id, milestone_id, roadmap_path)` — dispatch é por
+épico. Snapshot de determinismo regenerado (3 DISPATCH por épico + 1 REVIEW + 1
+STALE_BRANCH).
 
-**Validação:** 139 testes de `tests/tools/workflow_platform/` passam (10 em
-`test_platform_state.py`, cobrindo on_load/seleção/toggle + os 5 kinds de
-`_build_kanban_detail`; 3 arquivos com imports realocados para `presenters`; 1
-teste de integração Streamlit removido). `reflex run` compila (21/21) e sobe;
-verificação visual por screenshot confirmou as 3 superfícies (Fila com itens
-reais, clique → detalhe com prompt clipboard-ready, Kanban de 8 colunas) e a
-sidebar (filtros, badge de carga, avisos).
+**Validação:** 153 testes de `tests/tools/workflow_platform/` passam. `index()`
+Reflex e os componentes (`kanban_tab`, painéis de detalhe com o novo kind
+`blocked`) compilam sem erro. Smoke sobre o ROADMAP real: DISP-1 sem predecessor
+(exemplo em fence ignorado); UX-2/3/4 com predecessor `W-PILOTO-UX-1` já `✅` →
+desbloqueados, surfaçam como dispatch por épico.
 
-**Fora do escopo (próximo dispatch, sobre a fundação mergeada):** W-PILOTO-UX-2
-(co-visibilidade lista↔detalhe), W-PILOTO-UX-3 (densidade da fila), W-PILOTO-UX-4
-(informação por tipo no painel).
+**Números do milestone:** 23 arquivos (11 código, 10 testes, 2 docs);
++617 / −330; 1 commit de implementação.

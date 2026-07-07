@@ -133,6 +133,19 @@ def _detail_link(d) -> rx.Component:
     )
 
 
+def _detail_blocked(d) -> rx.Component:
+    return rx.box(
+        rx.callout(
+            "🔒 Bloqueado por " + d.blocked_by + " (precisa estar ✅)",
+            icon="lock",
+            color_scheme="gray",
+            size="1",
+            margin_top="8px",
+        ),
+        width="100%",
+    )
+
+
 def _detail_done(d) -> rx.Component:
     return rx.box(
         rx.callout("Épico implementado.", icon="circle-check", color_scheme="green", size="1", margin_top="8px"),
@@ -168,6 +181,7 @@ def kanban_detail_panel() -> rx.Component:
                 d.kind,
                 ("pre", _detail_pre(d)),
                 ("dispatch", _detail_dispatch(d)),
+                ("blocked", _detail_blocked(d)),
                 ("in_progress", _detail_link(d)),
                 ("in_review", _detail_link(d)),
                 ("done", _detail_done(d)),

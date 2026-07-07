@@ -1,9 +1,9 @@
-# Validação Manual do Milestone PILOTO-WORKFLOW-UX (fatia W-PILOTO-UX-1 — migração Reflex)
+# Validação Manual do Milestone PILOTO-WORKFLOW-DISPATCH-EPICO — dispatch/refino por épico + predecessor bloqueante
 
 > **📌 Público:** dev (revisor da PR final).
 > **📌 Arquivo:** `docs/process/current_validation.md` — rotativo, sobrescrito a cada novo milestone. Histórico fica nas PRs mergeadas.
 > **📌 Quando usar:** ao receber notificação de "Milestone pronto", rodar este checklist antes de mergear.
-> **📌 Princípio anti-viés:** valida critérios de aceite do ROADMAP, não a implementação. Dev executa sem precisar abrir nenhum `.py`.
+> **📌 Princípio anti-viés:** valida critérios de aceite do ROADMAP, não a implementação. Dev executa sem precisar abrir nenhum `.py`. Editar um ROADMAP (`.md`) para montar um cenário é entrada de dados da plataforma (markdown é a fonte da verdade), não inspeção de código.
 
 ---
 
@@ -12,18 +12,16 @@
 ```bash
 # 1. Checkout da branch
 git fetch origin
-git checkout claude/docs-process-workflow-gk9hac
-git pull origin claude/docs-process-workflow-gk9hac
+git checkout claude/admiring-ramanujan-2s5tiq
+git pull origin claude/admiring-ramanujan-2s5tiq
 
 # 2. Ambiente
 source venv/bin/activate              # Linux/Mac
 # .\venv\Scripts\Activate.ps1         # Windows
-pip install -r requirements.txt        # reflex 0.9.0 já está pinado (Ensaio + plataforma)
+pip install -r requirements.txt        # reflex 0.9.0 já está pinado (nenhuma dep nova neste milestone)
 ```
 
-**Pré-condição:** `git fetch origin` funcional (a fila usa `git fetch origin --prune` ao carregar). `ANTHROPIC_API_KEY` não é exigida — milestone é plataforma + lógica determinística.
-
-**Mudança de stack:** a plataforma agora roda em **Reflex**, não Streamlit. Não use mais `streamlit run tools/workflow_platform/app.py` (esse arquivo foi removido).
+**Pré-condição:** `git fetch origin` funcional (a fila usa `git fetch` ao carregar). `ANTHROPIC_API_KEY` não é exigida — milestone é plataforma + lógica determinística.
 
 ---
 
@@ -33,15 +31,11 @@ pip install -r requirements.txt        # reflex 0.9.0 já está pinado (Ensaio +
 pytest tests/tools/workflow_platform/ -v
 ```
 
-**Esperado:** 135 testes passando, 0 falhas, 0 erros, 0 skips. Se algum falhar, parar e reportar — não seguir para a validação manual.
+**Esperado:** 153 testes passando, 0 falhas, 0 erros, 0 skips. Se algum falhar, parar e reportar — não seguir para a validação manual.
 
 ---
 
-## Épico W-PILOTO-UX-1 — Migração da plataforma para Reflex
-
-> Critérios em [`docs/process/workflow/ROADMAP.md`](workflow/ROADMAP.md), seção `#### ÉPICO W-PILOTO-UX-1`.
-
-### Subir a plataforma
+## Subir a plataforma
 
 ```bash
 cd tools/workflow_platform
@@ -49,117 +43,111 @@ reflex run
 # aguarde "App running at: http://localhost:3001/"
 ```
 
-Abra `http://localhost:3001/` no navegador. (Portas 3001/8001 são distintas das do Ensaio, 3000/8000 — as duas apps coexistem.)
-
-> **🩹 Fix de shadowing (cross-plataforma) — o pacote local chama-se `job_queue/`,
-> não `queue/`.** Um subpacote local chamado `queue/` sombreia o módulo `queue` da
-> stdlib quando o dir da app entra em `sys.path[0]` (que o `multiprocessing`/
-> `urllib3`/`socketio` importam) → `AttributeError: module 'queue' has no attribute
-> 'LifoQueue'` / `ImportError: cannot import name 'Empty' from 'queue'`, e o worker do
-> granian morre. **No POSIX o worker é forkado** (herda `sys.modules`, mascara o
-> problema — passava em POSIX); **no Windows é spawned** (reimporta com o dir da app
-> no path → crash: o backend morre e a página serve só o shell "loading", sem
-> hidratação). O fix é o rename do pacote para `job_queue/` (W-PILOTO-UX-1): sem
-> colisão de nome, `import queue` resolve sempre pra stdlib em qualquer plataforma.
-> `reflex run` (console script) é a forma recomendada de subir.
-
-> **📝 Nota de operação — `reflex run` muta a working tree.** Ao subir, o reflex
-> **remove** o arquivo trackeado `tools/workflow_platform/__init__.py` (warning
-> "Removing __init__.py file in the app root directory") e **gera** `.gitignore` e
-> `requirements.txt` na pasta do app. Impacto funcional nenhum (namespace packages
-> absorvem a ausência do `__init__.py`; a suíte segue verde). Mas deixa a working
-> tree suja — depois de rodar, restaure com
-> `git checkout tools/workflow_platform/__init__.py` e **não commite** os dois
-> arquivos gerados pelo reflex (o `.gitignore` raiz já os ignora).
-
-### 1.1 — Esqueleto Reflex + estado no backend
-
-**Critério:** "Deve subir via `reflex run` carregando `config.yaml`, ROADMAPs e preferences sem erro. O estado da UI (aba, seleção, filtros) deve viver em `rx.State`, não em `st.session_state`."
-
-**Verificar:**
-- [ ] `reflex run` sobe sem erro e serve em `http://localhost:3001/`.
-- [ ] A página carrega o título "🧭 Plataforma de Workflow", a sidebar de ROADMAPs visíveis e as abas Fila/Kanban.
-- [ ] Trocar de aba e selecionar itens não recarrega a página inteira (estado no backend).
-
-### 1.2 — Porte da aba Fila
-
-**Critério:** "Para um mesmo estado-do-mundo, deve listar os mesmos itens da versão Streamlit (mesma saída de `detect_all`). Selecionar um item deve exibir detalhe + ação copiável (prompt clipboard-ready). Deve ser a aba default."
-
-**Verificar:**
-- [ ] A aba **Fila** é a default ao abrir.
-- [ ] Os itens aparecem agrupados por tipo (Dispatch, Review, Refine, Cleanup, Stale branches) com contagem por grupo.
-- [ ] Se houver ≥ 20 itens, aparece o badge de carga vermelho (`n/20`) na sidebar + banner de OVER_LIMIT no topo.
-- [ ] Clicar num card abre o painel de detalhe (rodapé) com o ponteiro (PR/Branch/Milestone/Épico) e o **Prompt (clipboard-ready)** + botão "📋 Copiar".
-- [ ] O botão "📋 Copiar" copia o prompt para a área de transferência.
-
-### 1.3 — Porte da aba Kanban
-
-**Critério:** "Deve exibir as 8 colunas (🌱→✅) consolidando épicos de todos os ROADMAPs, agrupados por milestone. Selecionar um épico deve exibir o painel com as ações contextuais por estado."
-
-**Verificar:**
-- [ ] A aba **Kanban** mostra 8 colunas (🌱 Visão → ✅ Implementado) com contagem por coluna.
-- [ ] Dentro de cada coluna, os cards estão agrupados por milestone (e "Sem milestone" ao final quando aplicável).
-- [ ] Clicar num card 🔍 mostra o prompt de dispatch; num card pré-execução (🌱/🧭/📐/📋) mostra guidance + prompt de refinamento; em 🏗️/🔀 mostra link para branch/PR; em ✅ mostra o resumo.
-
-### 1.4 — Paridade funcional + retirada do Streamlit
-
-**Critério:** "Preferências (`.preferences.json`), filtro por ROADMAP e badge de carga devem ler/gravar e renderizar com paridade. `app.py` e `views/*` Streamlit removidos; `grep -rl streamlit tools/workflow_platform/` → vazio. `.web/` no `.gitignore`."
-
-**Verificar:**
-```bash
-# nenhum módulo da plataforma IMPORTA Streamlit (grep de import, não substring):
-grep -rnE '^\s*(import streamlit|from streamlit)' tools/workflow_platform/   # → vazio
-
-# a linha do Revelar PERMANECE (não é da plataforma):
-grep -n "streamlit" requirements.txt            # streamlit>=1.30.0   # Revelar
-
-# build do Reflex ignorado:
-git check-ignore tools/workflow_platform/.web
-```
-- [ ] O grep de import acima não retorna nada. (Menções remanescentes a
-  "Streamlit" em `tools/workflow_platform/` são apenas referências históricas em
-  docstrings da migração — não são imports.)
-- [ ] A linha `streamlit>=1.30.0   # Revelar` **continua** no `requirements.txt` (remover quebraria o Revelar).
-- [ ] Na sidebar, marcar/desmarcar um ROADMAP filtra a fila e o kanban; o estado persiste após recarregar a página (gravado em `tools/workflow_platform/.preferences.json`, git-ignored).
+Abra `http://localhost:3001/` no navegador. (Portas 3001/8001 coexistem com o Ensaio em 3000/8000.)
 
 ---
 
-## 🎯 Validação (copie tudo abaixo e envie ao Copilot)
+## Épico W-PILOTO-DISP-1 — Dispatch e refino por épico, com predecessor bloqueante
 
-Você é revisor técnico desta PR. Valide o diff (`main...HEAD`) contra os critérios abaixo. Para cada critério: ✅ (atende), ⚠️ (atende, mas há risco com cenário de falha real identificável — descreva a sessão que quebra), ❌ (não atende — aponte arquivo/linha). Observações de estilo sem cenário de falha → "Riscos adicionais (baixa prioridade)", não ⚠️ na tabela. Reporte em markdown.
+> Critérios em [`docs/process/workflow/ROADMAP.md`](workflow/ROADMAP.md), seção `#### ÉPICO W-PILOTO-DISP-1`.
 
-### Contexto
-- Milestone: PILOTO-WORKFLOW-UX — reconstruir o cockpit em Reflex. **Esta PR entrega só a fatia W-PILOTO-UX-1** (migração Reflex, fundação); UX-2/3/4 dependem desta mergear e vêm depois.
-- Decisão de stack: ADR 001 do workflow (Streamlit → Reflex). Miolo stack-independente preservado.
+### 1.2 / 1.3 — Dispatch por épico (fatias 🔍 de milestone parcial surfaçam)
 
-### Critérios de aceite
+**Critério de aceite:** "`detect_dispatch`: 1 item por épico em 🔍 cujos predecessores estão **todos ✅**. Épico 🔍 com predecessor não-✅ **não** gera item. (Substitui a lógica atômica por milestone — milestone parcialmente entregue passa a surfaçar as fatias 🔍 restantes.)"
 
-**1.1 — Esqueleto Reflex + estado no backend:**
-1. `reflex run` (de `tools/workflow_platform/`) sobe carregando `config.yaml`, ROADMAPs e preferences sem erro.
-2. Estado da UI (aba ativa, seleção, filtros) vive em `rx.State` (`web/state.py::PlatformState`), não em `st.session_state`.
-3. O miolo (`parser`, `models`, `config_loader`, `preferences`, `job_queue/*`, `prompts/*`) é importado **sem modificação de comportamento**. Nota: o pacote da fila foi renomeado de `queue/` para `job_queue/` (rename + ajuste de imports, zero mudança de lógica) — corrige o shadowing da stdlib `queue` que matava o worker do granian no Windows (worker spawned).
-4. Nenhuma lógica de detecção/parse/prompt nova — só a camada de view/estado migra.
+**Gatilho:**
+1. Na aba **Fila** (default), localize o cabeçalho **📤 Dispatch**.
+2. Selecione (clique) o card **📤 Despachar W-PILOTO-UX-2**.
 
-**1.2 — Porte da aba Fila:**
-1. A lista renderizada reusa `queue.detect.detect_all_items` (mesma saída da versão Streamlit) — paridade por construção.
-2. Selecionar um item exibe detalhe + prompt clipboard-ready via `prompts.queue_item.build_prompt_for_item` (reusado).
-3. Fila é a aba default; painel de detalhe no rodapé (paridade de posição — reposicionamento é UX-2).
+**Resultado esperado:**
+- O grupo **📤 Dispatch** lista **um card por épico 🔍**, não um único card por milestone. Aparecem cards separados para `W-PILOTO-UX-2`, `W-PILOTO-UX-3`, `W-PILOTO-UX-4` e `W-PILOTO-DISP-1` — mesmo o `PILOTO-WORKFLOW-UX` estando **parcialmente entregue** (UX-1 já ✅). Cada card tem título no formato `Despachar <ID>`.
+- No painel de detalhe do card selecionado, o bloco "Prompt de dispatch (clipboard-ready)" mostra exatamente: `implementa o épico W-PILOTO-UX-2` (o texto por épico, não `implementa o PILOTO-WORKFLOW-UX`).
 
-**1.3 — Porte da aba Kanban:**
-1. 8 colunas por estado (🌱→✅), épicos agrupados por milestone via `presenters.group_by_milestone` (reuso).
-2. Ações contextuais por estado reusam `build_dispatch_prompt`/`build_refinement_prompt` — sem lógica nova.
+**Sinal de falha:**
+- Um único card `Despachar PILOTO-WORKFLOW-UX` no lugar dos cards por épico; ou o milestone parcialmente entregue **sumir** por inteiro da Fila; ou o prompt dizer `implementa o PILOTO-WORKFLOW-UX` (nível milestone) em vez de `implementa o épico <ID>`.
 
-**1.4 — Paridade + retirada do Streamlit:**
-1. `app.py` e `views/*` Streamlit removidos; nenhum import de Streamlit na plataforma (`grep -rnE '^\s*(import streamlit|from streamlit)' tools/workflow_platform/` → vazio). Menções remanescentes a "Streamlit" são referências históricas em docstrings, não imports.
-2. A linha `streamlit>=1.30.0` do `requirements.txt` **permanece** (é do Revelar — removê-la quebraria o Revelar).
-3. `tools/workflow_platform/.web/` está no `.gitignore`.
-4. Preferências (`.preferences.json`), filtro por ROADMAP e badge de carga (`<n>/20` + banner OVER_LIMIT) com paridade à versão Streamlit.
+---
 
-### Comportamentos "não deve"
-- **Não deve** alterar a lógica de detecção/parse/prompt — só a view migra.
-- **Não deve** implementar o clique-dispara-execução (é `PILOTO-WORKFLOW-CANAL-UNICO`).
-- **Não deve** remover a linha `streamlit` do `requirements.txt` (é do Revelar).
+### 1.1 / 1.4 — Épico bloqueado por predecessor não-✅ some da Fila
 
-### Formato de retorno esperado
-- Tabela `Critério | Status | Observação`
-- Seção "Riscos adicionais (baixa prioridade)"
+**Critério de aceite:** "**Fila:** épico bloqueado **não** aparece como item de ação." · "Registrar os predecessores já existentes na fonte: UX-2, UX-3, UX-4 → `W-PILOTO-UX-1`." · "Campo ausente → lista vazia; presente → IDs parseados (trim + split por vírgula)."
+
+**Gatilho:**
+1. No arquivo `docs/process/workflow/ROADMAP.md`, localize o bloco `#### ÉPICO W-PILOTO-UX-2`. Sua linha atual é `**Predecessor bloqueante:** W-PILOTO-UX-1`.
+2. Troque temporariamente essa linha por: `**Predecessor bloqueante:** W-PILOTO-UX-3` (UX-3 está em 🔍, **não** ✅ — vira um predecessor não satisfeito).
+3. Salve o arquivo, volte ao navegador e clique no botão **🔄 Recarregar** da sidebar.
+
+**Resultado esperado:**
+- No grupo **📤 Dispatch** da Fila, o card **Despachar W-PILOTO-UX-2** **desaparece** (bloqueado por UX-3 não-✅). Os cards de `W-PILOTO-UX-3`, `W-PILOTO-UX-4`, `W-PILOTO-DISP-1` continuam presentes.
+
+**Sinal de falha:**
+- `Despachar W-PILOTO-UX-2` continua na Fila mesmo após recarregar; ou a Fila fica vazia/quebra (traceback no console do `reflex run`).
+
+**Cleanup:** desfaça a edição do passo 2 (`git checkout -- docs/process/workflow/ROADMAP.md`) antes de mergear.
+
+---
+
+### 1.4 — Kanban mantém o bloqueado visível, com selo, e clicável
+
+**Critério de aceite:** "**Kanban:** o card do bloqueado (na coluna 🔍/📐) exibe selo discreto (🔒 + \"aguardando <ID>\") e **permanece clicável**." · "**Painel de detalhe:** bloqueado → sem botão/prompt de ação; no lugar, \"🔒 Bloqueado por <ID> (precisa estar ✅)\"."
+
+**Gatilho:**
+1. Refaça a edição do roteiro anterior (`**Predecessor bloqueante:** W-PILOTO-UX-3` no bloco de `W-PILOTO-UX-2`), salve e clique **🔄 Recarregar**.
+2. Vá para a aba **Kanban**. Na coluna **🔍 Detalhes**, localize o card de `W-PILOTO-UX-2`.
+3. Clique nesse card.
+
+**Resultado esperado:**
+- O card de `W-PILOTO-UX-2` na coluna 🔍 continua **visível** (não some do Kanban), com o rótulo prefixado por `🔒` e, abaixo do botão, a nota `🔒 aguardando W-PILOTO-UX-3`.
+- O card responde ao clique (é clicável) e o painel de detalhe abre mostrando o callout `🔒 Bloqueado por W-PILOTO-UX-3 (precisa estar ✅)`, **sem** bloco "Prompt de dispatch" e **sem** botão de ação.
+
+**Sinal de falha:**
+- O card some do Kanban; ou não tem o selo 🔒 / a nota "aguardando"; ou não responde ao clique; ou o painel mostra o prompt de dispatch `implementa o épico W-PILOTO-UX-2` em vez do aviso de bloqueio.
+
+**Cleanup:** desfaça a edição (`git checkout -- docs/process/workflow/ROADMAP.md`) antes de mergear.
+
+---
+
+## Comportamentos "não deve" (regressão)
+
+### Não deve: o dispatch bloquear só porque um irmão do milestone está em 🏗️/🔀/✅
+
+**Gatilho:** na aba **Fila**, observe o grupo **📤 Dispatch** com o ROADMAP **sem** edições (estado limpo — rode `git checkout -- docs/process/workflow/ROADMAP.md` se ainda editado, e **🔄 Recarregar**).
+
+**Resultado esperado:**
+- `W-PILOTO-UX-2/3/4` aparecem como cards de dispatch **mesmo** com o irmão `W-PILOTO-UX-1` do mesmo milestone já em `✅` — a presença de um irmão concluído/em execução **não** suprime as fatias 🔍 restantes.
+
+**Sinal de falha:**
+- Nenhum card de dispatch aparece para os épicos do `PILOTO-WORKFLOW-UX` sob a alegação de "milestone em execução/concluído".
+
+---
+
+### Não deve: REVIEW / CLEANUP / STALE_BRANCH mudarem de comportamento
+
+**Gatilho:** na aba **Fila**, com o ROADMAP limpo, observe os grupos **🔀 Review**, **✅ Cleanup** e **🌱 Stale branches** (os que existirem no estado atual do repo).
+
+**Resultado esperado:**
+- Esses grupos seguem detectando por milestone/PR/branch como antes — este milestone só mudou dispatch e refino. Nenhum item REVIEW/CLEANUP/STALE_BRANCH some ou aparece por causa de predecessor.
+
+**Sinal de falha:**
+- Um item de REVIEW/CLEANUP/STALE_BRANCH some ou muda de agrupamento após este milestone.
+
+---
+
+## Critérios de aprovação
+
+Aprove o merge quando **todos**:
+
+- [ ] `pytest tests/tools/workflow_platform/ -v` → 153 passando, 0 falha
+- [ ] Cada roteiro acima rodou e o **Resultado esperado** foi observado literalmente
+- [ ] Nenhum **Sinal de falha** ocorreu
+- [ ] Comportamentos "não deve" confirmados (não ocorreram)
+- [ ] `docs/process/workflow/ROADMAP.md` voltou ao estado limpo (edições de teste revertidas)
+- [ ] Tabela do Copilot na PR (Seção 🎯) sem ❌ sem justificativa
+
+**Se algum critério falhar:** devolver com feedback para nova rodada autônoma (Claude Code Web) ou abrir sessão estratégica externa se exigir decisão arquitetural.
+
+---
+
+**Ver também:**
+- Skill da RTE → [skills/rte/skill.md](../../skills/rte/skill.md)
+- Validação geral do modo autônomo → [docs/process/autonomous/delivery.md](autonomous/delivery.md)

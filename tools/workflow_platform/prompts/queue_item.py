@@ -29,19 +29,17 @@ from tools.workflow_platform.job_queue.models import (
 def _build_dispatch(
     pointer: EpicPointer,
     all_epics_by_milestone: dict[str, list[Epic]] | None,
+    epic_lookup: dict[str, Epic] | None,
 ) -> str:
-    if not all_epics_by_milestone:
-        return f"implementa o {pointer.milestone_id}"
-    epics_in_ms = all_epics_by_milestone.get(pointer.milestone_id, [])
-    if not epics_in_ms:
-        return f"implementa o {pointer.milestone_id}"
-    # build_dispatch_prompt precisa de um "épico anchor" — pegamos o primeiro
-    anchor = epics_in_ms[0]
-    result = build_dispatch_prompt(anchor, epics_in_ms)
+    fallback = f"implementa o épico {pointer.epic_id}"
+    if not epic_lookup or pointer.epic_id not in epic_lookup:
+        return fallback
+    epic = epic_lookup[pointer.epic_id]
+    result = build_dispatch_prompt(epic, epic_lookup, all_epics_by_milestone or {})
     if result.prompt_text is None:
-        # bloqueado — devolver mínimo informativo (item já existia, então
-        # estado não deveria ser bloqueante; defensivo)
-        return f"implementa o {pointer.milestone_id}"
+        # bloqueado — o item só existe porque a detecção o considerou apto,
+        # então não deveria bloquear aqui; fallback defensivo.
+        return fallback
     return result.prompt_text
 
 
@@ -108,7 +106,7 @@ def build_prompt_for_item(
     pointer = item.source_pointer
     if item.type == ItemType.DISPATCH:
         assert isinstance(pointer, EpicPointer)
-        return _build_dispatch(pointer, all_epics_by_milestone)
+        return _build_dispatch(pointer, all_epics_by_milestone, epic_lookup)
     if item.type == ItemType.REVIEW:
         assert isinstance(pointer, PRPointer)
         return _build_review_prompt(pointer)

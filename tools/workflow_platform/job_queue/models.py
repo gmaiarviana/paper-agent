@@ -28,9 +28,9 @@ class ItemType(Enum):
 
 @dataclass(frozen=True)
 class EpicPointer:
+    epic_id: str
     milestone_id: str
     roadmap_path: str
-    epic_ids: list[str]
 
 
 @dataclass(frozen=True)

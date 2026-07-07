@@ -5,9 +5,9 @@ colaterais; sem cache. Cada render da view reconstrói a fila do zero,
 materializando o princípio "markdown é fonte da verdade".
 
 Cobre 5 tipos no Protótipo:
-    - DISPATCH       milestone com todos épicos em 🔍, sem nenhum em 🏗️/🔀/✅
+    - DISPATCH       épico em 🔍 com predecessores todos ✅ (1 item por épico)
     - REVIEW         PR aberta (épicos em 🔀, agrupados por pr_number)
-    - REFINE         épico em 📐 ou 📋 (alvo via NEXT_STEP_MAP)
+    - REFINE         épico em 📐 ou 📋 com predecessores todos ✅ (alvo via NEXT_STEP_MAP)
     - CLEANUP        épico em ✅ de milestone inteiro fechado (todos ✅)
     - STALE_BRANCH   branch parada > threshold dias, sem PR e sem épico em 🏗️/🔀
 """
@@ -17,7 +17,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
-from tools.workflow_platform.models import Epic, EpicState, ParsedRoadmap
+from tools.workflow_platform.models import (
+    Epic,
+    EpicState,
+    ParsedRoadmap,
+    is_blocked_by_predecessor,
+)
 from tools.workflow_platform.prompts.refinement import NEXT_STEP_MAP
 from tools.workflow_platform.job_queue.git_helper import RemoteBranch
 from tools.workflow_platform.job_queue.models import (
@@ -68,34 +73,42 @@ def _epics_by_milestone(state: WorldState) -> dict[str, list[Epic]]:
     return grouped
 
 
+def _epics_by_id(state: WorldState) -> dict[str, Epic]:
+    return {e.id: e for e in _all_epics(state)}
+
+
 def detect_dispatch_items(state: WorldState) -> list[QueueItem]:
-    """1 item por milestone com todos épicos em 🔍 e nenhum em 🏗️/🔀/✅."""
+    """1 item por épico em 🔍 cujos predecessores estão **todos ✅**.
+
+    Detecção **por épico** (substitui a antiga lógica atômica por milestone): um
+    milestone parcialmente entregue passa a surfaçar as fatias 🔍 restantes. Épico
+    🔍 com predecessor não-✅ **não** gera item (suprimido pelo gate). Épico sem
+    milestone não é despachável (fica fora do ciclo de milestone).
+    """
     items: list[QueueItem] = []
-    grouped = _epics_by_milestone(state)
-    for milestone_id, epics in grouped.items():
-        if not epics:
+    by_id = _epics_by_id(state)
+    by_milestone = _epics_by_milestone(state)
+    for epic in _all_epics(state):
+        if epic.state != EpicState.DETAILED:
             continue
-        if any(e.state in _EXECUTION_STATES for e in epics):
+        if epic.milestone_id is None:
             continue
-        if not all(e.state == EpicState.DETAILED for e in epics):
+        if is_blocked_by_predecessor(epic, by_id, by_milestone):
             continue
-        # Todos em 🔍.
-        roadmap_path = epics[0].roadmap_path
-        epic_ids = sorted(e.id for e in epics)
         pointer = EpicPointer(
-            milestone_id=milestone_id,
-            roadmap_path=roadmap_path,
-            epic_ids=epic_ids,
+            epic_id=epic.id,
+            milestone_id=epic.milestone_id,
+            roadmap_path=epic.roadmap_path,
         )
         items.append(
             QueueItem(
-                id=f"dispatch:{milestone_id}",
+                id=f"dispatch:{epic.id}",
                 type=ItemType.DISPATCH,
-                title=f"Despachar {milestone_id}",
-                context=f"{len(epics)} épicos em 🔍 — apto a dispatch",
+                title=f"Despachar {epic.id}",
+                context=f"🔍 — apto a dispatch (épico de {epic.milestone_id})",
                 expected_action=(
                     f"Copie o prompt e rode em sessão autônoma: "
-                    f'"implementa o {milestone_id}"'
+                    f'"implementa o épico {epic.id}"'
                 ),
                 source_pointer=pointer,
                 detected_at=state.now,
@@ -150,8 +163,12 @@ def detect_refine_items(state: WorldState) -> list[QueueItem]:
     """1 item por épico em 📐 ou 📋. Estados 🌱/🧭 ficam fora."""
     items: list[QueueItem] = []
     refinable = {EpicState.SKETCHED, EpicState.CRITERIA}
+    by_id = _epics_by_id(state)
+    by_milestone = _epics_by_milestone(state)
     for epic in _all_epics(state):
         if epic.state not in refinable:
+            continue
+        if is_blocked_by_predecessor(epic, by_id, by_milestone):
             continue
         info = NEXT_STEP_MAP.get(epic.state)
         if info is None or not info.target_states:

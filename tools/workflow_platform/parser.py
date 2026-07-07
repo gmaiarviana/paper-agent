@@ -26,6 +26,7 @@ _EPIC_HEADER_RE = re.compile(
 _STATUS_RE = re.compile(r"^\*\*Status:\*\*\s+(?P<rest>.+?)\s*$")
 _MILESTONE_FIELD_RE = re.compile(r"^\*\*Milestone:\*\*\s+`?(?P<id>[A-Za-z0-9][A-Za-z0-9-]*)`?")
 _BRANCH_FIELD_RE = re.compile(r"^\*\*Branch:\*\*\s+`?(?P<branch>[^`\n]+?)`?\s*$")
+_PREDECESSOR_FIELD_RE = re.compile(r"^\*\*Predecessor bloqueante:\*\*\s+(?P<ids>.+?)\s*$")
 _PR_NUMBER_RE = re.compile(r"PR\s+#(?P<n>\d+)")
 _PR_URL_RE = re.compile(r"(?P<url>https?://[^\s)\]]+)")
 
@@ -148,8 +149,19 @@ def _parse_epics(
         branch: str | None = None
         pr_number: int | None = None
         pr_url: str | None = None
+        blocking_predecessors: list[str] = []
 
+        in_fence = False
         for bl in body_lines:
+            # Ignora conteúdo de blocos de código cercados (```). Um épico pode
+            # documentar a sintaxe de um campo dentro de uma fence (ex.: o próprio
+            # W-PILOTO-DISP-1 mostra `**Predecessor bloqueante:**` como exemplo);
+            # sem isso o exemplo seria lido como campo real.
+            if bl.lstrip().startswith("```"):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
             if not raw_status:
                 sm = _STATUS_RE.match(bl)
                 if sm:
@@ -167,6 +179,15 @@ def _parse_epics(
                 bm = _BRANCH_FIELD_RE.match(bl)
                 if bm:
                     branch = bm.group("branch").strip()
+                    continue
+            if not blocking_predecessors:
+                pm = _PREDECESSOR_FIELD_RE.match(bl)
+                if pm:
+                    blocking_predecessors = [
+                        token.strip().strip("`")
+                        for token in pm.group("ids").split(",")
+                        if token.strip().strip("`")
+                    ]
 
         if status_state is None:
             warnings.append(
@@ -192,6 +213,7 @@ def _parse_epics(
                 pr_url=pr_url,
                 raw_status_line=raw_status,
                 body_excerpt=body_excerpt,
+                blocking_predecessors=blocking_predecessors,
             )
         )
 

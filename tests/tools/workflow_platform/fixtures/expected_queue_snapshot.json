@@ -1,20 +1,44 @@
 [
   {
-    "context": "3 épicos em 🔍 — apto a dispatch",
+    "context": "🔍 — apto a dispatch (épico de MIL-DISPATCH)",
     "detected_at": "2026-04-29T12:00:00",
-    "expected_action": "Copie o prompt e rode em sessão autônoma: \"implementa o MIL-DISPATCH\"",
-    "id": "dispatch:MIL-DISPATCH",
+    "expected_action": "Copie o prompt e rode em sessão autônoma: \"implementa o épico S-DISPATCH-1\"",
+    "id": "dispatch:S-DISPATCH-1",
     "source_pointer": {
-      "epic_ids": [
-        "S-DISPATCH-1",
-        "S-DISPATCH-2",
-        "S-DISPATCH-3"
-      ],
+      "epic_id": "S-DISPATCH-1",
       "milestone_id": "MIL-DISPATCH",
       "roadmap_path": "synthetic/roadmap-a.md"
     },
     "source_pointer_kind": "EpicPointer",
-    "title": "Despachar MIL-DISPATCH",
+    "title": "Despachar S-DISPATCH-1",
+    "type": "dispatch"
+  },
+  {
+    "context": "🔍 — apto a dispatch (épico de MIL-DISPATCH)",
+    "detected_at": "2026-04-29T12:00:00",
+    "expected_action": "Copie o prompt e rode em sessão autônoma: \"implementa o épico S-DISPATCH-2\"",
+    "id": "dispatch:S-DISPATCH-2",
+    "source_pointer": {
+      "epic_id": "S-DISPATCH-2",
+      "milestone_id": "MIL-DISPATCH",
+      "roadmap_path": "synthetic/roadmap-a.md"
+    },
+    "source_pointer_kind": "EpicPointer",
+    "title": "Despachar S-DISPATCH-2",
+    "type": "dispatch"
+  },
+  {
+    "context": "🔍 — apto a dispatch (épico de MIL-DISPATCH)",
+    "detected_at": "2026-04-29T12:00:00",
+    "expected_action": "Copie o prompt e rode em sessão autônoma: \"implementa o épico S-DISPATCH-3\"",
+    "id": "dispatch:S-DISPATCH-3",
+    "source_pointer": {
+      "epic_id": "S-DISPATCH-3",
+      "milestone_id": "MIL-DISPATCH",
+      "roadmap_path": "synthetic/roadmap-a.md"
+    },
+    "source_pointer_kind": "EpicPointer",
+    "title": "Despachar S-DISPATCH-3",
     "type": "dispatch"
   },
   {
